@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="TD SAT Math 错题回顾：集中查看、重做与导入错题，做题进度保存在本机。"><meta name="theme-color" content="#2563eb"><title>TD SAT Math · 错题回顾</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E"><link rel="stylesheet" href="app.css?v=4b3e0d1f9895"><link rel="stylesheet" href="bluebook.css?v=4b3e0d1f9895">
+<meta name="description" content="TD SAT Math 错题回顾：集中查看、重做与导入错题，做题进度保存在本机。"><meta name="theme-color" content="#2563eb"><title>TD SAT Math · 错题回顾</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E"><link rel="stylesheet" href="app.css?v=60109f7492d1"><link rel="stylesheet" href="bluebook.css?v=60109f7492d1">
 <style>
 /* 图片识别导入：复用站点既有 token（与 pdfimp 同一套变量） */
 .imgimp-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--sp4);margin-bottom:var(--sp3);box-shadow:var(--shadow-1)}
@@ -91,7 +91,7 @@
   <section class="weak-panel" id="weakPanel"></section>
   <div id="wrongList"></div>
 </main>
-<script src="data/questions.js?v=4b547566c6c7"></script><script src="data/text.js?v=4b547566c6c7"></script><script src="data/figures.js?v=4b3e0d1f9895"></script><script src="data/figure_crops.js?v=4b3e0d1f9895"></script><script src="app-core.js?v=4b3e0d1f9895"></script><script src="figures.js?v=4b3e0d1f9895"></script><script src="scratch-pad.js?v=4b3e0d1f9895"></script>
+<script src="data/questions.js?v=60109f7492d1"></script><script src="data/text.js?v=60109f7492d1"></script><script src="data/figures.js?v=60109f7492d1"></script><script src="data/figure_crops.js?v=60109f7492d1"></script><script src="app-core.js?v=60109f7492d1"></script><script src="analysis.js?v=60109f7492d1"></script><script src="figures.js?v=60109f7492d1"></script><script src="scratch-pad.js?v=60109f7492d1"></script>
 <script>
 (function(){
  'use strict';
@@ -254,6 +254,10 @@
  function choiceText(q,L){var e=T[q.id]||{},v=(e.choices&&e.choices[L])||(q.choices&&q.choices[L]);return v?String(v):'';}
  function analysis(x){
    var q=x.q,g=x.given.trim(),correct=String(q.answer||'').trim(),tp=topic(q);
+   if(window.TD_ANALYSIS){
+     var a=window.TD_ANALYSIS.analyze(q,g,(window.TD_TEXT||{})[q.id]);
+     return{title:a.title,detail:a.cause+' 改进方向：'+a.fix};
+   }
    if(!g)return{title:'未作答 / 时间分配',detail:'本次没有留下答案。先识别题型与已知条件，再检查是否因耗时过长而跳过。'};
    if(q.type==='grid'){
      var a=num(g),b=num(q.value),c=correct;
@@ -326,4 +330,4 @@ window.TD_IMPORT_WRONG={importData:importData,importText:function(t){return impo
  render();
 })();
 </script>
-<script src="cloud-config.js?v=4b3e0d1f9895"></script><script src="firebase-cloud.js?v=4b3e0d1f9895"></script><script src="github-auth.js?v=1bc3f91548b6"></script><script src="cloud-account.js?v=4b3e0d1f9895"></script><script src="image-import.js?v=4b3e0d1f9895"></script></body></html>
+<script src="cloud-config.js?v=60109f7492d1"></script><script src="firebase-cloud.js?v=60109f7492d1"></script><script src="github-auth.js?v=1bc3f91548b6"></script><script src="cloud-account.js?v=60109f7492d1"></script><script src="image-import.js?v=60109f7492d1"></script></body></html>

@@ -258,6 +258,12 @@
       var label = state === 'right' ? '正确' : (state === 'wrong' ? '错误' : '未作答');
       var stem = ((window.TD_TEXT || {})[r.q.id] || {}).stem || r.q.stem || '';
       stem = String(stem).replace(/\s+/g, ' ').trim();
+      var causeHtml = '';
+      if (state === 'wrong' && window.TD_ANALYSIS) {
+        var a = window.TD_ANALYSIS.analyze(r.q, r.given, textFor(r.q));
+        causeHtml = '<div class="cause-box"><b>错因 · ' + esc(a.title) + '</b><p>' + esc(a.cause) +
+          '</p><p class="fix">' + esc(a.fix) + '</p></div>';
+      }
       return '<article class="drill-result-row is-' + state + '">' +
         '<div class="drill-result-row-head"><span class="drill-result-num">第 ' + r.n + ' 题</span>' +
         '<span class="drill-result-state">' + icon + label + '</span>' +
@@ -265,7 +271,7 @@
         '<p class="drill-result-stem" title="' + esc(stem) + '">' + fmt(stem) + '</p>' +
         '<div class="drill-result-answers"><div><span>你的答案</span><b>' +
         fmt(answerLabel(r.q, r.given)) + '</b></div><div><span>正确答案</span><b>' +
-        fmt(answerLabel(r.q, r.q.answer)) + '</b></div></div></article>';
+        fmt(answerLabel(r.q, r.q.answer)) + '</b></div></div>' + causeHtml + '</article>';
     }).join('');
     els.resultPracticeLink.href = A.secUrl(sec, 1);
     var back = document.querySelector('#resultView .drill-result-actions .btn.primary');

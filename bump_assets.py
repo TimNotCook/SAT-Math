@@ -15,7 +15,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__)) if len(sys.argv) < 2 else os.p
 HASH_FILES = [
     'data/questions.js', 'data/text.js', 'data/figures.js',
     'data/figure_crops.js', 'data/choice_crops.js',
-    'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js',
+    'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
     'exam.js', 'drill.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
     'bluebook-shell.js', 'cloud-config.js', 'firebase-cloud.js', 'cloud-account.js',
     'scratch-pad.js',
@@ -27,7 +27,7 @@ HASH_FILES = [
 BUMP = [
     'data/questions.js', 'data/text.js', 'data/figures.js',
     'data/figure_crops.js', 'data/choice_crops.js',
-    'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js',
+    'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
     'exam.js', 'drill.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
     'bluebook-shell.js', 'cloud-config.js', 'firebase-cloud.js', 'cloud-account.js',
     'scratch-pad.js', 'app.css', 'bluebook.css',

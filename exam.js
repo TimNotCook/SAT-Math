@@ -782,19 +782,42 @@
         <div class="small muted" style="margin-top:2px">${esc(p.reason)}</div>
         <div class="tiny" style="margin-top:3px;color:var(--blue-strong)">${esc(p.action)}</div>
         <div class="tiny muted" style="margin-top:3px">对应错题：${esc(p.wrongIds.join('、')) || '—'}</div></div></div>`).join('') || '<div class="small muted">本次无错题</div>';
+    renderTypeSummary();
     renderResultList();
   }
   function renderResultList() {
     const r = S.result, list = resultTab === 'wrong' ? r.detail.filter(d => !d.correct) : r.detail;
-    $('resList').innerHTML = list.map(d => `<div class="rev-item ${d.correct ? 'ok' : 'no'}">
+    const AN = window.TD_ANALYSIS;
+    $('resList').innerHTML = list.map(d => {
+      let causeHtml = '';
+      if (!d.correct && AN) {
+        const q = BANK.find(x => x.id === d.id) || {};
+        const a = AN.analyze(q, d.given, (window.TD_TEXT || {})[d.id]);
+        causeHtml = `<div class="cause-box"><b>错因 · ${esc(a.title)}</b><p>${esc(a.cause)}</p><p class="fix">${esc(a.fix)}</p></div>`;
+      }
+      return `<div class="rev-item ${d.correct ? 'ok' : 'no'}">
       <div class="badge">${d.correct ? '对' : '错'}</div>
       <div class="body"><div class="ttl">Q${d.pos} · ${esc(d.topic)}
         <span class="tiny muted">U${d.unit} · ${d.type === 'grid' ? '填空' : '选择'} · 得 ${d.points} 分${d.from === 'wrong' ? ' · 历史错题' : ''}${d.marked ? ' · 曾标记' : ''}</span></div>
         <div class="sub">${esc(d.source)} · 用时 ${fmt(d.seconds * 1000)}</div>
         <div class="ans"><span>你的答案 <b style="color:${d.correct ? 'var(--ok)' : 'var(--bad)'}">${esc(d.given || '—')}</b></span>
           <span>正确答案 <b>${esc(d.answer)}</b></span></div>
-        ${!d.correct && d.hint ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(d.hint)}</div>` : ''}</div>
-      </div>`).join('') || '<div class="small muted">无错题</div>';
+        ${!d.correct && d.hint ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(d.hint)}</div>` : ''}
+        ${causeHtml}</div>
+      </div>`;
+    }).join('') || '<div class="small muted">无错题</div>';
+  }
+
+  /* 本次错题按错因类型聚合：仅依据作答内容归类，给出共性改进方向 */
+  function renderTypeSummary() {
+    const box = $('resTypes'); if (!box) return;
+    const r = S.result, AN = window.TD_ANALYSIS;
+    if (!r || !AN) return;
+    const groups = AN.aggregate(r.detail, BANK, window.TD_TEXT || {});
+    if (!groups.length) { box.innerHTML = '<div class="small muted">本次全部答对，无需补强。</div>'; return; }
+    box.innerHTML = groups.map(g => `<div class="prio-item"><span class="prio-lv ${'c' + g.count}">${g.count}</span>
+      <div style="flex:1"><b>${esc(g.label)}</b> <span class="tiny muted">${g.ids.length} 题</span>
+        <div class="tiny" style="margin-top:3px;color:var(--blue-strong)">${esc(g.fix)}</div></div></div>`).join('');
   }
 
   /* =====================================================================

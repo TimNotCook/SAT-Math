@@ -361,6 +361,7 @@ table.tbl tr:last-child td{border-bottom:none}
 .answer-compare b{font-size:14px;word-break:break-word;font-variant-numeric:tabular-nums}.answer-compare .your-answer{color:var(--bad)}
 .cause-box{background:var(--wash);border-left:3px solid var(--blue);border-radius:var(--radius-sm);padding:13px 16px}
 .cause-box b{font-size:13px;color:var(--ink)}.cause-box p{font-size:13px;color:var(--sub);margin:5px 0 0;line-height:1.7}
+.cause-box .fix{color:var(--blue-strong,#1d4ed8);margin-top:6px}.cause-box .fix::before{content:'改进方向：'}
 .wrong-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;font-size:12px;color:var(--sub);flex-wrap:wrap}
 .empty-panel{text-align:center;border:1px solid var(--line);border-radius:var(--radius-lg);padding:48px 20px;background:var(--paper);box-shadow:var(--shadow-1)}
 .empty-panel h2{font-size:18px;margin-bottom:10px}.empty-panel p{color:var(--sub);font-size:13.5px;margin-bottom:20px}
