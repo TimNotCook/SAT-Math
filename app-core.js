@@ -22,13 +22,15 @@
     });
   });
   var isLegacy = function (s) { return /^L\d+$/.test(s); };
-  /* 3.6.T6 ... 3.6.T13 are child sections of the "3.6 专项复习" group.
+  /* 3.6.T6 ... 3.6.T16 are child sections of the "3.6 专项复习" group.
      They are real independent sections (own answers/cursor/result) but are
      hidden from the top-level board list and shown in a dedicated sub-view. */
   var isTopicSection = function (s) { return /^3\.6\.T\d+$/.test(s); };
-  /* Unit 1 "1.7 专项练习" children (1.7.T1..T5) are independent boards shown
-     in their own sub-view, exactly like the Unit 3 special-review boards. */
-  var isSpecialSection = function (s) { return /^1\.7\.T\d+$/.test(s); };
+  /* Any other X.Y.T<topic> child section lives on the special board:
+     1.7.T1..T5 (U1 专项练习), 2.6.T17.. (U2 专项练习, PDF03 Topics),
+     4.5.T24.. (U4 专项练习, PDF04 Topics). They are independent boards
+     shown in the special-training sub-view, never in the unit board. */
+  var isSpecialSection = function (s) { return /^\d+\.\d+\.T\d+$/.test(s) && !isTopicSection(s); };
   function secKey(s) {
     if (isLegacy(s)) return 1000 + parseInt(s.slice(1), 10);
     var p = s.split('.');

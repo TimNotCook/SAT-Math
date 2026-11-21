@@ -150,7 +150,7 @@
     var rg = groupStats(reg), sg = groupStats(sp);
     els.boardNav.innerHTML =
       boardNavItem('unit', '单元练习', '无 Topic 的教材常规板块，按单元分组', rg, false) +
-      boardNavItem('special', '专项训练', '按 Topic 分组的专项板块（U1、U3）', sg, true);
+      boardNavItem('special', '专项训练', '按 Topic 分组的专项板块（各单元）', sg, true);
     var panelHtml = activeBoard === 'special'
       ? groupedHtml(sp, specialUnits(), true)
       : groupedHtml(reg, A.UNITS.map(function (u) { return u.id; }), false);
