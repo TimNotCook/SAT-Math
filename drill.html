@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TD SAT Math 真题练习：单元练习与专项训练，按单元与板块刷题，内置参考公式表、题目导航，做题进度保存在本机。">
+  <meta name="theme-color" content="#2563eb">
+  <title>TD SAT Math · 真题练习</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="app.css?v=4b3e0d1f9895">
+  <link rel="stylesheet" href="bluebook.css?v=4b3e0d1f9895">
+  <style>#questionNav{z-index:68!important}</style>
+</head>
+<body class="drill-page">
+  <div id="appnav"></div>
+
+  <!-- Section result: only revealed after the learner finishes a section.
+       No correctness is disclosed anywhere during answering. -->
+  <main class="drill-result" id="resultView" hidden>
+    <div class="drill-result-inner">
+      <p class="drill-select-eyebrow">SECTION RESULTS</p>
+      <h1 id="resultTitle">板块结果</h1>
+      <p class="drill-select-lead" id="resultLead"></p>
+
+      <section class="drill-result-summary" aria-label="本板块成绩">
+        <div class="drill-result-score">
+          <span class="drill-result-score-label">正确率</span>
+          <strong id="resultAccuracy">0%</strong>
+          <span class="drill-result-score-sub" id="resultFraction"></span>
+        </div>
+        <dl class="drill-result-tallies">
+          <div><dt>答对</dt><dd id="resultRight">0</dd></div>
+          <div><dt>答错</dt><dd id="resultWrong">0</dd></div>
+          <div><dt>未答</dt><dd id="resultBlank">0</dd></div>
+          <div><dt>总题数</dt><dd id="resultTotal">0</dd></div>
+        </dl>
+      </section>
+
+      <div class="drill-result-notice" id="resultNotice" hidden>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <span id="resultNoticeText"></span>
+        <a class="drill-result-notice-link" href="wrong.html">查看错题回顾</a>
+      </div>
+
+      <h2 class="drill-select-h">逐题结果</h2>
+      <div class="drill-result-list" id="resultList"></div>
+
+      <div class="drill-result-actions">
+        <a class="btn primary" href="drill.html">返回板块列表</a>
+        <a class="btn" id="resultPracticeLink" href="#">继续练习本板块</a>
+        <a class="btn" href="wrong.html">查看错题回顾</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- First screen: 真题练习 landing with two boards (单元练习 / 专项训练). -->
+  <main class="drill-select" id="selectView" hidden>
+    <div class="drill-select-inner">
+      <p class="drill-select-eyebrow">PRACTICE</p>
+      <h1>真题练习</h1>
+      <p class="drill-select-lead">按单元与板块逐题作答。</p>
+      <div id="resumeSlot"></div>
+      <div class="drill-board-layout">
+        <aside class="drill-board-nav" id="boardNav"></aside>
+        <section class="drill-board-panel" id="boardPanel"></section>
+      </div>
+    </div>
+  </main>
+
+  <!-- 单元练习: textbook regular sections (no Topic), grouped by unit. -->
+  <main class="drill-select" id="unitView" hidden>
+    <div class="drill-select-inner">
+      <div class="drill-crumb"><a href="drill.html">真题练习</a><span>›</span><b>单元练习</b></div>
+      <p class="drill-select-eyebrow">UNIT PRACTICE</p>
+      <h1>单元练习</h1>
+      <p class="drill-select-lead">教材常规板块（无 Topic），按单元分组，逐题作答、单独结算。</p>
+      <h2 class="drill-select-h">单元</h2>
+      <div class="drill-unit-row" id="unitPicker"></div>
+      <h2 class="drill-select-h">板块</h2>
+      <div class="drill-section-list" id="sectionList"></div>
+    </div>
+  </main>
+
+  <!-- 专项训练: Topic sections (1.7.T*, 3.6.T*), grouped by unit. -->
+  <main class="drill-select" id="specialView" hidden>
+    <div class="drill-select-inner">
+      <div class="drill-crumb"><a href="drill.html">真题练习</a><span>›</span><b>专项训练</b></div>
+      <p class="drill-select-eyebrow">TOPIC DRILL</p>
+      <h1>专项训练</h1>
+      <p class="drill-select-lead">按 Topic 分组的专项板块，目前含 U1、U3，逐题作答、单独结算。</p>
+      <h2 class="drill-select-h">单元</h2>
+      <div class="drill-unit-row" id="specialUnitPicker"></div>
+      <h2 class="drill-select-h">Topic 板块</h2>
+      <div class="drill-section-list" id="specialList"></div>
+      <div id="specialResumeSlot"></div>
+    </div>
+  </main>
+
+  <div id="questionView" hidden>
+    <header class="drill-context">
+      <div class="drill-context-inner">
+        <div class="drill-context-left">
+          <span class="drill-context-title">SAT Math</span>
+          <span class="drill-context-section" id="currentSection"></span>
+        </div>
+        <div class="drill-context-right">
+          <a class="drill-context-link" href="drill.html">选择板块</a>
+          <span class="drill-save-status" id="saveStatus" role="status" aria-live="polite">作答自动保存</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="drill-questionbar" aria-label="题目工具">
+      <div class="drill-questionbar-inner">
+        <div class="drill-questionbar-left">
+          <span class="drill-qnumber" id="qNumber">1</span>
+          <button class="drill-mark-button" id="btnMark" type="button" aria-pressed="false">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <span id="markLabel">标记</span>
+          </button>
+        </div>
+        <div class="drill-question-tools">
+          <button type="button" id="btnScratch" title="草稿板：在题目上涂画标记、写草稿，答案可直接填写">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            <span>草稿</span>
+          </button>
+          <button type="button" id="btnReference">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+            <span>Reference</span>
+          </button>
+          <button type="button" id="btnCalculator" class="exam-tool-link" hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="8" y2="11"/><line x1="12" y1="11" x2="12" y2="11"/><line x1="16" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="8" y2="15"/><line x1="12" y1="15" x2="12" y2="15"/><line x1="16" y1="15" x2="16" y2="18"/></svg>
+            <span>Calculator</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <main class="drill-main">
+      <article class="drill-question" id="question" tabindex="-1" aria-labelledby="qStem">
+        <div class="drill-stem" id="qStem"></div>
+        <div id="answerArea"></div>
+      </article>
+    </main>
+
+    <footer class="drill-footer">
+      <div class="drill-footer-inner">
+        <div class="drill-footer-section" id="footerSection"></div>
+        <button class="drill-position-button" id="btnQuestionNav" type="button" aria-haspopup="dialog" aria-controls="questionNav">
+          <span id="questionPosition">第 1 / 1 题</span>
+        </button>
+        <div class="drill-footer-actions">
+          <button class="drill-page-button" id="btnPrevious" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            <span class="drill-nav-label">上一题</span>
+          </button>
+          <button class="drill-page-button drill-next-button" id="btnNext" type="button">
+            <span class="drill-nav-label">下一题</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div class="drill-nav-layer" id="questionNav" hidden>
+    <div class="drill-nav-backdrop" data-nav-close></div>
+    <section class="drill-nav-panel" role="dialog" aria-modal="true" aria-labelledby="questionNavTitle">
+      <header class="drill-nav-header">
+        <h2 id="questionNavTitle">题目导航</h2>
+        <button class="drill-nav-close" type="button" data-nav-close aria-label="关闭题号弹层">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </header>
+      <div class="drill-nav-legend" aria-label="题号状态说明">
+        <span><i class="is-answered"></i>已答</span><span><i></i>未答</span>
+        <span><i class="is-marked"></i>已标记</span><span><i class="is-current"></i>当前</span>
+      </div>
+      <div class="drill-question-grid" id="questionGrid"></div>
+      <div class="drill-nav-footer">
+        <button type="button" class="drill-nav-finish" id="btnFinish">完成本板块并查看结果</button>
+        <p class="drill-nav-finish-note">交卷前不会显示对错；完成后统一公布每题结果。</p>
+      </div>
+    </section>
+  </div>
+
+  <noscript><p class="drill-noscript">请启用 JavaScript 以加载题目并保存作答。</p></noscript>
+  <script src="data/questions.js?v=4b3e0d1f9895"></script>
+  <script src="data/text.js?v=4b3e0d1f9895"></script>
+  <script src="data/figures.js?v=4b3e0d1f9895"></script>
+  <script src="data/figure_crops.js?v=4b3e0d1f9895"></script>
+  <script src="data/choice_crops.js?v=4b3e0d1f9895"></script>
+  <script src="app-core.js?v=4b3e0d1f9895"></script>
+  <script src="app-ui.js?v=4b3e0d1f9895"></script>
+  <script src="progress-save.js?v=4b3e0d1f9895"></script>
+  <script src="figures.js?v=4b3e0d1f9895"></script>
+  <script>
+  /* fmtMath 热修：在渲染脚本运行前保护小数(0.11, 1.06)与千分位整数(90,000)，
+     防止 \d+/\d+ 把 2/0.11 拆成假分数 2/0、90,000/12 拆成 000/12。
+     正式修复在 figures.js，待推送通道恢复后同步，本段届时移除。 */
+  (function () {
+    if (!window.TD_FIG || !window.TD_FIG.fmtMath || window.TD_FIG.__fmtGuarded) return;
+    var orig = window.TD_FIG.fmtMath;
+    window.TD_FIG.__fmtGuarded = true;
+    window.TD_FIG.fmtMath = function (raw) {
+      var stash = [];
+      var guarded = String(raw == null ? '' : raw).replace(/\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+/g, function (d) {
+        stash.push(d);
+        return '\uE000' + (stash.length - 1) + '\uE000';
+      });
+      var out = orig(guarded);
+      return out.replace(/\uE000(\d+)\uE000/g, function (_, i) { return stash[+i] || ''; });
+    };
+  })();
+  </script>
+  <script src="scratch-pad.js?v=4b3e0d1f9895"></script>
+  <script src="drill.js?v=4b3e0d1f9895"></script>
+  <script src="bluebook-shell.js?v=4b3e0d1f9895"></script>
+  <script src="cloud-config.js?v=4b3e0d1f9895"></script>
+  <script src="firebase-cloud.js?v=4b3e0d1f9895"></script>
+  <script src="github-auth.js?v=1bc3f91548b6"></script><script src="cloud-account.js?v=4b3e0d1f9895"></script>
+</body>
+</html>

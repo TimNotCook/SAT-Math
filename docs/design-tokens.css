@@ -1,0 +1,92 @@
+/* TD SAT Math - Design Tokens (contract)
+ * 从线上 app.css / bluebook.css 实际值提取，2026-11-21。
+ * 契约快照，不参与页面加载；改 token 须同步回源 CSS。
+ */
+:root{
+  /* color */
+  --ink:#12233f;
+  --ink-2:#28365a;
+  --sub:#51648a;
+  --faint:#8294b4;
+  --line:#d2e0f1;
+  --line-soft:#eef3fb;
+  --line-strong:#bcd0e8;
+  --bg:#eaf0f6;
+  --paper:#ffffff;
+  --wash:#eef4fd;
+  --navy:#12233f;
+  --navy-2:#1b3a66;
+  --blue:#2563eb;
+  --blue-strong:#1d4ed8;
+  --blue-soft:#e8f0fe;
+  --blue-line:#c2d4ea;
+  --ok:#157a52;
+  --ok-soft:#e7f6ee;
+  --ok-line:#a9d8c4;
+  --warn:#b07a12;
+  --warn-soft:#fbf3e2;
+  --warn-line:#e6d3a7;
+  --bad:#c0392b;
+  --bad-soft:#fdecea;
+  --bad-line:#f0bcb8;
+  --veil:rgba(18,35,63,.45);
+  --hud:#2e6be6;
+  --hud-soft:#e9f1fe;
+  --grid:rgba(18,35,63,.055);
+  --frame:rgba(18,35,63,.18);
+  /* typography */
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Roboto,Arial,sans-serif;
+  --serif:"Iowan Old Style","Times New Roman",Georgia,serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  /* geometry */
+  --radius:8px;
+  --radius-sm:6px;
+  --radius-lg:14px;
+  --radius-pill:999px;
+  --sp1:8px;
+  --sp2:12px;
+  --sp3:16px;
+  --sp4:24px;
+  --sp5:32px;
+  --sp6:48px;
+  /* motion */
+  --ease:cubic-bezier(.2,.7,.3,1);
+  /* shadow */
+  --shadow-1:0 1px 2px rgba(18,35,63,.07),0 1px 1px rgba(18,35,63,.04);
+  --shadow-2:0 2px 4px rgba(18,35,63,.06),0 10px 28px rgba(18,35,63,.10);
+  --shadow-3:0 16px 40px rgba(18,35,63,.18);
+  /* bluebookAlias */
+  --bb-white:var(--paper);
+  --bb-navy:var(--navy);
+  --bb-navy-hover:var(--navy-2);
+  --bb-accent:var(--blue);
+  --bb-accent-strong:var(--blue-strong);
+  --bb-accent-soft:var(--blue-soft);
+  --bb-ink:var(--ink);
+  --bb-sub:var(--sub);
+  --bb-faint:var(--faint);
+  --bb-line:var(--line);
+  --bb-line-soft:var(--line-soft);
+  --bb-hover:var(--wash);
+  --bb-disabled:var(--line);
+  --bb-mark:var(--warn);
+  --bb-mark-soft:var(--warn-soft);
+  --bb-context-text:#eaf3ff;
+  --bb-context-line:rgba(120,200,255,.35);
+  --bb-veil:var(--veil);
+  --bb-shadow:var(--shadow-3);
+  --bb-radius:var(--radius-sm);
+  --bb-border:var(--line);
+  --bb-muted:var(--sub);
+  --bb-fg:var(--ink);
+  --bb-figure-tint:var(--wash);
+  --bb-choice-hover:var(--blue-soft);
+  --bb-official-bar:#e8edf4;
+  --bb-official-band:#1e2363;
+  --bb-official-ink:#1a1a1a;
+  --bb-official-line:#9aa3b2;
+  --bb-official-card:#ffffff;
+  --bb-official-chip:#1f2022;
+  --bb-official-serif:"Times New Roman",Times,"Iowan Old Style",Georgia,serif;
+  --bb-official-ui:"Roboto",Arial,Helvetica,"Helvetica Neue",sans-serif;
+}

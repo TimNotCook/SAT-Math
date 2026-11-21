@@ -1,13 +1,10 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8">
-<title>正在跳转…</title>
-<meta http-equiv="refresh" content="0; url=https://timnotcook.github.io/SAT-Math-Prep/">
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="TD SAT Math：SAT 数学真题练习（单元练习 / 专项训练）、单元抽查、官方模考与错题回顾。"><meta name="theme-color" content="#2563eb"><title>TD SAT Math</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
+</head>
+<body><p><a href="drill.html">进入真题练习</a></p>
 <script>
-  // 旧首页 -> 新首页；保留查询串/hash（若用户带了参数）
-  (function(){
-    var target = 'https://timnotcook.github.io/SAT-Math-Prep/';
-    var qs = location.search || '', hs = location.hash || '';
-    location.replace(target + qs + hs);
-  })();
-</script>
-</head><body><p>网站已迁移到 <a href="https://timnotcook.github.io/SAT-Math-Prep/">SAT-Math-Prep</a>，正在自动跳转…</p></body></html>
+/* The site root is the OAuth callback target. Forward callback parameters
+   (code/state/provider/tdback) unchanged so cloud-account.js can exchange them. */
+location.replace('drill.html' + location.search + location.hash);
+</script></body></html>
