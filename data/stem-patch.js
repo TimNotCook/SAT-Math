@@ -1,14 +1,4 @@
-/* 题干/表格/图形订正补丁：
-   1) SP1-049 / SP1-091 题干内残留原始表格行，与 figures.js 的矢量表格重复 → 覆盖题干；
-   2) SR-156、SP1-048/050/053/054/089/090/092/099/101 原本只有裸表格行 →
-      覆盖题干并注册矢量表格规格，由 tableFig 渲染干净表格；
-   3) 全量复查：25 题题干残留原表/坐标轴 OCR 碎片（表格题 + TD-22-12/16、TD-25-05、U2-12）→
-      仅删除碎片，题干正文不动；
-   4) 图形订正：TD-11-20 直线按原图改 (0,6)→(4.8,-6)、删端点标记；
-      TD-42-12 整表误用 TD-43-20 的矩形数据 → 改 Perimeter 表（TUV 50 / XYZ 150）；
-   5) 答案键订正：SR-215 官方答案 B（$291,700），原键误标 D。
-   正式数据订正随下一次完整推送同步，本文件届时移除。
-   注意：必须在 data/figures.js（TD_FIG_SPECS 注册表）之后加载。 */
+/* 题干/表格/图形订正补丁：对照原题扫描订正，不改题面/选项/答案。 */
 (function () {
   var STEM = {
     'SP1-049': 'The table shows some values of x and their corresponding values f(x) for the linear function f. What is the x-intercept of the graph of y = f(x) in the xy-plane?',
@@ -23,7 +13,6 @@
     'SP1-092': 'There is a linear relationship between x and y. The table shows three values of x and their corresponding value of y in terms of a constant n. What is the slope of the line that represents this relationship in the xy-plane?',
     'SP1-099': 'The table shows three values of x and their corresponding values of g(x), where g(x) = f(x)/(x + 3) and f is a linear function. What is the y-intercept of the graph of y = f(x) in the xy-plane?',
     'SP1-101': 'The table shows three values of x and their corresponding values of y, where s is a constant. There is a linear relationship between x and y. Which of the following equations represents this relationship?',
-    /* 以下题目题干残留原表/坐标轴的 OCR 碎片，与矢量表格/图形重复 → 仅删除碎片，题干正文不动。 */
     'U2-02': 'The manager of an online news service received the report above on the number of subscriptions sold by the service. The manager estimated that the percent increase from 2012 to 2013 would be double the percent increase from 2013 to 2014. How many subscriptions did the manager expect would be sold in 2014?',
     'U2-03': 'The table summarizes the number of objects in each group. The number of objects in group C is p% of the number of objects in group A. What is the value of p?',
     'TD-21-10': 'The table summarizes the number of objects in each group. The number of objects in group C is p% of the number of objects in group A. What is the value of p?',
@@ -53,10 +42,7 @@
   (window.TD_BANK && window.TD_BANK.questions || []).forEach(function (q) {
     if (q && STEM[q.id]) q.stem = STEM[q.id];
   });
-  /* 答案键订正：SR-215 官方答案 B（$291,700），原键误标 D。 */
-  var ANSWERS = {
-    'SR-215': 'B'
-  };
+  var ANSWERS = { 'SR-215': 'B' };
   (window.TD_BANK && window.TD_BANK.questions || []).forEach(function (q) {
     if (q && ANSWERS[q.id]) q.answer = ANSWERS[q.id];
   });
@@ -77,7 +63,6 @@
     'SP1-099': { type: 'table', head: ['x', 'g(x)'], rows: [['\u221227', '3'], ['\u22129', '0'], ['21', '5']] },
     'SP1-101': { type: 'table', head: ['x', 'y'], rows: [['\u22122s', '24'], ['\u2212s', '21'], ['s', '15']] }
   };
-  /* 图形规格订正：逐题对照 images/fig 原题扫描后覆盖。 */
   var FIGFIX = {
     'U4-05': {
       type: 'rawSvg',
@@ -87,100 +72,31 @@
       type: 'rawSvg',
       svg: "<svg viewBox='0 0 360 240' xmlns='http://www.w3.org/2000/svg'>\n  <line x1='120' y1='30' x2='120' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='240' y1='30' x2='240' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='70' y1='215' x2='295' y2='25' stroke='#162c46' stroke-width='2.2'/>\n  <text x='120' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>r</text>\n  <text x='240' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>s</text>\n  <text x='303' y='24' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='start'>t</text>\n  <text x='92' y='196' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>x°</text>\n  <text x='258' y='60' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>y°</text>\n</svg>"
     },
-    'TD-42-18': {
-      type: 'triangle',
-      pts: [[70, 200], [290, 200], [180, 55]],
-      labels: ['A', 'C', 'B']
-    },
+    'TD-42-18': { type: 'triangle', pts: [[70, 200], [290, 200], [180, 55]], labels: ['A', 'C', 'B'] },
     'TD-43-01': {
       type: 'rawSvg',
       svg: "<svg viewBox='0 0 440 300' xmlns='http://www.w3.org/2000/svg'>\n  <rect x='60' y='140' width='320' height='120' fill='none' stroke='#162c46' stroke-width='2'/>\n  <path d='M 60 140 A 90 90 0 0 1 240 140' fill='none' stroke='#162c46' stroke-width='2'/>\n  <circle cx='150' cy='140' r='3' fill='#0f2a47'/>\n  <text x='52' y='132' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>N</text>\n  <text x='240' y='132' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>P</text>\n  <text x='388' y='132' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>Q</text>\n  <text x='150' y='162' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>O</text>\n  <text x='52' y='282' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>S</text>\n  <text x='388' y='282' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>R</text>\n</svg>"
     },
-    'TD-15-01': {
-      type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -50, max: 10, step: 10, label: 'y' },
-      grid: true, origin: 'O',
-      series: [{ kind: 'line', dash: '6 4', points: [[-2, -50], [2, 10]] }]
-    },
-    'TD-15-03': {
-      type: 'chart', x: { min: -8, max: 8, step: 2, label: 'x' }, y: { min: -8, max: 8, step: 2, label: 'y' },
-      grid: true, origin: 'O',
-      series: [{ kind: 'line', points: [[3, 8], [7, -3]] }]
-    },
-    'TD-11-03': {
-      type: 'chart', x: { min: 0, max: 10, step: 2, label: 'x' }, y: { min: -10, max: 10, step: 2, label: 'y' },
-      grid: true, origin: 'O',
-      series: [{ kind: 'line', points: [[0, 2], [4.5, -3]] }]
-    },
-    'TD-22-09': {
-      type: 'chart', x: { min: 0, max: 9, step: 1, label: 'Time (seconds)' }, y: { min: 0, max: 11, step: 1, label: 'Momentum (newton-seconds)' },
-      grid: true,
-      series: [
-        { kind: 'line', points: [[0, 1], [1, 1.6], [2, 2], [3, 2.9], [4, 4], [5, 5.6], [6, 8], [7, 9.5], [7.5, 9.7], [8, 9]] },
-        { kind: 'points', points: [[0, 1], [2, 2], [4, 4], [6, 8], [8, 9]] }
-      ]
-    },
-    'TD-22-17': {
-      type: 'chart', x: { min: 0, max: 6, step: 1, label: 'x' }, y: { min: 0, max: 13, step: 1, label: 'y' },
-      grid: true,
-      series: [{ kind: 'line', points: [[0, 7], [1, 8.8], [2, 10], [3, 10.6], [4, 11], [5, 10.7], [6, 10]] }]
-    },
-    'SP1-025': {
-      type: 'chart', x: { min: -10, max: 10, step: 2, label: 'x' }, y: { min: -10, max: 10, step: 2, label: 'y' },
-      grid: true,
-      series: [
-        { kind: 'line', points: [[-10, 6], [10, 1.5]] },
-        { kind: 'line', points: [[-10, 2], [10, 2]] }
-      ],
-      marks: [{ x: -5, y: 5 }, { x: 8, y: 2 }]
-    },
-    'U1-12': {
-      type: 'chart', x: { min: -8, max: 8, step: 2, label: 'x' }, y: { min: -8, max: 8, step: 2, label: 'y' },
-      grid: true, origin: 'O',
-      series: [{ kind: 'line', dash: '6 4', points: [[-1.5, 7], [2.5, -9]] }]
-    },
-    'U1-13': {
-      type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -50, max: 10, step: 10, label: 'y' },
-      grid: true, origin: 'O',
-      series: [{ kind: 'line', dash: '6 4', points: [[-1.5, -42.5], [1.5, 2.5]] }]
-    },
-    'TD-25-15': {
-      type: 'chart', x: { min: 0, max: 5, step: 1, cats: [['Plot 1', 1.4], ['Plot 2', 2.4], ['Plot 3', 3.4], ['Plot 4', 4.4]] },
-      y: { min: 0, max: 90, step: 10, label: 'Trees planted', showZero: true }, grid: true,
-      series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 65 }, { x0: 2, x1: 2.8, h: 75 }, { x0: 3, x1: 3.8, h: 80 }, { x0: 4, x1: 4.8, h: 59 }] }]
-    },
-    'TD-25-16': {
-      type: 'chart', x: { min: 0, max: 6, step: 1, cats: [['daisy', 1.4], ['orchid', 2.4], ['tulip', 3.4], ['lily', 4.4], ['sunflower', 5.4]] },
-      y: { min: 0, max: 200, step: 20, label: 'Number of flowers', showZero: true }, grid: true,
-      series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 60 }, { x0: 2, x1: 2.8, h: 100 }, { x0: 3, x1: 3.8, h: 190 }, { x0: 4, x1: 4.8, h: 180 }, { x0: 5, x1: 5.8, h: 170 }] }]
-    },
-    'TD-25-05': {
-      type: 'chart', x: { min: 80, max: 140, step: 10 }, y: { min: 0, max: 10, step: 10 }, yAxis: false, grid: false,
-      series: [{ kind: 'box', lo: 85, q1: 98, med: 115, q3: 125, hi: 138 }]
-    },
-    'TD-11-20': {
-      type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -6, max: 6, step: 2, label: 'y' },
-      grid: true, origin: 'O',
-      series: [{ kind: 'line', points: [[0, 6], [4.8, -6]] }]
-    },
-    'TD-42-12': {
-      type: 'table', head: ['', 'Perimeter'],
-      rows: [['Triangle TUV', '50'], ['Triangle XYZ', '150']]
-    },
-    'TD-15-02': {
-      // 原图阴影带为 35≤y≤60（原规格误取 33），且原图无额外边界线。
-      type: 'chart', x: { min: -15, max: 15, step: 5, label: 'x' }, y: { min: 0, max: 60, step: 5, label: 'y' },
-      grid: true, origin: 'O',
-      series: [{ kind: 'region', points: [[-15, 35], [-15, 60], [15, 60], [15, 35]] }]
-    },
+    'TD-15-01': { type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -50, max: 10, step: 10, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', dash: '6 4', points: [[-2, -50], [2, 10]] }] },
+    'TD-15-03': { type: 'chart', x: { min: -8, max: 8, step: 2, label: 'x' }, y: { min: -8, max: 8, step: 2, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', points: [[3, 8], [7, -3]] }] },
+    'TD-11-03': { type: 'chart', x: { min: 0, max: 10, step: 2, label: 'x' }, y: { min: -10, max: 10, step: 2, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', points: [[0, 2], [4.5, -3]] }] },
+    'TD-22-09': { type: 'chart', x: { min: 0, max: 9, step: 1, label: 'Time (seconds)' }, y: { min: 0, max: 11, step: 1, label: 'Momentum (newton-seconds)' }, grid: true, series: [{ kind: 'line', points: [[0, 1], [1, 1.6], [2, 2], [3, 2.9], [4, 4], [5, 5.6], [6, 8], [7, 9.5], [7.5, 9.7], [8, 9]] }, { kind: 'points', points: [[0, 1], [2, 2], [4, 4], [6, 8], [8, 9]] }] },
+    'TD-22-17': { type: 'chart', x: { min: 0, max: 6, step: 1, label: 'x' }, y: { min: 0, max: 13, step: 1, label: 'y' }, grid: true, series: [{ kind: 'line', points: [[0, 7], [1, 8.8], [2, 10], [3, 10.6], [4, 11], [5, 10.7], [6, 10]] }] },
+    'SP1-025': { type: 'chart', x: { min: -10, max: 10, step: 2, label: 'x' }, y: { min: -10, max: 10, step: 2, label: 'y' }, grid: true, series: [{ kind: 'line', points: [[-10, 6], [10, 1.5]] }, { kind: 'line', points: [[-10, 2], [10, 2]] }], marks: [{ x: -5, y: 5 }, { x: 8, y: 2 }] },
+    'U1-12': { type: 'chart', x: { min: -8, max: 8, step: 2, label: 'x' }, y: { min: -8, max: 8, step: 2, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', dash: '6 4', points: [[-1.5, 7], [2.5, -9]] }] },
+    'U1-13': { type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -50, max: 10, step: 10, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', dash: '6 4', points: [[-1.5, -42.5], [1.5, 2.5]] }] },
+    'TD-25-15': { type: 'chart', x: { min: 0, max: 5, step: 1, cats: [['Plot 1', 1.4], ['Plot 2', 2.4], ['Plot 3', 3.4], ['Plot 4', 4.4]] }, y: { min: 0, max: 90, step: 10, label: 'Trees planted', showZero: true }, grid: true, series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 65 }, { x0: 2, x1: 2.8, h: 75 }, { x0: 3, x1: 3.8, h: 80 }, { x0: 4, x1: 4.8, h: 59 }] }] },
+    'TD-25-16': { type: 'chart', x: { min: 0, max: 6, step: 1, cats: [['daisy', 1.4], ['orchid', 2.4], ['tulip', 3.4], ['lily', 4.4], ['sunflower', 5.4]] }, y: { min: 0, max: 200, step: 20, label: 'Number of flowers', showZero: true }, grid: true, series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 60 }, { x0: 2, x1: 2.8, h: 100 }, { x0: 3, x1: 3.8, h: 190 }, { x0: 4, x1: 4.8, h: 180 }, { x0: 5, x1: 5.8, h: 170 }] }] },
+    'TD-25-05': { type: 'chart', x: { min: 80, max: 140, step: 10 }, y: { min: 0, max: 10, step: 10 }, yAxis: false, grid: false, series: [{ kind: 'box', lo: 85, q1: 98, med: 115, q3: 125, hi: 138 }] },
+    'TD-11-20': { type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -6, max: 6, step: 2, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', points: [[0, 6], [4.8, -6]] }] },
+    'TD-42-12': { type: 'table', head: ['', 'Perimeter'], rows: [['Triangle TUV', '50'], ['Triangle XYZ', '150']] },
+    'TD-15-02': { type: 'chart', x: { min: -15, max: 15, step: 5, label: 'x' }, y: { min: 0, max: 60, step: 5, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'region', points: [[-15, 35], [-15, 60], [15, 60], [15, 35]] }] },
     'TD-33-13': {
-      // 原图为左右两张独立小表（左 7/21/63，右 1/7、3、63），原规格合并成一张三列表。
       type: 'rawSvg',
-      svg: "<svg viewBox='0 0 380 240' xmlns='http://www.w3.org/2000/svg'>\n  <g stroke='#162c46' stroke-width='1.6' fill='none'>\n    <rect x='20' y='20' width='150' height='190'/>\n    <line x1='95' y1='20' x2='95' y2='210'/>\n    <line x1='20' y1='70' x2='170' y2='70'/>\n    <line x1='20' y1='123' x2='170' y2='123'/>\n    <line x1='20' y1='176' x2='170' y2='176'/>\n    <rect x='210' y='20' width='150' height='190'/>\n    <line x1='285' y1='20' x2='285' y2='210'/>\n    <line x1='210' y1='70' x2='360' y2='70'/>\n    <line x1='210' y1='123' x2='360' y2='123'/>\n    <line x1='210' y1='176' x2='360' y2='176'/>\n  </g>\n  <g font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>\n    <text x='57' y='52'>x</text>\n    <text x='132' y='52'>q(x)</text>\n    <text x='57' y='102'>-1</text>\n    <text x='132' y='102'>7</text>\n    <text x='57' y='155'>0</text>\n    <text x='132' y='155'>21</text>\n    <text x='57' y='205'>1</text>\n    <text x='132' y='205'>63</text>\n    <text x='247' y='52'>x</text>\n    <text x='322' y='52'>q(x)</text>\n    <text x='247' y='102'>-1</text>\n    <text x='322' y='102'>1/7</text>\n    <text x='247' y='155'>0</text>\n    <text x='322' y='155'>3</text>\n    <text x='247' y='205'>1</text>\n    <text x='322' y='205'>63</text>\n  </g>\n</svg>"
+      svg: "<svg viewBox='0 0 430 190' xmlns='http://www.w3.org/2000/svg'>\n  <g stroke='#162c46' stroke-width='1.6' fill='none'>\n    <rect x='15' y='25' width='180' height='120'/>\n    <line x1='75' y1='25' x2='75' y2='145'/>\n    <line x1='115' y1='25' x2='115' y2='145'/>\n    <line x1='155' y1='25' x2='155' y2='145'/>\n    <line x1='15' y1='85' x2='195' y2='85'/>\n    <rect x='235' y='25' width='180' height='120'/>\n    <line x1='295' y1='25' x2='295' y2='145'/>\n    <line x1='335' y1='25' x2='335' y2='145'/>\n    <line x1='375' y1='25' x2='375' y2='145'/>\n    <line x1='235' y1='85' x2='415' y2='85'/>\n  </g>\n  <g font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>\n    <text x='45' y='64'>x</text>\n    <text x='95' y='64'>-1</text>\n    <text x='135' y='64'>0</text>\n    <text x='175' y='64'>1</text>\n    <text x='45' y='118'>q(x)</text>\n    <text x='95' y='118'>7</text>\n    <text x='135' y='118'>21</text>\n    <text x='175' y='118'>63</text>\n    <text x='265' y='64'>x</text>\n    <text x='315' y='64'>-1</text>\n    <text x='355' y='64'>0</text>\n    <text x='395' y='64'>1</text>\n    <text x='265' y='118'>q(x)</text>\n    <text x='315' y='106'>1</text>\n    <line x1='307' y1='112' x2='323' y2='112' stroke='#162c46' stroke-width='1.3'/>\n    <text x='315' y='128'>7</text>\n    <text x='355' y='118'>3</text>\n    <text x='395' y='118'>63</text>\n  </g>\n</svg>"
     }
   };
-  var CHOICEFIX = {
-    'TD-22-14': { D: { kind: 'line', xInt: 30, yInt: 40, xmax: 40, ymax: 40 } }
-  };
+  var CHOICEFIX = { 'TD-22-14': { D: { kind: 'line', xInt: 30, yInt: 40, xmax: 40, ymax: 40 } } };
   function registerTables() {
     window.TD_FIG_SPECS = window.TD_FIG_SPECS || {};
     Object.assign(window.TD_FIG_SPECS, TABLES);
