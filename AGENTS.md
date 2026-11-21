@@ -1,7 +1,7 @@
 # AGENTS.md — 给接手这个项目的 AI 编程助手
 
 这是一个 **SAT 数学刷题网站**，纯静态原生 JS 站点，无构建步骤、无 npm 依赖。
-托管在 GitHub Pages：push 到 `main` 分支会由 `.github/workflows/deploy.yml` 自动部署，**不需要任何人工发布**。
+托管在 GitHub Pages（classic 构建）：push 到 `main` 分支后 Pages 自动发布，**不需要任何人工发布**。
 
 ## 你的工作方式（重要）
 
@@ -11,7 +11,7 @@
    python3 bump_assets.py
    ```
    它会给 3 个 HTML 里的 `<script src>` / `<link href>` 加上内容哈希版本号，
-   防止浏览器缓存旧代码导致修改不生效。工作流部署时也会再跑一次，双保险。
+   防止浏览器缓存旧代码导致修改不生效。改完即跑，避免缓存旧代码。
 3. 提交并推送：
    ```
    git add -A && git commit -m "说明这次改了什么" && git push origin main
@@ -71,4 +71,4 @@ python3 -m http.server 8000
 1. `python3 bump_assets.py` 已运行。
 2. 4 个页面能打开：`index.html` / `drill.html` / `exam.html?mode=mock` / `wrong.html`。
 3. 浏览器控制台无报错。
-4. `git push origin main` 后到仓库 Actions 页确认部署成功（绿色勾），再用线上链接验证。
+4. `git push origin main` 后等 1–2 分钟，用线上链接验证页面与控制台无报错。
