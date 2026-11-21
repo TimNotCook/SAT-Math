@@ -2,8 +2,7 @@
    1) SP1-049 / SP1-091 题干内残留原始表格行，与 figures.js 的矢量表格重复 → 覆盖题干；
    2) SR-156、SP1-048/050/053/054/089/090/092/099/101 原本只有裸表格行 →
       覆盖题干并注册矢量表格规格，由 tableFig 渲染干净表格。
-   正式数据订正随下一次完整推送同步，本文件届时移除。
-   注意：必须在 data/figures.js（TD_FIG_SPECS 注册表）之后加载。 */
+   正式数据订正随下一次完整推送同步，本文件届时移除。 */
 (function () {
   var STEM = {
     'SP1-049': 'The table shows some values of x and their corresponding values f(x) for the linear function f. What is the x-intercept of the graph of y = f(x) in the xy-plane?',
@@ -39,6 +38,13 @@
     'SP1-099': { type: 'table', head: ['x', 'g(x)'], rows: [['\u221227', '3'], ['\u22129', '0'], ['21', '5']] },
     'SP1-101': { type: 'table', head: ['x', 'y'], rows: [['\u22122s', '24'], ['\u2212s', '21'], ['s', '15']] }
   };
-  window.TD_FIG_SPECS = window.TD_FIG_SPECS || {};
-  Object.assign(window.TD_FIG_SPECS, TABLES);
+  function registerTables() {
+    window.TD_FIG_SPECS = window.TD_FIG_SPECS || {};
+    Object.assign(window.TD_FIG_SPECS, TABLES);
+  }
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', registerTables);
+  } else {
+    registerTables();
+  }
 })();
