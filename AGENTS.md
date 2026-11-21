@@ -30,7 +30,7 @@
 | `bluebook.css` | Bluebook 风格主题、答题页/模考页布局、横幅 |
 | `figures.js` | **公式与图表渲染核心**。`fmtMath()` 负责分数竖排、上下标、根号；`showFigure()` / `choiceGraph()` 负责题干图与选项图（SVG） |
 | `app-core.js` / `app-ui.js` | 题库读取、分组、UI 状态 |
-| `data/questions.js` | 题库元数据（`window.TD_BANK`）：952 道题、单元/板块分组与题量 |
+| `data/questions.js` | 题库元数据（`window.TD_BANK`）：1052 道题、单元/板块分组与题量 |
 | `data/text.js` | 题干与选项文本（`window.TD_TEXT`），key 是题号，如 `SR-254` |
 | `data/figures.js` | 图表 spec（`window.TD_FIG_SPECS` / `TD_CHOICE_GRAPHS` / `TD_FIG_SPECS`），题号→图表定义 |
 | `data/figure_crops.js` / `choice_crops.js` | 图片裁剪引用 |
@@ -48,7 +48,7 @@
   - 下标 `_{...}` 与 `_X`（如 `v_f`）、上标 `^{...}`
   - 根号 `√(...)`
   如果新增公式写法，优先扩展 `fmtMath()`，别在文本里塞 HTML。
-- **图表**：新增题目配图时，在 `data/figures.js` 加 spec（`type:"chart"` / `"table"`），选项图用 `TD_CHOICE_GRAPHS`。渲染逻辑在 `figures.js`，显示由题号触发。
+- **图表**：新增题目配图时，在 `data/figures.js` 加 spec（`type:"chart" / "table"`），选项图用 `TD_CHOICE_GRAPHS`。渲染逻辑在 `figures.js`，显示由题号触发。
 - **localStorage**：进度与答案存本机，key 前缀 `tdsat`。不要随意改 key，否则用户进度丢失。
 
 ## 关于云登录 / 云备份
