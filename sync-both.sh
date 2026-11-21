@@ -1,21 +1,34 @@
 #!/usr/bin/env bash
-# 把当前目录的完整站点同步到新仓库(SAT-Math-Prep)和旧仓库(SAT-Math)。
-# 单一真源：本目录。任何改动后运行本脚本，两边网址都会显示相同内容。
-set -e
+# 站点双仓库同步：单一真源=本地目录(SAT-Math-Prep)。
+# 任何页面/脚本/数据改动后运行本脚本，新仓库与旧仓库(timnotcook.github.io/SAT-Math/)内容完全一致。
+# 用法: bash sync-both.sh "改动说明"
+set -euo pipefail
 MSG="${1:-sync site}"
 TOKEN=$(printf 'protocol=https\nhost=github.com\n\n' | git credential-osxkeychain get 2>/dev/null | grep '^password=' | cut -d= -f2-)
-[ -n "$TOKEN" ] || { echo "no github token"; exit 1; }
-# 1) 推新仓库
+[ -n "$TOKEN" ] || { echo "ERROR: no github token in keychain"; exit 1; }
+
+echo "[1/2] Push to canonical repo SAT-Math-Prep ..."
 git remote set-url origin "https://github.com/TimNotCook/SAT-Math-Prep.git"
-git add -A && git commit -m "$MSG" 2>/dev/null || true
-git push origin main
-# 2) 镜像到旧仓库（force，保证完全一致）
-rm -rf /tmp/satmath-mirror && git clone --quiet "https://x-access-token:${TOKEN}@github.com/TimNotCook/SAT-Math.git" /tmp/satmath-mirror
+git add -A
+git commit -m "$MSG" 2>/dev/null || echo "  (nothing to commit)"
+for try in 1 2 3; do git push origin main && break || { echo "  retry push $try"; sleep 3; }; done
+
+echo "[2/2] Mirror all files to legacy repo SAT-Math ..."
+rm -rf /tmp/satmath-mirror
+for try in 1 2 3; do
+  git clone --quiet "https://x-access-token:${TOKEN}@github.com/TimNotCook/SAT-Math.git" /tmp/satmath-mirror && break || { echo "  retry clone $try"; sleep 3; }
+done
 cd /tmp/satmath-mirror
 git config user.name "mirror-bot"; git config user.email "mirror-bot@users.noreply.github.com"
 find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
 cd - >/dev/null
-find . -mindepth 1 -maxdepth 1 ! -name .git ! -name sync-both.sh ! -name .github -exec cp -a {} /tmp/satmath-mirror/ \;
-cd /tmp/satmath-mirror && git add -A
-if ! git diff --cached --quiet; then git commit -m "Mirror: $MSG"; git push origin main; fi
-echo "Both repositories synced."
+find . -mindepth 1 -maxdepth 1 ! -name .git ! -name .github -exec cp -a {} /tmp/satmath-mirror/ \;
+cd /tmp/satmath-mirror
+git add -A
+if git diff --cached --quiet; then
+  echo "  (legacy already current)"
+else
+  git commit -m "Mirror from SAT-Math-Prep: $MSG"
+  for try in 1 2 3; do git push origin main && break || { echo "  retry mirror push $try"; sleep 3; }; done
+fi
+echo "DONE: both URLs now serve identical content."
