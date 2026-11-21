@@ -77,7 +77,20 @@
     'SP1-099': { type: 'table', head: ['x', 'g(x)'], rows: [['\u221227', '3'], ['\u22129', '0'], ['21', '5']] },
     'SP1-101': { type: 'table', head: ['x', 'y'], rows: [['\u22122s', '24'], ['\u2212s', '21'], ['s', '15']] }
   };
-  /* 图形规格订正：逐题对照 images/fig 原题扫描后覆盖。 */
+  /* 图形规格订正：逐题对照 images/fig 原题扫描后覆盖。
+     - U4-05 / TD-41-06：原题两条平行线是竖直的（r、s 竖线，t 斜线），
+       模板只能画水平平行线 → 改 rawSvg 手绘。
+     - TD-42-18：原题为普通锐角三角形（无直角标记），模板默认形状像直角三角形 → 改顶点。
+     - TD-43-01：半圆在矩形顶边“上方”（外凸），原规格画成向内凹 → 改 rawSvg。
+     - TD-15-01 / TD-15-03：原题无阴影区域，删掉多余 region；线段端点按原图订正。
+     - TD-11-03：原题线段继续延伸到 (4.5,-3)，原规格只画到 x 轴交点。
+     - TD-22-09 / TD-22-17：原题是平滑曲线，原规格只画孤立点 → 补折线串联。
+     - SP1-025 / U1-12 / U1-13：直线斜率、截距与原图不符 → 重定端点。
+     - TD-25-15 / TD-25-16：柱高按原图校准（65/75/80/59；60/100/190/180/170）；
+       TD-25-05：箱线分位数按原图校准（85/98/115/125/138）；
+       U1-12 / U1-13：边界直线端点落到正确直线上（y=1-4x；y=15x-20）。
+     - TD-11-20：原题直线过 (0,6)、x 截距约 2.4、斜率 -5/2，原规格只画短段并多端点标记 → 重定端点、删 marks。
+     - TD-42-12：原规格误用 TD-43-20 的矩形面积/周长表 → 改 Perimeter 表（Triangle TUV 50 / Triangle XYZ 150）。 */
   var FIGFIX = {
     'U4-05': {
       type: 'rawSvg',
@@ -136,26 +149,26 @@
     'U1-12': {
       type: 'chart', x: { min: -8, max: 8, step: 2, label: 'x' }, y: { min: -8, max: 8, step: 2, label: 'y' },
       grid: true, origin: 'O',
-      series: [{ kind: 'line', dash: '6 4', points: [[-1.5, 8], [2.5, -8]] }]
+      series: [{ kind: 'line', dash: '6 4', points: [[-1.5, 7], [2.5, -9]] }]
     },
     'U1-13': {
       type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -50, max: 10, step: 10, label: 'y' },
       grid: true, origin: 'O',
-      series: [{ kind: 'line', dash: '6 4', points: [[-1, -50], [1.33, 10]] }]
+      series: [{ kind: 'line', dash: '6 4', points: [[-1.5, -42.5], [1.5, 2.5]] }]
     },
     'TD-25-15': {
       type: 'chart', x: { min: 0, max: 5, step: 1, cats: [['Plot 1', 1.4], ['Plot 2', 2.4], ['Plot 3', 3.4], ['Plot 4', 4.4]] },
       y: { min: 0, max: 90, step: 10, label: 'Trees planted', showZero: true }, grid: true,
-      series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 65 }, { x0: 2, x1: 2.8, h: 78 }, { x0: 3, x1: 3.8, h: 82 }, { x0: 4, x1: 4.8, h: 60 }] }]
+      series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 65 }, { x0: 2, x1: 2.8, h: 75 }, { x0: 3, x1: 3.8, h: 80 }, { x0: 4, x1: 4.8, h: 59 }] }]
     },
     'TD-25-16': {
       type: 'chart', x: { min: 0, max: 6, step: 1, cats: [['daisy', 1.4], ['orchid', 2.4], ['tulip', 3.4], ['lily', 4.4], ['sunflower', 5.4]] },
       y: { min: 0, max: 200, step: 20, label: 'Number of flowers', showZero: true }, grid: true,
-      series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 60 }, { x0: 2, x1: 2.8, h: 100 }, { x0: 3, x1: 3.8, h: 195 }, { x0: 4, x1: 4.8, h: 185 }, { x0: 5, x1: 5.8, h: 175 }] }]
+      series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 60 }, { x0: 2, x1: 2.8, h: 100 }, { x0: 3, x1: 3.8, h: 190 }, { x0: 4, x1: 4.8, h: 180 }, { x0: 5, x1: 5.8, h: 170 }] }]
     },
     'TD-25-05': {
       type: 'chart', x: { min: 80, max: 140, step: 10 }, y: { min: 0, max: 10, step: 10 }, yAxis: false, grid: false,
-      series: [{ kind: 'box', lo: 85, q1: 95, med: 112, q3: 122, hi: 138 }]
+      series: [{ kind: 'box', lo: 85, q1: 98, med: 115, q3: 125, hi: 138 }]
     },
     'TD-11-20': {
       type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -6, max: 6, step: 2, label: 'y' },
@@ -170,6 +183,8 @@
   var CHOICEFIX = {
     'TD-22-14': { D: { kind: 'line', xInt: 30, yInt: 40, xmax: 40, ymax: 40 } }
   };
+  // data/figures.js 会在解析时重置 TD_FIG_SPECS，故表格/图形规格延迟到 DOMContentLoaded 再注册，
+  // 避免被后加载的注册表覆盖。题干覆盖（TD_BANK/TD_TEXT）立即生效。
   function registerTables() {
     window.TD_FIG_SPECS = window.TD_FIG_SPECS || {};
     Object.assign(window.TD_FIG_SPECS, TABLES);
