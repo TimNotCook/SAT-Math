@@ -18,7 +18,7 @@
   /* ---- palette (Bluebook-ish navy / clean) ---- */
   var INK = '#162c46', ACCENT = '#c2410c', GRID = '#e6ebf1',
       FAINT = '#5b6b7f', DOT = '#0f2a47';
-  var FONT = "'Times New Roman', Georgia, 'Iowan Old Style', serif";
+  var FONT = "'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -591,8 +591,23 @@
     });
     // point call-outs
     (o.marks || []).forEach(function (m) {
-      out.push('<circle cx="' + PX(m.x).toFixed(1) + '" cy="' + PY(m.y).toFixed(1) + '" r="3.6" fill="none" stroke="' + ACCENT + '" stroke-width="1.8"/>');
-      if (m.label) out.push(txt(PX(m.x) + (m.dx != null ? m.dx : 7), PY(m.y) + (m.dy != null ? m.dy : -9), m.label, { size: 11, fill: ACCENT }));
+      var mx = PX(m.x), my = PY(m.y);
+      var lx = mx + (m.dx != null ? m.dx : 7), ly = my + (m.dy != null ? m.dy : -9);
+      if (m.ring !== false) {
+        out.push('<circle cx="' + mx.toFixed(1) + '" cy="' + my.toFixed(1) + '" r="3.6" fill="none" stroke="' + ACCENT + '" stroke-width="1.8"/>');
+      }
+      if (m.arrow) {
+        // curved call-out arrow from the label anchor toward the data point
+        var qx = (lx + mx) / 2 + (m.bend != null ? m.bend : 0), qy = (ly + my) / 2 + (m.bendY != null ? m.bendY : 0);
+        out.push('<path d="M ' + lx.toFixed(1) + ' ' + ly.toFixed(1) + ' Q ' + qx.toFixed(1) + ' ' + qy.toFixed(1) + ' ' + mx.toFixed(1) + ' ' + my.toFixed(1) +
+          '" fill="none" stroke="' + ACCENT + '" stroke-width="1.6"/>');
+        var ang = Math.atan2(my - qy, mx - qx);
+        var h1x = mx - 7 * Math.cos(ang - 0.42), h1y = my - 7 * Math.sin(ang - 0.42);
+        var h2x = mx - 7 * Math.cos(ang + 0.42), h2y = my - 7 * Math.sin(ang + 0.42);
+        out.push('<polygon points="' + mx.toFixed(1) + ',' + my.toFixed(1) + ' ' + h1x.toFixed(1) + ',' + h1y.toFixed(1) + ' ' +
+          h2x.toFixed(1) + ',' + h2y.toFixed(1) + '" fill="' + ACCENT + '"/>');
+      }
+      if (m.label) out.push(txt(lx, ly, m.label, { size: 11, fill: ACCENT, anchor: m.anchor || 'start' }));
     });
     out.push('</g>');
     out.push('</svg>');
@@ -609,9 +624,23 @@
     o = o || {};
     var thS = 'border:1px solid #c7d0db;padding:7px 11px;background:#f3f6fa;font-weight:600;color:#162c46;text-align:center;';
     var tdS = 'border:1px solid #c7d0db;padding:7px 11px;color:#162c46;text-align:center;';
-    var head = (o.head || []).map(function (h) {
-      return '<th style="' + thS + '">' + esc(h) + '</th>';
-    }).join('');
+    var head;
+    if (o.headGroups && o.headGroups.length) {
+      // two-row header: first head cell spans both rows, then grouped cells.
+      var topRow = '<th style="' + thS + '" rowspan="2">' + esc(o.head[0]) + '</th>';
+      o.headGroups.forEach(function (g) {
+        topRow += '<th style="' + thS + '" colspan="' + g.span + '">' + esc(g.label) + '</th>';
+      });
+      var botRow = o.head.slice(1).map(function (h) {
+        return '<th style="' + thS + '">' + esc(h) + '</th>';
+      }).join('');
+      head = '<thead><tr>' + topRow + '</tr><tr>' + botRow + '</tr></thead>';
+    } else {
+      head = (o.head || []).map(function (h) {
+        return '<th style="' + thS + '">' + esc(h) + '</th>';
+      }).join('');
+      head = head ? '<thead><tr>' + head + '</tr></thead>' : '';
+    }
     var rows = (o.rows || []).map(function (r, ri) {
       var cls = /total/i.test(r.join(' ')) ? ' style="font-weight:600;background:#fbfcfe;"' : '';
       var cells = r.map(function (c) {
@@ -620,8 +649,7 @@
       return '<tr' + cls + '>' + cells + '</tr>';
     }).join('');
     var table = '<table style="border-collapse:collapse;width:100%;max-width:440px;margin:6px auto;' +
-      'font-family:inherit;font-size:14px;line-height:1.35;">' +
-      (head ? '<thead><tr>' + head + '</tr></thead>' : '') +
+      'font-family:inherit;font-size:14px;line-height:1.35;">' + head +
       '<tbody>' + rows + '</tbody></table>';
     var cap = o.caption ? '<div style="text-align:center;font-size:12px;color:#5b6b7f;margin-top:4px;">' + esc(o.caption) + '</div>' : '';
     return '<div class="td-figure td-figure--table">' + cap + table + '</div>';

@@ -501,7 +501,105 @@ window.TD_FIG_SPECS = {
   'SR-241': {type:"chart",x:{"min":-8,"max":8,"step":2,"label":"x"},y:{"min":0,"max":22,"step":2,"label":"y"},series:[{"kind":"points","points":[[-6,20],[-5,18],[-1,10],[0,9],[3,9],[6,8]]}]},
   // SR-230: 2-column table of x/y values for line h.
   'SR-230': {type:"table",head:["x","y"],rows:[["18","130"],["23","160"],["26","178"]]},
-  'SR-215': {type:"table",caption:"Townsend Realty Group Investments",head:["Property address","Purchase price (dollars)","Monthly rental price (dollars)"],rows:[["Clearwater Lane","128,000","950"],["Driftwood Drive","176,000","1,310"],["Edgemont Street","70,000","515"],["Glenview Street","140,000","1,040"],["Hamilton Circle","450,000","3,365"]]}
+  'SR-215': {type:"table",caption:"Townsend Realty Group Investments",head:["Property address","Purchase price (dollars)","Monthly rental price (dollars)"],rows:[["Clearwater Lane","128,000","950"],["Driftwood Drive","176,000","1,310"],["Edgemont Street","70,000","515"],["Glenview Street","140,000","1,040"],["Hamilton Circle","450,000","3,365"]]},
+
+
+  /* PDF03 · Topic 17 表格（SP2-001/002） */
+  'SP2-001': {
+    'type': 'table',
+    'head': ['Species of tree', 'Growthfactor'],
+    'rows': [
+      ['Red maple', '4.5'],
+      ['River birch', '3.5'],
+      ['Cottonwood', '2.0'],
+      ['Black walnut', '4.5'],
+      ['White birch', '5.0'],
+      ['American elm', '4.0'],
+      ['Pin oak', '3.0'],
+      ['Shagbark hickory', '7.5']
+    ]
+  },
+  'SP2-002': {
+    'type': 'table',
+    'head': ['State', 'Low', 'Medium', 'High', 'Total'],
+    'headGroups': [
+      {
+        'label': 'Power capacity',
+        'span': 4
+      }
+    ],
+    'rows': [
+      ['Texas', '4', '2', '3', '9'],
+      ['California', '1', '0', '1', '2'],
+      ['Oregon', '1', '0', '1', '2'],
+      ['Indiana', '0', '2', '0', '2'],
+      ['Colorado', '1', '1', '0', '2'],
+      ['Iowa', '2', '0', '0', '2'],
+      ['Oklahoma', '1', '0', '0', '1'],
+      ['Total', '10', '5', '5', '20']
+    ]
+  },
+  'SP2-027': {
+    type: 'chart',
+    w: 460,
+    h: 360,
+    x: {
+      min: 0,
+      max: 12,
+      step: 1,
+      cats: [
+        ['2003', 0], ['2004', 1], ['2005', 2], ['2006', 3], ['2007', 4],
+        ['2008', 5], ['2009', 6], ['2010', 7], ['2011', 8], ['2012', 9],
+        ['2013', 10], ['2014', 11], ['2015', 12]
+      ]
+    },
+    y: { min: 0, max: 60, step: 10, label: 'Annual snowfall (inches)' },
+    series: [
+      {
+        kind: 'line',
+        points: [[0, 40], [1, 12], [2, 12], [3, 13], [4, 9], [5, 5], [6, 7], [7, 56], [8, 10], [9, 2], [10, 3], [11, 32], [12, 18]]
+      },
+      {
+        kind: 'points',
+        points: [[0, 40], [1, 12], [2, 12], [3, 13], [4, 9], [5, 5], [6, 7], [7, 56], [8, 10], [9, 2], [10, 3], [11, 32], [12, 18]]
+      }
+    ],
+    marks: [
+      { x: 0, y: 40, label: '(2003, 40)', dx: 12, dy: -16, ring: false },
+      { x: 4, y: 9, label: '(2007, 10)', dx: 56, dy: -30, ring: false, arrow: true, bend: 16 }
+    ]
+  },
+  /* PDF03 · Topic 18 表格（SP2-025/026/056） */
+  'SP2-025': {
+    'type': 'table',
+    'head': ['', 'Warm', 'Cool', 'NO preference', 'Total'],
+    'rows': [
+      ['18-35 years old', '295', '168', '45', '508'],
+      ['36-50 years old', '246', '123', '41', '410'],
+      ['51-65 years old', '238', '117', '48', '403'],
+      ['Greater than 65 years old', '137', '78', '64', '279'],
+      ['Total', '916', '486', '198', '1,600']
+    ]
+  },
+  'SP2-026': {
+    'type': 'table',
+    'head': ['Year', 'Subscriptions sold'],
+    'rows': [
+      ['2012', '5,600'],
+      ['2013', '5,880']
+    ]
+  },
+  'SP2-056': {
+    'type': 'table',
+    'head': ['Group', 'Number of objects'],
+    'rows': [
+      ['A', '225'],
+      ['B', '66'],
+      ['C', '414'],
+      ['D', '99'],
+      ['Total', '804']
+    ]
+  },
 
 };
 
