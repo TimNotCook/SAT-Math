@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<title>正在跳转…</title>
+<script>
+  // GitHub Pages 对任何不存在的路径都会显示本页。
+  // 从旧路径 /SAT-Math/drill.html?x=1 提取出 /drill.html?x=1，转到新域名同路径。
+  (function(){
+    var OLD = '/SAT-Math/', NEW = 'https://timnotcook.github.io/SAT-Math-Prep/';
+    var p = location.pathname || '', qs = location.search || '', hs = location.hash || '';
+    var rest = p.indexOf(OLD) === 0 ? p.slice(OLD.length) : p.replace(/^\//,'');
+    location.replace(NEW + rest + qs + hs);
+  })();
+</script>
+</head><body><p>正在跳转到新网址…</p></body></html>
