@@ -326,8 +326,6 @@
       '<div class="exam-special-head">组卷范围' +
       '<span>默认不含专项练习；开启后该单元专项题进入抽题池</span></div>' +
       '<div class="exam-special-chips">' + rows + '</div>' +
-      '<p class="exam-special-note">每次组卷从更广的知识点范围随机抽取，并尽量避开上一卷题目；卷内穿插阅读精度题与同一知识点的不同问法，用来判断是否真正掌握，而非记住某道题。难度梯度、题型比例、计时与评分规则均不变。</p>' +
-      (MODE === 'quiz' ? '<p class="exam-special-note">单元抽查仅使用所选单元 U' + QUIZ_UNIT + ' 的开关。</p>' : '') +
       '</section>';
     host.querySelectorAll('[data-special-unit]').forEach(cb => cb.addEventListener('change', () => {
       const f = specialFlags();

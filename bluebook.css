@@ -290,7 +290,6 @@ body.td-save-open{overflow:hidden}
 .exam-special-chip input{width:15px;height:15px;accent-color:var(--blue);cursor:pointer;margin:0}
 .exam-special-chip small{font-size:11px;font-weight:400;opacity:.8}
 .exam-special-chip:focus-within{outline:2px solid var(--blue);outline-offset:2px}
-.exam-special-note{margin:12px 0 0;font-size:12px;line-height:1.75;color:var(--bb-sub)}
 body::before{content:"";position:fixed;inset:14px;z-index:-1;pointer-events:none;border:1px solid var(--frame)}
 body::after{content:"";position:fixed;inset:14px;z-index:-1;pointer-events:none;background:linear-gradient(var(--frame),var(--frame)) left top/16px 1px no-repeat,
     linear-gradient(var(--frame),var(--frame)) left top/1px 16px no-repeat,
