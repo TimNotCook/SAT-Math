@@ -77,20 +77,7 @@
     'SP1-099': { type: 'table', head: ['x', 'g(x)'], rows: [['\u221227', '3'], ['\u22129', '0'], ['21', '5']] },
     'SP1-101': { type: 'table', head: ['x', 'y'], rows: [['\u22122s', '24'], ['\u2212s', '21'], ['s', '15']] }
   };
-  /* 图形规格订正：逐题对照 images/fig 原题扫描后覆盖。
-     - U4-05 / TD-41-06：原题两条平行线是竖直的（r、s 竖线，t 斜线），
-       模板只能画水平平行线 → 改 rawSvg 手绘。
-     - TD-42-18：原题为普通锐角三角形（无直角标记），模板默认形状像直角三角形 → 改顶点。
-     - TD-43-01：半圆在矩形顶边“上方”（外凸），原规格画成向内凹 → 改 rawSvg。
-     - TD-15-01 / TD-15-03：原题无阴影区域，删掉多余 region；线段端点按原图订正。
-     - TD-11-03：原题线段继续延伸到 (4.5,-3)，原规格只画到 x 轴交点。
-     - TD-22-09 / TD-22-17：原题是平滑曲线，原规格只画孤立点 → 补折线串联。
-     - SP1-025 / U1-12 / U1-13：直线斜率、截距与原图不符 → 重定端点。
-     - TD-25-15 / TD-25-16：柱高按原图校准（65/75/80/59；60/100/190/180/170）；
-       TD-25-05：箱线分位数按原图校准（85/98/115/125/138）；
-       U1-12 / U1-13：边界直线端点落到正确直线上（y=1-4x；y=15x-20）。
-     - TD-11-20：原题直线过 (0,6)、x 截距约 2.4、斜率 -5/2，原规格只画短段并多端点标记 → 重定端点、删 marks。
-     - TD-42-12：原规格误用 TD-43-20 的矩形面积/周长表 → 改 Perimeter 表（Triangle TUV 50 / Triangle XYZ 150）。 */
+  /* 图形规格订正：逐题对照 images/fig 原题扫描后覆盖。 */
   var FIGFIX = {
     'U4-05': {
       type: 'rawSvg',
@@ -178,13 +165,22 @@
     'TD-42-12': {
       type: 'table', head: ['', 'Perimeter'],
       rows: [['Triangle TUV', '50'], ['Triangle XYZ', '150']]
+    },
+    'TD-15-02': {
+      // 原图阴影带为 35≤y≤60（原规格误取 33），且原图无额外边界线。
+      type: 'chart', x: { min: -15, max: 15, step: 5, label: 'x' }, y: { min: 0, max: 60, step: 5, label: 'y' },
+      grid: true, origin: 'O',
+      series: [{ kind: 'region', points: [[-15, 35], [-15, 60], [15, 60], [15, 35]] }]
+    },
+    'TD-33-13': {
+      // 原图为左右两张独立小表（左 7/21/63，右 1/7、3、63），原规格合并成一张三列表。
+      type: 'rawSvg',
+      svg: "<svg viewBox='0 0 380 240' xmlns='http://www.w3.org/2000/svg'>\n  <g stroke='#162c46' stroke-width='1.6' fill='none'>\n    <rect x='20' y='20' width='150' height='190'/>\n    <line x1='95' y1='20' x2='95' y2='210'/>\n    <line x1='20' y1='70' x2='170' y2='70'/>\n    <line x1='20' y1='123' x2='170' y2='123'/>\n    <line x1='20' y1='176' x2='170' y2='176'/>\n    <rect x='210' y='20' width='150' height='190'/>\n    <line x1='285' y1='20' x2='285' y2='210'/>\n    <line x1='210' y1='70' x2='360' y2='70'/>\n    <line x1='210' y1='123' x2='360' y2='123'/>\n    <line x1='210' y1='176' x2='360' y2='176'/>\n  </g>\n  <g font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>\n    <text x='57' y='52'>x</text>\n    <text x='132' y='52'>q(x)</text>\n    <text x='57' y='102'>-1</text>\n    <text x='132' y='102'>7</text>\n    <text x='57' y='155'>0</text>\n    <text x='132' y='155'>21</text>\n    <text x='57' y='205'>1</text>\n    <text x='132' y='205'>63</text>\n    <text x='247' y='52'>x</text>\n    <text x='322' y='52'>q(x)</text>\n    <text x='247' y='102'>-1</text>\n    <text x='322' y='102'>1/7</text>\n    <text x='247' y='155'>0</text>\n    <text x='322' y='155'>3</text>\n    <text x='247' y='205'>1</text>\n    <text x='322' y='205'>63</text>\n  </g>\n</svg>"
     }
   };
   var CHOICEFIX = {
     'TD-22-14': { D: { kind: 'line', xInt: 30, yInt: 40, xmax: 40, ymax: 40 } }
   };
-  // data/figures.js 会在解析时重置 TD_FIG_SPECS，故表格/图形规格延迟到 DOMContentLoaded 再注册，
-  // 避免被后加载的注册表覆盖。题干覆盖（TD_BANK/TD_TEXT）立即生效。
   function registerTables() {
     window.TD_FIG_SPECS = window.TD_FIG_SPECS || {};
     Object.assign(window.TD_FIG_SPECS, TABLES);
