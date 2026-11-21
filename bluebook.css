@@ -670,214 +670,288 @@ body.scratch-on #answerArea{position:relative;z-index:65}
   .drill-select h1, .drill-result h1, .exam-start-main h1, .wrong-page h1{font-size:28px!important}
 }
 
+
 /* =====================================================================
-   FLAT WHITE THEME — 极简白底：去框线 / 去阴影 / 去圆角，留白为主；
-   仅对错（绿 #16a34a / 红 #dc2626）与链接蓝保留色彩。
-   本层是最终覆盖层，后写生效；答题进行中的官方 Bluebook 外观不动。
+   GLASS THEME — 冷灰玻璃：雾灰底 + 环境光晕，半透明磨砂卡片；
+   交互元素 hover 悬浮抬升；大数字渐变；答题页选项卡同样玻璃化。
+   本层为最终覆盖层，后写生效。
    ===================================================================== */
 :root{
-  --ok:#16a34a; --ok-soft:#eaf6ef; --ok-line:#bfe6cf;
-  --bad:#dc2626; --bad-soft:#fdecec; --bad-line:#f3c4c2;
-  --blue:#2563eb; --blue-strong:#1d4ed8; --blue-soft:#f2f7ff; --blue-line:#dbe5f4;
-  --line:#eef1f5; --line-soft:#f4f6f9; --line-strong:#dde3ea;
-  --wash:#f7f9fb; --paper:#ffffff; --bg:#ffffff;
-  --shadow-1:none; --shadow-2:none; --shadow-3:none;
-  --radius:0; --radius-sm:0; --radius-lg:0; --radius-pill:0;
+  --ok:#16a34a; --bad:#dc2626; --blue:#2563eb; --blue-strong:#1d4ed8;
+  --ink:#1c2733; --sub:#5a6b85;
+  --glass:rgba(255,255,255,.58); --glass-strong:rgba(255,255,255,.74);
+  --glass-border:rgba(255,255,255,.66); --glass-line:rgba(120,140,165,.14);
+  --paper:rgba(255,255,255,.62); --wash:rgba(255,255,255,.4);
+  --line:rgba(120,140,165,.16); --line-soft:rgba(120,140,165,.10); --line-strong:rgba(120,140,165,.26);
+  --shadow-1:0 6px 18px rgba(31,45,61,.07); --shadow-2:0 12px 28px rgba(31,45,61,.10);
+  --shadow-3:0 18px 42px rgba(31,45,61,.14);
+  --radius:16px; --radius-sm:12px; --radius-lg:20px; --radius-pill:999px;
 }
-html,body{background:#ffffff!important}
-body{color:#1c2733;font:15px/1.7 var(--sans)}
-::selection{background:#dbe5f4;color:#1c2733}
+html{background:#e9edf1}
+html,body{background:#e9edf1!important}
+body{background:linear-gradient(160deg,#f3f7f9 0%,#e9eef3 38%,#e5ece8 100%)!important;
+  background-attachment:fixed!important;color:var(--ink);font:15px/1.7 var(--sans)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(640px 420px at 12% 0%,rgba(37,99,235,.08),transparent 62%),
+             radial-gradient(720px 520px at 88% 10%,rgba(20,184,166,.07),transparent 62%),
+             radial-gradient(860px 620px at 50% 100%,rgba(99,102,241,.06),transparent 62%)}
+::selection{background:rgba(37,99,235,.18)}
 
-/* ---- 顶栏：白底一条细线，纯文字导航，无方块品牌标 ---- */
-.appbar{background:#fff!important;border-bottom:1px solid #eef1f5!important;box-shadow:none!important}
+/* ---- 顶栏：磨砂玻璃条 ---- */
+.appbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.55)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
+  border-bottom:1px solid var(--glass-line)!important;box-shadow:0 4px 20px rgba(31,45,61,.05)!important}
 .brand::before{content:none!important}
-.brand b{font-weight:700;letter-spacing:.01em;color:#1c2733}
-.brand-sub{border:0!important;padding:0!important}
-.mainnav a,.drill-page .mainnav a,.exam-page .mainnav a{background:transparent!important;border-radius:0!important;margin:0 12px!important;padding:8px 2px!important;color:#5a6b85!important;font-weight:500!important}
-.mainnav a:hover,.drill-page .mainnav a:hover,.exam-page .mainnav a:hover{background:transparent!important;color:#1c2733!important}
-.mainnav a.on,.drill-page .mainnav a.on,.exam-page .mainnav a.on{color:#1c2733!important;background:transparent!important;font-weight:700!important}
-.mainnav a.on::after,.drill-page .mainnav a.on::after,.exam-page .mainnav a.on::after{background:#2563eb!important;height:2px!important;left:0!important;right:0!important;bottom:-2px!important;border-radius:0!important}
+.brand b{color:var(--ink)}
+.brand-sub{border-left:1px solid var(--line)!important}
+.mainnav a{position:relative;margin:0 4px!important;padding:7px 14px!important;border-radius:999px!important;
+  background:transparent!important;color:var(--sub)!important;font-weight:500!important;
+  transition:transform .16s var(--ease),box-shadow .16s var(--ease),background-color .16s var(--ease)}
+.mainnav a:hover{background:rgba(255,255,255,.75)!important;color:var(--ink)!important;
+  transform:translateY(-1px);box-shadow:0 6px 14px rgba(31,45,61,.08)}
+.mainnav a.on{background:var(--glass-strong)!important;color:var(--ink)!important;font-weight:700!important;
+  box-shadow:0 4px 14px rgba(31,45,61,.10)!important}
+.mainnav a.on::after{content:none!important}
+.bankpill,.td-acct-btn,.appbar-exit{border:1px solid var(--glass-border)!important;background:rgba(255,255,255,.5)!important;
+  border-radius:999px!important;color:var(--sub)!important;
+  transition:transform .16s var(--ease),box-shadow .16s var(--ease)}
+.bankpill{padding:4px 12px!important}
+.appbar-exit{padding:5px 12px!important}
+.appbar-exit::before{content:none!important}
+.td-acct-btn,.appbar-exit,.bankpill:hover{cursor:pointer}
+.td-acct-btn:hover,.appbar-exit:hover,.bankpill:hover{background:rgba(255,255,255,.85)!important;color:var(--ink)!important;
+  transform:translateY(-1px);box-shadow:0 6px 16px rgba(31,45,61,.10)}
+.td-acct-btn[data-on="1"]{background:rgba(37,99,235,.12)!important;color:var(--blue)!important;border-color:rgba(37,99,235,.35)!important}
 .td-acct-icon-btn svg{display:none!important}
 .td-acct-icon-btn{gap:0!important;display:inline-flex!important;align-items:center!important}
-.bankpill{border:0!important;background:transparent!important;border-radius:0!important;padding:0 4px!important}
-.appbar-exit{border:0!important;background:transparent!important;border-radius:0!important;color:#5a6b85!important;padding:6px 2px!important}
-.appbar-exit::before{content:"← ";font-weight:400}
-.appbar-exit:hover{background:transparent!important;color:#1c2733!important;text-decoration:underline!important;text-underline-offset:3px}
-.td-acct-btn{border:0!important;background:transparent!important;border-radius:0!important;color:#5a6b85!important}
-.td-acct-btn:hover{background:transparent!important;color:#1c2733!important}
-.td-acct-btn[data-on="1"]{background:transparent!important;color:#2563eb!important}
 
-/* ---- 按钮：纯文字，悬停下划线，无框无填充 ---- */
-.btn{border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important;
-  color:#1c2733!important;font-weight:600!important;min-height:0!important;padding:6px 2px!important;gap:6px}
-.btn:hover{background:transparent!important;color:#2563eb!important;text-decoration:underline!important;text-underline-offset:3px!important}
-.btn.primary,.exam-page .btn.primary,.exam-submit-button,.drill-page-button.drill-next-button,
-.btn.danger{background:transparent!important;border:0!important;box-shadow:none!important;color:#1c2733!important}
-.btn.primary:hover,.exam-page .btn.primary:hover,.exam-submit-button:hover,
-.drill-page-button.drill-next-button:hover{background:transparent!important;color:#2563eb!important}
-.btn.danger{color:#dc2626!important}
-.btn.danger:hover{color:#b91c1c!important}
-.btn.sm{padding:4px 2px;font-size:12.5px}
-.btn:disabled{opacity:.45}
+/* ---- 按钮：玻璃胶囊，hover 悬浮 ---- */
+.btn{border:1px solid var(--glass-border)!important;background:rgba(255,255,255,.55)!important;
+  box-shadow:0 2px 10px rgba(31,45,61,.06)!important;border-radius:12px!important;
+  color:var(--ink)!important;font-weight:600!important;min-height:0!important;padding:8px 16px!important;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:transform .16s var(--ease),box-shadow .16s var(--ease),background-color .16s var(--ease)}
+.btn:hover{background:rgba(255,255,255,.85)!important;transform:translateY(-2px);
+  box-shadow:0 10px 22px rgba(31,45,61,.13)!important;color:var(--ink)!important;text-decoration:none!important}
+.btn.primary,.exam-page .btn.primary,.exam-submit-button,.drill-page-button.drill-next-button{
+  background:linear-gradient(135deg,rgba(37,99,235,.92),rgba(29,78,216,.92))!important;
+  border:1px solid rgba(37,99,235,.45)!important;color:#fff!important;
+  box-shadow:0 6px 18px rgba(37,99,235,.25)!important}
+.btn.primary:hover,.exam-page .btn.primary:hover,.exam-submit-button:hover,.drill-page-button.drill-next-button:hover{
+  transform:translateY(-2px)!important;box-shadow:0 14px 28px rgba(37,99,235,.35)!important;background:linear-gradient(135deg,#2563eb,#1d4ed8)!important}
+.btn.danger{background:rgba(255,255,255,.55)!important;border:1px solid rgba(220,38,38,.3)!important;color:var(--bad)!important}
+.btn.danger:hover{background:rgba(220,38,38,.08)!important;box-shadow:0 10px 22px rgba(220,38,38,.15)!important}
+.btn.sm{padding:4px 10px;font-size:12.5px}
+.btn:disabled{opacity:.45;transform:none!important;box-shadow:none!important}
 
-/* ---- 所有面板 / 卡片 / 列表：去框、去阴影、去圆角，留白分隔 ---- */
-.panel,.card,.exam-panel,.drill-section-list,.wrong-card,.unit-stat,.weak-panel,
-.exam-special-panel,.drill-result-summary,.drill-result-list,.rev-summary,.exam-table-wrap,
-.exam-submit-main,.empty-panel,.imgimp-panel,.exam-notice,.exam-start-directions,
-.drill-resume,.drill-result-notice,.td-save-panel,.bb-modal,.drill-nav-panel,
-.drill-unit-button,.unit-pick button,.drill-board-nav-item,.exam-special-chip,
-.chip,.pill,.tag,.filter-btn,.bankpill{
-  border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important}
-.panel:hover,.card:hover,.unit-pick button:hover,.unit-pick button.on,
-.drill-unit-button:hover,.drill-unit-button.on,.drill-board-nav-item.on,
-.exam-special-chip.on{border-color:transparent!important;background:transparent!important;box-shadow:none!important;transform:none!important}
+/* ---- 静态面板：磨砂玻璃卡 ---- */
+.panel,.card,.exam-panel,.weak-panel,.wrong-card,.empty-panel,.imgimp-panel,
+.drill-resume,.drill-result-summary,.rev-summary,.exam-table-wrap,.exam-notice,
+.exam-start-directions,.exam-special-panel,.td-save-panel,.bb-modal,.drill-nav-panel,
+.imgimp-row,.exam-submit-main{
+  background:var(--glass)!important;border:1px solid var(--glass-border)!important;
+  border-radius:var(--radius)!important;box-shadow:var(--shadow-1)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(150%);backdrop-filter:blur(20px) saturate(150%)}
+.bb-modal,.drill-nav-panel{background:rgba(255,255,255,.8)!important}
+.drill-resume{display:inline-flex!important;align-items:center!important;color:var(--blue)!important;text-decoration:none!important;padding:10px 16px!important}
 
-/* ---- 落地页单元 / 章节行：纯文字列表，细线分隔 ---- */
-.drill-unit-button{padding:14px 0!important;min-height:0!important;gap:4px!important}
-.unit-pick button{padding:14px 8px!important;min-height:0!important}
-.drill-section-row{padding:14px 0!important;border-bottom:1px solid #eef1f5!important}
-.drill-section-row:hover{background:transparent!important;box-shadow:none!important}
-.drill-section-code{background:transparent!important;color:#2563eb!important;border-radius:0!important;min-width:0;width:auto;height:auto;padding:0!important;font-weight:700}
-.drill-section-meta{color:#8a99ae!important}
-.drill-section-go{color:#2563eb!important}
+/* ---- 可交互行：玻璃卡 + hover 悬浮 ---- */
+.drill-unit-button,.unit-pick button,.drill-board-nav-item,.drill-section-row,
+.exam-special-chip,.filter-btn,.unit-stat,.chip,.pill,.tag,.miniopts button,
+.drill-result-row,.rev-item,.imgimp-drop,.wrong-card{
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  transition:transform .18s var(--ease),box-shadow .18s var(--ease),background-color .18s var(--ease)}
+.drill-unit-button,.unit-pick button,.drill-board-nav-item,.drill-section-row,
+.exam-special-chip,.filter-btn,.unit-stat,.chip,.pill,.tag,.miniopts button,
+.drill-result-row,.rev-item{
+  background:rgba(255,255,255,.5)!important;border:1px solid var(--glass-border)!important;
+  border-radius:14px!important;box-shadow:0 2px 10px rgba(31,45,61,.05)!important}
+.drill-unit-button:hover,.unit-pick button:hover,.drill-board-nav-item:hover,
+.drill-section-row:hover,.exam-special-chip:hover,.filter-btn:hover,.unit-stat:hover,
+.chip:hover,.pill:hover,.tag:hover,.miniopts button:hover,.drill-result-row:hover,.rev-item:hover{
+  transform:translateY(-3px)!important;background:rgba(255,255,255,.88)!important;
+  box-shadow:0 14px 28px rgba(31,45,61,.13)!important}
+.drill-unit-button.on,.unit-pick button.on,.drill-board-nav-item.on,.exam-special-chip.on,.filter-btn.on,.miniopts button.on{
+  background:rgba(37,99,235,.10)!important;border-color:rgba(37,99,235,.4)!important;color:var(--ink)!important;transform:none!important}
+.unit-pick button.on{box-shadow:0 6px 16px rgba(37,99,235,.14)!important}
+.drill-section-row{margin:0 0 10px!important;padding:14px 18px!important}
+.drill-section-row:hover{background:rgba(255,255,255,.85)!important}
+.drill-section-code{background:rgba(37,99,235,.10)!important;color:var(--blue)!important;border-radius:8px!important;padding:2px 8px!important;font-weight:700}
+.unit-stat{padding:16px 18px!important}
+.unit-stat span{text-transform:none!important;letter-spacing:.02em!important;font-size:12px!important;font-weight:600!important;color:var(--sub)!important}
+.unit-stat small{font-size:12.5px!important;font-weight:500!important;color:var(--sub)!important}
 
-/* ---- 成绩报告 / 结果页 ---- */
-.rev-summary .s{border-right:0!important;border-bottom:1px solid #eef1f5!important;padding:16px 0!important;background:transparent!important}
-.rev-item .badge{background:transparent!important;color:inherit!important;border-radius:0!important;width:auto;height:auto}
-.rev-item.ok .badge{color:#16a34a!important}
-.rev-item.no .badge{color:#dc2626!important}
-table.tbl th,.rev-table th{background:transparent!important;border-bottom:1px solid #eef1f5!important;text-transform:none!important;letter-spacing:0!important;font-size:12.5px!important}
-.rev-table td{border-bottom:1px solid #f4f6f9!important}
-.rev-table tbody tr:hover{background:transparent!important}
-.drill-result-row{padding:18px 0!important;border-bottom:1px solid #eef1f5!important}
-.drill-result-answers>div{border:0!important;background:transparent!important;padding:0!important}
-.drill-result-score{background:transparent!important;color:#1c2733!important;border-right:0!important;padding:0!important}
-.drill-result-score strong{color:#1c2733!important}
-.drill-result-tallies div::before{display:none}
-.kp-row{border-bottom:1px solid #f4f6f9!important}
-.prio-item{border-bottom:1px solid #f4f6f9!important}
-.prio-lv{border:0!important;background:transparent!important;border-radius:0!important;width:auto;height:auto;color:#2563eb!important}
-.weak-topic b{background:transparent!important;color:#2563eb!important;width:auto;height:auto;border-radius:0!important}
+/* ---- 大数字：渐变描字 ---- */
+.unit-stat b,.drill-result-score strong,.score-num,.exam-submit-count,
+.rev-summary .s b,.drill-result-tallies dd{
+  font-weight:800!important;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,#1d4ed8 0%,#0ea5e9 55%,#14b8a6 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.unit-stat b{font-size:30px!important}
+.drill-result-tallies dd{font-size:26px!important;-webkit-text-fill-color:initial;color:var(--ink)}
 
-/* ---- 错题回顾页 ---- */
-.wrong-card{padding:18px 0!important;margin-bottom:0!important;background:transparent!important;border:0!important;border-bottom:1px solid #eef1f5!important}
-.wrong-unit{margin:32px 0 8px!important}
-.wrong-unit>h2{border-bottom:1px solid #eef1f5!important;padding-bottom:10px!important}
-.unit-stat{padding:10px 0!important;display:block!important;text-align:left!important}
-.unit-stat.on{background:transparent!important}
-.unit-stat span{display:block!important;font-size:12px!important;color:#8a99ae!important;letter-spacing:0!important;text-transform:none!important;font-weight:500!important}
-.unit-stat b{display:block!important;font-size:24px!important;line-height:1.2;margin:2px 0!important;color:#1c2733!important}
-.unit-stat small{display:block!important;font-size:12.5px!important;color:#5a6b85!important;font-weight:500!important}
-.unit-stat.on span{color:#2563eb!important}
-
-/* ---- 模考开场/报告页不显示答题期的深蓝 context bar，仅答题中保留 ---- */
+/* ---- 答题进行中：玻璃化选项与栏 ---- */
+.drill-context,.exam-page .drill-context{background:rgba(15,30,54,.74)!important;background-image:none!important;
+  -webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);
+  border-bottom:1px solid rgba(255,255,255,.08)!important;box-shadow:none!important}
 body.exam-page .exam-context{display:none!important}
 body.exam-page:has(#stage-answer.active) .exam-context{display:flex!important}
-.weak-panel{background:transparent!important;border:0!important;padding:8px 0!important}
-.answer-compare{grid-template-columns:1fr!important;gap:6px!important;margin:10px 0!important}
-.answer-compare>div{border:0!important;background:transparent!important;padding:0!important}
-.answer-compare span{font-size:12px!important;text-transform:none!important;letter-spacing:0!important;color:#8a99ae!important;margin-bottom:2px}
-.answer-compare b{font-size:14px!important;color:#1c2733!important}
-.answer-compare .your-answer{color:#dc2626!important}
-.answer-compare div:last-child b{color:#16a34a!important}
-.cause-box{background:transparent!important;border:0!important;border-left:0!important;border-radius:0!important;padding:10px 0 0!important}
-.cause-box b{color:#1c2733!important;font-size:13.5px!important}
-.cause-box p{font-size:13px!important;color:#5a6b85!important}
-.cause-box .fix{color:#1d4ed8!important}
+.drill-questionbar{background:rgba(255,255,255,.6)!important;
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--glass-line)!important}
+.drill-footer{background:rgba(255,255,255,.62)!important;
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border-top:1px solid var(--glass-line)!important;box-shadow:0 -8px 24px rgba(31,45,61,.07)!important}
+.drill-choice{background:rgba(255,255,255,.62)!important;border:1px solid var(--glass-border)!important;
+  border-radius:14px!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:0 2px 10px rgba(31,45,61,.05)!important;
+  transition:transform .18s var(--ease),box-shadow .18s var(--ease),background-color .18s var(--ease),border-color .18s var(--ease)}
+.drill-choice:hover{transform:translateY(-2px);background:rgba(255,255,255,.88)!important;
+  border-color:rgba(37,99,235,.35)!important;box-shadow:0 12px 24px rgba(31,45,61,.12)!important}
+.drill-choice[aria-pressed="true"],.drill-choice[aria-checked="true"],.drill-choice.is-selected,.choice.on{
+  background:rgba(37,99,235,.12)!important;border-color:rgba(37,99,235,.55)!important;
+  box-shadow:inset 0 0 0 1px rgba(37,99,235,.25),0 8px 20px rgba(37,99,235,.14)!important}
+.drill-choice-letter,.choice .cl{background:rgba(255,255,255,.85)!important;border:1px solid rgba(255,255,255,.85)!important;border-radius:10px!important}
+.drill-choice[aria-pressed="true"] .drill-choice-letter,.drill-choice[aria-checked="true"] .drill-choice-letter,
+.drill-choice.is-selected .drill-choice-letter,.choice.on .cl{
+  background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;border-color:rgba(37,99,235,.5)!important;color:#fff!important}
+.drill-gridin input{background:rgba(255,255,255,.7)!important;border:1px solid var(--glass-border)!important;
+  border-radius:12px!important;box-shadow:0 2px 10px rgba(31,45,61,.06)!important}
+.drill-mark-button,.drill-question-tools button,.exam-hide-timer,.drill-nav-close,.mist-toolbar button{
+  border-radius:10px!important}
+.drill-mark-button:hover,.drill-question-tools button:hover{background:rgba(255,255,255,.8)!important}
+.mist-toolbar{background:rgba(255,255,255,.6)!important;border:1px solid var(--glass-border)!important;
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-radius:14px!important;
+  box-shadow:0 8px 24px rgba(31,45,61,.12)!important}
+.mist-toolbar button.on{background:rgba(37,99,235,.12)!important;border-color:rgba(37,99,235,.35)!important}
+.exam-clock{background:rgba(255,255,255,.5)!important;border:1px solid var(--glass-border)!important;border-radius:12px!important;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 
-/* ---- 图片导入面板：去框，保留功能 ---- */
-.imgimp-drop{border:0!important;background:transparent!important;border-radius:0!important;padding:8px 0!important;color:#5a6b85!important}
-.imgimp-drop:hover{color:#2563eb!important;background:transparent!important}
-.imgimp-row{border:0!important;background:transparent!important;padding:8px 0!important}
-.imgimp-thumb img{border:0!important;border-radius:0!important;background:transparent!important}
-.imgimp-ocr{background:transparent!important;border-radius:0!important}
-.imgimp-cand{border:0!important;background:transparent!important;border-radius:0!important}
-.imgimp-badge{border:0!important;background:transparent!important;border-radius:0!important}
+/* ---- 结果 / 报告页 ---- */
+.drill-result-answers{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+.drill-result-answers>div{border:1px solid var(--glass-border)!important;background:rgba(255,255,255,.55)!important;
+  border-radius:12px!important;padding:11px 14px!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.drill-result-answers>div:first-child{background:rgba(220,38,38,.05)!important;border-color:rgba(220,38,38,.18)!important}
+.drill-result-answers>div:first-child b{color:var(--bad)!important}
+.drill-result-answers>div:last-child{background:rgba(22,163,74,.05)!important;border-color:rgba(22,163,74,.18)!important}
+.drill-result-answers>div:last-child b{color:var(--ok)!important}
+.drill-result-state.is-right,.drill-result-row.is-right .drill-result-state,.rev-item.ok .badge{color:var(--ok)!important}
+.drill-result-row.is-wrong .drill-result-state,.rev-item.no .badge{color:var(--bad)!important}
+.drill-result-jump,.exam-spr-link,.drill-result-notice-link{color:var(--blue)!important}
+.rev-summary .s{border-right:1px solid var(--line-soft)!important}
+.rev-summary .s:last-child{border-right:0!important}
+.rev-table th{background:transparent!important;border-bottom:1px solid var(--line)!important;text-transform:none!important;letter-spacing:0!important}
+.rev-table td{border-bottom:1px solid var(--line-soft)!important}
+.rev-table tbody tr:hover{background:rgba(255,255,255,.5)!important}
+.kv div{border-bottom:1px solid var(--line-soft)!important}
+.exam-tabs{border-bottom:1px solid var(--line)!important;gap:6px!important}
+.exam-tabs .tab{border-radius:999px!important;padding:8px 16px!important;color:var(--sub)!important;
+  border-bottom:0!important;transition:transform .16s var(--ease),box-shadow .16s var(--ease),background-color .16s var(--ease)}
+.exam-tabs .tab:hover{background:rgba(255,255,255,.7)!important;transform:translateY(-1px)}
+.exam-tabs .tab.on{background:var(--glass-strong)!important;color:var(--ink)!important;font-weight:700!important;
+  border-bottom:0!important;box-shadow:0 4px 12px rgba(31,45,61,.08)!important}
+.prio-lv,.weak-topic b{background:rgba(37,99,235,.10)!important;color:var(--blue)!important;border-radius:8px!important;
+  width:auto!important;height:auto!important;padding:2px 8px!important}
+.weak-panel h2{color:var(--ink)!important}
 
-/* ---- 小字收敛 ---- */
+/* ---- 错题回顾页 ---- */
+.wrong-card{padding:22px 24px!important;margin-bottom:14px!important}
+.wrong-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)!important}
+.wrong-card.corrected{border-left:3px solid var(--ok)!important}
+.answer-compare{grid-template-columns:1fr 1fr!important;gap:12px!important;margin-bottom:14px!important}
+.answer-compare>div{border:1px solid var(--glass-border)!important;background:rgba(255,255,255,.55)!important;
+  border-radius:12px!important;padding:12px 14px!important}
+.answer-compare div:first-child{background:rgba(220,38,38,.05)!important;border-color:rgba(220,38,38,.2)!important}
+.answer-compare div:last-child{background:rgba(22,163,74,.05)!important;border-color:rgba(22,163,74,.2)!important}
+.answer-compare .your-answer{color:var(--bad)!important}
+.answer-compare div:last-child b{color:var(--ok)!important}
+.cause-box{background:rgba(37,99,235,.06)!important;border:0!important;border-left:3px solid var(--blue)!important;
+  border-radius:12px!important;padding:13px 16px!important}
+.cause-box .fix{color:var(--blue-strong)!important}
+
+/* ---- 图片导入面板 ---- */
+.imgimp-drop{border:1.5px dashed rgba(120,140,165,.35)!important;background:rgba(255,255,255,.4)!important;
+  border-radius:14px!important;color:var(--sub)!important}
+.imgimp-drop:hover,.imgimp-drop.is-dragover{border-color:rgba(37,99,235,.5)!important;
+  background:rgba(255,255,255,.8)!important;color:var(--blue)!important;transform:translateY(-2px)}
+.imgimp-row select,.imgimp-grid select,.imgimp-actions select{
+  background:rgba(255,255,255,.7)!important;border:1px solid var(--glass-border)!important;border-radius:10px!important}
+.imgimp-x{border:1px solid var(--glass-border)!important;background:rgba(255,255,255,.5)!important;border-radius:999px!important}
+.imgimp-x:hover{background:rgba(255,255,255,.85)!important}
+.imgimp-ocr,.imgimp-cand{background:rgba(255,255,255,.5)!important;border-radius:10px!important}
+.imgimp-cand{border:1px solid var(--glass-border)!important;transition:transform .16s var(--ease),box-shadow .16s var(--ease)}
+.imgimp-cand:hover{transform:translateY(-1px);border-color:rgba(37,99,235,.4)!important;
+  background:rgba(255,255,255,.85)!important;box-shadow:0 6px 14px rgba(31,45,61,.10)!important}
+
+/* ---- 杂项 ---- */
 .small,.muted,.sub{font-size:13px!important}
-.page-head p,.exam-note,.drill-result-stem{color:#5a6b85!important}
+.page-head p,.exam-note{color:var(--sub)!important}
+.empty{padding:24px 0!important;color:var(--sub)!important}
+.crumb .sep{color:var(--line-strong)}
+@keyframes tdFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+main.wrap,.drill-select,.exam-start-main,.drill-result,.exam-stage-main,.wrong-page{animation:tdFade .32s ease both}
+@media (prefers-reduced-motion:reduce){
+  .btn,.mainnav a,.drill-choice,.drill-unit-button,.drill-section-row,.drill-result-row,.rev-item,
+  .filter-btn,.unit-stat,.exam-special-chip{transition:none!important;transform:none!important}
+  main.wrap,.drill-select,.exam-start-main,.drill-result,.exam-stage-main,.wrong-page{animation:none!important}
+}
 
-/* ---- 进入页面淡入，切换更柔和 ---- */
-@keyframes tdFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-main.wrap,.drill-select,.exam-start-main,.drill-result,.exam-stage-main,.wrong-page{animation:tdFade .3s ease both}
-.exam-tabs .tab,.mainnav a,.btn,.filter-btn{transition:color .18s var(--ease),background-color .18s var(--ease)}
+/* ---- 玻璃层补丁：盖住 drill-page/exam-page 前缀的旧主题残留 ---- */
+.appbar,.drill-page .appbar,.exam-page .appbar{background:rgba(255,255,255,.55)!important;
+  border-bottom:1px solid var(--glass-line)!important;box-shadow:0 4px 20px rgba(31,45,61,.05)!important}
+.brand,.drill-page .brand,.exam-page .brand,.brand b,.drill-page .brand b,.exam-page .brand b{color:var(--ink)!important}
+.mainnav a,.drill-page .mainnav a,.exam-page .mainnav a{height:auto!important;min-height:0!important;
+  padding:7px 14px!important;margin:0 4px!important;border-radius:999px!important;
+  background:transparent!important;color:var(--sub)!important;font-weight:500!important}
+.mainnav a:hover,.drill-page .mainnav a:hover,.exam-page .mainnav a:hover{
+  background:rgba(255,255,255,.8)!important;color:var(--ink)!important;
+  transform:translateY(-1px);box-shadow:0 6px 14px rgba(31,45,61,.08)}
+.mainnav a.on,.drill-page .mainnav a.on,.exam-page .mainnav a.on{
+  background:var(--glass-strong)!important;color:var(--ink)!important;font-weight:700!important;
+  box-shadow:0 4px 14px rgba(31,45,61,.10)!important}
+.mainnav a.on::after,.drill-page .mainnav a.on::after,.exam-page .mainnav a.on::after{content:none!important}
+.appbar-exit,.drill-page .appbar-exit,.exam-page .appbar-exit{
+  border:1px solid var(--glass-border)!important;background:rgba(255,255,255,.5)!important;
+  border-radius:999px!important;color:var(--sub)!important;padding:5px 12px!important;height:auto!important;
+  font-size:13px!important}
+.appbar-exit:hover,.drill-page .appbar-exit:hover,.exam-page .appbar-exit:hover{
+  background:rgba(255,255,255,.85)!important;color:var(--ink)!important;transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(31,45,61,.10)}
+.td-acct-btn,.appbar-inner .td-acct-btn,.appbar .td-acct-btn{
+  border:1px solid var(--glass-border)!important;background:rgba(255,255,255,.5)!important;
+  border-radius:999px!important;color:var(--sub)!important}
+.td-acct-btn:hover,.appbar-inner .td-acct-btn:hover,.appbar .td-acct-btn:hover{
+  background:rgba(255,255,255,.85)!important;color:var(--ink)!important;transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(31,45,61,.10)}
+.td-acct-btn[data-on="1"],.appbar-inner .td-acct-btn[data-on="1"],.appbar .td-acct-btn[data-on="1"]{
+  background:rgba(37,99,235,.12)!important;color:var(--blue)!important;border-color:rgba(37,99,235,.35)!important}
+body.drill-page,body.exam-page{background:linear-gradient(160deg,#f3f7f9 0%,#e9eef3 38%,#e5ece8 100%)!important;
+  background-attachment:fixed!important}
 
-/* ---- 落地页板块导航：纯文字列表，无卡片 ---- */
-.drill-board-layout{gap:32px!important}
-.drill-board-nav{gap:0!important}
-.drill-board-nav-item{padding:12px 0!important;gap:2px!important;box-shadow:none!important}
-.drill-board-nav-item.on{box-shadow:none!important}
-.drill-board-nav-item.on b{color:#2563eb!important}
-.drill-board-nav-item b{font-weight:700!important;letter-spacing:0!important}
-.drill-board-nav-item span,.drill-board-nav-item small{color:#8a99ae!important;font-size:12.5px!important}
-.drill-group-h{margin:24px 0 6px!important;font-weight:600!important;color:#5a6b85!important;letter-spacing:0!important}
-
-/* ---- 模考开场页：参数 / 单元选择 / 专项开关 ---- */
-.exam-start-meta span{border-right:0!important;padding-right:18px!important;color:#5a6b85!important;font-weight:500!important}
-.exam-start-directions{border:0!important;background:transparent!important;border-left:0!important;border-radius:0!important;padding:8px 0!important}
-.exam-start-directions button{border:0!important;background:transparent!important;border-radius:0!important;padding:6px 0!important;color:#2563eb!important}
-.exam-start-directions button:hover{background:transparent!important}
-.exam-pick-label{letter-spacing:0!important;font-weight:600!important;color:#5a6b85!important;text-transform:none!important}
-.unit-pick button{padding:12px 8px!important;gap:2px!important}
-.unit-pick button.on{color:#2563eb!important}
-.unit-pick button .tiny{color:#8a99ae!important}
-.exam-special-panel{padding:8px 0!important}
-.exam-special-head{letter-spacing:0!important;text-transform:none!important;font-weight:600!important;color:#1c2733!important;margin-bottom:8px!important}
-.exam-special-head span{color:#8a99ae!important}
-.exam-special-chip{padding:6px 0!important;gap:4px!important}
-.exam-special-chip small{color:#8a99ae!important}
-
-/* ---- 成绩报告：网格留白、标签下划线式 Tab ---- */
-.exam-stage-head{padding-bottom:18px!important}
-.res-grid{gap:8px 32px!important}
-.score-hero{gap:32px!important}
-.score-num{color:#1c2733!important}
-.kv div{border-bottom:1px solid #f4f6f9!important;padding:10px 0!important}
-.exam-tabs{border-bottom:1px solid #eef1f5!important}
-.exam-tabs .tab{border-bottom:2px solid transparent!important;color:#8a99ae!important}
-.exam-tabs .tab.on{border-bottom-color:#2563eb!important;color:#1c2733!important}
-.exam-section-title{letter-spacing:0!important}
-
-/* ---- 错题页补充：去分隔线、去状态色块 ---- */
-.wrong-toolbar{border-top:0!important;border-bottom:0!important;padding:8px 0!important;margin-bottom:16px!important}
-.filter-btn.on{border-color:transparent!important;background:transparent!important;color:#1c2733!important}
-.wrong-card.corrected{border-left:0!important}
-.weak-panel h2{color:#1c2733!important}
-.imgimp-x{border:0!important;background:transparent!important;border-radius:0!important;width:auto!important;height:auto!important;padding:6px 0!important;color:#5a6b85!important}
-.imgimp-x:hover{background:transparent!important;color:#1c2733!important}
-.imgimp-empty{border:0!important;background:transparent!important;border-radius:0!important;padding:24px 0!important}
-.imgimp-thumb-ph{border:0!important;background:transparent!important;border-radius:0!important}
-.imgimp-row select,.imgimp-grid select{border:0!important;background:transparent!important;border-radius:0!important;padding:6px 0!important}
-.imgimp-progress{background:#f4f6f9!important;border-radius:0!important}
-
-/* ---- 练习结果行：状态红绿，答案纯文字 ---- */
-.drill-result-row.is-right .drill-result-state{color:#16a34a!important}
-.drill-result-row.is-wrong .drill-result-state{color:#dc2626!important}
-.drill-result-row.is-blank .drill-result-state{color:#8a99ae!important}
-.drill-result-answers>div:first-child b{color:#dc2626!important}
-.drill-result-answers>div:last-child b{color:#16a34a!important}
-.drill-result-jump{color:#2563eb!important}
-
-/* ---- 成绩报告回顾：答案选择小键、填空输入、表格去框 ---- */
-.exam-table-wrap{border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important}
-.rev-summary{border:0!important;box-shadow:none!important;border-radius:0!important}
-.miniopts button{width:auto!important;height:auto!important;min-width:28px!important;padding:2px 8px!important;border:0!important;background:transparent!important;border-radius:0!important;color:#5a6b85!important}
-.miniopts button.on{background:transparent!important;color:#1c2733!important;font-weight:700!important;text-decoration:underline;text-underline-offset:3px}
-.gridmini{width:auto!important;min-width:110px!important;height:auto!important;padding:2px 0!important;border:0!important;border-bottom:1px solid #dde3ea!important;background:transparent!important;border-radius:0!important}
-.rev-item .ans b{font-weight:700!important}
-.empty{padding:24px 0!important;color:#8a99ae!important;background:transparent!important}
-.drill-resume{background:transparent!important;border:0!important;border-radius:0!important;padding:6px 0!important;color:#2563eb!important;text-decoration:underline;text-underline-offset:3px}
-.drill-resume:hover{background:transparent!important;color:#1d4ed8!important}
-.drill-result-notice{color:#5a6b85!important}
-.drill-result-notice-link{color:#2563eb!important}
-.page-head{border-bottom:0!important;padding-bottom:8px!important}
-.subnav{border-bottom:0!important;background:transparent!important}
-.extranav{gap:18px!important}
-.more-menu{gap:18px!important}
-.more-menu a{color:#5a6b85!important}
-.more-menu a:hover{color:#1c2733!important}
-.more-label,.subnav-hint{color:#8a99ae!important;letter-spacing:0!important;text-transform:none!important}
-
-/* ---- 全局过渡柔化 ---- */
-.drill-board-nav-item,.drill-section-row,.exam-special-chip,.unit-pick button,.filter-btn{transition:color .18s var(--ease),opacity .18s var(--ease)}
+/* ---- 答题页玻璃化：盖掉 body:has() 官方白底层 ---- */
+body:has(#questionView:not([hidden])),body:has(#stage-answer:not([hidden])),
+body.exam-page:has(#stage-answer:not([hidden])){
+  background:linear-gradient(160deg,#f3f7f9 0%,#e9eef3 38%,#e5ece8 100%)!important;
+  background-attachment:fixed!important}
+body:has(#questionView:not([hidden]))::before,body:has(#stage-answer:not([hidden]))::before,
+body.exam-page:has(#stage-answer:not([hidden]))::before{display:block!important}
+body:has(#questionView:not([hidden])) #appbar,body:has(#questionView:not([hidden])) .appbar,
+body.exam-page:has(#stage-answer:not([hidden])) #appbar,body.exam-page:has(#stage-answer:not([hidden])) .appbar{
+  background:rgba(255,255,255,.5)!important;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:none!important}
+body:has(#questionView:not([hidden])) .drill-context,
+body.exam-page:has(#stage-answer:not([hidden])) .exam-context{
+  background:rgba(255,255,255,.55)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);
+  border-bottom:1px solid var(--glass-line)!important;box-shadow:none!important}
+body:has(#questionView:not([hidden])) .drill-questionbar,
+body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar{
+  background:rgba(255,255,255,.6)!important;
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+body:has(#questionView:not([hidden])) .drill-main,
+body.exam-page:has(#stage-answer:not([hidden])) .exam-main{background:transparent!important}
+body:has(#questionView:not([hidden])) .drill-footer,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
+  background:rgba(255,255,255,.62)!important;
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border-top:1px solid var(--glass-line)!important;box-shadow:0 -8px 24px rgba(31,45,61,.07)!important}
