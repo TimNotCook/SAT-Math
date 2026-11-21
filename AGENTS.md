@@ -30,7 +30,7 @@
 | `bluebook.css` | Bluebook 风格主题、答题页/模考页布局、横幅 |
 | `figures.js` | **公式与图表渲染核心**。`fmtMath()` 负责分数竖排、上下标、根号；`showFigure()` / `choiceGraph()` 负责题干图与选项图（SVG） |
 | `app-core.js` / `app-ui.js` | 题库读取、分组、UI 状态 |
-| `data/questions.js` | 题库元数据（`window.TD_BANK`）：1052 道题、单元/板块分组与题量 |
+| `data/questions.js` | 题库元数据（`window.TD_BANK`）：1012 道题（含 SP2 专项 60 题）、单元/板块分组与题量 |
 | `data/text.js` | 题干与选项文本（`window.TD_TEXT`），key 是题号，如 `SR-254` |
 | `data/figures.js` | 图表 spec（`window.TD_FIG_SPECS` / `TD_CHOICE_GRAPHS` / `TD_FIG_SPECS`），题号→图表定义 |
 | `data/figure_crops.js` / `choice_crops.js` | 图片裁剪引用 |
