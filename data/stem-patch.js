@@ -5,7 +5,8 @@
    3) 全量复查：25 题题干残留原表/坐标轴 OCR 碎片（表格题 + TD-22-12/16、TD-25-05、U2-12）→
       仅删除碎片，题干正文不动；
    4) 图形订正：TD-11-20 直线按原图改 (0,6)→(4.8,-6)、删端点标记；
-      TD-42-12 整表误用 TD-43-20 的矩形数据 → 改 Perimeter 表（TUV 50 / XYZ 150）。
+      TD-42-12 整表误用 TD-43-20 的矩形数据 → 改 Perimeter 表（TUV 50 / XYZ 150）；
+   5) 答案键订正：SR-215 官方答案 B（$291,700），原键误标 D。
    正式数据订正随下一次完整推送同步，本文件届时移除。
    注意：必须在 data/figures.js（TD_FIG_SPECS 注册表）之后加载。 */
 (function () {
@@ -52,6 +53,13 @@
   (window.TD_BANK && window.TD_BANK.questions || []).forEach(function (q) {
     if (q && STEM[q.id]) q.stem = STEM[q.id];
   });
+  /* 答案键订正：SR-215 官方答案 B（$291,700），原键误标 D。 */
+  var ANSWERS = {
+    'SR-215': 'B'
+  };
+  (window.TD_BANK && window.TD_BANK.questions || []).forEach(function (q) {
+    if (q && ANSWERS[q.id]) q.answer = ANSWERS[q.id];
+  });
   if (window.TD_TEXT) {
     Object.keys(window.TD_TEXT).forEach(function (k) {
       if (STEM[k] && window.TD_TEXT[k]) window.TD_TEXT[k].stem = STEM[k];
@@ -69,18 +77,7 @@
     'SP1-099': { type: 'table', head: ['x', 'g(x)'], rows: [['\u221227', '3'], ['\u22129', '0'], ['21', '5']] },
     'SP1-101': { type: 'table', head: ['x', 'y'], rows: [['\u22122s', '24'], ['\u2212s', '21'], ['s', '15']] }
   };
-  /* 图形规格订正：逐题对照 images/fig 原题扫描后覆盖。
-     - U4-05 / TD-41-06：原题两条平行线是竖直的（r、s 竖线，t 斜线），
-       模板只能画水平平行线 → 改 rawSvg 手绘。
-     - TD-42-18：原题为普通锐角三角形（无直角标记），模板默认形状像直角三角形 → 改顶点。
-     - TD-43-01：半圆在矩形顶边“上方”（外凸），原规格画成向内凹 → 改 rawSvg。
-     - TD-15-01 / TD-15-03：原题无阴影区域，删掉多余 region；线段端点按原图订正。
-     - TD-11-03：原题线段继续延伸到 (4.5,-3)，原规格只画到 x 轴交点。
-     - TD-22-09 / TD-22-17：原题是平滑曲线，原规格只画孤立点 → 补折线串联。
-     - SP1-025 / U1-12 / U1-13：直线斜率、截距与原图不符 → 重定端点。
-     - TD-25-15 / TD-25-16 / TD-25-05：柱高、箱线分位数按原图微调。
-     - TD-11-20：原题直线过 (0,6)、x 截距约 2.4、斜率 -5/2，原规格只画短段并多端点标记 → 重定端点、删 marks。
-     - TD-42-12：原规格误用 TD-43-20 的矩形面积/周长表 → 改 Perimeter 表（Triangle TUV 50 / Triangle XYZ 150）。 */
+  /* 图形规格订正：逐题对照 images/fig 原题扫描后覆盖。 */
   var FIGFIX = {
     'U4-05': {
       type: 'rawSvg',
@@ -173,8 +170,6 @@
   var CHOICEFIX = {
     'TD-22-14': { D: { kind: 'line', xInt: 30, yInt: 40, xmax: 40, ymax: 40 } }
   };
-  // data/figures.js 会在解析时重置 TD_FIG_SPECS，故表格/图形规格延迟到 DOMContentLoaded 再注册，
-  // 避免被后加载的注册表覆盖。题干覆盖（TD_BANK/TD_TEXT）立即生效。
   function registerTables() {
     window.TD_FIG_SPECS = window.TD_FIG_SPECS || {};
     Object.assign(window.TD_FIG_SPECS, TABLES);
