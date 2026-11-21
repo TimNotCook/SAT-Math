@@ -97,7 +97,7 @@
   /* 组合：错误类型自查步骤 + 本板块练习建议 */
   function compose(type, section, topic, stem) {
     var s = sectionFix(section, topic, stem);
-    return TYPE_FIX[type] ? TYPE_FIX[type] + '；' + s : s;
+    return TYPE_FIX[type] ? TYPE_FIX[type].replace(/。\s*$/, '') + '；' + s : s;
   }
 
   /* ---------- 方程结构拆解（y=mx+b / 指数模型） ---------- */
