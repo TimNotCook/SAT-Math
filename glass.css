@@ -1,0 +1,324 @@
+/* TD SAT Math · Glass HUD — sci-fi frosted theme override
+   Loaded last. Space Grotesk (loaded via Google Fonts <link> in HTML) drives
+   every prominent number. Non-destructive: remove the <link> + this file to revert. */
+
+:root{
+  /* palette: cool slate + teal instrument accent */
+  --ink:#171f2b; --ink-2:#2c3543; --sub:#5a6573; --faint:#8a93a1;
+  --line:#d7dcd9; --line-soft:#e8ece8; --line-strong:#c6cdc8;
+  --bg:#e7ebe8;
+  --paper:#ffffff; --wash:#eef2ef;
+  --navy:#171f2b; --navy-2:#2c3543;
+  --blue:#0d9488;            /* teal-600 accent */
+  --blue-strong:#0f766e;
+  --blue-soft:#f0fdfa;
+  --blue-line:#9fe7d8;
+  --ok:#0f766e; --ok-soft:#f0fdfa; --ok-line:#9fe7d8;
+  --warn:#b07a12; --warn-soft:#fbf3e2; --warn-line:#e6d3a7;
+  --bad:#c0392b; --bad-soft:#fdecea; --bad-line:#f0bcb8;
+  --veil:rgba(23,31,43,.40);
+  --shadow-1:0 1px 2px rgba(23,31,43,.06);
+  --shadow-2:0 6px 18px rgba(23,31,43,.09),0 1px 2px rgba(23,31,43,.05);
+  --shadow-3:0 24px 60px rgba(23,31,43,.22);
+  /* radii — moderate, never full capsule */
+  --radius:9px; --radius-sm:7px; --radius-lg:15px; --radius-pill:10px;
+  /* glass */
+  --glass-bg:rgba(255,255,255,.70);
+  --glass-bg-strong:rgba(255,255,255,.84);
+  --glass-border:1px solid rgba(23,31,43,.08);
+  --glass-blur:blur(22px) saturate(160%);
+  --glass-hi:inset 0 1px 0 rgba(255,255,255,.55);
+  --lift:0 18px 40px rgba(23,31,43,.15),0 4px 10px rgba(13,148,136,.12);
+  --glow-teal:0 0 0 1px rgba(13,148,136,.30),0 0 18px rgba(13,148,136,.18);
+  --font-display:"Space Grotesk","Inter",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.2,.7,.3,1);
+}
+
+/* ---------- base / sci-fi backdrop ---------- */
+body,body.drill-page,body.exam-page{
+  background-color:#e7ebe8!important;
+  background-image:
+    radial-gradient(720px 400px at 86% -6%,rgba(13,148,136,.15),transparent 62%),
+    radial-gradient(600px 360px at 4% 4%,rgba(94,234,212,.10),transparent 60%),
+    linear-gradient(rgba(23,31,43,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(23,31,43,.035) 1px,transparent 1px),
+    linear-gradient(165deg,#f2f5f1 0%,#e7ebe8 50%,#e0e6e1 100%)!important;
+  background-size:auto,auto,48px 48px,48px 48px,auto!important;
+  background-attachment:fixed!important;
+  color:var(--ink)!important;
+}
+body:has(#questionView:not([hidden])),body:has(#stage-answer:not([hidden])){
+  background-color:#dbe5df!important;
+  background-image:
+    radial-gradient(560px 380px at 84% 4%,rgba(13,148,136,.32),transparent 64%),
+    radial-gradient(520px 360px at 4% 12%,rgba(94,234,212,.24),transparent 64%),
+    radial-gradient(620px 460px at 50% 112%,rgba(20,184,166,.18),transparent 64%),
+    linear-gradient(rgba(23,31,43,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(23,31,43,.05) 1px,transparent 1px),
+    linear-gradient(165deg,#ecf2ee 0%,#dbe5df 55%,#d2ddd6 100%)!important;
+  background-size:auto,auto,auto,48px 48px,48px 48px,auto!important;
+}
+::selection{background:rgba(13,148,136,.22);color:var(--ink)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+h1,h2,h3,h4{color:var(--ink)!important}
+a{color:var(--blue-strong);transition:color .15s var(--ease)}
+a:hover{color:var(--blue)}
+.brand,.brand b,.brand:hover,.brand:hover b,
+.drill-page .brand b,.exam-page .brand b{color:var(--ink)!important}
+
+/* ---------- frosted glass surfaces ---------- */
+.panel,.card,.exam-panel,
+.drill-section-list,.drill-result-summary,.drill-result-list,
+.drill-question,.drill-nav-panel,.bb-modal,.bb-calc-panel,
+.unit-stat,.wrong-card,.exam-special-panel,.weak-panel,.cause-box,
+.answer-compare>div,.exam-start-directions{
+  background:var(--glass-bg)!important;
+  -webkit-backdrop-filter:var(--glass-blur);
+  backdrop-filter:var(--glass-blur);
+  border:var(--glass-border)!important;
+  border-radius:var(--radius-lg)!important;
+  box-shadow:var(--shadow-2),var(--glass-hi)!important;
+}
+.weak-panel,.cause-box,.exam-special-panel{border:1px solid rgba(13,148,136,.16)!important}
+.answer-compare>div{background:rgba(255,255,255,.55)!important}
+
+/* sticky bars — crisper glass */
+.appbar,.drill-context,.drill-questionbar,.drill-footer{
+  background:var(--glass-bg-strong)!important;
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  backdrop-filter:blur(16px) saturate(140%);
+  border-color:rgba(23,31,43,.07)!important;
+  box-shadow:0 1px 0 rgba(23,31,43,.05)!important;
+}
+.drill-footer{box-shadow:0 -8px 24px rgba(23,31,43,.06)!important}
+/* beat bluebook's high-specificity #fff on question view */
+body:has(#questionView:not([hidden])) .drill-questionbar,
+body:has(#questionView:not([hidden])) .drill-footer,
+body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
+  background:var(--glass-bg-strong)!important;
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  backdrop-filter:blur(16px) saturate(140%);
+  border-color:rgba(23,31,43,.07)!important;
+}
+
+/* interactive cards — glass + lift-ready */
+.drill-unit-button,.drill-board-nav-item,.unit-pick button,
+.unit-stat,.wrong-card,.btn,.drill-question-grid button{
+  background:var(--glass-bg)!important;
+  -webkit-backdrop-filter:var(--glass-blur);
+  backdrop-filter:var(--glass-blur);
+  border:var(--glass-border)!important;
+  box-shadow:var(--shadow-1),var(--glass-hi)!important;
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease),
+             border-color .22s var(--ease),background-color .22s var(--ease)!important;
+}
+
+/* ---------- hover lift ---------- */
+.drill-unit-button:hover,.drill-board-nav-item:hover,.unit-pick button:hover,
+.unit-stat:hover,.wrong-card:hover,.panel:hover,.card:hover,.exam-panel:hover{
+  transform:translateY(-5px)!important;
+  box-shadow:var(--lift),var(--glass-hi)!important;
+  border-color:rgba(13,148,136,.30)!important;
+}
+.drill-unit-button.on,.drill-board-nav-item.on,.unit-pick button.on,.unit-stat.on{
+  border-color:rgba(13,148,136,.42)!important;
+  background:rgba(204,251,241,.40)!important;
+  box-shadow:0 6px 18px rgba(13,148,136,.10),var(--glass-hi)!important;
+}
+.drill-section-row{transition:background-color .18s var(--ease),box-shadow .18s var(--ease),transform .18s var(--ease)!important}
+.drill-section-row:hover{
+  background:rgba(13,148,136,.05)!important;
+  box-shadow:inset 2px 0 0 var(--blue)!important;
+  transform:translateY(-1px);
+}
+.drill-section-row[data-result="1"] .drill-section-code{background:var(--ok-soft)!important;color:var(--ok)!important}
+
+/* ---------- thin hairline dividers between sections ---------- */
+.drill-section-list{border:1px solid rgba(23,31,43,.07)!important;box-shadow:var(--shadow-1),var(--glass-hi)!important}
+.drill-section-row{border-bottom:1px solid rgba(23,31,43,.06)!important}
+.drill-section-row:last-child{border-bottom:0!important}
+.drill-board-layout{gap:26px}
+.drill-board-nav{border-right:1px solid rgba(23,31,43,.06);padding-right:22px}
+
+/* ---------- number typography: Space Grotesk everywhere ---------- */
+.drill-section-code,.drill-qnumber,.drill-position-button,
+.drill-question-grid button,.drill-result-score strong,
+.drill-result-tallies dd,.unit-stat b,.score-num,.drill-result-num,
+#clockText,.tnum{
+  font-family:var(--font-display)!important;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.01em;
+}
+
+/* 1. section code "1.1" — clean geometric, flat */
+.drill-section-code{
+  color:var(--blue-strong)!important;
+  background:rgba(204,251,241,.42)!important;
+  border:1px solid rgba(13,148,136,.14);
+  border-radius:var(--radius-sm)!important;
+  font-weight:600!important;
+  font-size:13px!important;
+  min-width:50px;height:30px;padding:0 10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:none!important;
+}
+/* 2. question marker — flat, no heavy shadow */
+.drill-qnumber{
+  width:28px!important;min-width:28px!important;height:28px!important;
+  display:grid;place-items:center;
+  background:linear-gradient(150deg,#14b8a6,#0f766e)!important;
+  color:#fff!important;
+  font-weight:600!important;font-size:13px!important;
+  border-radius:var(--radius-sm)!important;
+  box-shadow:0 1px 2px rgba(13,148,136,.18)!important;
+}
+/* 3. accuracy block — teal, calmer weight */
+.drill-result-score{
+  background:linear-gradient(155deg,#14b8a6,#0f766e)!important;color:#fff!important;
+  border-right:1px solid rgba(255,255,255,.16);
+}
+.drill-result-score strong{color:#fff!important;font-weight:600!important;letter-spacing:-.01em}
+.drill-result-score-label,.drill-result-score-sub{color:rgba(255,255,255,.82)!important}
+.drill-result-tallies dd{color:var(--ink)!important;font-weight:600!important;font-size:22px!important}
+.unit-stat b{color:var(--ink)!important;font-weight:600!important;font-size:24px!important}
+.unit-stat span{color:#7a8aa2!important}
+.score-num{color:var(--blue-strong)!important;font-weight:600!important}
+.drill-result-num{color:var(--ink-2)!important;font-weight:600!important}
+
+/* ---------- buttons — unified flat ---------- */
+.btn{
+  background:var(--glass-bg-strong)!important;color:#2b3d57!important;
+  border:1px solid rgba(23,31,43,.10)!important;border-radius:var(--radius)!important;
+  box-shadow:none!important;
+}
+.btn:hover{
+  border-color:rgba(13,148,136,.40)!important;background:rgba(240,253,250,.7)!important;
+  color:var(--blue-strong)!important;transform:translateY(-2px);box-shadow:var(--shadow-1)!important;
+}
+.btn.primary,.exam-submit-button{
+  background:linear-gradient(150deg,#14b8a6,#0f766e)!important;
+  border-color:transparent!important;color:#fff!important;
+  box-shadow:0 4px 12px rgba(13,148,136,.22)!important;
+}
+.btn.primary:hover,.exam-submit-button:hover{
+  background:linear-gradient(150deg,#0d9488,#0f5f59)!important;color:#fff!important;
+  transform:translateY(-2px);box-shadow:0 8px 20px rgba(13,148,136,.30)!important;
+}
+/* prev/next — same flat shape, next lightly emphasized, no heavy fill/shadow */
+.drill-page-button{
+  background:rgba(255,255,255,.55)!important;
+  border:1px solid rgba(23,31,43,.10)!important;
+  border-radius:var(--radius)!important;
+  color:var(--ink-2)!important;box-shadow:none!important;
+}
+.drill-page-button:hover{
+  border-color:rgba(13,148,136,.40)!important;background:rgba(240,253,250,.6)!important;
+  color:var(--blue-strong)!important;transform:translateY(-1px);
+}
+.drill-page-button.drill-next-button{
+  background:rgba(204,251,241,.30)!important;
+  border:1px solid rgba(13,148,136,.28)!important;
+  color:var(--blue-strong)!important;
+}
+.drill-page-button.drill-next-button:hover{
+  background:rgba(204,251,241,.55)!important;
+  border-color:rgba(13,148,136,.5)!important;color:var(--blue-strong)!important;
+}
+.drill-next-button:disabled{background:rgba(255,255,255,.4)!important;border-color:rgba(23,31,43,.06)!important;color:var(--faint)!important}
+
+/* position button "Question 1 of 25" — glass + Space Grotesk, flat */
+.drill-position-button{
+  min-height:34px!important;padding:0 16px!important;
+  background:rgba(255,255,255,.55)!important;
+  border:1px solid rgba(23,31,43,.10)!important;
+  border-radius:var(--radius)!important;
+  color:var(--ink-2)!important;font-weight:500!important;font-size:13px!important;
+  box-shadow:none!important;
+}
+.drill-position-button:hover{border-color:rgba(13,148,136,.4)!important;background:rgba(240,253,250,.6)!important}
+.drill-position-button::after{content:" \25B2";font-size:8px;opacity:.6}
+
+/* ---------- choices & nav grid (teal) ---------- */
+.drill-choice[aria-pressed="true"],.drill-choice[aria-checked="true"],
+.drill-choice.is-selected,.choice.on{
+  border-color:var(--blue)!important;background:rgba(204,251,241,.40)!important;
+  box-shadow:inset 2px 0 0 var(--blue)!important;
+}
+.drill-choice[aria-pressed="true"] .drill-choice-letter,
+.drill-choice[aria-checked="true"] .drill-choice-letter,
+.drill-choice.is-selected .drill-choice-letter,.choice.on .cl{
+  border-color:var(--blue)!important;background:linear-gradient(150deg,#14b8a6,#0f766e)!important;color:#fff!important;
+}
+.drill-choice-check,.choice.on .cs{color:var(--blue)!important}
+
+/* ---------- question nav modal — simplified ---------- */
+.drill-nav-panel{box-shadow:var(--shadow-3),var(--glass-hi)!important}
+.drill-nav-legend{
+  display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:14px;
+  color:var(--sub)!important;font-size:11px!important;
+}
+.drill-nav-legend i{width:11px;height:11px;border-radius:3px}
+.drill-nav-legend i.is-answered{border-color:var(--blue);background:var(--blue)}
+.drill-nav-legend i.is-marked{border-bottom:2px solid var(--warn)}
+.drill-nav-legend i.is-current{outline:2px solid var(--blue);outline-offset:1px}
+/* flat tiles — no card shadow, single current outline */
+.drill-question-grid{grid-template-columns:repeat(10,40px);gap:7px}
+.drill-question-grid button{
+  width:40px;height:40px;padding:0;
+  border:1px solid rgba(23,31,43,.10)!important;
+  border-radius:var(--radius-sm)!important;
+  background:rgba(255,255,255,.55)!important;
+  color:var(--ink-2)!important;font-size:12.5px!important;font-weight:500;
+  box-shadow:none!important;
+  transition:border-color .15s var(--ease),background-color .15s var(--ease),color .15s var(--ease);
+}
+.drill-question-grid button:hover{border-color:var(--blue)!important;background:rgba(240,253,250,.6)!important}
+.drill-question-grid button.is-answered{
+  border-color:var(--blue)!important;
+  background:linear-gradient(150deg,#14b8a6,#0f766e)!important;color:#fff!important;
+}
+.drill-question-grid button.is-marked{box-shadow:inset 0 -2px 0 var(--warn)}
+.drill-question-grid button.is-current{outline:2px solid var(--blue)!important;outline-offset:1px}
+/* footnote noise — hidden in the frequently-opened modal */
+.drill-nav-finish-note{display:none!important}
+.drill-nav-finish{
+  background:linear-gradient(150deg,#14b8a6,#0f766e)!important;
+  border-color:transparent!important;color:#fff!important;
+  border-radius:var(--radius)!important;box-shadow:0 4px 12px rgba(13,148,136,.22)!important;
+}
+.drill-nav-finish:hover{background:linear-gradient(150deg,#0d9488,#0f5f59)!important}
+
+/* ---------- small accents ---------- */
+.drill-select-eyebrow,.exam-eyebrow,.exam-special-head,.exam-pick-label{color:var(--blue-strong)!important}
+.drill-section-go{color:var(--blue-strong)!important;font-weight:600!important}
+.drill-section-row:hover .drill-section-go{color:var(--blue)!important}
+.drill-unit-button b{color:#7a8aa2!important}
+.drill-unit-button small{color:#8b94a3!important}
+.mainnav a,.drill-page .mainnav a,.exam-page .mainnav a{color:var(--sub)!important;border-radius:var(--radius-sm)!important}
+.mainnav a:hover,.drill-page .mainnav a:hover{color:var(--blue)!important;background:rgba(240,253,250,.6)!important}
+.mainnav a.on,.drill-page .mainnav a.on,.exam-page .mainnav a.on{
+  color:var(--blue-strong)!important;background:rgba(204,251,241,.35)!important;font-weight:600!important;
+}
+.mainnav a.on::after{background:var(--blue)!important}
+.bankpill{background:#eef1ee!important;color:var(--sub)!important;border-radius:var(--radius-pill)!important}
+.pill{border-radius:var(--radius-pill)!important}
+.appbar-exit{color:#43536b!important;border-color:#dde5ef!important;background:#fff!important}
+.td-acct-btn,.appbar-inner .td-acct-btn,.appbar .td-acct-btn{color:#2b3d57!important;border-color:#d7e2f0!important;background:#fff!important}
+.td-acct-btn:hover,.appbar-inner .td-acct-btn:hover,.appbar .td-acct-btn:hover{color:var(--blue)!important;background:var(--blue-soft)!important;border-color:var(--blue-line)!important}
+.td-acct-btn[data-on="1"],.appbar-inner .td-acct-btn[data-on="1"],.appbar .td-acct-btn[data-on="1"]{color:#fff!important;background:var(--blue)!important;border-color:var(--blue)!important}
+.drill-context,.exam-page .drill-context,.exam-context{background:var(--glass-bg-strong)!important;color:var(--ink)!important;border-bottom:1px solid rgba(23,31,43,.07)!important}
+.drill-context-title,.exam-context-meta,.exam-clock b,.exam-clock small{color:var(--ink)!important}
+.drill-context select{border-color:#d4dad7!important;background:#fff!important;color:var(--ink)!important;border-radius:var(--radius-sm)!important}
+.drill-context select:hover{border-color:var(--blue)!important}
+.drill-page-button:hover,.drill-position-button:hover{outline:none}
+.drill-mark-button[aria-pressed="true"]{color:var(--warn);border-color:var(--warn-line);background:var(--warn-soft)}
+.drill-gridin input:focus{border-color:var(--blue)!important;outline:2px solid rgba(13,148,136,.22);outline-offset:0}
+.exam-start-directions{border-left:2px solid var(--blue)!important}
+.answer-compare .your-answer{color:var(--bad)!important}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important}
+  .drill-unit-button:hover,.drill-board-nav-item:hover,.unit-pick button:hover,
+  .unit-stat:hover,.wrong-card:hover,.panel:hover,.card:hover,.exam-panel:hover{transform:none!important}
+}
