@@ -1,7 +1,11 @@
-/* 题干/表格订正补丁：
+/* 题干/表格/图形订正补丁：
    1) SP1-049 / SP1-091 题干内残留原始表格行，与 figures.js 的矢量表格重复 → 覆盖题干；
    2) SR-156、SP1-048/050/053/054/089/090/092/099/101 原本只有裸表格行 →
-      覆盖题干并注册矢量表格规格，由 tableFig 渲染干净表格。
+      覆盖题干并注册矢量表格规格，由 tableFig 渲染干净表格；
+   3) 全量复查：25 题题干残留原表/坐标轴 OCR 碎片（表格题 + TD-22-12/16、TD-25-05、U2-12）→
+      仅删除碎片，题干正文不动；
+   4) 图形订正：TD-11-20 直线按原图改 (0,6)→(4.8,-6)、删端点标记；
+      TD-42-12 整表误用 TD-43-20 的矩形数据 → 改 Perimeter 表（TUV 50 / XYZ 150）。
    正式数据订正随下一次完整推送同步，本文件届时移除。
    注意：必须在 data/figures.js（TD_FIG_SPECS 注册表）之后加载。 */
 (function () {
@@ -17,7 +21,33 @@
     'SP1-090': 'The table shows three values of x and their corresponding values of f(x). For the linear function f, if h(x) = f(x) \u2212 13, which equation defines h?',
     'SP1-092': 'There is a linear relationship between x and y. The table shows three values of x and their corresponding value of y in terms of a constant n. What is the slope of the line that represents this relationship in the xy-plane?',
     'SP1-099': 'The table shows three values of x and their corresponding values of g(x), where g(x) = f(x)/(x + 3) and f is a linear function. What is the y-intercept of the graph of y = f(x) in the xy-plane?',
-    'SP1-101': 'The table shows three values of x and their corresponding values of y, where s is a constant. There is a linear relationship between x and y. Which of the following equations represents this relationship?'
+    'SP1-101': 'The table shows three values of x and their corresponding values of y, where s is a constant. There is a linear relationship between x and y. Which of the following equations represents this relationship?',
+    /* 以下题目题干残留原表/坐标轴的 OCR 碎片，与矢量表格/图形重复 → 仅删除碎片，题干正文不动。 */
+    'U2-02': 'The manager of an online news service received the report above on the number of subscriptions sold by the service. The manager estimated that the percent increase from 2012 to 2013 would be double the percent increase from 2013 to 2014. How many subscriptions did the manager expect would be sold in 2014?',
+    'U2-03': 'The table summarizes the number of objects in each group. The number of objects in group C is p% of the number of objects in group A. What is the value of p?',
+    'TD-21-10': 'The table summarizes the number of objects in each group. The number of objects in group C is p% of the number of objects in group A. What is the value of p?',
+    'U2-10': 'The table summarizes members of a local organization by age and whether they live north or south of Center St. If a member of the organization is selected at random, what is the probability that the selected member is at least 45 years old?',
+    'TD-24-07': 'The table summarizes members of a local organization by age and whether they live north or south of Center St. If a member of the organization is selected at random, what is the probability that the selected member is at least 45 years old?',
+    'U2-15': 'The results of two random samples of votes for a proposition are shown above. The samples were selected from the same population, and the margins of error were calculated using the same method. Which of the following is the most appropriate reason that the margin of error for sample A is greater than the margin of error for sample B?',
+    'TD-24-04': 'The table summarizes the distribution of age and assigned group for 120 participants in a study. One of these participants will be selected at random. What is the probability of selecting a participant from group A, given that the participant is at least 10 years of age?',
+    'TD-24-08': 'The table gives the distribution of favorite core subject and grade level for 80 students. If a student is selected at random, what is the probability of selecting a student whose favorite core subject is mathematics?',
+    'TD-24-15': 'The table gives the distribution of flavor and type of topping for customer orders at an ice cream shop. If a customer order is selected at random, what is the probability of selecting an order with sprinkles, given the flavor of ice cream is vanilla?',
+    'U2-11': 'For a certain computer game, individuals receive an integer score that ranges from 2 through 10. The table below shows the frequency distribution of the scores of the 9 players in group A and the 11 players in group B. The median of the scores for group B is how much greater than the median of the scores for group A?',
+    'TD-23-12': 'Sam opened a savings account at a bank. The table shows the exponential relationship between the time t, in years, since Sam opened the account and the total amount n, in dollars, in the account. If Sam made no additional deposits or withdrawals, which of the following equations best represents the relationship between t and n?',
+    'TD-24-12': 'The table shows the distribution of people in a certain city by age group. If a person in this city is selected at random, which of the following is closest to the probability of selecting a person who is greater than 65 years old, given that the person is at least 18 years old?',
+    'TD-24-13': 'The table shows the distribution by species and eye color for the 30 canids living in a nature conservancy. If one canid is selected at random, what is the probability that it will be either a grey wolf with yellow eyes or a coyote with brown eyes?',
+    'TD-25-01': 'The table summarizes the UV index value recorded by a research assistant at noon each day for 49 days. According to the table, a UV index value of 1 was recorded on how many days?',
+    'U2-12': 'The table summarizes the UV index value recorded by a research assistant at noon each day for 49 days. According to the table, a UV index value of 1 was recorded on how many days?',
+    'TD-25-10': 'The table shows the heights, in inches, of 12 infants at a daycare. According to the table, what is the mean height, in inches, of these infants?',
+    'TD-25-24': 'Data set A and data set B each consist of 26 values. The table shows the frequencies of the values for each data set. Which of the following statements best compares the means of the two data sets?',
+    'TD-25-29': 'The table shows the frequencies of the data values for four data sets. Which data set has the greatest mean?',
+    'TD-42-12': 'The table gives the perimeters of similar triangles TUV and XYZ, where TU corresponds to XY. The length of TU is 6. What is the length of XY?',
+    'TD-43-20': 'The table gives the areas and perimeters of two similar rectangles, where n is a constant. What is the value of n?',
+    'TD-24-05': 'Each rock in a collection of 50 rocks was classified as either igneous, metamorphic, or sedimentary, as shown in the frequency table. If one of these rocks is selected at random, what is the probability of selecting a rock that is igneous?',
+    'TD-11-09': 'The table shows three values of x and their corresponding values of y, where n is a constant, for the linear relationship between x and y. What is the slope of the line that represents this relationship in the xy-plane?',
+    'TD-22-12': 'In 2000, a census was taken to determine the population of a certain town. The graph gives the estimated population y, in thousands, of this town x years after the 2000 census was taken, where 0 ≤ x ≤ 5. Based on the graph, which of the following is the closest to the estimated population 2 years after the 2000 census was taken?',
+    'TD-22-16': 'The scatterplot shows the population of town T starting in 2000 and projected through 2045. According to the line of best fit, which of the following best approximates the year in which the population of town T is projected to reach 5,000?',
+    'TD-25-05': 'A store owner recorded the number of units of a certain product that were sold per day for 28 days. What is the minimum number of units of this product sold per day for these 28 days?'
   };
   (window.TD_BANK && window.TD_BANK.questions || []).forEach(function (q) {
     if (q && STEM[q.id]) q.stem = STEM[q.id];
@@ -48,7 +78,9 @@
      - TD-11-03：原题线段继续延伸到 (4.5,-3)，原规格只画到 x 轴交点。
      - TD-22-09 / TD-22-17：原题是平滑曲线，原规格只画孤立点 → 补折线串联。
      - SP1-025 / U1-12 / U1-13：直线斜率、截距与原图不符 → 重定端点。
-     - TD-25-15 / TD-25-16 / TD-25-05：柱高、箱线分位数按原图微调。 */
+     - TD-25-15 / TD-25-16 / TD-25-05：柱高、箱线分位数按原图微调。
+     - TD-11-20：原题直线过 (0,6)、x 截距约 2.4、斜率 -5/2，原规格只画短段并多端点标记 → 重定端点、删 marks。
+     - TD-42-12：原规格误用 TD-43-20 的矩形面积/周长表 → 改 Perimeter 表（Triangle TUV 50 / Triangle XYZ 150）。 */
   var FIGFIX = {
     'U4-05': {
       type: 'rawSvg',
@@ -127,6 +159,15 @@
     'TD-25-05': {
       type: 'chart', x: { min: 80, max: 140, step: 10 }, y: { min: 0, max: 10, step: 10 }, yAxis: false, grid: false,
       series: [{ kind: 'box', lo: 85, q1: 95, med: 112, q3: 122, hi: 138 }]
+    },
+    'TD-11-20': {
+      type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -6, max: 6, step: 2, label: 'y' },
+      grid: true, origin: 'O',
+      series: [{ kind: 'line', points: [[0, 6], [4.8, -6]] }]
+    },
+    'TD-42-12': {
+      type: 'table', head: ['', 'Perimeter'],
+      rows: [['Triangle TUV', '50'], ['Triangle XYZ', '150']]
     }
   };
   var CHOICEFIX = {
