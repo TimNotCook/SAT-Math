@@ -1,58 +1,58 @@
-/* TD SAT Math · Glass HUD — 奶白主题（暖白底 + 深炭墨强调 + 白玻璃）
-   参考 Apple/HUAWEI 官网：奶白底、近黑强调、纯白玻璃卡、暖灰细线。
+/* TD SAT Math · Glass HUD — 淡奶白主题（接近纯白零暖意 + 深炭墨强调 + 白玻璃）
+   参考 Apple/HUAWEI 官网：极淡奶白底、近黑强调、纯白玻璃卡、中性灰细线。
    Loaded last. Space Grotesk (Google Fonts <link> in HTML) drives every number.
    Non-destructive: remove the <link> + this file to revert. */
 
 :root{
-  /* palette: 奶白暖底 + 深炭墨强调（变量名沿用 --blue，值改深炭墨，避免改所有引用） */
+  /* palette: 淡奶白（接近纯白）+ 深炭墨强调（变量名沿用 --blue，值改深炭墨，避免改所有引用） */
   --ink:#1d1d1f; --ink-2:#3a3a3c; --sub:#6e6e73; --faint:#8e8e93;
-  --line:#e5e0d8; --line-soft:#ede9e2; --line-strong:#d8d2c8;
-  --bg:#f5f2ec;
-  --paper:#ffffff; --wash:#ede9e2;
+  --line:#f0efee; --line-soft:#f6f5f4; --line-strong:#e2e2e4;
+  --bg:#fcfcfc;
+  --paper:#ffffff; --wash:#f6f5f4;
   --navy:#1d1d1f; --navy-2:#3a3a3c;
   --blue:#1d1d1f;              /* 强调色：深炭墨（苹果风近黑） */
   --blue-strong:#1d1d1f;
-  --blue-soft:#f5f2ec;         /* 淡奶白底 */
-  --blue-line:#d8d2c8;
-  --ok:#3a3a3c; --ok-soft:#f5f2ec; --ok-line:#d8d2c8;
+  --blue-soft:#fcfcfc;         /* 淡奶白底 */
+  --blue-line:#e2e2e4;
+  --ok:#3a3a3c; --ok-soft:#fcfcfc; --ok-line:#e2e2e4;
   --warn:#9a6b1f; --warn-soft:#faf3e2; --warn-line:#e6d3a7;
   --bad:#c0392b; --bad-soft:#fdecea; --bad-line:#f0bcb8;
   --veil:rgba(29,29,31,.40);
-  --shadow-1:0 1px 2px rgba(60,50,40,.06);
-  --shadow-2:0 6px 18px rgba(60,50,40,.09),0 1px 2px rgba(60,50,40,.05);
-  --shadow-3:0 24px 60px rgba(60,50,40,.22);
+  --shadow-1:0 1px 2px rgba(35,35,40,.06);
+  --shadow-2:0 6px 18px rgba(35,35,40,.09),0 1px 2px rgba(35,35,40,.05);
+  --shadow-3:0 24px 60px rgba(35,35,40,.22);
   /* radii — moderate, never full capsule */
   --radius:9px; --radius-sm:7px; --radius-lg:15px; --radius-pill:10px;
   /* glass */
   --glass-bg:rgba(255,255,255,.72);
   --glass-bg-strong:rgba(255,255,255,.86);
-  --glass-border:1px solid rgba(60,50,40,.08);
+  --glass-border:1px solid rgba(35,35,40,.08);
   --glass-blur:blur(22px) saturate(140%);
   --glass-hi:inset 0 1px 0 rgba(255,255,255,.6);
-  --lift:0 18px 40px rgba(60,50,40,.15),0 4px 10px rgba(29,29,31,.10);
+  --lift:0 18px 40px rgba(35,35,40,.15),0 4px 10px rgba(29,29,31,.10);
   --glow-ink:0 0 0 1px rgba(29,29,31,.30),0 0 18px rgba(29,29,31,.12);
   --font-display:"Space Grotesk","Inter",ui-monospace,SFMono-Regular,Menlo,monospace;
   --ease:cubic-bezier(.2,.7,.3,1);
 }
 
-/* ---------- base / 奶白底 + 暖光色块（无网格线） ---------- */
+/* ---------- base / 淡奶白底（接近纯白，零暖意） ---------- */
 body,body.drill-page,body.exam-page{
-  background-color:#f5f2ec!important;
+  background-color:#fcfcfc!important;
   background-image:
-    radial-gradient(720px 400px at 86% -6%,rgba(180,160,120,.10),transparent 62%),
-    radial-gradient(600px 360px at 4% 4%,rgba(255,250,240,.50),transparent 60%),
-    linear-gradient(165deg,#faf7f1 0%,#f5f2ec 50%,#ede9e2 100%)!important;
+    radial-gradient(720px 400px at 86% -6%,rgba(210,210,215,.05),transparent 62%),
+    radial-gradient(600px 360px at 4% 4%,rgba(255,255,255,.40),transparent 60%),
+    linear-gradient(165deg,#fdfdfd 0%,#fcfcfc 50%,#f8f8f8 100%)!important;
   background-size:auto,auto,auto!important;
   background-attachment:fixed!important;
   color:var(--ink)!important;
 }
 body:has(#questionView:not([hidden])),body:has(#stage-answer:not([hidden])){
-  background-color:#ede9e2!important;
+  background-color:#f8f8f8!important;
   background-image:
-    radial-gradient(560px 380px at 84% 4%,rgba(180,160,120,.16),transparent 64%),
-    radial-gradient(520px 360px at 4% 12%,rgba(255,250,240,.40),transparent 64%),
-    radial-gradient(620px 460px at 50% 112%,rgba(200,180,140,.10),transparent 64%),
-    linear-gradient(165deg,#f5f2ec 0%,#ede9e2 55%,#e5e0d8 100%)!important;
+    radial-gradient(560px 380px at 84% 4%,rgba(210,210,215,.08),transparent 64%),
+    radial-gradient(520px 360px at 4% 12%,rgba(255,255,255,.30),transparent 64%),
+    radial-gradient(620px 460px at 50% 112%,rgba(210,210,215,.05),transparent 64%),
+    linear-gradient(165deg,#fcfcfc 0%,#f8f8f8 55%,#f2f2f2 100%)!important;
   background-size:auto,auto,auto,auto!important;
 }
 ::selection{background:rgba(29,29,31,.18);color:#fff}
@@ -76,7 +76,7 @@ a:hover{color:var(--blue)}
   border-radius:var(--radius-lg)!important;
   box-shadow:var(--shadow-2),var(--glass-hi)!important;
 }
-.weak-panel,.cause-box,.exam-special-panel{border:1px solid rgba(60,50,40,.10)!important}
+.weak-panel,.cause-box,.exam-special-panel{border:1px solid rgba(35,35,40,.10)!important}
 .answer-compare>div{background:rgba(255,255,255,.55)!important}
 
 /* sticky bars — crisper glass */
@@ -84,10 +84,10 @@ a:hover{color:var(--blue)}
   background:var(--glass-bg-strong)!important;
   -webkit-backdrop-filter:blur(16px) saturate(130%);
   backdrop-filter:blur(16px) saturate(130%);
-  border-color:rgba(60,50,40,.07)!important;
-  box-shadow:0 1px 0 rgba(60,50,40,.05)!important;
+  border-color:rgba(35,35,40,.07)!important;
+  box-shadow:0 1px 0 rgba(35,35,40,.05)!important;
 }
-.drill-footer{box-shadow:0 -8px 24px rgba(60,50,40,.06)!important}
+.drill-footer{box-shadow:0 -8px 24px rgba(35,35,40,.06)!important}
 /* beat bluebook's high-specificity #fff on question view */
 body:has(#questionView:not([hidden])) .drill-questionbar,
 body:has(#questionView:not([hidden])) .drill-footer,
@@ -96,7 +96,7 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
   background:var(--glass-bg-strong)!important;
   -webkit-backdrop-filter:blur(16px) saturate(130%);
   backdrop-filter:blur(16px) saturate(130%);
-  border-color:rgba(60,50,40,.07)!important;
+  border-color:rgba(35,35,40,.07)!important;
 }
 
 /* interactive cards — glass + lift-ready */
@@ -120,7 +120,7 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 }
 .drill-unit-button.on,.drill-board-nav-item.on,.unit-pick button.on,.unit-stat.on{
   border-color:rgba(29,29,31,.42)!important;
-  background:rgba(245,242,236,.70)!important;
+  background:rgba(250,250,249,.70)!important;
   box-shadow:0 6px 18px rgba(29,29,31,.10),var(--glass-hi)!important;
 }
 .drill-section-row{transition:background-color .18s var(--ease),box-shadow .18s var(--ease),transform .18s var(--ease)!important}
@@ -137,10 +137,10 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
   border:0!important;box-shadow:none!important;background:transparent!important;
   -webkit-backdrop-filter:none;backdrop-filter:none;
 }
-.drill-section-row{border-bottom:1px solid rgba(60,50,40,.08)!important;background:transparent!important}
+.drill-section-row{border-bottom:1px solid rgba(35,35,40,.08)!important;background:transparent!important}
 .drill-section-row:last-child{border-bottom:0!important}
 .drill-board-layout{gap:26px}
-.drill-board-nav{border-right:1px solid rgba(60,50,40,.07);padding-right:22px}
+.drill-board-nav{border-right:1px solid rgba(35,35,40,.07);padding-right:22px}
 
 /* ---------- number typography: Space Grotesk everywhere ---------- */
 .drill-section-code,.drill-qnumber,.drill-position-button,
@@ -155,8 +155,8 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 /* 1. section code "1.1" — Space Grotesk 精致呈现：字重500让几何特征显现 */
 .drill-section-code{
   color:var(--blue-strong)!important;
-  background:rgba(245,242,236,.60)!important;
-  border:1px solid rgba(60,50,40,.10)!important;
+  background:rgba(250,250,249,.60)!important;
+  border:1px solid rgba(35,35,40,.10)!important;
   border-radius:var(--radius-sm)!important;
   font-weight:500!important;
   font-size:14px!important;
@@ -192,11 +192,11 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 /* ---------- buttons — unified flat ---------- */
 .btn{
   background:var(--glass-bg-strong)!important;color:var(--ink)!important;
-  border:1px solid rgba(60,50,40,.10)!important;border-radius:var(--radius)!important;
+  border:1px solid rgba(35,35,40,.10)!important;border-radius:var(--radius)!important;
   box-shadow:none!important;
 }
 .btn:hover{
-  border-color:rgba(29,29,31,.40)!important;background:rgba(255,252,247,.7)!important;
+  border-color:rgba(29,29,31,.40)!important;background:rgba(250,250,249,.7)!important;
   color:var(--blue-strong)!important;transform:translateY(-2px);box-shadow:var(--shadow-1)!important;
 }
 .btn.primary,.exam-submit-button{
@@ -211,41 +211,41 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 /* prev/next — same flat shape, next lightly emphasized, no heavy fill/shadow */
 .drill-page-button{
   background:rgba(255,255,255,.55)!important;
-  border:1px solid rgba(60,50,40,.10)!important;
+  border:1px solid rgba(35,35,40,.10)!important;
   border-radius:var(--radius)!important;
   color:var(--ink-2)!important;box-shadow:none!important;
 }
 .drill-page-button:hover{
-  border-color:rgba(29,29,31,.40)!important;background:rgba(255,252,247,.6)!important;
+  border-color:rgba(29,29,31,.40)!important;background:rgba(250,250,249,.6)!important;
   color:var(--blue-strong)!important;transform:translateY(-1px);
 }
 .drill-page-button.drill-next-button{
-  background:rgba(245,242,236,.50)!important;
+  background:rgba(250,250,249,.50)!important;
   border:1px solid rgba(29,29,31,.28)!important;
   color:var(--blue-strong)!important;
 }
 .drill-page-button.drill-next-button:hover{
-  background:rgba(245,242,236,.80)!important;
+  background:rgba(250,250,249,.80)!important;
   border-color:rgba(29,29,31,.5)!important;color:var(--blue-strong)!important;
 }
-.drill-next-button:disabled{background:rgba(255,255,255,.4)!important;border-color:rgba(60,50,40,.06)!important;color:var(--faint)!important}
+.drill-next-button:disabled{background:rgba(255,255,255,.4)!important;border-color:rgba(35,35,40,.06)!important;color:var(--faint)!important}
 
 /* position button "Question 1 of 25" — glass + Space Grotesk, flat */
 .drill-position-button{
   min-height:34px!important;padding:0 16px!important;
   background:rgba(255,255,255,.55)!important;
-  border:1px solid rgba(60,50,40,.10)!important;
+  border:1px solid rgba(35,35,40,.10)!important;
   border-radius:var(--radius)!important;
   color:var(--ink-2)!important;font-weight:500!important;font-size:13px!important;
   box-shadow:none!important;
 }
-.drill-position-button:hover{border-color:rgba(29,29,31,.4)!important;background:rgba(255,252,247,.6)!important}
+.drill-position-button:hover{border-color:rgba(29,29,31,.4)!important;background:rgba(250,250,249,.6)!important}
 .drill-position-button::after{content:" \25B2";font-size:8px;opacity:.6}
 
 /* ---------- choices & nav grid (深炭墨) ---------- */
 .drill-choice[aria-pressed="true"],.drill-choice[aria-checked="true"],
 .drill-choice.is-selected,.choice.on{
-  border-color:var(--blue)!important;background:rgba(245,242,236,.60)!important;
+  border-color:var(--blue)!important;background:rgba(250,250,249,.60)!important;
   box-shadow:inset 2px 0 0 var(--blue)!important;
 }
 .drill-choice[aria-pressed="true"] .drill-choice-letter,
@@ -269,14 +269,14 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 .drill-question-grid{grid-template-columns:repeat(10,40px);gap:7px}
 .drill-question-grid button{
   width:40px;height:40px;padding:0;
-  border:1px solid rgba(60,50,40,.10)!important;
+  border:1px solid rgba(35,35,40,.10)!important;
   border-radius:var(--radius-sm)!important;
   background:rgba(255,255,255,.55)!important;
   color:var(--ink-2)!important;font-size:12.5px!important;font-weight:500;
   box-shadow:none!important;
   transition:border-color .15s var(--ease),background-color .15s var(--ease),color .15s var(--ease);
 }
-.drill-question-grid button:hover{border-color:var(--blue)!important;background:rgba(255,252,247,.6)!important}
+.drill-question-grid button:hover{border-color:var(--blue)!important;background:rgba(250,250,249,.6)!important}
 .drill-question-grid button.is-answered{
   border-color:var(--blue)!important;
   background:linear-gradient(150deg,#2c2c2e,#1d1d1f)!important;color:#fff!important;
@@ -307,16 +307,16 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
   background:transparent!important;
 }
 .mainnav a:hover,.drill-page .mainnav a:hover,.exam-page .mainnav a:hover{
-  color:var(--blue)!important;background:rgba(255,252,247,.6)!important;
+  color:var(--blue)!important;background:rgba(250,250,249,.6)!important;
 }
 .mainnav a.on,.drill-page .mainnav a.on,.exam-page .mainnav a.on{
-  color:var(--blue-strong)!important;background:rgba(245,242,236,.60)!important;font-weight:600!important;
+  color:var(--blue-strong)!important;background:rgba(250,250,249,.60)!important;font-weight:600!important;
   box-shadow:none!important;
 }
 .mainnav a.on::after,.drill-page .mainnav a.on::after,.exam-page .mainnav a.on::after{background:var(--blue)!important}
 /* bankpill / appbar-exit / td-acct-btn — 杀 999px 胶囊，去 1px 玻璃边框，简洁无框 */
 .bankpill,.drill-page .bankpill,.exam-page .bankpill{
-  background:rgba(245,242,236,.60)!important;color:var(--sub)!important;
+  background:rgba(250,250,249,.60)!important;color:var(--sub)!important;
   border:0!important;border-radius:var(--radius-pill)!important;
 }
 .pill,.drill-page .pill,.exam-page .pill{border-radius:var(--radius-pill)!important}
@@ -325,7 +325,7 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
   border-radius:var(--radius-pill)!important;
 }
 .appbar-exit:hover,.drill-page .appbar-exit:hover,.exam-page .appbar-exit:hover{
-  background:rgba(255,252,247,.7)!important;color:var(--blue-strong)!important;
+  background:rgba(250,250,249,.7)!important;color:var(--blue-strong)!important;
 }
 .td-acct-btn,.appbar-inner .td-acct-btn,.appbar .td-acct-btn,
 .drill-page .td-acct-btn,.exam-page .td-acct-btn{
@@ -349,9 +349,9 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 }
 /* imgimp-x 关闭按钮也别胶囊 */
 .imgimp-x{border-radius:var(--radius-sm)!important}
-.drill-context,.exam-page .drill-context,.exam-context{background:var(--glass-bg-strong)!important;color:var(--ink)!important;border-bottom:1px solid rgba(60,50,40,.07)!important}
+.drill-context,.exam-page .drill-context,.exam-context{background:var(--glass-bg-strong)!important;color:var(--ink)!important;border-bottom:1px solid rgba(35,35,40,.07)!important}
 .drill-context-title,.exam-context-meta,.exam-clock b,.exam-clock small{color:var(--ink)!important}
-.drill-context select{border-color:#d8d2c8!important;background:#fff!important;color:var(--ink)!important;border-radius:var(--radius-sm)!important}
+.drill-context select{border-color:#e2e2e4!important;background:#fff!important;color:var(--ink)!important;border-radius:var(--radius-sm)!important}
 .drill-context select:hover{border-color:var(--blue)!important}
 .drill-page-button:hover,.drill-position-button:hover{outline:none}
 .drill-mark-button[aria-pressed="true"]{color:var(--warn);border-color:var(--warn-line);background:var(--warn-soft)}
