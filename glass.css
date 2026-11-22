@@ -130,17 +130,16 @@ a:hover{color:var(--blue)}
   letter-spacing:.01em;
 }
 
-/* 1. section code "1.1" — Space Grotesk 精致呈现：字重500让几何特征显现 */
+/* 1. section code "1.1" — 裸数字，无框无背景，Space Grotesk 精致呈现 */
 .drill-section-code{
   color:var(--blue-strong)!important;
-  background:rgba(250,250,249,.60)!important;
-  border:1px solid rgba(35,35,40,.10)!important;
-  border-radius:var(--radius-sm)!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
   font-weight:500!important;
   font-size:14px!important;
   letter-spacing:.04em!important;
-  min-width:54px;height:32px;padding:0 11px;
-  display:inline-flex;align-items:center;justify-content:center;
+  padding:0!important;margin:0;
   box-shadow:none!important;
   font-feature-settings:"tnum" 1;
 }
