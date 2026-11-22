@@ -192,6 +192,21 @@ a:hover{color:var(--blue)}
   background:linear-gradient(150deg,#1d1d1f,#000)!important;color:#fff!important;
   transform:translateY(-2px);box-shadow:0 8px 20px rgba(29,29,31,.30)!important;
 }
+/* ---------- 去掉鼠标点击时的浏览器默认 focus 黑边（非做题页元素） ----------
+   bluebook.css 只处理了 :focus-visible，鼠标点击触发 :focus 时浏览器默认深灰
+   outline 会显示成黑边。这里清掉鼠标 focus 黑边，键盘 :focus-visible 保留柔和
+   深炭墨 ring 保证可访问性。做题页元素不碰（保持官方）。 */
+.drill-unit-button,.drill-board-nav-item,.unit-pick button,
+.drill-section-row,.btn,.exam-start-actions .btn.primary,
+.bankpill,.mainnav a,.td-acct-btn,.appbar-exit,.imgimp-x,
+.drill-result-score,.unit-stat,.wrong-card{
+  outline:none!important;
+}
+.drill-unit-button:focus-visible,.drill-board-nav-item:focus-visible,
+.unit-pick button:focus-visible,.drill-section-row:focus-visible,
+.btn:focus-visible,.exam-start-actions .btn.primary:focus-visible{
+  outline:2px solid rgba(29,29,31,.40)!important;outline-offset:2px;
+}
 /* ---------- 做题页元素（翻页键/位置按钮/选项/题号弹层）保持官方 Bluebook，不覆盖 ---------- */
 
 /* ---------- small accents ---------- */
@@ -317,6 +332,15 @@ a:hover{color:var(--blue)}
 [data-theme="dark"] .exam-page .exam-start-actions .btn.primary:hover{
   background:linear-gradient(150deg,#fff,#e8e8ea)!important;color:#1d1d1f!important;
   transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.45)!important;
+}
+/* 暗黑下键盘聚焦 ring 改浅银 */
+[data-theme="dark"] .drill-unit-button:focus-visible,
+[data-theme="dark"] .drill-board-nav-item:focus-visible,
+[data-theme="dark"] .unit-pick button:focus-visible,
+[data-theme="dark"] .drill-section-row:focus-visible,
+[data-theme="dark"] .btn:focus-visible,
+[data-theme="dark"] .exam-start-actions .btn.primary:focus-visible{
+  outline:2px solid rgba(232,232,234,.55)!important;outline-offset:2px;
 }
 /* 暗黑下切换按钮自身 */
 [data-theme="dark"] #theme-toggle{
