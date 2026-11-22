@@ -19,6 +19,9 @@
 .imgimp-progress{height:4px;background:var(--line-soft);border-radius:var(--radius-pill);overflow:hidden}
 .imgimp-progress>i{display:block;height:100%;width:0;background:var(--blue);transition:width .15s var(--ease)}
 .imgimp-status{margin:var(--sp2) 0;color:var(--sub);min-height:1.4em}
+/* 云端登录按钮默认隐藏：.btn 自带 display，需显式覆盖 UA 的 [hidden] */
+.btn[hidden]{display:none}
+.imgimp-login-state.is-ok{color:var(--ok)}
 .imgimp-rows{display:flex;flex-direction:column;gap:var(--sp2)}
 .imgimp-row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:var(--sp3);padding:var(--sp2);border:1px solid var(--line);border-radius:var(--radius);background:var(--paper)}
 .imgimp-thumb img{display:block;width:110px;max-height:150px;object-fit:contain;border:1px solid var(--line-soft);border-radius:var(--radius-sm);background:var(--wash)}
@@ -75,6 +78,11 @@
       <span class="small muted">识别失败可重试，导错可撤销：</span>
       <button class="btn" id="btnImgRetry" type="button">重试失败项</button>
       <button class="btn" id="btnImgUndo" type="button">撤销本次导入</button>
+      <button class="btn" id="imgimpCloudSignIn" type="button" hidden title="登录云端账号后才能使用云端 AI 图片识别">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+        登录云端账号
+      </button>
+      <span class="small muted imgimp-login-state" id="imgimpLoginState" role="status" aria-live="polite">云端账号：检测中…</span>
     </div>
     <div class="imgimp-progress" aria-hidden="true"><i id="imgimpBar"></i></div>
     <p class="imgimp-status small" id="imgimpStatus" role="status" aria-live="polite"></p>

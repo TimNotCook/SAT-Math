@@ -169,6 +169,107 @@
     setTimeout(function () { if (!cloud) finish(false); }, 15000);
   }
 
+  /* ---------------- 云端账号会话层 ----------------
+     Firebase 登录与 WorkBuddy Cloud 会话是两套独立体系：进度/题库走 Firebase，
+     视觉模型调用走 Cloud SDK。这里单独保障 cloud 会话，根治无会话时 llm 调用
+     返回 login_required（"该能力需要登录后使用"）导致识别从未真正可用的问题。 */
+  var sessionPromise = null;
+  var OAUTH_KEYS = ['code', 'state', 'provider', 'provider_id', 'error', 'error_description', 'session_state'];
+
+  // OAuth 回调标记：SDK 默认从 location.search 读 code/state/provider。
+  function oauthCallbackPresent() {
+    try {
+      var q = new URLSearchParams(location.search);
+      if (q.get('code') && q.get('state')) return true;
+      if ((q.get('provider') || '') === 'workbuddy') return true;
+      return false;
+    } catch (e) { return false; }
+  }
+  // 只清 OAuth 参数，保留页面自身的查询参数（如 wrong.html 的 ?unit=）
+  function cleanOAuthParams() {
+    try {
+      var u = new URL(location.href);
+      OAUTH_KEYS.forEach(function (k) { u.searchParams.delete(k); });
+      history.replaceState(null, '', u.pathname + u.search + u.hash);
+    } catch (e) { }
+  }
+  function applyCloudSessionUI(hasSession) {
+    var btn = $('imgimpCloudSignIn');
+    if (btn) btn.hidden = !!hasSession;
+    var el = $('imgimpLoginState');
+    if (el) {
+      el.textContent = hasSession ? '云端账号：已登录' : '云端账号：未登录 · 图片识别需先登录';
+      el.classList.toggle('is-ok', !!hasSession);
+    }
+  }
+  function sessionRequired() {
+    var e = new Error('需要先登录云端账号才能使用图片识别');
+    e.error = { code: 'cloud_login_required' };
+    return e;
+  }
+  function doEnsureSession() {
+    return new Promise(function (resolve) {
+      loadSdk(function (ok) {
+        if (!ok) { applyCloudSessionUI(false); resolve(false); return; }
+        var auth = cloud && cloud.auth;
+        if (!auth || !auth.getSession) { applyCloudSessionUI(false); resolve(false); return; }
+        // getSession 返回 {data,error}：data 非空表示已有会话
+        Promise.resolve(auth.getSession()).then(function (r) {
+          if (r && r.data) { applyCloudSessionUI(true); resolve(true); return; }
+          // 无会话：先消费 OAuth 回调。页面加载早期即执行，远早于用户点识别按钮。
+          if (!oauthCallbackPresent()) {
+            applyCloudSessionUI(false);
+            status('需要先登录云端账号才能使用图片识别');
+            resolve(false);
+            return;
+          }
+          if (!auth.handleWorkBuddyCallback) { applyCloudSessionUI(false); resolve(false); return; }
+          Promise.resolve(auth.handleWorkBuddyCallback()).then(function (r2) {
+            if (r2 && r2.data) {
+              cleanOAuthParams();
+              applyCloudSessionUI(true);
+              status('云端账号已登录，图片识别已就绪。');
+              resolve(true);
+            } else {
+              applyCloudSessionUI(false);
+              status('云端登录未完成，请点击「登录云端账号」重试。');
+              resolve(false);
+            }
+          }).catch(function () { applyCloudSessionUI(false); resolve(false); });
+        }).catch(function () { applyCloudSessionUI(false); resolve(false); });
+      });
+    });
+  }
+  // 合并并发校验：ocrImage 与 discriminate 可能几乎同时触发，避免重复消费同一回调 state
+  function ensureSession() {
+    if (!sessionPromise) {
+      sessionPromise = doEnsureSession().then(function (ok) {
+        if (!ok) sessionPromise = null; // 失败不缓存，允许用户完成登录后重试
+        return ok;
+      }, function () { sessionPromise = null; return false; });
+    }
+    return sessionPromise;
+  }
+  function ensureCloudSession(cb) { ensureSession().then(cb, function () { cb(false); }); }
+  function cloudSignIn() {
+    loadSdk(function (ok) {
+      if (!ok) { status('云服务暂不可用，请稍后重试'); return; }
+      var auth = cloud && cloud.auth;
+      if (!auth || !auth.signInWithOAuth) { status('当前 SDK 不支持云端登录，请更新后重试'); return; }
+      // 回调必须落在图片识别所在的真实页面，才能被本文件顶部的 ensureCloudSession 消费。
+      // 本站是纯静态多文件站点（wrong.html 是真实文件，不是 SPA 路由），不带历史回退问题。
+      var redirectTo = location.origin + location.pathname;
+      Promise.resolve(auth.signInWithOAuth({ provider: 'workbuddy', redirectTo: redirectTo })).then(function (r) {
+        var url = r && r.data && r.data.url;
+        if (!url) { status('登录发起失败：' + ((r && r.error && r.error.message) || '请稍后重试')); return; }
+        status('正在跳转云端账号授权…');
+        location.assign(url);
+      }).catch(function (e) { status('登录发起失败：' + ((e && e.message) || '请稍后重试')); });
+    });
+  }
+  // 页面加载早期消费 OAuth 回调：跳回时 URL 带 code，必须在任何识别开始前完成登录并清理参数
+  ensureCloudSession(function () { });
+
   var SYS_PROMPT = 'You are an expert SAT Math question transcriber with near-perfect mathematical OCR. ' +
     'Read the image and output ONLY a JSON object (no prose, no markdown). Preserve every number, exponent, fraction, root and symbol exactly. ' +
     'Write math notation in LaTeX between $...$ (e.g. $x^2-2x-9=0$, $\\frac{3}{4}$, $\\sqrt{x}$). ' +
@@ -192,26 +293,34 @@
   var DISCRIMINATE_MIN_CONF = 0.75;
 
   function discriminate(messages, candidates, model) {
-    return new Promise(function (res) {
+    return new Promise(function (res, rej) {
       loadSdk(function (ok) {
         if (!ok) { res(null); return; }
-        var chain = (!model || model === 'auto') ? MODEL_CHAIN.slice() : [model];
-        var votes = [], i = 0;
-        // 依次尝试模型，收集最多 2 个成功投票
-        function next() {
-          if (votes.length >= 2 || i >= chain.length) { res(combineVotes(votes)); return; }
-          var m = chain[i++];
-          status('正在比对候选题（模型 ' + i + '/' + chain.length + '）…');
-          callModelOnce(messages, m, function (o) { return !!(o && o.index !== undefined); }).then(function (obj) {
-            var idx = parseInt(obj.index, 10);
-            var conf = parseFloat(obj.confidence);
-            if (idx >= 1 && idx <= candidates.length && isFinite(conf)) {
-              votes.push({ idx: idx, conf: conf, model: m });
-            }
-            next();
-          }).catch(function () { setTimeout(next, 150); });
-        }
-        next();
+        // 会话层：无云端会话时不做模型判别，返回 null 让下游保守跳过（绝不硬导、不推给用户点选）
+        ensureCloudSession(function (signedIn) {
+          if (!signedIn) {
+            status('云端未登录，跳过精确匹配；本地识别结果仅供核对，不会自动导入。');
+            res(null);
+            return;
+          }
+          var chain = (!model || model === 'auto') ? MODEL_CHAIN.slice() : [model];
+          var votes = [], i = 0;
+          // 依次尝试模型，收集最多 2 个成功投票
+          function next() {
+            if (votes.length >= 2 || i >= chain.length) { res(combineVotes(votes)); return; }
+            var m = chain[i++];
+            status('正在比对候选题（模型 ' + i + '/' + chain.length + '）…');
+            callModelOnce(messages, m, function (o) { return !!(o && o.index !== undefined); }).then(function (obj) {
+              var idx = parseInt(obj.index, 10);
+              var conf = parseFloat(obj.confidence);
+              if (idx >= 1 && idx <= candidates.length && isFinite(conf)) {
+                votes.push({ idx: idx, conf: conf, model: m });
+              }
+              next();
+            }).catch(function () { setTimeout(next, 150); });
+          }
+          next();
+        });
       });
     });
   }
@@ -279,6 +388,7 @@
     var code = errCode(e);
     var retries = e && e.retryAfterMs;
     var tried = e && e._tried ? '（已自动尝试 ' + e._tried + ' 个视觉模型）' : '';
+    if (code === 'cloud_login_required') return '云端识别需要先登录账号，请点击「登录云端账号」后重试';
     if (String(code).indexOf('auth_') === 0) return '云服务校验失败：请从应用线上域名访问后重试。';
     if (code === 'quota_exhausted' || code === 'quota_insufficient') return '云端模型额度不足，请在应用管理后台补充额度后再试' + tried + '。';
     if (code === 'quota_rate_limited') return '视觉模型服务暂时繁忙' + (retries ? '（建议 ' + Math.ceil(retries / 1000) + ' 秒后重试）' : '') + tried + '，请稍后再试。';
@@ -441,50 +551,58 @@
       }
       loadSdk(function (ok) {
         if (!ok) { fallbackLocal(new Error('云服务不可用，已切换本地识别')); return; }
-        var messages = [
-          { role: 'system', content: SYS_PROMPT },
-          { role: 'user', content: [
-            { type: 'text', text: 'Transcribe the SAT math question in this image. Return the JSON object exactly as instructed.' },
-            { type: 'image_url', image_url: { url: dataUrl } }
-          ] }
-        ];
-        // 自动模式：先用主模型识别，再用另一模型复核，两个数指纹一致的答案才最可信。
-        // 手动指定模型：只调一次，保持原有行为。
-        var auto = !model || model === 'auto';
-        var chain = auto ? MODEL_CHAIN.slice() : [model];
-        var i = 0, lastErr = null;
-        function next() {
-          if (i >= chain.length) {
-            lastErr = lastErr || new Error('所有视觉模型均不可用');
-            lastErr._tried = i;
-            fallbackLocal(lastErr);
+        // 会话层：无云端会话时走本地 OCR 兜底（保留离线可用），并提示登录后精度更高
+        ensureCloudSession(function (signedIn) {
+          if (!signedIn) {
+            status('云端未登录，本次用本地识别（精度较低）；点「登录云端账号」可启用精确识别。');
+            fallbackLocal(sessionRequired());
             return;
           }
-          var m = chain[i++];
-          status('正在识别（视觉模型 ' + i + '/' + chain.length + '）…');
-          callModelOnce(messages, m).then(function (obj) {
-            if (!auto) { res(obj); return; }
-            // 主模型成功后，找链里下一个不同模型做交叉验证
-            var verifyM = chain[i];
-            if (!verifyM) { res(obj); return; }
-            status('正在交叉核对（第二模型）…');
-            callModelOnce(messages, verifyM).then(function (obj2) {
-              i++; // 消耗掉复核模型
-              res(pickBestOcr(obj, obj2));
-            }).catch(function () {
-              // 复核模型失败：用主结果，但标记未交叉验证
-              obj._cross = false;
-              res(obj);
+          var messages = [
+            { role: 'system', content: SYS_PROMPT },
+            { role: 'user', content: [
+              { type: 'text', text: 'Transcribe the SAT math question in this image. Return the JSON object exactly as instructed.' },
+              { type: 'image_url', image_url: { url: dataUrl } }
+            ] }
+          ];
+          // 自动模式：先用主模型识别，再用另一模型复核，两个数指纹一致的答案才最可信。
+          // 手动指定模型：只调一次，保持原有行为。
+          var auto = !model || model === 'auto';
+          var chain = auto ? MODEL_CHAIN.slice() : [model];
+          var i = 0, lastErr = null;
+          function next() {
+            if (i >= chain.length) {
+              lastErr = lastErr || new Error('所有视觉模型均不可用');
+              lastErr._tried = i;
+              fallbackLocal(lastErr);
+              return;
+            }
+            var m = chain[i++];
+            status('正在识别（视觉模型 ' + i + '/' + chain.length + '）…');
+            callModelOnce(messages, m).then(function (obj) {
+              if (!auto) { res(obj); return; }
+              // 主模型成功后，找链里下一个不同模型做交叉验证
+              var verifyM = chain[i];
+              if (!verifyM) { res(obj); return; }
+              status('正在交叉核对（第二模型）…');
+              callModelOnce(messages, verifyM).then(function (obj2) {
+                i++; // 消耗掉复核模型
+                res(pickBestOcr(obj, obj2));
+              }).catch(function () {
+                // 复核模型失败：用主结果，但标记未交叉验证
+                obj._cross = false;
+                res(obj);
+              });
+            }).catch(function (e) {
+              lastErr = e;
+              var code = errCode(e);
+              // auth 错误换模型无效，直接转本地兜底；其余（未授权/限流/额度/网关/超时/无题干）自动换下一个
+              if (String(code).indexOf('auth_') === 0) { e._tried = i; fallbackLocal(e); return; }
+              setTimeout(next, 180);
             });
-          }).catch(function (e) {
-            lastErr = e;
-            var code = errCode(e);
-            // auth 错误换模型无效，直接转本地兜底；其余（未授权/限流/额度/网关/超时/无题干）自动换下一个
-            if (String(code).indexOf('auth_') === 0) { e._tried = i; fallbackLocal(e); return; }
-            setTimeout(next, 180);
-          });
-        }
-        next();
+          }
+          next();
+        });
       });
     });
   }
@@ -667,10 +785,11 @@
   }
 
   window.TD_IMG_IMPORT = {
-    open: function () { $('imgImportPanel').hidden = false; $('btnImgImport').setAttribute('aria-expanded', 'true'); loadSdk(function () { }); },
+    open: function () { $('imgImportPanel').hidden = false; $('btnImgImport').setAttribute('aria-expanded', 'true'); ensureCloudSession(function () { }); },
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked, undo: undo,
+    cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
     getModel: function () { return state.model; },
     getModelChain: function () { return MODEL_CHAIN.slice(); },
@@ -690,6 +809,7 @@
   on('fileImgImport', 'change', function (e) { acceptFiles(e.target.files); e.target.value = ''; });
   on('btnImgRetry', 'click', function () { window.TD_IMG_IMPORT.retryFailed(); });
   on('btnImgUndo', 'click', undo);
+  on('imgimpCloudSignIn', 'click', cloudSignIn);
   on('imgimpRows', 'change', function (e) {
     var t = e.target, c = t.getAttribute && t.getAttribute('data-img-cand'), k = t.getAttribute && t.getAttribute('data-img-check');
     if (c) select(c, t.value); else if (k) check(k, t.checked);
