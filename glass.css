@@ -177,6 +177,21 @@ a:hover{color:var(--blue)}
   background:linear-gradient(150deg,#1d1d1f,#000)!important;color:#fff!important;
   transform:translateY(-2px);box-shadow:0 8px 20px rgba(29,29,31,.30)!important;
 }
+/* exam 入口页「开始抽测」— 压过 bluebook.css 末尾宝蓝渐变+蓝投影(特异性0,3,0)，
+   glass.css 后加载同等特异性胜出，改奶白主题深炭墨扁平 */
+.exam-start-actions .btn.primary,
+.exam-page .exam-start-actions .btn.primary{
+  background:linear-gradient(150deg,#2c2c2e,#1d1d1f)!important;
+  border:1px solid transparent!important;color:#fff!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 4px 12px rgba(29,29,31,.22)!important;
+  font-weight:600!important;
+}
+.exam-start-actions .btn.primary:hover,
+.exam-page .exam-start-actions .btn.primary:hover{
+  background:linear-gradient(150deg,#1d1d1f,#000)!important;color:#fff!important;
+  transform:translateY(-2px);box-shadow:0 8px 20px rgba(29,29,31,.30)!important;
+}
 /* ---------- 做题页元素（翻页键/位置按钮/选项/题号弹层）保持官方 Bluebook，不覆盖 ---------- */
 
 /* ---------- small accents ---------- */
@@ -290,6 +305,18 @@ a:hover{color:var(--blue)}
 [data-theme="dark"] .btn.primary:hover,
 [data-theme="dark"] .exam-submit-button:hover{
   background:linear-gradient(150deg,#fff,#e8e8ea)!important;color:#1d1d1f!important;
+}
+/* 暗黑下 exam 入口页「开始抽测」也反转（高特异性，压过 bluebook 宝蓝渐变） */
+[data-theme="dark"] .exam-start-actions .btn.primary,
+[data-theme="dark"] .exam-page .exam-start-actions .btn.primary{
+  background:linear-gradient(150deg,#f5f5f7,#d8d8dc)!important;
+  border:1px solid transparent!important;color:#1d1d1f!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.35)!important;
+}
+[data-theme="dark"] .exam-start-actions .btn.primary:hover,
+[data-theme="dark"] .exam-page .exam-start-actions .btn.primary:hover{
+  background:linear-gradient(150deg,#fff,#e8e8ea)!important;color:#1d1d1f!important;
+  transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.45)!important;
 }
 /* 暗黑下切换按钮自身 */
 [data-theme="dark"] #theme-toggle{
