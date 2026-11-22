@@ -205,7 +205,26 @@
        '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">未在题库中找到对应题目，无法进入抽查抽题</span></div></article>';
    }).join('')+'</section>';
  }
+ function renderHero(){
+   var total=all.length,todo=0,done=0,units={};
+   all.forEach(function(x){if(!x.corrected)todo++;else done++;if(x.q&&x.q.unit)units[x.q.unit]=1;});
+   var unitN=Object.keys(units).length;
+   var el=document.getElementById('wrongHero');if(!el)return;
+   var sub=total?('共 '+total+' 道错题 · 已订正 '+done+' 道 · 覆盖 '+unitN+' 个单元'):'完成真题练习、单元抽查或模考后，错题会自动汇总到这里。';
+   el.innerHTML='<div class="wrong-hero-main">'+
+     '<p class="wrong-hero-label">待订正错题</p>'+
+     '<div class="wrong-hero-num">'+todo+'<small>题</small></div>'+
+     '<p class="wrong-hero-sub">'+sub+'</p>'+
+     '</div>'+
+     '<div class="wrong-hero-kv">'+
+     '<div><span>错题总数</span><b>'+total+'</b></div>'+
+     '<div><span>待订正</span><b>'+todo+'</b></div>'+
+     '<div><span>已订正</span><b>'+done+'</b></div>'+
+     '<div><span>涉及单元</span><b>'+unitN+'</b></div>'+
+     '</div>';
+ }
  function render(){
+   renderHero();
    var rows=activeUnit?all.filter(function(x){return x.q.unit===activeUnit;}):all;
    var byTopic={};rows.forEach(function(x){if(x.corrected)return;var k=topic(x.q);byTopic[k]=(byTopic[k]||0)+1;});
    var weak=Object.keys(byTopic).map(function(k){return{k:k,n:byTopic[k]};}).sort(function(a,b){return b.n-a.n;});
