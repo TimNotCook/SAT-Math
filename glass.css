@@ -151,17 +151,19 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
   letter-spacing:.01em;
 }
 
-/* 1. section code "1.1" — clean geometric, flat */
+/* 1. section code "1.1" — Space Grotesk 精致呈现：字重500让几何特征显现，非系统粗体 */
 .drill-section-code{
   color:var(--blue-strong)!important;
-  background:rgba(204,251,241,.42)!important;
-  border:1px solid rgba(13,148,136,.14);
+  background:rgba(204,251,241,.30)!important;
+  border:1px solid rgba(13,148,136,.10)!important;
   border-radius:var(--radius-sm)!important;
-  font-weight:600!important;
-  font-size:13px!important;
-  min-width:50px;height:30px;padding:0 10px;
+  font-weight:500!important;
+  font-size:14px!important;
+  letter-spacing:.04em!important;
+  min-width:54px;height:32px;padding:0 11px;
   display:inline-flex;align-items:center;justify-content:center;
   box-shadow:none!important;
+  font-feature-settings:"tnum" 1;
 }
 /* 2. question marker — flat, no heavy shadow */
 .drill-qnumber{
