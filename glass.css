@@ -531,3 +531,9 @@ html[data-theme="dark"] .exam-special-chip span{color:#e8e8ea!important}
 html[data-theme="dark"] .exam-special-chip small{color:#9a9aa0!important}
 html[data-theme="dark"] .exam-special-chip.on span{color:#f5f5f7!important}
 html[data-theme="dark"] .exam-special-chip.on small{color:#c8c8cc!important}
+
+/* ---------- hover 起伏收敛（负责人要求：drill 板块/Topic 列表行起伏过大） ---------- */
+.drill-board-nav-item:hover,.drill-section-row:hover{
+  transform:translateY(-1px)!important;
+  box-shadow:0 3px 10px rgba(31,45,61,.09),var(--glass-hi)!important;
+}
