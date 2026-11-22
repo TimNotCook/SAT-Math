@@ -161,6 +161,7 @@
       }
       syncUI();
       scheduleRender();
+      persist();
     }
     function scheduleRender() {
       if (rafQueued) return;
@@ -302,6 +303,46 @@
       if (!store[key]) store[key] = [];
       return store[key];
     }
+
+    /* ---------- 持久化：按题落盘 localStorage，刷新/切后台不丢草稿 ----------
+       store 仍是内存主存（渲染直接读它），这里只做「落盘」与「载入」。
+       key 前缀 tdsat_scratch_<页面>_<题key>，与进度/主题的 tdsat_ 前缀同族，
+       且带页面标识，避免 drill 与 exam 同名题号互相覆盖。 */
+    var LS_OK = (function () {
+      try { var t = '__td_scratch_probe__'; localStorage.setItem(t, '1'); localStorage.removeItem(t); return true; }
+      catch (e) { return false; }   // 隐私模式 / 禁用 localStorage：降级为纯内存，不报错
+    })();
+    function pageTag() {
+      var m = location.pathname.match(/([^/]+)\.html/);
+      return m ? m[1] : 'page';
+    }
+    function lsKeyFor(k) {
+      return 'tdsat_scratch_' + pageTag() + '_' + (k || key);
+    }
+    function persist(k) {
+      if (!LS_OK) return;
+      var kk = k || key;
+      if (!kk) return;
+      var list = store[kk] || [];
+      try {
+        if (list.length) localStorage.setItem(lsKeyFor(kk), JSON.stringify(list));
+        else localStorage.removeItem(lsKeyFor(kk));
+      } catch (e) {
+        // 不静默吞：配额满/写失败时给可见提示（草稿板开着）或至少留日志
+        console.warn('[scratch-pad] 草稿保存失败:', e);
+        if (open) showHint('草稿未能保存：本地存储空间不足');
+      }
+    }
+    function loadInto(k) {
+      if (!LS_OK) return;
+      var kk = k || key;
+      if (!kk) return;
+      try {
+        var raw = localStorage.getItem(lsKeyFor(kk));
+        if (raw) { var arr = JSON.parse(raw); if (Array.isArray(arr)) store[kk] = arr; }
+      } catch (e) { /* 数据损坏：忽略，按无历史草稿重新开始，不清空用户内存里的新笔画 */ }
+    }
+
     function setTool(t) {
       tool = t;
       if (t === 'eraser') setHand(false);
@@ -459,6 +500,7 @@
       }
       redoStack.push(op);
       scheduleRender(); syncUI();
+      persist();
     }
     function redo() {
       var op = redoStack.pop();
@@ -473,12 +515,14 @@
       }
       undoStack.push(op);
       scheduleRender(); syncUI();
+      persist();
     }
     function clear() {
       if (!key) return;
       store[key] = [];
       undoStack.length = 0; redoStack.length = 0;
       scheduleRender(); syncUI();
+      persist();
     }
     function watchQuestion() {
       if (timer) return;
@@ -486,13 +530,16 @@
         if (!open) return;
         var k = currentKey();
         if (!k || k === key) return;
+        persist();                       // 切题前先落盘旧题草稿
         key = k;
+        loadInto();                      // 载入新题已存的历史草稿（若有）
         undoStack.length = 0; redoStack.length = 0;
         scheduleRender(); syncUI();
       }, 300);
     }
     function openPad() {
       key = currentKey();
+      loadInto();                       // 载入该题已保存的草稿（刷新/换设备后恢复）
       sizeCanvas(); render(); syncUI();
       layer.classList.add('show');
       document.body.classList.add('scratch-on');
@@ -511,6 +558,7 @@
       lastSmoothed = null;
       touchSessions = {};
       showHint('');
+      persist();                        // 关闭时兜底落盘，保证最后一笔不丢
       if (self.onChange) self.onChange(false);
     }
 

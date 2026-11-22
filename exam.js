@@ -135,7 +135,7 @@
     return base;
   }
 
-  let S = null, ticker = null, resultTab = 'all', lastQTs = Date.now(), navOpener = null;
+  let S = null, ticker = null, tickerBound = false, resultTab = 'all', lastQTs = Date.now(), navOpener = null;
   /* The stage a saved session is allowed to reveal. It stays null until the
      Start/测试 button is clicked, so a page load, refresh or module switch can
      never show answer / review / submit / result content on the main screen. */
@@ -237,8 +237,11 @@
   }
   function startTicker() {
     clearInterval(ticker); ticker = setInterval(tick, 250);
-    document.addEventListener('visibilitychange', tick);
-    window.addEventListener('focus', tick);
+    if (!tickerBound) {                       // 幂等：反复进出考试不堆叠监听器
+      document.addEventListener('visibilitychange', tick);
+      window.addEventListener('focus', tick);
+      tickerBound = true;
+    }
     tick();
   }
   function tick() {
