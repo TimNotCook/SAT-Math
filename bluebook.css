@@ -698,7 +698,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 ::selection{background:rgba(37,99,235,.18)}
 
 /* ---- 顶栏：磨砂玻璃条 ---- */
-.appbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.55)!important;
+.appbar{position:sticky;top:0;z-index:40;background:var(--appbar-bg,rgba(255,255,255,.55))!important;
   -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
   border-bottom:1px solid var(--glass-line)!important;box-shadow:0 4px 20px rgba(31,45,61,.05)!important}
 .brand::before{content:none!important}
@@ -897,7 +897,7 @@ main.wrap,.drill-select,.exam-start-main,.drill-result,.exam-stage-main,.wrong-p
 }
 
 /* ---- 玻璃层补丁：盖住 drill-page/exam-page 前缀的旧主题残留 ---- */
-.appbar,.drill-page .appbar,.exam-page .appbar{background:rgba(255,255,255,.55)!important;
+.appbar,.drill-page .appbar,.exam-page .appbar{background:var(--appbar-bg,rgba(255,255,255,.55))!important;
   border-bottom:1px solid var(--glass-line)!important;box-shadow:0 4px 20px rgba(31,45,61,.05)!important}
 .brand,.drill-page .brand,.exam-page .brand,.brand b,.drill-page .brand b,.exam-page .brand b{color:var(--ink)!important}
 .mainnav a,.drill-page .mainnav a,.exam-page .mainnav a{height:auto!important;min-height:0!important;

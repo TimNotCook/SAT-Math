@@ -18,6 +18,7 @@
   --warn:#9a6b1f; --warn-soft:#faf3e2; --warn-line:#e6d3a7;
   --bad:#c0392b; --bad-soft:#fdecea; --bad-line:#f0bcb8;
   --veil:rgba(29,29,31,.40);
+  --appbar-bg:rgba(255,255,255,.55);   /* 顶栏背景：bluebook GLASS 层写死值改由此变量驱动 */
   --shadow-1:0 1px 2px rgba(35,35,40,.06);
   --shadow-2:0 6px 18px rgba(35,35,40,.09),0 1px 2px rgba(35,35,40,.05);
   --shadow-3:0 24px 60px rgba(35,35,40,.22);
@@ -328,12 +329,18 @@ a:hover{color:var(--blue)}
   --shadow-3:0 24px 60px rgba(0,0,0,.60);
   --glass-bg:rgba(30,30,35,.72);
   --glass-bg-strong:rgba(40,40,45,.86);
+  --appbar-bg:rgba(22,22,25,.94);      /* 顶栏：源头变量化后 dark 从根上变深（不再靠高特异性补丁） */
   --nav-on-bg:rgba(255,255,255,.14);
   --glass-border:1px solid rgba(255,255,255,.08);
   --glass-hi:inset 0 1px 0 rgba(255,255,255,.06);
   --lift:0 18px 40px rgba(0,0,0,.50),0 4px 10px rgba(255,255,255,.04);
 }
+/* 暗黑模式背景铺满：bluebook.css 把 html 写死 #e9edf1!important（浅灰蓝），
+   只覆盖 body 不够——内容不满一屏时底部会露出浅色画布。html 底色一并改深，
+   body 至少铺满视口高度，杜绝底部浅色断层。 */
+[data-theme="dark"] html{background-color:#0a0a0c!important;background-image:none!important}
 [data-theme="dark"] body,[data-theme="dark"] body.drill-page,[data-theme="dark"] body.exam-page{
+  min-height:100vh;
   background-color:#0a0a0c!important;
   background-image:
     radial-gradient(720px 400px at 86% -6%,rgba(120,140,180,.12),transparent 62%),
@@ -389,13 +396,11 @@ a:hover{color:var(--blue)}
   outline:2px solid rgba(232,232,234,.55)!important;outline-offset:2px;
 }
 
-/* ==================== dark 顶栏对比度修复 ====================
-   根因：bluebook.css GLASS 层 `.appbar{background:rgba(255,255,255,.55)!important}`
-   在 dark 下叠黑底变中灰 #939395；导航 var(--sub) 也是中灰 → 字看不清。
-   这里用 html[data-theme=dark] 高特异性把顶栏整套改回深色系。 */
+/* ==================== dark 顶栏配套修复 ====================
+   顶栏背景已在源头变量化（bluebook.css → --appbar-bg），light/dark 各自正确。
+   本层只处理仍写死浅色的配套件：导航字色、选中胶囊、品牌字、题库/退出/账号胶囊。 */
 html[data-theme="dark"] .appbar,
 html[data-theme="dark"] body .appbar{
-  background:rgba(22,22,25,.94)!important;
   border-bottom-color:rgba(255,255,255,.10)!important;
   box-shadow:0 1px 0 rgba(255,255,255,.06)!important;
   color:#e8e8ea!important;
