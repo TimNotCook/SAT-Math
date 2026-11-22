@@ -132,7 +132,7 @@ function bootSdk() {
     return;
   }
   var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js';
+  s.src = 'https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@0.1.4/lib/index.global.js';
   s.onload = bootSdk;
   s.onerror = function () { reply(0, false, null, { message: 'sdk load failed' }); };
   document.head.appendChild(s);

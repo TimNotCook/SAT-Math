@@ -146,18 +146,21 @@
     if (window.WorkBuddyCloud && window.WorkBuddyCloud.createWorkBuddyCloud) { make(); return; }
     // SDK 随站点本地化，毫秒级加载；不再依赖 CDN（之前 CDN 超时导致 sdkTried 永久锁死，
     // OCR 走本地兜底后判别阶段再也拿不到 SDK，全部保守跳过）。
-    // 本地失败才尝 CDN；允许重试（不再用 sdkTried 永久锁死）。
+    // 本地失败才尝 CDN，且 CDN 兜底钉死版本 @0.1.4（不用 @dev dist-tag，避免追最新开发版）+ SRI 校验。
+    var SDK_CDN = 'https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@0.1.4/lib/index.global.js';
+    var SDK_CDN_SRI = 'sha384-6yxnkOdsYedUWX/Z+ulluqqMcfvl4EimVdKA7jFGD8P8a6yUWNPqK+du0PSKiGWJ';
     var triedLocal = false;
     function inject(src, isLocal) {
       var s = document.createElement('script');
       s.src = src; s.async = true;
+      if (!isLocal) { s.integrity = SDK_CDN_SRI; s.crossOrigin = 'anonymous'; }
       s.onload = function () {
         if (window.WorkBuddyCloud && window.WorkBuddyCloud.createWorkBuddyCloud) make();
-        else if (isLocal) inject('https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js', false);
+        else if (isLocal) inject(SDK_CDN, false);
         else finish(false);
       };
       s.onerror = function () {
-        if (isLocal) inject('https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js', false);
+        if (isLocal) inject(SDK_CDN, false);
         else finish(false);
       };
       document.head.appendChild(s);
@@ -337,37 +340,32 @@
     return out;
   }
   /* ---------------- 本地 OCR 兜底（Tesseract.js WASM，无需登录/密钥/域名授权） ----------------
-     云端 VLM 不可用（未授权域名、限流、断网等）时自动启用：组件与语言包从 CDN 按需加载，
+     云端 VLM 不可用（未授权域名、限流、断网等）时自动启用：组件/内核/语言包**本地全量打包优先**，
+     离线可完整识别（vendor/tesseract 已含 5.1.1 全套），CDN 仅作镜像兜底。
      识别全程在浏览器内完成，图片不上传任何服务器。适合 Bluebook 截图这类清晰印刷体。 */
-  // 双 CDN 镜像：当前网络对 jsdelivr 间歇连接重置/ALPN 失败，任一镜像失败自动换另一个
+  // 镜像链：本地优先（离线/快），jsdelivr、unpkg 兜底（本地缺非 SIMD 内核或极端网络时）。
+  // 每个镜像自带 script/worker/core/lang 四件套，worker 会按 SIMD/LSTM 自行拼 core 文件名。
+  var TESS_CDN_SRI = 'sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F';
   var TESS_MIRRORS = [
-    'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1',
-    'https://unpkg.com/tesseract.js@5.1.1'
-  ];
-  // v5 的 WASM 内核在独立包 tesseract.js-core，给目录即可，worker 会按 SIMD/LSTM 自行拼文件名
-  var TESS_CORE_MIRRORS = [
-    'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1',
-    'https://unpkg.com/tesseract.js-core@5.1.1'
-  ];
-  var TESS_LANG_MIRRORS = [
-    'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int',
-    'https://unpkg.com/@tesseract.js-data/eng@1.0.0/4.0.0_best_int'
+    { script: 'vendor/tesseract/tesseract.min.js', worker: 'vendor/tesseract/worker.min.js', core: 'vendor/tesseract', lang: 'vendor/tesseract' },
+    { script: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js', worker: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js', core: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1', lang: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int' },
+    { script: 'https://unpkg.com/tesseract.js@5.1.1/dist/tesseract.min.js', worker: 'https://unpkg.com/tesseract.js@5.1.1/dist/worker.min.js', core: 'https://unpkg.com/tesseract.js-core@5.1.1', lang: 'https://unpkg.com/@tesseract.js-data/eng@1.0.0/4.0.0_best_int' }
   ];
   function loadTesseract() {
     if (window.Tesseract) return Promise.resolve(window.Tesseract);
     function attempt(mi) {
       return new Promise(function (resolve, reject) {
         var s = document.createElement('script');
-        s.src = TESS_MIRRORS[mi] + '/dist/tesseract.min.js';
+        s.src = TESS_MIRRORS[mi].script;
         s.async = true;
+        if (mi > 0) { s.integrity = TESS_CDN_SRI; s.crossOrigin = 'anonymous'; }  // CDN 兜底加 SRI，本地同源无需
         s.onload = function () { window.Tesseract ? resolve(window.Tesseract) : reject(new Error('组件加载失败')); };
         s.onerror = function () { reject(new Error('组件加载失败（网络）')); };
         document.head.appendChild(s);
       });
     }
     // 不缓存 rejected 状态：失败后换镜像/允许重试，避免一次网络抖动永久锁死
-    var p = attempt(0).catch(function () { return attempt(1); });
-    return p;
+    return attempt(0).catch(function () { return attempt(1).catch(function () { return attempt(2); }); });
   }
   function localOcr(dataUrl) {
     var worker;
@@ -385,10 +383,11 @@
     var work = loadTesseract().then(function (T) {
       status('正在启动本地识别（无需登录）…');
       function createAt(mi) {
+        var m = TESS_MIRRORS[mi];
         return T.createWorker('eng', 1, {
-          workerPath: TESS_MIRRORS[mi] + '/dist/worker.min.js',
-          corePath: TESS_CORE_MIRRORS[mi],
-          langPath: TESS_LANG_MIRRORS[mi],
+          workerPath: m.worker,
+          corePath: m.core,
+          langPath: m.lang,
           gzip: true
         });
       }
@@ -406,8 +405,8 @@
           })
         ]).then(function (w) { clearTimeout(t); return w; }, function (e) { clearTimeout(t); throw e; });
       }
-      // worker/内核/语言包失败或超时，换整套镜像重来
-      return bounded(0).catch(function () { return bounded(1); });
+      // worker/内核/语言包失败或超时，换下一套镜像重来（本地 → jsdelivr → unpkg）
+      return bounded(0).catch(function () { return bounded(1).catch(function () { return bounded(2); }); });
     }).then(function (w) {
       worker = w;
       return worker.recognize(dataUrl);

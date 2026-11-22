@@ -1,0 +1,160 @@
+{
+  "base": "http://127.0.0.1:8477",
+  "generatedAt": "2026-11-22T08:55:59.727Z",
+  "shots": [
+    {
+      "id": "light-drill-landing",
+      "file": "light-drill-landing.png",
+      "url": "http://127.0.0.1:8477/drill.html",
+      "theme": "light",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [],
+      "consoleErrors": [],
+      "sha256": "2de5fd979b1b6ec4947364fb9b2e2a684f4ec592ec373313b066297d82638b69",
+      "bytes": 142379
+    },
+    {
+      "id": "light-drill-question",
+      "file": "light-drill-question.png",
+      "url": "http://127.0.0.1:8477/drill.html?sec=1.1&i=1",
+      "theme": "light",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [],
+      "consoleErrors": [],
+      "sha256": "cdcb3db6c31a0ace4e188b924f8cf4039b64ad79ff506ee92ce4ff6a27feddf5",
+      "bytes": 42955
+    },
+    {
+      "id": "light-exam-mock-intro",
+      "file": "light-exam-mock-intro.png",
+      "url": "http://127.0.0.1:8477/exam.html?mode=mock",
+      "theme": "light",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [],
+      "consoleErrors": [],
+      "sha256": "155a9dbfb7438835469cf670a1f477e71385aebf8bd58d684ef3c189848ccc63",
+      "bytes": 62412
+    },
+    {
+      "id": "light-exam-quiz-answer",
+      "file": "light-exam-quiz-answer.png",
+      "url": "http://127.0.0.1:8477/exam.html?mode=quiz&unit=1",
+      "theme": "light",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [
+        "#btnStart"
+      ],
+      "consoleErrors": [],
+      "sha256": "0f02e10a95058cc35fb2baa95e3e4c02dd6cb4da8adb7014a8fecd9dceb562b2",
+      "bytes": 52673
+    },
+    {
+      "id": "light-wrong",
+      "file": "light-wrong.png",
+      "url": "http://127.0.0.1:8477/wrong.html",
+      "theme": "light",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [],
+      "consoleErrors": [],
+      "sha256": "abdcd4438e6428eab6cef6b667eecbaa7333a79869568895275a53afd96efe77",
+      "bytes": 116292
+    },
+    {
+      "id": "dark-drill-landing",
+      "file": "dark-drill-landing.png",
+      "url": "http://127.0.0.1:8477/drill.html",
+      "theme": "dark",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [],
+      "consoleErrors": [],
+      "sha256": "935227943abd60f86f88f9e00899e57f9f1660bb8198d5e36895d5996719e48c",
+      "bytes": 213526
+    },
+    {
+      "id": "dark-drill-question",
+      "file": "dark-drill-question.png",
+      "url": "http://127.0.0.1:8477/drill.html?sec=1.1&i=1",
+      "theme": "dark",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [],
+      "consoleErrors": [],
+      "sha256": "3b6cfc492a4f74eed06f6dd7a3e06df9b37eb523bde919834622c0381a554ae3",
+      "bytes": 42536
+    },
+    {
+      "id": "dark-exam-mock-intro",
+      "file": "dark-exam-mock-intro.png",
+      "url": "http://127.0.0.1:8477/exam.html?mode=mock",
+      "theme": "dark",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [],
+      "consoleErrors": [],
+      "sha256": "30ac2feeca50a0f7f417a3869847c87acc53f3015770e6cee0c34d263f9b0a34",
+      "bytes": 170076
+    },
+    {
+      "id": "dark-exam-quiz-answer",
+      "file": "dark-exam-quiz-answer.png",
+      "url": "http://127.0.0.1:8477/exam.html?mode=quiz&unit=1",
+      "theme": "dark",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [
+        "#btnStart"
+      ],
+      "consoleErrors": [],
+      "sha256": "db244118a2ef4f863abcca03221ac85833957584990fa2bab5eafc4956c0f07f",
+      "bytes": 56578
+    },
+    {
+      "id": "dark-wrong",
+      "file": "dark-wrong.png",
+      "url": "http://127.0.0.1:8477/wrong.html",
+      "theme": "dark",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dsf": 1,
+      "clicks": [],
+      "consoleErrors": [],
+      "sha256": "20c13e62c2d0a904715000f341de34791bb013c5ecbe7442dc1c97e3eab91a58",
+      "bytes": 186624
+    }
+  ]
+}

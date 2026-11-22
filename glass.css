@@ -1,7 +1,7 @@
 /* TD SAT Math · Glass HUD — 淡奶白主题（接近纯白零暖意 + 深炭墨强调 + 白玻璃）
    参考 Apple/HUAWEI 官网：极淡奶白底、近黑强调、纯白玻璃卡、中性灰细线。
-   Loaded last. Space Grotesk (Google Fonts <link> in HTML) drives every number.
-   Non-destructive: remove the <link> + this file to revert. */
+   Loaded last. Space Grotesk drives every number (self-hosted VF, see bluebook.css @font-face).
+   Non-destructive: remove this file to revert. */
 
 :root{
   /* palette: 淡奶白（接近纯白）+ 深炭墨强调（变量名沿用 --blue，值改深炭墨，避免改所有引用） */

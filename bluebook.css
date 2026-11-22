@@ -16,6 +16,10 @@
 @font-face{font-family:'Roboto';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Roboto-Regular.woff2') format('woff2')}
 @font-face{font-family:'Roboto';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/Roboto-Medium.woff2') format('woff2')}
 @font-face{font-family:'Roboto';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/Roboto-Bold.woff2') format('woff2')}
+/* Space Grotesk (OFL, self-hosted variable font) — drives every number via glass.css --font-display.
+   Single VF covers wght 400–700 (byte-identical to the googleapis v22 latin subset), so the
+   former Google Fonts <link>/<preconnect> is gone: no third-party font fetch, offline-safe. */
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:400 700;font-display:swap;src:url('fonts/SpaceGrotesk-VF.woff2') format('woff2')}
 
 body.drill-page, body.exam-page{background:var(--bg);color:var(--bb-ink);font:15px/1.65 var(--sans)}
 .drill-page .appbar, .exam-page .appbar{position:relative;z-index:20;border-bottom-color:var(--bb-line)}

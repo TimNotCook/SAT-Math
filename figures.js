@@ -722,7 +722,7 @@
     if (!src) return '';
     var figMissing = "var p=document.createElement('div');p.className='td-figure td-figure--missing';p.textContent='图形暂缺';this.replaceWith(p);";
     return '<div class="td-figure td-figure--crop"><img src="' + src +
-      '" alt="diagram" loading="lazy" onerror="' + figMissing + '"></div>';
+      '" alt="diagram" loading="lazy" decoding="async" onerror="' + figMissing + '"></div>';
   }
 
   /* =====================================================================

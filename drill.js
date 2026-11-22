@@ -368,7 +368,7 @@
         inner = vecFig;
         cls = ' is-figure';
       } else if (figSrc) {
-        inner = '<img class="drill-choice-fig" src="' + figSrc + '" alt="选项 ' + letter + '" onerror="var p=document.createElement(\'span\');p.className=\'drill-choice-placeholder\';p.textContent=\'图形暂缺\';this.replaceWith(p);">';
+        inner = '<img class="drill-choice-fig" src="' + figSrc + '" alt="选项 ' + letter + '" loading="lazy" decoding="async" onerror="var p=document.createElement(\'span\');p.className=\'drill-choice-placeholder\';p.textContent=\'图形暂缺\';this.replaceWith(p);">';
         cls = ' is-figure';
       } else {
         inner = '<span class="drill-choice-placeholder">图形或公式选项</span>';

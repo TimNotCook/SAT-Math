@@ -469,7 +469,7 @@
         let disp, cls;
         if (raw) { disp = window.TD_FIG ? window.TD_FIG.fmtMath(raw) : esc(raw); cls = ''; }
         else if (vecFig) { disp = vecFig; cls = ' is-figure'; }
-        else if (figSrc) { disp = '<img class="drill-choice-fig" src="' + figSrc + '" alt="选项 ' + L + '" onerror="var p=document.createElement(\'span\');p.className=\'drill-choice-placeholder\';p.textContent=\'图形暂缺\';this.replaceWith(p);">'; cls = ' is-figure'; }
+        else if (figSrc) { disp = '<img class="drill-choice-fig" src="' + figSrc + '" alt="选项 ' + L + '" loading="lazy" decoding="async" onerror="var p=document.createElement(\'span\');p.className=\'drill-choice-placeholder\';p.textContent=\'图形暂缺\';this.replaceWith(p);">'; cls = ' is-figure'; }
         else { disp = '<span class="drill-choice-placeholder">图形或公式选项</span>'; cls = isFig ? ' is-figure is-missing' : ''; }
         return `<button type="button" class="drill-choice${cls}${selected ? ' is-selected' : ''}" data-choice="${L}" role="radio" aria-checked="${selected}" ${locked ? 'disabled' : ''}>` +
           `<span class="drill-choice-letter">${L}</span><span class="drill-choice-text">${disp}</span>` +

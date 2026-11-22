@@ -18,4 +18,12 @@
     if(window.TDSync)try{window.TDSync.notify(KEY)}catch(e){console.warn('同步通知未生效',e)}
     apply(t);
   };
+
+  /* 离线/首屏优化：注册 Service Worker（sw.js）。仅在 https 或 localhost 下注册，
+     避免 file:// 或非标准环境下报错；注册失败静默忽略，不影响正常浏览。 */
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    window.addEventListener('load', function () {
+      try { navigator.serviceWorker.register('sw.js', { scope: './' }); } catch (e) {}
+    });
+  }
 })();
