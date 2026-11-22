@@ -955,3 +955,103 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
   background:rgba(255,255,255,.62)!important;
   -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
   border-top:1px solid var(--glass-line)!important;box-shadow:0 -8px 24px rgba(31,45,61,.07)!important}
+
+/* ============================================================
+   做题页 1:1 官方 Bluebook 精确还原（2026-11-22）
+   覆盖上方「答题页玻璃化」的渐变/半透明/毛玻璃残留，恢复官方纯色。
+   官方取色（自用户提供的 Bluebook 截图实测）：
+     页面背景 #EAEEF2 · 上下文条 #E8EDF4 · 工具条/底栏 #FFFFFF
+     选项卡 #F7F9FA（无边框）· 字母圆标 #E9EBEC / 边框 #A3A4A6 / 字 #3D3E3F
+   硬编码色值，不依赖 theme 变量 → 明暗主题下做题页均保持官方，不被暗黑覆盖。
+   ============================================================ */
+body:has(#questionView:not([hidden])),
+body:has(#stage-answer:not([hidden])),
+body.exam-page:has(#stage-answer:not([hidden])){
+  background:#EAEEF2!important;
+  background-image:none!important;
+  background-attachment:scroll!important;
+}
+body:has(#questionView:not([hidden]))::before,
+body:has(#stage-answer:not([hidden]))::before,
+body.exam-page:has(#stage-answer:not([hidden]))::before{display:none!important}
+body:has(#questionView:not([hidden])) .drill-context,
+body.exam-page:has(#stage-answer:not([hidden])) .exam-context{
+  background:#E8EDF4!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  border-bottom:0!important;box-shadow:none!important;
+}
+body:has(#questionView:not([hidden])) .drill-questionbar,
+body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar{
+  background:#FFFFFF!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+body:has(#questionView:not([hidden])) .drill-main,
+body.exam-page:has(#stage-answer:not([hidden])) .exam-main{
+  background:#EAEEF2!important;
+}
+body:has(#questionView:not([hidden])) .drill-footer,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
+  background:#FFFFFF!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  border-top:1px solid #D7DDE6!important;
+  box-shadow:none!important;
+}
+body:has(#questionView:not([hidden])) .drill-choice,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-choice{
+  border:1px solid transparent!important;
+  background:#F7F9FA!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+body:has(#questionView:not([hidden])) .drill-choice:hover,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-choice:hover{
+  border-color:transparent!important;
+  background:#FFFFFF!important;
+  box-shadow:none!important;
+}
+body:has(#questionView:not([hidden])) .drill-choice[aria-pressed="true"],
+body:has(#questionView:not([hidden])) .drill-choice[aria-checked="true"],
+body:has(#questionView:not([hidden])) .drill-choice.is-selected,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-choice[aria-pressed="true"],
+body.exam-page:has(#stage-answer:not([hidden])) .drill-choice[aria-checked="true"],
+body.exam-page:has(#stage-answer:not([hidden])) .drill-choice.is-selected{
+  border:1px solid #0057B8!important;
+  background:#EAF2FF!important;
+  box-shadow:inset 0 0 0 1px #0057B8!important;
+}
+.drill-choice-letter{
+  background:#E9EBEC!important;
+  border:1px solid #A3A4A6!important;
+  color:#3D3E3F!important;
+}
+body:has(#questionView:not([hidden])) .drill-choice[aria-pressed="true"] .drill-choice-letter,
+body:has(#questionView:not([hidden])) .drill-choice[aria-checked="true"] .drill-choice-letter,
+body:has(#questionView:not([hidden])) .drill-choice.is-selected .drill-choice-letter,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-choice[aria-pressed="true"] .drill-choice-letter,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-choice[aria-checked="true"] .drill-choice-letter,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-choice.is-selected .drill-choice-letter{
+  background:#0057B8!important;
+  border-color:#0057B8!important;
+  color:#FFFFFF!important;
+}
+/* 做题页：隐藏主题切换浮动按钮（非官方元素） */
+body:has(#questionView:not([hidden])) #theme-toggle,
+body:has(#stage-answer:not([hidden])) #theme-toggle,
+body.exam-page:has(#stage-answer:not([hidden])) #theme-toggle{display:none!important}
+/* Next 按钮：官方深蓝实心，去除 GLASS 层电光蓝渐变残留 */
+body:has(#questionView:not([hidden])) .drill-page-button.drill-next-button,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button.drill-next-button{
+  background:#0057B8!important;
+  border:1px solid #0057B8!important;
+  color:#FFFFFF!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  border-radius:18px!important;
+}
+body:has(#questionView:not([hidden])) .drill-page-button.drill-next-button:hover,
+body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button.drill-next-button:hover{
+  background:#004A97!important;
+  border-color:#004A97!important;
+  transform:none!important;
+  box-shadow:none!important;
+}
