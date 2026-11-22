@@ -158,6 +158,29 @@ a:hover{color:var(--blue)}
 /* 错题页：去掉标题区下边线 + 导入工具条上下细线（用户要求），保留内容与布局 */
 .wrong-page .page-head{border-bottom:0!important}
 .wrong-toolbar{border-top:0!important;border-bottom:0!important}
+/* 错题页：学习总览 hero —— 对齐单元抽查报告页 score-hero 的玻璃卡 + 大数字 + kv 风格 */
+.wrong-hero{
+  display:grid;grid-template-columns:minmax(200px,260px) minmax(0,1fr);
+  gap:28px;align-items:center;
+  background:var(--glass-bg)!important;
+  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+  border:var(--glass-border)!important;border-radius:var(--radius-lg)!important;
+  box-shadow:var(--shadow-2),var(--glass-hi)!important;
+  padding:28px;margin-bottom:20px;
+}
+.wrong-hero-main{min-width:0}
+.wrong-hero-label{margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.wrong-hero-num{font-family:var(--font-display);font-size:54px;font-weight:600;line-height:1;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+.wrong-hero-num small{font-size:20px;font-weight:500;color:var(--sub);margin-left:6px;letter-spacing:0}
+.wrong-hero-sub{margin:10px 0 0;font-size:12.5px;color:var(--sub);line-height:1.6}
+.wrong-hero-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px}
+.wrong-hero-kv>div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.wrong-hero-kv>div:last-child{border-bottom:0}
+.wrong-hero-kv span{color:var(--sub)}
+.wrong-hero-kv b{font-family:var(--font-display);font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;color:var(--ink)}
+@media(max-width:760px){
+  .wrong-hero{grid-template-columns:1fr;gap:18px;padding:22px}
+}
 
 /* ---------- number typography: Space Grotesk（仅落地页/结果页数字，做题页保持官方字体） ---------- */
 .drill-section-code,.drill-result-score strong,

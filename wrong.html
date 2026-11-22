@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="TD SAT Math 错题回顾：集中查看、重做与导入错题，做题进度保存在本机。"><meta name="theme-color" content="#2563eb"><title>TD SAT Math · 错题回顾</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="app.css?v=004c3daf909a"><link rel="stylesheet" href="bluebook.css?v=004c3daf909a"><link rel="stylesheet" href="glass.css?v=004c3daf909a"><script src="theme.js?v=004c3daf909a"></script>
+<meta name="description" content="TD SAT Math 错题回顾：集中查看、重做与导入错题，做题进度保存在本机。"><meta name="theme-color" content="#2563eb"><title>TD SAT Math · 错题回顾</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="app.css?v=c1d87a909305"><link rel="stylesheet" href="bluebook.css?v=c1d87a909305"><link rel="stylesheet" href="glass.css?v=c1d87a909305"><script src="theme.js?v=c1d87a909305"></script>
 <style>
 /* 图片识别导入：复用站点既有 token（与 pdfimp 同一套变量） */
 .imgimp-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--sp4);margin-bottom:var(--sp3);box-shadow:var(--shadow-1)}
@@ -50,6 +50,8 @@
   <header class="page-head"><div><h1>错题回顾</h1>
     <p>汇总各练习与模考错题，按单元归类，分析错因与薄弱点。</p></div>
     <a class="btn primary" id="backPractice" href="drill.html">返回真题练习</a></header>
+  <!-- 学习总览：对齐单元抽查报告页的 score-hero，展示错题学习数据 -->
+  <section class="wrong-hero" id="wrongHero" aria-label="错题学习总览"></section>
   <!-- 草稿板取题键用的隐藏占位：错题回顾为单一复盘场景，固定同一把键 -->
   <span id="footerSection" hidden>错题回顾</span><span id="qNumber" hidden>复盘</span>
   <div class="wrong-toolbar" id="importBar">
@@ -84,8 +86,8 @@
   <section class="weak-panel" id="weakPanel"></section>
   <div id="wrongList"></div>
 </main>
-<script src="data/questions.js?v=004c3daf909a"></script><script src="data/text.js?v=004c3daf909a"></script><script src="data/figures.js?v=004c3daf909a"></script><script src="data/figure_crops.js?v=004c3daf909a"></script>
-<script src="grade-core.js?v=004c3daf909a"></script><script src="app-core.js?v=004c3daf909a"></script><script src="analysis.js?v=004c3daf909a"></script><script src="figures.js?v=004c3daf909a"></script><script src="scratch-pad.js?v=004c3daf909a"></script>
+<script src="data/questions.js?v=c1d87a909305"></script><script src="data/text.js?v=c1d87a909305"></script><script src="data/figures.js?v=c1d87a909305"></script><script src="data/figure_crops.js?v=c1d87a909305"></script>
+<script src="grade-core.js?v=c1d87a909305"></script><script src="app-core.js?v=c1d87a909305"></script><script src="analysis.js?v=c1d87a909305"></script><script src="figures.js?v=c1d87a909305"></script><script src="scratch-pad.js?v=c1d87a909305"></script>
 <script>
 (function(){
  'use strict';
@@ -294,7 +296,26 @@
        '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">未在题库中找到对应题目，无法进入抽查抽题</span></div></article>';
    }).join('')+'</section>';
  }
+ function renderHero(){
+   var total=all.length,todo=0,done=0,units={};
+   all.forEach(function(x){if(!x.corrected)todo++;else done++;if(x.q&&x.q.unit)units[x.q.unit]=1;});
+   var unitN=Object.keys(units).length;
+   var el=document.getElementById('wrongHero');if(!el)return;
+   var sub=total?('共 '+total+' 道错题 · 已订正 '+done+' 道 · 覆盖 '+unitN+' 个单元'):'完成真题练习、单元抽查或模考后，错题会自动汇总到这里。';
+   el.innerHTML='<div class="wrong-hero-main">'+
+     '<p class="wrong-hero-label">待订正错题</p>'+
+     '<div class="wrong-hero-num">'+todo+'<small>题</small></div>'+
+     '<p class="wrong-hero-sub">'+sub+'</p>'+
+     '</div>'+
+     '<div class="wrong-hero-kv">'+
+     '<div><span>错题总数</span><b>'+total+'</b></div>'+
+     '<div><span>待订正</span><b>'+todo+'</b></div>'+
+     '<div><span>已订正</span><b>'+done+'</b></div>'+
+     '<div><span>涉及单元</span><b>'+unitN+'</b></div>'+
+     '</div>';
+ }
  function render(){
+   renderHero();
    var rows=activeUnit?all.filter(function(x){return x.q.unit===activeUnit;}):all;
    var byTopic={};rows.forEach(function(x){if(x.corrected)return;var k=topic(x.q);byTopic[k]=(byTopic[k]||0)+1;});
    var weak=Object.keys(byTopic).map(function(k){return{k:k,n:byTopic[k]};}).sort(function(a,b){return b.n-a.n;});
@@ -324,4 +345,4 @@ window.TD_IMPORT_WRONG={importData:importData,importText:function(t){return impo
  render();
 })();
 </script>
-<script src="cloud-config.js?v=004c3daf909a"></script><script src="firebase-cloud.js?v=004c3daf909a"></script><script src="github-auth.js?v=1bc3f91548b6"></script><script src="cloud-account.js?v=004c3daf909a"></script><script src="image-import.js?v=004c3daf909a"></script></body></html>
+<script src="cloud-config.js?v=c1d87a909305"></script><script src="firebase-cloud.js?v=c1d87a909305"></script><script src="github-auth.js?v=1bc3f91548b6"></script><script src="cloud-account.js?v=c1d87a909305"></script><script src="image-import.js?v=c1d87a909305"></script></body></html>
