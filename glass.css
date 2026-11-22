@@ -61,6 +61,9 @@ h1,h2,h3,h4{color:var(--ink)!important}
 #introDesc[hidden]{display:none!important}
 a{color:var(--blue-strong);transition:color .15s var(--ease)}
 a:hover{color:var(--blue)}
+/* 导航横滑吸附到整项边界：窄面板下滑动不再停在半个字上（"真题练习"被吃成"题练习"） */
+.mainnav{scroll-snap-type:x mandatory!important;-webkit-overflow-scrolling:touch}
+.mainnav a{scroll-snap-align:start!important;scroll-snap-stop:always!important}
 .brand,.brand b,.brand:hover,.brand:hover b,
 .drill-page .brand b,.exam-page .brand b{color:var(--ink)!important}
 
