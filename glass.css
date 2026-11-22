@@ -117,7 +117,7 @@ a:hover{color:var(--blue)}
   border:0!important;box-shadow:none!important;background:transparent!important;
   -webkit-backdrop-filter:none;backdrop-filter:none;
 }
-.drill-section-row{border-bottom:1px solid rgba(35,35,40,.08)!important;background:transparent!important}
+.drill-section-row{border:0!important;border-bottom:1px solid rgba(35,35,40,.08)!important;background:transparent!important}
 .drill-section-row:last-child{border-bottom:0!important}
 .drill-board-layout{gap:26px}
 .drill-board-nav{border-right:1px solid rgba(35,35,40,.07);padding-right:22px}
