@@ -1,6 +1,9 @@
 .DS_Store
 *.pyc
 __pycache__/
+
+# 遗留的本地验证页，不属于站点，避免被 safe_push.sh 的 git add -A 卷进提交
+_author_verify.html
 # 临时验证/审计产物（并行助手各自生成，不入库）
 .audit/
 _probe*.html
