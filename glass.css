@@ -49,6 +49,16 @@ body,body.drill-page,body.exam-page{
 ::selection{background:rgba(29,29,31,.18);color:#fff}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 h1,h2,h3,h4{color:var(--ink)!important}
+/* intro 主标题：轻盈精致官网风（覆盖 bluebook 的笨重粗黑大字） */
+.exam-start-main h1,body.exam-page .exam-start-main h1{
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",var(--font-display)!important;
+  font-size:clamp(27px,2.8vw,33px)!important;
+  font-weight:550!important;
+  letter-spacing:.04em!important;
+  line-height:1.32!important;
+  color:var(--ink)!important;
+}
+#introDesc[hidden]{display:none!important}
 a{color:var(--blue-strong);transition:color .15s var(--ease)}
 a:hover{color:var(--blue)}
 .brand,.brand b,.brand:hover,.brand:hover b,

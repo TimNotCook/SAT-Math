@@ -323,8 +323,7 @@
         '<span>U' + u.id + ' 专项练习</span><small>' + n + ' 题</small></label>';
     }).filter(Boolean).join('');
     host.innerHTML = '<section class="exam-special-panel">' +
-      '<div class="exam-special-head">组卷范围' +
-      '<span>默认不含专项练习；开启后该单元专项题进入抽题池</span></div>' +
+      '<div class="exam-special-head">组卷范围</div>' +
       '<div class="exam-special-chips">' + rows + '</div>' +
       '</section>';
     host.querySelectorAll('[data-special-unit]').forEach(cb => cb.addEventListener('change', () => {
@@ -345,9 +344,11 @@
     const official = MODE === 'mock';
     $('introEyebrow').textContent = official ? 'SECTION 2, MODULE 1: MATH' : 'UNIT MASTERY CHECK';
     $('introTitle').textContent = official ? 'Math' : '单元抽查';
-    $('introDesc').textContent = official
-      ? 'The digital SAT Math section has two modules. Each module has 22 questions and is timed separately.'
-      : '从所选单元按小节配额抽题，覆盖全部知识点、优先高难度题，历史错题少量复测。';
+    /* 单元抽查说明小字做减法：整段删除；官方模考保留 Bluebook 原文 */
+    $('introDesc').hidden = !official;
+    if (!official) $('introDesc').textContent = '';
+    else $('introDesc').textContent =
+      'The digital SAT Math section has two modules. Each module has 22 questions and is timed separately.';
     $('btnStart').textContent = resumeStage === 'result'
       ? (official ? 'View Score Report' : '查看成绩报告')
       : (official ? 'Start' : '开始抽测');
