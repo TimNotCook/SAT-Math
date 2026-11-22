@@ -46,15 +46,6 @@ body,body.drill-page,body.exam-page{
   background-attachment:fixed!important;
   color:var(--ink)!important;
 }
-body:has(#questionView:not([hidden])),body:has(#stage-answer:not([hidden])){
-  background-color:#f8f8f8!important;
-  background-image:
-    radial-gradient(560px 380px at 84% 4%,rgba(210,210,215,.08),transparent 64%),
-    radial-gradient(520px 360px at 4% 12%,rgba(255,255,255,.30),transparent 64%),
-    radial-gradient(620px 460px at 50% 112%,rgba(210,210,215,.05),transparent 64%),
-    linear-gradient(165deg,#fcfcfc 0%,#f8f8f8 55%,#f2f2f2 100%)!important;
-  background-size:auto,auto,auto,auto!important;
-}
 ::selection{background:rgba(29,29,31,.18);color:#fff}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 h1,h2,h3,h4{color:var(--ink)!important}
@@ -63,10 +54,10 @@ a:hover{color:var(--blue)}
 .brand,.brand b,.brand:hover,.brand:hover b,
 .drill-page .brand b,.exam-page .brand b{color:var(--ink)!important}
 
-/* ---------- frosted glass surfaces ---------- */
+/* ---------- frosted glass surfaces（不含做题页元素，保持 Bluebook 官方） ---------- */
 .panel,.card,.exam-panel,
 .drill-section-list,.drill-result-summary,.drill-result-list,
-.drill-question,.drill-nav-panel,.bb-modal,.bb-calc-panel,
+.bb-modal,.bb-calc-panel,
 .unit-stat,.wrong-card,.exam-special-panel,.weak-panel,.cause-box,
 .answer-compare>div,.exam-start-directions{
   background:var(--glass-bg)!important;
@@ -79,29 +70,18 @@ a:hover{color:var(--blue)}
 .weak-panel,.cause-box,.exam-special-panel{border:1px solid rgba(35,35,40,.10)!important}
 .answer-compare>div{background:rgba(255,255,255,.55)!important}
 
-/* sticky bars — crisper glass */
-.appbar,.drill-context,.drill-questionbar,.drill-footer{
+/* sticky bars — 只 appbar（站点导航），做题页 questionbar/footer/context 保持官方 */
+.appbar{
   background:var(--glass-bg-strong)!important;
   -webkit-backdrop-filter:blur(16px) saturate(130%);
   backdrop-filter:blur(16px) saturate(130%);
   border-color:rgba(35,35,40,.07)!important;
   box-shadow:0 1px 0 rgba(35,35,40,.05)!important;
 }
-.drill-footer{box-shadow:0 -8px 24px rgba(35,35,40,.06)!important}
-/* beat bluebook's high-specificity #fff on question view */
-body:has(#questionView:not([hidden])) .drill-questionbar,
-body:has(#questionView:not([hidden])) .drill-footer,
-body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar,
-body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
-  background:var(--glass-bg-strong)!important;
-  -webkit-backdrop-filter:blur(16px) saturate(130%);
-  backdrop-filter:blur(16px) saturate(130%);
-  border-color:rgba(35,35,40,.07)!important;
-}
 
-/* interactive cards — glass + lift-ready */
+/* interactive cards — glass + lift-ready（不含做题页 .drill-question-grid button） */
 .drill-unit-button,.drill-board-nav-item,.unit-pick button,
-.unit-stat,.wrong-card,.btn,.drill-question-grid button{
+.unit-stat,.wrong-card,.btn{
   background:var(--glass-bg)!important;
   -webkit-backdrop-filter:var(--glass-blur);
   backdrop-filter:var(--glass-blur);
@@ -142,11 +122,9 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 .drill-board-layout{gap:26px}
 .drill-board-nav{border-right:1px solid rgba(35,35,40,.07);padding-right:22px}
 
-/* ---------- number typography: Space Grotesk everywhere ---------- */
-.drill-section-code,.drill-qnumber,.drill-position-button,
-.drill-question-grid button,.drill-result-score strong,
-.drill-result-tallies dd,.unit-stat b,.score-num,.drill-result-num,
-#clockText,.tnum{
+/* ---------- number typography: Space Grotesk（仅落地页/结果页数字，做题页保持官方字体） ---------- */
+.drill-section-code,.drill-result-score strong,
+.drill-result-tallies dd,.unit-stat b,.score-num,.drill-result-num{
   font-family:var(--font-display)!important;
   font-variant-numeric:tabular-nums;
   letter-spacing:.01em;
@@ -166,17 +144,8 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
   box-shadow:none!important;
   font-feature-settings:"tnum" 1;
 }
-/* 2. question marker — 深炭墨填充，扁平无重影 */
-.drill-qnumber{
-  width:28px!important;min-width:28px!important;height:28px!important;
-  display:grid;place-items:center;
-  background:linear-gradient(150deg,#2c2c2e,#1d1d1f)!important;
-  color:#fff!important;
-  font-weight:600!important;font-size:13px!important;
-  border-radius:var(--radius-sm)!important;
-  box-shadow:0 1px 2px rgba(29,29,31,.18)!important;
-}
-/* 3. accuracy block — 深炭墨，calmer weight */
+/* 2. question marker — 做题页保持官方 Bluebook 样式，不覆盖 */
+/* 3. accuracy block — 深炭墨（结果页，非做题页） */
 .drill-result-score{
   background:linear-gradient(155deg,#2c2c2e,#1d1d1f)!important;color:#fff!important;
   border-right:1px solid rgba(255,255,255,.16);
@@ -208,89 +177,7 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
   background:linear-gradient(150deg,#1d1d1f,#000)!important;color:#fff!important;
   transform:translateY(-2px);box-shadow:0 8px 20px rgba(29,29,31,.30)!important;
 }
-/* prev/next — same flat shape, next lightly emphasized, no heavy fill/shadow */
-.drill-page-button{
-  background:rgba(255,255,255,.55)!important;
-  border:1px solid rgba(35,35,40,.10)!important;
-  border-radius:var(--radius)!important;
-  color:var(--ink-2)!important;box-shadow:none!important;
-}
-.drill-page-button:hover{
-  border-color:rgba(29,29,31,.40)!important;background:rgba(250,250,249,.6)!important;
-  color:var(--blue-strong)!important;transform:translateY(-1px);
-}
-.drill-page-button.drill-next-button{
-  background:rgba(250,250,249,.50)!important;
-  border:1px solid rgba(29,29,31,.28)!important;
-  color:var(--blue-strong)!important;
-}
-.drill-page-button.drill-next-button:hover{
-  background:rgba(250,250,249,.80)!important;
-  border-color:rgba(29,29,31,.5)!important;color:var(--blue-strong)!important;
-}
-.drill-next-button:disabled{background:rgba(255,255,255,.4)!important;border-color:rgba(35,35,40,.06)!important;color:var(--faint)!important}
-
-/* position button "Question 1 of 25" — glass + Space Grotesk, flat */
-.drill-position-button{
-  min-height:34px!important;padding:0 16px!important;
-  background:rgba(255,255,255,.55)!important;
-  border:1px solid rgba(35,35,40,.10)!important;
-  border-radius:var(--radius)!important;
-  color:var(--ink-2)!important;font-weight:500!important;font-size:13px!important;
-  box-shadow:none!important;
-}
-.drill-position-button:hover{border-color:rgba(29,29,31,.4)!important;background:rgba(250,250,249,.6)!important}
-.drill-position-button::after{content:" \25B2";font-size:8px;opacity:.6}
-
-/* ---------- choices & nav grid (深炭墨) ---------- */
-.drill-choice[aria-pressed="true"],.drill-choice[aria-checked="true"],
-.drill-choice.is-selected,.choice.on{
-  border-color:var(--blue)!important;background:rgba(250,250,249,.60)!important;
-  box-shadow:inset 2px 0 0 var(--blue)!important;
-}
-.drill-choice[aria-pressed="true"] .drill-choice-letter,
-.drill-choice[aria-checked="true"] .drill-choice-letter,
-.drill-choice.is-selected .drill-choice-letter,.choice.on .cl{
-  border-color:var(--blue)!important;background:linear-gradient(150deg,#2c2c2e,#1d1d1f)!important;color:#fff!important;
-}
-.drill-choice-check,.choice.on .cs{color:var(--blue)!important}
-
-/* ---------- question nav modal — simplified ---------- */
-.drill-nav-panel{box-shadow:var(--shadow-3),var(--glass-hi)!important}
-.drill-nav-legend{
-  display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:14px;
-  color:var(--sub)!important;font-size:11px!important;
-}
-.drill-nav-legend i{width:11px;height:11px;border-radius:3px}
-.drill-nav-legend i.is-answered{border-color:var(--blue);background:var(--blue)}
-.drill-nav-legend i.is-marked{border-bottom:2px solid var(--warn)}
-.drill-nav-legend i.is-current{outline:2px solid var(--blue);outline-offset:1px}
-/* flat tiles — no card shadow, single current outline */
-.drill-question-grid{grid-template-columns:repeat(10,40px);gap:7px}
-.drill-question-grid button{
-  width:40px;height:40px;padding:0;
-  border:1px solid rgba(35,35,40,.10)!important;
-  border-radius:var(--radius-sm)!important;
-  background:rgba(255,255,255,.55)!important;
-  color:var(--ink-2)!important;font-size:12.5px!important;font-weight:500;
-  box-shadow:none!important;
-  transition:border-color .15s var(--ease),background-color .15s var(--ease),color .15s var(--ease);
-}
-.drill-question-grid button:hover{border-color:var(--blue)!important;background:rgba(250,250,249,.6)!important}
-.drill-question-grid button.is-answered{
-  border-color:var(--blue)!important;
-  background:linear-gradient(150deg,#2c2c2e,#1d1d1f)!important;color:#fff!important;
-}
-.drill-question-grid button.is-marked{box-shadow:inset 0 -2px 0 var(--warn)}
-.drill-question-grid button.is-current{outline:2px solid var(--blue)!important;outline-offset:1px}
-/* footnote noise — hidden in the frequently-opened modal */
-.drill-nav-finish-note{display:none!important}
-.drill-nav-finish{
-  background:linear-gradient(150deg,#2c2c2e,#1d1d1f)!important;
-  border-color:transparent!important;color:#fff!important;
-  border-radius:var(--radius)!important;box-shadow:0 4px 12px rgba(29,29,31,.22)!important;
-}
-.drill-nav-finish:hover{background:linear-gradient(150deg,#1d1d1f,#000)!important}
+/* ---------- 做题页元素（翻页键/位置按钮/选项/题号弹层）保持官方 Bluebook，不覆盖 ---------- */
 
 /* ---------- small accents ---------- */
 .drill-select-eyebrow,.exam-eyebrow,.exam-special-head,.exam-pick-label{color:var(--blue-strong)!important}
@@ -349,13 +236,7 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 }
 /* imgimp-x 关闭按钮也别胶囊 */
 .imgimp-x{border-radius:var(--radius-sm)!important}
-.drill-context,.exam-page .drill-context,.exam-context{background:var(--glass-bg-strong)!important;color:var(--ink)!important;border-bottom:1px solid rgba(35,35,40,.07)!important}
-.drill-context-title,.exam-context-meta,.exam-clock b,.exam-clock small{color:var(--ink)!important}
-.drill-context select{border-color:#e2e2e4!important;background:#fff!important;color:var(--ink)!important;border-radius:var(--radius-sm)!important}
-.drill-context select:hover{border-color:var(--blue)!important}
-.drill-page-button:hover,.drill-position-button:hover{outline:none}
-.drill-mark-button[aria-pressed="true"]{color:var(--warn);border-color:var(--warn-line);background:var(--warn-soft)}
-.drill-gridin input:focus{border-color:var(--blue)!important;outline:2px solid rgba(29,29,31,.22);outline-offset:0}
+/* 做题页 .drill-context / .drill-mark-button / .drill-gridin / 翻页键 hover 保持官方 Bluebook，不覆盖 */
 .exam-start-directions{border-left:2px solid var(--blue)!important}
 .answer-compare .your-answer{color:var(--bad)!important}
 
@@ -394,23 +275,11 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
     linear-gradient(165deg,#131316 0%,#0a0a0c 50%,#08080a 100%)!important;
   color:var(--ink)!important;
 }
-[data-theme="dark"] body:has(#questionView:not([hidden])),
-[data-theme="dark"] body:has(#stage-answer:not([hidden])){
-  background-color:#131316!important;
-  background-image:
-    radial-gradient(560px 380px at 84% 4%,rgba(120,140,180,.18),transparent 64%),
-    radial-gradient(520px 360px at 4% 12%,rgba(80,90,120,.12),transparent 64%),
-    radial-gradient(620px 460px at 50% 112%,rgba(100,110,140,.10),transparent 64%),
-    linear-gradient(165deg,#1a1a1e 0%,#131316 55%,#0e0e10 100%)!important;
-}
 [data-theme="dark"] ::selection{background:rgba(255,255,255,.22);color:#1d1d1f}
-/* 暗黑下：按钮/题号/正确率/题号网格/choice letter 反转成浅银底 + 深字 */
-[data-theme="dark"] .drill-qnumber,
+/* 暗黑下：结果页正确率/通用主按钮反转成浅银底 + 深字（做题页元素不覆盖，保持官方） */
 [data-theme="dark"] .btn.primary,
 [data-theme="dark"] .exam-submit-button,
-[data-theme="dark"] .drill-result-score,
-[data-theme="dark"] .drill-question-grid button.is-answered,
-[data-theme="dark"] .drill-nav-finish{
+[data-theme="dark"] .drill-result-score{
   background:linear-gradient(150deg,#f5f5f7,#d8d8dc)!important;
   color:#1d1d1f!important;
 }
@@ -419,27 +288,9 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 [data-theme="dark"] .drill-result-score-sub{color:rgba(29,29,31,.70)!important}
 [data-theme="dark"] .drill-result-score{border-right:1px solid rgba(29,29,31,.16)}
 [data-theme="dark"] .btn.primary:hover,
-[data-theme="dark"] .exam-submit-button:hover,
-[data-theme="dark"] .drill-nav-finish:hover{
+[data-theme="dark"] .exam-submit-button:hover{
   background:linear-gradient(150deg,#fff,#e8e8ea)!important;color:#1d1d1f!important;
 }
-[data-theme="dark"] .drill-choice[aria-pressed="true"] .drill-choice-letter,
-[data-theme="dark"] .drill-choice[aria-checked="true"] .drill-choice-letter,
-[data-theme="dark"] .drill-choice.is-selected .drill-choice-letter,
-[data-theme="dark"] .choice.on .cl{
-  background:linear-gradient(150deg,#f5f5f7,#d8d8dc)!important;color:#1d1d1f!important;
-}
-[data-theme="dark"] .drill-choice[aria-pressed="true"],
-[data-theme="dark"] .drill-choice[aria-checked="true"],
-[data-theme="dark"] .drill-choice.is-selected,
-[data-theme="dark"] .choice.on{
-  border-color:var(--blue)!important;background:rgba(245,245,247,.10)!important;
-  box-shadow:inset 2px 0 0 var(--blue)!important;
-}
-[data-theme="dark"] .drill-question-grid button.is-current{outline-color:var(--blue)!important}
-[data-theme="dark"] .drill-nav-legend i.is-answered{border-color:var(--blue);background:var(--blue)}
-[data-theme="dark"] .drill-context select{background:#1c1c1e!important;color:var(--ink)!important;border-color:rgba(255,255,255,.12)!important}
-[data-theme="dark"] .drill-gridin input{background:#1c1c1e!important;color:var(--ink)!important;border-color:rgba(255,255,255,.12)!important}
 /* 暗黑下切换按钮自身 */
 [data-theme="dark"] #theme-toggle{
   background:rgba(40,40,45,.72)!important;border-color:rgba(255,255,255,.12)!important;color:#e8e8ea!important;
