@@ -364,7 +364,7 @@
     } else {
       $('introDirections').innerHTML = '';
       $('introUnitPick').innerHTML = '<div class="exam-pick-label">选择单元</div><div class="unit-pick">' +
-        UNITS.map(u => `<button data-unit="${u.id}" class="${u.id === QUIZ_UNIT ? 'on' : ''}">U${u.id}<br>${esc(u.cn)}<br><span class="tiny">${BANK.filter(q => q.unit === u.id).length} 题</span></button>`).join('') + '</div>';
+        UNITS.map(u => `<button data-unit="${u.id}" class="${u.id === QUIZ_UNIT ? 'on' : ''}">U${u.id}<br>${esc(u.cn)}</button>`).join('') + '</div>';
       $('introUnitPick').querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => {
         QUIZ_UNIT = +b.dataset.unit;
         /* Choosing another unit starts a clean paper; drop any saved session so
