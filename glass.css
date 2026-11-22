@@ -444,3 +444,30 @@ html[data-theme="dark"] .appbar-inner .td-acct-btn,
 html[data-theme="dark"] .appbar .td-acct-btn{
   color:#d8d8dc!important;background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.12)!important;
 }
+
+/* ==================== 做题页文字色锁定（暗黑下保持官方浅色卷面） ====================
+   做题页(questionView / exam stage-answer)官方卷面是浅色 #EAEEF2 / #F7F9FA，
+   但 --bb-ink:var(--ink) 会跟随暗黑主题变成浅银 #e8e8ea → 浅字浅底看不清。
+   这里只在做题页作用域把 bb 系列颜色变量锁回官方深色，落地页/错题页暗黑不受影响。 */
+html[data-theme="dark"] body:has(#questionView:not([hidden])),
+html[data-theme="dark"] body:has(#stage-answer:not([hidden])),
+html[data-theme="dark"] body.exam-page:has(#stage-answer:not([hidden])){
+  --bb-ink:#1a1a1a; --bb-sub:#39424f; --bb-faint:#6b7686;
+  --bb-muted:#39424f; --bb-fg:#1a1a1a;
+  --ink:#1a1a1a; --ink-2:#39424f; --sub:#39424f; --faint:#6b7686;
+}
+
+/* ==================== 暗黑主题：选中单元卡片 = 白底深字（强对比） ====================
+   浅色主题下 .unit-pick button.on 是浅奶白底；暗黑下与浅银字(--ink)叠加变成灰底灰字，
+   选中态辨识度差。这里让暗黑下的选中单元卡片变成白底 + 深炭字，一眼可辨。 */
+html[data-theme="dark"] .unit-pick button.on,
+html[data-theme="dark"] .drill-unit-button.on,
+html[data-theme="dark"] .drill-board-nav-item.on{
+  background:#ffffff!important;
+  color:#1d1d1f!important;
+  border-color:#ffffff!important;
+  box-shadow:0 6px 20px rgba(0,0,0,.35)!important;
+}
+html[data-theme="dark"] .unit-pick button.on .tiny{
+  color:#3a3a3c!important;
+}
