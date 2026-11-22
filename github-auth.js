@@ -34,7 +34,7 @@
   function persistProfile() {
     try {
       localStorage.setItem(PROF_KEY, JSON.stringify(currentUser || null));
-    } catch (e) {}
+    } catch (e) { console.warn('保存登录档案失败', e); }
   }
   function setUser(u) {
     currentUser = u || null;
@@ -113,8 +113,8 @@
           email: me.email || '',
           login: me.login
         };
-        try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) {}
-        try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}  // 清除旧版明文残留
+        try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) { console.warn('保存令牌失败', e); }
+        try { localStorage.removeItem(TOKEN_KEY); } catch (e) { console.warn('清除旧版令牌残留失败', e); }  // 清除旧版明文残留
         persistProfile();
         if (stateCb) stateCb(currentUser);
       } catch (e) {
@@ -127,8 +127,8 @@
       token = null;
       currentUser = null;
       meLogin = null;
-      try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
-      try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}  // 清除旧版残留
+      try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) { console.warn('清除令牌失败', e); }
+      try { localStorage.removeItem(TOKEN_KEY); } catch (e) { console.warn('清除旧版令牌残留失败', e); }  // 清除旧版残留
       persistProfile();
       if (stateCb) stateCb(null);
     },
@@ -193,7 +193,7 @@
     try {
       var legacy = localStorage.getItem(TOKEN_KEY);
       if (legacy) {
-        try { sessionStorage.setItem(TOKEN_KEY, legacy); } catch (e2) {}
+        try { sessionStorage.setItem(TOKEN_KEY, legacy); } catch (e2) { console.warn('迁移令牌失败', e2); }
         localStorage.removeItem(TOKEN_KEY);
       }
       token = sessionStorage.getItem(TOKEN_KEY) || null;

@@ -1,0 +1,236 @@
+(function(){
+ 'use strict';
+ var A=window.TD_APP,esc=A.esc,T=window.TD_TEXT||{};
+ /* Render ^{...} superscripts as real <sup> (same typography as the exam pages). */
+ function mathfmt(s){var e=String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+   return e.replace(/\^\{([^{}]*)\}/g,'<sup>$1</sup>');}
+ /* Render the question's figure (graph/table/diagram) when one is registered,
+    so 错题回顾 shows the same visual as 单元练习 / 单元抽查 / 模考.
+    Uses the shared window.TD_FIG.showFigure — never throws if absent. */
+ function figHtml(q){
+   if(!q||!window.TD_FIG)return '';
+   try{var f=window.TD_FIG.showFigure(q);return f||'';}catch(e){return '';}
+ }
+ A.nav('wrong');
+ var activeUnit=parseInt(A.URL.get('unit')||'0',10); if(activeUnit<1||activeUnit>4)activeUnit=0;
+ function load(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return[];}}
+ /* ===== 错题 JSON 导入 =====
+    AI 转录的错题先尝试与题库中的同一道题对齐（按 id，其次按题干归一化）；
+    命中时写入该题所在 section 的 secState.answers，的身份与题库题目完全一致，
+    未命中时作为独立「导入错题」记录保存在 IMPORT_KEY，仅在本页展示。 */
+ var IMPORT_KEY='tdsat_imported_wrong_v1',IMPORT_MARK='imported_wrong_json_v1';
+ function feedback(msg){var el=document.getElementById('importFeedback');if(el)el.textContent=msg||'';}
+ function readImport(){try{var d=JSON.parse(localStorage.getItem(IMPORT_KEY));return d&&typeof d==='object'?d:{items:[]};}catch(e){return{items:[]};}}
+ function writeImport(d){try{localStorage.setItem(IMPORT_KEY,JSON.stringify(d));if(window.TDSync)try{window.TDSync.notify(IMPORT_KEY)}catch(e2){}return true;}catch(e){return false;}}
+ function normStem(s){return String(s==null?'':s).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g,'');}
+ function pick(){for(var i=0;i<arguments.length;i++){var v=arguments[i];if(v!=null&&String(v).trim()!=='')return v;}return '';}
+ function bankIndex(){
+   var byId={},byStem={};
+   A.SECS.forEach(function(s){(A.CATALOG[s]||[]).forEach(function(q){
+     if(!q||!q.id)return;
+     byId[String(q.id).toLowerCase()]={q:q,sec:s};
+     var k=normStem((T[q.id]||{}).stem||q.stem||'');
+     if(k&&!byStem[k])byStem[k]={q:q,sec:s};
+   });});
+   return{byId:byId,byStem:byStem};
+ }
+ function matchItem(it,idx){
+   var raw=String(pick(it.id,it.qid,it.questionId)||'').trim().toLowerCase();
+   if(raw&&idx.byId[raw])return idx.byId[raw];
+   var k=normStem(pick(it.stem,it.question,it.text,it.prompt));
+   return(k&&idx.byStem[k])||null;
+ }
+ function normalizeItem(raw){
+   var it=raw||{},ch=it.choices||it.options||{};
+   if(typeof ch==='string'){try{ch=JSON.parse(ch);}catch(e){ch={};}}
+   var type=String(pick(it.type,Object.keys(ch).length?'mcq':'grid')).toLowerCase();
+   if(type!=='grid')type='mcq';
+   var ans=pick(it.answer,it.correct,it.answerKey,it.correctAnswer);
+   return{
+     id:String(pick(it.id,it.qid,it.questionId)||''),
+     stem:String(pick(it.stem,it.question,it.text,it.prompt)||''),
+     choices:ch,type:type,answer:String(ans==null?'':ans),
+     value:it.value!=null?it.value:(type==='grid'?num(ans):null),
+     source:String(pick(it.source,it.from,it.page)||''),
+     topic:String(pick(it.topic)||''),
+     given:String(pick(it.given,it.userAnswer,it.yourAnswer,it.chosen,it.selected)||'')
+   };
+ }
+ function importData(data){
+   if(!data)throw new Error('JSON 内容为空');
+   var items=Array.isArray(data)?data:(data.items||data.questions||data.records||data.wrong||[]);
+   if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
+   var store=readImport();if(!Array.isArray(store.items))store.items=[];
+   var idx=bankIndex(),seen={},now=Date.now(),added=0,matched=0,created=0;
+   store.items.forEach(function(x){var k=x.key||(x.matchId?'i:'+x.matchId:'s:'+normStem(x.stem));if(k)seen[k]=true;});
+   items.forEach(function(raw){
+     var it=normalizeItem(raw),m=matchItem(it,idx);
+     var key=m?'i:'+m.q.id:(normStem(it.stem)?'s:'+normStem(it.stem):(it.id?'i:'+it.id.toLowerCase():''));
+     if(!key||seen[key])return;
+     seen[key]=true;
+     var rec={key:key,id:it.id,stem:it.stem,choices:it.choices,type:it.type,answer:it.answer,
+       value:it.value,source:it.source,topic:it.topic,given:it.given,
+       matchId:m?m.q.id:null,matchSec:m?m.sec:null,prev:null,importedAt:now};
+     if(m){
+       var st=A.secState(m.sec,true);
+       if(st){
+         var cur=st.answers[m.q.id];
+         rec.prev=cur?JSON.parse(JSON.stringify(cur)):null;
+         st.answers[m.q.id]={v:it.given,correct:false,ts:now,importSrc:IMPORT_MARK};
+         st.completed=A.stats(m.sec).completed;
+         A.save();matched++;
+       }else{rec.matchId=null;rec.matchSec=null;}
+     }
+     if(!rec.matchId)created++;
+     store.items.push(rec);added++;
+   });
+   store.title=String(pick(data.title,store.title)||'导入错题');
+   store.importedAt=now;
+   if(!writeImport(store))throw new Error('localStorage 写入失败');
+   var msg='已导入 '+added+' 道：匹配题库 '+matched+' 道，新增 '+created+' 道';
+   all=collect();render();feedback(msg);
+   return{added:added,matched:matched,created:created,message:msg};
+ }
+ function clearImported(){
+   var store=readImport(),list=store.items||[],n=list.length;
+   list.forEach(function(it){
+     if(!it.matchId||!it.matchSec)return;
+     var st=A.secState(it.matchSec,false);if(!st)return;
+     var cur=st.answers[it.matchId];
+     if(!cur||cur.importSrc!==IMPORT_MARK)return; /* never remove a real user answer */
+     if(it.prev)st.answers[it.matchId]=JSON.parse(JSON.stringify(it.prev));
+     else delete st.answers[it.matchId];
+   });
+   A.save();try{localStorage.removeItem(IMPORT_KEY);}catch(e){}
+   all=collect();render();
+   var msg='已清空 '+n+' 道导入错题，原有作答已恢复';feedback(msg);
+   return{cleared:n,message:msg};
+ }
+ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*$/,'').trim()||A.SECTION_CN[q.section]||'综合';}
+ function add(map,q,given,source,date){
+   if(!q||map[q.id]&&map[q.id].corrected&&source!=='单元练习')return;
+   var x=map[q.id]||{q:q,attempts:0,sources:[],date:0,given:'',corrected:false};
+   x.attempts++; if(x.sources.indexOf(source)<0)x.sources.push(source);
+   if((date||0)>=x.date){x.date=date||0;x.given=given==null?'':String(given);x.source=source;}
+   if(source==='单元练习'){x.corrected=false;x.practiceWrong=true;}
+   map[q.id]=x;
+ }
+ /* 2026-11-16: 历史作答记录里的 correct 是「作答当时」按当时的答案判定的。
+    若题库答案后来被修正（如 T13 的 11 处错答案），旧记录会出现
+    「你的答案 A / 正确答案 A」却仍算错的矛盾。这里统一用当前题库答案
+    + 权威判分函数 A.isCorrect 复核：现在判为正确的记录不再算错题。 */
+ function stillWrong(q, given){
+   if(A.stillWrong)return A.stillWrong(q,given);
+   if(!q)return true;
+   if(A.isCorrect)return !A.isCorrect(q,given);
+   var g=String(given==null?'':given).trim();
+   if(!g)return true;
+   if(q.type==='mcq')return g.toUpperCase()!==String(q.answer||'').trim().toUpperCase();
+   var a=num(g),b=num(q.value);
+   return !(a!==null&&b!==null&&Math.abs(a-b)<=Math.max(Math.abs(b)*.01,1e-9));
+ }
+ function collect(){
+   var map={};
+   A.SECS.forEach(function(s){var st=A.secState(s,false);if(!st)return;
+     A.CATALOG[s].forEach(function(q){var a=st.answers[q.id];
+       if(a&&a.correct===false&&stillWrong(q,a.v))
+         add(map,q,a.v,a.importSrc===IMPORT_MARK?'导入错题':'单元练习',a.ts||0);});});
+   load('tdsat_exam_suite_results_v1').forEach(function(r){var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':'考试练习';
+     (r.detail||[]).forEach(function(d){var q=A.BANK.questions.find(function(x){return x.id===d.id;});
+       if(!d.correct&&stillWrong(q,d.given))add(map,q,d.given,name,r.date||0);});});
+   var legacy=load('tdsat_state_v1')||{},legacyWrong=legacy.wrong||{},legacySeen={};
+   Object.keys(legacyWrong).forEach(function(id){
+     var key=id+'|历史错题';
+     if(Object.prototype.hasOwnProperty.call(legacyWrong,id)&&!legacySeen[key]){
+       var old=legacyWrong[id]||{},q=A.BANK.questions.find(function(x){return x.id===id;});
+       legacySeen[key]=true;
+       var lg=old.given||old.v||old.answer||'';
+       if(stillWrong(q,lg))add(map,q,lg,'历史错题',old.last||old.ts||old.date||0);
+     }
+   });
+   /* A later correct practice answer marks the historical mistake as corrected. */
+   Object.keys(map).forEach(function(id){var x=map[id];A.SECS.some(function(s){var st=A.secState(s,false),a=st&&st.answers[id];
+     if(a&&a.correct){x.corrected=true;x.current=a.v;return true;}return false;});});
+   return Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return a.q.unit-b.q.unit||b.date-a.date;});
+ }
+ function num(s){s=String(s==null?'':s).trim().replace(/[−–]/g,'-').replace(/,/g,'');
+   var m=/^(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)\$/.exec(s);if(m&&+m[2])return +m[1]/+m[2];
+   return /^-?\d+(?:\.\d+)?$/.test(s)?+s:null;}
+ function choiceText(q,L){var e=T[q.id]||{},v=(e.choices&&e.choices[L])||(q.choices&&q.choices[L]);return v?String(v):'';}
+ function analysis(x){
+   var q=x.q,g=x.given.trim(),correct=String(q.answer||'').trim(),tp=topic(q);
+   if(window.TD_ANALYSIS){
+     var a=window.TD_ANALYSIS.analyze(q,g,(window.TD_TEXT||{})[q.id]);
+     return{title:a.title,detail:a.cause+' 改进方向：'+a.fix};
+   }
+   if(!g)return{title:'未作答 / 时间分配',detail:'本次没有留下答案。先识别题型与已知条件，再检查是否因耗时过长而跳过。'};
+   if(q.type==='grid'){
+     var a=num(g),b=num(q.value),c=correct;
+     if(a===null||b===null)return{title:'作答格式或数值转换',detail:'你的填写是「'+g+'」。填空题应输入数值或分数，例如 12、3/4；检查是否混入文字或多余符号。'};
+     if(Math.abs(a+b)<=Math.max(.0001,Math.abs(b)*.0001)&&Math.abs(a-b)>Math.max(.001,Math.abs(b)*.001))return{title:'符号判断错误',detail:'数值绝对值接近，但正负号相反。逐行检查移项、去括号和斜率方向。'};
+     if(a&&b&&Math.abs(a-1/b)<=Math.max(.001,Math.abs(1/b)*.001))return{title:'倒数或比例关系混淆',detail:'你的数值接近正确答案的倒数。检查比例式交叉相乘、斜率公式或单位换算方向。'};
+     if(b&&Math.abs(Math.abs(a/b)-2)<.02||a&&Math.abs(Math.abs(b/a)-2)<.02)return{title:'倍数关系错误',detail:'你的答案与正确答案约相差 2 倍。检查缩放、面积与边长、百分比或单位换算。'};
+     if(b&&Math.abs(a-b)/Math.abs(b)<.08)return{title:'计算精度不足',detail:'数值接近但不满足判分精度。检查中间步骤舍入，最后一次再按题目要求处理小数。'};
+     return{title:'计算或公式应用错误',detail:'你的数值与正确答案不一致。围绕「'+tp+'」重列公式，代入后逐步核算。'};
+   }
+   var gt=choiceText(q,g),ct=choiceText(q,correct),gn=num(gt),cn=num(ct);
+   if(gn!==null&&cn!==null){
+     if(Math.abs(gn+cn)<1e-8&&gn!==cn)return{title:'符号或方向判断错误',detail:'你选择的数值与正确选项符号相反。检查直线方向、移项和正负号。'};
+     if(gn&&cn&&Math.abs(gn-1/cn)<1e-6)return{title:'倒数关系混淆',detail:'你选择的数值是正确选项的倒数。检查斜率、比率或单位换算的分子与分母。'};
+   }
+   return{title:'选项判断错误 · '+tp,detail:'你选择了 '+g+'，正确答案是 '+correct+'。错因集中在该知识点的条件转换或公式应用；重练时请写出每个条件对应的数学关系。'};
+ }
+ var REVIEW={1:'回顾等式变形、斜率截距与函数代入。',2:'回顾部分与总体、百分比、比例及单位。',3:'回顾函数结构、方程等价变形与图像关系。',4:'回顾几何公式、三角比、角度弧度和单位。'};
+ function answerLabel(x,right){var q=x.q,v=right?String(q.answer==null?q.value:q.answer||''):x.given;
+   if(!v)return'未作答';if(q.type==='mcq'){var t=choiceText(q,v);return v+(t?' · '+t:'');}return v;}
+ function drillLink(q){for(var i=0;i<A.SECS.length;i++){var s=A.SECS[i],k=A.CATALOG[s].findIndex(function(x){return x.id===q.id;});
+   if(k>=0)return A.secUrl(s,k+1);}return'drill.html';}
+ var all=collect();
+ document.getElementById('backPractice').href='drill.html';
+ /* Unmatched imported items have no bank identity, so they can only live here
+    (they are deliberately excluded from the quiz drawing pool). */
+ function importedGroupHtml(){
+   if(activeUnit)return '';
+   var list=(readImport().items||[]).filter(function(it){return !it.matchId;});
+   if(!list.length)return '';
+   return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 未匹配题库<span>'+list.length+' 道 · 不进入单元抽查</span></h2>'+list.map(function(it,i){
+     var q={id:'IMP-'+(it.key||i),stem:it.stem,choices:it.choices||{},type:it.type,answer:it.answer,
+       value:it.value,topic:it.topic||'',section:'导入',unit:0,no:'—'};
+     var x={q:q,given:it.given||'',attempts:1,sources:['导入错题'],date:it.importedAt||0,corrected:false},a=analysis(x);
+     return'<article class="wrong-card"><div class="wrong-card-head"><b>导入 · '+(it.source?esc(it.source):'第 '+(i+1)+' 道')+'</b><span>导入错题 · 仅错题本可见</span></div>'+
+       figHtml(q)+
+       '<p class="wrong-stem">'+mathfmt((it.stem||'题干文字暂缺。').trim())+'</p>'+
+       '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
+       '<div class="cause-box"><b>'+esc(a.title)+'</b><p>'+esc(a.detail)+'</p></div>'+
+       '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">未在题库中找到对应题目，无法进入抽查抽题</span></div></article>';
+   }).join('')+'</section>';
+ }
+ function render(){
+   var rows=activeUnit?all.filter(function(x){return x.q.unit===activeUnit;}):all;
+   var byTopic={};rows.forEach(function(x){if(x.corrected)return;var k=topic(x.q);byTopic[k]=(byTopic[k]||0)+1;});
+   var weak=Object.keys(byTopic).map(function(k){return{k:k,n:byTopic[k]};}).sort(function(a,b){return b.n-a.n;});
+   document.getElementById('overview').innerHTML=A.UNITS.map(function(u){var n=all.filter(function(x){return x.q.unit===u.id&&!x.corrected;}).length;
+     return'<button class="unit-stat'+(activeUnit===u.id?' on':'')+'" data-unit="'+u.id+'"><span>UNIT '+u.id+'</span><b>'+n+'</b><small>'+esc(u.cn)+'</small></button>';}).join('');
+   document.getElementById('unitFilter').innerHTML='<button class="filter-btn'+(!activeUnit?' on':'')+'" data-unit="0">全部错题</button>'+A.UNITS.map(function(u){return'<button class="filter-btn'+(activeUnit===u.id?' on':'')+'" data-unit="'+u.id+'">UNIT '+u.id+'</button>';}).join('');
+   document.getElementById('resultCount').textContent='显示 '+rows.length+' 道 · 含历史错题与已订正记录';
+   document.getElementById('weakPanel').innerHTML=weak.length?'<div><h2>优先补强</h2><p>'+weak.slice(0,3).map(function(w,i){return'<span class="weak-topic"><b>'+(i+1)+'</b> '+esc(w.k)+' · '+w.n+' 道错题</span>';}).join('')+'</p><small>'+esc(REVIEW[activeUnit||weak.length&&rows.find(function(x){return topic(x.q)===weak[0].k;}).q.unit]||REVIEW[1])+'</small></div>':'<div><h2>薄弱点</h2><p class="muted">当前范围没有待订正错题。</p></div>';
+   var importedHtml=importedGroupHtml();
+   if(!rows.length){document.getElementById('wrongList').innerHTML='<div class="empty-panel"><h2>'+(all.length?'该单元暂无错题记录':(importedHtml?'题库暂无错题，仅显示导入错题':'还没有错题记录'))+'</h2><p>完成真题练习、单元抽查或模考后，错题会自动汇总到这里。</p><a class="btn primary" href="drill.html">开始真题练习</a></div>'+importedHtml;return;}
+   var html='';A.UNITS.forEach(function(u){var list=rows.filter(function(x){return x.q.unit===u.id;});if(!list.length)return;
+     html+='<section class="wrong-unit"><h2>UNIT '+u.id+' · '+esc(u.cn)+'<span>'+list.length+' 道</span></h2>'+list.map(function(x){var q=x.q,a=analysis(x),sec=q.section||'L'+q.unit;
+       return'<article class="wrong-card'+(x.corrected?' corrected':'')+'"><div class="wrong-card-head"><b>'+esc(sec)+' · 第 '+(q.no||'—')+' 题</b><span>'+esc(x.sources.join(' / '))+(x.attempts>1?' · '+x.attempts+' 次记录':'')+(x.corrected?' · 已在练习中订正':'')+'</span></div>'+
+       figHtml(q)+
+       '<p class="wrong-stem">'+mathfmt(((T[q.id]||{}).stem||q.stem||'题干文字暂缺。').trim())+'</p>'+
+       '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
+       '<div class="cause-box"><b>'+esc(a.title)+'</b><p>'+esc(a.detail)+'</p></div>'+
+       '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><a class="btn sm" href="'+drillLink(q)+'">回到本题重练</a></div></article>';}).join('')+'</section>';});
+   document.getElementById('wrongList').innerHTML=html+importedHtml;
+ }
+ document.getElementById('btnClearImported').addEventListener('click',function(){clearImported();});
+window.TD_IMPORT_WRONG={importData:importData,importText:function(t){return importData(JSON.parse(t));},
+  clear:clearImported,read:readImport,feedback:feedback,
+  refresh:function(){all=collect();render();}};
+ document.addEventListener('click',function(e){var b=e.target.closest('[data-unit]');if(!b)return;
+   activeUnit=+b.dataset.unit;var p=activeUnit?'?unit='+activeUnit:'';history.replaceState(null,'','wrong.html'+p);render();});
+ render();
+})();

@@ -46,10 +46,10 @@
         prefs.fontScale = p.fontScale || 'normal';
         prefs.compact = !!p.compact;
       } }
-    } catch (e) {}
+    } catch (e) { console.warn('读取外观偏好失败', e); }
   }
   function savePrefs() {
-    try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) {}
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) { console.warn('保存外观偏好失败', e); }
     applyPrefs();
   }
   function applyPrefs() {
@@ -147,19 +147,19 @@
         prof.owner = p.owner || '';
         prof.lastSynced = p.lastSynced || '';
       } }
-    } catch (e) {}
+    } catch (e) { console.warn('读取档案归属失败', e); }
   }
   function saveProf() {
-    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(prof)); } catch (e) {}
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(prof)); } catch (e) { console.warn('保存档案归属失败', e); }
   }
   function loadDraft() {
     try { var raw = localStorage.getItem(DRAFT_KEY); return raw ? JSON.parse(raw) : null; }
     catch (e) { return null; }
   }
   function saveDraft(uid, payload) {
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ uid: uid, payload: payload })); } catch (e) {}
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ uid: uid, payload: payload })); } catch (e) { console.warn('保存草稿失败', e); }
   }
-  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { console.warn('清除草稿失败', e); } }
 
   // 用档案内容整体替换本机副本；本机外观偏好保持不变。
   function applyPayload(payload) {
@@ -167,17 +167,17 @@
     for (k in NO_SYNC) {
       if (!Object.prototype.hasOwnProperty.call(NO_SYNC, k)) continue;
       var v = null;
-      try { v = localStorage.getItem(k); } catch (e) {}
+      try { v = localStorage.getItem(k); } catch (e) { console.warn('读取本地存储失败', e); }
       if (v != null) keep[k] = v;
     }
     var cur = snapshot();
-    Object.keys(cur).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) {} });
+    Object.keys(cur).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) { console.warn('清除本地存储失败', e); } });
     var clean = canon(payload || {});
     Object.keys(clean).forEach(function (key) {
-      try { if (typeof clean[key] === 'string') localStorage.setItem(key, clean[key]); } catch (e) {}
+      try { if (typeof clean[key] === 'string') localStorage.setItem(key, clean[key]); } catch (e) { console.warn('写入本地存储失败', e); }
     });
     Object.keys(keep).forEach(function (key) {
-      try { localStorage.setItem(key, keep[key]); } catch (e) {}
+      try { localStorage.setItem(key, keep[key]); } catch (e) { console.warn('写入本地存储失败', e); }
     });
   }
 
@@ -285,7 +285,7 @@
   // 云同步通知总线：各写入点在 localStorage.setItem 后显式调用 window.TDSync.notify(key)。
   // 替代旧方案（改写 Storage.prototype 全局劫持所有本地写入）——不再有全局 API 劫持。
   function exposeNotify() {
-    try { window.TDSync = { notify: onLocalWrite }; } catch (e) {}
+    try { window.TDSync = { notify: onLocalWrite }; } catch (e) { console.warn('注册同步通知未生效', e); }
   }
 
   /* 登录成功后：自动决定"切到该账号档案 / 归档本机进度 / 拉取别的设备进度"，
@@ -307,11 +307,11 @@
     var cloudNick = archive && archive.nickname ? archive.nickname : '';
     nickname = cloudNick || (user && user.displayName) || '';
     if (!nickname) nickname = DEFAULT_NICK;
-    try { user._nick = nickname; } catch (e) {}
+    try { user._nick = nickname; } catch (e) { console.warn('写入昵称未生效', e); }
     if (cloudNick !== nickname) {
       try { await A.updateNickname(nickname); } catch (e) { /* 下次登录会重试 */ }
     }
-    try { if (user && !user.displayName) user.displayName = nickname; } catch (e) {}
+    try { if (user && !user.displayName) user.displayName = nickname; } catch (e) { console.warn('写入昵称未生效', e); }
 
     var cloudPayload = archive && archive.payload ? canon(archive.payload) : null;
     var cloudHash = cloudPayload && Object.keys(cloudPayload).length ? hashOf(cloudPayload) : '';
@@ -431,7 +431,7 @@
       setBusy(true); setError('');
       var saved = await A.updateNickname(clean);
       nickname = saved;
-      try { user.displayName = saved; } catch (e) {}
+      try { user.displayName = saved; } catch (e) { console.warn('写入昵称未生效', e); }
       setStatus('昵称已保存', 'ok');
       renderBody();
     } catch (e) {
@@ -758,7 +758,7 @@
       if (curT===pair[0]) btn.setAttribute('data-active','1');
       btn.onclick=function(){
         if (window.TDSetTheme) window.TDSetTheme(pair[0]);
-        else { try{localStorage.setItem('tdsat_theme',pair[0])}catch(e){} document.documentElement.setAttribute('data-theme',pair[0]); try{onLocalWrite('tdsat_theme')}catch(e){} }
+        else { try{localStorage.setItem('tdsat_theme',pair[0])}catch(e){console.warn('保存主题失败',e)} document.documentElement.setAttribute('data-theme',pair[0]); try{onLocalWrite('tdsat_theme')}catch(e){console.warn('同步主题未生效',e)} }
         renderBody();
       };
       seg0.appendChild(btn);

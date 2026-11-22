@@ -14,8 +14,8 @@
   window.TDGetTheme=function(){return curTheme()};
   window.TDSetTheme=function(t){
     t=(t==='dark')?'dark':'light';
-    try{localStorage.setItem(KEY,t)}catch(e){}
-    if(window.TDSync)try{window.TDSync.notify(KEY)}catch(e){}
+    try{localStorage.setItem(KEY,t)}catch(e){console.warn('保存主题失败',e)}
+    if(window.TDSync)try{window.TDSync.notify(KEY)}catch(e){console.warn('同步通知未生效',e)}
     apply(t);
   };
 })();

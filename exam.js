@@ -36,7 +36,7 @@
     const on = a.dataset.module === MODE;
     a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page');
   });
-  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(k); } catch (e2) {} } catch (e) {} };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(k); } catch (e2) { console.warn('同步通知未生效', e2); } } catch (e) { console.warn('保存会话失败', e); } };
   const load = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
   /* Rendered stem, used only for diagnostic feature detection. The exam core
      stays DOM-free; it never changes the text shown to the student. */
@@ -334,7 +334,7 @@
          its paper so answers and timing are never invalidated mid-test. */
       if (startClicked || resumeStage || (S && S.startedAt)) { renderSpecialOptions(); return; }
       resumeStage = null;
-      try { localStorage.removeItem(KEY_SESSION); } catch (e) {}
+      try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除本地会话失败', e); }
       adopt(newSession());
       renderIntro();
     }));
@@ -370,10 +370,10 @@
         /* Choosing another unit starts a clean paper; drop any saved session so
            the next Start click cannot reveal a stale stage. */
         resumeStage = null;
-        try { localStorage.removeItem(KEY_SESSION); } catch (e) {}
+        try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除本地会话失败', e); }
         adopt(newSession()); renderIntro();
         const url = new URL(location.href); url.searchParams.set('unit', QUIZ_UNIT);
-        try { history.replaceState({}, '', url.href); } catch (e) {}
+        try { history.replaceState({}, '', url.href); } catch (e) { console.warn('更新地址栏失败', e); }
       }));
       const t = S.plan;
       /* Show the TOTAL historical mistake count (same number the wrong
@@ -581,7 +581,7 @@
   const persist = () => {
     const disk = load(KEY_SESSION);
     let base = null;
-    try { base = JSON.parse(BASE); } catch (e) {}
+    try { base = JSON.parse(BASE); } catch (e) { console.warn('解析会话快照失败', e); }
     const hasPaper = x => x && typeof x === 'object' && !Array.isArray(x) && Array.isArray(x.paper);
     /* Only a LIVE session (started or finished) on disk carries another tab's
        real answers worth preserving. An unstarted intro session is disposable:
@@ -697,6 +697,8 @@
   function finalize(auto, reason) {
     if (!S || S.finished) return;
     clearInterval(ticker); ticker = null;
+    document.removeEventListener('visibilitychange', tick);
+    window.removeEventListener('focus', tick);
     accumulateTime();
     // An early submit while still in Module 1 must still produce the official
     // 44-question paper: the unopened Module 2 counts as unanswered (0 points).
@@ -844,7 +846,7 @@
       if (mod && k === 'p') e.preventDefault();
     }, true);
     // block programmatic clipboard reads too
-    try { if (navigator.clipboard) navigator.clipboard.readText = () => Promise.reject(new Error('blocked')); } catch (e) {}
+    try { if (navigator.clipboard) navigator.clipboard.readText = () => Promise.reject(new Error('blocked')); } catch (e) { console.warn('禁用剪贴板读取未生效', e); }
   }
 
   /* =====================================================================
@@ -913,7 +915,7 @@
     renderResultList();
   }));
   $('btnResHome').addEventListener('click', () => { location.href = 'wrong.html'; });
-  $('btnResAgain').addEventListener('click', () => { try { localStorage.removeItem(KEY_SESSION); } catch (e) {} location.reload(); });
+  $('btnResAgain').addEventListener('click', () => { try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除本地会话失败', e); } location.reload(); });
 
   /* Exit to the previous page. Answers are auto-saved on every edit, so no
      manual save is needed; a live timed session keeps its absolute deadline,

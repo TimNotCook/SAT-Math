@@ -136,7 +136,7 @@
         percent: total ? Math.round(answered / total * 100) : 0 }
     };
     localStorage.setItem(KEY, JSON.stringify(d));
-    if (window.TDSync) try { window.TDSync.notify(KEY); } catch (e) { }
+    if (window.TDSync) try { window.TDSync.notify(KEY); } catch (e) { console.warn('同步通知未生效', e); }
     return inspect();
   }
 
@@ -161,7 +161,7 @@
     timer = setTimeout(function () {
       timer = null;
       if (!canWrite()) return;           // corrupt / mismatched archive is protected
-      try { snapshot(); } catch (e) { }
+      try { snapshot(); } catch (e) { console.warn('自动存档失败', e); }
     }, 700);
   }
   function manualSave() {
@@ -225,7 +225,7 @@
     });
     live.last = { sec: st.position.sec, qid: null, ts: Date.now() };
     localStorage.setItem(LIVE, JSON.stringify(live));
-    if (window.TDSync) try { window.TDSync.notify(LIVE); } catch (e) { }
+    if (window.TDSync) try { window.TDSync.notify(LIVE); } catch (e) { console.warn('同步通知未生效', e); }
     return { ok: true, position: st.position };
   }
 

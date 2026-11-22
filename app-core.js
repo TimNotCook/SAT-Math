@@ -105,8 +105,8 @@
     BASE = JSON.stringify(S);
   }
   function writeDisk(st) {
-    try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { }
-    if (window.TDSync) try { window.TDSync.notify(KEY); } catch (e) { }
+    try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { console.warn('保存做题进度失败', e); }
+    if (window.TDSync) try { window.TDSync.notify(KEY); } catch (e) { console.warn('同步通知未生效', e); }
     syncFromDisk(st);
   }
 

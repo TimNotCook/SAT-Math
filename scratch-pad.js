@@ -176,7 +176,7 @@
       if (!open || hand || !isPen(e)) return;
       e.preventDefault();
       penPointerAt = Date.now();
-      try { if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId); } catch (ex) {}
+      try { if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId); } catch (ex) { console.warn('指针捕获未生效', ex); }
       if (tool === 'eraser') { eraseAt(e.clientX, e.clientY); return; }
       beginStroke((e.clientX) / window.innerWidth, (e.clientY) / window.innerHeight, penPressure(e));
     });

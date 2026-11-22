@@ -376,7 +376,7 @@
     var timer;
     var timeout = new Promise(function (_, reject) {
       timer = setTimeout(function () {
-        if (worker) { try { worker.terminate(); } catch (e) { } }
+        if (worker) { try { worker.terminate(); } catch (e) { console.warn('终止识别线程失败', e); } }
         var e = new Error('本地识别超时');
         e.error = { code: 'local_ocr_timeout' };
         reject(e);
@@ -415,7 +415,7 @@
       var done = worker.terminate();
       return Promise.resolve(done).then(function () { return out; });
     }, function (e) {
-      if (worker) { try { worker.terminate(); } catch (e2) { } }
+      if (worker) { try { worker.terminate(); } catch (e2) { console.warn('终止识别线程失败', e2); } }
       throw e;
     }).then(function (out) {
       var raw = String((out && out.data && out.data.text) || '').replace(/\s+/g, ' ').trim();
@@ -530,7 +530,7 @@
     return null;
   }
   function readBatches() { try { var v = JSON.parse(localStorage.getItem(BATCH_KEY)); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
-  function writeBatches(v) { try { localStorage.setItem(BATCH_KEY, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(BATCH_KEY); } catch (e2) { } } catch (e) { } }
+  function writeBatches(v) { try { localStorage.setItem(BATCH_KEY, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(BATCH_KEY); } catch (e2) { console.warn('同步通知未生效', e2); } } catch (e) { console.warn('保存导入批次失败', e); } }
   function refreshHost() { var h = window.TD_IMPORT_WRONG; if (h && h.refresh) h.refresh(); }
 
   function importChecked() {
@@ -576,7 +576,7 @@
     var p = pages.filter(function (x) { return x.i === +i; })[0]; if (!p) return false;
     p.qid = qid || ''; p.checked = !!qid; p.gate = 'manual'; renderRows();
     // 用户确认后立即写入（识别结束那轮 importChecked 已跑过，此刻需补一次）
-    if (qid && !busy) { try { importChecked(); } catch (e) {} }
+    if (qid && !busy) { try { importChecked(); } catch (e) { console.warn('导入错题失败', e); } }
     return true;
   }
   function check(i, on) { var p = pages.filter(function (x) { return x.i === +i; })[0]; if (!p) return false; p.checked = !!on; renderRows(); return true; }
@@ -645,7 +645,7 @@
       var fail = pages.length - ok;
       // 全自动：识别结束后立即写入错题本，不等待任何用户操作
       var res = null;
-      try { res = importChecked(); } catch (e) { }
+      try { res = importChecked(); } catch (e) { console.warn('导入错题失败', e); }
       var added = res && res.added ? res.added : 0;
       var skipped = res && res.skipped ? res.skipped : 0;
       var unmatched = pages.filter(function (p) { return p.ocr && !p.error && !p.qid; }).length;
