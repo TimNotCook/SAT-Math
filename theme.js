@@ -1,17 +1,13 @@
-/* theme.js — 奶白/暗黑主题切换
-   默认跟随系统 prefers-color-scheme；用户点按钮切换后 localStorage 记住选择。
+/* theme.js — 淡奶白/暗黑主题切换
+   默认永远是 light（淡奶白），不跟随系统暗黑。
+   用户点右下角按钮主动选 dark 后 localStorage 记住选择。
    右下角浮动圆形按钮，文字标示（明/夜），无 emoji。 */
 (function(){
   var root=document.documentElement,KEY='tdsat_theme';
   function stored(){return localStorage.getItem(KEY)}
-  function sysDark(){return matchMedia('(prefers-color-scheme:dark)').matches}
-  function curTheme(){var s=stored();return s||(sysDark()?'dark':'light')}
+  function curTheme(){var s=stored();return s||'light'}  // 默认 light，不跟随系统
   function apply(t){root.setAttribute('data-theme',t)}
   apply(curTheme());  // 首屏尽早设定，避免闪屏
-  // 系统主题变化时，若用户未手动选过，跟随系统
-  matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){
-    if(!stored())apply(sysDark()?'dark':'light');
-  });
   function ready(fn){document.readyState!=='loading'?fn():document.addEventListener('DOMContentLoaded',fn)}
   ready(function(){
     var b=document.createElement('button');
