@@ -62,22 +62,61 @@ git 网络通道常报 `502` / `Empty reply`，但 push 可能其实已成功。
 
 ## 项目结构
 
-| 文件 / 目录 | 作用 |
+### 页面（HTML）
+
+| 文件 | 作用 |
 |---|---|
 | `index.html` | 首页（单元选择入口，实际会跳到 drill.html） |
-| `drill.html` / `drill.js` | 单元练习答题页 |
-| `exam.html` / `exam.js` | 单元抽查 + 全真模考（URL 参数 `?mode=quiz&unit=1` 或 `?mode=mock`） |
+| `drill.html` | 单元练习答题页 |
+| `exam.html` | 单元抽查 + 全真模考（URL 参数 `?mode=quiz&unit=1` 或 `?mode=mock`） |
 | `wrong.html` | 错题回顾 |
+| `auth-relay.html` | OAuth 鉴权回调中转页 |
+
+### 核心逻辑（JS）
+
+| 文件 | 作用 |
+|---|---|
+| `grade-core.js` | **判分唯一实现**（`window.TDGrade`）。`app-core.js` / `exam-core.js` 仅委托，不再各持拷贝 |
+| `exam-core.js` | 组卷算法（CommonJS 可 require：`diagnosticSequence` / `buildFullPaper`） |
+| `app-core.js` / `app-ui.js` | 题库读取、分组、UI 状态 |
+| `drill.js` / `exam.js` | 练习页 / 模考页交互逻辑 |
+| `progress-save.js` | 进度本机保存（700ms 防抖 + 损坏/版本不兼容保护） |
+| `cloud-account.js` | 云账号 + 云同步（`deepMerge` 按时间戳最后写入者赢，数组取并集） |
+| `github-auth.js` | GitHub 令牌登录 |
+| `firebase-cloud.js` | Firebase 同步（SDK 本地化到 `vendor/firebase/`） |
+| `image-import.js` | PDF 导入 + OCR（tesseract 本地化到 `vendor/tesseract/`） |
+| `figures.js` | **公式与图表渲染核心**。`fmtMath()` 负责分数竖排、上下标、根号；`showFigure()` / `choiceGraph()` 负责题干图与选项图（SVG） |
+| `scratch-pad.js` | 草稿板（压感笔锋 / 荧光笔 / 撤销重做；**纯内存，暂未落盘**） |
+| `theme.js` | 明暗主题切换 |
+| `analysis.js` | 成绩 / 数据分析 |
+| `bluebook-shell.js` | Bluebook 风格外壳 |
+| `cloud-config.js` | 云配置（endpoint / applicationId） |
+
+### 样式（CSS）
+
+| 文件 | 作用 |
+|---|---|
 | `app.css` | 顶栏、通用 UI、数学公式排版（分数 `.td-frac`、上下标、根号） |
 | `bluebook.css` | Bluebook 风格主题、答题页/模考页布局、横幅 |
-| `figures.js` | **公式与图表渲染核心**。`fmtMath()` 负责分数竖排、上下标、根号；`showFigure()` / `choiceGraph()` 负责题干图与选项图（SVG） |
-| `app-core.js` / `app-ui.js` | 题库读取、分组、UI 状态 |
+| `glass.css` | 玻璃质感、明暗主题变量 |
+
+### 数据（data/）
+
+| 文件 | 作用 |
+|---|---|
 | `data/questions.js` | 题库元数据（`window.TD_BANK`）：1012 道题（含 SP2 专项 60 题）、单元/板块分组与题量 |
 | `data/text.js` | 题干与选项文本（`window.TD_TEXT`），key 是题号，如 `SR-254` |
-| `data/figures.js` | 图表 spec（`window.TD_FIG_SPECS` / `TD_CHOICE_GRAPHS` / `TD_FIG_SPECS`），题号→图表定义 |
-| `data/figure_crops.js` / `choice_crops.js` | 图片裁剪引用 |
-| `images/` | 图片资源（约 20M） |
-| `vendor/` | 本地依赖：pdf.js、tesseract.js（PDF 导入 / OCR），约 8M |
+| `data/figures.js` | 图表 spec（`window.TD_FIG_SPECS` / `TD_CHOICE_GRAPHS`），题号→图表定义 |
+| `data/figure_crops.js` / `choice_crops.js` | 图片裁剪映射（**纯数据**，题号 → 图片路径） |
+
+### 资源 / 依赖 / 工具
+
+| 目录 / 文件 | 作用 |
+|---|---|
+| `images/` | 图片资源（约 14M：`fig/` 题干图 + `choice/` 选项图） |
+| `vendor/` | 本地化依赖（约 8.7M：pdf.js、tesseract、firebase SDK、云 SDK） |
+| `fonts/` | 本地字体 Inter / Roboto（woff2，`font-display:swap`）。数字字体 Space Grotesk 走 Google Fonts CDN |
+| `test/grading.test.js` | 判分回归测试（node:vm 加载 grade-core 真实源码，26 用例） |
 | `bump_assets.py` | 版本号刷新脚本（见上） |
 
 ## ⛔ 红线：样式重构冻结（!important 一个字都不许动）
@@ -110,6 +149,30 @@ git 网络通道常报 `502` / `Empty reply`，但 push 可能其实已成功。
 
 - 负责人：定方向、定优先级、定验收标准、最后把关。
 - 执行者（AI）：动手。**开工前提未满足时，不擅动样式。**
+
+## 技术债台账（六轮审计结论，接手前必读）
+
+### 已根修（勿回退，改前先读对应代码）
+
+- **判分统一**：`grade-core.js` 是唯一实现；1% 容差频带以**标准答案**为基准（曾误用学生答案作分母，标准答案为 0 时判错）。
+- **补丁栈清除**：`stem-patch.js` / `grid-fix.js` 已删；错题已写回 `questions.js` / `text.js` 源文件（源文件是唯一事实）。
+- **727 图片死链清零**：图片统一走 `images/fig/` + `TD_FIG_CROPS` 映射，`image` 字段不再指向不存在路径。
+- **令牌存储**：GitHub 令牌改会话级存储，关闭标签页即失效。
+- **依赖本地化**：Firebase / 云 SDK / tesseract 均本地化到 `vendor/`，不依赖 gstatic / jsDelivr 主链。
+- **云同步冲突**：`deepMerge` 改按时间戳「最后写入者赢」，数组取并集去重；`merged` 判定由引用比较改为内容指纹，消除恒真误判。
+- **组卷去重**：`m2` 难/易分支互斥不撞题；题目不再在 meta 中重复存两份。
+
+### 遗留（按优先级排序，未获授权不要擅动）
+
+1. **草稿板落盘**（备考体验）— `scratch-pad.js` 草稿纯内存，刷新/切后台即丢。建议加按题持久化。
+2. **云 SDK 兜底仍 `@dev`**（供应链）— `image-import.js` 的 CDN 兜底指向 `workbuddy-cloud-sdk@dev`，应锁具体版本号。
+3. **安全响应头**（安全纵深）— 线上无 CSP / SRI / X-Frame-Options / Referrer-Policy / X-Content-Type-Options。
+4. **首屏阻塞**（性能）— 所有 `<script>` 无 async/defer 串行阻塞首屏；约 15MB 无构建压缩、无懒加载。
+5. **测试覆盖窄**（质量）— 仅 `grade-core.js` 有测试；组卷 / 云同步 / 进度保存 / 草稿板 / 公式渲染零测试。
+6. **全局命名空间**（工程）— 24 个全局对象挂 `window`，JS 无 IIFE / 无 `use strict`。
+7. **监听器泄漏**（工程）— `exam.js` 计时器监听只加不删；全仓库 add/remove 约 109:2。
+8. **空 catch 吞异常**（健壮性）— 89 处 try/catch 中 44 处空 catch，存储满 / 隐私模式下静默失败。
+9. **`!important` 洁癖**（已冻结）— 约 1084 处，开工三前提见上节，未满足前冻结。
 
 ## 数据口径与约定（改动时务必遵守）
 
