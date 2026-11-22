@@ -132,6 +132,10 @@ a:hover{color:var(--blue)}
 .drill-board-layout{gap:26px}
 .drill-board-nav{border-right:1px solid rgba(35,35,40,.07);padding-right:22px}
 
+/* 错题页：去掉标题区下边线 + 导入工具条上下细线（用户要求），保留内容与布局 */
+.wrong-page .page-head{border-bottom:0!important}
+.wrong-toolbar{border-top:0!important;border-bottom:0!important}
+
 /* ---------- number typography: Space Grotesk（仅落地页/结果页数字，做题页保持官方字体） ---------- */
 .drill-section-code,.drill-result-score strong,
 .drill-result-tallies dd,.unit-stat b,.score-num,.drill-result-num{
