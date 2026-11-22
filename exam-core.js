@@ -529,11 +529,14 @@
     const m1 = buildModule(source, 1, 'mixed', {}, R, o);
     const exclude = {}; m1.questions.forEach(q => exclude[q.id] = 1);
     const m2hard = buildModule(source, 2, 'hard', exclude, R, o);
-    const m2easy = buildModule(source, 2, 'easy', exclude, R, o);
+    // m2easy 除了排除 m1，还要排除 m2hard 已抽的题，否则难/易两条自适应分支
+    // 会抽到同一道题（学生虽只走一条分支，但两条难度分流卷的成色会被稀释）。
+    const excludeEasy = Object.assign({}, exclude);
+    m2hard.questions.forEach(q => excludeEasy[q.id] = 1);
+    const m2easy = buildModule(source, 2, 'easy', excludeEasy, R, o);
     return {
       module1: m1.questions,
       module2: { hard: m2hard.questions, easy: m2easy.questions },
-      meta: { m1, m2hard, m2easy },
       diagnostic: { module1: m1.diagnostic, module2Hard: m2hard.diagnostic, module2Easy: m2easy.diagnostic }
     };
   }

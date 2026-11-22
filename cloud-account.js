@@ -181,13 +181,42 @@
     });
   }
 
-  /* 对象级深合并：键取并集；两边都有的原始值以本机为准；数组保留本机。
-     吸收自并行工作流的合并思路，仅用于"首次登录、本机进度无归属"的场景。 */
+  /* 对象级深合并：键取并集；带数字时间戳 ts 的叶子（答题记录 {v,correct,ts}、
+     最近题 {mode,ids,ts}、进度标记 {sec,qid,ts} 等）按"最后写入者赢"取较新的
+     那份，绝不因"本机优先"而让旧答案覆盖新答案；数组取并集去重，不再整段丢弃
+     云端；其余无时间戳的轻量 UI 状态（cursor / completed / marks 等，不涉及判分）
+     冲突时仍以本机为准。仅用于"首次登录、本机进度无归属"的场景。 */
+  function isPlainObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
+  function itemSig(x) {
+    if (isPlainObj(x)) {
+      if (typeof x.date === 'number') return 'd:' + x.date;
+      if (typeof x.ts === 'number') return 't:' + x.ts;
+      if (x.id != null) return 'i:' + x.id;
+      if (x.uid != null) return 'u:' + x.uid;
+    }
+    return 'j:' + JSON.stringify(x);
+  }
+  function mergeArrays(a, b) {
+    var out = (a || []).slice(), seen = {};
+    out.forEach(function (x) { seen[itemSig(x)] = 1; });
+    (b || []).forEach(function (x) {
+      var k = itemSig(x);
+      if (!seen[k]) { seen[k] = 1; out.push(x); }
+    });
+    return out;
+  }
   function deepMerge(lo, co) {
     if (lo === undefined) return co;
     if (co === undefined) return lo;
-    if (Array.isArray(lo) || Array.isArray(co)) return lo;
-    if (typeof lo === 'object' && lo && typeof co === 'object' && co) {
+    // 版本化叶子：两边都带数字 ts → 较新的那份胜出（最后写入者赢）。
+    if (isPlainObj(lo) && isPlainObj(co) && typeof lo.ts === 'number' && typeof co.ts === 'number') {
+      return co.ts > lo.ts ? co : lo;
+    }
+    if (Array.isArray(lo) || Array.isArray(co)) {
+      if (Array.isArray(lo) && Array.isArray(co)) return mergeArrays(lo, co);
+      return Array.isArray(lo) ? lo : co;
+    }
+    if (isPlainObj(lo) && isPlainObj(co)) {
       var out = {};
       Object.keys(Object.assign({}, lo, co)).forEach(function (k) {
         out[k] = deepMerge(lo[k], co[k]);
@@ -327,7 +356,9 @@
         // 该账号已有档案 → 切过去。首次登录且本机有"无主"进度时先并入，避免丢题。
         var target = (fresh && Object.keys(snapshot()).length)
           ? mergeLocalWithCloud(cloudPayload) : cloudPayload;
-        var merged = target !== cloudPayload;
+        // canon()/mergeLocalWithCloud() 每次返回新对象，引用比较永远为真；
+        // 改为内容指纹比对，只有真的发生了合并（内容有差异）才回传，避免无谓覆盖。
+        var merged = hashOf(target) !== cloudHash;
         suppress = true;
         try { applyPayload(target); } finally { suppress = false; }
         prof.owner = uid; prof.lastSynced = localHash(); saveProf();
