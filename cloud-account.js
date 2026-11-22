@@ -253,18 +253,10 @@
     if (typeof k !== 'string' || k.indexOf(SNAP_PREFIX) !== 0 || NO_SYNC[k]) return;
     schedulePush();
   }
-  // 做题脚本每次写 tdsat_* 都会经过这里，写完 1.5s 自动保存，无需任何按钮。
-  function hookStorage() {
-    try {
-      var orig = Storage.prototype.setItem;
-      if (orig && orig.__tdHooked) return;
-      Storage.prototype.setItem = function (k, v) {
-        var r = orig.apply(this, arguments);
-        try { onLocalWrite(k); } catch (e) {}
-        return r;
-      };
-      Storage.prototype.setItem.__tdHooked = true;
-    } catch (e) {}
+  // 云同步通知总线：各写入点在 localStorage.setItem 后显式调用 window.TDSync.notify(key)。
+  // 替代旧方案（改写 Storage.prototype 全局劫持所有本地写入）——不再有全局 API 劫持。
+  function exposeNotify() {
+    try { window.TDSync = { notify: onLocalWrite }; } catch (e) {}
   }
 
   /* 登录成功后：自动决定"切到该账号档案 / 归档本机进度 / 拉取别的设备进度"，
@@ -700,14 +692,16 @@
     altToggle.onclick = function () { altBox.hidden = !altBox.hidden; };
     alt.appendChild(altToggle);
     alt.appendChild(altBox);
-    var gt = field('GitHub 令牌', 'password', '粘贴 Personal Access Token (classic)', 'off');
+    var gt = field('GitHub 令牌', 'password', '粘贴 Personal Access Token', 'off');
     altBox.appendChild(gt.box);
     ui.ghToken = gt.input;
     var gl = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 GitHub 令牌登录');
     gl.type = 'button'; gl.setAttribute('data-busy', '1'); gl.onclick = doGhLogin;
     altBox.appendChild(gl);
     altBox.appendChild(el('p', 'td-acct-note',
-      '进度存进你自己的私有仓库；令牌在 github.com 的 Settings → Developer settings → Personal access tokens (classic) 生成。'));
+      '进度存进你自己的私有仓库 sat-math-data（首次同步会自动创建）。' +
+      '推荐用 Fine-grained 令牌、只勾选该仓库的 Contents 读写（github.com → Settings → Developer settings → Personal access tokens）。' +
+      '令牌仅保存在本标签页会话内，关闭标签即失效；随时可在 GitHub 设置里吊销。'));
     b.appendChild(alt);
   }
 
@@ -733,7 +727,7 @@
       if (curT===pair[0]) btn.setAttribute('data-active','1');
       btn.onclick=function(){
         if (window.TDSetTheme) window.TDSetTheme(pair[0]);
-        else { try{localStorage.setItem('tdsat_theme',pair[0])}catch(e){} document.documentElement.setAttribute('data-theme',pair[0]); }
+        else { try{localStorage.setItem('tdsat_theme',pair[0])}catch(e){} document.documentElement.setAttribute('data-theme',pair[0]); try{onLocalWrite('tdsat_theme')}catch(e){} }
         renderBody();
       };
       seg0.appendChild(btn);
@@ -843,7 +837,7 @@
 
   function boot() {
     loadProf();
-    hookStorage();
+    exposeNotify();
     var btn = buildUI();
     mountButton(btn);
     renderBody();

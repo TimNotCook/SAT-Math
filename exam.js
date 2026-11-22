@@ -36,7 +36,7 @@
     const on = a.dataset.module === MODE;
     a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page');
   });
-  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(k); } catch (e2) {} } catch (e) {} };
   const load = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
   /* Rendered stem, used only for diagnostic feature detection. The exam core
      stays DOM-free; it never changes the text shown to the student. */

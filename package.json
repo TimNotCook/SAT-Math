@@ -1,0 +1,9 @@
+{
+  "name": "td-sat-math",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TD SAT Math static app - zero-dependency grading regression harness",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}

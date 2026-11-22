@@ -76,51 +76,17 @@
        · a repeating decimal must FILL the box: 2/3 accepts .6666/.6667/
          0.666/0.667 but NOT .66/.67. Exact short decimals (3.5, .0625)
          are fine as-is. If more than one answer works, enter any one. */
-  function gridEntry(raw) {
-    if (raw == null) return null;
-    const s = String(raw).trim();
-    if (!/^-?(?:\d+(?:\.\d+)?|\.\d+|\d+\/\d+)$/.test(s)) return null; // forbids %, $, comma, letters, spaces
-    if (s.length > (s.charAt(0) === '-' ? 6 : 5)) return null;           // box capacity
-    return s;
-  }
-  function parseNum(s) {
-    if (s == null) return null;
-    const t = String(s).trim().replace(/[−–]/g, '-');
-    if (/^-?\d+\/\d+$/.test(t)) {
-      const p = t.split('/'); const d = Number(p[1]);
-      return d !== 0 ? Number(p[0]) / d : null;
-    }
-    if (/^-?(?:\d+\.?\d*|\.\d+)$/.test(t) && isFinite(Number(t))) return Number(t);
-    return null;
-  }
-  /* Leniency for the ANSWER KEY only: it may list equivalent forms
-     (".0625, 1/16") or alternatives ("2 or 8"); the value field is numeric. */
-  function acceptedValues(q) {
-    const out = [];
-    const add = v => { if (v != null && isFinite(v) && out.indexOf(v) < 0) out.push(v); };
-    const pv = parseNum(q.value);
-    if (pv != null) add(pv);
-    String(q.answer == null ? '' : q.answer).split(/[,;]|\bor\b/i)
-      .forEach(p => add(parseNum(String(p).trim())));
-    return out;
-  }
-  function sameExact(a, b) { return a != null && b != null && Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a)); }
-  /* SAT student-produced-response rule: an answer is correct if it is exact OR
-     within 1% of the correct value (College Board scoring tolerance). The old
-     0.01% tolerance wrongly failed answers like 96.53 when the key rounded to
-     96.54. Tolerance applies to every grid-in entry (decimal or fraction). */
-  function sameTol(a, b) { return a != null && b != null && (Math.abs(a - b) <= 1e-9 || Math.abs(a - b) <= Math.abs(a) * 0.01); }
+  /* ---------- grading：唯一实现在 grade-core.js（window.TDGrade），本 core 与 app-core.js 共用 ----------
+     历史上这里是手工同步的拷贝（"Keep in sync"），容差分母基准曾分叉（2026-11 合一）。 */
+  var gridEntry = window.TDGrade.gridEntry,
+      parseNum = window.TDGrade.parseNum,
+      acceptedValues = window.TDGrade.acceptedValues,
+      sameExact = window.TDGrade.sameExact,
+      sameTol = window.TDGrade.sameTol;
   function grade(q, given) {
-    if (given == null || String(given).trim() === '') return false;
-    if (q.type === 'mcq') return String(given).trim().toUpperCase() === String(q.answer).trim().toUpperCase();
-    const entry = gridEntry(given);
-    if (entry == null) return false;                       // illegal SAT entry (e.g. 6.25%)
-    const v = parseNum(entry);
-    if (v == null) return false;
-    return acceptedValues(q).some(a =>
-      sameExact(a, v) || sameTol(a, v)
-    );
+    return window.TDGrade.isCorrect(q, given);
   }
+
   function shuffle(a, rnd) {
     a = (a || []).slice(); const R = rnd || Math.random;
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }

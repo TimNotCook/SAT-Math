@@ -530,7 +530,7 @@
     return null;
   }
   function readBatches() { try { var v = JSON.parse(localStorage.getItem(BATCH_KEY)); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
-  function writeBatches(v) { try { localStorage.setItem(BATCH_KEY, JSON.stringify(v)); } catch (e) { } }
+  function writeBatches(v) { try { localStorage.setItem(BATCH_KEY, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(BATCH_KEY); } catch (e2) { } } catch (e) { } }
   function refreshHost() { var h = window.TD_IMPORT_WRONG; if (h && h.refresh) h.refresh(); }
 
   function importChecked() {

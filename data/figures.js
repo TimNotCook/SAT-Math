@@ -57,14 +57,7 @@ window.TD_FIG_SPECS = {
     note: true
   },
 
-  'U4-05': {
-    type: 'parallelLines',
-    topLabel: 'r', bottomLabel: 's', transLabel: 't',
-    // Answer key a = 127 -> w = 127/7, x = 2w+24 ~= 60 (ACUTE),
-    // y = 5w+29 ~= 120 (OBTUSE). NE: UR is acute, UL is obtuse.
-    topUR: 'x°', botUL: 'y°',
-    note: true
-  },
+  'U4-05': { type: 'rawSvg', svg: "<svg viewBox='0 0 360 240' xmlns='http://www.w3.org/2000/svg'>\n  <line x1='120' y1='30' x2='120' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='240' y1='30' x2='240' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='70' y1='215' x2='295' y2='25' stroke='#162c46' stroke-width='2.2'/>\n  <text x='120' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>r</text>\n  <text x='240' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>s</text>\n  <text x='303' y='24' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='start'>t</text>\n  <text x='92' y='196' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>x\u00b0</text>\n  <text x='258' y='60' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>y\u00b0</text>\n</svg>" },
 
   'TD-41-01': {
     type: 'parallelLines',
@@ -100,14 +93,7 @@ window.TD_FIG_SPECS = {
     note: true
   },
 
-  'TD-41-06': {
-    type: 'parallelLines',
-    topLabel: 'r', bottomLabel: 's', transLabel: 't',
-    // Answer key a = 127 -> w = 127/7, x = 2w+24 ~= 60 (ACUTE),
-    // y = 5w+29 ~= 120 (OBTUSE). NE: UR is acute, UL is obtuse.
-    topUR: 'x°', botUL: 'y°',
-    note: true
-  },
+  'TD-41-06': { type: 'rawSvg', svg: "<svg viewBox='0 0 360 240' xmlns='http://www.w3.org/2000/svg'>\n  <line x1='120' y1='30' x2='120' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='240' y1='30' x2='240' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='70' y1='215' x2='295' y2='25' stroke='#162c46' stroke-width='2.2'/>\n  <text x='120' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>r</text>\n  <text x='240' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>s</text>\n  <text x='303' y='24' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='start'>t</text>\n  <text x='92' y='196' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>x\u00b0</text>\n  <text x='258' y='60' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>y\u00b0</text>\n</svg>" },
 
   // TD-41-04: five angle labels at the two intersections of the SE transversal.
   // SE quadrants: UL/LR acute, UR/LL obtuse. The correct choice is s = 135,
@@ -260,61 +246,20 @@ window.TD_FIG_SPECS = {
   },
 
   // U1-12: coordinate plane, dashed line y = -2x + 1 (x,y -8..8), origin printed as "O".
-  'U1-12': {
-    type: 'chart',
-    x: { min: -8, max: 8, step: 2, label: 'x' },
-    y: { min: -8, max: 8, step: 2, label: 'y' },
-    grid: true,
-    origin: 'O',
-    series: [{ kind: 'line', dash: '6 4', points: [[-3, 7], [4, -7]] }]
-  },
+  'U1-12': { type: 'chart', x: { min: -8, max: 8, step: 2, label: 'x' }, y: { min: -8, max: 8, step: 2, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', dash: '6 4', points: [[-1.5, 7], [2.5, -9]] }] },
 
   // U1-13: coordinate plane, dashed steep line y = 20x - 20 (x -6..6, y -50..10), origin printed as "O".
-  'U1-13': {
-    type: 'chart',
-    x: { min: -6, max: 6, step: 2, label: 'x' },
-    y: { min: -50, max: 10, step: 10, label: 'y' },
-    grid: true,
-    origin: 'O',
-    series: [{ kind: 'line', dash: '6 4', points: [[-1.5, -50], [1.5, 10]] }]
-  },
+  'U1-13': { type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -50, max: 10, step: 10, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', dash: '6 4', points: [[-1.5, -42.5], [1.5, 2.5]] }] },
 
   // TD-15-01: shaded region above dashed line y = 15x - 20 (x -6..6, y -50..10), origin "O".
-  'TD-15-01': {
-    type: 'chart',
-    x: { min: -6, max: 6, step: 2, label: 'x' },
-    y: { min: -50, max: 10, step: 10, label: 'y' },
-    grid: true,
-    origin: 'O',
-    series: [
-      { kind: 'region', points: [[-2, -50], [2, 10], [-6, 10], [-6, -50]] },
-      { kind: 'line', dash: '6 4', points: [[-2, -50], [2, 10]] }
-    ]
-  },
+  'TD-15-01': { type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -50, max: 10, step: 10, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', dash: '6 4', points: [[-2, -50], [2, 10]] }] },
 
   // TD-15-03: shaded region above solid line y = -2x + 13, segment (2.5,8)-(8,-3) (x,y -8..8), origin "O".
-  'TD-15-03': {
-    type: 'chart',
-    x: { min: -8, max: 8, step: 2, label: 'x' },
-    y: { min: -8, max: 8, step: 2, label: 'y' },
-    grid: true,
-    origin: 'O',
-    series: [
-      { kind: 'region', points: [[2.5, 8], [8, -3], [8, 8]] },
-      { kind: 'line', points: [[2.5, 8], [8, -3]] }
-    ]
-  },
+  'TD-15-03': { type: 'chart', x: { min: -8, max: 8, step: 2, label: 'x' }, y: { min: -8, max: 8, step: 2, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', points: [[3, 8], [7, -3]] }] },
 
   // TD-25-05: horizontal box plot, plain number line, no gridlines.
   // (lo, Q1, median, Q3, hi) = (85, 97, 114, 124, 138) — pixel-verified against the book scan.
-  'TD-25-05': {
-    type: 'chart',
-    x: { min: 80, max: 140, step: 10 },
-    y: { min: 0, max: 10, step: 10 },
-    yAxis: false,
-    grid: false,
-    series: [{ kind: 'box', lo: 85, q1: 97, med: 114, q3: 124, hi: 138 }]
-  },
+  'TD-25-05': { type: 'chart', x: { min: 80, max: 140, step: 10 }, y: { min: 0, max: 10, step: 10 }, yAxis: false, grid: false, series: [{ kind: 'box', lo: 85, q1: 98, med: 115, q3: 125, hi: 138 }] },
 
   // SP1-086: system matching answer D: 4x + 10y = 32 and -8x - 10y = -64,
   // both lines pass through (8, 0) (x,y -2..10, every 1), origin "O".
@@ -355,8 +300,7 @@ window.TD_FIG_SPECS = {
     rows: [['1', '9'], ['2', '15'], ['3', '12'], ['4', '13']] },
   'TD-25-02': { type: 'table', head: ['UV index', 'Number of days'],
     rows: [['1', '8'], ['2', '13'], ['3', '12'], ['4', '15']] },
-  'TD-33-13': { type: 'table', head: ['x', 'q(x) (left)', 'q(x) (right)'],
-    rows: [['−1', '7', '1/7'], ['0', '21', '3'], ['1', '63', '63']] },
+  'TD-33-13': { type: 'rawSvg', svg: "<svg viewBox='0 0 430 190' xmlns='http://www.w3.org/2000/svg'>\n  <g stroke='#162c46' stroke-width='1.6' fill='none'>\n    <rect x='15' y='25' width='180' height='120'/>\n    <line x1='75' y1='25' x2='75' y2='145'/>\n    <line x1='115' y1='25' x2='115' y2='145'/>\n    <line x1='155' y1='25' x2='155' y2='145'/>\n    <line x1='15' y1='85' x2='195' y2='85'/>\n    <rect x='235' y='25' width='180' height='120'/>\n    <line x1='295' y1='25' x2='295' y2='145'/>\n    <line x1='335' y1='25' x2='335' y2='145'/>\n    <line x1='375' y1='25' x2='375' y2='145'/>\n    <line x1='235' y1='85' x2='415' y2='85'/>\n  </g>\n  <g font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>\n    <text x='45' y='64'>x</text>\n    <text x='95' y='64'>-1</text>\n    <text x='135' y='64'>0</text>\n    <text x='175' y='64'>1</text>\n    <text x='45' y='118'>q(x)</text>\n    <text x='95' y='118'>7</text>\n    <text x='135' y='118'>21</text>\n    <text x='175' y='118'>63</text>\n    <text x='265' y='64'>x</text>\n    <text x='315' y='64'>-1</text>\n    <text x='355' y='64'>0</text>\n    <text x='395' y='64'>1</text>\n    <text x='265' y='118'>q(x)</text>\n    <text x='315' y='106'>1</text>\n    <line x1='307' y1='112' x2='323' y2='112' stroke='#162c46' stroke-width='1.3'/>\n    <text x='315' y='128'>7</text>\n    <text x='355' y='118'>3</text>\n    <text x='395' y='118'>63</text>\n  </g>\n</svg>" },
   'TD-33-14': { type: 'table', head: ['x', 'h(x)'],
     rows: [['0', '30'], ['1', '31'], ['2', '33']] },
 
@@ -394,8 +338,7 @@ window.TD_FIG_SPECS = {
   'TD-33-24': { type: 'table', head: ['x', 'y'],
     rows: [['1', '13'], ['2', '21'], ['3', 'a']] },
 
-  'TD-42-12': { type: 'table', head: ['', 'Area (square inches)', 'Perimeter (inches)'],
-    rows: [['Rectangle A', '1,100', '370'], ['Rectangle B', '4,400', 'n']] },
+  'TD-42-12': { type: 'table', head: ['', 'Perimeter'], rows: [['Triangle TUV', '50'], ['Triangle XYZ', '150']] },
   'TD-43-20': { type: 'table', head: ['', 'Area (square inches)', 'Perimeter (inches)'],
     rows: [['Rectangle A', '1,100', '370'], ['Rectangle B', '4,400', 'n']] }
 ,
@@ -403,8 +346,8 @@ window.TD_FIG_SPECS = {
   'U4-08': {"type":"rawSvg","svg":"<svg viewBox='0 0 440 300' xmlns='http://www.w3.org/2000/svg'>\n  <polygon points='80,70 200,70 140,174' fill='none' stroke='#162c46' stroke-width='2'/>\n  <polygon points='280,60 400,60 340,210' fill='none' stroke='#162c46' stroke-width='2'/>\n  <path d='M 120 70 A 40 40 0 0 1 100 105' fill='none' stroke='#162c46' stroke-width='1.5'/>\n  <text x='72' y='64' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>A</text>\n  <text x='208' y='64' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>B</text>\n  <text x='140' y='196' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>C</text>\n  <text x='96' y='98' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#c2410c' text-anchor='middle'>60°</text>\n  <text x='96' y='126' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46' text-anchor='middle'>d</text>\n  <text x='272' y='54' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>X</text>\n  <text x='408' y='54' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>Y</text>\n  <text x='340' y='232' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>Z</text>\n</svg>"},
   'TD-42-09': {"type":"rawSvg","svg":"<svg viewBox='0 0 440 300' xmlns='http://www.w3.org/2000/svg'>\n  <polygon points='80,70 200,70 140,174' fill='none' stroke='#162c46' stroke-width='2'/>\n  <polygon points='280,60 400,60 340,210' fill='none' stroke='#162c46' stroke-width='2'/>\n  <path d='M 120 70 A 40 40 0 0 1 100 105' fill='none' stroke='#162c46' stroke-width='1.5'/>\n  <text x='72' y='64' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>A</text>\n  <text x='208' y='64' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>B</text>\n  <text x='140' y='196' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>C</text>\n  <text x='96' y='98' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#c2410c' text-anchor='middle'>60°</text>\n  <text x='96' y='126' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46' text-anchor='middle'>d</text>\n  <text x='272' y='54' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>X</text>\n  <text x='408' y='54' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>Y</text>\n  <text x='340' y='232' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>Z</text>\n</svg>"},
   'TD-42-15': {"type":"rawSvg","svg":"<svg viewBox='0 0 440 300' xmlns='http://www.w3.org/2000/svg'>\n  <line x1='60' y1='90' x2='340' y2='90' stroke='#162c46' stroke-width='2'/>\n  <line x1='200' y1='90' x2='270' y2='240' stroke='#162c46' stroke-width='2'/>\n  <line x1='340' y1='90' x2='270' y2='240' stroke='#162c46' stroke-width='2'/>\n  <circle cx='60' cy='90' r='3' fill='#0f2a47'/>\n  <circle cx='200' cy='90' r='3' fill='#0f2a47'/>\n  <circle cx='340' cy='90' r='3' fill='#0f2a47'/>\n  <circle cx='270' cy='240' r='3' fill='#0f2a47'/>\n  <text x='60' y='74' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>S</text>\n  <text x='200' y='74' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>R</text>\n  <text x='340' y='74' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>Q</text>\n  <text x='270' y='262' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>P</text>\n</svg>"},
-  'TD-42-18': {"type":"triangle","labels":["A","C","B"]},
-  'TD-43-01': {"type":"rawSvg","svg":"<svg viewBox='0 0 440 300' xmlns='http://www.w3.org/2000/svg'>\n  <rect x='60' y='120' width='320' height='140' fill='none' stroke='#162c46' stroke-width='2'/>\n  <path d='M 60 120 A 90 90 0 0 0 240 120' fill='#f7f9fc' stroke='#162c46' stroke-width='2'/>\n  <circle cx='150' cy='120' r='3' fill='#0f2a47'/>\n  <text x='50' y='104' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>N</text>\n  <text x='240' y='104' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>P</text>\n  <text x='388' y='104' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>Q</text>\n  <text x='150' y='138' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>O</text>\n  <text x='52' y='280' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>S</text>\n  <text x='388' y='280' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>R</text>\n</svg>"},
+  'TD-42-18': { type: 'triangle', pts: [[70, 200], [290, 200], [180, 55]], labels: ['A', 'C', 'B'] },
+  'TD-43-01': { type: 'rawSvg', svg: "<svg viewBox='0 0 440 300' xmlns='http://www.w3.org/2000/svg'>\n  <rect x='60' y='140' width='320' height='120' fill='none' stroke='#162c46' stroke-width='2'/>\n  <path d='M 60 140 A 90 90 0 0 1 240 140' fill='none' stroke='#162c46' stroke-width='2'/>\n  <circle cx='150' cy='140' r='3' fill='#0f2a47'/>\n  <text x='52' y='132' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>N</text>\n  <text x='240' y='132' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>P</text>\n  <text x='388' y='132' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>Q</text>\n  <text x='150' y='162' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>O</text>\n  <text x='52' y='282' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>S</text>\n  <text x='388' y='282' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>R</text>\n</svg>" },
   'TD-43-02': {"type":"rawSvg","svg":"<svg viewBox='0 0 440 320' xmlns='http://www.w3.org/2000/svg'>\n  <polygon points='220,275 345,235 220,195 95,235' fill='#f7f9fc' stroke='#162c46' stroke-width='2'/>\n  <line x1='95' y1='235' x2='220' y2='195' stroke='#162c46' stroke-width='2' stroke-dasharray='5 4'/>\n  <line x1='345' y1='235' x2='220' y2='195' stroke='#162c46' stroke-width='2' stroke-dasharray='5 4'/>\n  <line x1='220' y1='70' x2='95' y2='235' stroke='#162c46' stroke-width='2'/>\n  <line x1='220' y1='70' x2='345' y2='235' stroke='#162c46' stroke-width='2'/>\n  <line x1='220' y1='70' x2='220' y2='195' stroke='#162c46' stroke-width='2' stroke-dasharray='5 4'/>\n  <line x1='220' y1='70' x2='220' y2='235' stroke='#162c46' stroke-width='2' stroke-dasharray='5 4'/>\n  <polyline points='220,235 232,235 232,223' fill='none' stroke='#162c46' stroke-width='1.5'/>\n  <text x='244' y='156' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>9 cm</text>\n</svg>"},
   'TD-43-05': {"type":"rawSvg","svg":"<svg viewBox='0 0 440 320' xmlns='http://www.w3.org/2000/svg'>\n  <ellipse cx='220' cy='80' rx='90' ry='28' fill='#f7f9fc' stroke='#162c46' stroke-width='2'/>\n  <ellipse cx='220' cy='250' rx='90' ry='28' fill='#f7f9fc' stroke='#162c46' stroke-width='2'/>\n  <path d='M 130 250 A 90 28 0 0 0 310 250' fill='none' stroke='#162c46' stroke-width='2' stroke-dasharray='5 4'/>\n  <line x1='130' y1='80' x2='130' y2='250' stroke='#162c46' stroke-width='2'/>\n  <line x1='310' y1='80' x2='310' y2='250' stroke='#162c46' stroke-width='2'/>\n  <line x1='220' y1='80' x2='310' y2='80' stroke='#162c46' stroke-width='2'/>\n  <circle cx='220' cy='80' r='3' fill='#0f2a47'/>\n  <text x='265' y='72' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>r</text>\n  <line x1='345' y1='80' x2='345' y2='250' stroke='#162c46' stroke-width='1.5'/>\n  <line x1='338' y1='80' x2='352' y2='80' stroke='#162c46' stroke-width='1.5'/>\n  <line x1='338' y1='250' x2='352' y2='250' stroke='#162c46' stroke-width='1.5'/>\n  <text x='362' y='168' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>h</text>\n</svg>"},
   'TD-43-06': {"type":"rawSvg","svg":"<svg viewBox='0 0 440 320' xmlns='http://www.w3.org/2000/svg'>\n  <ellipse cx='220' cy='80' rx='90' ry='28' fill='#f7f9fc' stroke='#162c46' stroke-width='2'/>\n  <ellipse cx='220' cy='250' rx='90' ry='28' fill='#f7f9fc' stroke='#162c46' stroke-width='2'/>\n  <path d='M 130 250 A 90 28 0 0 0 310 250' fill='none' stroke='#162c46' stroke-width='2' stroke-dasharray='5 4'/>\n  <line x1='130' y1='80' x2='130' y2='250' stroke='#162c46' stroke-width='2'/>\n  <line x1='310' y1='80' x2='310' y2='250' stroke='#162c46' stroke-width='2'/>\n  <line x1='220' y1='80' x2='310' y2='80' stroke='#162c46' stroke-width='2'/>\n  <circle cx='220' cy='80' r='3' fill='#0f2a47'/>\n  <text x='265' y='72' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>r</text>\n  <line x1='345' y1='80' x2='345' y2='250' stroke='#162c46' stroke-width='1.5'/>\n  <line x1='338' y1='80' x2='352' y2='80' stroke='#162c46' stroke-width='1.5'/>\n  <line x1='338' y1='250' x2='352' y2='250' stroke='#162c46' stroke-width='1.5'/>\n  <text x='362' y='168' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>h</text>\n</svg>"},
@@ -412,10 +355,10 @@ window.TD_FIG_SPECS = {
   'TD-44-06': {"type":"rawSvg","svg":"<svg viewBox='0 0 440 320' xmlns='http://www.w3.org/2000/svg'>\n  <line x1='70' y1='250' x2='360' y2='250' stroke='#162c46' stroke-width='2'/>\n  <line x1='360' y1='250' x2='360' y2='70' stroke='#162c46' stroke-width='2'/>\n  <line x1='70' y1='250' x2='360' y2='70' stroke='#162c46' stroke-width='2'/>\n  <line x1='199' y1='170' x2='360' y2='170' stroke='#162c46' stroke-width='2'/>\n  <polyline points='360,250 340,250 340,230' fill='none' stroke='#162c46' stroke-width='1.5'/>\n  <polyline points='360,170 340,170 340,150' fill='none' stroke='#162c46' stroke-width='1.5'/>\n  <text x='70' y='272' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>A</text>\n  <text x='360' y='62' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>C</text>\n  <text x='360' y='272' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>E</text>\n  <text x='195' y='164' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>B</text>\n  <text x='374' y='168' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='start'>D</text>\n</svg>"},
   'U2-04': {"type":"chart","x":{"min":0,"max":4,"step":1,"label":"x"},"y":{"min":0,"max":30,"step":5,"label":"y"},"grid":true,"series":[{"kind":"points","points":[[0,26],[0.5,27],[1,22],[1.5,21],[2,16],[2.5,14],[3,7.5],[3.5,9]]}]},
   'U2-05': {"type":"chart","x":{"min":0,"max":10,"step":2,"label":"x"},"y":{"min":0,"max":20,"step":4,"label":"y"},"grid":true,"series":[{"kind":"points","points":[[1,5],[2,9],[3,8.5],[4,9.5],[5,14],[6,11],[7,8],[8,11.5],[9,15.5]]},{"kind":"line","points":[[0,6],[10,14]]}]},
-  'TD-11-03': {"type":"chart","x":{"min":0,"max":10,"step":2,"label":"x"},"y":{"min":-10,"max":10,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[0,2],[3,0]]}],"marks":[{"x":0,"y":2},{"x":3,"y":0}]},
+  'TD-11-03': { type: 'chart', x: { min: 0, max: 10, step: 2, label: 'x' }, y: { min: -10, max: 10, step: 2, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', points: [[0, 2], [4.5, -3]] }] },
   'TD-11-15': {"type":"chart","x":{"min":0,"max":10,"step":2,"label":"x"},"y":{"min":-10,"max":0,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[0,-1],[8,-6]]}],"marks":[{"x":0,"y":-1},{"x":8,"y":-6}]},
   'TD-11-18': {"type":"chart","x":{"min":-6,"max":10,"step":2,"label":"x"},"y":{"min":-10,"max":10,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[0,-4],[4,-1]]}],"marks":[{"x":0,"y":-4},{"x":4,"y":-1}]},
-  'TD-11-20': {"type":"chart","x":{"min":-6,"max":6,"step":2,"label":"x"},"y":{"min":-6,"max":6,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[0,5],[2,0]]}],"marks":[{"x":0,"y":5},{"x":2,"y":0}]},
+  'TD-11-20': { type: 'chart', x: { min: -6, max: 6, step: 2, label: 'x' }, y: { min: -6, max: 6, step: 2, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'line', points: [[0, 6], [4.8, -6]] }] },
   'TD-11-23': {"type":"chart","x":{"min":-4,"max":4,"step":1,"label":"x"},"y":{"min":-6,"max":6,"step":1,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[-3,5],[3,-7]]}]},
   'TD-11-25': {"type":"chart","x":{"min":-6,"max":6,"step":2,"label":"x"},"y":{"min":-6,"max":6,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[0,1],[1,4]]}]},
   'TD-12-19': {"type":"chart","x":{"min":-8,"max":3,"step":1,"label":"x"},"y":{"min":1,"max":9,"step":1,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[-6,9],[-1,4]]},{"kind":"line","points":[[-5,0],[0,5]]},{"kind":"line","points":[[-1,3],[3,7]]}],"marks":[{"x":-1,"y":4}]},
@@ -423,7 +366,7 @@ window.TD_FIG_SPECS = {
   'TD-12-30': {"type":"chart","x":{"min":-6,"max":6,"step":1,"label":"x"},"y":{"min":-6,"max":6,"step":1,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[-6,5],[6,-7]]},{"kind":"line","points":[[-1,7.5],[4,-10]]}],"marks":[{"x":2,"y":-3}]},
   'TD-13-06': {"type":"chart","x":{"min":0,"max":50,"step":10,"label":"x"},"y":{"min":0,"max":50,"step":10,"label":"y"},"grid":true,"series":[{"kind":"line","points":[[0,33],[33,0]]}]},
   'TD-14-27': {"type":"chart","x":{"min":0,"max":10,"step":2,"label":"x"},"y":{"min":0,"max":80,"step":10,"label":"Bank account balance (dollars)"},"grid":true,"series":[{"kind":"line","points":[[0,9],[10,70]]}]},
-  'TD-15-02': {"type":"chart","x":{"min":-15,"max":15,"step":5,"label":"x"},"y":{"min":0,"max":60,"step":5,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"region","points":[[-15,33],[-15,60],[15,60],[15,33]]},{"kind":"line","points":[[-15,33],[15,33]]}]},
+  'TD-15-02': { type: 'chart', x: { min: -15, max: 15, step: 5, label: 'x' }, y: { min: 0, max: 60, step: 5, label: 'y' }, grid: true, origin: 'O', series: [{ kind: 'region', points: [[-15, 35], [-15, 60], [15, 60], [15, 35]] }] },
   'SP1-057': {"type":"chart","x":{"min":0,"max":14,"step":2,"label":"x"},"y":{"min":0,"max":14,"step":2,"label":"y"},"grid":true,"series":[{"kind":"line","points":[[0,7],[8,0]]}],"marks":[{"x":0,"y":7},{"x":8,"y":0}]},
   'TD-22-01': {"type":"chart","x":{"min":0,"max":4,"step":1,"label":"x"},"y":{"min":0,"max":30,"step":5,"label":"y"},"grid":true,"series":[{"kind":"points","points":[[0,26],[0.5,27],[1,22],[1.5,21],[2,16],[2.5,14],[3,7.5],[3.5,9]]}]},
   'TD-22-02': {"type":"chart","x":{"min":0,"max":14,"step":2,"label":"x"},"y":{"min":0,"max":10,"step":2},"grid":true,"series":[{"kind":"points","points":[[1,2],[2.5,2.8],[4.5,4.5],[5.5,2.6],[7.5,7.7],[9,9.7],[10,9.2],[10.5,9.8]]}]},
@@ -433,18 +376,18 @@ window.TD_FIG_SPECS = {
   'TD-22-06': {"type":"chart","x":{"min":0,"max":10,"step":1,"label":"x"},"y":{"min":0,"max":20,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"points","points":[[1,7.3],[1.5,6.3],[3,9],[3.5,11.7],[5,13.5],[5.5,11.6],[6,14.3],[7,17.2],[8,18.8]]},{"kind":"line","points":[[0,4.6],[10,24.6]]}]},
   'TD-22-07': {"type":"chart","x":{"min":0,"max":10,"step":2,"label":"x"},"y":{"min":0,"max":20,"step":2},"grid":true,"series":[{"kind":"points","points":[[1,5],[2,9],[3,8.5],[4,9.5],[5,14],[6,11],[7,8],[8,11.5],[9,15.5]]},{"kind":"line","points":[[-1,4.65],[11,14.85]]}]},
   'TD-22-08': {"type":"chart","x":{"min":100,"max":130,"step":5,"label":"x","labels":[100,110,120,130]},"y":{"min":13,"max":15,"step":0.5,"label":"y"},"grid":true,"series":[{"kind":"points","points":[[100,14.2],[105,14.3],[110,14.5],[114,14.5],[118,14.7],[118.5,14.6],[125,14.9],[127,14.95],[128,14.9],[130,15]]},{"kind":"line","points":[[100,14.2],[130,15]]}]},
-  'TD-22-09': {"type":"chart","x":{"min":0,"max":9,"step":1,"label":"Time (seconds)"},"y":{"min":0,"max":11,"step":1,"label":"Momentum (newton-seconds)"},"grid":true,"series":[{"kind":"points","points":[[0,1],[2,2],[4,4],[6,8],[8,9]]}]},
+  'TD-22-09': { type: 'chart', x: { min: 0, max: 9, step: 1, label: 'Time (seconds)' }, y: { min: 0, max: 11, step: 1, label: 'Momentum (newton-seconds)' }, grid: true, series: [{ kind: 'line', points: [[0, 1], [1, 1.6], [2, 2], [3, 2.9], [4, 4], [5, 5.6], [6, 8], [7, 9.5], [7.5, 9.7], [8, 9]] }, { kind: 'points', points: [[0, 1], [2, 2], [4, 4], [6, 8], [8, 9]] }] },
   'TD-22-10': {"type":"chart","x":{"min":0,"max":8,"step":1,"label":"Time (days since June 1)"},"y":{"min":0,"max":80,"step":10,"label":"Temperature (°F)"},"grid":true,"series":[{"kind":"points","points":[[1,68],[2,60],[3,75],[4,68],[5,66],[6,63],[7,66]]}]},
   'TD-22-11': {"type":"chart","x":{"min":0,"max":45,"step":15,"label":"x"},"y":{"min":0,"max":60,"step":15,"label":"y"},"grid":true,"series":[{"kind":"points","points":[[11,45],[13,45.5],[14,43.5],[14.5,40.5],[14,37.5],[22,34],[26,30],[31,30],[33,25.5],[35,25],[37,28],[38,21]]},{"kind":"line","points":[[10,47],[39,20]]}]},
   'TD-22-12': {"type":"chart","x":{"min":0,"max":5,"step":1},"y":{"min":0,"max":14,"step":2,"label":"Population (in thousands)"},"grid":true,"series":[{"kind":"exp","a":3,"b":1.201}]},
   'TD-22-13': {"type":"chart","x":{"min":0,"max":5,"step":1},"y":{"min":0,"max":14,"step":2,"label":"y"},"grid":true,"series":[{"kind":"exp","a":5,"b":1.489}]},
   'TD-22-15': {"type":"chart","x":{"min":0,"max":10,"step":1,"label":"x"},"y":{"min":0,"max":800,"step":200},"grid":true,"series":[{"kind":"points","points":[[1,140],[2,350],[4,490],[6,625],[8,710],[9,680]]},{"kind":"line","points":[[0,170],[10.5,840]]}]},
   'TD-22-16': {"type":"chart","x":{"min":2000,"max":2050,"step":10,"label":"Years"},"y":{"min":0,"max":7000,"step":1000,"label":"Population"},"grid":true,"series":[{"kind":"points","points":[[2000,1000],[2005,1500],[2010,2400],[2015,3000],[2020,3400],[2025,4100],[2030,4900],[2035,5500],[2040,5900],[2045,6450],[2050,6500]]},{"kind":"line","points":[[2000,1000],[2050,6500]]}]},
-  'TD-22-17': {"type":"chart","x":{"min":0,"max":6,"step":1,"label":"x"},"y":{"min":0,"max":13,"step":1,"label":"y"},"grid":true,"series":[{"kind":"points","points":[[0,7],[1,8.8],[2,10],[3,10.7],[4,11],[5,10.7],[6,10]]}]},
+  'TD-22-17': { type: 'chart', x: { min: 0, max: 6, step: 1, label: 'x' }, y: { min: 0, max: 13, step: 1, label: 'y' }, grid: true, series: [{ kind: 'line', points: [[0, 7], [1, 8.8], [2, 10], [3, 10.6], [4, 11], [5, 10.7], [6, 10]] }] },
   'TD-23-21': {"type":"chart","x":{"min":0,"max":80,"step":10,"label":"Time (minutes)"},"y":{"min":0,"max":80,"step":10,"label":"Concentration of bacteria (millions of cells per mL)"},"grid":true,"series":[{"kind":"exp","a":10,"b":1.019}]},
   'TD-25-07': {"type":"chart","x":{"min":1,"max":19,"step":3,"labels":[4,7,10,13,16]},"y":{"min":0,"max":7,"step":1},"grid":false,"yAxis":false,"series":[{"kind":"points","points":[[4,0.5],[4,1.5],[4,2.5],[4,3.5],[4,4.5],[7,0.5],[7,1.5],[7,2.5],[7,3.5],[7,4.5],[7,5.5],[10,0.5],[10,1.5],[10,2.5],[13,0.5],[13,1.5],[13,2.5],[13,3.5],[13,4.5],[13,5.5],[16,0.5],[16,1.5],[16,2.5],[16,3.5],[16,4.5]]}]},
-  'TD-25-15': {"type":"chart","x":{"min":0,"max":5,"step":1,"cats":[["Plot 1",1.4],["Plot 2",2.4],["Plot 3",3.4],["Plot 4",4.4]]},"y":{"min":0,"max":90,"step":10,"label":"Trees planted","showZero":true},"grid":true,"series":[{"kind":"bar","bars":[{"x0":1,"x1":1.8,"h":65},{"x0":2,"x1":2.8,"h":75},{"x0":3,"x1":3.8,"h":80},{"x0":4,"x1":4.8,"h":60}]}]},
-  'TD-25-16': {"type":"chart","x":{"min":0,"max":6,"step":1,"cats":[["daisy",1.4],["orchid",2.4],["tulip",3.4],["lily",4.4],["sunflower",5.4]]},"y":{"min":0,"max":200,"step":20,"label":"Number of flowers","showZero":true},"grid":true,"series":[{"kind":"bar","bars":[{"x0":1,"x1":1.8,"h":60},{"x0":2,"x1":2.8,"h":100},{"x0":3,"x1":3.8,"h":190},{"x0":4,"x1":4.8,"h":180},{"x0":5,"x1":5.8,"h":170}]}]},
+  'TD-25-15': { type: 'chart', x: { min: 0, max: 5, step: 1, cats: [['Plot 1', 1.4], ['Plot 2', 2.4], ['Plot 3', 3.4], ['Plot 4', 4.4]] }, y: { min: 0, max: 90, step: 10, label: 'Trees planted', showZero: true }, grid: true, series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 65 }, { x0: 2, x1: 2.8, h: 75 }, { x0: 3, x1: 3.8, h: 80 }, { x0: 4, x1: 4.8, h: 59 }] }] },
+  'TD-25-16': { type: 'chart', x: { min: 0, max: 6, step: 1, cats: [['daisy', 1.4], ['orchid', 2.4], ['tulip', 3.4], ['lily', 4.4], ['sunflower', 5.4]] }, y: { min: 0, max: 200, step: 20, label: 'Number of flowers', showZero: true }, grid: true, series: [{ kind: 'bar', bars: [{ x0: 1, x1: 1.8, h: 60 }, { x0: 2, x1: 2.8, h: 100 }, { x0: 3, x1: 3.8, h: 190 }, { x0: 4, x1: 4.8, h: 180 }, { x0: 5, x1: 5.8, h: 170 }] }] },
   'TD-33-08': {"type":"chart","x":{"min":-6,"max":6,"step":1},"y":{"min":-14,"max":12,"step":2,"labels":[-4,-8,-12]},"grid":true,"origin":"O","series":[{"kind":"line","points":[[-6,12],[-5.75,12],[-5.5,12],[-5.25,12],[-5,12],[-4.75,12],[-4.5,12],[-4.25,12],[-4,12],[-3.75,12],[-3.5,12],[-3.25,6.02],[-3,0],[-2.75,-4.69],[-2.5,-8.17],[-2.25,-10.56],[-2,-12],[-1.75,-12.6],[-1.5,-12.5],[-1.25,-11.81],[-1,-10.67],[-0.75,-9.19],[-0.5,-7.5],[-0.25,-5.73],[0,-4],[0.25,-2.44],[0.5,-1.17],[0.75,-0.31],[1,0],[1.25,-0.35],[1.5,-1.5],[1.75,-3.56],[2,-6.67],[2.25,-10.94],[2.5,-14],[2.75,-14],[3,-14],[3.25,-14],[3.5,-14],[3.75,-14],[4,-14],[4.25,-14],[4.5,-14],[4.75,-14],[5,-14],[5.25,-14],[5.5,-14],[5.75,-14],[6,-14]]}],"marks":[{"x":-3,"y":0},{"x":1,"y":0},{"x":0,"y":-4}]},
   'TD-33-09': {"type":"chart","x":{"min":-6,"max":6,"step":1},"y":{"min":-14,"max":12,"step":2,"labels":[-4,-8,-12]},"grid":true,"origin":"O","series":[{"kind":"line","points":[[-6,12],[-5.75,12],[-5.5,12],[-5.25,12],[-5,12],[-4.75,12],[-4.5,12],[-4.25,12],[-4,12],[-3.75,12],[-3.5,12],[-3.25,6.02],[-3,0],[-2.75,-4.69],[-2.5,-8.17],[-2.25,-10.56],[-2,-12],[-1.75,-12.6],[-1.5,-12.5],[-1.25,-11.81],[-1,-10.67],[-0.75,-9.19],[-0.5,-7.5],[-0.25,-5.73],[0,-4],[0.25,-2.44],[0.5,-1.17],[0.75,-0.31],[1,0],[1.25,-0.35],[1.5,-1.5],[1.75,-3.56],[2,-6.67],[2.25,-10.94],[2.5,-14],[2.75,-14],[3,-14],[3.25,-14],[3.5,-14],[3.75,-14],[4,-14],[4.25,-14],[4.5,-14],[4.75,-14],[5,-14],[5.25,-14],[5.5,-14],[5.75,-14],[6,-14]]}],"marks":[{"x":-3,"y":0},{"x":1,"y":0},{"x":0,"y":-4}]},
   'TD-33-10': {"type":"chart","x":{"min":0,"max":12,"step":2},"y":{"min":-8,"max":8,"step":2},"grid":true,"origin":"O","series":[{"kind":"line","points":[[0,-8],[1,-8],[2,-8],[3,-8],[4,-8],[5,-8],[5.5,-7],[6,-5.5],[6.3,-4.6],[6.6,-4.3],[7,-4],[7.5,-4],[8,-4],[8.5,-4],[9,-3],[9.5,-2],[10,0],[10.5,2.5],[11,6],[11.3,8],[12,8]]}]},
@@ -452,7 +395,7 @@ window.TD_FIG_SPECS = {
   'TD-34-18': {"type":"chart","x":{"min":-3,"max":3,"step":1},"y":{"min":0,"max":15,"step":1},"grid":true,"origin":"O","series":[{"kind":"exp","a":1,"b":4,"c":8}]},
   'TD-35-12': {"type":"chart","x":{"min":0,"max":4,"step":1,"label":"x"},"y":{"min":0,"max":1200,"step":400,"label":"y"},"grid":true,"series":[{"kind":"exp","a":300,"b":2.5}]},
   'TD-35-14': {"type":"chart","x":{"min":0,"max":14,"step":2},"y":{"min":0,"max":10,"step":2},"grid":true,"origin":"O","series":[{"kind":"line","points":[[0,4],[2,4.5],[4,5],[6,5.7],[8,6.5],[10,7.3],[12,8.2],[14,9.3]]}]},
-  'SP1-025': {"type":"chart","x":{"min":-10,"max":10,"step":2,"label":"x"},"y":{"min":-10,"max":10,"step":2,"label":"y"},"grid":true,"series":[{"kind":"line","points":[[-10,6.5],[10,1.5]]},{"kind":"line","points":[[-10,2],[10,2]]}],"marks":[{"x":-4,"y":5},{"x":8,"y":2}]},
+  'SP1-025': { type: 'chart', x: { min: -10, max: 10, step: 2, label: 'x' }, y: { min: -10, max: 10, step: 2, label: 'y' }, grid: true, series: [{ kind: 'line', points: [[-10, 6], [10, 1.5]] }, { kind: 'line', points: [[-10, 2], [10, 2]] }], marks: [{ x: -5, y: 5 }, { x: 8, y: 2 }] },
   'SP1-058': {"type":"chart","x":{"min":-10,"max":10,"step":2},"y":{"min":-10,"max":10,"step":2},"grid":true,"series":[{"kind":"line","points":[[-10,36],[10,-24]]}],"marks":[{"x":0,"y":6},{"x":2,"y":0}]},
   'SP1-085': {"type":"chart","x":{"min":-10,"max":1,"step":1,"label":"x"},"y":{"min":-10,"max":1,"step":1,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[-7.2,1],[1,-5.83]]}],"marks":[{"x":-6,"y":0},{"x":0,"y":-5}]},
   'TD-24-05': {"type":"table","head":["Rock type","Frequency"],"rows":[["igneous","10"],["metamorphic","23"],["sedimentary","17"]]},
@@ -601,6 +544,18 @@ window.TD_FIG_SPECS = {
     ]
   },
 
+  /* ===== 以下表格规格原由 stem-patch.js 运行时注册，2026-11 折叠入源（数据/执行分离） ===== */
+  'SR-156': { type: 'table', head: ['x', 'y'], rows: [['-5', '0'], ['8', '0'], ['9', '0']] },
+  'SP1-048': { type: 'table', head: ['x', 'f(x)'], rows: [['1', '-64'], ['2', '0'], ['3', '64']] },
+  'SP1-050': { type: 'table', head: ['x', 'g(x)'], rows: [['1', '58'], ['2', '54'], ['3', '50'], ['4', '46']] },
+  'SP1-053': { type: 'table', head: ['x', 'y'], rows: [['\u221212', '\u221245'], ['6', '45']] },
+  'SP1-054': { type: 'table', head: ['x', 'y'], rows: [['\u221218', '\u221248'], ['7', '52']] },
+  'SP1-089': { type: 'table', head: ['x', 'y'], rows: [['k', '13'], ['k + 7', '\u221215']] },
+  'SP1-090': { type: 'table', head: ['x', 'f(x)'], rows: [['\u22124', '0'], ['\u221219/5', '1'], ['\u221218/5', '2']] },
+  'SP1-092': { type: 'table', head: ['x', 'y'], rows: [['0', 'n'], ['4', 'n + 19'], ['8', 'n + 38']] },
+  'SP1-099': { type: 'table', head: ['x', 'g(x)'], rows: [['\u221227', '3'], ['\u22129', '0'], ['21', '5']] },
+  'SP1-101': { type: 'table', head: ['x', 'y'], rows: [['\u22122s', '24'], ['\u2212s', '21'], ['s', '15']] },
+
 };
 
 
@@ -616,7 +571,7 @@ window.TD_CHOICE_GRAPHS = {
     A: { kind: 'line', xInt: 20, yInt: 15, xmax: 40, ymax: 40 },
     B: { kind: 'line', xInt: 15, yInt: 20, xmax: 40, ymax: 40 },
     C: { kind: 'line', xInt: 15, yInt: 20, xmax: 20, ymax: 20 },
-    D: { kind: 'line', xInt: 0, yInt: 0, xmax: 20, ymax: 20 }
+    D: { kind: 'line', xInt: 30, yInt: 40, xmax: 40, ymax: 40 }
   },
 
   // TD-33-18: decreasing exponential function -> choice D.
@@ -654,3 +609,46 @@ window.TD_CHOICE_GRAPHS = {
   }
 
 };
+
+
+/* ===== 订正回写 FOLDED_PATCH_FIX (2026-11-22) =====
+   原由 stem-patch.js / choice_crops.js 在运行时注入的图形订正，现固化为源数据。
+   共 33 条 figure spec（10 新增 + 23 覆盖）与 1 条 choiceGraph；删补丁后此处为唯一来源。 */
+Object.assign(window.TD_FIG_SPECS, {
+  "U4-05": {"type":"rawSvg","svg":"<svg viewBox='0 0 360 240' xmlns='http://www.w3.org/2000/svg'>\n  <line x1='120' y1='30' x2='120' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='240' y1='30' x2='240' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='70' y1='215' x2='295' y2='25' stroke='#162c46' stroke-width='2.2'/>\n  <text x='120' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>r</text>\n  <text x='240' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>s</text>\n  <text x='303' y='24' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='start'>t</text>\n  <text x='92' y='196' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>x\u00b0</text>\n  <text x='258' y='60' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>y\u00b0</text>\n</svg>"},
+  "TD-41-06": {"type":"rawSvg","svg":"<svg viewBox='0 0 360 240' xmlns='http://www.w3.org/2000/svg'>\n  <line x1='120' y1='30' x2='120' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='240' y1='30' x2='240' y2='210' stroke='#162c46' stroke-width='2.2'/>\n  <line x1='70' y1='215' x2='295' y2='25' stroke='#162c46' stroke-width='2.2'/>\n  <text x='120' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>r</text>\n  <text x='240' y='22' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='middle'>s</text>\n  <text x='303' y='24' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#162c46' text-anchor='start'>t</text>\n  <text x='92' y='196' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>x\u00b0</text>\n  <text x='258' y='60' font-family='Times New Roman,Georgia,serif' font-size='14' fill='#162c46'>y\u00b0</text>\n</svg>"},
+  "U1-12": {"type":"chart","x":{"min":-8,"max":8,"step":2,"label":"x"},"y":{"min":-8,"max":8,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","dash":"6 4","points":[[-1.5,7],[2.5,-9]]}]},
+  "U1-13": {"type":"chart","x":{"min":-6,"max":6,"step":2,"label":"x"},"y":{"min":-50,"max":10,"step":10,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","dash":"6 4","points":[[-1.5,-42.5],[1.5,2.5]]}]},
+  "TD-15-01": {"type":"chart","x":{"min":-6,"max":6,"step":2,"label":"x"},"y":{"min":-50,"max":10,"step":10,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","dash":"6 4","points":[[-2,-50],[2,10]]}]},
+  "TD-15-03": {"type":"chart","x":{"min":-8,"max":8,"step":2,"label":"x"},"y":{"min":-8,"max":8,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[3,8],[7,-3]]}]},
+  "TD-25-05": {"type":"chart","x":{"min":80,"max":140,"step":10},"y":{"min":0,"max":10,"step":10},"yAxis":false,"grid":false,"series":[{"kind":"box","lo":85,"q1":98,"med":115,"q3":125,"hi":138}]},
+  "TD-33-13": {"type":"rawSvg","svg":"<svg viewBox='0 0 430 190' xmlns='http://www.w3.org/2000/svg'>\n  <g stroke='#162c46' stroke-width='1.6' fill='none'>\n    <rect x='15' y='25' width='180' height='120'/>\n    <line x1='75' y1='25' x2='75' y2='145'/>\n    <line x1='115' y1='25' x2='115' y2='145'/>\n    <line x1='155' y1='25' x2='155' y2='145'/>\n    <line x1='15' y1='85' x2='195' y2='85'/>\n    <rect x='235' y='25' width='180' height='120'/>\n    <line x1='295' y1='25' x2='295' y2='145'/>\n    <line x1='335' y1='25' x2='335' y2='145'/>\n    <line x1='375' y1='25' x2='375' y2='145'/>\n    <line x1='235' y1='85' x2='415' y2='85'/>\n  </g>\n  <g font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>\n    <text x='45' y='64'>x</text>\n    <text x='95' y='64'>-1</text>\n    <text x='135' y='64'>0</text>\n    <text x='175' y='64'>1</text>\n    <text x='45' y='118'>q(x)</text>\n    <text x='95' y='118'>7</text>\n    <text x='135' y='118'>21</text>\n    <text x='175' y='118'>63</text>\n    <text x='265' y='64'>x</text>\n    <text x='315' y='64'>-1</text>\n    <text x='355' y='64'>0</text>\n    <text x='395' y='64'>1</text>\n    <text x='265' y='118'>q(x)</text>\n    <text x='315' y='106'>1</text>\n    <line x1='307' y1='112' x2='323' y2='112' stroke='#162c46' stroke-width='1.3'/>\n    <text x='315' y='128'>7</text>\n    <text x='355' y='118'>3</text>\n    <text x='395' y='118'>63</text>\n  </g>\n</svg>"},
+  "TD-42-12": {"type":"table","head":["","Perimeter"],"rows":[["Triangle TUV","50"],["Triangle XYZ","150"]]},
+  "TD-42-18": {"type":"triangle","pts":[[70,200],[290,200],[180,55]],"labels":["A","C","B"]},
+  "TD-43-01": {"type":"rawSvg","svg":"<svg viewBox='0 0 440 300' xmlns='http://www.w3.org/2000/svg'>\n  <rect x='60' y='140' width='320' height='120' fill='none' stroke='#162c46' stroke-width='2'/>\n  <path d='M 60 140 A 90 90 0 0 1 240 140' fill='none' stroke='#162c46' stroke-width='2'/>\n  <circle cx='150' cy='140' r='3' fill='#0f2a47'/>\n  <text x='52' y='132' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>N</text>\n  <text x='240' y='132' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>P</text>\n  <text x='388' y='132' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>Q</text>\n  <text x='150' y='162' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>O</text>\n  <text x='52' y='282' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>S</text>\n  <text x='388' y='282' font-family='Times New Roman,Georgia,serif' font-size='16' fill='#162c46' text-anchor='middle'>R</text>\n</svg>"},
+  "TD-11-03": {"type":"chart","x":{"min":0,"max":10,"step":2,"label":"x"},"y":{"min":-10,"max":10,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[0,2],[4.5,-3]]}]},
+  "TD-11-20": {"type":"chart","x":{"min":-6,"max":6,"step":2,"label":"x"},"y":{"min":-6,"max":6,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[0,6],[4.8,-6]]}]},
+  "TD-15-02": {"type":"chart","x":{"min":-15,"max":15,"step":5,"label":"x"},"y":{"min":0,"max":60,"step":5,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"region","points":[[-15,35],[-15,60],[15,60],[15,35]]}]},
+  "TD-22-09": {"type":"chart","x":{"min":0,"max":9,"step":1,"label":"Time (seconds)"},"y":{"min":0,"max":11,"step":1,"label":"Momentum (newton-seconds)"},"grid":true,"series":[{"kind":"line","points":[[0,1],[1,1.6],[2,2],[3,2.9],[4,4],[5,5.6],[6,8],[7,9.5],[7.5,9.7],[8,9]]},{"kind":"points","points":[[0,1],[2,2],[4,4],[6,8],[8,9]]}]},
+  "TD-22-17": {"type":"chart","x":{"min":0,"max":6,"step":1,"label":"x"},"y":{"min":0,"max":13,"step":1,"label":"y"},"grid":true,"series":[{"kind":"line","points":[[0,7],[1,8.8],[2,10],[3,10.6],[4,11],[5,10.7],[6,10]]}]},
+  "TD-25-15": {"type":"chart","x":{"min":0,"max":5,"step":1,"cats":[["Plot 1",1.4],["Plot 2",2.4],["Plot 3",3.4],["Plot 4",4.4]]},"y":{"min":0,"max":90,"step":10,"label":"Trees planted","showZero":true},"grid":true,"series":[{"kind":"bar","bars":[{"x0":1,"x1":1.8,"h":65},{"x0":2,"x1":2.8,"h":75},{"x0":3,"x1":3.8,"h":80},{"x0":4,"x1":4.8,"h":59}]}]},
+  "SP1-025": {"type":"chart","x":{"min":-10,"max":10,"step":2,"label":"x"},"y":{"min":-10,"max":10,"step":2,"label":"y"},"grid":true,"series":[{"kind":"line","points":[[-10,6],[10,1.5]]},{"kind":"line","points":[[-10,2],[10,2]]}],"marks":[{"x":-5,"y":5},{"x":8,"y":2}]},
+  "SR-176": {"type":"table","head":["Macronutrient","Food calories","Kilojoules"],"rows":[["Protein","4.0","16.7"],["Fat","9.0","37.7"],["Carbohydrate","4.0","16.7"]]},
+  "SR-185": {"type":"chart","x":{"min":0,"max":20,"step":5,"label":"Number of hours at job A"},"y":{"min":0,"max":12,"step":4,"label":"Number of hours at job B"},"grid":true,"series":[{"kind":"line","points":[[16,0],[0,8]]}],"marks":[{"x":16,"y":0},{"x":0,"y":8}]},
+  "SR-126": {"type":"table","head":["Day","Number of bacteria per milliliter at end of day"],"rows":[["1","2.5 \u00d7 10\u2075"],["2","5.0 \u00d7 10\u2075"],["3","1.0 \u00d7 10\u2076"]]},
+  "SR-137": {"type":"table","head":["x","f(x)"],"rows":[["1","a"],["2","a\u2075"],["3","a\u2079"]]},
+  "SR-215": {"type":"table","head":["Property address","Purchase price (dollars)","Monthly rental price (dollars)"],"rows":[["Clearwater Lane","128,000","950"],["Driftwood Drive","176,000","1,310"],["Edgemont Street","70,000","515"],["Glenview Street","140,000","1,040"],["Hamilton Circle","450,000","3,365"]]},
+  "SR-156": {"type":"table","head":["x","y"],"rows":[["-5","0"],["8","0"],["9","0"]]},
+  "SP1-048": {"type":"table","head":["x","f(x)"],"rows":[["1","-64"],["2","0"],["3","64"]]},
+  "SP1-050": {"type":"table","head":["x","g(x)"],"rows":[["1","58"],["2","54"],["3","50"],["4","46"]]},
+  "SP1-053": {"type":"table","head":["x","y"],"rows":[["\u221212","\u221245"],["6","45"]]},
+  "SP1-054": {"type":"table","head":["x","y"],"rows":[["\u221218","\u221248"],["7","52"]]},
+  "SP1-089": {"type":"table","head":["x","y"],"rows":[["k","13"],["k + 7","\u221215"]]},
+  "SP1-090": {"type":"table","head":["x","f(x)"],"rows":[["\u22124","0"],["\u221219/5","1"],["\u221218/5","2"]]},
+  "SP1-092": {"type":"table","head":["x","y"],"rows":[["0","n"],["4","n + 19"],["8","n + 38"]]},
+  "SP1-099": {"type":"table","head":["x","g(x)"],"rows":[["\u221227","3"],["\u22129","0"],["21","5"]]},
+  "SP1-101": {"type":"table","head":["x","y"],"rows":[["\u22122s","24"],["\u2212s","21"],["s","15"]]}
+});
+Object.assign(window.TD_CHOICE_GRAPHS, {
+  "TD-22-14": {"A":{"kind":"line","xInt":20,"yInt":15,"xmax":40,"ymax":40},"B":{"kind":"line","xInt":15,"yInt":20,"xmax":40,"ymax":40},"C":{"kind":"line","xInt":15,"yInt":20,"xmax":20,"ymax":20},"D":{"kind":"line","xInt":30,"yInt":40,"xmax":40,"ymax":40}}
+});

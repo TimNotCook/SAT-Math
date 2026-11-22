@@ -106,6 +106,7 @@
   }
   function writeDisk(st) {
     try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { }
+    if (window.TDSync) try { window.TDSync.notify(KEY); } catch (e) { }
     syncFromDisk(st);
   }
 
@@ -168,50 +169,14 @@
     syncFromDisk(diskState());
   });
 
-  /* ---------- grading (same rules as the existing exam engine) ---------- */
-  /* Grid-in entry & grading — College Board / Bluebook official rules.
-     Keep in sync with exam-core.js (exam.html and drill.html load separate cores). */
-  function gridEntry(raw) {
-    if (raw == null) return null;
-    var s = String(raw).trim();
-    if (!/^-?(?:\d+(?:\.\d+)?|\.\d+|\d+\/\d+)$/.test(s)) return null; // no % $ , letters or spaces
-    if (s.length > (s.charAt(0) === '-' ? 6 : 5)) return null;          // 5 / 6 char box
-    return s;
-  }
-  function parseNum(s) {
-    if (s == null) return null;
-    var t = String(s).trim().replace(/[−–]/g, '-');
-    var f = /^(-?\d+)\/(\d+)$/.exec(t);
-    if (f && +f[2] !== 0) return +f[1] / +f[2];
-    if (/^-?(?:\d+\.?\d*|\.\d+)$/.test(t) && isFinite(+t)) return +t;
-    return null;
-  }
-  function acceptedValues(q) {
-    var out = [];
-    function add(v) { if (v != null && isFinite(v) && out.indexOf(v) < 0) out.push(v); }
-    var pv = parseNum(q.value);
-    if (pv != null) add(pv);
-    String(q.answer == null ? '' : q.answer).split(/[,;]|\bor\b/i)
-      .forEach(function (p) { add(parseNum(String(p).trim())); });
-    return out;
-  }
-  function sameExact(a, b) { return a != null && b != null && Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a)); }
-  /* SAT student-produced-response rule: an answer is correct if it is exact OR
-     within 1% of the correct value (College Board scoring tolerance). The old
-     0.01% tolerance wrongly failed answers like 96.53 when the key rounded to
-     96.54. Tolerance applies to every grid-in entry (decimal or fraction). */
-  function sameTol(a, b) { return a != null && b != null && (Math.abs(a - b) <= 1e-9 || Math.abs(a - b) <= Math.abs(a) * 0.01); }
-  function isCorrect(q, v) {
-    if (v == null || String(v).trim() === '') return false;
-    if (q.type === 'mcq') return String(v).trim().toUpperCase() === String(q.answer).trim().toUpperCase();
-    var entry = gridEntry(v);
-    if (entry == null) return false;
-    var x = parseNum(entry);
-    if (x == null) return false;
-    return acceptedValues(q).some(function (a) {
-      return sameExact(a, x) || sameTol(a, x);
-    });
-  }
+  /* ---------- grading：唯一实现在 grade-core.js（window.TDGrade），本 core 与 exam-core.js 共用 ---------- */
+  /* 历史上这里是与 exam-core.js 手工同步的拷贝，容差分母基准曾分叉（2026-11 合一）。 */
+  var gridEntry = window.TDGrade.gridEntry,
+      parseNum = window.TDGrade.parseNum,
+      acceptedValues = window.TDGrade.acceptedValues,
+      sameExact = window.TDGrade.sameExact,
+      sameTol = window.TDGrade.sameTol,
+      isCorrect = window.TDGrade.isCorrect;
 
   /* Re-grade a HISTORIC stored answer against the CURRENT bank answer.
      Verdicts saved at answer time go stale when the answer key is later

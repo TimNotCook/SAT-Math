@@ -15,6 +15,7 @@
   window.TDSetTheme=function(t){
     t=(t==='dark')?'dark':'light';
     try{localStorage.setItem(KEY,t)}catch(e){}
+    if(window.TDSync)try{window.TDSync.notify(KEY)}catch(e){}
     apply(t);
   };
 })();

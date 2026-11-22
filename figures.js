@@ -36,7 +36,19 @@
      inside a radical) render correctly without the passes clobbering each
      other. Order: superscripts -> innermost radicals -> fractions -> leftovers. */
   function fmtMath(raw) {
-    var s = esc(String(raw == null ? '' : raw));
+    /* Protect decimals (0.11, 1.06) and thousands-grouped integers (90,000)
+       before any fraction rule runs: otherwise \d+/\d+ would turn 2/0.11 into
+       a fake stacked 2/0 and split 90,000/12 into 000/12. The private-use
+       placeholders survive every rule below and are restored at the very end,
+       so this is safe/idempotent for fractions, sub/superscripts and roots.
+       (Formerly applied twice at runtime by drill.html + cloud-config.js;
+       now folded into the canonical implementation.) */
+    var numStash = [];
+    var guarded = String(raw == null ? '' : raw).replace(/\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+/g, function (d) {
+      numStash.push(d);
+      return '\uE000' + (numStash.length - 1) + '\uE000';
+    });
+    var s = esc(guarded);
     var store = [], sid = 0;
     function keep(html) { var k = '\u0001' + (sid++) + '\u0001'; store.push(html); return k; }
     function restore() {
@@ -168,7 +180,10 @@
       function (m, pre, num, den) { return pre + frac(num, den); });
 
 
-    return restore();
+    var out = restore();
+    // restore() may have embedded \uE000 tokens inside stacked-fraction HTML;
+    // unwrap them last so the protected numbers come back verbatim.
+    return out.replace(/\uE000(\d+)\uE000/g, function (_, i) { return numStash[+i] || ''; });
   }
 
   /* EXACT whitelist. The user's rule: only geometry-figure / table / chart

@@ -136,6 +136,7 @@
         percent: total ? Math.round(answered / total * 100) : 0 }
     };
     localStorage.setItem(KEY, JSON.stringify(d));
+    if (window.TDSync) try { window.TDSync.notify(KEY); } catch (e) { }
     return inspect();
   }
 
@@ -224,6 +225,7 @@
     });
     live.last = { sec: st.position.sec, qid: null, ts: Date.now() };
     localStorage.setItem(LIVE, JSON.stringify(live));
+    if (window.TDSync) try { window.TDSync.notify(LIVE); } catch (e) { }
     return { ok: true, position: st.position };
   }
 

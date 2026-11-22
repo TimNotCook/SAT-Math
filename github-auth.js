@@ -2,6 +2,12 @@
  * 令牌登录，进度存私有仓库 sat-math-data（Contents API）。
  * 与 firebase-cloud.js 同构门面（TDFB 可用的方法这里都有），由 cloud-account.js 按活跃后端调用。
  *
+ * 安全模型（2026-11 根修）：
+ *   - 令牌只存 sessionStorage（标签页会话级），关闭标签即失效，不写 localStorage；
+ *   - 旧版本残留在 localStorage 的明文令牌会在下次加载时迁移进 sessionStorage 并删除；
+ *   - 建议使用 Fine-grained PAT 并只授权 sat-math-data 单仓库的 Contents 读写；
+ *     首次同步若仓库不存在，会用令牌自动创建该私有仓库（登录页有明确提示）。
+ *
  * 对外门面（window.TDGH）：
  *   TDGH.available()     — 恒 true（api.github.com 在一般网络可达）
  *   TDGH.active()        — 是否已持有令牌（当前通道是否活跃）
@@ -107,7 +113,8 @@
           email: me.email || '',
           login: me.login
         };
-        try { localStorage.setItem(TOKEN_KEY, token); } catch (e) {}
+        try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) {}
+        try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}  // 清除旧版明文残留
         persistProfile();
         if (stateCb) stateCb(currentUser);
       } catch (e) {
@@ -120,7 +127,8 @@
       token = null;
       currentUser = null;
       meLogin = null;
-      try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+      try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
+      try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}  // 清除旧版残留
       persistProfile();
       if (stateCb) stateCb(null);
     },
@@ -179,10 +187,16 @@
     }
   };
 
-  /* 会话恢复：读取本地缓存的令牌与档案，不发网络请求。 */
+  /* 会话恢复：令牌从 sessionStorage 读取（仅本标签页有效）。
+     旧版本残留在 localStorage 的明文令牌：迁移到 sessionStorage 后立即删除。 */
   (function restore() {
     try {
-      token = localStorage.getItem(TOKEN_KEY) || null;
+      var legacy = localStorage.getItem(TOKEN_KEY);
+      if (legacy) {
+        try { sessionStorage.setItem(TOKEN_KEY, legacy); } catch (e2) {}
+        localStorage.removeItem(TOKEN_KEY);
+      }
+      token = sessionStorage.getItem(TOKEN_KEY) || null;
       var p = JSON.parse(localStorage.getItem(PROF_KEY) || 'null');
       if (token && p && p.uid) { currentUser = p; meLogin = p.login; }
     } catch (e) { token = null; currentUser = null; }

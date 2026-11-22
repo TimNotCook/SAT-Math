@@ -10,9 +10,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="app.css?v=461636923c89">
-  <link rel="stylesheet" href="bluebook.css?v=461636923c89">
-  <link rel="stylesheet" href="glass.css?v=461636923c89"><script src="theme.js?v=461636923c89"></script>
+  <link rel="stylesheet" href="app.css?v=dc9b904df8c4">
+  <link rel="stylesheet" href="bluebook.css?v=dc9b904df8c4">
+  <link rel="stylesheet" href="glass.css?v=dc9b904df8c4"><script src="theme.js?v=dc9b904df8c4"></script>
   <style>#questionNav{z-index:68!important}</style>
 </head>
 <body class="drill-page">
@@ -188,40 +188,23 @@
   </div>
 
   <noscript><p class="drill-noscript">请启用 JavaScript 以加载题目并保存作答。</p></noscript>
-  <script src="data/questions.js?v=461636923c89"></script>
-  <script src="data/text.js?v=461636923c89"></script>
-  <script src="data/figures.js?v=461636923c89"></script>
-  <script src="data/figure_crops.js?v=461636923c89"></script>
-  <script src="data/choice_crops.js?v=461636923c89"></script>
-  <script src="app-core.js?v=461636923c89"></script>
-  <script src="app-ui.js?v=461636923c89"></script>
-  <script src="progress-save.js?v=461636923c89"></script>
-  <script src="figures.js?v=461636923c89"></script>
-  <script>
-  /* fmtMath 热修：在渲染脚本运行前保护小数(0.11, 1.06)与千分位整数(90,000)，
-     防止 \d+/\d+ 把 2/0.11 拆成假分数 2/0、90,000/12 拆成 000/12。
-     正式修复在 figures.js，待推送通道恢复后同步，本段届时移除。 */
-  (function () {
-    if (!window.TD_FIG || !window.TD_FIG.fmtMath || window.TD_FIG.__fmtGuarded) return;
-    var orig = window.TD_FIG.fmtMath;
-    window.TD_FIG.__fmtGuarded = true;
-    window.TD_FIG.fmtMath = function (raw) {
-      var stash = [];
-      var guarded = String(raw == null ? '' : raw).replace(/\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+/g, function (d) {
-        stash.push(d);
-        return '\uE000' + (stash.length - 1) + '\uE000';
-      });
-      var out = orig(guarded);
-      return out.replace(/\uE000(\d+)\uE000/g, function (_, i) { return stash[+i] || ''; });
-    };
-  })();
-  </script>
-  <script src="scratch-pad.js?v=461636923c89"></script>
-  <script src="analysis.js?v=461636923c89"></script>
-  <script src="drill.js?v=461636923c89"></script>
-  <script src="bluebook-shell.js?v=461636923c89"></script>
-  <script src="cloud-config.js?v=461636923c89"></script>
-  <script src="firebase-cloud.js?v=461636923c89"></script>
-  <script src="github-auth.js?v=1bc3f91548b6"></script><script src="cloud-account.js?v=461636923c89"></script>
+  <script src="data/questions.js?v=dc9b904df8c4"></script>
+  <script src="data/text.js?v=dc9b904df8c4"></script>
+  <script src="data/figures.js?v=dc9b904df8c4"></script>
+  <script src="data/figure_crops.js?v=dc9b904df8c4"></script>
+  <script src="data/choice_crops.js?v=dc9b904df8c4"></script>
+
+  <script src="grade-core.js?v=dc9b904df8c4"></script>
+  <script src="app-core.js?v=dc9b904df8c4"></script>
+  <script src="app-ui.js?v=dc9b904df8c4"></script>
+  <script src="progress-save.js?v=dc9b904df8c4"></script>
+  <script src="figures.js?v=dc9b904df8c4"></script>
+  <script src="scratch-pad.js?v=dc9b904df8c4"></script>
+  <script src="analysis.js?v=dc9b904df8c4"></script>
+  <script src="drill.js?v=dc9b904df8c4"></script>
+  <script src="bluebook-shell.js?v=dc9b904df8c4"></script>
+  <script src="cloud-config.js?v=dc9b904df8c4"></script>
+  <script src="firebase-cloud.js?v=dc9b904df8c4"></script>
+  <script src="github-auth.js?v=1bc3f91548b6"></script><script src="cloud-account.js?v=dc9b904df8c4"></script>
 </body>
 </html>
