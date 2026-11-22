@@ -341,7 +341,3 @@ a:hover{color:var(--blue)}
 [data-theme="dark"] .exam-start-actions .btn.primary:focus-visible{
   outline:2px solid rgba(232,232,234,.55)!important;outline-offset:2px;
 }
-/* 暗黑下切换按钮自身 */
-[data-theme="dark"] #theme-toggle{
-  background:rgba(40,40,45,.72)!important;border-color:rgba(255,255,255,.12)!important;color:#e8e8ea!important;
-}

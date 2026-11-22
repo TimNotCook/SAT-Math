@@ -722,6 +722,24 @@
 
   function renderAppearanceTab() {
     var b = ui.body;
+    // 主题（从右下角浮动球收进设置）：读写 theme.js 暴露的单一数据源
+    var r0 = row('主题', '淡奶白或暗黑，立即生效并保存。');
+    var seg0 = el('div', 'td-set-seg');
+    var getTheme = (window.TDGetTheme || function(){ return 'light'; });
+    var curT = getTheme();
+    [['light','浅色'],['dark','暗黑']].forEach(function(pair){
+      var btn = el('button','',pair[1]);
+      btn.type='button';
+      if (curT===pair[0]) btn.setAttribute('data-active','1');
+      btn.onclick=function(){
+        if (window.TDSetTheme) window.TDSetTheme(pair[0]);
+        else { try{localStorage.setItem('tdsat_theme',pair[0])}catch(e){} document.documentElement.setAttribute('data-theme',pair[0]); }
+        renderBody();
+      };
+      seg0.appendChild(btn);
+    });
+    r0.appendChild(seg0); b.appendChild(r0);
+
     var r1 = row('字号', '调整全站文字大小，立即生效并保存。');
     var seg = el('div', 'td-set-seg');
     [['small', '小'], ['normal', '标准'], ['large', '大']].forEach(function (pair) {
