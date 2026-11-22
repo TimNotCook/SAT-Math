@@ -80,6 +80,25 @@ a:hover{color:var(--blue)}
 .weak-panel,.cause-box,.exam-special-panel{border:1px solid rgba(35,35,40,.10)!important}
 .answer-compare>div{background:rgba(255,255,255,.55)!important}
 
+/* ---------- Directions 弹窗头部：去深蓝黑边，融进透亮玻璃 ----------
+   bluebook.css 把 .bb-modal-head 写死成 #12233f + inset 0 3px 0 深色线，
+   这里用更高特异性把它整块抹平成玻璃，做到"能减多少减多少"。 */
+.bb-modal .bb-modal-head,body .bb-modal .bb-modal-head{
+  background:rgba(255,255,255,.45)!important;
+  color:var(--ink)!important;
+  box-shadow:none!important;
+  border-bottom:0!important;
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  backdrop-filter:blur(18px) saturate(140%);
+}
+.bb-modal .bb-modal-head h2{color:var(--ink)!important}
+.bb-modal .bb-modal-close{
+  color:var(--ink)!important;
+  border-color:rgba(35,35,40,.14)!important;
+  background:transparent!important;
+}
+.bb-modal .bb-modal-close:hover{background:rgba(35,35,40,.06)!important}
+
 /* sticky bars — 只 appbar（站点导航），做题页 questionbar/footer/context 保持官方 */
 .appbar{
   background:var(--glass-bg-strong)!important;
@@ -319,6 +338,16 @@ a:hover{color:var(--blue)}
   color:var(--ink)!important;
 }
 [data-theme="dark"] ::selection{background:rgba(255,255,255,.22);color:#1d1d1f}
+/* 暗黑下 Directions 弹窗头部同样是玻璃，去深蓝块与深色线 */
+[data-theme="dark"] .bb-modal .bb-modal-head,
+[data-theme="dark"] body .bb-modal .bb-modal-head{
+  background:rgba(40,40,45,.55)!important;
+  color:var(--ink)!important;
+  box-shadow:none!important;
+  border-bottom:0!important;
+}
+[data-theme="dark"] .bb-modal .bb-modal-head h2{color:var(--ink)!important}
+[data-theme="dark"] .bb-modal .bb-modal-close{color:var(--ink)!important;border-color:rgba(255,255,255,.16)!important}
 /* 暗黑下：结果页正确率/通用主按钮反转成浅银底 + 深字（做题页元素不覆盖，保持官方） */
 [data-theme="dark"] .btn.primary,
 [data-theme="dark"] .exam-submit-button,
