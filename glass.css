@@ -295,18 +295,57 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
 .drill-section-row:hover .drill-section-go{color:var(--blue)!important}
 .drill-unit-button b{color:#7a8aa2!important}
 .drill-unit-button small{color:#8b94a3!important}
-.mainnav a,.drill-page .mainnav a,.exam-page .mainnav a{color:var(--sub)!important;border-radius:var(--radius-sm)!important}
-.mainnav a:hover,.drill-page .mainnav a:hover{color:var(--blue)!important;background:rgba(240,253,250,.6)!important}
+/* ---------- small accents ----------
+   注意：bluebook.css 末尾用 .drill-page/.exam-page 前缀的高优先级选择器
+   把 mainnav/appbar-exit/td-acct-btn/bankpill/exam-tabs 写死成 999px 胶囊。
+   这里必须用同等带前缀的选择器才能压回克制圆角。 */
+.mainnav a,.drill-page .mainnav a,.exam-page .mainnav a{
+  color:var(--sub)!important;border-radius:var(--radius-sm)!important;
+  background:transparent!important;
+}
+.mainnav a:hover,.drill-page .mainnav a:hover,.exam-page .mainnav a:hover{
+  color:var(--blue)!important;background:rgba(240,253,250,.6)!important;
+}
 .mainnav a.on,.drill-page .mainnav a.on,.exam-page .mainnav a.on{
   color:var(--blue-strong)!important;background:rgba(204,251,241,.35)!important;font-weight:600!important;
+  box-shadow:none!important;
 }
-.mainnav a.on::after{background:var(--blue)!important}
-.bankpill{background:#eef1ee!important;color:var(--sub)!important;border-radius:var(--radius-pill)!important}
-.pill{border-radius:var(--radius-pill)!important}
-.appbar-exit{color:#43536b!important;border-color:#dde5ef!important;background:#fff!important}
-.td-acct-btn,.appbar-inner .td-acct-btn,.appbar .td-acct-btn{color:#2b3d57!important;border-color:#d7e2f0!important;background:#fff!important}
-.td-acct-btn:hover,.appbar-inner .td-acct-btn:hover,.appbar .td-acct-btn:hover{color:var(--blue)!important;background:var(--blue-soft)!important;border-color:var(--blue-line)!important}
-.td-acct-btn[data-on="1"],.appbar-inner .td-acct-btn[data-on="1"],.appbar .td-acct-btn[data-on="1"]{color:#fff!important;background:var(--blue)!important;border-color:var(--blue)!important}
+.mainnav a.on::after,.drill-page .mainnav a.on::after,.exam-page .mainnav a.on::after{background:var(--blue)!important}
+/* bankpill / appbar-exit / td-acct-btn — 杀 999px 胶囊，去 1px 玻璃边框，简洁无框 */
+.bankpill,.drill-page .bankpill,.exam-page .bankpill{
+  background:rgba(238,241,238,.6)!important;color:var(--sub)!important;
+  border:0!important;border-radius:var(--radius-pill)!important;
+}
+.pill,.drill-page .pill,.exam-page .pill{border-radius:var(--radius-pill)!important}
+.appbar-exit,.drill-page .appbar-exit,.exam-page .appbar-exit{
+  color:#43536b!important;border:0!important;background:rgba(255,255,255,.5)!important;
+  border-radius:var(--radius-pill)!important;
+}
+.appbar-exit:hover,.drill-page .appbar-exit:hover,.exam-page .appbar-exit:hover{
+  background:rgba(240,253,250,.7)!important;color:var(--blue-strong)!important;
+}
+.td-acct-btn,.appbar-inner .td-acct-btn,.appbar .td-acct-btn,
+.drill-page .td-acct-btn,.exam-page .td-acct-btn{
+  color:#2b3d57!important;border:0!important;background:rgba(255,255,255,.5)!important;
+  border-radius:var(--radius-pill)!important;
+}
+.td-acct-btn:hover,.appbar-inner .td-acct-btn:hover,.appbar .td-acct-btn:hover,
+.drill-page .td-acct-btn:hover,.exam-page .td-acct-btn:hover{
+  color:var(--blue)!important;background:var(--blue-soft)!important;
+}
+.td-acct-btn[data-on="1"],.appbar-inner .td-acct-btn[data-on="1"],.appbar .td-acct-btn[data-on="1"],
+.drill-page .td-acct-btn[data-on="1"],.exam-page .td-acct-btn[data-on="1"]{
+  color:#fff!important;background:var(--blue)!important;
+}
+/* exam-tabs — 同样杀 999px 胶囊 */
+.exam-tabs .tab,.drill-page .exam-tabs .tab,.exam-page .exam-tabs .tab{
+  border-radius:var(--radius-sm)!important;
+}
+.exam-tabs .tab.on,.drill-page .exam-tabs .tab.on,.exam-page .exam-tabs .tab.on{
+  box-shadow:none!important;
+}
+/* imgimp-x 关闭按钮也别胶囊 */
+.imgimp-x{border-radius:var(--radius-sm)!important}
 .drill-context,.exam-page .drill-context,.exam-context{background:var(--glass-bg-strong)!important;color:var(--ink)!important;border-bottom:1px solid rgba(23,31,43,.07)!important}
 .drill-context-title,.exam-context-meta,.exam-clock b,.exam-clock small{color:var(--ink)!important}
 .drill-context select{border-color:#d4dad7!important;background:#fff!important;color:var(--ink)!important;border-radius:var(--radius-sm)!important}
