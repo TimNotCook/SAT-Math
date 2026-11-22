@@ -820,7 +820,7 @@ body.exam-page:has(#stage-answer.active) .exam-context{display:flex!important}
 .drill-mark-button,.drill-question-tools button,.exam-hide-timer,.drill-nav-close,.mist-toolbar button{
   border-radius:10px!important}
 .drill-mark-button:hover,.drill-question-tools button:hover{background:rgba(255,255,255,.8)!important}
-.mist-toolbar{background:rgba(255,255,255,.6)!important;border:1px solid var(--glass-border)!important;
+.mist-toolbar{background:var(--glass-bg,rgba(255,255,255,.6))!important;border:1px solid var(--glass-border)!important;
   -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-radius:14px!important;
   box-shadow:0 8px 24px rgba(31,45,61,.12)!important}
 .mist-toolbar button.on{background:rgba(37,99,235,.12)!important;border-color:rgba(37,99,235,.35)!important}

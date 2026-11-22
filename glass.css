@@ -329,6 +329,8 @@ a:hover{color:var(--blue)}
   --shadow-3:0 24px 60px rgba(0,0,0,.60);
   --glass-bg:rgba(30,30,35,.72);
   --glass-bg-strong:rgba(40,40,45,.86);
+  --glass:rgba(30,30,35,.72);          /* bluebook GLASS 层 --glass 原为浅色，dark 下必须重定义，否则横条/面板叠黑成灰块 */
+  --glass-strong:rgba(40,40,45,.86);
   --appbar-bg:rgba(22,22,25,.94);      /* 顶栏：源头变量化后 dark 从根上变深（不再靠高特异性补丁） */
   --nav-on-bg:rgba(255,255,255,.14);
   --glass-border:1px solid rgba(255,255,255,.08);
@@ -457,17 +459,24 @@ html[data-theme="dark"] body.exam-page:has(#stage-answer:not([hidden])){
   --ink:#1a1a1a; --ink-2:#39424f; --sub:#39424f; --faint:#6b7686;
 }
 
-/* ==================== 暗黑主题：选中单元卡片 = 白底深字（强对比） ====================
-   浅色主题下 .unit-pick button.on 是浅奶白底；暗黑下与浅银字(--ink)叠加变成灰底灰字，
-   选中态辨识度差。这里让暗黑下的选中单元卡片变成白底 + 深炭字，一眼可辨。 */
+/* ==================== 暗黑主题：选中单元卡片 = 深底浅字（与暗黑主题统一） ====================
+   GLASS 层把卡片写死浅色，暗黑下叠黑底成灰块；选中态改成深炭底 + 浅银字，
+   靠边框与内阴影强化辨识，不破坏整体暗色调。 */
 html[data-theme="dark"] .unit-pick button.on,
 html[data-theme="dark"] .drill-unit-button.on,
 html[data-theme="dark"] .drill-board-nav-item.on{
-  background:#ffffff!important;
-  color:#1d1d1f!important;
-  border-color:#ffffff!important;
-  box-shadow:0 6px 20px rgba(0,0,0,.35)!important;
+  background:rgba(48,48,54,.92)!important;
+  color:#f5f5f7!important;
+  border-color:rgba(255,255,255,.28)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 6px 20px rgba(0,0,0,.40)!important;
 }
 html[data-theme="dark"] .unit-pick button.on .tiny{
-  color:#3a3a3c!important;
+  color:#c8c8cc!important;
 }
+/* 卡片内部 b/span/small 自带 var(--navy)/var(--sub) 深色规则，深底上需一并改浅 */
+html[data-theme="dark"] .drill-board-nav-item b,
+html[data-theme="dark"] .drill-unit-button b{color:#f5f5f7!important}
+html[data-theme="dark"] .drill-board-nav-item span,
+html[data-theme="dark"] .drill-board-nav-item small,
+html[data-theme="dark"] .drill-unit-button span,
+html[data-theme="dark"] .drill-unit-button small{color:#b8b8bd!important}
