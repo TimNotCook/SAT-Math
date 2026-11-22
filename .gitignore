@@ -1,3 +1,7 @@
 .DS_Store
 *.pyc
 __pycache__/
+# 临时验证/审计产物（并行助手各自生成，不入库）
+.audit/
+_probe*.html
+*.probe.html

@@ -3,6 +3,48 @@
 这是一个 **SAT 数学刷题网站**，纯静态原生 JS 站点，无构建步骤、无 npm 依赖。
 托管在 GitHub Pages（classic 构建）：push 到 `main` 分支后 Pages 自动发布，**不需要任何人工发布**。
 
+## ⚠️ 多 AI 并行协作（改代码前先看，两位助手共用此仓库）
+
+同一时间可能有**两位 AI 助手**在改这个项目（主会话 + 隔壁编程喵），
+共用同一个仓库 `TimNotCook/SAT-Math`、同一个 `main` 分支。
+
+真实冲突风险：
+- 两人各自改完都跑 `bump_assets.py`，都会重写 3 个 HTML 的 `?v=` 哈希行 → push 冲突，
+  或后推的人版本号基于旧快照 → 先推的人的改动被浏览器缓存挡住。
+- 直接 `git push` 常遇到 non-fast-forward / `commit_refs_rules` / 502 被拒。
+
+### 统一推送入口（两位都建议用这个）
+
+```bash
+bash safe_push.sh "fix(ui): 这次改了什么"
+```
+
+它按安全顺序做完：先 `commit`（工作区干净才能 rebase）→ `pull --rebase`（吸收对方提交）
+→ **rebase 后重新跑 `bump_assets.py`**（关键：版本号基于双方最新代码重算，谁的改动都不会被缓存挡住）
+→ `commit --amend` → `push`（网络抖动自动重试 3 次）。遇到真冲突会停在冲突态等人工处理，**绝不自动强推**。
+
+### 如果不用脚本，手动流程必须遵守
+
+1. 改完先 `git add -A && git commit -m "说明"`（先提交，工作区干净才能 rebase）。
+2. `git pull --rebase origin main` 吸收同事改动；有冲突就人工解决后 `git rebase --continue`。
+3. rebase 后**再跑一次** `python3 bump_assets.py`，然后 `git add -A && git commit --amend --no-edit`，
+   让版本号基于双方最新代码。
+4. push 被拒**不要强推**：先 `git fetch origin` 看线上 HEAD，确认提交链线性后重试。
+5. **绝不** `git push --force`。
+
+### 分工建议（减少同文件冲突）
+
+- 视觉主题 / 玻璃质感 / 明暗主题：`glass.css`、`theme.js`
+- 答题逻辑 / 抽题 / 判分：`exam.js`、`drill.js`、`app-*.js`
+- 题库 / 题干：`data/*.js`
+- `*.html` 主要由 `bump_assets.py` 自动改版本号，尽量不手改结构。
+
+### 查线上真实状态
+
+git 网络通道常报 `502` / `Empty reply`，但 push 可能其实已成功。
+线上真实 HEAD 用 GitHub 接口查最可靠：`list_commits(owner=TimNotCook, repo=SAT-Math, sha=main)`，
+确认后再下结论，别急着重推。
+
 ## 你的工作方式（重要）
 
 1. 直接修改本仓库里的文件（HTML / CSS / JS / data/*.js）。

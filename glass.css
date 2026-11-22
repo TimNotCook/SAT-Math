@@ -387,3 +387,53 @@ a:hover{color:var(--blue)}
 [data-theme="dark"] .exam-start-actions .btn.primary:focus-visible{
   outline:2px solid rgba(232,232,234,.55)!important;outline-offset:2px;
 }
+
+/* ==================== dark 顶栏对比度修复 ====================
+   根因：bluebook.css GLASS 层 `.appbar{background:rgba(255,255,255,.55)!important}`
+   在 dark 下叠黑底变中灰 #939395；导航 var(--sub) 也是中灰 → 字看不清。
+   这里用 html[data-theme=dark] 高特异性把顶栏整套改回深色系。 */
+html[data-theme="dark"] .appbar,
+html[data-theme="dark"] body .appbar{
+  background:rgba(22,22,25,.94)!important;
+  border-bottom-color:rgba(255,255,255,.10)!important;
+  box-shadow:0 1px 0 rgba(255,255,255,.06)!important;
+  color:#e8e8ea!important;
+}
+html[data-theme="dark"] .mainnav a,
+html[data-theme="dark"] .drill-page .mainnav a,
+html[data-theme="dark"] .exam-page .mainnav a{
+  color:#b8b8bd!important;background:transparent!important;
+}
+html[data-theme="dark"] .mainnav a:hover,
+html[data-theme="dark"] .drill-page .mainnav a:hover,
+html[data-theme="dark"] .exam-page .mainnav a:hover{
+  color:#fff!important;background:rgba(255,255,255,.10)!important;
+}
+html[data-theme="dark"] .mainnav a.on,
+html[data-theme="dark"] .drill-page .mainnav a.on,
+html[data-theme="dark"] .exam-page .mainnav a.on{
+  color:#fff!important;background:rgba(255,255,255,.14)!important;
+}
+html[data-theme="dark"] .mainnav a.on::after,
+html[data-theme="dark"] .drill-page .mainnav a.on::after,
+html[data-theme="dark"] .exam-page .mainnav a.on::after{background:#e8e8ea!important}
+html[data-theme="dark"] .brand, html[data-theme="dark"] .brand b,
+html[data-theme="dark"] .drill-page .brand b, html[data-theme="dark"] .exam-page .brand b{color:#f5f5f7!important}
+html[data-theme="dark"] .bankpill,
+html[data-theme="dark"] .drill-page .bankpill,
+html[data-theme="dark"] .exam-page .bankpill{
+  color:#d8d8dc!important;background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.12)!important;
+}
+html[data-theme="dark"] .appbar-exit,
+html[data-theme="dark"] .drill-page .appbar-exit,
+html[data-theme="dark"] .exam-page .appbar-exit{
+  color:#d8d8dc!important;background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.12)!important;
+}
+html[data-theme="dark"] .appbar-exit:hover,
+html[data-theme="dark"] .drill-page .appbar-exit:hover,
+html[data-theme="dark"] .exam-page .appbar-exit:hover{color:#fff!important;background:rgba(255,255,255,.18)!important}
+html[data-theme="dark"] .td-acct-btn,
+html[data-theme="dark"] .appbar-inner .td-acct-btn,
+html[data-theme="dark"] .appbar .td-acct-btn{
+  color:#d8d8dc!important;background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.12)!important;
+}
