@@ -955,3 +955,43 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
   background:rgba(255,255,255,.62)!important;
   -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
   border-top:1px solid var(--glass-line)!important;box-shadow:0 -8px 24px rgba(31,45,61,.07)!important}
+
+/* ---- 玻璃描边：可见的半透明灰蓝边 + 内侧高光圈（玻璃切面感） ---- */
+:root{--glass-border:rgba(142,160,188,.34)}
+.panel,.card,.exam-panel,.weak-panel,.wrong-card,.empty-panel,.imgimp-panel,
+.drill-resume,.drill-result-summary,.rev-summary,.exam-table-wrap,.exam-notice,
+.exam-start-directions,.exam-special-panel,.td-save-panel,.bb-modal,.drill-nav-panel,
+.imgimp-row,.exam-submit-main{
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--shadow-1),inset 0 1px 0 rgba(255,255,255,.6),inset 0 0 0 1px rgba(255,255,255,.28)!important}
+.drill-unit-button,.unit-pick button,.drill-board-nav-item,.drill-section-row,
+.exam-special-chip,.filter-btn,.unit-stat,.chip,.pill,.tag,.miniopts button,
+.drill-result-row,.rev-item{
+  border:1px solid var(--glass-border)!important;
+  box-shadow:0 2px 10px rgba(31,45,61,.05),inset 0 1px 0 rgba(255,255,255,.55)!important}
+.drill-unit-button:hover,.unit-pick button:hover,.drill-board-nav-item:hover,
+.drill-section-row:hover,.exam-special-chip:hover,.filter-btn:hover,.unit-stat:hover,
+.chip:hover,.pill:hover,.tag:hover,.miniopts button:hover,.drill-result-row:hover,.rev-item:hover{
+  box-shadow:0 14px 28px rgba(31,45,61,.13),inset 0 1px 0 rgba(255,255,255,.7)!important}
+.drill-choice{border:1px solid var(--glass-border)!important;
+  box-shadow:0 2px 10px rgba(31,45,61,.05),inset 0 1px 0 rgba(255,255,255,.55)!important}
+.drill-choice:hover{box-shadow:0 12px 24px rgba(31,45,61,.12),inset 0 1px 0 rgba(255,255,255,.7)!important}
+.answer-compare>div,.cause-box,.drill-result-answers>div{border:1px solid var(--glass-border)!important}
+.appbar{border-bottom:1px solid rgba(142,160,188,.22)!important}
+.btn{box-shadow:0 2px 10px rgba(31,45,61,.06),inset 0 1px 0 rgba(255,255,255,.45)!important}
+.btn:hover{box-shadow:0 10px 22px rgba(31,45,61,.13),inset 0 1px 0 rgba(255,255,255,.55)!important}
+
+/* ---- 底色改米白：暖调象牙白，克制不偏黄 ---- */
+html{background:#f0efec}
+html,body{background:#f0efec!important}
+body,body.drill-page,body.exam-page{
+  background:linear-gradient(160deg,#f8f7f4 0%,#f0efea 45%,#eae9e4 100%)!important;
+  background-attachment:fixed!important}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(640px 420px at 12% 0%,rgba(96,124,178,.06),transparent 62%),
+             radial-gradient(720px 520px at 88% 10%,rgba(118,148,198,.05),transparent 62%),
+             radial-gradient(860px 620px at 50% 100%,rgba(178,168,158,.08),transparent 62%)}
+body:has(#questionView:not([hidden])),body:has(#stage-answer:not([hidden])),
+body.exam-page:has(#stage-answer:not([hidden])){
+  background:linear-gradient(160deg,#f8f7f4 0%,#f0efea 45%,#eae9e4 100%)!important;
+  background-attachment:fixed!important}

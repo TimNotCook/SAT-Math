@@ -1,32 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <title>auth-relay</title>
 </head>
 <body>
-<!--
-  隐藏认证中继：在沙箱（无 allow-same-origin）中运行 WorkBuddy SDK。
-  沙箱文档的 Origin 为 null，后端按 Origin 校验时放行 null，
-  因此这里的 SDK 请求不会被 GitHub Pages 域名白名单拒绝。
-  父页面通过 postMessage RPC 调用，本页不渲染任何 UI。
--->
+<!-- 隐藏认证中继：在沙箱 (无 allow-same-origin) 中运行 WorkBuddy SDK。
+     沙箱文档的 Origin 为 null，后端按 Origin 校验时放行 null，因此这里的 SDK 请求不会被 GitHub Pages 域名白名单拒绝。
+     父页面通过 postMessage RPC 调用，本页不渲染任何 UI。 -->
 <script>
 'use strict';
+
 /* ---- localStorage 垫片：沙箱内 localStorage 被禁用，改为内存缓存 + 父页面持久化 ---- */
 var _store = {};
-var _ready = false;
 function persist() {
   try { window.parent.postMessage({ type: 'store', data: _store }, '*'); } catch (e) {}
 }
 (function installShim() {
   try {
-    // 普通页面里 localStorage 可读可写，保留原生即可；沙箱里访问会抛错，才装垫片。
-    var probe = window.localStorage.getItem('__probe__');
+    window.localStorage.getItem('__probe__');
     return; // 原生可用，不覆盖
   } catch (e) { /* 沙箱：需要垫片 */ }
   var shim = {
-    getItem: function (k) { return Object.prototype.hasOwnProperty.call(_store, k) ? _store[k] : null; },
+    getItem: function (k) {
+      return Object.prototype.hasOwnProperty.call(_store, k) ? _store[k] : null;
+    },
     setItem: function (k, v) { _store[k] = String(v); persist(); },
     removeItem: function (k) { delete _store[k]; persist(); },
     clear: function () { _store = {}; persist(); },
@@ -41,19 +39,24 @@ function persist() {
 })();
 
 var cloud = null;
-var _subId = 0;
-var _subs = {};
 
 function reply(id, ok, data, error, method) {
-  try { window.parent.postMessage({ type: 'reply', id: id, ok: ok, method: method || '', data: data, error: error }, '*'); } catch (e) {}
+  try {
+    window.parent.postMessage({
+      type: 'reply',
+      id: id,
+      ok: !!ok,
+      method: method || '',
+      data: data !== undefined ? data : null,
+      error: error || null
+    }, '*');
+  } catch (e) {}
 }
 function emit(event, session) {
   try { window.parent.postMessage({ type: 'event', event: event, session: session || null }, '*'); } catch (e) {}
 }
-
 function errShape(e) {
   if (!e) return null;
-  // SDK 返回的错误对象不一定可结构化克隆，取关键字段。
   return {
     message: e.message || String(e),
     error_description: e.error_description || '',
@@ -82,59 +85,83 @@ window.addEventListener('message', function (ev) {
             oauthRelayBaseUrl: msg.oauthRelayBaseUrl,
             publishableKey: msg.publishableKey
           });
-          try {
-            cloud.auth.onAuthStateChange(function (event, s) { emit(event, s); });
-          } catch (e) {}
+          try { cloud.auth.onAuthStateChange(function (event, s) { emit(event, s); }); } catch (e) {}
           reply(id, true, { ready: true }, null, 'init');
           return;
         case 'getSession':
-          res = await cloud.auth.getSession(); reply(id, !res.error, okShape(res)); return;
+          res = await cloud.auth.getSession(); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'getSession'); return;
         case 'getUser':
-          res = await cloud.auth.getUser(); reply(id, !res.error, okShape(res)); return;
+          res = await cloud.auth.getUser(); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'getUser'); return;
         case 'sendOtp':
-          res = await cloud.auth.sendOtp(args); reply(id, !res.error, okShape(res)); return;
+          res = await cloud.auth.sendOtp(args); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'sendOtp'); return;
         case 'verifyOtp':
-          res = await cloud.auth.verifyOtp(args); reply(id, !res.error, okShape(res)); return;
+          res = await cloud.auth.verifyOtp(args); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'verifyOtp'); return;
         case 'signOut':
-          await cloud.auth.signOut(); reply(id, true, {}); return;
+          await cloud.auth.signOut(); reply(id, true, {}, null, 'signOut'); return;
         case 'signInWithOAuth':
-          res = await cloud.auth.signInWithOAuth(args); reply(id, !res.error, okShape(res)); return;
+          res = await cloud.auth.signInWithOAuth(args); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'signInWithOAuth'); return;
         case 'handleOAuthCallback':
-          res = await cloud.auth.handleOAuthCallback(); reply(id, !res.error, okShape(res)); return;
+          res = await cloud.auth.handleOAuthCallback(); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'handleOAuthCallback'); return;
         case 'handleWechatWebCallback':
-          res = await cloud.auth.handleWechatWebCallback(); reply(id, !res.error, okShape(res)); return;
+          res = await cloud.auth.handleWechatWebCallback(); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'handleWechatWebCallback'); return;
         case 'handleWorkBuddyCallback':
-          res = await cloud.auth.handleWorkBuddyCallback(); reply(id, !res.error, okShape(res)); return;
+          res = await cloud.auth.handleWorkBuddyCallback(); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'handleWorkBuddyCallback'); return;
         case 'db':
-          res = await dbCall(args); reply(id, !res.error, okShape(res)); return;
+          res = await dbCall(args); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'db'); return;
         default:
-          reply(id, false, null, { message: 'unknown method: ' + method }); return;
+          reply(id, false, null, { message: 'unknown method: ' + method }, method); return;
       }
     } catch (e) {
-      reply(id, false, null, errShape(e));
+      reply(id, false, null, errShape(e), method);
     }
   })();
 });
 
 async function dbCall(a) {
   var q = cloud.database.from(a.table);
-  if (a.op === 'select') { q = q.select('id,payload,updated_at').maybeSingle(); }
-  else if (a.op === 'update') { q = q.update(a.payload).eq('id', a.eq).select(); }
-  else if (a.op === 'insert') { q = q.insert(a.payload).select(); }
-  else return { error: { message: 'unknown db op: ' + a.op } };
+  if (a.op === 'select') {
+    q = q.select('id,payload,updated_at').maybeSingle();
+  } else if (a.op === 'update') {
+    q = q.update(a.payload).eq('id', a.eq).select();
+  } else if (a.op === 'insert') {
+    q = q.insert(a.payload).select();
+  } else return { error: { message: 'unknown db op: ' + a.op } };
   return q;
 }
 
-/* SDK 加载完成后通知父页（父页收到后再发 init） */
+/* 优先加载本地 SDK（国内零外部依赖），失败时再依次回退到 unpkg 与 jsDelivr */
+var SDK_URLS = [
+  'vendor/cloud/workbuddy-cloud-sdk.js',
+  'https://unpkg.com/@tencent-ai/workbuddy-cloud-sdk@0.1.4/lib/index.global.js',
+  'https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@0.1.4/lib/index.global.js'
+];
+var _sdkIdx = 0;
+
 function bootSdk() {
   if (window.WorkBuddyCloud && window.WorkBuddyCloud.createWorkBuddyCloud) {
     try { window.parent.postMessage({ type: 'sdk-ready' }, '*'); } catch (e) {}
     return;
   }
+  if (_sdkIdx >= SDK_URLS.length) {
+    try {
+      window.parent.postMessage({
+        type: 'sdk-error',
+        error: { message: 'WorkBuddy SDK 加载失败，请检查网络连接' }
+      }, '*');
+    } catch (e) {}
+    reply(0, false, null, { message: 'sdk load failed' }, 'boot');
+    return;
+  }
   var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js';
-  s.onload = bootSdk;
-  s.onerror = function () { reply(0, false, null, { message: 'sdk load failed' }); };
+  s.src = SDK_URLS[_sdkIdx++];
+  s.onload = function () {
+    if (window.WorkBuddyCloud && window.WorkBuddyCloud.createWorkBuddyCloud) {
+      try { window.parent.postMessage({ type: 'sdk-ready' }, '*'); } catch (e) {}
+    } else {
+      bootSdk();
+    }
+  };
+  s.onerror = bootSdk;
   document.head.appendChild(s);
 }
 bootSdk();

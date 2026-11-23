@@ -18,6 +18,7 @@ HASH_FILES = [
     'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
     'exam.js', 'drill.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
     'bluebook-shell.js', 'cloud-config.js', 'firebase-cloud.js', 'cloud-account.js',
+    'workbuddy-cloud.js',
     'scratch-pad.js',
     'app.css', 'bluebook.css',
     # HTML 原始内容参与摘要：文案改动也能刷新缓存（先读原文再替换，幂等不破坏自引用）
@@ -30,7 +31,7 @@ BUMP = [
     'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
     'exam.js', 'drill.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
     'bluebook-shell.js', 'cloud-config.js', 'firebase-cloud.js', 'cloud-account.js',
-    'scratch-pad.js', 'app.css', 'bluebook.css',
+    'workbuddy-cloud.js', 'scratch-pad.js', 'app.css', 'bluebook.css',
 ]
 HTML = ['exam.html', 'drill.html', 'wrong.html']
 

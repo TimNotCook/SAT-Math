@@ -1,23 +1,20 @@
-/* TD SAT Math — 独立账号系统（Firebase：Google / Apple / 邮箱密码）。
- *
- * 登录后每个账号拥有完全独立的学习档案：进度自动保存、切换账号自动切换档案，
- * 用户无需理解"云端 / 备份 / 恢复 / 同步"，也不需要点任何保存按钮。
- * 昵称由用户在设置里自定义，界面上永不展示邮箱或手机号。
- *
- * 档案归属：本机 localStorage 始终是当前账号档案的工作副本。
- *   tdprofile_v1       （不参与同步）记录 { owner, lastSynced }
- *   tdprofile_draft_v1 暂存"切换账号前，旧账号尚未保存的本机增量"
- * 自动保存：拦截 localStorage.setItem 的 tdsat_* 写入（1.5s 防抖）、
- *   页面隐藏 / 关闭时、以及 10s 兜底轮询；只在内容变化时静默写入。
- * 只同步 tdsat_* 做题数据；外观偏好 tdsat_prefs_v1 只留在这台设备。
- */
+/* TD SAT Math 独立账号系统（合并 Firebase + WorkBuddy 邮箱验证码 + GitHub 令牌备用通道）
+   - 通道 1（国内直连推荐）：WorkBuddy 邮箱验证码登录（window.TDWB -> auth-relay.html）
+   - 通道 2（海外/代理）：Firebase 登录（Google / Apple / 邮箱+密码 / 重置密码，window.TDFB）
+   - 通道 3（备用）：GitHub Personal Access Token（window.TDGH）
+   各通道共享同一套本地进度快照（tdsat_*）、档案归属（tdprofile_v1）与自动保存引擎。 */
 (function () {
   'use strict';
 
   var FB = window.TDFB || null;
+  var WB = window.TDWB || null;
   var GH = window.TDGH || null;
-  // 数据通道：持有 GitHub 令牌时走私有仓库，否则走 Firebase。
-  function auth() { return (GH && GH.active()) ? GH : FB; }
+  function auth() {
+    if (GH && GH.active && GH.active()) return GH;
+    if (WB && WB.active && WB.active()) return WB;
+    return FB;
+  }
+
   var SNAP_PREFIX = 'tdsat_';
   var NO_SYNC = { 'tdsat_prefs_v1': 1 };
   var PROFILE_KEY = 'tdprofile_v1';
@@ -33,19 +30,26 @@
   var suppress = false;
   var pushTimer = null;
   var ui = null;
-  var emailMode = 'login'; // login | register | reset
-  var activeTab = 'account'; // account | appearance | about
+  // 默认优先展示邮箱验证码登录（国内可直连），也可一键切换为 Firebase 邮箱密码/注册/重置
+  var emailMode = 'otp'; // 'otp' | 'login' | 'register' | 'reset'
+  var otpSent = false;
+  var otpEmail = '';
+  var otpCooldown = 0;
+  var otpCountdownTimer = null;
+  var activeTab = 'account'; // 'account' | 'appearance' | 'about'
 
-  /* ---------- preferences（外观，只存这台设备） ---------- */
+  /* ---------- 外观偏好（仅存本机，不随云端覆盖） ---------- */
   var PREFS_KEY = 'tdsat_prefs_v1';
   var prefs = { fontScale: 'normal', compact: false };
+
   function loadPrefs() {
     try {
       var raw = localStorage.getItem(PREFS_KEY);
-      if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') {
-        prefs.fontScale = p.fontScale || 'normal';
-        prefs.compact = !!p.compact;
-      } }
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (p && (p.fontScale === 'small' || p.fontScale === 'normal' || p.fontScale === 'large')) prefs.fontScale = p.fontScale;
+        if (p && typeof p.compact === 'boolean') prefs.compact = p.compact;
+      }
     } catch (e) {}
   }
   function savePrefs() {
@@ -53,11 +57,9 @@
     applyPrefs();
   }
   function applyPrefs() {
-    var root = document.documentElement;
-    // 全站大量尺寸用 px 写死，改 html font-size 无效；用 body zoom 才能真正放大/缩小。
-    var zooms = { small: 0.92, normal: 1, large: 1.12 };
-    if (document.body) document.body.style.zoom = zooms[prefs.fontScale] || 1;
-    root.setAttribute('data-compact', prefs.compact ? '1' : '0');
+    var scale = prefs.fontScale === 'small' ? 0.92 : prefs.fontScale === 'large' ? 1.12 : 1;
+    try { if (document.body) document.body.style.zoom = scale === 1 ? '' : String(scale); } catch (e) {}
+    document.documentElement.setAttribute('data-compact', prefs.compact ? '1' : '0');
   }
   loadPrefs();
   applyPrefs();
@@ -65,103 +67,133 @@
 
   /* ---------- helpers ---------- */
   function el(tag, cls, text) {
-    var n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (text != null) n.textContent = text;
-    return n;
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
   }
+
   function hash(str) {
-    var h = 5385, i = str.length;
-    while (i) h = (h * 33) ^ str.charCodeAt(--i);
-    return (h >>> 0).toString(36) + ':' + str.length;
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0).toString(36);
   }
-  // 归一化：只保留参与同步的 tdsat_* 键，且按键排序，保证本机与档案的指纹可比。
   function canon(obj) {
     var out = {};
-    Object.keys(obj || {}).filter(function (k) {
-      return k.indexOf(SNAP_PREFIX) === 0 && !NO_SYNC[k];
-    }).sort().forEach(function (k) { out[k] = obj[k]; });
+    if (!obj || typeof obj !== 'object') return out;
+    Object.keys(obj).sort().forEach(function (k) {
+      if (k.indexOf(SNAP_PREFIX) === 0 && !NO_SYNC[k] && typeof obj[k] === 'string') out[k] = obj[k];
+    });
     return out;
   }
   function hashOf(obj) { return hash(JSON.stringify(canon(obj))); }
   function snapshot() {
-    var out = {}, i, k;
+    var out = {};
     try {
-      for (i = 0; i < localStorage.length; i++) {
-        k = localStorage.key(i);
-        if (k && k.indexOf(SNAP_PREFIX) === 0 && !NO_SYNC[k]) out[k] = localStorage.getItem(k);
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(SNAP_PREFIX) === 0 && !NO_SYNC[k]) {
+          var v = localStorage.getItem(k);
+          if (typeof v === 'string') out[k] = v;
+        }
       }
-    } catch (e) { return {}; }
-    return out;
+    } catch (e) {}
+    return canon(out);
   }
   function localHash() { return hashOf(snapshot()); }
+
   function setStatus(text, kind) {
-    if (!ui || !ui.status) return;
+    if (!ui) return;
     ui.status.textContent = text;
     ui.status.setAttribute('data-kind', kind || 'plain');
   }
   function setError(text) {
-    if (!ui || !ui.error) return;
+    if (!ui) return;
     ui.error.textContent = text || '';
     ui.error.hidden = !text;
   }
   function setBusy(on) {
     busy = !!on;
     if (!ui) return;
-    var nodes = ui.root.querySelectorAll('[data-busy]');
-    for (var i = 0; i < nodes.length; i++) nodes[i].disabled = !!on;
+    var btns = ui.root.querySelectorAll('button[data-busy]');
+    for (var i = 0; i < btns.length; i++) btns[i].disabled = busy;
   }
-  // 界面上的名称：只用昵称，绝不回退到邮箱 / 手机号。
-  function displayName() { return nickname || DEFAULT_NICK; }
+  function displayName() { return (nickname || '').trim() || DEFAULT_NICK; }
 
-  // 设置齿轮图标（内联 SVG，无需外部图标字体）
   function setBtnIcon(btn) {
-    if (!btn) return;
-    // Bluebook 顶栏风格：细线描边图标 + 文字标签（同 Reference / 退出）。
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" ' +
-      'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" ' +
-      'aria-hidden="true"><circle cx="12" cy="12" r="3"></circle>' +
-      '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>设置</span>';
+    btn.textContent = '';
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '18');
+    svg.setAttribute('height', '18');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.6');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    var p1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    p1.setAttribute('cx', '12'); p1.setAttribute('cy', '12'); p1.setAttribute('r', '3');
+    var p2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p2.setAttribute('d', 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z');
+    svg.appendChild(p1); svg.appendChild(p2);
+    btn.appendChild(svg);
+    var lbl = document.createElement('span');
+    lbl.textContent = '设置';
+    btn.appendChild(lbl);
   }
+
   function friendlyError(e) {
-    var c = e && e.code, m = e && e.message;
-    if (c === 'auth/operation-not-allowed') return '该登录方式暂未开放，请换一种方式。';
-    if (c === 'auth/invalid-email') return '邮箱格式不正确。';
-    if (c === 'auth/weak-password') return '密码太短，请至少输入 6 位。';
-    if (c === 'auth/email-already-in-use') return '该邮箱已注册，请直接登录。';
-    if (c === 'auth/user-not-found' || c === 'auth/invalid-credential') return '邮箱或密码不正确。';
-    if (c === 'auth/wrong-password') return '密码不正确。';
-    if (c === 'auth/too-many-requests') return '尝试次数过多，请稍后再试。';
-    if (c === 'auth/popup-closed-by-user') return '登录窗口已关闭。';
-    if (c === 'auth/apple-provider-disabled') return 'Apple 登录暂未开放，请稍后再试。';
-    if (c === 'auth/account-exists-with-different-credential') return '该邮箱已用其他方式注册，请用原方式登录。';
-    if (c === 'auth/network-request-failed') return '网络异常，请检查连接后重试。';
-    return m || '操作失败，请重试。';
+    var code = (e && e.code) ? String(e.code) : '';
+    var msg = (e && e.message) ? String(e.message) : '';
+    var low = msg.toLowerCase();
+    if (code === 'auth/operation-not-allowed') return '该登录方式尚未在后台启用，请改用邮箱验证码登录。';
+    if (code === 'auth/invalid-email' || low.indexOf('invalid email') >= 0) return '邮箱格式不太对，请检查后重试。';
+    if (code === 'auth/weak-password') return '密码至少需要 6 位。';
+    if (code === 'auth/email-already-in-use') return '这个邮箱已经注册过了，请直接登录或切换邮箱验证码登录。';
+    if (code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/wrong-password') return '邮箱或密码不对。';
+    if (code === 'auth/too-many-requests' || low.indexOf('rate limit') >= 0 || low.indexOf('too many') >= 0) return '操作太频繁，请稍后再试。';
+    if (code === 'auth/popup-closed-by-user') return '登录窗口已关闭，如需登录请再试一次。';
+    if (code === 'auth/account-exists-with-different-credential') return '这个邮箱已绑定过其他登录方式，请用原来的方式登录。';
+    if (code === 'auth/network-request-failed') return '无法连接 Google Firebase（国内网络可能需要代理），建议改用上方「邮箱验证码登录」。';
+    if (low.indexOf('otp') >= 0 || low.indexOf('token') >= 0 || low.indexOf('expired') >= 0) return '验证码无效或已过期，请重新获取后再试。';
+    if (low.indexOf('sdk load failed') >= 0) return '验证码组件加载失败，请刷新页面或检查网络后重试。';
+    if (low.indexOf('failed to fetch') >= 0 || low.indexOf('request failed') >= 0) return '验证码服务暂时连不上，请检查网络后重试，或改用下方 Firebase / GitHub 令牌登录。';
+    return msg || '操作失败，请稍后重试。';
   }
 
   /* ---------- 档案归属 / 暂存 ---------- */
   function loadProf() {
     try {
       var raw = localStorage.getItem(PROFILE_KEY);
-      if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') {
-        prof.owner = p.owner || '';
-        prof.lastSynced = p.lastSynced || '';
-      } }
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (p && typeof p === 'object') {
+          prof.owner = p.owner || '';
+          prof.lastSynced = p.lastSynced || '';
+        }
+      }
     } catch (e) {}
   }
   function saveProf() {
     try { localStorage.setItem(PROFILE_KEY, JSON.stringify(prof)); } catch (e) {}
   }
   function loadDraft() {
-    try { var raw = localStorage.getItem(DRAFT_KEY); return raw ? JSON.parse(raw) : null; }
-    catch (e) { return null; }
+    try {
+      var raw = localStorage.getItem(DRAFT_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
   }
   function saveDraft(uid, payload) {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ uid: uid, payload: payload })); } catch (e) {}
   }
-  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+  function clearDraft() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  }
 
-  // 用档案内容整体替换本机副本；本机外观偏好保持不变。
+  /* ---------- 云端数据同步 ---------- */
   function applyPayload(payload) {
     var keep = {}, k;
     for (k in NO_SYNC) {
@@ -171,7 +203,9 @@
       if (v != null) keep[k] = v;
     }
     var cur = snapshot();
-    Object.keys(cur).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) {} });
+    Object.keys(cur).forEach(function (key) {
+      try { localStorage.removeItem(key); } catch (e) {}
+    });
     var clean = canon(payload || {});
     Object.keys(clean).forEach(function (key) {
       try { if (typeof clean[key] === 'string') localStorage.setItem(key, clean[key]); } catch (e) {}
@@ -181,13 +215,36 @@
     });
   }
 
-  /* 对象级深合并：键取并集；两边都有的原始值以本机为准；数组保留本机。
-     吸收自并行工作流的合并思路，仅用于"首次登录、本机进度无归属"的场景。 */
+  function isPlainObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
+  function itemSig(x) {
+    if (isPlainObj(x)) {
+      if (typeof x.date === 'number') return 'd:' + x.date;
+      if (typeof x.ts === 'number') return 't:' + x.ts;
+      if (x.id != null) return 'i:' + x.id;
+      if (x.uid != null) return 'u:' + x.uid;
+    }
+    return 'j:' + JSON.stringify(x);
+  }
+  function mergeArrays(a, b) {
+    var out = (a || []).slice(), seen = {};
+    out.forEach(function (x) { seen[itemSig(x)] = 1; });
+    (b || []).forEach(function (x) {
+      var k = itemSig(x);
+      if (!seen[k]) { seen[k] = 1; out.push(x); }
+    });
+    return out;
+  }
   function deepMerge(lo, co) {
     if (lo === undefined) return co;
     if (co === undefined) return lo;
-    if (Array.isArray(lo) || Array.isArray(co)) return lo;
-    if (typeof lo === 'object' && lo && typeof co === 'object' && co) {
+    if (isPlainObj(lo) && isPlainObj(co) && typeof lo.ts === 'number' && typeof co.ts === 'number') {
+      return co.ts > lo.ts ? co : lo;
+    }
+    if (Array.isArray(lo) || Array.isArray(co)) {
+      if (Array.isArray(lo) && Array.isArray(co)) return mergeArrays(lo, co);
+      return Array.isArray(lo) ? lo : co;
+    }
+    if (isPlainObj(lo) && isPlainObj(co)) {
       var out = {};
       Object.keys(Object.assign({}, lo, co)).forEach(function (k) {
         out[k] = deepMerge(lo[k], co[k]);
@@ -196,8 +253,7 @@
     }
     return lo;
   }
-  /* 首次登录一个已有档案的账号时，把本机"无主"做题记录并入该档案，
-     保证一条都不丢；冲突以本机为准。切换账号（owner 是别的 uid）不走这里。 */
+
   function mergeLocalWithCloud(cloudPayload) {
     var local = snapshot();
     var out = canon(cloudPayload);
@@ -207,17 +263,18 @@
       try {
         var lo = JSON.parse(local[k]), co = JSON.parse(out[k]);
         out[k] = JSON.stringify(deepMerge(lo, co));
-      } catch (e) { out[k] = local[k]; }
+      } catch (e) {
+        out[k] = local[k];
+      }
     });
     return out;
   }
 
   function reloadSoon(msg) {
-    setStatus(msg || '正在打开你的学习档案…', 'ok');
+    setStatus(msg || '正在打开你的学习档案...', 'ok');
     setTimeout(function () { location.reload(); }, 550);
   }
 
-  /* ---------- 自动保存引擎（用户全程无感） ---------- */
   async function silentPush() {
     var A = auth();
     if (!user || !A) return false;
@@ -238,6 +295,7 @@
       if (pendingSave) { pendingSave = false; schedulePush(); }
     }
   }
+
   function schedulePush() {
     if (!user || !auth()) return;
     if (pushTimer) clearTimeout(pushTimer);
@@ -248,47 +306,38 @@
       setStatus(ok ? '进度已自动保存' : '暂时无法保存进度，联网后会自动重试', ok ? 'ok' : 'warn');
     }, 1500);
   }
+
   function onLocalWrite(k) {
     if (suppress || !user || !auth()) return;
     if (typeof k !== 'string' || k.indexOf(SNAP_PREFIX) !== 0 || NO_SYNC[k]) return;
     schedulePush();
   }
-  // 做题脚本每次写 tdsat_* 都会经过这里，写完 1.5s 自动保存，无需任何按钮。
-  function hookStorage() {
-    try {
-      var orig = Storage.prototype.setItem;
-      if (orig && orig.__tdHooked) return;
-      Storage.prototype.setItem = function (k, v) {
-        var r = orig.apply(this, arguments);
-        try { onLocalWrite(k); } catch (e) {}
-        return r;
-      };
-      Storage.prototype.setItem.__tdHooked = true;
-    } catch (e) {}
+
+  function exposeNotify() {
+    try { window.TDSync = { notify: onLocalWrite }; } catch (e) {}
   }
 
-  /* 登录成功后：自动决定"切到该账号档案 / 归档本机进度 / 拉取别的设备进度"，
-     全部后台完成，不弹确认、不让用户做选择。 */
   async function afterSignIn() {
     var A = auth();
     if (!user || !A) return;
     var uid = user.uid;
     loadProf();
+
     var archive = null;
-    try { archive = await A.getArchive(); }
-    catch (e) {
-      setStatus('暂时无法读取你的学习档案，这台设备上的进度不受影响', 'warn');
+    try {
+      archive = await A.getArchive();
+    } catch (e) {
+      setStatus('已登录 · 本地进度不受影响', 'ok');
       renderBody();
       return;
     }
 
-    /* 昵称：档案 > Auth displayName > 默认「同学」；首次自动建档，永不显示邮箱。 */
     var cloudNick = archive && archive.nickname ? archive.nickname : '';
     nickname = cloudNick || (user && user.displayName) || '';
     if (!nickname) nickname = DEFAULT_NICK;
     try { user._nick = nickname; } catch (e) {}
     if (cloudNick !== nickname) {
-      try { await A.updateNickname(nickname); } catch (e) { /* 下次登录会重试 */ }
+      try { await A.updateNickname(nickname); } catch (e) {}
     }
     try { if (user && !user.displayName) user.displayName = nickname; } catch (e) {}
 
@@ -296,66 +345,67 @@
     var cloudHash = cloudPayload && Object.keys(cloudPayload).length ? hashOf(cloudPayload) : '';
     var lh = localHash();
 
-    /* 回到旧账号时，先恢复"登出后以游客身份做题"留下的增量，保证零丢失。 */
     var draft = loadDraft();
     if (draft && draft.uid === uid && draft.payload && Object.keys(draft.payload).length) {
       suppress = true;
       try { applyPayload(draft.payload); } finally { suppress = false; }
       clearDraft();
       await silentPush();
-      prof.lastSynced = localHash(); saveProf();
+      prof.lastSynced = localHash();
+      saveProf();
       renderBody();
-      reloadSoon('正在打开你的学习档案…');
+      reloadSoon('正在打开你的学习档案...');
       return;
     }
 
     if (prof.owner === uid) {
-      /* 同一账号：以变化为准，全自动，不提示、不让用户做选择。 */
       if (lh !== prof.lastSynced) {
         var ok = await silentPush();
         setStatus(ok ? '进度已自动保存' : '暂时无法保存进度，联网后会自动重试', ok ? 'ok' : 'warn');
       } else if (cloudHash && cloudHash !== prof.lastSynced) {
         suppress = true;
         try { applyPayload(cloudPayload); } finally { suppress = false; }
-        prof.lastSynced = localHash(); saveProf();
+        prof.lastSynced = localHash();
+        saveProf();
         renderBody();
         reloadSoon('已打开你在其他设备上的进度');
         return;
       } else {
-        prof.lastSynced = lh; saveProf();
+        prof.lastSynced = lh;
+        saveProf();
         setStatus('进度已自动保存', 'ok');
       }
     } else {
-      /* 切换到另一个账号 / 首次登录：绝不把 A 的进度串给 B。 */
       if (prof.owner && prof.owner !== 'guest' && lh !== prof.lastSynced) {
         saveDraft(prof.owner, snapshot());
       }
       var fresh = !prof.owner || prof.owner === 'guest';
       if (cloudPayload && Object.keys(cloudPayload).length) {
-        // 该账号已有档案 → 切过去。首次登录且本机有"无主"进度时先并入，避免丢题。
-        var target = (fresh && Object.keys(snapshot()).length)
-          ? mergeLocalWithCloud(cloudPayload) : cloudPayload;
-        var merged = target !== cloudPayload;
+        var target = (fresh && Object.keys(snapshot()).length) ? mergeLocalWithCloud(cloudPayload) : cloudPayload;
+        var merged = hashOf(target) !== cloudHash;
         suppress = true;
         try { applyPayload(target); } finally { suppress = false; }
-        prof.owner = uid; prof.lastSynced = localHash(); saveProf();
-        if (merged) await silentPush();  // 把并集回传该账号
+        prof.owner = uid;
+        prof.lastSynced = localHash();
+        saveProf();
+        if (merged) await silentPush();
         renderBody();
-        reloadSoon('正在打开你的学习档案…');
+        reloadSoon('正在打开你的学习档案...');
         return;
       } else if (fresh) {
-        // 首次在这台设备使用该账号 → 把已有做题记录归到它名下
         var ok2 = await silentPush();
-        prof.owner = uid; saveProf();
-        setStatus(ok2 ? '已为你建立专属学习档案' : '暂时无法保存进度，联网后会自动重试', ok2 ? 'ok' : 'warn');
+        prof.owner = uid;
+        saveProf();
+        setStatus(ok2 ? '已为你建立专属学习档案' : '已登录 · 本地进度正常保存', ok2 ? 'ok' : 'plain');
       } else {
-        // 新账号、本机副本属于别的账号 → 干净起点，不串档
         suppress = true;
         try { applyPayload({}); } finally { suppress = false; }
-        prof.owner = uid; prof.lastSynced = localHash(); saveProf();
+        prof.owner = uid;
+        prof.lastSynced = localHash();
+        saveProf();
         await silentPush();
         renderBody();
-        reloadSoon('正在打开你的学习档案…');
+        reloadSoon('正在打开你的学习档案...');
         return;
       }
     }
@@ -363,6 +413,54 @@
   }
 
   /* ---------- auth actions ---------- */
+  function startOtpCooldown() {
+    otpCooldown = 60;
+    if (otpCountdownTimer) clearInterval(otpCountdownTimer);
+    otpCountdownTimer = setInterval(function () {
+      otpCooldown--;
+      if (otpCooldown <= 0) {
+        otpCooldown = 0;
+        clearInterval(otpCountdownTimer);
+        otpCountdownTimer = null;
+      }
+      if (ui && ui.otpSendBtn) {
+        ui.otpSendBtn.disabled = busy || otpCooldown > 0;
+        ui.otpSendBtn.textContent = otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送验证码' : '获取验证码');
+      }
+    }, 1000);
+  }
+
+  async function doSendOtp() {
+    var email = ui && ui.email ? ui.email.value.trim() : '';
+    if (!email) { setError('请先填写邮箱。'); return; }
+    if (!WB || !WB.available()) { setError('邮箱验证码模块未加载，请刷新页面重试。'); return; }
+    try {
+      setBusy(true); setError('');
+      otpEmail = email;
+      await WB.sendOtp(email);
+      otpSent = true;
+      startOtpCooldown();
+      setStatus('验证码已发送至 ' + email + '，请查收邮箱（注意查看垃圾箱）', 'ok');
+      renderBody();
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); }
+  }
+
+  async function doVerifyOtp() {
+    var email = ui && ui.email ? ui.email.value.trim() : otpEmail;
+    var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
+    if (!email) { setError('请填写邮箱。'); return; }
+    if (!code) { setError('请填写收到的邮箱验证码。'); return; }
+    if (!WB || !WB.available()) { setError('邮箱验证码模块未加载，请刷新页面重试。'); return; }
+    try {
+      setBusy(true); setError('');
+      await WB.verifyOtp(email, code);
+      otpSent = false;
+      setStatus('验证码登录成功', 'ok');
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); }
+  }
+
   async function doGoogle() {
     try { setBusy(true); setError(''); await FB.signInGoogle(); }
     catch (e) { setError(friendlyError(e)); }
@@ -399,151 +497,125 @@
     } catch (e) { setError((e && e.message) || '登录失败，请重试。'); }
     finally { setBusy(false); }
   }
+
   async function saveNickname(name) {
-    var clean = String(name == null ? '' : name).trim().slice(0, 24);
-    if (!clean) { setError('昵称不能为空。'); return; }
     var A = auth();
-    if (!user || !A) { setError('请先登录。'); return; }
+    if (!user || !A) return;
+    var clean = String(name || '').trim().slice(0, 24) || DEFAULT_NICK;
     try {
       setBusy(true); setError('');
-      var saved = await A.updateNickname(clean);
-      nickname = saved;
-      try { user.displayName = saved; } catch (e) {}
+      await A.updateNickname(clean);
+      nickname = clean;
+      try { user._nick = clean; user.displayName = clean; } catch (e) {}
       setStatus('昵称已保存', 'ok');
       renderBody();
-    } catch (e) {
-      setError('昵称未能保存：' + friendlyError(e));
-    } finally { setBusy(false); }
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); }
   }
+
   async function doSignOut() {
-    setBusy(true);
-    try { await silentPush(); } catch (e) { /* 离线时下次登录会补 */ }
-    try { await auth().signOut(); } catch (e) { /* ignore */ }
-    user = null; nickname = '';
-    // owner 保持原 uid：本机副本仍属于该账号，登录别的账号时才会切档。
-    setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
-    setError(''); setBusy(false); renderBody();
+    var A = auth();
+    if (!A) return;
+    try {
+      setBusy(true); setError('');
+      try { await silentPush(); } catch (e) {}
+      await A.signOut();
+      user = null;
+      nickname = '';
+      setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
+      renderBody();
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); }
   }
-  function onState(u) {
-    // 已持有 GitHub 令牌时，忽略 Firebase 的空态/匿名状态，避免 FB 初始化发出的 null 覆盖 GH 会话。
-    if (GH && GH.active()) {
-      if (!u || String(u.uid || '').indexOf('gh:') !== 0) return;
-    }
-    var was = user;
+
+  function onState(u, provider) {
+    if (GH && GH.active && GH.active() && (!u || String(u.uid || '').indexOf('gh:') !== 0)) return;
+    if (WB && WB.active && WB.active() && provider !== 'workbuddy' && (!u || String(u.uid || '').indexOf('wb:') !== 0)) return;
+    if (FB && FB.active && FB.active() && provider === 'workbuddy' && !u) return;
+
     user = u || null;
     if (user) {
-      if (ui) ui.btn.setAttribute('data-on', '1');
-      if (!was || was.uid !== user.uid) afterSignIn();
-      else renderBody();
+      if (ui && ui.btn) ui.btn.setAttribute('data-on', '1');
+      afterSignIn();
     } else {
       nickname = '';
-      if (ui) ui.btn.setAttribute('data-on', '0');
-      if (was) setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
+      if (ui && ui.btn) ui.btn.setAttribute('data-on', '0');
       renderBody();
     }
   }
 
-  /* ---------- UI ---------- */
+  /* ---------- UI 样式与面板 ---------- */
   function buildUI() {
-    var css = document.createElement('style');
-    css.textContent = [
-      '.td-acct-btn{margin-left:2px;flex:none}',
-      /* 幽灵图标按钮：无边框、无底色，颜色跟导航文字一致；hover 才淡背景。
-         用 !important 覆盖 bluebook.css 里旧的描边按钮样式。 */
-      '.td-acct-icon-btn,.appbar-inner .td-acct-icon-btn,.appbar .td-acct-icon-btn{',
-      'display:inline-flex!important;align-items:center;gap:6px;justify-content:center;',
-      'width:auto!important;height:auto!important;padding:6px 9px;border:0!important;border-radius:6px;',
-      'background:transparent!important;color:#51648a!important;',
-      'font:inherit!important;font-size:13px!important;font-weight:500!important;',
-      'box-shadow:none!important;cursor:pointer;flex:0 0 auto;line-height:1.2;white-space:nowrap}',
-      '.td-acct-icon-btn svg{display:block;width:16px;height:16px;stroke-width:1.6}',
-      '.td-acct-icon-btn:hover,.appbar-inner .td-acct-icon-btn:hover{',
-      'color:var(--navy,#12233f)!important;background:var(--wash,#eef4fd)!important}',
-      '.td-acct-icon-btn[data-on="1"],.appbar-inner .td-acct-icon-btn[data-on="1"]{',
-      'color:#51648a!important;background:transparent!important}',
-      '.td-acct-layer{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;',
-      'background:var(--veil,rgba(18,35,63,.45));padding:20px}',
+    var css = [
+      '.td-acct-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--border,rgba(128,128,128,.25));background:transparent;color:inherit;font:inherit;font-size:13px;cursor:pointer;line-height:1.2}',
+      '.td-acct-icon-btn{padding:6px;width:auto;min-width:34px;height:34px;border-radius:8px;white-space:nowrap}',
+      '.td-acct-btn[data-on="1"]{border-color:#16a34a;color:#16a34a}',
+      '.td-acct-layer{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px}',
       '.td-acct-layer[data-open="1"]{display:flex}',
-      '.td-acct-panel{width:min(430px,100%);max-height:88vh;overflow:auto;background:var(--paper,#fff);',
-      'border:1px solid var(--line,#d2e0f1);border-radius:12px;box-shadow:var(--shadow-3,0 16px 40px rgba(18,35,63,.18));',
-      'padding:22px;color:var(--ink,#12233f);font-size:14px}',
-      '.td-set-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line,#d2e0f1);margin-bottom:16px}',
-      '.td-set-tab{flex:1;font:inherit;font-size:13px;font-weight:600;padding:9px 4px;cursor:pointer;',
-      'border:0;border-bottom:2px solid transparent;background:transparent;color:var(--sub,#51648a)}',
-      '.td-set-tab:hover{color:var(--blue,#2563eb)}',
-      '.td-set-tab[data-active="1"]{color:var(--blue,#2563eb);border-bottom-color:var(--blue,#2563eb)}',
-      '.td-set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;',
-      'padding:11px 0;border-bottom:1px solid var(--line-soft,#eef3fb)}',
-      '.td-set-row:last-child{border-bottom:0}',
-      '.td-set-label{font-size:13.5px;font-weight:600;color:var(--ink,#12233f)}',
-      '.td-set-desc{font-size:12px;color:var(--sub,#51648a);margin-top:2px;line-height:1.5}',
-      '.td-set-seg{display:flex;gap:0;border:1px solid var(--line,#d2e0f1);border-radius:6px;overflow:hidden;flex:none}',
-      '.td-set-seg button{font:inherit;font-size:12px;font-weight:600;padding:6px 11px;cursor:pointer;',
-      'border:0;background:transparent;color:var(--sub,#51648a)}',
-      '.td-set-seg button[data-active="1"]{background:var(--blue,#2563eb);color:#fff}',
-      '.td-set-switch{position:relative;width:40px;height:22px;border-radius:11px;flex:none;',
-      'border:0;background:var(--line-strong,#bcd0e8);cursor:pointer;transition:background .15s}',
-      '.td-set-switch[data-on="1"]{background:var(--blue,#2563eb)}',
-      '.td-set-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;',
-      'border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s}',
+      '.td-acct-panel{width:100%;max-width:400px;max-height:90vh;overflow-y:auto;background:var(--surface,#fff);color:var(--text,#111827);border:1px solid var(--border,rgba(128,128,128,.25));border-radius:14px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);font-family:inherit}',
+      '.td-acct-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}',
+      '.td-acct-head h2{margin:0;font-size:17px;font-weight:700}',
+      '.td-acct-x{border:0;background:transparent;color:inherit;font-size:22px;line-height:1;cursor:pointer;padding:2px 6px;opacity:.7}',
+      '.td-set-tabs{display:flex;gap:6px;border-bottom:1px solid var(--border,rgba(128,128,128,.2));margin-bottom:14px;padding-bottom:8px}',
+      '.td-set-tab{border:0;background:transparent;color:inherit;font:inherit;font-size:13px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;opacity:.65}',
+      '.td-set-tab[data-active="1"]{opacity:1;background:rgba(37,99,235,.12);color:#2563eb}',
+      '.td-acct-status{font-size:13px;padding:8px 10px;border-radius:8px;margin-bottom:12px;background:rgba(128,128,128,.08)}',
+      '.td-acct-status[data-kind="ok"]{background:rgba(22,163,74,.12);color:#15803d}',
+      '.td-acct-status[data-kind="warn"]{background:rgba(234,179,8,.15);color:#a16207}',
+      '.td-acct-err{font-size:13px;padding:8px 10px;border-radius:8px;margin-bottom:12px;background:rgba(220,38,38,.12);color:#b91c1c}',
+      '.td-acct-field{margin-bottom:10px}',
+      '.td-acct-field label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;opacity:.85}',
+      '.td-acct-input{width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1px solid var(--border,rgba(128,128,128,.3));background:transparent;color:inherit;font:inherit;font-size:14px;margin-top:4px}',
+      '.td-acct-btn2{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:8px;border:0;background:#2563eb;color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer}',
+      '.td-acct-btn2[data-neutral="1"]{background:transparent;color:inherit;border:1px solid var(--border,rgba(128,128,128,.3))}',
+      '.td-acct-btn2:disabled{opacity:.55;cursor:not-allowed}',
+      '.td-acct-btn--wide{width:100%;margin-top:6px}',
+      '.td-acct-apple{background:#111827;color:#fff;margin-top:8px}',
+      '.td-acct-note{font-size:12px;opacity:.75;line-height:1.5;margin:10px 0 0;white-space:pre-line}',
+      '.td-acct-toggle{border:0;background:transparent;color:#2563eb;font:inherit;font-size:12px;cursor:pointer;padding:4px 0;margin-top:6px;display:inline-block;margin-right:12px}',
+      '.td-gh-alt{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border,rgba(128,128,128,.25))}',
+      '.td-acct-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}',
+      '.td-acct-who{font-size:14px;font-weight:700;margin-bottom:6px}',
+      '.td-acct-or{display:flex;align-items:center;gap:10px;margin:12px 0;font-size:12px;opacity:.6}',
+      '.td-acct-or::before,.td-acct-or::after{content:"";flex:1;height:1px;background:var(--border,rgba(128,128,128,.25))}',
+      '.td-otp-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}',
+      '.td-otp-row .td-acct-field{flex:1;margin-bottom:0}',
+      '.td-otp-send{white-space:nowrap;height:36px;padding:0 12px;font-size:13px}',
+      '.td-prof{display:flex;align-items:center;gap:12px;margin-bottom:14px}',
+      '.td-prof-av{width:40px;height:40px;border-radius:999px;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0}',
+      '.td-prof-name{font-weight:700;font-size:15px}',
+      '.td-prof-sub{font-size:12px;opacity:.7}',
+      '.td-nick-row{display:flex;gap:8px;align-items:flex-end}',
+      '.td-nick-row .td-acct-field{flex:1;margin-bottom:0}',
+      '.td-nick-save{height:36px}',
+      '.td-set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border,rgba(128,128,128,.15))}',
+      '.td-set-label{font-size:14px;font-weight:600}',
+      '.td-set-desc{font-size:12px;opacity:.7;margin-top:2px}',
+      '.td-set-seg{display:inline-flex;border:1px solid var(--border,rgba(128,128,128,.3));border-radius:8px;overflow:hidden}',
+      '.td-set-seg button{border:0;background:transparent;color:inherit;font:inherit;font-size:12px;padding:5px 10px;cursor:pointer}',
+      '.td-set-seg button[data-active="1"]{background:#2563eb;color:#fff}',
+      '.td-set-switch{width:40px;height:22px;border-radius:999px;border:0;background:rgba(128,128,128,.35);position:relative;cursor:pointer;flex-shrink:0}',
+      '.td-set-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:999px;background:#fff;transition:transform .15s}',
+      '.td-set-switch[data-on="1"]{background:#2563eb}',
       '.td-set-switch[data-on="1"]::after{transform:translateX(18px)}',
-      '.td-acct-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}',
-      '.td-acct-head h2{font-size:17px;margin:0;flex:1;line-height:1.35}',
-      '.td-acct-x{border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;color:var(--sub,#51648a);padding:0 2px}',
-      '.td-acct-status{font-size:12.5px;padding:8px 10px;border-radius:6px;background:var(--wash,#eef4fd);',
-      'color:var(--sub,#51648a);margin-bottom:12px;line-height:1.5}',
-      '.td-acct-status[data-kind="ok"]{background:var(--ok-soft,#e7f6ee);color:var(--ok,#157a52)}',
-      '.td-acct-status[data-kind="warn"]{background:var(--warn-soft,#fbf3e2);color:var(--warn,#b07a12)}',
-      '.td-acct-err{font-size:12.5px;padding:8px 10px;border-radius:6px;background:var(--bad-soft,#fdecea);',
-      'color:var(--bad,#c0392b);margin-bottom:12px;line-height:1.5}',
-      '.td-acct-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}',
-      '.td-acct-field label{font-size:12.5px;color:var(--sub,#51648a)}',
-      '.td-acct-input{font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line-strong,#bcd0e8);',
-      'border-radius:6px;color:var(--ink,#12233f);background:var(--paper,#fff);width:100%;box-sizing:border-box}',
-      '.td-acct-input:focus{outline:2px solid var(--blue-soft,#e8f0fe);border-color:var(--blue,#2563eb)}',
-      '.td-acct-btn2{font:inherit;font-size:13px;font-weight:600;padding:9px 14px;border-radius:6px;cursor:pointer;',
-      'border:1px solid var(--blue,#2563eb);background:var(--blue,#2563eb);color:#fff;white-space:nowrap}',
-      '.td-acct-btn2[data-neutral="1"]{background:transparent;color:var(--ink,#12233f);border-color:var(--line-strong,#bcd0e8)}',
-      '.td-acct-btn2:disabled{opacity:.55;cursor:default}',
-      '.td-acct-btn--wide{width:100%;margin-bottom:10px}',
-      '.td-acct-apple{background:#000;color:#fff;border-color:#000;font-weight:600}',
-      '.td-acct-apple:hover{background:#1a1a1a}',
-      '.td-acct-apple:disabled{opacity:.55}',
-      '.td-acct-note{font-size:12px;color:var(--sub,#51648a);line-height:1.6;margin:14px 0 0}',
-      '.td-acct-toggle{display:block;margin-top:10px;font-size:12.5px;color:var(--blue,#2563eb);',
-      'background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-align:left}',
-      '.td-gh-alt{margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft,#eef3fb)}',
-      '.td-acct-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}',
-      '.td-acct-who{font-size:13px;font-weight:600;margin-bottom:4px;word-break:break-all}',
-      '.td-acct-or{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--sub,#51648a);font-size:12px}',
-      '.td-acct-or::before,.td-acct-or::after{content:"";flex:1;height:1px;background:var(--line,#d2e0f1)}',
-      /* 个人档案头部 + 昵称编辑 */
-      '.td-prof{display:flex;align-items:center;gap:12px;padding:2px 0 14px;',
-      'border-bottom:1px solid var(--line-soft,#eef3fb);margin-bottom:14px}',
-      '.td-prof-av{width:42px;height:42px;border-radius:50%;flex:none;display:flex;',
-      'align-items:center;justify-content:center;background:var(--blue-soft,#e8f0fe);',
-      'color:var(--blue,#2563eb);font-size:17px;font-weight:700}',
-      '.td-prof-name{font-size:16px;font-weight:700;color:var(--ink,#12233f);line-height:1.35;word-break:break-all}',
-      '.td-prof-sub{font-size:12px;color:var(--sub,#51648a);margin-top:2px}',
-      '.td-nick-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:6px}',
-      '.td-nick-row .td-acct-field{flex:1;min-width:0;margin-bottom:0}',
-      '.td-nick-save{flex:none;height:38px}',
-      /* 紧凑模式：收紧留白与行高，让一屏看到更多内容 */
       'html[data-compact="1"] .drill-select-inner,html[data-compact="1"] .drill-result-inner{',
       'max-width:none!important;padding-top:16px!important}',
       'html[data-compact="1"] .drill-select-h,html[data-compact="1"] .drill-result-h{font-size:26px!important}',
       'html[data-compact="1"] .drill-unit-button{padding:12px!important}',
       'html[data-compact="1"] .appbar-inner,html[data-compact="1"] .drill-context,',
       'html[data-compact="1"] .drill-questionbar-inner{min-height:48px!important}',
-      '@media(max-width:640px){.td-acct-btn{font-size:12px;padding:5px 9px}}'
+      '@media(max-width:640px){.td-acct-panel{padding:16px}}'
     ].join('');
-    document.head.appendChild(css);
+    var st = document.createElement('style');
+    st.textContent = css;
+    document.head.appendChild(st);
 
     var layer = el('div', 'td-acct-layer');
     layer.setAttribute('data-open', '0');
     layer.setAttribute('role', 'dialog');
     layer.setAttribute('aria-modal', 'true');
     layer.setAttribute('aria-label', '设置');
+
     var panel = el('div', 'td-acct-panel');
     var head = el('div', 'td-acct-head');
     head.appendChild(el('h2', '', '设置'));
@@ -552,10 +624,9 @@
     x.onclick = function () { layer.setAttribute('data-open', '0'); };
     head.appendChild(x);
     panel.appendChild(head);
-    // 标签栏：账户 / 外观 / 关于
+
     var tabs = el('div', 'td-set-tabs');
-    var tabDefs = [['account', '账户'], ['appearance', '外观'], ['about', '关于']];
-    tabDefs.forEach(function (pair) {
+    [['account', '账户'], ['appearance', '外观'], ['about', '关于']].forEach(function (pair) {
       var t = el('button', 'td-set-tab', pair[1]);
       t.type = 'button';
       t.setAttribute('data-tab', pair[0]);
@@ -563,15 +634,18 @@
       tabs.appendChild(t);
     });
     panel.appendChild(tabs);
+
     var status = el('div', 'td-acct-status');
     var err = el('div', 'td-acct-err'); err.hidden = true;
     var body = el('div');
-    panel.appendChild(status); panel.appendChild(err); panel.appendChild(body);
+    panel.appendChild(status);
+    panel.appendChild(err);
+    panel.appendChild(body);
     layer.appendChild(panel);
     layer.addEventListener('click', function (e) { if (e.target === layer) layer.setAttribute('data-open', '0'); });
     document.body.appendChild(layer);
 
-    var btn = el('button', 'td-acct-btn td-acct-icon-btn');
+    var btn = el('button', 'td-acct-btn');
     btn.type = 'button';
     btn.setAttribute('aria-label', '设置');
     btn.title = '设置';
@@ -589,19 +663,22 @@
     input.type = inputType;
     input.placeholder = placeholder;
     if (autocomplete) input.autocomplete = autocomplete;
-    lab.appendChild(input); f.appendChild(lab);
+    lab.appendChild(input);
+    f.appendChild(lab);
     return { box: f, input: input };
   }
 
   function renderAccountTab() {
     var b = ui.body;
+
     if (user) {
       var p = el('div', 'td-prof');
       var initial = (displayName().trim().charAt(0) || DEFAULT_NICK).toUpperCase();
       p.appendChild(el('div', 'td-prof-av', initial));
       var info = el('div');
       info.appendChild(el('div', 'td-prof-name', displayName()));
-      info.appendChild(el('div', 'td-prof-sub', '你的专属学习档案'));
+      var via = user._provider === 'workbuddy' ? '邮箱验证码登录' : user._provider === 'github' ? 'GitHub 令牌同步' : 'Firebase 账号';
+      info.appendChild(el('div', 'td-prof-sub', '你的专属学习档案 · ' + via));
       p.appendChild(info);
       b.appendChild(p);
 
@@ -611,11 +688,10 @@
       var rowBox = el('div', 'td-nick-row');
       rowBox.appendChild(f.box);
       var save = el('button', 'td-acct-btn2 td-nick-save', '保存');
-      save.type = 'button'; save.setAttribute('data-busy', '1');
+      save.type = 'button';
+      save.setAttribute('data-busy', '1');
       save.onclick = function () { saveNickname(f.input.value); };
-      f.input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') saveNickname(f.input.value);
-      });
+      f.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') saveNickname(f.input.value); });
       rowBox.appendChild(save);
       b.appendChild(rowBox);
       b.appendChild(el('p', 'td-acct-note', '昵称只用于显示，不会展示你的邮箱或手机号。'));
@@ -625,89 +701,128 @@
       var out = el('button', 'td-acct-btn2', '退出登录');
       out.type = 'button'; out.setAttribute('data-neutral', '1'); out.setAttribute('data-busy', '1');
       out.onclick = doSignOut;
-      acts.appendChild(out); b.appendChild(acts);
-      b.appendChild(el('p', 'td-acct-note',
-        '做题进度会自动保存，换设备或重新登录后接着练，不需要任何手动操作。'));
+      acts.appendChild(out);
+      b.appendChild(acts);
+      b.appendChild(el('p', 'td-acct-note', '做题进度会自动保存，换设备或重新登录后接着练，不需要任何手动操作。'));
       return;
     }
 
-    if (!FB || !FB.available()) {
+    var hasWB = !!(WB && WB.available());
+    var hasFB = !!(FB && FB.available());
+    if (!hasWB && !hasFB) {
       setStatus('登录暂时不可用', 'warn');
       b.appendChild(el('p', 'td-acct-note', '账号模块未能加载，做题与进度照常保存，不受影响。'));
       return;
     }
 
-    // 登录表单始终显示：SDK 已随站点本地化，不再因为一次可达性探测失败
-    // 就把 Google / Apple / 邮箱全部藏起来（旧逻辑会误判并逼用户用令牌）。
-    // 真正的失败会在点击登录时给出明确报错，而不是一开始就看不到登录入口。
+    if (emailMode === 'otp' && hasWB) {
+      b.appendChild(el('div', 'td-acct-who', '邮箱验证码登录（国内直连）'));
+      var emOtp = field('邮箱', 'email', 'you@example.com', 'email');
+      if (otpEmail) emOtp.input.value = otpEmail;
+      ui.email = emOtp.input;
 
-    var g = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 Google 账号继续');
-    g.type = 'button'; g.setAttribute('data-neutral', '1'); g.setAttribute('data-busy', '1');
-    g.onclick = doGoogle;
-    b.appendChild(g);
+      var otpRow = el('div', 'td-otp-row');
+      otpRow.appendChild(emOtp.box);
+      var sendBtn = el('button', 'td-acct-btn2 td-otp-send',
+        otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码'));
+      sendBtn.type = 'button';
+      sendBtn.setAttribute('data-busy', '1');
+      if (otpCooldown > 0) sendBtn.disabled = true;
+      sendBtn.onclick = doSendOtp;
+      ui.otpSendBtn = sendBtn;
+      otpRow.appendChild(sendBtn);
+      b.appendChild(otpRow);
 
-    var a = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-apple', ' 使用 Apple 账号继续');
-    a.type = 'button'; a.setAttribute('data-busy', '1');
-    a.onclick = doApple;
-    b.appendChild(a);
+      var codeField = field('验证码', 'text', '输入邮箱收到的 6 位验证码', 'one-time-code');
+      b.appendChild(codeField.box);
+      ui.otpCode = codeField.input;
+      codeField.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doVerifyOtp(); });
 
-    b.appendChild(el('div', 'td-acct-or', '或'));
+      var verifyBtn = el('button', 'td-acct-btn2 td-acct-btn--wide', '验证码登录');
+      verifyBtn.type = 'button';
+      verifyBtn.setAttribute('data-busy', '1');
+      verifyBtn.onclick = doVerifyOtp;
+      b.appendChild(verifyBtn);
 
-    if (emailMode === 'register') b.appendChild(el('div', 'td-acct-who', '注册新账号'));
-    else if (emailMode === 'reset') b.appendChild(el('div', 'td-acct-who', '重置密码'));
+      if (hasFB) {
+        var toPw = el('button', 'td-acct-toggle', '改用密码登录 / 注册（Firebase）');
+        toPw.type = 'button';
+        toPw.onclick = function () { emailMode = 'login'; setError(''); renderBody(); };
+        b.appendChild(toPw);
+      }
+    } else if (hasFB) {
+      if (emailMode === 'register') b.appendChild(el('div', 'td-acct-who', '注册新账号（Firebase）'));
+      else if (emailMode === 'reset') b.appendChild(el('div', 'td-acct-who', '重置密码（Firebase）'));
+      else b.appendChild(el('div', 'td-acct-who', '邮箱密码登录（Firebase）'));
 
-    var em = field('邮箱', 'email', 'you@example.com', 'email');
-    b.appendChild(em.box);
-    ui.email = em.input;
+      var em = field('邮箱', 'email', 'you@example.com', 'email');
+      b.appendChild(em.box); ui.email = em.input;
+      if (emailMode !== 'reset') {
+        var pw = field('密码', 'password', emailMode === 'register' ? '至少 6 位' : '输入密码', 'current-password');
+        b.appendChild(pw.box); ui.pw = pw.input;
+      } else ui.pw = null;
 
-    if (emailMode !== 'reset') {
-      var pw = field('密码', 'password', emailMode === 'register' ? '至少 6 位' : '输入密码', 'current-password');
-      b.appendChild(pw.box);
-      ui.pw = pw.input;
-    } else ui.pw = null;
+      var submit = el('button', 'td-acct-btn2 td-acct-btn--wide',
+        emailMode === 'register' ? '注册并登录' : emailMode === 'reset' ? '发送重置邮件' : '登录');
+      submit.type = 'button'; submit.setAttribute('data-busy', '1');
+      submit.onclick = doEmail;
+      b.appendChild(submit);
 
-    var submit = el('button', 'td-acct-btn2 td-acct-btn--wide',
-      emailMode === 'register' ? '注册并登录' : emailMode === 'reset' ? '发送重置邮件' : '登录');
-    submit.type = 'button'; submit.setAttribute('data-busy', '1'); submit.onclick = doEmail;
-    b.appendChild(submit);
+      if (hasWB) {
+        var toOtp = el('button', 'td-acct-toggle', '改用邮箱验证码登录（国内直连）');
+        toOtp.type = 'button';
+        toOtp.onclick = function () { emailMode = 'otp'; setError(''); renderBody(); };
+        b.appendChild(toOtp);
+      }
+      if (emailMode === 'register' || emailMode === 'reset') {
+        var back = el('button', 'td-acct-toggle', '已有账号？密码登录');
+        back.type = 'button';
+        back.onclick = function () { emailMode = 'login'; setError(''); renderBody(); };
+        b.appendChild(back);
+      } else {
+        var reg = el('button', 'td-acct-toggle', '没有账号？注册');
+        reg.type = 'button';
+        reg.onclick = function () { emailMode = 'register'; setError(''); renderBody(); };
+        b.appendChild(reg);
 
-    if (emailMode === 'register' || emailMode === 'reset') {
-      var back = el('button', 'td-acct-toggle', '已有账号？返回登录');
-      back.type = 'button';
-      back.onclick = function () { emailMode = 'login'; setError(''); renderBody(); };
-      b.appendChild(back);
-    } else {
-      var reg = el('button', 'td-acct-toggle', '没有账号？注册');
-      reg.type = 'button';
-      reg.onclick = function () { emailMode = 'register'; setError(''); renderBody(); };
-      b.appendChild(reg);
-      var reset = el('button', 'td-acct-toggle', '忘记密码？');
-      reset.type = 'button';
-      reset.onclick = function () { emailMode = 'reset'; setError(''); renderBody(); };
-      b.appendChild(reset);
+        var reset = el('button', 'td-acct-toggle', '忘记密码？');
+        reset.type = 'button';
+        reset.onclick = function () { emailMode = 'reset'; setError(''); renderBody(); };
+        b.appendChild(reset);
+      }
     }
 
-    b.appendChild(el('p', 'td-acct-note',
-      '登录后会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。'));
+    if (hasFB) {
+      b.appendChild(el('div', 'td-acct-or', '或使用第三方账号（需境外网络）'));
+      var g = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 Google 账号继续');
+      g.type = 'button'; g.setAttribute('data-neutral', '1'); g.setAttribute('data-busy', '1');
+      g.onclick = doGoogle;
+      b.appendChild(g);
 
-    // 备用通道：Google 登录实在连不上时，可用 GitHub 令牌把进度存进自己的私有仓库。
-    // 默认收起，不干扰上面的正常登录入口。
+      var a = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-apple', '使用 Apple 账号继续');
+      a.type = 'button'; a.setAttribute('data-busy', '1');
+      a.onclick = doApple;
+      b.appendChild(a);
+    }
+
+    b.appendChild(el('p', 'td-acct-note', '登录后会为你建立独立的学习档案，之前做过的题会一并带上。不登录同样可以使用全部功能。'));
+
     var alt = el('div', 'td-gh-alt');
     var altToggle = el('button', 'td-acct-toggle', '其他登录方式（GitHub 令牌）');
     altToggle.type = 'button';
-    var altBox = el('div');
-    altBox.hidden = true;
+    var altBox = el('div'); altBox.hidden = true;
     altToggle.onclick = function () { altBox.hidden = !altBox.hidden; };
     alt.appendChild(altToggle);
     alt.appendChild(altBox);
-    var gt = field('GitHub 令牌', 'password', '粘贴 Personal Access Token (classic)', 'off');
-    altBox.appendChild(gt.box);
-    ui.ghToken = gt.input;
+
+    var gt = field('GitHub 令牌', 'password', '粘贴 Personal Access Token', 'off');
+    altBox.appendChild(gt.box); ui.ghToken = gt.input;
     var gl = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 GitHub 令牌登录');
-    gl.type = 'button'; gl.setAttribute('data-busy', '1'); gl.onclick = doGhLogin;
+    gl.type = 'button'; gl.setAttribute('data-busy', '1');
+    gl.onclick = doGhLogin;
     altBox.appendChild(gl);
     altBox.appendChild(el('p', 'td-acct-note',
-      '进度存进你自己的私有仓库；令牌在 github.com 的 Settings → Developer settings → Personal access tokens (classic) 生成。'));
+      '进度存进你自己的私有仓库 sat-math-data（首次同步会自动创建）。令牌仅保存在本标签页会话内，关闭标签即失效。'));
     b.appendChild(alt);
   }
 
@@ -722,6 +837,27 @@
 
   function renderAppearanceTab() {
     var b = ui.body;
+    var r0 = row('主题', '淡奶白或暗黑，立即生效并保存。');
+    var seg0 = el('div', 'td-set-seg');
+    var getTheme = (window.TDGetTheme || function () { return 'light'; });
+    var curT = getTheme();
+    [['light', '浅色'], ['dark', '暗黑']].forEach(function (pair) {
+      var btn = el('button', '', pair[1]);
+      btn.type = 'button';
+      if (curT === pair[0]) btn.setAttribute('data-active', '1');
+      btn.onclick = function () {
+        if (window.TDSetTheme) window.TDSetTheme(pair[0]);
+        else {
+          try { localStorage.setItem('tdsat_theme', pair[0]); } catch (e) {}
+          document.documentElement.setAttribute('data-theme', pair[0]);
+          try { onLocalWrite('tdsat_theme'); } catch (e) {}
+        }
+        renderBody();
+      };
+      seg0.appendChild(btn);
+    });
+    r0.appendChild(seg0); b.appendChild(r0);
+
     var r1 = row('字号', '调整全站文字大小，立即生效并保存。');
     var seg = el('div', 'td-set-seg');
     [['small', '小'], ['normal', '标准'], ['large', '大']].forEach(function (pair) {
@@ -748,10 +884,8 @@
     var b = ui.body;
     b.appendChild(el('div', 'td-acct-who', 'TD SAT Math'));
     var bank = (window.TD_BANK && window.TD_BANK.questions) ? window.TD_BANK.questions.length : 0;
-    b.appendChild(el('p', 'td-acct-note',
-      '真题练习 · 单元抽查 · 错题回顾 · 模考\n题库 ' + bank + ' 题。'));
-    b.appendChild(el('p', 'td-acct-note',
-      '登录后每位用户都有独立的学习档案，进度自动保存、自动跟随。\n登录完全自愿，不登录也能使用全部功能。'));
+    b.appendChild(el('p', 'td-acct-note', '真题练习 · 单元抽查 · 错题回顾 · 模考\n题库 ' + bank + ' 题。'));
+    b.appendChild(el('p', 'td-acct-note', '登录后每位用户都有独立的学习档案，进度自动保存、自动跟随。\n登录完全自愿，不登录也能使用全部功能。'));
   }
 
   function renderBody() {
@@ -766,7 +900,7 @@
       else tabs[i].removeAttribute('data-active');
     }
     if (activeTab === 'account') {
-      if (!user) setStatus('未登录 · 进度保存在这台设备', 'plain');
+      if (!user && !otpSent) setStatus('未登录 · 进度保存在这台设备', 'plain');
       renderAccountTab();
     } else if (activeTab === 'appearance') {
       setStatus('外观偏好自动保存在这台设备', 'plain');
@@ -779,58 +913,53 @@
 
   function mountButton(btn) {
     function attach() {
-      // 顶部导航栏由 app-ui.js 渲染进 #appnav（内含 .appbar-inner）。
-      // 注意：.drill-nav-header 是题号弹层的 header（默认 hidden），不能挂这里。
-      var bar = document.querySelector('#appnav .mainnav') ||
-                document.querySelector('.mainnav') ||
-                document.querySelector('#appnav .appbar-inner') ||
-                document.querySelector('.appbar-inner') ||
-                document.querySelector('#appnav') ||
-                document.querySelector('.appbar');
-      if (bar && !btn.isConnected) { bar.appendChild(btn); return true; }
-      return btn.isConnected;
+      var targets = ['#appnav .mainnav', '.mainnav', '#appnav .appbar-inner', '.appbar-inner', '#appnav', '.appbar'];
+      for (var i = 0; i < targets.length; i++) {
+        var host = document.querySelector(targets[i]);
+        if (host && host.offsetParent !== null) {
+          host.appendChild(btn);
+          return true;
+        }
+      }
+      return false;
     }
     if (attach()) return;
     var obs = new MutationObserver(function () { if (attach()) obs.disconnect(); });
     obs.observe(document.body, { childList: true, subtree: true });
     setTimeout(function () {
       obs.disconnect();
-      if (!btn.isConnected) {
-        btn.style.position = 'fixed'; btn.style.right = '14px'; btn.style.bottom = '14px';
-        btn.style.zIndex = '8999'; btn.style.background = 'var(--paper,#fff)';
-        btn.style.boxShadow = 'var(--shadow-2,0 2px 10px rgba(18,35,63,.12))';
+      if (!btn.parentNode) {
+        btn.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:8999;background:var(--surface,#fff);box-shadow:0 4px 16px rgba(0,0,0,.15)';
         document.body.appendChild(btn);
       }
     }, 6000);
   }
 
   function startAutoSave() {
-    setInterval(async function () {
-      if (!user || !auth() || saving || busy) return;
-      if (localHash() === prof.lastSynced) return;
-      var ok = await silentPush();
-      if (ok) setStatus('进度已自动保存', 'ok');
+    setInterval(function () {
+      if (user && !saving && !busy && localHash() !== prof.lastSynced) {
+        silentPush().then(function (ok) {
+          if (ok) setStatus('进度已自动保存', 'ok');
+        });
+      }
     }, 10000);
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState !== 'hidden' || !user || !auth() || saving) return;
-      if (localHash() === prof.lastSynced) return;
-      silentPush();
+      if (document.visibilityState === 'hidden' && user && localHash() !== prof.lastSynced) silentPush();
     });
     window.addEventListener('pagehide', function () {
-      if (!user || !auth() || saving) return;
-      if (localHash() === prof.lastSynced) return;
-      silentPush();
+      if (user && localHash() !== prof.lastSynced) silentPush();
     });
   }
 
   function boot() {
     loadProf();
-    hookStorage();
+    exposeNotify();
     var btn = buildUI();
     mountButton(btn);
     renderBody();
-    if (FB && typeof FB.onState === 'function') FB.onState(onState);
-    if (GH && typeof GH.onState === 'function') GH.onState(onState);
+    if (FB && FB.onState) FB.onState(function (u) { onState(u, 'firebase'); });
+    if (WB && WB.onState) WB.onState(function (u) { onState(u, 'workbuddy'); });
+    if (GH && GH.onState) GH.onState(function (u) { onState(u, 'github'); });
     startAutoSave();
   }
 
