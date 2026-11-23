@@ -732,14 +732,22 @@
     try { routeFromUrl(); } catch (e) { fatalLoadError(); }
   });
 
-  /* Back/forward cache must not leave a stale view on the main page. */
+  /* Back/forward cache must not leave a stale view on the main page.
+     注意：board=special / board=unit 的 URL 实际渲染的是落地页(selectView)，
+     bfcache 恢复时必须回到落地页并重新渲染（刷新板块统计）；
+     旧映射把 board=special 指到从未渲染过的 specialView，导致返回键后出现
+     "专项训练空列表"的空骨架页（2026-11-23 修复）。 */
   window.addEventListener('pageshow', function (event) {
     if (!event.persisted) return;
     var p = new URLSearchParams(location.search);
-    showView(p.get('result') === '1' && A.CATALOG[p.get('sec')] ? 'result'
-      : ((p.get('board') === 'special' || p.get('topic') === '1' || p.get('special') === '1') ? 'special'
-      : ((p.get('board') === 'unit' || (p.get('unit') && !p.get('sec'))) ? 'unit'
-      : (p.get('sec') && A.CATALOG[p.get('sec')] ? 'question' : 'select'))));
+    if (p.get('result') === '1' && A.CATALOG[p.get('sec')]) { showView('result'); return; }
+    if (p.get('topic') === '1' || p.get('special') === '1') { showView('special'); return; }
+    if (p.get('board') === 'special' || p.get('board') === 'unit' || (p.get('unit') && !p.get('sec'))) {
+      renderLanding(p.get('board') === 'special' ? 'special' : 'unit');
+      return;
+    }
+    if (p.get('sec') && A.CATALOG[p.get('sec')]) { showView('question'); return; }
+    showView('select');
   });
 
   els.scratch.addEventListener('click', scratchPad.toggle);
