@@ -7,8 +7,11 @@
    5) API（GitHub/Firebase/WorkBuddy）→ 不拦截，network-only（数据绝不缓存、绝不回退陈旧响应）
 
    缓存版本号：每次部署请 bump 一次（或让 bump_assets.py 顺带写入），
-   旧版本号对应的缓存会在 activate 阶段被清掉，避免 ?v= 哈希换新后缓存无限膨胀。 */
-var VERSION = 'satmath-v1';
+   旧版本号对应的缓存会在 activate 阶段被清掉，避免 ?v= 哈希换新后缓存无限膨胀。
+   v1→v2（2026-11-23）：v1 从未升过版，历史旧构建资源在缓存里永久滞留；
+   导航请求 network-first 失败时（弱网/VPN 抖动）会整站回退到旧版页面。
+   升版触发 activate 全量清缓存，旧构建自愈。 */
+var VERSION = 'satmath-v2';
 
 /* 从本 SW 自身路径推导站点基路径（兼容 GitHub Pages 子路径，如 /SAT-Math/） */
 var BASE = self.location.pathname.replace(/\/sw\.js$/, '/');

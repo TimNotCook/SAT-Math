@@ -3,7 +3,26 @@
    is chosen. Practice mode never mounts Desmos. */
 (function () {
   'use strict';
-  var A = window.TD_APP, U = window.TD_UI, esc = A.esc;
+  var A = window.TD_APP, U = window.TD_UI;
+  /* 加载失败兜底：题库或核心脚本缺失时给出明确的"刷新重试"横幅，
+     绝不让页面停留在静默空白（所有视图保持 hidden）。 */
+  function fatalLoadError() {
+    try {
+      ['selectView', 'unitView', 'specialView', 'questionView', 'resultView'].forEach(function (id) {
+        var e = document.getElementById(id); if (e) e.hidden = true;
+      });
+      var b = document.createElement('div');
+      b.setAttribute('style', 'max-width:640px;margin:56px auto 0;padding:18px 22px;border:1px solid #e2e2e4;' +
+        'border-radius:12px;font:14px/1.8 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#1d1d1f;background:#fff');
+      b.innerHTML = '<b style="font-size:15px">题目数据没有加载成功</b><br>' +
+        '通常是网络中断或浏览器缓存了旧资源导致的。请先' +
+        '<a href="drill.html" style="color:#1d4ed8;font-weight:700">刷新页面</a>重试；' +
+        '若仍失败，请强制刷新（Mac：Cmd+Shift+R）清掉旧缓存后再试。';
+      document.body.insertBefore(b, document.body.firstChild);
+    } catch (e) {}
+  }
+  if (!A || !U) { fatalLoadError(); return; }
+  var esc = A.esc;
   var $ = function (id) { return document.getElementById(id); };
   var params = new URLSearchParams(location.search);
   var resultSec = params.get('result') === '1' ? params.get('sec') : null;
@@ -709,7 +728,9 @@
     showView('question');
     applyQuestion(target.sec, target.index, true, true);
   }
-  window.addEventListener('popstate', routeFromUrl);
+  window.addEventListener('popstate', function () {
+    try { routeFromUrl(); } catch (e) { fatalLoadError(); }
+  });
 
   /* Back/forward cache must not leave a stale view on the main page. */
   window.addEventListener('pageshow', function (event) {
@@ -732,13 +753,15 @@
      to disk (and the desktop shell mirrors it every 5s). No user action needed. */
   A.nav('drill');
 
-  if (inResultView) {
-    renderResult(resultSec);
-  } else if (inQuestionView) {
-    showView('question');
-    var initial = readLocation();
-    applyQuestion(initial.sec, initial.index, true, false);
-  } else {
-    routeFromUrl();
-  }
+  try {
+    if (inResultView) {
+      renderResult(resultSec);
+    } else if (inQuestionView) {
+      showView('question');
+      var initial = readLocation();
+      applyQuestion(initial.sec, initial.index, true, false);
+    } else {
+      routeFromUrl();
+    }
+  } catch (e) { fatalLoadError(); }
 })();
