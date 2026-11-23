@@ -222,19 +222,54 @@
   }
 
   async function sendOtp(email) {
-    return rpc('sendOtp', { email: email });
+    var data = await rpc('sendOtp', { email: email });
+    return {
+      verificationId: (data && data.verificationId) || '',
+      isExistingUser: !!(data && data.isExistingUser)
+    };
   }
 
-  async function verifyOtp(email, token) {
-    var data = await rpc('verifyOtp', { email: email, token: token, type: 'email' });
+  // SDK 返回的是 { accessToken, refreshToken, expiresAt, user }，统一在这里换成登录态并广播
+  async function applySession(data) {
     var rawUser = (data && data.user) || (data && data.session && data.session.user) || null;
     if (!rawUser) {
-      var uRes = await rpc('getUser', {});
-      rawUser = uRes && uRes.user ? uRes.user : null;
+      try {
+        var uRes = await rpc('getUser', {});
+        rawUser = (uRes && uRes.user) || null;
+      } catch (e) { /* 无会话 */ }
     }
     currentUser = normalizeUser(rawUser);
     notifyListeners();
     return currentUser;
+  }
+
+  // 老账号：只用验证码登录（历史上没设密码的用户也能进）
+  async function verifyOtp(email, token) {
+    var data = await rpc('verifyOtp', { email: email, token: token });
+    return applySession(data);
+  }
+
+  // 注册：验证码证明邮箱归属 + 自设密码，一步注册并登录
+  async function registerWithPassword(email, token, password) {
+    var data = await rpc('register', { email: email, token: token, password: password });
+    return applySession(data);
+  }
+
+  // 日常登录：邮箱 + 密码（密码在服务端校验）
+  async function signInPassword(email, password) {
+    var data = await rpc('signInPassword', { email: email, password: password });
+    return applySession(data);
+  }
+
+  // 找回/重设密码：先发码，再用「码 + 新密码」重设并直接登录
+  async function sendResetCode(email) {
+    await rpc('resetSend', { email: email });
+    return true;
+  }
+
+  async function resetPassword(email, token, password) {
+    var data = await rpc('resetApply', { email: email, token: token, password: password });
+    return applySession(data);
   }
 
   async function signOut() {
@@ -304,6 +339,10 @@
     },
     sendOtp: sendOtp,
     verifyOtp: verifyOtp,
+    registerWithPassword: registerWithPassword,
+    signInPassword: signInPassword,
+    sendResetCode: sendResetCode,
+    resetPassword: resetPassword,
     signOut: signOut,
     getArchive: getArchive,
     pushProgress: pushProgress,

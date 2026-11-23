@@ -189,11 +189,31 @@ git 网络通道常报 `502` / `Empty reply`，但 push 可能其实已成功。
 
 ## 关于云登录 / 云备份
 
-`cloud-config.js` 里写的是**原 WorkBuddy 平台**的域名与 applicationId（endpoint 指向 `*.app.workbuddy.host`）。
-迁移到 GitHub Pages 后：
-- 刷题、题库、图表、错题本等**核心功能完全不受影响**（纯前端 + localStorage）。
-- 云账号登录 / 云备份会指向旧平台而不可用。若要恢复，需要换成你自己的后端或去掉登录入口。
-  这不是 bug，是脱离原平台托管的正常结果。
+账号后端是 **WorkBuddy / 腾讯云开发**（`workbuddy-cloud.js` + `auth-relay.html`），国内网络可直连，不依赖 Google。
+`auth-relay.html` 在沙箱 iframe 里跑 SDK，父页面通过 postMessage 调它，所以 `script-src` 不用放行 SDK 域名，
+但 `connect-src` 必须放行 `https://wbapp-*.app.workbuddy.host` 与 `https://www.workbuddy.cn`。
+
+| 场景 | 接口 | 说明 |
+|---|---|---|
+| 注册（验证码 + 自设密码） | `TDWB.registerWithPassword(email, code, password)` | `sendOtp` 拿 `verification_id` → `verifyOtp` 带 `isExistingUser:false` + `password` → `signUp`，成功即登录 |
+| 登录（邮箱 + 密码） | `TDWB.signInPassword(email, password)` | 密码在服务端校验，错密码返回 `invalid_username_or_password` |
+| 登录（只用验证码） | `TDWB.verifyOtp(email, code)` | 老账号 / 没设密码的账号走这条 |
+| 忘记密码 | `TDWB.sendResetCode` + `TDWB.resetPassword` | 发 `PASSWORD_RESET` 码 → `updateUser({nonce, password})` 重设并直接登录 |
+
+改这块代码时两条硬规则：
+
+1. `sendOtp` 返回的 `verification_id` 只在发码那一步出现，**校验时必须带上**（`auth-relay.html` 里按邮箱缓存了一份）。
+   漏传会报 `verification code does not match the id`。
+2. `resetPasswordForEmail` 返回的是函数式 `updateUser` 句柄，不能跨 `postMessage`，只能留在沙箱里等验证码。
+
+同一个邮箱发码有**每分钟 1 封**的服务端限流（`RESOURCE_EXHAUSTED`），所以面板有 60s 冷却。
+
+后端只认**邮箱**当登录名，自定义用户名需要一张公开可读的 `用户名 → 邮箱` 映射表（目前没有），面板因此只做「邮箱 + 密码」。
+
+Firebase（`firebase-cloud.js`）只作历史通道保留：国内不翻墙连不上 `identitytoolkit.googleapis.com`，
+面板只在 WorkBuddy 通道不可用时才回退显示它。
+
+刷题、题库、图表、错题本等**核心功能完全不受影响**（纯前端 + localStorage），登录是可选附加。
 
 ## 本地预览
 

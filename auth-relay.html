@@ -39,6 +39,14 @@ function persist() {
 })();
 
 var cloud = null;
+/* sendOtp 拿到的 verification_id 只在发码这一步返回，后续校验必须带上它，
+   所以在这里按邮箱缓存一份；顺便记住这个邮箱是不是老用户。 */
+var verifyCache = {};
+/* resetPasswordForEmail 返回的是一个函数式的 updateUser 句柄，不能跨 postMessage，
+   只能在沙箱里留住，等用户填了验证码再调用。 */
+var resetHandles = {};
+
+function keyOf(email) { return String(email || '').trim().toLowerCase(); }
 
 function reply(id, ok, data, error, method) {
   try {
@@ -93,9 +101,51 @@ window.addEventListener('message', function (ev) {
         case 'getUser':
           res = await cloud.auth.getUser(); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'getUser'); return;
         case 'sendOtp':
-          res = await cloud.auth.sendOtp(args); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'sendOtp'); return;
-        case 'verifyOtp':
-          res = await cloud.auth.verifyOtp(args); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'verifyOtp'); return;
+          res = await cloud.auth.sendOtp(args);
+          if (!res.error && res.data && res.data.verificationId) {
+            verifyCache[keyOf(args.email)] = {
+              id: res.data.verificationId,
+              isUser: !!res.data.isExistingUser
+            };
+          }
+          reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'sendOtp'); return;
+        case 'verifyOtp': {
+          /* 老用户验证码登录：不发密码，只换会话 */
+          var vc = verifyCache[keyOf(args.email)];
+          if (!vc || !vc.id) { reply(id, false, null, { message: '请先点「获取验证码」再填码。', code: 'vcode-missing' }, 'verifyOtp'); return; }
+          res = await cloud.auth.verifyOtp({
+            email: args.email, token: args.token, verificationId: vc.id, isExistingUser: true
+          });
+          reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'verifyOtp'); return;
+        }
+        case 'register': {
+          /* 新用户：验证码 + 自设密码，注册成功即登录 */
+          var rc = verifyCache[keyOf(args.email)];
+          if (!rc || !rc.id) { reply(id, false, null, { message: '请先点「获取验证码」再填码。', code: 'vcode-missing' }, 'register'); return; }
+          res = await cloud.auth.verifyOtp({
+            email: args.email, token: args.token, verificationId: rc.id,
+            isExistingUser: false, password: args.password
+          });
+          reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'register'); return;
+        }
+        case 'signInPassword':
+          res = await cloud.auth.signInWithPassword({ email: args.email, password: args.password });
+          reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'signInPassword'); return;
+        case 'resetSend':
+          res = await cloud.auth.resetPasswordForEmail(args.email);
+          if (!res.error && res.data && typeof res.data.updateUser === 'function') {
+            resetHandles[keyOf(args.email)] = res.data.updateUser;
+            reply(id, true, { sent: true }, null, 'resetSend');
+            return;
+          }
+          reply(id, false, null, errShape(res.error || { message: '重置服务返回异常' }), 'resetSend'); return;
+        case 'resetApply': {
+          var fn = resetHandles[keyOf(args.email)];
+          if (typeof fn !== 'function') { reply(id, false, null, { message: '请先点「获取验证码」再填码。', code: 'vcode-missing' }, 'resetApply'); return; }
+          res = await fn({ nonce: args.token, password: args.password });
+          if (!res.error) delete resetHandles[keyOf(args.email)];
+          reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'resetApply'); return;
+        }
         case 'signOut':
           await cloud.auth.signOut(); reply(id, true, {}, null, 'signOut'); return;
         case 'signInWithOAuth':
