@@ -346,7 +346,7 @@
   function renderIntro() {
     const official = MODE === 'mock';
     $('introEyebrow').textContent = official ? 'SECTION 2, MODULE 1: MATH' : 'UNIT MASTERY CHECK';
-    $('introTitle').textContent = official ? 'Math' : '单元抽查';
+    $('introTitle').textContent = official ? 'SAT Math Prep' : '单元抽查';
     /* 单元抽查说明小字做减法：整段删除；官方模考保留 Bluebook 原文 */
     $('introDesc').hidden = !official;
     if (!official) $('introDesc').textContent = '';
