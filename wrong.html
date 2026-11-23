@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="TD SAT Math 错题回顾：集中查看、重做与导入错题，做题进度保存在本机。"><meta name="theme-color" content="#2563eb"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'"><title>TD SAT Math · 错题回顾</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E"><link rel="stylesheet" href="app.css?v=faca93643e2e"><link rel="stylesheet" href="bluebook.css?v=faca93643e2e"><link rel="stylesheet" href="glass.css?v=faca93643e2e"><script src="theme.js?v=faca93643e2e"></script>
+<meta name="description" content="TD SAT Math 错题回顾：集中查看、重做与导入错题，做题进度保存在本机。"><meta name="theme-color" content="#2563eb"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'"><title>TD SAT Math · 错题回顾</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E"><link rel="stylesheet" href="app.css?v=631eb61ba977"><link rel="stylesheet" href="bluebook.css?v=631eb61ba977"><link rel="stylesheet" href="glass.css?v=631eb61ba977"><script src="theme.js?v=631eb61ba977"></script>
 <style>
 /* 图片识别导入：复用站点既有 token（与 pdfimp 同一套变量） */
 .imgimp-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--sp4);margin-bottom:var(--sp3);box-shadow:var(--shadow-1)}
@@ -59,15 +59,15 @@
   <span id="footerSection" hidden>错题回顾</span><span id="qNumber" hidden>复盘</span>
   <div class="wrong-toolbar" id="importBar">
     <div class="btn-row">
-      <button class="btn" id="btnClearImported" type="button" title="撤销导入并恢复原有作答">清空导入错题</button>
       <button class="btn primary" id="btnImgImport" type="button" aria-expanded="false" title="上传题目截图，AI 识别文字与公式并自动匹配题库">图片识别导入</button>
       <input type="file" id="fileImgImport" accept="image/*" multiple hidden>
     </div>
+    <span class="small muted">错题记录只增不改：导入仅追加记录，不修改、不删除任何已有错题与作答。</span>
     <span class="small muted" id="importFeedback" role="status" aria-live="polite"></span>
   </div>
   <section class="imgimp-panel" id="imgImportPanel" hidden aria-label="图片识别导入">
     <div class="imgimp-head"><div><h2>图片识别导入</h2>
-      <p>粘贴或上传题目截图，AI 识别文字与公式后自动匹配题库写入错题本。</p>
+      <p>粘贴或上传题目截图，AI 识别文字与公式后自动匹配题库追加进错题本（只增不改，不会动你已有的作答记录）。</p>
       <span class="imgimp-note">识别调用云端 AI，消耗应用积分；需从线上域名访问。</span></div>
       <button class="imgimp-x" id="imgImportClose" type="button" aria-label="关闭图片识别面板">关闭</button>
     </div>
@@ -75,9 +75,8 @@
       拖入 / 点击选择截图，或直接粘贴（Ctrl/Cmd+V），松开即自动识别导入
     </div>
     <div class="imgimp-actions">
-      <span class="small muted">识别失败可重试，导错可撤销：</span>
+      <span class="small muted">识别失败可重试：</span>
       <button class="btn" id="btnImgRetry" type="button">重试失败项</button>
-      <button class="btn" id="btnImgUndo" type="button">撤销本次导入</button>
       <button class="btn" id="imgimpCloudSignIn" type="button" hidden title="登录云端账号后才能使用云端 AI 图片识别">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
         登录云端账号
@@ -94,7 +93,7 @@
   <section class="weak-panel" id="weakPanel"></section>
   <div id="wrongList"></div>
 </main>
-<script src="data/questions.js?v=faca93643e2e" defer></script><script src="data/text.js?v=faca93643e2e" defer></script><script src="data/figures.js?v=faca93643e2e" defer></script><script src="data/figure_crops.js?v=faca93643e2e" defer></script>
-<script src="grade-core.js?v=faca93643e2e" defer></script><script src="app-core.js?v=faca93643e2e" defer></script><script src="analysis.js?v=faca93643e2e" defer></script><script src="figures.js?v=faca93643e2e" defer></script><script src="scratch-pad.js?v=faca93643e2e" defer></script>
-<script src="wrong-page.js?v=faca93643e2e" defer></script>
-<script src="cloud-config.js?v=faca93643e2e" defer></script><script src="firebase-cloud.js?v=faca93643e2e" defer></script><script src="github-auth.js?v=1bc3f91548b6" defer></script><script src="cloud-account.js?v=faca93643e2e" defer></script><script src="image-import.js?v=faca93643e2e" defer></script></body></html>
+<script src="data/questions.js?v=631eb61ba977" defer></script><script src="data/text.js?v=631eb61ba977" defer></script><script src="data/figures.js?v=631eb61ba977" defer></script><script src="data/figure_crops.js?v=631eb61ba977" defer></script>
+<script src="grade-core.js?v=631eb61ba977" defer></script><script src="app-core.js?v=631eb61ba977" defer></script><script src="analysis.js?v=631eb61ba977" defer></script><script src="figures.js?v=631eb61ba977" defer></script><script src="scratch-pad.js?v=631eb61ba977" defer></script>
+<script src="wrong-page.js?v=631eb61ba977" defer></script>
+<script src="cloud-config.js?v=631eb61ba977" defer></script><script src="firebase-cloud.js?v=631eb61ba977" defer></script><script src="github-auth.js?v=1bc3f91548b6" defer></script><script src="cloud-account.js?v=631eb61ba977" defer></script><script src="image-import.js?v=631eb61ba977" defer></script></body></html>

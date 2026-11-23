@@ -56,57 +56,46 @@
      given:String(pick(it.given,it.userAnswer,it.yourAnswer,it.chosen,it.selected)||'')
    };
  }
- function importData(data){
-   if(!data)throw new Error('JSON 内容为空');
-   var items=Array.isArray(data)?data:(data.items||data.questions||data.records||data.wrong||[]);
-   if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
-   var store=readImport();if(!Array.isArray(store.items))store.items=[];
-   var idx=bankIndex(),seen={},now=Date.now(),added=0,matched=0,created=0;
-   store.items.forEach(function(x){var k=x.key||(x.matchId?'i:'+x.matchId:'s:'+normStem(x.stem));if(k)seen[k]=true;});
-   items.forEach(function(raw){
-     var it=normalizeItem(raw),m=matchItem(it,idx);
-     var key=m?'i:'+m.q.id:(normStem(it.stem)?'s:'+normStem(it.stem):(it.id?'i:'+it.id.toLowerCase():''));
-     if(!key||seen[key])return;
-     seen[key]=true;
-     var rec={key:key,id:it.id,stem:it.stem,choices:it.choices,type:it.type,answer:it.answer,
-       value:it.value,source:it.source,topic:it.topic,given:it.given,
-       matchId:m?m.q.id:null,matchSec:m?m.sec:null,prev:null,importedAt:now};
-     if(m){
-       var st=A.secState(m.sec,true);
-       if(st){
-         var cur=st.answers[m.q.id];
-         rec.prev=cur?JSON.parse(JSON.stringify(cur)):null;
-         st.answers[m.q.id]={v:it.given,correct:false,ts:now,importSrc:IMPORT_MARK};
-         st.completed=A.stats(m.sec).completed;
-         A.save();matched++;
-       }else{rec.matchId=null;rec.matchSec=null;}
-     }
-     if(!rec.matchId)created++;
-     store.items.push(rec);added++;
-   });
-   store.title=String(pick(data.title,store.title)||'导入错题');
-   store.importedAt=now;
-   if(!writeImport(store))throw new Error('localStorage 写入失败');
-   var msg='已导入 '+added+' 道：匹配题库 '+matched+' 道，新增 '+created+' 道';
-   all=collect();render();feedback(msg);
-   return{added:added,matched:matched,created:created,message:msg};
- }
- function clearImported(){
-   var store=readImport(),list=store.items||[],n=list.length;
-   list.forEach(function(it){
-     if(!it.matchId||!it.matchSec)return;
-     var st=A.secState(it.matchSec,false);if(!st)return;
-     var cur=st.answers[it.matchId];
-     if(!cur||cur.importSrc!==IMPORT_MARK)return; /* never remove a real user answer */
-     if(it.prev)st.answers[it.matchId]=JSON.parse(JSON.stringify(it.prev));
-     else delete st.answers[it.matchId];
-   });
-   A.save();try{localStorage.removeItem(IMPORT_KEY);}catch(e){}
-   all=collect();render();
-   var msg='已清空 '+n+' 道导入错题，原有作答已恢复';feedback(msg);
-   return{cleared:n,message:msg};
- }
- function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*$/,'').trim()||A.SECTION_CN[q.section]||'综合';}
+function importData(data){
+  if(!data)throw new Error('JSON 内容为空');
+  var items=Array.isArray(data)?data:(data.items||data.questions||data.records||data.wrong||[]);
+  if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
+  var store=readImport();if(!Array.isArray(store.items))store.items=[];
+  var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0;
+  store.items.forEach(function(x){var k=x.key||(x.matchId?'i:'+x.matchId:'s:'+normStem(x.stem));if(k)seen[k]=true;});
+  items.forEach(function(raw){
+    var it=normalizeItem(raw),m=matchItem(it,idx);
+    var key=m?'i:'+m.q.id:(normStem(it.stem)?'s:'+normStem(it.stem):(it.id?'i:'+it.id.toLowerCase():''));
+    if(!key||seen[key])return;
+    seen[key]=true;
+    var rec={key:key,id:it.id,stem:it.stem,choices:it.choices,type:it.type,answer:it.answer,
+      value:it.value,source:it.source,topic:it.topic,given:it.given,
+      matchId:m?m.q.id:null,matchSec:m?m.sec:null,importedAt:now};
+    if(m){
+      var st0=A.secState(m.sec,false),cur=st0?st0.answers[m.q.id]:null;
+      if(cur){
+        /* 错题记录只增不改：该题已有任何作答记录（真实作答或此前导入），一律不覆盖，
+           仅作为只读记录追加展示，原作答数据原封不动。 */
+        rec.readOnly=true;readOnly++;
+      }else{
+        /* 该题此前没有任何作答记录：新增一条导入错题（纯追加）。 */
+        var st=A.secState(m.sec,true);
+        st.answers[m.q.id]={v:it.given,correct:false,ts:now,importSrc:IMPORT_MARK};
+        st.completed=A.stats(m.sec).completed;
+        A.save();written++;
+      }
+    }
+    if(!rec.matchId)created++;
+    store.items.push(rec);added++;
+  });
+  store.title=String(pick(data.title,store.title)||'导入错题');
+  store.importedAt=now;
+  if(!writeImport(store))throw new Error('localStorage 写入失败');
+  var msg='已导入 '+added+' 道：新增错题 '+written+' 道 · 已有作答仅只读展示 '+readOnly+' 道（未改动）· 未匹配 '+created+' 道';
+  all=collect();render();feedback(msg);
+  return{added:added,written:written,readOnly:readOnly,created:created,message:msg};
+}
+function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*$/,'').trim()||A.SECTION_CN[q.section]||'综合';}
  function add(map,q,given,source,date){
    if(!q||map[q.id]&&map[q.id].corrected&&source!=='单元练习')return;
    var x=map[q.id]||{q:q,attempts:0,sources:[],date:0,given:'',corrected:false};
@@ -189,22 +178,28 @@
  document.getElementById('backPractice').href='drill.html';
  /* Unmatched imported items have no bank identity, so they can only live here
     (they are deliberately excluded from the quiz drawing pool). */
- function importedGroupHtml(){
-   if(activeUnit)return '';
-   var list=(readImport().items||[]).filter(function(it){return !it.matchId;});
-   if(!list.length)return '';
-   return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 未匹配题库<span>'+list.length+' 道 · 不进入单元抽查</span></h2>'+list.map(function(it,i){
-     var q={id:'IMP-'+(it.key||i),stem:it.stem,choices:it.choices||{},type:it.type,answer:it.answer,
-       value:it.value,topic:it.topic||'',section:'导入',unit:0,no:'—'};
-     var x={q:q,given:it.given||'',attempts:1,sources:['导入错题'],date:it.importedAt||0,corrected:false},a=analysis(x);
-     return'<article class="wrong-card"><div class="wrong-card-head"><b>导入 · '+(it.source?esc(it.source):'第 '+(i+1)+' 道')+'</b><span>导入错题 · 仅错题本可见</span></div>'+
-       figHtml(q)+
-       '<p class="wrong-stem">'+mathfmt((it.stem||'题干文字暂缺。').trim())+'</p>'+
-       '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
-       '<div class="cause-box"><b>'+esc(a.title)+'</b><p>'+esc(a.detail)+'</p></div>'+
-       '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">未在题库中找到对应题目，无法进入抽查抽题</span></div></article>';
-   }).join('')+'</section>';
- }
+function importedGroupHtml(){
+  if(activeUnit)return '';
+  var list=(readImport().items||[]).filter(function(it){return !it.matchId||it.readOnly;});
+  if(!list.length)return '';
+  var nRO=list.filter(function(it){return it.readOnly;}).length;
+  return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 独立记录<span>'+list.length+' 道 · 其中 '+nRO+' 道已匹配题库（只读）</span></h2>'+list.map(function(it,i){
+    var ro=!!it.readOnly,bankQ=null;
+    if(ro&&it.matchId){for(var s=0;s<A.SECS.length&&!bankQ;s++){bankQ=(A.CATALOG[A.SECS[s]]||[]).find(function(x){return x.id===it.matchId;})||null;}}
+    var q=bankQ
+      ?{id:bankQ.id,stem:(T[bankQ.id]||{}).stem||bankQ.stem||it.stem,choices:(T[bankQ.id]||{}).choices||{},type:bankQ.type,
+        answer:bankQ.answer,value:bankQ.value,topic:bankQ.topic||it.topic||'',section:bankQ.section,unit:bankQ.unit,no:bankQ.no}
+      :{id:'IMP-'+(it.key||i),stem:it.stem,choices:it.choices||{},type:it.type,answer:it.answer,
+        value:it.value,topic:it.topic||'',section:'导入',unit:0,no:'—'};
+    var x={q:q,given:it.given||'',attempts:1,sources:['导入错题'],date:it.importedAt||0,corrected:false},a=analysis(x);
+    return'<article class="wrong-card"><div class="wrong-card-head"><b>导入 · '+(it.source?esc(it.source):'第 '+(i+1)+' 道')+'</b><span>'+(ro?'已匹配题库 · 只读记录 · 未改动你的作答':'导入错题 · 仅错题本可见')+'</span></div>'+
+      figHtml(q)+
+      '<p class="wrong-stem">'+mathfmt((it.stem||'题干文字暂缺。').trim())+'</p>'+
+      '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
+      '<div class="cause-box"><b>'+esc(a.title)+'</b><p>'+esc(a.detail)+'</p></div>'+
+      '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">'+(ro?('该题已有作答记录（'+esc(it.matchId||'')+'），按只增不改原则未写入'):'未在题库中找到对应题目，无法进入抽查抽题')+'</span></div></article>';
+  }).join('')+'</section>';
+}
  function renderHero(){
    var total=all.length,todo=0,done=0,units={};
    all.forEach(function(x){if(!x.corrected)todo++;else done++;if(x.q&&x.q.unit)units[x.q.unit]=1;});
@@ -245,9 +240,8 @@
        '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><a class="btn sm" href="'+drillLink(q)+'">回到本题重练</a></div></article>';}).join('')+'</section>';});
    document.getElementById('wrongList').innerHTML=html+importedHtml;
  }
- document.getElementById('btnClearImported').addEventListener('click',function(){clearImported();});
-window.TD_IMPORT_WRONG={importData:importData,importText:function(t){return importData(JSON.parse(t));},
-  clear:clearImported,read:readImport,feedback:feedback,
+ window.TD_IMPORT_WRONG={importData:importData,importText:function(t){return importData(JSON.parse(t));},
+  read:readImport,feedback:feedback,
   refresh:function(){all=collect();render();}};
  document.addEventListener('click',function(e){var b=e.target.closest('[data-unit]');if(!b)return;
    activeUnit=+b.dataset.unit;var p=activeUnit?'?unit='+activeUnit:'';history.replaceState(null,'','wrong.html'+p);render();});

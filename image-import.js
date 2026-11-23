@@ -7,7 +7,6 @@
   'use strict';
   var A = window.TD_APP;
   var MARK = 'image_import_v1';
-  var BATCH_KEY = 'tdsat_image_import_batches_v1';
   var pages = [], busy = false, cloud = null;
   var CFG = window.TD_CLOUD_CONFIG || null;
   var state = { model: 'auto', ocr: [] };
@@ -646,18 +645,17 @@
     }
     return null;
   }
-  function readBatches() { try { var v = JSON.parse(localStorage.getItem(BATCH_KEY)); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
-  function writeBatches(v) { try { localStorage.setItem(BATCH_KEY, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(BATCH_KEY); } catch (e2) { console.warn('同步通知未生效', e2); } } catch (e) { console.warn('保存导入批次失败', e); } }
   function refreshHost() { var h = window.TD_IMPORT_WRONG; if (h && h.refresh) h.refresh(); }
 
   function importChecked() {
     if (!A) return { added: 0, message: '题库未就绪' };
-    var batches = readBatches(), items = [], conflicts = [], now = Date.now(), added = 0;
+    var conflicts = [], now = Date.now(), added = 0;
     pages.forEach(function (p) {
       if (!p.checked || !p.qid) return;
       var hit = findQ(p.qid); if (!hit) return;
       var old = A.secState(hit.sec, false), cur = old && old.answers[hit.q.id];
       if (cur) {
+        /* 错题记录只增不改：该题已有任何作答记录（真实作答或此前导入），一律跳过，绝不覆盖。 */
         if (cur.importSrc === MARK) return;
         conflicts.push({ page: p.i, qid: hit.q.id, v: cur.v });
         return;
@@ -665,28 +663,15 @@
       var st = A.secState(hit.sec, true); if (!st) return;
       st.answers[hit.q.id] = { v: '', correct: false, ts: now, importSrc: MARK };
       st.completed = A.stats(hit.sec).completed;
-      items.push({ sec: hit.sec, qid: hit.q.id, prev: null, page: p.i });
+      items.push({ sec: hit.sec, qid: hit.q.id, page: p.i });
       added++;
     });
-    var msg = added ? ('已导入 ' + added + ' 道图片错题') : '没有可导入的题目';
-    if (conflicts.length) msg += '；' + conflicts.length + ' 道因已有作答被跳过（如需覆盖请先清除该题作答）';
+    var msg = added ? ('已导入 ' + added + ' 道图片错题（仅新增记录）') : '没有可导入的题目';
+    if (conflicts.length) msg += '；' + conflicts.length + ' 道已有作答记录，按只增不改原则跳过（未改动）';
     status(msg);
     if (!added) return { added: 0, skipped: conflicts.length, message: msg };
-    batches.push({ id: 'b' + now, ts: now, items: items }); writeBatches(batches); A.save(); refreshHost();
+    A.save(); refreshHost();
     return { added: added, skipped: conflicts.length, message: msg };
-  }
-  function undo() {
-    var batches = readBatches(); if (!batches.length) return { removed: 0, message: '没有可撤销的图片导入' };
-    var b = batches.pop(), n = 0;
-    b.items.forEach(function (it) {
-      var st = A.secState(it.sec, false); if (!st) return;
-      var cur = st.answers[it.qid]; if (!cur || cur.importSrc !== MARK) return;
-      if (it.prev) st.answers[it.qid] = it.prev; else delete st.answers[it.qid];
-      n++;
-    });
-    A.save(); writeBatches(batches); refreshHost();
-    var msg = '已撤销 ' + n + ' 道图片导入错题'; status(msg);
-    return { removed: n, message: msg };
   }
 
   function select(i, qid) {
@@ -788,7 +773,7 @@
     open: function () { $('imgImportPanel').hidden = false; $('btnImgImport').setAttribute('aria-expanded', 'true'); ensureCloudSession(function () { }); },
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
-    select: select, check: check, importChecked: importChecked, undo: undo,
+    select: select, check: check, importChecked: importChecked,
     cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
     getModel: function () { return state.model; },
@@ -808,7 +793,6 @@
   on('imgImportClose', 'click', window.TD_IMG_IMPORT.close);
   on('fileImgImport', 'change', function (e) { acceptFiles(e.target.files); e.target.value = ''; });
   on('btnImgRetry', 'click', function () { window.TD_IMG_IMPORT.retryFailed(); });
-  on('btnImgUndo', 'click', undo);
   on('imgimpCloudSignIn', 'click', cloudSignIn);
   on('imgimpRows', 'change', function (e) {
     var t = e.target, c = t.getAttribute && t.getAttribute('data-img-cand'), k = t.getAttribute && t.getAttribute('data-img-check');
