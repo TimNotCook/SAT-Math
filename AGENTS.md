@@ -189,20 +189,11 @@ git 网络通道常报 `502` / `Empty reply`，但 push 可能其实已成功。
 
 ## 关于云登录 / 云备份
 
-账号体系走 **Firebase（项目 `sat-math-a07ae`）**，与 WorkBuddy 那套无关：
-
-- 登录方式：Google 弹窗 / Apple 弹窗 / 邮箱密码（注册即建账号，无需验证码）。
-- 进度同步：Firestore，集合 `progress`，按 `uid` 存一份。
-- 可用前提（Firebase 控制台）：Authentication → 已启用 Google、Apple、Email/Password，
-  且授权域名包含 `timnotcook.github.io`；否则会报 `auth/unauthorized-domain` 或 `auth/operation-not-allowed`。
-- 页面 CSP 必须放行登录相关来源，缺一个就是「点登录没反应」：
-  `script-src` 加 `https://apis.google.com https://www.gstatic.com`；
-  `frame-src` 加 `https://sat-math-a07ae.firebaseapp.com https://*.firebaseapp.com https://apis.google.com https://accounts.google.com https://appleid.apple.com`；
-  `connect-src` 加 `https://apis.google.com https://www.gstatic.com https://accounts.google.com`。
-- 弹窗被浏览器拦下时会自动改用整页重定向登录（`signInWithRedirect` + `getRedirectResult`）。
-
-`cloud-config.js` 里的 `endpoint` / `oauthRelayBaseUrl` / `publishableKey` 只服务**图片识别导入**，
-与登录无关，不要混为一谈。
+`cloud-config.js` 里写的是**原 WorkBuddy 平台**的域名与 applicationId（endpoint 指向 `*.app.workbuddy.host`）。
+迁移到 GitHub Pages 后：
+- 刷题、题库、图表、错题本等**核心功能完全不受影响**（纯前端 + localStorage）。
+- 云账号登录 / 云备份会指向旧平台而不可用。若要恢复，需要换成你自己的后端或去掉登录入口。
+  这不是 bug，是脱离原平台托管的正常结果。
 
 ## 本地预览
 

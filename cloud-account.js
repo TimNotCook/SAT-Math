@@ -15,9 +15,14 @@
   'use strict';
 
   var FB = window.TDFB || null;
+  var WB = window.TDWB || null;
   var GH = window.TDGH || null;
-  // 数据通道：持有 GitHub 令牌时走私有仓库，否则走 Firebase。
-  function auth() { return (GH && GH.active()) ? GH : FB; }
+  // 数据通道优先级：GitHub 令牌 > WorkBuddy 邮箱验证码 > Firebase。
+  function auth() {
+    if (GH && GH.active && GH.active()) return GH;
+    if (WB && WB.active && WB.active()) return WB;
+    return FB;
+  }
   var SNAP_PREFIX = 'tdsat_';
   var NO_SYNC = { 'tdsat_prefs_v1': 1 };
   var PROFILE_KEY = 'tdprofile_v1';
@@ -33,7 +38,12 @@
   var suppress = false;
   var pushTimer = null;
   var ui = null;
-  var emailMode = 'login'; // login | register | reset
+  // 默认优先邮箱验证码登录（国内直连），可切换 Firebase 密码 / 注册 / 重置
+  var emailMode = 'otp'; // 'otp' | 'login' | 'register' | 'reset'
+  var otpSent = false;
+  var otpEmail = '';
+  var otpCooldown = 0;
+  var otpCountdownTimer = null;
   var activeTab = 'account'; // account | appearance | about
 
   /* ---------- preferences（外观，只存这台设备） ---------- */
@@ -140,6 +150,11 @@
     if (c === 'auth/popup-blocked') return '浏览器拦下了登录弹窗，请允许弹窗后重试。';
     if (c === 'auth/cancelled-popup-request') return '上一次登录还没结束，请稍等两秒再点。';
     if (c === 'auth/internal-error') return '登录服务返回异常，请刷新页面后重试。';
+    var lm = String(m || '').toLowerCase();
+    if (c === 'auth/network-request-failed') return '网络异常；国内网络可能连不上 Google，建议改用上方「邮箱验证码登录」。';
+    if (!c && lm.indexOf('otp') >= 0 || lm.indexOf('token') >= 0 || lm.indexOf('expired') >= 0) return '验证码无效或已过期，请重新获取后再试。';
+    if (!c && lm.indexOf('sdk load failed') >= 0) return '验证码组件加载失败，请刷新页面或检查网络后重试。';
+    if (!c && lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return '验证码服务暂时连不上，请检查网络后重试，或改用下方 Firebase / GitHub 令牌登录。';
     return m || '操作失败，请重试。';
   }
 
@@ -390,6 +405,51 @@
   }
 
   /* ---------- auth actions ---------- */
+  function startOtpCooldown() {
+    otpCooldown = 60;
+    if (otpCountdownTimer) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
+    otpCountdownTimer = setInterval(function () {
+      otpCooldown -= 1;
+      if (otpCooldown < 0) otpCooldown = 0;
+      if (otpCooldown <= 0) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
+      if (ui && ui.otpSendBtn) {
+        ui.otpSendBtn.disabled = busy || otpCooldown > 0;
+        ui.otpSendBtn.textContent = otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码');
+      }
+    }, 1000);
+  }
+
+  async function doSendOtp() {
+    var email = ui && ui.email ? ui.email.value.trim() : '';
+    if (!email) { setError('请先填写邮箱。'); return; }
+    if (!WB || !WB.available()) { setError('邮箱验证码模块未加载，请刷新页面重试。'); return; }
+    try {
+      setBusy(true); setError('');
+      otpEmail = email;
+      await WB.sendOtp(email);
+      otpSent = true;
+      startOtpCooldown();
+      setStatus('验证码已发送至 ' + email + '，请查收邮箱（注意垃圾箱）', 'ok');
+      renderBody();
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); }
+  }
+
+  async function doVerifyOtp() {
+    var email = ui && ui.email ? ui.email.value.trim() : otpEmail;
+    var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
+    if (!email) { setError('请填写邮箱。'); return; }
+    if (!code) { setError('请填写收到的邮箱验证码。'); return; }
+    if (!WB || !WB.available()) { setError('邮箱验证码模块未加载，请刷新页面重试。'); return; }
+    try {
+      setBusy(true); setError('');
+      await WB.verifyOtp(email, code);
+      otpSent = false;
+      setStatus('验证码登录成功', 'ok');
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); }
+  }
+
   async function doGoogle() {
     try { setBusy(true); setError(''); await FB.signInGoogle(); }
     catch (e) { setError(friendlyError(e)); }
@@ -461,11 +521,11 @@
     setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
     setError(''); setBusy(false); renderBody();
   }
-  function onState(u) {
-    // 已持有 GitHub 令牌时，忽略 Firebase 的空态/匿名状态，避免 FB 初始化发出的 null 覆盖 GH 会话。
-    if (GH && GH.active()) {
-      if (!u || String(u.uid || '').indexOf('gh:') !== 0) return;
-    }
+  function onState(u, provider) {
+    // 通道互斥：各 SDK 初始化都会广播空态，不能让它覆盖已生效的其他通道会话。
+    if (GH && GH.active && GH.active() && (!u || String(u.uid || '').indexOf('gh:') !== 0)) return;
+    if (WB && WB.active && WB.active() && provider !== 'workbuddy' && (!u || String(u.uid || '').indexOf('wb:') !== 0)) return;
+    if (FB && FB.active && FB.active() && provider === 'workbuddy' && !u) return;
     var was = user;
     user = u || null;
     if (user) {
@@ -543,6 +603,9 @@
       '.td-acct-btn2[data-neutral="1"]{background:transparent;color:var(--ink,#12233f);border-color:var(--line-strong,#bcd0e8)}',
       '.td-acct-btn2:disabled{opacity:.55;cursor:default}',
       '.td-acct-btn--wide{width:100%;margin-bottom:10px}',
+      '.td-otp-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}',
+      '.td-otp-row .td-acct-field{flex:1;margin-bottom:0}',
+      '.td-otp-send{white-space:nowrap;height:36px;padding:0 12px;font-size:13px}',
       '.td-acct-apple{background:#000;color:#fff;border-color:#000;font-weight:600}',
       '.td-acct-apple:hover{background:#1a1a1a}',
       '.td-acct-apple:disabled{opacity:.55}',
@@ -668,67 +731,108 @@
       return;
     }
 
-    if (!FB || !FB.available()) {
+    var hasWB = !!(WB && WB.available());
+    var hasFB = !!(FB && FB.available());
+    if (!hasWB && !hasFB) {
       setStatus('登录暂时不可用', 'warn');
       b.appendChild(el('p', 'td-acct-note', '账号模块未能加载，做题与进度照常保存，不受影响。'));
       return;
     }
 
-    // 登录表单始终显示：SDK 已随站点本地化，不再因为一次可达性探测失败
-    // 就把 Google / Apple / 邮箱全部藏起来（旧逻辑会误判并逼用户用令牌）。
-    // 真正的失败会在点击登录时给出明确报错，而不是一开始就看不到登录入口。
+    if (emailMode === 'otp' && hasWB) {
+      b.appendChild(el('div', 'td-acct-who', '邮箱验证码登录（国内直连）'));
+      var emOtp = field('邮箱', 'email', 'you@example.com', 'email');
+      if (otpEmail) emOtp.input.value = otpEmail;
+      ui.email = emOtp.input;
 
-    var g = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 Google 账号继续');
-    g.type = 'button'; g.setAttribute('data-neutral', '1'); g.setAttribute('data-busy', '1');
-    g.onclick = doGoogle;
-    b.appendChild(g);
+      var otpRow = el('div', 'td-otp-row');
+      otpRow.appendChild(emOtp.box);
+      var sendBtn = el('button', 'td-acct-btn2 td-otp-send',
+        otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码'));
+      sendBtn.type = 'button';
+      sendBtn.setAttribute('data-busy', '1');
+      if (otpCooldown > 0) sendBtn.disabled = true;
+      sendBtn.onclick = doSendOtp;
+      ui.otpSendBtn = sendBtn;
+      otpRow.appendChild(sendBtn);
+      b.appendChild(otpRow);
 
-    var a = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-apple', ' 使用 Apple 账号继续');
-    a.type = 'button'; a.setAttribute('data-busy', '1');
-    a.onclick = doApple;
-    b.appendChild(a);
+      var codeField = field('验证码', 'text', '输入邮箱收到的验证码', 'one-time-code');
+      b.appendChild(codeField.box);
+      ui.otpCode = codeField.input;
+      codeField.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doVerifyOtp(); });
 
-    b.appendChild(el('div', 'td-acct-or', '或'));
+      var verifyBtn = el('button', 'td-acct-btn2 td-acct-btn--wide', '验证码登录');
+      verifyBtn.type = 'button';
+      verifyBtn.setAttribute('data-busy', '1');
+      verifyBtn.onclick = doVerifyOtp;
+      b.appendChild(verifyBtn);
 
-    if (emailMode === 'register') b.appendChild(el('div', 'td-acct-who', '注册新账号'));
-    else if (emailMode === 'reset') b.appendChild(el('div', 'td-acct-who', '重置密码'));
+      if (hasFB) {
+        var toPw = el('button', 'td-acct-toggle', '改用密码登录 / 注册（Firebase）');
+        toPw.type = 'button';
+        toPw.onclick = function () { emailMode = 'login'; setError(''); renderBody(); };
+        b.appendChild(toPw);
+      }
+    } else if (hasFB) {
+      if (emailMode === 'register') b.appendChild(el('div', 'td-acct-who', '注册新账号（Firebase）'));
+      else if (emailMode === 'reset') b.appendChild(el('div', 'td-acct-who', '重置密码（Firebase）'));
+      else b.appendChild(el('div', 'td-acct-who', '邮箱密码登录（Firebase）'));
 
-    var em = field('邮箱', 'email', 'you@example.com', 'email');
-    b.appendChild(em.box);
-    ui.email = em.input;
+      var em = field('邮箱', 'email', 'you@example.com', 'email');
+      b.appendChild(em.box); ui.email = em.input;
 
-    if (emailMode !== 'reset') {
-      var pw = field('密码', 'password', emailMode === 'register' ? '至少 6 位' : '输入密码', 'current-password');
-      b.appendChild(pw.box);
-      ui.pw = pw.input;
-    } else ui.pw = null;
+      if (emailMode !== 'reset') {
+        var pw = field('密码', 'password', emailMode === 'register' ? '至少 6 位' : '输入密码', 'current-password');
+        b.appendChild(pw.box); ui.pw = pw.input;
+      } else ui.pw = null;
 
-    var submit = el('button', 'td-acct-btn2 td-acct-btn--wide',
-      emailMode === 'register' ? '注册并登录' : emailMode === 'reset' ? '发送重置邮件' : '登录');
-    submit.type = 'button'; submit.setAttribute('data-busy', '1'); submit.onclick = doEmail;
-    b.appendChild(submit);
+      var submit = el('button', 'td-acct-btn2 td-acct-btn--wide',
+        emailMode === 'register' ? '注册并登录' : emailMode === 'reset' ? '发送重置邮件' : '登录');
+      submit.type = 'button'; submit.setAttribute('data-busy', '1');
+      submit.onclick = doEmail;
+      b.appendChild(submit);
 
-    if (emailMode === 'register' || emailMode === 'reset') {
-      var back = el('button', 'td-acct-toggle', '已有账号？返回登录');
-      back.type = 'button';
-      back.onclick = function () { emailMode = 'login'; setError(''); renderBody(); };
-      b.appendChild(back);
-    } else {
-      var reg = el('button', 'td-acct-toggle', '没有账号？注册');
-      reg.type = 'button';
-      reg.onclick = function () { emailMode = 'register'; setError(''); renderBody(); };
-      b.appendChild(reg);
-      var reset = el('button', 'td-acct-toggle', '忘记密码？');
-      reset.type = 'button';
-      reset.onclick = function () { emailMode = 'reset'; setError(''); renderBody(); };
-      b.appendChild(reset);
+      if (hasWB) {
+        var toOtp = el('button', 'td-acct-toggle', '改用邮箱验证码登录（国内直连）');
+        toOtp.type = 'button';
+        toOtp.onclick = function () { emailMode = 'otp'; setError(''); renderBody(); };
+        b.appendChild(toOtp);
+      }
+      if (emailMode === 'register' || emailMode === 'reset') {
+        var back = el('button', 'td-acct-toggle', '已有账号？密码登录');
+        back.type = 'button';
+        back.onclick = function () { emailMode = 'login'; setError(''); renderBody(); };
+        b.appendChild(back);
+      } else {
+        var reg = el('button', 'td-acct-toggle', '没有账号？注册');
+        reg.type = 'button';
+        reg.onclick = function () { emailMode = 'register'; setError(''); renderBody(); };
+        b.appendChild(reg);
+        var reset = el('button', 'td-acct-toggle', '忘记密码？');
+        reset.type = 'button';
+        reset.onclick = function () { emailMode = 'reset'; setError(''); renderBody(); };
+        b.appendChild(reset);
+      }
+    }
+
+    if (hasFB) {
+      b.appendChild(el('div', 'td-acct-or', '或使用第三方账号（需境外网络）'));
+      var g = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 Google 账号继续');
+      g.type = 'button'; g.setAttribute('data-neutral', '1'); g.setAttribute('data-busy', '1');
+      g.onclick = doGoogle;
+      b.appendChild(g);
+
+      var a = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-apple', ' 使用 Apple 账号继续');
+      a.type = 'button'; a.setAttribute('data-busy', '1');
+      a.onclick = doApple;
+      b.appendChild(a);
     }
 
     b.appendChild(el('p', 'td-acct-note',
       '登录后会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。'));
 
-    // 备用通道：Google 登录实在连不上时，可用 GitHub 令牌把进度存进自己的私有仓库。
-    // 默认收起，不干扰上面的正常登录入口。
+    // 备用通道：登录连不上时，可用 GitHub 令牌把进度存进自己的私有仓库。
     var alt = el('div', 'td-gh-alt');
     var altToggle = el('button', 'td-acct-toggle', '其他登录方式（GitHub 令牌）');
     altToggle.type = 'button';
@@ -803,7 +907,7 @@
 
   function renderAboutTab() {
     var b = ui.body;
-    b.appendChild(el('div', 'td-acct-who', 'SAT Math Prep'));
+    b.appendChild(el('div', 'td-acct-who', 'SAT Math'));
     var bank = (window.TD_BANK && window.TD_BANK.questions) ? window.TD_BANK.questions.length : 0;
     b.appendChild(el('p', 'td-acct-note',
       '真题练习 · 单元抽查 · 错题回顾 · 模考\n题库 ' + bank + ' 题。'));
@@ -886,8 +990,9 @@
     var btn = buildUI();
     mountButton(btn);
     renderBody();
-    if (FB && typeof FB.onState === 'function') FB.onState(onState);
-    if (GH && typeof GH.onState === 'function') GH.onState(onState);
+    if (FB && typeof FB.onState === 'function') FB.onState(function (u) { onState(u, 'firebase'); });
+    if (WB && typeof WB.onState === 'function') WB.onState(function (u) { onState(u, 'workbuddy'); });
+    if (GH && typeof GH.onState === 'function') GH.onState(function (u) { onState(u, 'github'); });
     startAutoSave();
   }
 
