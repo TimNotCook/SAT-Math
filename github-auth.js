@@ -1,6 +1,6 @@
 /* github-auth.js — Firebase 在部分网络不可达时的备用账号通道：
  * 令牌登录，进度存私有仓库 sat-math-data（Contents API）。
- * 与 firebase-cloud.js 同构门面（TDFB 可用的方法这里都有），由 cloud-account.js 按活跃后端调用。
+ * 与 supa-cloud.js 同构门面（TDFB 可用的方法这里都有），由 cloud-account.js 按活跃后端调用。
  *
  * 安全模型（2026-11 根修）：
  *   - 令牌只存 sessionStorage（标签页会话级），关闭标签即失效，不写 localStorage；

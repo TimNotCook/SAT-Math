@@ -3,16 +3,15 @@
    服务端按 Origin 授权，仅 timnotcook.github.io 可用，无需用户登录、不落地密钥）。
    账号登录/进度同步走下面的 Firebase 配置，两者互不影响。 */
 window.TD_CLOUD_CONFIG = {
+  /* 图片识别导入用的云端视觉模型（服务端按 Origin 授权，只允许本站域名，无需用户登录） */
   endpoint: 'https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host',
   oauthRelayBaseUrl: 'https://www.workbuddy.cn/v2/as/genie-baas/oauth',
   publishableKey: 'wbpk_pPcOWwIERzGpCOL1DrMIpc_LE340Pmct6RC6isIn87fzbeYBy6JP1XJ',
-  firebase: {
-    apiKey: 'AIzaSyCkY3Mdi3jCNRymVI2nBdP_wndDdaAGQRc',
-    authDomain: 'sat-math-a07ae.firebaseapp.com',
-    projectId: 'sat-math-a07ae',
-    storageBucket: 'sat-math-a07ae.firebasestorage.app',
-    messagingSenderId: '724328673777',
-    appId: '1:724328673777:web:512514efc92ce22a1d9450'
+  /* 账号与进度同步：Supabase（国内可直连；Firebase 的认证接口在国内不翻墙会被墙，已弃用）
+     填 Project URL（形如 https://xxxx.supabase.co）与 anon public key 即可启用登录。 */
+  supabase: {
+    url: '',
+    anonKey: ''
   }
 };
 

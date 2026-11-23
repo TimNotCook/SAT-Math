@@ -114,7 +114,7 @@ git 网络通道常报 `502` / `Empty reply`，但 push 可能其实已成功。
 | 目录 / 文件 | 作用 |
 |---|---|
 | `images/` | 图片资源（约 14M：`fig/` 题干图 + `choice/` 选项图） |
-| `vendor/` | 本地化依赖（约 8.7M：pdf.js、tesseract、firebase SDK、云 SDK） |
+| `vendor/` | 本地化依赖（约 4M：pdf.js、tesseract、云 SDK） |
 | `fonts/` | 本地字体 Inter / Roboto（woff2，`font-display:swap`）。数字字体 Space Grotesk 走 Google Fonts CDN |
 | `test/grading.test.js` | 判分回归测试（node:vm 加载 grade-core 真实源码，26 用例） |
 | `bump_assets.py` | 版本号刷新脚本（见上） |
