@@ -692,9 +692,9 @@ body.scratch-on #answerArea{position:relative;z-index:65}
   --shadow-3:0 18px 42px rgba(31,45,61,.14);
   --radius:16px; --radius-sm:12px; --radius-lg:20px; --radius-pill:999px;
 }
-html{background:#e9edf1}
-html,body{background:#e9edf1!important}
-body{background:linear-gradient(160deg,#f3f7f9 0%,#e9eef3 38%,#e5ece8 100%)!important;
+html{background:#ffffff}
+html,body{background:#ffffff!important}
+body{background:#ffffff!important;
   background-attachment:fixed!important;color:var(--ink);font:15px/1.7 var(--sans)}
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:radial-gradient(640px 420px at 12% 0%,rgba(37,99,235,.08),transparent 62%),
@@ -836,8 +836,12 @@ body.exam-page:has(#stage-answer.active) .exam-context{display:flex!important}
 .drill-result-answers{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
 .drill-result-answers>div{border:1px solid var(--glass-border)!important;background:rgba(255,255,255,.55)!important;
   border-radius:12px!important;padding:11px 14px!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.drill-result-answers>div:first-child{background:rgba(220,38,38,.05)!important;border-color:rgba(220,38,38,.18)!important}
-.drill-result-answers>div:first-child b{color:var(--bad)!important}
+/* 你的答案框：默认中性白玻璃；答错红、答对绿（按行状态类着色，根治"答对仍标红"） */
+.drill-result-answers>div:first-child b{color:var(--ink)!important}
+.drill-result-row.is-wrong .drill-result-answers>div:first-child{background:rgba(220,38,38,.05)!important;border-color:rgba(220,38,38,.18)!important}
+.drill-result-row.is-wrong .drill-result-answers>div:first-child b{color:var(--bad)!important}
+.drill-result-row.is-right .drill-result-answers>div:first-child{background:rgba(22,163,74,.05)!important;border-color:rgba(22,163,74,.18)!important}
+.drill-result-row.is-right .drill-result-answers>div:first-child b{color:var(--ok)!important}
 .drill-result-answers>div:last-child{background:rgba(22,163,74,.05)!important;border-color:rgba(22,163,74,.18)!important}
 .drill-result-answers>div:last-child b{color:var(--ok)!important}
 .drill-result-state.is-right,.drill-result-row.is-right .drill-result-state,.rev-item.ok .badge{color:var(--ok)!important}
@@ -965,14 +969,14 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
    做题页 1:1 官方 Bluebook 精确还原（2026-11-22）
    覆盖上方「答题页玻璃化」的渐变/半透明/毛玻璃残留，恢复官方纯色。
    官方取色（自用户提供的 Bluebook 截图实测）：
-     页面背景 #EAEEF2 · 上下文条 #E8EDF4 · 工具条/底栏 #FFFFFF
+     页面背景 #FFFFFF（用户指定：做题背景改白） · 上下文条 #FFFFFF（细分隔线） · 工具条/底栏 #FFFFFF
      选项卡 #F7F9FA（无边框）· 字母圆标 #E9EBEC / 边框 #A3A4A6 / 字 #3D3E3F
    硬编码色值，不依赖 theme 变量 → 明暗主题下做题页均保持官方，不被暗黑覆盖。
    ============================================================ */
 body:has(#questionView:not([hidden])),
 body:has(#stage-answer:not([hidden])),
 body.exam-page:has(#stage-answer:not([hidden])){
-  background:#EAEEF2!important;
+  background:#FFFFFF!important;
   background-image:none!important;
   background-attachment:scroll!important;
 }
@@ -981,9 +985,9 @@ body:has(#stage-answer:not([hidden]))::before,
 body.exam-page:has(#stage-answer:not([hidden]))::before{display:none!important}
 body:has(#questionView:not([hidden])) .drill-context,
 body.exam-page:has(#stage-answer:not([hidden])) .exam-context{
-  background:#E8EDF4!important;
+  background:#FFFFFF!important;
   -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
-  border-bottom:0!important;box-shadow:none!important;
+  border-bottom:1px solid #D7DDE6!important;box-shadow:none!important;
 }
 body:has(#questionView:not([hidden])) .drill-questionbar,
 body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar{
@@ -992,7 +996,7 @@ body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar{
 }
 body:has(#questionView:not([hidden])) .drill-main,
 body.exam-page:has(#stage-answer:not([hidden])) .exam-main{
-  background:#EAEEF2!important;
+  background:#FFFFFF!important;
 }
 body:has(#questionView:not([hidden])) .drill-footer,
 body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{
