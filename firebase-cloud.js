@@ -77,6 +77,8 @@
         currentUser = u || null;
         if (stateCb) stateCb(currentUser);
       });
+      // 弹窗被浏览器拦下时会走重定向登录，这里回收上一次重定向的结果。
+      try { await auth.getRedirectResult(); } catch (e) { console.warn('重定向登录未完成', e); }
     })();
     return loading;
   }
@@ -94,6 +96,23 @@
       emailEnabled = !(e && e.code === 'auth/operation-not-allowed');
     }
     return emailEnabled;
+  }
+
+  // 弹窗登录的统一入口：浏览器/网络拦下弹窗时，自动改用整页重定向登录，
+  // 不再出现「点了登录却什么都不发生」的死等。
+  async function signInWithProvider(provider) {
+    await init();
+    try {
+      return await auth.signInWithPopup(provider);
+    } catch (e) {
+      var c = e && e.code;
+      if (c === 'auth/popup-blocked' || c === 'auth/popup-closed-by-user' ||
+          c === 'auth/cancelled-popup-request' || c === 'auth/operation-not-supported-in-this-environment') {
+        await auth.signInWithRedirect(provider);
+        return null; // 重定向后本页会刷新，登录结果由 getRedirectResult 收尾。
+      }
+      throw e;
+    }
   }
 
   window.TDFB = {
@@ -117,19 +136,17 @@
     user: function () { return currentUser; },
     signInGoogle: function () {
       return withTimeout((async function () {
-        await init();
         var provider = new fb.auth.GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
-        return auth.signInWithPopup(provider);
+        return signInWithProvider(provider);
       })(), 25000, '登录窗口加载超时：当前网络连不上 Google 登录服务，可改用 Apple 账号或邮箱登录。');
     },
     signInApple: function () {
       return withTimeout((async function () {
-        await init();
         var provider = new fb.auth.OAuthProvider('apple.com');
         provider.addScope('name');
         provider.addScope('email');
-        return auth.signInWithPopup(provider);
+        return signInWithProvider(provider);
       })(), 25000, '登录窗口加载超时：当前网络连不上 Apple 登录服务，可改用 Google 或邮箱登录。');
     },
     signInEmail: function (email, pw) {

@@ -136,6 +136,10 @@
     if (c === 'auth/apple-provider-disabled') return 'Apple 登录暂未开放，请稍后再试。';
     if (c === 'auth/account-exists-with-different-credential') return '该邮箱已用其他方式注册，请用原方式登录。';
     if (c === 'auth/network-request-failed') return '网络异常，请检查连接后重试。';
+    if (c === 'auth/unauthorized-domain') return '当前网址未被 Firebase 授权，「Google / Apple 登录」用不了；请改用邮箱密码登录。';
+    if (c === 'auth/popup-blocked') return '浏览器拦下了登录弹窗，请允许弹窗后重试。';
+    if (c === 'auth/cancelled-popup-request') return '上一次登录还没结束，请稍等两秒再点。';
+    if (c === 'auth/internal-error') return '登录服务返回异常，请刷新页面后重试。';
     return m || '操作失败，请重试。';
   }
 
@@ -401,6 +405,7 @@
     var pw = ui && ui.pw ? ui.pw.value : '';
     if (!email) { setError('请填写邮箱。'); return; }
     if (emailMode !== 'reset' && !pw) { setError('请填写密码。'); return; }
+    if (emailMode === 'register' && String(pw).length < 6) { setError('密码至少 6 位。'); return; }
     try {
       setBusy(true); setError('');
       if (emailMode === 'register') await FB.signUpEmail(email, pw);
@@ -409,7 +414,16 @@
         setStatus('重置密码邮件已发送，请查收 ' + email, 'ok');
         return;
       } else await FB.signInEmail(email, pw);
-    } catch (e) { setError(friendlyError(e)); }
+      if (emailMode !== 'reset') setStatus(emailMode === 'register' ? '账号已创建，正在打开你的学习档案…' : '登录成功，正在打开你的学习档案…', 'ok');
+    } catch (e) {
+      var msg = friendlyError(e);
+      if (emailMode === 'login' && (e && (e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password'))) {
+        msg = '邮箱或密码不正确。如果这个邮箱之前是用 Google / Apple 登录的，请改用同一种方式；也可以点「忘记密码？」重设密码。';
+      } else if (emailMode === 'register' && e && e.code === 'auth/email-already-in-use') {
+        msg = '这个邮箱已经有账号了：请返回登录；如果忘了密码，点「忘记密码？」重置。';
+      }
+      setError(msg);
+    }
     finally { setBusy(false); }
   }
   async function doGhLogin() {

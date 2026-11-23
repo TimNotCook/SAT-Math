@@ -6,12 +6,12 @@
   <meta name="description" content="SAT Math 单元抽查与官方模考：按单元抽测、全真计时模考，含参考公式表、答题导航与成绩报告。">
   <meta name="theme-color" content="#2563eb">
   <!-- CSP：静态站无响应头通道，用 meta 兜底。白名单仅含实际用到的源；'unsafe-inline' 供页面内联 script/style；tesseract 的 WASM 与 worker 内 new Function 在 worker 线程执行，不受页面 script-src 约束，故无需 'unsafe-eval'。 -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn https://apis.google.com https://www.gstatic.com https://accounts.google.com; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com https://sat-math-a07ae.firebaseapp.com https://*.firebaseapp.com https://apis.google.com https://accounts.google.com https://appleid.apple.com https://www.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
   <title>SAT Math · 抽查与模考</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=cf443addcac7">
-  <link rel="stylesheet" href="bluebook.css?v=cf443addcac7">
-  <link rel="stylesheet" href="glass.css?v=cf443addcac7"><script src="theme.js?v=cf443addcac7"></script>
+  <link rel="stylesheet" href="app.css?v=d68c60309951">
+  <link rel="stylesheet" href="bluebook.css?v=d68c60309951">
+  <link rel="stylesheet" href="glass.css?v=d68c60309951"><script src="theme.js?v=d68c60309951"></script>
   <style>#questionNav{z-index:68!important}</style>
 </head>
 <body class="exam-page protected">
@@ -208,21 +208,21 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/questions.js?v=cf443addcac7" defer></script>
-  <script src="data/text.js?v=cf443addcac7" defer></script>
-  <script src="data/figures.js?v=cf443addcac7" defer></script>
-  <script src="data/figure_crops.js?v=cf443addcac7" defer></script>
-  <script src="data/choice_crops.js?v=cf443addcac7" defer></script>
-  <script src="app-ui.js?v=cf443addcac7" defer></script>
-  <script src="figures.js?v=cf443addcac7" defer></script>
+  <script src="data/questions.js?v=d68c60309951" defer></script>
+  <script src="data/text.js?v=d68c60309951" defer></script>
+  <script src="data/figures.js?v=d68c60309951" defer></script>
+  <script src="data/figure_crops.js?v=d68c60309951" defer></script>
+  <script src="data/choice_crops.js?v=d68c60309951" defer></script>
+  <script src="app-ui.js?v=d68c60309951" defer></script>
+  <script src="figures.js?v=d68c60309951" defer></script>
 
-  <script src="grade-core.js?v=cf443addcac7" defer></script>
-  <script src="exam-core.js?v=cf443addcac7" defer></script>
-  <script src="analysis.js?v=cf443addcac7" defer></script>
-  <script src="scratch-pad.js?v=cf443addcac7" defer></script>
-  <script src="exam.js?v=cf443addcac7" defer></script>
-  <script src="cloud-config.js?v=cf443addcac7" defer></script>
-  <script src="firebase-cloud.js?v=cf443addcac7" defer></script>
-  <script src="github-auth.js?v=1bc3f91548b6" defer></script><script src="cloud-account.js?v=cf443addcac7" defer></script>
+  <script src="grade-core.js?v=d68c60309951" defer></script>
+  <script src="exam-core.js?v=d68c60309951" defer></script>
+  <script src="analysis.js?v=d68c60309951" defer></script>
+  <script src="scratch-pad.js?v=d68c60309951" defer></script>
+  <script src="exam.js?v=d68c60309951" defer></script>
+  <script src="cloud-config.js?v=d68c60309951" defer></script>
+  <script src="firebase-cloud.js?v=d68c60309951" defer></script>
+  <script src="github-auth.js?v=1bc3f91548b6" defer></script><script src="cloud-account.js?v=d68c60309951" defer></script>
 </body>
 </html>
