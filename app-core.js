@@ -281,7 +281,7 @@
       { id: 'mock', label: '模考', href: 'exam.html?mode=mock' }
     ];
     host.innerHTML = '<header class="appbar"><div class="appbar-inner">' +
-      '<a class="brand" href="drill.html"><b>TD SAT Math</b></a>' +
+      '<a class="brand" href="drill.html"><b>SAT Math</b></a>' +
       '<nav class="mainnav" aria-label="主要功能">' + items.map(function (n) {
         return '<a href="' + n.href + '" class="' + (n.id === active ? 'on' : '') + '"' +
           (n.id === active ? ' aria-current="page"' : '') + '>' + n.label + '</a>';

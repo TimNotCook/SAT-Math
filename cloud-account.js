@@ -789,7 +789,7 @@
 
   function renderAboutTab() {
     var b = ui.body;
-    b.appendChild(el('div', 'td-acct-who', 'TD SAT Math'));
+    b.appendChild(el('div', 'td-acct-who', 'SAT Math'));
     var bank = (window.TD_BANK && window.TD_BANK.questions) ? window.TD_BANK.questions.length : 0;
     b.appendChild(el('p', 'td-acct-note',
       '真题练习 · 单元抽查 · 错题回顾 · 模考\n题库 ' + bank + ' 题。'));
