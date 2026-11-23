@@ -538,20 +538,12 @@ html[data-theme="dark"] .exam-special-chip.on small{color:#c8c8cc!important}
   box-shadow:0 3px 10px rgba(31,45,61,.09),var(--glass-hi)!important;
 }
 
-/* ---------- 米白底（暖调克制，不偏黄） + 玻璃质感描边 ----------
-   仅在浅色主题生效；官方做题/模考页（exam-page / questionView / stage-answer）仍保持纯白。
+/* ---------- 玻璃质感描边（底色沿用站点原本的冷白） ----------
+   仅在浅色主题生效；官方做题/模考页（exam-page）保持纯白。
    描边 = 半透明灰蓝外线 + 内侧白色高光圈，形成玻璃切面质感。 */
 html[data-theme="light"]{
   --glass-border:1px solid rgba(122,138,160,.30);
   --glass-hi:inset 0 1px 0 rgba(255,255,255,.78),inset 0 0 0 1px rgba(255,255,255,.32);
-}
-html[data-theme="light"] body:not(.exam-page):not(:has(#questionView:not([hidden]))):not(:has(#stage-answer:not([hidden]))){
-  background-color:#f6f4f0!important;
-  background-image:
-    radial-gradient(720px 400px at 86% -6%,rgba(255,255,255,.55),transparent 62%),
-    radial-gradient(600px 360px at 4% 4%,rgba(255,255,255,.45),transparent 60%),
-    linear-gradient(165deg,#faf8f4 0%,#f6f4ef 50%,#f2f0eb 100%)!important;
-  background-attachment:fixed!important;
 }
 html[data-theme="light"] body.exam-page{background:#fff!important;background-image:none!important;}
 html[data-theme="light"] .appbar,
