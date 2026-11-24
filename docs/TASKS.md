@@ -2,14 +2,14 @@
 
 > 最后核实：2026-11-24 13:5x（HK）｜核对人：主会话（当前工作进度）
 
-## 铁律：单一信源
+## 铁律（权威定义：`AGENTS.md` →「🚨 铁律：一切成果只认线上仓库」）
 
-**所有东西只放线上仓库 `TimNotCook/SAT-Math`，不放线下。**
+**所有东西只放线上仓库 `TimNotCook/SAT-Math`，不放线下。** 细则（完成的定义、禁止留本地、跨会话交接）以 `AGENTS.md` 为准，这里只记本项目落地动作：
 
-- 唯一权威版本 = `origin/main`。本地目录（Mac `~/Work/SAT-Math`、`~/Work/SAT-Math-live`、云主机 `~/SAT-Math-vm`）只当工作区，**不允许出现只存在于本地的交付物**。
-- 任何文档、任务单、素材、脚本、题库改动，都必须 `commit` + `push` 到 `main` 才算交付；未推送等同于没做。
-- 本地副本之间不互为备份，不许"先放我这儿回头再推"。发现某份副本有独有提交，先回填进 `main`，回填不了就直接丢弃（见 P0-1）。
-- 推送一律走仓库内的 `safe_push.sh`，禁止 `git push --force`。
+- 唯一权威版本 = `origin/main`；交付前用 `git ls-remote origin refs/heads/main` 核对哈希。
+- 本项目现存本地工作区（均为草稿区，不承载独有内容）：Mac `~/Work/SAT-Math`、`~/Work/SAT-Math-live`、云主机 `~/SAT-Math-vm`。
+- 任务单、复盘、审计结论写进 `docs/`；截图类证据随任务回帖，不长期堆在本机。
+- 推送走 `safe_push.sh`，禁止 `git push --force`。
 
 ## 基线快照（已实测）
 
