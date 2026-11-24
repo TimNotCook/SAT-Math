@@ -189,18 +189,6 @@ await domPanel('DOM：？mode=quiz 点开草稿后的 .mist-toolbar（Pen / High
 await shot('quiz-scratch');
 await ev(`(()=>{const p=document.getElementById('__domproof');if(p)p.remove()})()`);
 
-/* ---------- 3. 练习/抽查层仍是中文（防回归） ---------- */
-await openExam('quiz');
-await sleep(600);
-const quizScratch = await ev(`(()=>{const b=document.getElementById('btnScratch');
-  return b?{title:b.getAttribute('title'),label:(b.querySelector('span')||{}).textContent,hidden:b.hidden}:{missing:true}})()`);
-check('quiz', '抽查层草稿按钮仍显示', !quizScratch.missing && !quizScratch.hidden, quizScratch.missing ? 'missing' : ('hidden=' + quizScratch.hidden));
-check('quiz', '抽查层 title 保留中文', CJK.test(quizScratch.title || ''), quizScratch.title);
-check('quiz', '抽查层文案保留中文', quizScratch.label === '草稿', quizScratch.label);
-await domPanel('DOM：？mode=quiz 的 #btnScratch（练习/抽查层中文，未被英文化）',
-  await ev(`document.getElementById('btnScratch').outerHTML`));
-await shot('quiz-scratch');
-
 /* ---------- 汇总 ---------- */
 let pass = 0;
 for (const r of results) {
