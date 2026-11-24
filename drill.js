@@ -28,7 +28,7 @@
   var resultSec = params.get('result') === '1' ? params.get('sec') : null;
   var inResultView = !!(resultSec && A.CATALOG[resultSec]);
   var inQuestionView = !inResultView && !!(params.get('sec') && A.CATALOG[params.get('sec')]);
-  var PAGE_TITLE = 'SAT Math Prep';
+  var PAGE_TITLE = 'SAT Math Prep · 真题练习';
 
   var els = {
     selectView: $('selectView'), unitView: $('unitView'), specialView: $('specialView'),
