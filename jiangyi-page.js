@@ -121,10 +121,12 @@
       els.jyAnswerArea.innerHTML = '<div class="drill-choices" role="group" aria-label="答案选项">' +
         q.choices.map(function (text, i) {
           var L = String.fromCharCode(65 + i);
-          /* 选项本身是一张表（原书四张两列表）：渲染真表格，不用扫描裁图 */
-          var body = (cts && cts[i])
-            ? '<span class="drill-choice-text drill-choice-table">' + tableHtml(cts[i]) + '</span>'
-            : '<span class="drill-choice-text">' + fmt(text) + '</span>';
+          /* 选项本身是一张表（原书四张两列表）：渲染真表格，不用扫描裁图；出错退回文字，绝不空屏 */
+          var body = '<span class="drill-choice-text">' + fmt(text) + '</span>';
+          if (cts && cts[i]) {
+            try { body = '<span class="drill-choice-text drill-choice-table">' + tableHtml(cts[i]) + '</span>'; }
+            catch (e) { body = '<span class="drill-choice-text">' + fmt(text) + '</span>'; }
+          }
           return '<button type="button" class="drill-choice' + (val.toUpperCase() === L ? ' on' : '') +
             '" data-choice="' + L + '" aria-pressed="' + (val.toUpperCase() === L) + '">' +
             '<span class="drill-choice-letter">' + L + '</span>' +
@@ -149,8 +151,10 @@
     els.jyNext.disabled = index >= qs.length - 1;
     J.setCursor(boardId, section, index);
   }
-  /* 讲义里的表格题用真表格，不裁扫描页 */
-  function tableHtml(rows) {
+  /* 讲义里的表格题用真表格，不裁扫描页；两种写法都吃：
+     [['x','y'],['3','13']…]（题干表 table）与 {head:[…],rows:[…]}（选项表 choiceTables） */
+  function tableHtml(t) {
+    var rows = Array.isArray(t) ? t : [t.head || []].concat(t.rows || []);
     return '<table class="jy-table">' + rows.map(function (row, i) {
       return '<tr>' + row.map(function (cell) {
         return '<' + (i ? 'td' : 'th') + '>' + esc(cell) + '</' + (i ? 'td' : 'th') + '>';
