@@ -30,6 +30,8 @@
   var currentUser = null;
   var token = null;
   var meLogin = null;
+  var pending = null;      /* 排队等待写入的最新快照 */
+  var flushing = null;     /* 正在进行的写入链，保证同一时刻只有一次 PUT */
 
   function persistProfile() {
     try {
@@ -91,6 +93,33 @@
     return '/repos/' + meLogin + '/' + DATA_REPO + '/contents/' + DATA_FILE;
   }
 
+  /* 写快照：409/422 基本都是「两次并发写了同一个 sha」，重取 sha 再写即可。 */
+  async function writeSnapshot(payload) {
+    await ensureRepo();
+    var content = JSON.stringify({
+      payload: payload,
+      nickname: currentUser && currentUser._nick ? currentUser._nick : '',
+      updated_at: new Date().toISOString()
+    });
+    for (var attempt = 0; attempt < 3; attempt++) {
+      var body = { message: 'progress ' + new Date().toISOString(), content: b64(content), branch: 'main' };
+      try {
+        var f = await api(fileUrl() + '?ref=main');
+        body.sha = f.sha;
+      } catch (e) {
+        if (e.status !== 404) throw e;   /* 404 = 新文件，不需要 sha */
+      }
+      try {
+        await api(fileUrl(), { method: 'PUT', body: body });
+        return;
+      } catch (e) {
+        if (e.status !== 409 && e.status !== 422) throw e;
+        await new Promise(function (r) { setTimeout(r, 400 + attempt * 600); });
+      }
+    }
+    throw new Error('进度写入冲突，稍后自动重试。');
+  }
+
   window.TDGH = {
     available: function () { return true; },
     active: function () { return !!token; },
@@ -149,23 +178,19 @@
       }
     },
 
-    pushProgress: async function (payload) {
-      await ensureRepo();
-      var content = JSON.stringify({
-        payload: payload,
-        nickname: currentUser && currentUser._nick ? currentUser._nick : '',
-        updated_at: new Date().toISOString()
-      });
-      var body = {
-        message: 'progress ' + new Date().toISOString(),
-        content: b64(content),
-        branch: 'main'
-      };
-      try {
-        var f = await api(fileUrl() + '?ref=main');
-        body.sha = f.sha;
-      } catch (e) { /* 新文件，不需要 sha */ }
-      await api(fileUrl(), { method: 'PUT', body: body });
+    pushProgress: function (payload) {
+      pending = payload;
+      if (flushing) return flushing;
+      flushing = (async function loop() {
+        try {
+          while (pending) {
+            var p = pending;
+            pending = null;
+            await writeSnapshot(p);
+          }
+        } finally { flushing = null; }
+      })();
+      return flushing;
     },
 
     updateNickname: async function (name) {
