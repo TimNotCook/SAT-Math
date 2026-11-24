@@ -1,5 +1,11 @@
 # 云同步落地决策（码农 α · 2026-11-24）
 
+> **16:20 更新（先看这段，下面的旧结论已被它取代）**
+> database 确实建不了表（403，见证据），但 **storage 的 `runtime` 桶是通的**，对象路径必须 `users/<uid>/…`。
+> 也就是说后端给的是"按用户隔离的文件存储"，不是关系表 —— **`profiles` 不用换后端了**，已改走
+> `runtime/users/<uid>/tdsat-profile.json`（commit `d23a48e`），**只差一个能登录的账号做真机验收**。
+> 用户名映射表仍然没有"登录前公共可读"的通道（storage 下载也要登录态），建议先退回"用户名只做展示名"。
+
 > 一句话：`profiles` 表和用户名映射表**不是"忘了建"，是建不了** —— WorkBuddy 后端的数据路由对本站 Origin 一律 403，
 > 连"表在不在"都问不到。要么换后端（Supabase，推荐），要么平台侧开库。今天先交证据 + 三条路，你拍一条我立刻做。
 
@@ -89,3 +95,14 @@ create table usernames (
 
 1. 选 **A / B / C**（选 A 的话把 Supabase `URL + anon key` 贴给我，5 分钟就能开工）；
 2. 用户名走 **做法 1（只做展示名）** 还是 **做法 2（真用户名登录）**。
+
+## 六、16:20 的落地状态（取代上面"选 A/B/C"那一段）
+
+| 事 | 现在在哪 | 还差什么 |
+|---|---|---|
+| `profiles`（档案） | **已改道 storage**：`runtime/users/<uid>/tdsat-profile.json`，db 保留兜底，commit `d23a48e`；relay 新增受限 `storage` 通道，commit `fe241a1`→`e9f0d08` | **一个能登录的账号**（邮箱+密码）才能在真机上验"写完→换机读回" |
+| 跨设备同步 | 客户端链路本来完整（`afterSignIn` → `getArchive` → `mergeLocalWithCloud` → `silentPush`） | 同上；11-25 上午两机实测必须拿到账号 |
+| 用户名映射表 | **做不了**：storage 下载同样要登录态，`shared/<ownerUid>/` 也只对 owner 可见，没有"登录前公共可读" | 要么平台开 database，要么 Supabase，要么退回做法 1（只做展示名） |
+
+所以现在的卡点只剩两件外部输入：**① 测试账号（邮箱+密码）② 用户名要不要退回展示名**。
+Supabase 只剩"用户名映射表"这一件事需要它，`profiles` 不必再等。
