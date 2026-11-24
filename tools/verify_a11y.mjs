@@ -180,12 +180,13 @@ const quizPad = await ev(`(async()=>{const b=document.getElementById('btnScratch
   return {opened:true, display:cs.display, vis:cs.visibility, pe:getComputedStyle(layer.querySelector('.mist-toolbar')).pointerEvents,
     penTitle:pen&&pen.getAttribute('title'), penPe:pen&&getComputedStyle(pen).pointerEvents, penDisabled:pen&&pen.disabled,
     hlTitle:hl&&hl.getAttribute('title'), canvas:!!layer.querySelector('.mist-canvas'),
-    btnPressed:b.getAttribute('aria-pressed')}})()`);
+    btnPressed:b.getAttribute('aria-pressed'),
+    html:(layer.querySelector('.mist-toolbar')||{}).outerHTML ? layer.querySelector('.mist-toolbar').outerHTML.slice(0,1200) : '(no toolbar)'}})()`);
 check('quiz', '点开草稿后工具条真的出现', quizPad.opened && quizPad.display !== 'none', quizPad.opened ? ('display=' + quizPad.display) : 'no layer');
 check('quiz', '工具条可点（不是 pointer-events:none 的死壳）', quizPad.penPe === 'auto' && !quizPad.penDisabled, 'pe=' + quizPad.penPe + ' disabled=' + quizPad.penDisabled);
 check('quiz', 'Pen / Highlighter 都在且带名字', !!quizPad.penTitle && !!quizPad.hlTitle, (quizPad.penTitle || '') + ' / ' + (quizPad.hlTitle || ''));
 await domPanel('DOM：？mode=quiz 点开草稿后的 .mist-toolbar（Pen / Highlighter 可点，aria-pressed=true）',
-  await ev(`document.querySelector('.mist-toolbar').outerHTML.slice(0,1400) + '\n[aria-pressed]=' + document.getElementById('btnScratch').getAttribute('aria-pressed')`));
+  quizPad.html + '\n[aria-pressed]=' + quizPad.btnPressed);
 await shot('quiz-scratch');
 await ev(`(()=>{const p=document.getElementById('__domproof');if(p)p.remove()})()`);
 
