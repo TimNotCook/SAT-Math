@@ -246,10 +246,12 @@ window.TD_FIG_SPECS = {
   },
 
   /* 阴影不等式图（U1-12 / U1-13 / TD-15-01 / TD-15-02 / TD-15-03）2026-11-24 起
-     不再用 SVG 重画，改为「原书图形 1:1 裁剪」呈现（见 images/fig/ 同名 PNG）。
-     依据：重画的网格步长/坐标轴位置/阴影边与扫描原图总有细差，老板要求与原题
-     100% 一致；SVG 版几何参数（y=1-4x 右侧、y=15x-20 左侧、y=-2x+13 右上、
-     y>=33 横带）已逐题对过原图，记录在 docs/verify/shaded-region-2026-11-24.md。 */
+     一律走矢量 spec（不再有任何 images/fig/*.png 位图裁剪，注册表里也已摘除）。
+     几何全部由题干不等式解析给出，不是照扫描图描的：
+       y = 1-4x 右上方、y = 15x-20 左上方(过 (0,-20)，斜率 15)、y = -2x+13 右上方、
+       横向带 33 <= y <= 60（只画下边界 y=33，上边界就是图框，不另画线）。
+     轴按原书样式在原点交叉、带箭头，x/y 印在箭头旁；参数与答案自洽复盘见
+     docs/verify/shaded-vector-2026-11-24.md。 */
 
   // TD-25-05: horizontal box plot, plain number line, no gridlines.
   // (lo, Q1, median, Q3, hi) = (85, 97, 114, 124, 138) — pixel-verified against the book scan.
