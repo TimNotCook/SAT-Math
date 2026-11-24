@@ -49,12 +49,13 @@
 
   /* ---------- preferences（外观，只存这台设备） ---------- */
   var PREFS_KEY = 'tdsat_prefs_v1';
-  var prefs = { fontScale: 'normal', compact: false };
+  var prefs = { fontScale: 'normal', compact: false, calcUnit: false };
   function loadPrefs() {
     try {
       var raw = localStorage.getItem(PREFS_KEY);
       if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') {
         prefs.fontScale = p.fontScale || 'normal';
+        prefs.calcUnit = !!p.calcUnit;
         prefs.compact = !!p.compact;
       } }
     } catch (e) { console.warn('读取外观偏好失败', e); }
@@ -725,7 +726,7 @@
     panel.appendChild(head);
     // 标签栏：账户 / 外观 / 关于
     var tabs = el('div', 'td-set-tabs');
-    var tabDefs = [['account', '账户'], ['appearance', '外观'], ['about', '关于']];
+    var tabDefs = [['account', '账户'], ['appearance', '外观'], ['practice', '练习'], ['about', '关于']];
     tabDefs.forEach(function (pair) {
       var t = el('button', 'td-set-tab', pair[1]);
       t.type = 'button';
@@ -1045,6 +1046,23 @@
     b.appendChild(el('p', 'td-acct-note', '外观偏好保存在这台设备，刷新后依然有效。'));
   }
 
+  function renderPracticeTab() {
+    var b = ui.body;
+    var r0 = row('单元练习计算器', '打开后，单元练习答题页也会显示计算器按钮；关闭则只有专项训练、单元抽查与模考可用。');
+    var sw = el('button', 'td-set-switch');
+    sw.type = 'button';
+    sw.setAttribute('data-on', prefs.calcUnit ? '1' : '0');
+    sw.setAttribute('aria-label', '单元练习计算器');
+    sw.onclick = function () {
+      prefs.calcUnit = !prefs.calcUnit;
+      savePrefs();
+      try { window.dispatchEvent(new CustomEvent('td:prefs')); } catch (e) { console.warn('通知计算器设置失败', e); }
+      renderBody();
+    };
+    r0.appendChild(sw); b.appendChild(r0);
+    b.appendChild(el('p', 'td-acct-note', '只有单元练习受这个开关控制：专项训练、单元抽查与模考始终显示计算器。设置保存在这台设备。'));
+  }
+
   function renderAboutTab() {
     var b = ui.body;
     b.appendChild(el('div', 'td-acct-who', 'SAT Math'));
@@ -1072,6 +1090,9 @@
     } else if (activeTab === 'appearance') {
       setStatus('外观偏好自动保存在这台设备', 'plain');
       renderAppearanceTab();
+    } else if (activeTab === 'practice') {
+      setStatus('练习偏好自动保存在这台设备', 'plain');
+      renderPracticeTab();
     } else if (activeTab === 'about') {
       setStatus('关于', 'plain');
       renderAboutTab();

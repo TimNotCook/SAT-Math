@@ -351,11 +351,30 @@
       return true;
     }
   }
+
+  /* 计算器可见性：专项训练/单元抽查/模考固定可用；单元练习由设置里的开关控制。 */
+  function calcUnitAllowed() {
+    try {
+      var raw = localStorage.getItem('tdsat_prefs_v1');
+      var p = raw ? JSON.parse(raw) : null;
+      return !!(p && p.calcUnit);
+    } catch (e) { return false; }
+  }
+  function applyCalcVisibility() {
+    if (!section) return;
+    var calcBtn = $('btnCalculator');
+    if (!calcBtn) return;
+    var allow = A.isSpecialSection(section) || A.isTopicSection(section) || calcUnitAllowed();
+    if (calcBtn.hidden !== !allow) {
+      if (!allow && window.U && U.closeCalculator) { try { U.closeCalculator(); } catch (e) { console.warn('关闭计算器失败', e); } }
+      calcBtn.hidden = !allow;
+    }
+  }
+
   function applyQuestion(nextSection, nextIndex, replace, focusQuestion) {
     if (!A.CATALOG[nextSection] || !A.CATALOG[nextSection].length) return;
     section = nextSection;
-    var calcBtn = $('btnCalculator');
-    if (calcBtn) calcBtn.hidden = !(A.isSpecialSection(section) || A.isTopicSection(section));
+    applyCalcVisibility();
     questions = A.CATALOG[section];
     index = Math.max(0, Math.min(questions.length - 1, nextIndex));
     if (!syncHistory(replace)) return;
@@ -752,11 +771,12 @@
 
   els.scratch.addEventListener('click', scratchPad.toggle);
   U.bindTools({ reference: 'btnReference', calculator: 'btnCalculator', allowCalculator: true });
-  // 计算器仅专项训练（1.7.T* / 3.6.T*）可用；单元练习常规板块不显示。
-  (function () {
-    var calcBtn = $('btnCalculator');
-    if (calcBtn) calcBtn.hidden = true;
-  })();
+  // 计算器默认隐藏，进入题目后按板块与设置决定（单元练习可由设置开关打开）
+  (function () { var c = $('btnCalculator'); if (c) c.hidden = true; })();
+  applyCalcVisibility();
+  try {
+    window.addEventListener('td:prefs', function () { applyCalcVisibility(); });
+  } catch (e) { console.warn('监听计算器偏好失败', e); }
   /* Manual "save / restore" buttons were removed: every answer is auto-saved
      to disk (and the desktop shell mirrors it every 5s). No user action needed. */
   A.nav('drill');
