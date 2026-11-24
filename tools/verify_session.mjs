@@ -207,7 +207,7 @@ const base = await freshSave();
   const s5 = await stages();
   check('timeout-total', '刷新后直接到成绩页', s5.result && !s5.answer, s5.result ? 'result' : 'answer/intro');
   const res = await ev(`(()=>{const t=document.getElementById('resSub');return t?t.textContent:''})()`);
-  check('timeout-total', '成绩页标注自动交卷', /automatic|auto|自动/.test(strip(res)), res);
+  check('timeout-total', '成绩页标注自动交卷', /auto|automatic|自动/i.test(strip(res)), res);
   await shot('timeout-total-result');
 }
 
