@@ -13,9 +13,9 @@
 | 1.2 | Solving linear equations | p191 | 11 | 11 | 0 | p13×3、p14×3、p16×2、p17×2、p18×1 | 1.A 2.B 3.C 4.C 5..9411 or .9412 or 16/17 6.D 7.C 8.D 9.D 10.6 11.A |
 | 1.3 | Interpreting linear functions or equations | p191 | 8 | 8 | 0 | p19×1、p20×2、p21×2、p22×2、p23×1 | 1.D 2.C 3.A 4.A 5.A 6.D 7.5 8.A |
 | 1.4 | Word problems: linear equations and inequalities | p191 | 11 | 11 | 0 | p24×2、p25×3、p26×2、p27×1、p28×3 | 1.D 2.A 3.A 4.D 5.248 6.D 7.A 8.A 9.C 10.-14 11.A |
-| 1.5 | Linear inequalities and graphs | p192 | 6 | 0 | 6 | p29–p35（待逐题确认） | 1.A 2.D 3.D 4.D 5.C 6.B |
+| 1.5 | Linear inequalities and graphs | p192 | 6 | 6 | 0 | p30×1、p31×1、p32×1、p34×2、p35×1 | 1.A 2.D 3.D 4.D 5.C 6.B |
 | 1.6 | Absolute value and equations | p192 | 4 | 0 | 4 | p36–p38（待逐题确认） | 1.D 2.9 3.A 4.A |
-| **小计** |  |  | **49** | **39** | **10** |  |  |
+| **小计** |  |  | **49** | **45** | **4** |  |  |
 
 ## U2 Problem Solving and Data Analysis
 
@@ -57,9 +57,9 @@
 
 | 应有 N | 已录 M | 缺 N-M |
 |---|---|---|
-| 243 | 39 | 204 |
+| 243 | 45 | 198 |
 
-单节全绿的记法：`已录 = 应有`。当前完成 **4 / 24 节**。
+单节全绿的记法：`已录 = 应有`。当前完成 **5 / 24 节**。
 
 
 ## 录入规则（可执行，已写进 test/jiangyi.test.js）

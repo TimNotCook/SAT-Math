@@ -14,6 +14,23 @@
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 
+  // 用半平面裁多边形：保留 y-mx-b <= 0（below）或 >= 0（above）的部分
+  function clipHalf(poly, m, b, side) {
+    var keep = [], i, p, q, f0, f1, t;
+    function f(p) { return p[1] - (m * p[0] + b); }
+    for (i = 0; i < poly.length; i++) {
+      p = poly[i]; q = poly[(i + 1) % poly.length];
+      f0 = side === 'above' ? -f(p) : f(p);
+      f1 = side === 'above' ? -f(q) : f(q);
+      if (f0 <= 1e-9) keep.push(p);
+      if ((f0 < -1e-9 && f1 > 1e-9) || (f0 > 1e-9 && f1 < -1e-9)) {
+        t = f0 / (f0 - f1);
+        keep.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]);
+      }
+    }
+    return keep;
+  }
+
   function plane(o) {
     var W = o.w, H = o.h, ml = 46, mr = 38, mt = 24, mb = 40;
     var x0 = o.x.min, x1 = o.x.max, y0 = o.y.min, y1 = o.y.max;
@@ -38,7 +55,7 @@
     var lbl = [];
     if (axX) lbl.push('<text x="' + (X(x1) + 9) + '" y="' + (Y(0) + 5) + '" font-size="13" font-style="italic" fill="' + INK + '">x</text>');
     if (axY) lbl.push('<text x="' + (X(0) + 6) + '" y="' + (Y(y1) - 8) + '" font-size="13" font-style="italic" fill="' + INK + '">y</text>');
-    if (o.originO) lbl.push('<text x="' + (X(0) - 13) + '" y="' + (Y(0) + 15) + '" font-size="12" fill="' + LAB + '">O</text>');
+    if (o.originO) lbl.push('<text x="' + (X(0) - 4) + '" y="' + (Y(0) + 15) + '" font-size="12" fill="' + LAB + '" text-anchor="end">' + (o.originText || 'O') + '</text>');
 
     // 刻度标签（只标 o.x.labels / o.y.labels 给的数）
     var tl = [];
@@ -55,8 +72,18 @@
     var ln = [];
     (o.lines || []).forEach(function (s) {
       var p = [[s.x0, s.m * s.x0 + s.b], [s.x1, s.m * s.x1 + s.b]];
-      ln.push('<line x1="' + X(p[0][0]).toFixed(1) + '" y1="' + Y(p[0][1]).toFixed(1) + '" x2="' + X(p[1][0]).toFixed(1) + '" y2="' + Y(p[1][1]).toFixed(1) + '" stroke="' + LINE + '" stroke-width="2.3" stroke-linecap="round"/>');
+      ln.push('<line x1="' + X(p[0][0]).toFixed(1) + '" y1="' + Y(p[0][1]).toFixed(1) + '" x2="' + X(p[1][0]).toFixed(1) + '" y2="' + Y(p[1][1]).toFixed(1) + '" stroke="' + LINE + '" stroke-width="2.3" stroke-linecap="round"' + (s.dash ? ' stroke-dasharray="7 5"' : '') + '/>');
     });
+
+    // 不等式阴影：把画框多边形按半平面裁掉，得到 y <= mx+b / y >= mx+b 的区域
+    var shd = [];
+    if (o.shade && o.shade.length) {
+      var poly = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+      o.shade.forEach(function (sp) { poly = clipHalf(poly, sp.m, sp.b, sp.side); });
+      if (poly.length >= 3) {
+        shd.push('<polygon points="' + poly.map(function (p) { return X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' ') + '" fill="#DCE1E8"/>');
+      }
+    }
 
     // 标点：原书用实心圆点把「关键点」钉出来（p18 #11 的两个点）
     (o.dots || []).forEach(function (d) {
@@ -66,8 +93,24 @@
     // 线一律裁到画框内，防止穿出网格（原书里线也是被框住的）
     UID++;
     var clip = '<clipPath id="jcp' + UID + '"><rect x="' + (X(x0) - 2) + '" y="' + (Y(y1) - 2) + '" width="' + (pw + 4) + '" height="' + (ph + 4) + '"/></clipPath>';
-    var body = clip + '<g clip-path="url(#jcp' + UID + ')">' + g.join('') + ln.join('') + ax.join('') + '</g>' + lbl.join('') + tl.join('');
+    var body = clip + '<g clip-path="url(#jcp' + UID + ')">' + shd.join('') + g.join('') + ln.join('') + ax.join('') + '</g>' + lbl.join('') + tl.join('');
     return { w: W, h: H, body: body };
+  }
+
+  // 只画十字轴 + 四个象限标号（原书 p34 #5 的图就是这样）
+  function quadrants(o) {
+    var W = o.w, H = o.h, cx = W / 2, cy = H / 2, m = 26;
+    var g = ['<line x1="' + m + '" y1="' + cy + '" x2="' + (W - m) + '" y2="' + cy + '" stroke="' + INK + '" stroke-width="1.4"/>',
+             '<line x1="' + cx + '" y1="' + (H - m) + '" x2="' + cx + '" y2="' + m + '" stroke="' + INK + '" stroke-width="1.4"/>',
+             '<path d="M ' + (W - m) + ' ' + cy + ' L ' + (W - m - 8) + ' ' + (cy - 3) + ' L ' + (W - m - 8) + ' ' + (cy + 3) + ' Z" fill="' + INK + '"/>',
+             '<path d="M ' + cx + ' ' + m + ' L ' + (cx - 3) + ' ' + (m + 8) + ' L ' + (cx + 3) + ' ' + (m + 8) + ' Z" fill="' + INK + '"/>',
+             '<text x="' + (W - m + 6) + '" y="' + (cy + 14) + '" font-size="13" font-style="italic" fill="' + INK + '">x</text>',
+             '<text x="' + (cx + 7) + '" y="' + (m + 2) + '" font-size="13" font-style="italic" fill="' + INK + '">y</text>',
+             '<text x="' + (cx + 34) + '" y="' + (cy - 16) + '" font-size="14" fill="' + INK + '">I</text>',
+             '<text x="' + (cx - 54) + '" y="' + (cy - 16) + '" font-size="14" fill="' + INK + '">II</text>',
+             '<text x="' + (cx - 58) + '" y="' + (cy + 30) + '" font-size="14" fill="' + INK + '">III</text>',
+             '<text x="' + (cx + 40) + '" y="' + (cy + 30) + '" font-size="14" fill="' + INK + '">IV</text>'];
+    return { w: W, h: H, body: g.join('') };
   }
 
   function wrap(body) {
@@ -75,7 +118,7 @@
   }
 
   function quad(o) {
-    var keys = ['A', 'B', 'C', 'D'], cols = o.cols || 2, gaps = 26, labH = 18;
+    var keys = o.order || ['A', 'B', 'C', 'D'], cols = o.cols || 2, gaps = 26, labH = 18;
     var pw = o.panels.A.w, ph = o.panels.A.h;
     var W = cols * pw + (cols - 1) * gaps, rows = Math.ceil(keys.length / cols);
     var H = rows * (ph + labH) + (rows - 1) * 18;
@@ -116,6 +159,46 @@
       lines: [{ m: -0.25, b: 4, x0: -10.2, x1: 10.9 }, { m: 0, b: 2, x0: -10.2, x1: 10.9 }],
       dots: [[-4, 5], [8, 2]], originO: true },
 
+
+    // p30 #1：5y + 3x <= 15 的四选图。原书排法是 A 左上 / C 右上 / B 左下 / D 右下。
+    // 正确图 A：y <= 3 - 0.6x（下降、y 截距 3、x 截距 5），影在线下；
+    // B 同斜率平移抬高、影在上；C 上升、影在下；D 上升、影在上。
+    'JY1-040': { type: 'quad', cols: 2, order: ['A', 'C', 'B', 'D'], panels: {
+      A: { w: 250, h: 250, x: { min: -1.4, max: 5.9, step: 0.5, labels: [-1, 1, 2, 3, 4, 5] },
+           y: { min: -1.2, max: 4.8, step: 0.5, labels: [1, 2, 3, 4] },
+           lines: [{ m: -0.6, b: 3, x0: -1.4, x1: 5.9 }], shade: [{ m: -0.6, b: 3, side: 'below' }],
+           originO: true, originText: '0' },
+      B: { w: 250, h: 250, x: { min: -1.4, max: 5.9, step: 0.5, labels: [-1, 1, 2, 3, 4, 5] },
+           y: { min: -1.2, max: 4.8, step: 0.5, labels: [1, 2, 3, 4] },
+           lines: [{ m: -0.6, b: 3.6, x0: -1.4, x1: 5.9 }], shade: [{ m: -0.6, b: 3.6, side: 'above' }],
+           originO: true, originText: '0' },
+      C: { w: 250, h: 250, x: { min: -6.4, max: 1.3, step: 0.5, labels: [-5, -4, -3, -2, 1] },
+           y: { min: -1.2, max: 4.8, step: 0.5, labels: [1, 2, 3, 4] },
+           lines: [{ m: 0.6, b: 4, x0: -6.4, x1: 1.3 }], shade: [{ m: 0.6, b: 4, side: 'below' }],
+           originO: true, originText: '0' },
+      D: { w: 250, h: 250, x: { min: -6.4, max: 1.3, step: 0.5, labels: [-5, -4, -3, -2, 1] },
+           y: { min: -1.2, max: 4.8, step: 0.5, labels: [1, 2, 3, 4] },
+           lines: [{ m: 0.6, b: 4.2, x0: -6.4, x1: 1.3 }], shade: [{ m: 0.6, b: 4.2, side: 'above' }],
+           originO: true, originText: '0' }
+    } },
+
+    // p31 #2：虚线 y = 1 - 4x（严格不等号所以虚线），阴影在线右上方，即 y > 1 - 4x
+    'JY1-041': { type: 'plane', w: 420, h: 400,
+      x: { min: -8.4, max: 8.4, step: 1, labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+      y: { min: -8.4, max: 8.4, step: 1, labels: [8, 6, 4, 2, -2, -4, -6, -8] },
+      lines: [{ m: -4, b: 1, x0: -8.4, x1: 8.4, dash: true }],
+      shade: [{ m: -4, b: 1, side: 'above' }], originO: true },
+
+    // p34 #5：只有十字轴 + 四个象限标号的图
+    'JY1-044': { type: 'quadrants', w: 380, h: 330 },
+
+    // p35 #6：网格 -10..10，虚线 y = x、实线 y = 4，阴影是 {y < x} 且 {y >= 4} 的那块三角形
+    'JY1-045': { type: 'plane', w: 430, h: 430,
+      x: { min: -10.5, max: 10.5, step: 1, labels: [-10, -8, -6, -4, -2, 2, 4, 6, 8, 10] },
+      y: { min: -10.5, max: 10.5, step: 1, labels: [10, 8, 6, 4, 2, -2, -4, -6, -8, -10] },
+      lines: [{ m: 1, b: 0, x0: -10.5, x1: 10.5, dash: true }, { m: 0, b: 4, x0: -10.5, x1: 10.5 }],
+      shade: [{ m: 1, b: 0, side: 'below' }, { m: 0, b: 4, side: 'above' }] },
+
     // p9 #5：四选图。答案页 p191 写 C，所以 C 是正确图：y 截距恰为 1、
     // 斜率 -a/b 落在 (-1,0)、x 截距 = b/a = 2；A/B/D 是三个错图（斜率 -1、截距 1.5、斜率 -2）。
     'JY1-005': { type: 'quad', cols: 2, panels: {
@@ -135,6 +218,7 @@
     render: function (id) {
       var s = specs[id];
       if (!s) return '';
+      if (s.type === 'quadrants') return wrap(quadrants(s));
       return wrap(s.type === 'quad' ? quad(s) : plane(s));
     }
   };
