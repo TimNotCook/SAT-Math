@@ -84,6 +84,9 @@
     var ink = { pen: PENS[0], marker: MARKERS[0] };
     var MOCK = /[?&]mode=mock/.test(location.search);   // 模考屏一律英文，练习屏维持中文
     var T = function (zh, en) { return MOCK ? en : zh; };
+    /* 练习页工具栏按「全英文」口径：只有 drill 页的三个控件词走英文；抽查页与提示文案不动。 */
+    var PRACTICE = /\/drill\.html/.test(location.pathname);
+    var TOOL = function (zh, en) { return (MOCK || PRACTICE) ? en : zh; };
     var widthIdx = { pen: 1, marker: 1 };      // 默认中档
     var store = {}, key = '', undoStack = [], redoStack = [];
     var self, timer = null;
@@ -114,8 +117,8 @@
         '<button type="button" data-redo="1" title="' + T('重做', 'Redo') + '">' + ICONS.redo + '</button>' +
         '<button type="button" data-hand="1" title="' + T('移动：让开画布，可点选项与翻页', 'Move: get the canvas out of the way') + '">' + ICONS.hand + '</button>' +
         '<span class="mist-sep"></span>' +
-        '<button type="button" data-clear="1" class="mist-text" title="' + T('清空本题', 'Clear this question') + '">' + T('清空', 'Clear') + '</button>' +
-        '<button type="button" data-done="1" class="mist-text mist-done">' + T('完成', 'Done') + '</button>' +
+        '<button type="button" data-clear="1" class="mist-text" title="' + T('清空本题', 'Clear this question') + '">' + TOOL('清空', 'Clear') + '</button>' +
+        '<button type="button" data-done="1" class="mist-text mist-done">' + TOOL('完成', 'Done') + '</button>' +
       '</div>' +
       '<div class="mist-hint"></div>' +
       '<canvas class="mist-canvas"></canvas>';
