@@ -1183,6 +1183,10 @@
   if (MODE !== 'mock' && window.ScratchPad) {
     const scratchBtn = $('btnScratch');
     if (scratchBtn) {
+      /* HTML 默认是英文（模考层纯英文）；练习/抽查是中文功能层，这里换回中文 */
+      scratchBtn.title = '草稿板：在题目上涂画标记、写草稿，答案可直接填写';
+      const lbl = scratchBtn.querySelector('span');
+      if (lbl) lbl.textContent = '草稿';
       scratchBtn.hidden = false;
       ScratchPad.attach(scratchBtn);
       const answerStage = $('stage-answer');
