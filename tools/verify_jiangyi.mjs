@@ -84,14 +84,20 @@ for (const [i, q] of qs.entries()) {
   else if (mUnit && Number(mUnit[1]) !== Number(q.section.split('.')[0])) {
     bad('section-unit', `${where} section=${q.section} 与 id 单元 JY${mUnit[1]} 不一致`);
   }
-  const key = `${q.unit || (mUnit ? mUnit[1] : '?')}|${q.section}`;
-  counts.set(key, (counts.get(key) || 0) + 1);
-
-  /* source：三段齐全，且与 page / no 一致 */
   const page = Number(q.page), no = Number(q.no);
   const src = String(q.source || '').trim();
-  if (!/^讲义\s*p\d+\s*#\d+$/.test(src)) bad('source', `${where} source 不是「讲义 p{页} #{页内题号}」：${src || '(空)'}`);
-  else if (src !== `讲义 p${page} #${no}`) bad('source-mismatch', `${where} source=${src} 与 page=${page}/no=${no} 不一致`);
+  /* 教材原题（JY4 子组）来自练习册 P200–207：单独校验练习册口径，不计入讲义各节对账 */
+  const isBook = q.group === 'textbook' || /^练习册/i.test(src);
+  if (isBook) {
+    if (!/^练习册\s*P\d+\s*#\d+$/i.test(src)) bad('source-textbook', `${where} source 必须是「练习册 P{页} #{题号}」：${src || '(空)'}`);
+    else if (src.replace(/\s+/g, '') !== `练习册P${page}#${no}`) bad('source-mismatch', `${where} source=${src} 与 page=${page}/no=${no} 不一致`);
+    if (!(page >= 200 && page <= 207)) bad('page-textbook', `${where} 练习册页码必须在 P200–207：${page}`);
+  } else {
+    const key = `${q.unit || (mUnit ? mUnit[1] : '?')}|${q.section}`;
+    counts.set(key, (counts.get(key) || 0) + 1);
+    if (!/^讲义\s*p\d+\s*#\d+$/.test(src)) bad('source', `${where} source 不是「讲义 p{页} #{页内题号}」：${src || '(空)'}`);
+    else if (src !== `讲义 p${page} #${no}`) bad('source-mismatch', `${where} source=${src} 与 page=${page}/no=${no} 不一致`);
+  }
   if (!(page > 0) || !(no > 0)) bad('page', `${where} page / no 必须是正整数`);
 
   /* 题干与答案 */
@@ -140,7 +146,7 @@ for (let i = 1; i < qs.length; i++) {
   }
 }
 
-const summary = { questions: qs.length, sectionsDeclared: declared.size, sectionsRecorded: counts.size, proofFiles: fs.existsSync(PROOF) ? fs.readdirSync(PROOF).filter(f => f.endsWith('.png')).length : 0 };
+const summary = { questions: qs.length, textbookGroup: qs.filter(q => /^练习册/i.test(String(q.source || '').trim())).length, sectionsDeclared: declared.size, sectionsRecorded: counts.size, proofFiles: fs.existsSync(PROOF) ? fs.readdirSync(PROOF).filter(f => f.endsWith('.png')).length : 0 };
 
 if (asJson) {
   console.log(JSON.stringify({ summary, fail, warn }, null, 2));

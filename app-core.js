@@ -12,11 +12,10 @@
      Legacy 64 curated questions -> 4 groups L1 ... L4 (kept, never merged away). ---------- */
   var CATALOG = {};
   BANK.questions.forEach(function (q) {
-    /* L4（Unit 4 单元精编）不再整块隐藏：9 道题按自己的 section 并回 4.1 / 4.2，
-       和教材板块同组显示；其余 L1–L3 仍是独立精编组。 */
-    var id = q.origin === 'legacy'
-      ? (q.unit === 4 && /^4\.\d/.test(q.section || '') ? q.section : 'L' + q.unit)
-      : q.section;
+    /* Unit 4 的 9 道精编原题已移交讲义复习 JY4「教材原题」子组（练习册 P200–207），
+       真题练习侧不再注册 L4，也不并进 4.1 / 4.2 的官方题数。其余 L1–L3 保留。 */
+    if (q.origin === 'legacy' && q.unit === 4) return;
+    var id = q.origin === 'legacy' ? 'L' + q.unit : q.section;
     if (!id) return;
     (CATALOG[id] = CATALOG[id] || []).push(q);
   });
@@ -53,26 +52,11 @@
     if (!SECTION_CN[s]) SECTION_CN[s] = isLegacy(s) ? '精编原题组' : s;
   });
   var UNITS = BANK.units.slice();
-  /* 与教材板块同题干的精编题标 dup（并回 4.1/4.2 后仍显示，但不进错题本，
-     避免同一道题在错题回顾里出现两次）。 */
-  function normStem(x) {
-    return String(x || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '');
-  }
-  (function markDupes() {
-    var textbook = {};
-    BANK.questions.forEach(function (q) {
-      if (q.origin !== 'legacy' && q.unit === 4) textbook[normStem(q.stem)] = q.id;
-    });
-    BANK.questions.forEach(function (q) {
-      if (q.origin !== 'legacy' || q.unit !== 4) return;
-      var twin = textbook[normStem(q.stem)];
-      if (twin) { q.dup = true; q.dupOf = twin; }
-    });
-  })();
-  var HIDDEN_SECS = {};   /* 不再隐藏任何板块：L4 已并回 4.1/4.2 */
+  /* L4 已整体移交讲义复习（JY4 教材原子组），真题练习不再有隐藏板块或重题标记：
+     这里既没有 HIDDEN_SECS，也不再改写任何题的 dup 字段。 */
   function unitSections(u) {
     return SECS.filter(function (s) {
-      return UNIT_OF(s) === u && !isTopicSection(s) && !isSpecialSection(s) && !HIDDEN_SECS[s];
+      return UNIT_OF(s) === u && !isTopicSection(s) && !isSpecialSection(s);
     });
   }
   function topicSections() { return SECS.filter(isTopicSection); }

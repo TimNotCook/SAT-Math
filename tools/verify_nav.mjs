@@ -137,25 +137,49 @@ check('gate/2.2#14 渲染', '4 个按钮都含矢量图、0 个提示挡板', ga
   !!gate && gate.buttons === 4 && gate.svgs === 4 && gate.prompt === '');
 await shot('gate-2.2-14-1280.png');
 
-/* L4 归并：4.1 含 5 道精编、4.2 含 4 道，L4 不再单独存在 */
+/* 真题侧：L4 不再注册，Unit 4 精编九题整体不可见 */
 await goto(`${BASE}/drill.html?sec=4.1&i=1`);
 const l4 = await ev(`(() => {
   const A = window.TD_APP; if (!A) return null;
-  return {
-    L4: !!A.CATALOG.L4,
-    s41: (A.CATALOG['4.1'] || []).filter(q => q.origin === 'legacy').map(q => q.id),
-    s42: (A.CATALOG['4.2'] || []).filter(q => q.origin === 'legacy').map(q => q.id),
-    dup: A.BANK.questions.filter(q => q.dup).length,
-    unit4Has41: A.unitSections(4).includes('4.1')
-  };
+  const legacyU4 = Object.keys(A.CATALOG).reduce((n, k) => n + A.CATALOG[k].filter(q => q.origin === 'legacy' && q.unit === 4).length, 0);
+  return { L4: !!A.CATALOG.L4, legacyU4, s41: (A.CATALOG['4.1'] || []).length, unit4Has41: A.unitSections(4).includes('4.1') };
 })()`);
-check('l4/归并', 'L4 不存在；4.1=5 题、4.2=4 题；dup=8；Unit4 可见 4.1',
-  l4 ? `L4=${l4.L4} 4.1=${l4.s41.length} 4.2=${l4.s42.length} dup=${l4.dup} unit4=${l4.unit4Has41}` : '读不到 TD_APP',
-  !!l4 && !l4.L4 && l4.s41.length === 5 && l4.s42.length === 4 && l4.dup === 8 && l4.unit4Has41);
-await shot('l4-4.1-1280.png');
+check('l4/真题侧移除', 'L4 不存在；legacy U4 = 0；4.1 仍可见',
+  l4 ? `L4=${l4.L4} legacyU4=${l4.legacyU4} 4.1=${l4.s41} unit4=${l4.unit4Has41}` : '读不到 TD_APP',
+  !!l4 && !l4.L4 && l4.legacyU4 === 0 && l4.unit4Has41);
+
+/* 真·用户路径：首页 → 讲义复习 → Unit 4 板块 → 教材原子组 → 9 题 */
+await goto(`${BASE}/index.html`);
+await ev(`(() => { const a = document.querySelector('a[href="jiangyi.html"]'); if (a) a.click(); })()`);
+await sleep(1200);
+const boardU4 = await ev(`(() => { const b = document.querySelector('[data-board="JY4"]'); if (!b) return false; b.click(); return true; })()`);
+await sleep(600);
+const groupCard = await ev(`(() => {
+  const g = document.querySelector('[data-group]');
+  return g ? { text: g.innerText.replace(/\s+/g, ' ').trim(), label: window.TD_JY.TB_GROUP.label } : null;
+})()`);
+check('jy4/子组入口', 'JY4 板块里出现「Unit 4・教材原题（练习册 P200–207）」',
+  boardU4 === false ? 'JY4 板块卡缺失' : (groupCard ? groupCard.text.slice(0, 60) : '子组卡缺失'),
+  !!groupCard && groupCard.text.includes('练习册 P200–207'));
+if (groupCard) {
+  await ev(`document.querySelector('[data-group]').click()`);
+  await sleep(800);
+}
+await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+await sleep(300);
+const groupQuiz = await ev(`(() => ({
+  position: document.getElementById('jyPosition') ? document.getElementById('jyPosition').textContent : '',
+  footer: document.getElementById('jyFooterSection') ? document.getElementById('jyFooterSection').textContent : '',
+  id: window.TD_JY.groupQuestions('JY4')[0] ? window.TD_JY.groupQuestions('JY4')[0].id : ''
+}))()`);
+check('jy4/九题可达', '第 1 / 9 题，页脚「练习册 P200 #…」',
+  groupQuiz ? `${groupQuiz.position} · ${groupQuiz.footer} · ${groupQuiz.id}` : '读不到做题页',
+  !!groupQuiz && /第 1 \/ 9 题/.test(groupQuiz.position) && /^练习册 P2\d\d #\d+$/.test(groupQuiz.footer));
+await shot('jy4-textbook-1280.png');
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
 await sleep(400);
-await shot('l4-4.1-390.png');
+await shot('jy4-textbook-390.png');
+await send('Emulation.clearDeviceMetricsOverride');
 await send('Emulation.clearDeviceMetricsOverride');
 
 const failed = results.filter(r => !r.pass);

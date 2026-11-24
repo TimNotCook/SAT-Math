@@ -4,7 +4,7 @@
   var J = window.TD_JY, A = window.TD_APP;
   var els = {};
   ['jyBoards', 'jyBoardCards', 'jyDataNotice', 'jySections', 'jyCrumb', 'jyBoardTitle', 'jyBoardLead',
-    'jySectionList', 'jyQuiz', 'jyCurrent', 'jyBackList', 'jyNumber', 'jyPosition',
+    'jySectionList', 'jyGroupList', 'jyQuiz', 'jyCurrent', 'jyBackList', 'jyNumber', 'jyPosition',
     'jyStem', 'jyFigure', 'jyAnswerArea', 'jyFooterSection', 'jyPrev', 'jyNext', 'jySubmit',
     'jyResult', 'jyResultTitle', 'jyResultAccuracy', 'jyResultFraction', 'jyResultWrong', 'jyResultBack']
     .forEach(function (id) { els[id] = document.getElementById(id); });
@@ -58,8 +58,23 @@
     els.jyBoardTitle.textContent = 'U' + b.unit + ' ' + b.en;
     els.jyBoardLead.textContent = b.cn + (st.dataReady
       ? '：' + st.sections + ' 个小节，已录 ' + st.total + ' 题；完成 ' + st.answered + ' / ' + st.total + '。'
-      : '：题目尚未录入，等题库侧数据。');
+      : '：题目尚未录入，等题库侧数据。') +
+      (g && g.total ? ' 另有教材原题 ' + g.total + ' 题（练习册 P200–207），单独成组，不计入官方小节。' : '');
     var secs = J.sectionsOf(id);
+    var g = J.groupStats(id);
+    if (g && g.total) {
+      els.jyGroupList.hidden = false;
+      els.jyGroupList.innerHTML = '<div class="jy-subgroup">' +
+        '<button type="button" class="jy-subgroup-card" data-group="' + g.key + '">' +
+        '<span class="jy-subgroup-kicker">教材原题 · 单独成组</span>' +
+        '<span class="go">' + g.answered + ' / ' + g.total + ' 题 · 进入 ›</span>' +
+        '<b>' + esc(g.label) + '</b>' +
+        '<small>来自练习册原页，来源标注「练习册 P… #…」；不计入 4.1 / 4.2 的官方题数</small>' +
+        '</button></div>';
+      els.jyGroupList.querySelector('[data-group]').addEventListener('click', function () {
+        openSection(id, this.dataset.group);
+      });
+    } else { els.jyGroupList.hidden = true; els.jyGroupList.innerHTML = ''; }
     els.jySectionList.innerHTML = secs.length ? secs.map(function (s) {
       var x = J.stats(id, s);
       if (!x.total) {
@@ -99,9 +114,10 @@
   function renderQ() {
     var q = qs[index]; if (!q) return;
     var b = J.board(boardId);
-    els.jyCurrent.textContent = 'U' + b.unit + ' ' + b.en + ' · ' + section;
-    /* 来源只留页脚这一条（做题栏不再挂胶囊，避免同一信息出现两次） */
-    els.jyFooterSection.textContent = section + ' ' + ((J.declared(b.unit, section) || {}).cn || '') + ' · p' + q.page + ' #' + q.no;
+    var secLabel = section === J.TB_GROUP.key ? J.TB_GROUP.label : section + ' ' + ((J.declared(b.unit, section) || {}).cn || '');
+    els.jyCurrent.textContent = 'U' + b.unit + ' ' + b.en + ' · ' + (section === J.TB_GROUP.key ? '教材原题' : section);
+    /* 来源只留页脚这一条：官方讲义写「1.1 · p7 #1」，教材原题写「练习册 P200 #2」 */
+    els.jyFooterSection.textContent = q.group === 'textbook' ? J.sourceLabel(q) : secLabel + ' · p' + q.page + ' #' + q.no;
     els.jyBackList.href = '#';
     els.jyNumber.textContent = String(index + 1);
     els.jyPosition.textContent = '第 ' + (index + 1) + ' / ' + qs.length + ' 题';
@@ -177,7 +193,9 @@
   /* ---------- 结果 ---------- */
   function renderResult(rec) {
     var b = J.board(rec.board);
-    els.jyResultTitle.textContent = section + ' ' + ((J.declared(b.unit, section) || {}).cn || '') + ' · 结果';
+    els.jyResultTitle.textContent = (section === J.TB_GROUP.key
+      ? J.TB_GROUP.label
+      : section + ' ' + ((J.declared(b.unit, section) || {}).cn || '')) + ' · 结果';
     els.jyResultAccuracy.textContent = (rec.total ? Math.round(rec.correct / rec.total * 100) : 0) + '%';
     els.jyResultFraction.textContent = rec.correct + ' / ' + rec.total + ' 题答对';
     var wrong = rec.detail.filter(function (d) { return !d.correct; });

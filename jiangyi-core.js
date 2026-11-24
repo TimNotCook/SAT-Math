@@ -39,6 +39,13 @@
   var DATA = window.JY_BANK
     ? { source: '讲义（TESTDAILY）', sections: window.JY_SECTIONS || [], questions: window.JY_BANK }
     : (window.TD_JIANGYI || { source: '', units: [], questions: [] });
+  /* JY4 下的「教材原题」子组：整组来自练习册 P200–207，不是讲义页码，
+     不计入 JY4 官方小节（4.1 / 4.2 …）的题数。 */
+  var TB_GROUP = {
+    key: 'TB4', board: 'JY4', unit: 4,
+    label: 'Unit 4・教材原题（练习册 P200–207）',
+    cn: '教材原题（练习册 P200–207）'
+  };
   var KEY = 'tdsat_jiangyi_v1';
   var RESULTS_KEY = 'tdsat_exam_suite_results_v1';
   var CJK = /[\u4e00-\u9fff]/;
@@ -63,7 +70,10 @@
     if (!m) return null;                                  // 只认 JY1-001 这类新前缀
     var unit = Number(raw.unit) || Number(m[1]);
     var section = strip(raw.section);
-    if (!/^[1-4]\.\d/.test(section)) return null;         // section 必须是真实小节号
+    var sourceRaw = strip(raw.source);
+    var group = strip(raw.group) || (/^练习册/i.test(sourceRaw) ? 'textbook' : '');
+    /* 官方小节必须是真实小节号；教材原子组来自练习册，section 仍保留原书小节但单独成组。 */
+    if (!/^[1-4]\.\d/.test(section) && group !== 'textbook') return null;
     var page = Number(raw.page), no = Number(raw.no);
     if (!(page > 0) || !(no > 0)) return null;
     var source = strip(raw.source) || ('讲义 p' + page + ' #' + no);
@@ -81,7 +91,7 @@
       proof: raw.proof || ('docs/jiangyi-proof/' + id + '.png'),
       unitName: raw.unitName || null, hint: raw.hint || '',
       area: raw.area || 'problem-solving', origin: 'jiangyi', board: 'JY' + unit,
-      no_: no
+      group: group || null, no_: no
     };
   }
 
@@ -125,7 +135,7 @@
     var b = board(boardId); if (!b) return [];
     var seen = {}, out = [];
     ALL.forEach(function (q) {
-      if (q.unit !== b.unit) return;
+      if (q.unit !== b.unit || q.group) return;   // 教材原子组不进官方小节列表
       if (seen[q.section]) return;
       seen[q.section] = 1; out.push(q.section);
     });
@@ -137,9 +147,24 @@
   }
   function questionsOf(boardId, section) {
     var b = board(boardId); if (!b) return [];
+    if (section === TB_GROUP.key) return groupQuestions(boardId);
     return ALL.filter(function (q) {
-      return q.unit === b.unit && (!section || q.section === section);
+      if (q.unit !== b.unit || q.group) return false;
+      return !section || q.section === section;
     });
+  }
+  function groupQuestions(boardId) {
+    var b = board(boardId); if (!b) return [];
+    return ALL.filter(function (q) { return q.unit === b.unit && q.group === 'textbook'; });
+  }
+  function groupStats(boardId) {
+    var qs = groupQuestions(boardId), answered = 0, correct = 0;
+    qs.forEach(function (q) {
+      var a = S.answers[q.id];
+      if (a && strip(a.v)) { answered++; if (a.correct) correct++; }
+    });
+    return { board: boardId, key: TB_GROUP.key, label: TB_GROUP.label, total: qs.length,
+      answered: answered, correct: correct, percent: qs.length ? Math.round(answered / qs.length * 100) : 0 };
   }
   function declared(unit, section) { return DECLARED[unit + '|' + section] || null; }
 
@@ -220,8 +245,9 @@
 
   /* ---------- 来源标签：3.4 · p131 #12（学生一眼能回到原书那一页） ---------- */
   function sourceLabel(q) {
-    var sec = q.section, page = q.page, no = q.no;
-    return sec + ' · p' + page + ' #' + no;
+    var page = q.page, no = q.no;
+    if (q && q.group === 'textbook') return '练习册 P' + page + ' #' + no;
+    return q.section + ' · p' + page + ' #' + no;
   }
 
   /* ---------- 数据自检（页面与 tools/verify_jiangyi.mjs 共用同一套规则） ---------- */
@@ -229,6 +255,13 @@
     var issues = [];
     var counts = {};
     ALL.forEach(function (q) {
+      if (q.group === 'textbook') {
+        var okBook = /^练习册\s*P?\d+\s*#\d+\s*$/i.test(q.source);
+        if (!okBook) issues.push({ id: q.id, rule: 'source-textbook' });
+        if (!strip(q.stem)) issues.push({ id: q.id, rule: 'stem' });
+        if (q.type === 'mcq' && !/^[A-D]$/.test(q.answer)) issues.push({ id: q.id, rule: 'answer-letter' });
+        return;
+      }
       if (!q.source || !/^讲义\s*p\d+\s*#\d+\s*$/.test(q.source)) issues.push({ id: q.id, rule: 'source' });
       if (!strip(q.stem)) issues.push({ id: q.id, rule: 'stem' });
       if (q.type === 'mcq') {
@@ -246,6 +279,7 @@
 
   window.TD_JY = {
     ALL: ALL, BY_ID: BY_ID, boards: boards, board: board, sectionsOf: sectionsOf,
+    TB_GROUP: TB_GROUP, groupQuestions: groupQuestions, groupStats: groupStats,
     questionsOf: questionsOf, sourceLabel: sourceLabel, declared: declared,
     stats: sectionStats, boardStats: boardStats, allStats: allStats,
     answerOf: answerOf, answerQ: answerQ, clearQ: clearQ, setCursor: setCursor,
