@@ -2,7 +2,7 @@
 
 口径：**只算模考模式下屏幕上真会出现的字**。来源两块——(a) 线上 `exam.html?mode=mock` 实跑，用 `getComputedStyle` 过滤不可见节点后取文本；(b) 源码里无 `OFFICIAL ?` 英文分支、且只在模考路径可达的字符串。
 
-实测时间 2026-11-24 14:5x（HK），站点 `https://timnotcook.github.io/SAT-Math/exam.html?mode=mock`，`main@c24df47`。
+实测时间 2026-11-24 14:5x（HK），站点 `https://timnotcook.github.io/SAT-Math/exam.html?mode=mock`，`main@6ab8485`。
 
 - 模考开场屏可见中文 **10 项**（导航 5 + 题库胶囊 2 片段 + 退出 + 清空 + 完成）
 - 模考答题屏可见中文 **2 项**（清空、完成）

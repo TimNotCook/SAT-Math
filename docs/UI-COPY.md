@@ -20,7 +20,7 @@ python3 tools/copy_audit.py --rev HEAD --summary exam.js exam.html bluebook-shel
 python3 tools/copy_audit.py --rev HEAD --summary drill.js drill.html index.html
 ```
 
-在 `main@c24df47` 上的实测结果：
+在 `main@6ab8485` 上的实测结果：
 
 | 层 | 文件 | 条目 | 说明 |
 |---|---|---|---|
