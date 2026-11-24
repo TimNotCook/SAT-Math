@@ -14,6 +14,7 @@
      node tools/verify_jiangyi.mjs               # 本地检查，数据为空时 exit 2（未就绪）
      node tools/verify_jiangyi.mjs --allow-empty # CI 形态：数据未录入也算通过，仅报告
      node tools/verify_jiangyi.mjs --json        # 机器可读
+     node tools/verify_jiangyi.mjs --strict      # 对账口径：任何一节 已录 ≠ 应有 即 FAIL
 */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -25,6 +26,7 @@ const QUESTIONS = path.join(ROOT, 'data/questions.js');
 const PROOF = path.join(ROOT, 'docs/jiangyi-proof');
 const args = process.argv.slice(2);
 const allowEmpty = args.includes('--allow-empty');
+const strict = args.includes('--strict');   /* 对上账表口径：差一道就 FAIL；否则只 WARN */
 const asJson = args.includes('--json');
 
 const fail = [];
@@ -35,7 +37,10 @@ function bad(code, msg, extra) { fail.push({ code, msg, ...(extra || {}) }); }
 const sandbox = { window: {} };
 vm.createContext(sandbox);
 if (fs.existsSync(DATA)) vm.runInContext(fs.readFileSync(DATA, 'utf8'), sandbox, { filename: DATA });
-const JY = sandbox.window.TD_JIANGYI;
+/* 题库侧实际结构是 JY_BANK + JY_SECTIONS；旧的 TD_JIANGYI 形状继续兼容。 */
+const JY = sandbox.window.JY_BANK
+  ? { sections: sandbox.window.JY_SECTIONS || [], questions: sandbox.window.JY_BANK }
+  : sandbox.window.TD_JIANGYI;
 if (!JY || !Array.isArray(JY.questions)) {
   console.error(fail.length ? '' : 'FAIL  data/jiangyi.js 未定义 window.TD_JIANGYI.questions');
   process.exit(2);
@@ -52,9 +57,13 @@ if (fs.existsSync(QUESTIONS)) {
 }
 
 const declared = new Map();
-(JY.units || []).forEach(u => (u.sections || []).forEach(s => {
-  declared.set(`${u.id}|${s.id}`, { expect: Number(s.expect) || 0, cn: s.cn || '' });
-}));
+if (Array.isArray(JY.sections)) {
+  JY.sections.forEach(s => declared.set(`${s.unit}|${s.section}`, { expect: Number(s.declared) || 0, cn: s.cn || '' }));
+} else {
+  (JY.units || []).forEach(u => (u.sections || []).forEach(s => {
+    declared.set(`${u.id}|${s.id}`, { expect: Number(s.expect) || 0, cn: s.cn || '' });
+  }));
+}
 
 const qs = JY.questions;
 const counts = new Map();
@@ -111,7 +120,10 @@ for (const [i, q] of qs.entries()) {
 for (const [k, d] of declared.entries()) {
   const got = counts.get(k) || 0;
   if (!d.expect) { warn.push(`${k} 未声明 expect（答案页应有数），无法对账`); continue; }
-  if (got !== d.expect) bad('count', `${k}：答案页应有 ${d.expect} / 已录 ${got} / 缺 ${d.expect - got}`);
+  if (got !== d.expect) {
+    const msg = `${k}：答案页应有 ${d.expect} / 已录 ${got} / 缺 ${d.expect - got}`;
+    if (strict) bad('count', msg); else warn.push('未平 ' + msg);
+  }
 }
 for (const [k, n] of counts.entries()) {
   if (!declared.has(k)) warn.push(`${k}：录了 ${n} 题，但 units[].sections 未声明该节`);

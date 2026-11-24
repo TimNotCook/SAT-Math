@@ -34,7 +34,11 @@
 */
 (function () {
   'use strict';
-  var DATA = window.TD_JIANGYI || { source: '', units: [], questions: [] };
+  /* 题库侧实际结构（be7b955 起）：window.JY_SECTIONS + window.JY_BANK；
+     早期文档里的 TD_JIANGYI{units,questions} 保留兼容，两种都能吃。 */
+  var DATA = window.JY_BANK
+    ? { source: '讲义（TESTDAILY）', sections: window.JY_SECTIONS || [], questions: window.JY_BANK }
+    : (window.TD_JIANGYI || { source: '', units: [], questions: [] });
   var KEY = 'tdsat_jiangyi_v1';
   var RESULTS_KEY = 'tdsat_exam_suite_results_v1';
   var CJK = /[\u4e00-\u9fff]/;
@@ -73,6 +77,7 @@
       stem: raw.stem, text: stem, choices: choices, type: type,
       answer: answer, value: type === 'grid' ? Number(answer) : undefined,
       figure: raw.figure || null, figures: raw.figure ? [raw.figure] : [],
+      fig: raw.fig || null, table: Array.isArray(raw.table) ? raw.table : null,
       proof: raw.proof || ('docs/jiangyi-proof/' + id + '.png'),
       unitName: raw.unitName || null, hint: raw.hint || '',
       area: raw.area || 'problem-solving', origin: 'jiangyi', board: 'JY' + unit,
@@ -98,11 +103,17 @@
     { id: 'JY4', unit: 4, en: 'Geometry and Trigonometry', cn: '几何与三角' }
   ];
   var DECLARED = {};
-  (DATA.units || []).forEach(function (u) {
-    (u.sections || []).forEach(function (s) {
-      DECLARED[u.id + '|' + s.id] = { cn: s.cn || '', expect: Number(s.expect) || 0, pages: s.pages || [] };
+  if (Array.isArray(DATA.sections)) {
+    DATA.sections.forEach(function (s) {
+      DECLARED[s.unit + '|' + s.section] = { cn: s.cn || '', expect: Number(s.declared) || 0, pages: s.pages || [] };
     });
-  });
+  } else {
+    (DATA.units || []).forEach(function (u) {
+      (u.sections || []).forEach(function (s) {
+        DECLARED[u.id + '|' + s.id] = { cn: s.cn || '', expect: Number(s.expect) || 0, pages: s.pages || [] };
+      });
+    });
+  }
 
   function board(id) {
     return BOARD_META.find(function (b) { return b.id === id; }) || null;
@@ -117,6 +128,10 @@
       if (q.unit !== b.unit) return;
       if (seen[q.section]) return;
       seen[q.section] = 1; out.push(q.section);
+    });
+    Object.keys(DECLARED).forEach(function (k) {
+      var unit = Number(k.split('|')[0]), sec = k.split('|')[1];
+      if (unit === b.unit && !seen[sec]) { seen[sec] = 1; out.push(sec); }
     });
     return out.sort(function (x, y) { return secKey(x) - secKey(y); });
   }

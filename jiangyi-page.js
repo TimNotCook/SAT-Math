@@ -4,7 +4,7 @@
   var J = window.TD_JY, A = window.TD_APP;
   var els = {};
   ['jyBoards', 'jyBoardCards', 'jyDataNotice', 'jySections', 'jyCrumb', 'jyBoardTitle', 'jyBoardLead',
-    'jySectionList', 'jyQuiz', 'jyCurrent', 'jyBackList', 'jyNumber', 'jySource', 'jyPosition',
+    'jySectionList', 'jyQuiz', 'jyCurrent', 'jyBackList', 'jyNumber', 'jyPosition',
     'jyStem', 'jyFigure', 'jyAnswerArea', 'jyFooterSection', 'jyPrev', 'jyNext', 'jySubmit',
     'jyResult', 'jyResultTitle', 'jyResultAccuracy', 'jyResultFraction', 'jyResultWrong', 'jyResultBack']
     .forEach(function (id) { els[id] = document.getElementById(id); });
@@ -53,6 +53,13 @@
     var secs = J.sectionsOf(id);
     els.jySectionList.innerHTML = secs.length ? secs.map(function (s) {
       var x = J.stats(id, s);
+      if (!x.total) {
+        return '<div class="drill-section-row" style="opacity:.55;cursor:default">' +
+          '<span class="drill-section-code">' + esc(s) + '</span>' +
+          '<span class="drill-section-name">' + esc(x.cn || '未命名小节') + '</span>' +
+          '<span class="drill-section-meta">已录 0 / 应有 ' + x.expect + ' · 待录入</span>' +
+          '<span class="drill-section-go">—</span></div>';
+      }
       var sub = J.submittedOf(s);
       return '<a class="drill-section-row" href="#" data-sec="' + esc(s) + '"' + (sub ? ' data-result="1"' : '') + '>' +
         '<span class="drill-section-code">' + esc(s) + '</span>' +
@@ -84,14 +91,17 @@
     var q = qs[index]; if (!q) return;
     var b = J.board(boardId);
     els.jyCurrent.textContent = 'U' + b.unit + ' ' + b.en + ' · ' + section;
-    els.jyFooterSection.textContent = section + ' ' + ((J.declared(b.unit, section) || {}).cn || '') + ' · ' + q.source;
+    /* 来源只留页脚这一条（做题栏不再挂胶囊，避免同一信息出现两次） */
+    els.jyFooterSection.textContent = section + ' ' + ((J.declared(b.unit, section) || {}).cn || '') + ' · p' + q.page + ' #' + q.no;
     els.jyBackList.href = '#';
     els.jyNumber.textContent = String(index + 1);
     els.jyPosition.textContent = '第 ' + (index + 1) + ' / ' + qs.length + ' 题';
-    els.jySource.textContent = J.sourceLabel(q);       /* 3.4 · p131 #12 */
-    els.jySource.title = '来源：' + q.source + '（可翻回原书：p' + q.page + ' 第 ' + q.no + ' 题）';
-    els.jyStem.innerHTML = fmt(q.stem);
-    if (q.figure) {
+    els.jyStem.innerHTML = fmt(q.stem) + (q.table ? tableHtml(q.table) : '');
+    if (q.fig && window.JY_FIG && window.JY_FIG.render) {
+      els.jyFigure.hidden = false;
+      try { els.jyFigure.innerHTML = window.JY_FIG.render(q.fig); }
+      catch (e) { els.jyFigure.innerHTML = '<span class="drill-choice-placeholder">图形暂缺</span>'; }
+    } else if (q.figure) {
       els.jyFigure.hidden = false;
       els.jyFigure.innerHTML = '<img src="' + esc(q.figure) + '" alt="题目配图（矢量重画）" loading="lazy" ' +
         'onerror="this.outerHTML=\'<span class=&quot;drill-choice-placeholder&quot;>图形暂缺</span>\'">';
@@ -124,6 +134,14 @@
     els.jyPrev.disabled = index <= 0;
     els.jyNext.disabled = index >= qs.length - 1;
     J.setCursor(boardId, section, index);
+  }
+  /* 讲义里的表格题用真表格，不裁扫描页 */
+  function tableHtml(rows) {
+    return '<table class="jy-table">' + rows.map(function (row, i) {
+      return '<tr>' + row.map(function (cell) {
+        return '<' + (i ? 'td' : 'th') + '>' + esc(cell) + '</' + (i ? 'td' : 'th') + '>';
+      }).join('') + '</tr>';
+    }).join('') + '</table>';
   }
   function fmt(t) {
     return esc(t).replace(/\n/g, '<br>');
