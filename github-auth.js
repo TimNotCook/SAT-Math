@@ -48,8 +48,16 @@
 
   function api(path, opts) {
     opts = opts || {};
-    return fetch('https://api.github.com' + path, {
-      method: opts.method || 'GET',
+    var method = opts.method || 'GET';
+    var url = 'https://api.github.com' + path;
+    /* GET 必须破缓存：Contents API 的响应会被浏览器缓存，拿到的还是旧 sha，
+       照旧 sha 去 PUT 就会稳定 409，看起来像「网络不好」。 */
+    if (method === 'GET') {
+      url += (url.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now() + Math.random().toString(36).slice(2, 8);
+    }
+    return fetch(url, {
+      method: method,
+      cache: 'no-store',
       headers: {
         'Authorization': 'token ' + token,
         'Accept': 'application/vnd.github+json',
