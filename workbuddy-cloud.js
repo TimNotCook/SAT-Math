@@ -7,6 +7,11 @@
   var STORE_KEY = 'tdwb_relay_store_v1';
   var NICK_KEY = 'tdwb_nick_v1';
   var ARCHIVE_TABLE = 'profiles';
+  /* 档案载体：本应用没有开通 database（/.cloud/database/rest 预检 403），
+     但 storage 的 runtime 桶是通的，且路径规则天然按 users/<uid>/ 隔离。
+     所以档案落在 runtime/users/<uid>/tdsat-profile.json，db 仅作兜底。 */
+  var ARCHIVE_BUCKET = 'runtime';
+  function archivePath(uid) { return 'users/' + uid + '/tdsat-profile.json'; }
   var RPC_TIMEOUT = 15000;
 
   var cfg = window.TD_CLOUD_CONFIG || {};
@@ -283,16 +288,25 @@
 
   async function getArchive() {
     if (!currentUser) return null;
+    /* 1) 文件存储（当前唯一可用载体） */
+    try {
+      var text = await rpc('storage', { op: 'download', bucket: ARCHIVE_BUCKET, path: archivePath(currentUser.rawId) });
+      var doc = typeof text === 'string' ? JSON.parse(text) : text;
+      if (doc && doc.payload) {
+        var p = typeof doc.payload === 'string' ? JSON.parse(doc.payload) : doc.payload;
+        var nick = doc.nickname || (p && p._nick) || loadLocalNick() || '';
+        return { nickname: nick, payload: p, via: 'storage' };
+      }
+    } catch (e) { /* 档案还不存在 / 无权限 → 往下试 db */ }
+    /* 2) db 兜底（后端若将来开通 database 可直接生效） */
     try {
       var row = await rpc('db', { table: ARCHIVE_TABLE, op: 'select' });
       if (row && row.payload) {
-        var p = typeof row.payload === 'string' ? JSON.parse(row.payload) : row.payload;
-        var nick = (p && p._nick) || loadLocalNick() || '';
-        return { nickname: nick, payload: p };
+        var q = typeof row.payload === 'string' ? JSON.parse(row.payload) : row.payload;
+        var n2 = (q && q._nick) || loadLocalNick() || '';
+        return { nickname: n2, payload: q, via: 'db' };
       }
-    } catch (e) {
-      /* 若 WorkBuddy 侧未建表或无权限，则仅使用本地档案，不阻断登录 */
-    }
+    } catch (e) { /* 若 WorkBuddy 侧未建表或无权限，则仅使用本地档案，不阻断登录 */ }
     return { nickname: loadLocalNick(), payload: null };
   }
 
@@ -301,6 +315,11 @@
     var body = Object.assign({}, snap || {});
     var nick = loadLocalNick();
     if (nick) body._nick = nick;
+    var doc = JSON.stringify({ payload: body, nickname: nick, updated_at: new Date().toISOString() });
+    try {
+      await rpc('storage', { op: 'upload', bucket: ARCHIVE_BUCKET, path: archivePath(currentUser.rawId), text: doc });
+      return true;
+    } catch (e) { /* 落到 db 兜底 */ }
     try {
       var existing = await rpc('db', { table: ARCHIVE_TABLE, op: 'select' });
       if (existing && existing.id) {
