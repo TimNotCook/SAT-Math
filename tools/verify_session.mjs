@@ -109,7 +109,9 @@ const stages = () => ev(`(()=>{const on=n=>{const s=document.getElementById('sta
     notice:((document.getElementById('introNotice')||{}).textContent||''),
     noticeShown:!!(document.getElementById('introNotice')&&!document.getElementById('introNotice').hidden),
     salvageShown:!!(document.getElementById('introSalvage')&&!document.getElementById('introSalvage').hidden),
-    module:(document.getElementById('tbTotal')||{}).textContent}})()`);
+    module:(document.getElementById('tbTotal')||{}).textContent,
+    params:(document.getElementById('introParams')||{}).textContent,
+    eyebrow:(document.getElementById('introEyebrow')||{}).textContent}})()`);
 
 const base = await freshSave();
 
@@ -220,6 +222,7 @@ const base = await freshSave();
   const s6 = await stages();
   check('timeout-m1', '开始页明示已进 Module 2', s6.noticeShown && /Module 2/.test(strip(s6.notice)), s6.notice);
   check('timeout-m1', '没有把题目直接摊开', !s6.answer && s6.intro, s6.answer ? 'answer' : 'intro');
+  check('timeout-m1', '开始页参数条也显示 Module 2', /Module 2 of 2/.test(strip(s6.params)), s6.params);
   await shot('timeout-m1-intro');
   await ev(`document.getElementById('btnStart').click()`); await sleep(900);
   const a6 = await stages();

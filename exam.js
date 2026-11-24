@@ -520,7 +520,8 @@
       notice.classList.toggle('exam-note-warn', !!sessionExpired);
     }
     renderSalvage();
-    $('introEyebrow').textContent = official ? 'SECTION 2, MODULE 1: MATH' : 'UNIT MASTERY CHECK';
+    const introMod = official && S && S.module === 2 ? 2 : 1;
+    $('introEyebrow').textContent = official ? 'SECTION 2, MODULE ' + introMod + ': MATH' : 'UNIT MASTERY CHECK';
     $('introTitle').textContent = official ? 'SAT Math Prep' : '单元抽查';
     /* 单元抽查说明小字做减法：整段删除；官方模考保留 Bluebook 原文 */
     $('introDesc').hidden = !official;
@@ -533,7 +534,7 @@
 
     if (official) {
       $('introUnitPick').innerHTML = '';
-      $('introParams').innerHTML = '<span>22 Questions</span><span>35 minutes</span><span>Module 1 of 2</span>';
+      $('introParams').innerHTML = '<span>22 Questions</span><span>35 minutes</span><span>Module ' + introMod + ' of 2</span>';
       /* Start screen stays short; the verbatim DIRECTIONS live in the
          top-left Directions button of every question screen, as in Bluebook. */
       $('introDirections').innerHTML = '<div class="exam-start-directions">' +
