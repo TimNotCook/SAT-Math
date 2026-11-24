@@ -12,7 +12,11 @@
      Legacy 64 curated questions -> 4 groups L1 ... L4 (kept, never merged away). ---------- */
   var CATALOG = {};
   BANK.questions.forEach(function (q) {
-    var id = q.origin === 'legacy' ? 'L' + q.unit : q.section;
+    /* L4（Unit 4 单元精编）不再整块隐藏：9 道题按自己的 section 并回 4.1 / 4.2，
+       和教材板块同组显示；其余 L1–L3 仍是独立精编组。 */
+    var id = q.origin === 'legacy'
+      ? (q.unit === 4 && /^4\.\d/.test(q.section || '') ? q.section : 'L' + q.unit)
+      : q.section;
     if (!id) return;
     (CATALOG[id] = CATALOG[id] || []).push(q);
   });
@@ -49,10 +53,23 @@
     if (!SECTION_CN[s]) SECTION_CN[s] = isLegacy(s) ? '精编原题组' : s;
   });
   var UNITS = BANK.units.slice();
-  /* L4（Unit 4 的「单元精编原题组 · 讲义 / 自测卷」）9 题里有 5 题与
-     教材板块（TD-41-02 等）完全重复，重题过半，已从板块列表中隐藏。
-     题库/文本/答案数据一律保留，仅不展示该入口，随时可恢复。 */
-  var HIDDEN_SECS = { L4: true };
+  /* 与教材板块同题干的精编题标 dup（并回 4.1/4.2 后仍显示，但不进错题本，
+     避免同一道题在错题回顾里出现两次）。 */
+  function normStem(x) {
+    return String(x || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '');
+  }
+  (function markDupes() {
+    var textbook = {};
+    BANK.questions.forEach(function (q) {
+      if (q.origin !== 'legacy' && q.unit === 4) textbook[normStem(q.stem)] = q.id;
+    });
+    BANK.questions.forEach(function (q) {
+      if (q.origin !== 'legacy' || q.unit !== 4) return;
+      var twin = textbook[normStem(q.stem)];
+      if (twin) { q.dup = true; q.dupOf = twin; }
+    });
+  })();
+  var HIDDEN_SECS = {};   /* 不再隐藏任何板块：L4 已并回 4.1/4.2 */
   function unitSections(u) {
     return SECS.filter(function (s) {
       return UNIT_OF(s) === u && !isTopicSection(s) && !isSpecialSection(s) && !HIDDEN_SECS[s];
@@ -261,6 +278,7 @@
       var st = secState(s, false);
       if (!st) return;
       CATALOG[s].forEach(function (q) {
+        if (q.dup) return;   /* 与教材重复的精编题不进错题本 */
         var a = st.answers[q.id];
         if (a && a.correct === false) out.push({ sec: s, unit: UNIT_OF(s), q: q, given: a.v });
       });
@@ -276,6 +294,7 @@
     if (active === 'exam') active = mode === 'quiz' ? 'quiz' : 'mock';
     var items = [
       { id: 'drill', label: '真题练习', href: 'drill.html' },
+      { id: 'jiangyi', label: '讲义复习', href: 'jiangyi.html' },
       { id: 'quiz', label: '单元抽查', href: 'exam.html?mode=quiz&unit=1' },
       { id: 'wrong', label: '错题回顾', href: 'wrong.html' },
       { id: 'mock', label: '模考', href: 'exam.html?mode=mock' }

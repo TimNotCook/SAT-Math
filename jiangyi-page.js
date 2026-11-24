@@ -197,7 +197,7 @@
   /* ---------- 启动：URL 恢复 ---------- */
   function boot() {
     if (!J) return;
-    if (A && A.nav) A.nav('drill');
+    /* 侧栏已在 HTML 里静态渲染，四入口 + 返回导航不依赖 JS */
     var p = new URLSearchParams(location.search);
     var wantBoard = p.get('b'), wantSec = p.get('s'), wantI = parseInt(p.get('i'), 10);
     if (wantBoard && J.board(wantBoard)) {

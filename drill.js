@@ -398,29 +398,41 @@
       els.question.focus({ preventScroll: true });
     }
   }
+  /* 渲染闸门：四个选项都没有文字 / 矢量图 / 裁图时，不再画四个空按钮，
+     直接给一条显式「选项缺失」，避免学生对着空壳乱点（数据侧必须进白名单）。 */
   function choiceMarkup(q, choices, current) {
     var text = textFor(q);
     var figList = text.figure || [];
     var crops = (window.TD_CHOICE_CROPS && window.TD_CHOICE_CROPS[q.id]) || null;
-    var html = '<div class="drill-choices" role="group" aria-label="答案选项">';
-    ['A', 'B', 'C', 'D'].forEach(function (letter) {
-      var txt = (choices[letter] || '').trim(), selected = current === letter;
+    var items = ['A', 'B', 'C', 'D'].map(function (letter) {
       var isFig = figList.indexOf(letter) >= 0;
-      var figSrc = (isFig && crops) ? crops[letter] : null;
-      var vecFig = (isFig && window.TD_FIG && window.TD_FIG.choiceGraph) ? window.TD_FIG.choiceGraph(q, letter) : '';
+      return {
+        letter: letter, txt: (choices[letter] || '').trim(), isFig: isFig,
+        figSrc: (isFig && crops) ? crops[letter] : null,
+        vecFig: (isFig && window.TD_FIG && window.TD_FIG.choiceGraph) ? window.TD_FIG.choiceGraph(q, letter) : ''
+      };
+    });
+    if (!items.some(function (it) { return it.txt || it.figSrc || it.vecFig; })) {
+      return '<div class="drill-choices" role="group" aria-label="答案选项" data-choices="missing">' +
+        '<p class="drill-choice-missing" style="padding:14px 16px;border:1px dashed var(--line);border-radius:10px;color:var(--sub);margin:0">' +
+        '选项缺失：这道题的选项在原书里无法识别，本题暂不可作答。</p></div>';
+    }
+    var html = '<div class="drill-choices" role="group" aria-label="答案选项">';
+    items.forEach(function (it) {
+      var letter = it.letter, selected = current === letter;
       var inner, cls;
-      if (txt) {
-        inner = window.TD_FIG ? window.TD_FIG.fmtMath(txt) : esc(txt);
+      if (it.txt) {
+        inner = window.TD_FIG ? window.TD_FIG.fmtMath(it.txt) : esc(it.txt);
         cls = '';
-      } else if (vecFig) {
-        inner = vecFig;
+      } else if (it.vecFig) {
+        inner = it.vecFig;
         cls = ' is-figure';
-      } else if (figSrc) {
-        inner = '<img class="drill-choice-fig" src="' + figSrc + '" alt="选项 ' + letter + '" loading="lazy" decoding="async" onerror="var p=document.createElement(\'span\');p.className=\'drill-choice-placeholder\';p.textContent=\'图形暂缺\';this.replaceWith(p);">';
+      } else if (it.figSrc) {
+        inner = '<img class="drill-choice-fig" src="' + it.figSrc + '" alt="选项 ' + letter + '" loading="lazy" decoding="async" onerror="var p=document.createElement(\'span\');p.className=\'drill-choice-placeholder\';p.textContent=\'图形暂缺\';this.replaceWith(p);">';
         cls = ' is-figure';
       } else {
         inner = '<span class="drill-choice-placeholder">图形或公式选项</span>';
-        cls = isFig ? ' is-figure is-missing' : '';
+        cls = it.isFig ? ' is-figure is-missing' : '';
       }
       html += '<button type="button" class="drill-choice' + cls + '" data-choice="' + letter +
         '" aria-pressed="' + selected + '"><span class="drill-choice-letter">' + letter + '</span>' +
@@ -637,7 +649,9 @@
     els.number.textContent = String(index + 1);
     /* 板块内标题带板块名（页签/分享卡能看出在哪一板块）；题号不进标题，
        逐题改标题会让标题栏闪。 */
-    document.title = PAGE_TITLE + ' · ' + A.sectionLabel(section);
+    var curQ = questions[index];
+    var unitCn = curQ && A.unit ? (A.unit(curQ.unit) || {}).cn : '';
+    document.title = PAGE_TITLE + (unitCn ? ' · U' + curQ.unit + ' ' + unitCn : '') + ' · ' + A.sectionLabel(section);
     [els.previous, els.next].forEach(function (button, n) {
       var target = n ? next : previous;
       button.disabled = !target;

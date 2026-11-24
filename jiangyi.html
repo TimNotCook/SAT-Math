@@ -25,6 +25,16 @@
     .jy-figure{margin:14px 0 6px;max-width:420px}
     .jy-figure img{max-width:100%;height:auto;border:1px solid var(--line-soft);border-radius:8px;background:#fff}
     .jy-page .drill-section-row{display:grid!important;grid-template-columns:64px minmax(0,1fr) auto 48px!important}
+    /* 全站侧栏：四个入口在首页 / 讲义页都从这里进；窄屏收成顶部横条 */
+    .site-rail{position:fixed;left:0;top:0;bottom:0;width:216px;padding:22px 14px;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:4px;z-index:30}
+    .site-rail .rail-brand{font-size:15px;font-weight:800;color:var(--navy);text-decoration:none;padding:6px 12px 14px}
+    .site-rail a{display:block;padding:10px 12px;border-radius:9px;color:var(--navy);text-decoration:none;font-size:14px;font-weight:600;line-height:1.35}
+    .site-rail a:hover{background:#f3f7fc}
+    .site-rail a[aria-current]{background:#eaf1fd;color:#1d4ed8;box-shadow:inset 3px 0 0 #2563eb}
+    .site-rail .rail-sep{height:1px;background:var(--line);margin:10px 8px}
+    .site-rail .rail-back{color:#1d4ed8;font-weight:700}
+    @media(min-width:1000px){body.jy-page{padding-left:216px}}
+    @media(max-width:999px){.site-rail{position:static;width:auto;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line);padding:10px 12px}.site-rail .rail-brand{padding:8px 10px}.site-rail .rail-sep{display:none}}
     .jy-table{border-collapse:collapse;margin:14px 0;font-size:14px;font-variant-numeric:tabular-nums}
     .jy-table th,.jy-table td{border:1px solid var(--line);padding:6px 14px;text-align:center}
     .jy-table th{background:#f7faff;font-weight:700;color:var(--navy)}
@@ -47,7 +57,15 @@
   </style>
 </head>
 <body class="drill-page jy-page">
-  <div id="appnav"></div>
+  <aside class="site-rail" aria-label="全站导航">
+    <a class="rail-brand" href="index.html">SAT Math Prep</a>
+    <a href="drill.html">真题练习</a>
+    <a href="jiangyi.html" aria-current="page">讲义复习（JY1–JY4）</a>
+    <a href="exam.html?mode=mock">模考</a>
+    <a href="wrong.html">错题本</a>
+    <div class="rail-sep"></div>
+    <a class="rail-back" href="drill.html">← 返回真题练习</a>
+  </aside>
 
   <!-- 1) 四个子板块 -->
   <main class="drill-select" id="jyBoards">

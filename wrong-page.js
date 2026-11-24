@@ -104,6 +104,9 @@ function questionById(id){
 }
 function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*$/,'').trim()||A.SECTION_CN[q.section]||'综合';}
  function add(map,q,given,source,date){
+   /* dup = 与教材板块同题干的精编重题（如 U4-02 ↔ TD-41-02），只留在板块里练习，
+      不重复进错题本。 */
+   if(q&&q.dup)return;
    if(!q||map[q.id]&&map[q.id].corrected&&source!=='单元练习')return;
    var x=map[q.id]||{q:q,attempts:0,sources:[],date:0,given:'',corrected:false};
    x.attempts++; if(x.sources.indexOf(source)<0)x.sources.push(source);

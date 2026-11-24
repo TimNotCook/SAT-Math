@@ -1,10 +1,44 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="SAT Math Prep：SAT 数学真题练习（单元练习 / 专项训练）、单元抽查、官方模考与错题回顾。"><meta name="theme-color" content="#2563eb"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob:; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'"><title>SAT Math Prep</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
+<meta name="description" content="SAT Math Prep：SAT 数学真题练习（单元练习 / 专项训练）、讲义复习、单元抽查、官方模考与错题回顾。"><meta name="theme-color" content="#2563eb"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob:; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'"><title>SAT Math Prep</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="app.css">
+<style>
+  .site-rail{position:fixed;left:0;top:0;bottom:0;width:216px;padding:22px 14px;background:#fff;border-right:1px solid var(--line,#e6eaf0);display:flex;flex-direction:column;gap:4px;z-index:30}
+  .site-rail .rail-brand{font-size:15px;font-weight:800;color:var(--navy,#0f2744);text-decoration:none;padding:6px 12px 14px;letter-spacing:.01em}
+  .site-rail a{display:block;padding:10px 12px;border-radius:9px;color:var(--navy,#0f2744);text-decoration:none;font-size:14px;font-weight:600;line-height:1.35}
+  .site-rail a:hover{background:#f3f7fc}
+  .site-rail a[aria-current]{background:#eaf1fd;color:#1d4ed8;box-shadow:inset 3px 0 0 #2563eb}
+  .site-rail .rail-sep{height:1px;background:var(--line,#e6eaf0);margin:10px 8px}
+  .site-rail .rail-back{color:#1d4ed8;font-weight:700}
+  .home-hero{max-width:760px;margin:0 auto;padding:80px 28px 60px}
+  .home-hero .eyebrow{font-size:12px;letter-spacing:.16em;color:#2563eb;font-weight:800;text-transform:uppercase}
+  .home-hero h1{font-size:34px;line-height:1.2;color:#0f2744;margin:10px 0 12px;font-weight:800}
+  .home-hero p{color:#5b6b80;line-height:1.65;max-width:56ch}
+  @media(min-width:1000px){body{padding-left:216px}}
+  @media(max-width:999px){.site-rail{position:static;width:auto;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line,#e6eaf0);padding:10px 12px}.site-rail .rail-brand{padding:8px 10px}.site-rail .rail-sep{display:none}.home-hero{padding:36px 20px}}
+</style>
 </head>
-<body><p><a href="drill.html">进入真题练习</a></p>
+<body>
+<aside class="site-rail" aria-label="全站导航">
+  <a class="rail-brand" href="index.html">SAT Math Prep</a>
+  <a href="drill.html">真题练习</a>
+  <a href="jiangyi.html">讲义复习（JY1–JY4）</a>
+  <a href="exam.html?mode=mock">模考</a>
+  <a href="wrong.html">错题本</a>
+</aside>
+<main class="home-hero">
+  <p class="eyebrow">SAT MATH PREP</p>
+  <h1>四块内容，一条侧栏进得去。</h1>
+  <p>真题练习、讲义复习、模考、错题本。左侧四个入口任意一页都在；做题记录按板块分开存，互不覆盖。</p>
+</main>
 <script>
-/* The site root is the OAuth callback target. Forward callback parameters
-   (code/state/provider/tdback) unchanged so cloud-account.js can exchange them. */
-location.replace('drill.html' + location.search + location.hash);
-</script></body></html>
+/* 站点根同时是 OAuth 回调落点：只有带回调参数时才转发到 drill，
+   普通访问停在首页，不再把四个入口直接吞掉。 */
+(function () {
+  var p = new URLSearchParams(location.search);
+  if (p.get('code') || p.get('state') || p.get('provider') || p.get('tdback')) {
+    location.replace('drill.html' + location.search + location.hash);
+  }
+})();
+</script>
+</body></html>

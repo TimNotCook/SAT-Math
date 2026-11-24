@@ -1,0 +1,166 @@
+#!/usr/bin/env node
+/* tools/verify_nav.mjs — 全站导航 + 选项闸门 + L4 归并 的可复现验收器
+ *
+ * 零 npm 依赖，复用系统 Chrome 的 CDP 通道（与 verify_a11y.mjs 同款）。
+ * 每项输出「检查项 → 期望 → 实测」，任一 FAIL 退出码为 1。
+ *
+ * 用法：
+ *   node tools/verify_nav.mjs
+ *   node tools/verify_nav.mjs --base https://timnotcook.github.io/SAT-Math --out /tmp/proof-nav
+ */
+import { spawn } from 'child_process';
+import { mkdirSync, writeFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join, resolve } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(__dirname, '..');
+const args = process.argv.slice(2);
+const argVal = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
+const HAS_BASE = args.includes('--base');
+const BASE = argVal('--base', 'http://127.0.0.1:8491').replace(/\/+$/, '');
+const OUT = resolve(argVal('--out', '/tmp/sat-nav-proof'));
+const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const PORT = 8491;
+const CDP = 9720 + Math.floor(Math.random() * 120);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+mkdirSync(OUT, { recursive: true });
+const server = HAS_BASE ? null : spawn('python3', ['-m', 'http.server', String(PORT), '--directory', ROOT], { stdio: 'ignore' });
+if (server) await sleep(700);
+const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
+  `--remote-debugging-port=${CDP}`, `--user-data-dir=/tmp/vn-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.kill('SIGKILL'); } catch (e) {} } };
+process.on('exit', cleanup);
+process.on('SIGINT', () => { cleanup(); process.exit(130); });
+
+for (let i = 0; i < 60; i++) {
+  try { if ((await fetch(`http://127.0.0.1:${CDP}/json/version`)).ok) break; } catch (e) {}
+  await sleep(250);
+}
+const tabs = await (await fetch(`http://127.0.0.1:${CDP}/json/list`)).json();
+const ws = new WebSocket(tabs.find(t => t.type === 'page').webSocketDebuggerUrl);
+await new Promise(r => ws.addEventListener('open', r));
+let mid = 0; const pending = new Map();
+ws.addEventListener('message', ev => {
+  const m = JSON.parse(ev.data);
+  if (m.id && pending.has(m.id)) { pending.get(m.id)(m.result); pending.delete(m.id); }
+});
+const send = (method, params = {}) => new Promise(r => {
+  const i = ++mid; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params }));
+  setTimeout(() => { if (pending.has(i)) { pending.delete(i); r({}); } }, 25000);
+});
+const ev = async expr => (await send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true })).result?.value;
+async function goto(url) {
+  await send('Page.navigate', { url });
+  for (let i = 0; i < 80; i++) { await sleep(120); if ((await ev('document.readyState')) === 'complete') break; }
+  await sleep(1000);
+}
+async function shot(name) {
+  const r = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+  if (r.data) writeFileSync(join(OUT, name), Buffer.from(r.data, 'base64'));
+}
+
+const results = [];
+const check = (id, expect, actual, pass) => {
+  results.push({ id, expect, actual, pass });
+  console.log(`${pass ? 'PASS' : 'FAIL'}  ${id}\n      期望 ${expect}\n      实测 ${actual}`);
+};
+
+/* 页面里「可见」的链接：跳过 display:none / 0 尺寸 / 被 hidden 的容器 */
+const VISIBLE_LINKS = `(() => Array.from(document.querySelectorAll('a[href]')).filter(a => {
+  if (!a.offsetWidth && !a.offsetHeight) return false;
+  const cs = getComputedStyle(a);
+  return cs.visibility !== 'hidden' && cs.display !== 'none';
+}).map(a => ({ href: a.getAttribute('href'), text: (a.textContent || '').trim() })) )()`;
+
+const normHref = h => String(h || '').replace(/^\.\//, '').replace(/\?.*$/, '').replace(/^.*\/SAT-Math\//, '');
+const hasEntry = (links, target) => links.some(l => {
+  const base = normHref(l.href), want = normHref(target);
+  if (base !== want) return false;
+  if (target.includes('mode=mock')) return String(l.href).includes('mode=mock');
+  return true;
+});
+
+const PAGES = [
+  { file: 'index.html', label: '首页' },
+  { file: 'jiangyi.html', label: '讲义页' },
+  { file: 'drill.html', label: '练习页' },
+  { file: 'wrong.html', label: '错题页' }
+];
+const ENTRIES = ['drill.html', 'jiangyi.html', 'exam.html?mode=mock', 'wrong.html'];
+
+for (const pg of PAGES) {
+  await goto(`${BASE}/${pg.file}`);
+  const page = await ev('location.pathname');
+  check(`nav/${pg.file}·落点`, `停在 ${pg.file}`, `实际 ${page}`, page.endsWith(pg.file));
+  const links = (await ev(VISIBLE_LINKS)) || [];
+  ENTRIES.forEach(href => {
+    check(`nav/${pg.file}·${href}`, `可见入口 ${href}`, hasEntry(links, href) ? '有' : `缺失（共 ${links.length} 个可见链接）`,
+      hasEntry(links, href));
+  });
+  await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+  await sleep(300);
+  await shot(`nav-${pg.file.replace(/\..*/, '')}-1280.png`);
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  await sleep(300);
+  await shot(`nav-${pg.file.replace(/\..*/, '')}-390.png`);
+  await send('Emulation.clearDeviceMetricsOverride');
+}
+
+/* 讲义页返回导航 */
+await goto(`${BASE}/jiangyi.html`);
+const back = await ev(`(() => { const a = document.querySelector('a.rail-back'); return a ? { href: a.getAttribute('href'), text: a.textContent.trim(), w: a.offsetWidth } : null; })()`);
+check('nav/jiangyi·返回导航', '返回真题练习链接可见', back ? `${back.text} → ${back.href} (w=${back.w})` : '缺失',
+  !!back && back.href === 'drill.html' && back.w > 0);
+
+/* 选项闸门：全量数据缺选项数必须为 0（四个来源：文字 / 裁图 / 矢量图 / 图题）。
+   TD-22-14 曾报「四个空按钮」，现在应渲染 4 个矢量图选项而不是空壳。 */
+await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+await goto(`${BASE}/drill.html?sec=2.2&i=14`);
+const gate = await ev(`(() => {
+  const Q = window.TD_BANK.questions, T = window.TD_TEXT || {}, C = window.TD_CHOICE_CROPS || {}, G = window.TD_CHOICE_GRAPHS || {};
+  const missing = Q.filter(q => q.type === 'mcq').filter(q => {
+    const t = T[q.id] || {}, ch = t.choices || {};
+    const hasText = ['A','B','C','D'].some(L => String(ch[L] || '').trim());
+    const hasCrop = C[q.id] && ['A','B','C','D'].some(L => C[q.id][L]);
+    const hasVec = G[q.id] && ['A','B','C','D'].some(L => G[q.id][L]);
+    return !hasText && !hasCrop && !hasVec;
+  }).map(q => q.id);
+  return { missing, buttons: document.querySelectorAll('.drill-choice').length,
+    svgs: Array.from(document.querySelectorAll('.drill-choice')).filter(b => b.querySelector('svg')).length,
+    prompt: Array.from(document.querySelectorAll('.drill-choice-missing')).map(p => p.textContent.trim()).join('|') };
+})()`);
+check('gate/全量缺选项', '缺选项题数 = 0（白名单为空）', gate ? `${gate.missing.length} 道 ${gate.missing.join(',')}` : '读不到数据',
+  !!gate && gate.missing.length === 0);
+check('gate/2.2#14 渲染', '4 个按钮都含矢量图、0 个提示挡板', gate ? `buttons=${gate.buttons} svg=${gate.svgs} prompt=${gate.prompt || '无'}` : '读不到页面',
+  !!gate && gate.buttons === 4 && gate.svgs === 4 && gate.prompt === '');
+await shot('gate-2.2-14-1280.png');
+
+/* L4 归并：4.1 含 5 道精编、4.2 含 4 道，L4 不再单独存在 */
+await goto(`${BASE}/drill.html?sec=4.1&i=1`);
+const l4 = await ev(`(() => {
+  const A = window.TD_APP; if (!A) return null;
+  return {
+    L4: !!A.CATALOG.L4,
+    s41: (A.CATALOG['4.1'] || []).filter(q => q.origin === 'legacy').map(q => q.id),
+    s42: (A.CATALOG['4.2'] || []).filter(q => q.origin === 'legacy').map(q => q.id),
+    dup: A.BANK.questions.filter(q => q.dup).length,
+    unit4Has41: A.unitSections(4).includes('4.1')
+  };
+})()`);
+check('l4/归并', 'L4 不存在；4.1=5 题、4.2=4 题；dup=8；Unit4 可见 4.1',
+  l4 ? `L4=${l4.L4} 4.1=${l4.s41.length} 4.2=${l4.s42.length} dup=${l4.dup} unit4=${l4.unit4Has41}` : '读不到 TD_APP',
+  !!l4 && !l4.L4 && l4.s41.length === 5 && l4.s42.length === 4 && l4.dup === 8 && l4.unit4Has41);
+await shot('l4-4.1-1280.png');
+await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+await sleep(400);
+await shot('l4-4.1-390.png');
+await send('Emulation.clearDeviceMetricsOverride');
+
+const failed = results.filter(r => !r.pass);
+console.log(`\n${results.length - failed.length}/${results.length} 通过，截图在 ${OUT}`);
+writeFileSync(join(OUT, 'result.json'), JSON.stringify({ base: BASE, passed: results.length - failed.length, total: results.length, failed }, null, 2));
+ws.close();
+cleanup();
+process.exit(failed.length ? 1 : 0);

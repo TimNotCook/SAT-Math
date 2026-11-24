@@ -653,6 +653,18 @@
     if (q.type === 'mcq') {
       const figList = T.figure || [];
       const crops = (window.TD_CHOICE_CROPS && window.TD_CHOICE_CROPS[q.id]) || null;
+      const gateItems = optLetters(q.id).map(L => {
+        const raw = (CH[L] || '').trim(), isFig = figList.indexOf(L) >= 0;
+        return { L, raw, isFig,
+          figSrc: (isFig && crops) ? crops[L] : null,
+          vecFig: (isFig && window.TD_FIG && window.TD_FIG.choiceGraph) ? window.TD_FIG.choiceGraph(q, L) : '' };
+      });
+      if (!gateItems.some(it => it.raw || it.figSrc || it.vecFig)) {
+        area.innerHTML = '<div class="drill-choices" role="radiogroup" aria-label="答案选项" data-choices="missing">' +
+          '<p class="drill-choice-missing" style="padding:14px 16px;border:1px dashed var(--line);border-radius:10px;color:var(--sub);margin:0">' +
+          '选项缺失：这道题的选项在原书里无法识别，本题暂不可作答。</p></div>';
+        return;
+      }
       area.innerHTML = '<div class="drill-choices" role="radiogroup" aria-label="答案选项">' + optLetters(q.id).map(L => {
         const raw = (CH[L] || '').trim(), selected = a.v === L;
         const isFig = figList.indexOf(L) >= 0;
