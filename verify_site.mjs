@@ -33,6 +33,7 @@ async function cdp(){
 }
 
 // 断言基于当前实际 UI（2026-11-21 实测 DOM），非历史版本假设
+const NO_RES=['firebase-cloud.js'];   // Firebase 模块已摘除：任何页面都不许再加载
 const PAGES=[
   {name:'单元练习 drill',url:'/drill.html',need:['#appnav','.drill-context','真题练习']},
   {name:'做题视图 drill',url:'/drill.html?sec=1.1&i=1',need:['#questionView','Mark for Review','Question 1 of','完成']},
@@ -56,6 +57,7 @@ for(const p of PAGES){
    })` ,returnByValue:true});
   let d={};try{d=JSON.parse(r.result.value||'{}')}catch(e){}
   const checks=[];
+  for(const needle of NO_RES) checks.push({needle:'资源不含：'+needle, ok: !(d.resources||[]).some(u=>String(u).indexOf(needle)>=0)});
   for(const needle of p.need){
     const isSel=/^[#.[][a-zA-Z]/.test(needle);
     let ok=false;

@@ -625,9 +625,9 @@
     els.currentSection.textContent = A.sectionLabel(section);
     els.position.textContent = '第 ' + (index + 1) + ' / ' + questions.length + ' 题';
     els.number.textContent = String(index + 1);
-    /* Keep the native window title short and constant: per-question section
-       labels made the title bar noisy and ugly. */
-    document.title = PAGE_TITLE;
+    /* 板块内标题带板块名（页签/分享卡能看出在哪一板块）；题号不进标题，
+       逐题改标题会让标题栏闪。 */
+    document.title = PAGE_TITLE + ' · ' + A.sectionLabel(section);
     [els.previous, els.next].forEach(function (button, n) {
       var target = n ? next : previous;
       button.disabled = !target;

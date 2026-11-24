@@ -19,7 +19,7 @@
 | 线上页面 | `index` / `drill` / `exam` / `wrong` 全部 HTTP 200 |
 | 题库 | 1009 题：easy 281 / medium 564 / hard 164；mcq 641 / grid 368 |
 | 单元分布 | 1–268 / 2–204 / 3–452 / 4–85 |
-| 登录后端（线上实况） | Firebase + WorkBuddy，**仍在加载**（`drill.html` 引入 `firebase-cloud.js`） |
+| 登录后端（线上实况） | WorkBuddy 邮箱（`endpoint`+`publishableKey` 已配）；GitHub 令牌；Supabase 留空未启用；Firebase 模块 2026-11-24 已摘除（`firebase-cloud.js` 与 `vendor/firebase/` 删除，四页 CSP 白名单同步收紧） |
 | Supabase 迁移 | 仅在分支 `backup/supabase-auth-5a0c22b`，未合并 |
 
 ## 分工表（2026-11-24 老板下发，逐字保留）
@@ -36,6 +36,10 @@
 
 - **云主机归位（开发者④前半段）**：`~/SAT-Math-vm` 原在 `ca36aa8`，与 `54535f9` 逐字节相同（`git diff` 为空），已 `reset --hard origin/main`；现三份工作区一致。开发者只需做④剩下的「清僵尸副本」——**仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本**（云主机上疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对）。
 - 任务台账 `docs/TASKS.md` 入库（`8f6e46c`、`ead8277`）。
+- **1.7.T2「Topic 2 · 一元线性方程求解」22 题（18 grid + 4 MCQ，SP1-026…SP1-047）**：
+  - 2026-11-19 逐题列式验算 22 题，未发现答案键错误（线上 `questions.js` 与本地一致）。
+  - 2026-11-20 用户指认 SP1-046 题干识别有误：`data/text.js` 原显示 `2x + wy = 47`，按该式解得 w=33 与答案键 `value=11` 冲突；已订正为 `2x - wy = 47`（正确解 x=128、w=11），全量比对 `TD_BANK` 与 `TD_TEXT` 无其他实质差异。commit `3621497`，线上 `text.js` 令牌 `7206b62faa5a` 生效。
+  - 复核：`node -e` 统计 `"section":"1.7.T2"` 共 22 条（grid 18 / mcq 4）；`grep -c '2x - wy = 47' data/text.js` 为 1。此前台账确实漏记该板块。
 
 ## 冲突与待澄清（开工前先看）
 

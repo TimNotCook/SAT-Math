@@ -709,7 +709,7 @@
       const btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'td-line-toggle';
       btn.setAttribute('aria-expanded', 'false');
-      btn.textContent = '查看图形答案 · Show graph answer';
+      btn.textContent = T('查看图形答案 · Show graph answer', 'Show graph answer');
       const box = document.createElement('div');
       box.className = 'td-lineanswer'; box.hidden = true;
       area.appendChild(btn); area.appendChild(box);

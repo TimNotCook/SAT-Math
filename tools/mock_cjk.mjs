@@ -64,13 +64,14 @@ await c.send('Page.enable'); await c.send('Runtime.enable'); await c.send('Log.e
 fs.mkdirSync(OUT, { recursive: true });
 
 const rows = [];
-async function snap(name, label) {
+async function snap(width, name, label) {
   const r = await c.send('Runtime.evaluate', { expression: VIS, returnByValue: true });
   let d = {}; try { d = JSON.parse(r.result.value || '{}'); } catch (e) {}
   const shot = await c.send('Page.captureScreenshot', { format: 'png' });
-  if (shot && shot.data) fs.writeFileSync(path.join(OUT, name + '.png'), Buffer.from(shot.data, 'base64'));
-  rows.push({ screen: label, file: name + '.png', chars: d.chars || 0, words: d.words || [], stage: d.stage || '', text: d.text || '' });
-  console.log(`[${name}] stage=${d.stage} 中文字符=${d.chars} 词=${JSON.stringify(d.words || [])}`);
+  const file = `mock-${width}-${name}.png`;
+  if (shot && shot.data) fs.writeFileSync(path.join(OUT, file), Buffer.from(shot.data, 'base64'));
+  rows.push({ width, screen: label, file, chars: d.chars || 0, words: d.words || [], stage: d.stage || '', text: d.text || '' });
+  console.log(`[${width}px ${name}] stage=${d.stage} 中文字符=${d.chars} 词=${JSON.stringify(d.words || [])}`);
 }
 
 async function click(id, wait = 2500) {
@@ -80,29 +81,54 @@ async function click(id, wait = 2500) {
 
 await c.send('Page.navigate', { url: BASE + '/exam.html?mode=mock' });
 await sleep(3500);
-await snap('01-intro', 'Intro 开考页');
+const WIDTHS = [1280, 655, 515, 390];
+const errsAll = [];
 
-await click('btnStart', 3000);
-await snap('02-answer', 'Answer 答题页');
+for (const w of WIDTHS) {
+  await c.send('Emulation.setDeviceMetricsOverride', {
+    width: w, height: w <= 480 ? 844 : 900, deviceScaleFactor: 2, mobile: w <= 480 });
+  c.logs.length = 0;
+  /* 每一档都从干净状态起跑：上一档走完会产生「已交卷」存档，
+     不清掉的话下一档直接落在成绩页，五屏审计就变成假的 0。 */
+  await c.send('Page.navigate', { url: BASE + '/drill.html' });
+  await sleep(1500);
+  await c.send('Runtime.evaluate', { expression: 'try{localStorage.clear();sessionStorage.clear();}catch(e){}', returnByValue: true });
+  await c.send('Page.navigate', { url: BASE + '/exam.html?mode=mock&w=' + w });
+  await sleep(3500);
 
-await click('btnReview', 2500);
-await snap('03-review', 'Review 检查答案');
+  await snap(w, '01-intro', 'Intro 开考页');
+  await click('btnStart', 3000);
+  await snap(w, '02-answer', 'Answer 答题页');
+  await click('btnReview', 2500);
+  await snap(w, '03-review', 'Review 检查答案');
+  await click('btnGoSubmit', 2500);
+  await snap(w, '04-submit', 'Submit 确认交卷');
+  // Module 1 确认 → 进 Module 2；再走一次 Review/Submit 才到 Result
+  await click('btnSubConfirm', 3000);
+  await click('btnReview', 2500);
+  await click('btnGoSubmit', 2500);
+  await click('btnSubConfirm', 3500);
+  await snap(w, '05-result', 'Result 成绩报告');
 
-await click('btnGoSubmit', 2500);
-await snap('04-submit', 'Submit 确认交卷');
+  errsAll.push({ width: w, errors: [...c.logs] });
+}
 
-// Module 1 确认 → 进 Module 2；再走一次 Review/Submit 才到 Result
-await click('btnSubConfirm', 3000);
-await click('btnReview', 2500);
-await click('btnGoSubmit', 2500);
-await click('btnSubConfirm', 3500);
-await snap('05-result', 'Result 成绩报告');
-
-const errs = [...c.logs];
-let bad = rows.filter(r => r.chars > 0).length;
-console.log('\n=== 模考五屏中文审计 ===');
-console.log('base:', BASE, '| 控制台错误:', errs.length);
-for (const r of rows) console.log(`  ${r.screen.padEnd(16)} ${r.file.padEnd(14)} 中文字符=${r.chars}${r.chars ? '  ← ' + JSON.stringify(r.words) : ''}`);
-console.log(bad === 0 && errs.length === 0 ? '\n=== 5/5 纯净，中文 0 ===' : `\n=== FAIL：${bad} 屏仍有中文 ===`);
-fs.writeFileSync(path.join(OUT, 'mock-cjk.json'), JSON.stringify({ base: BASE, time: new Date().toISOString(), rows, errors: errs }, null, 2));
-process.exit(bad === 0 && errs.length === 0 ? 0 : 1);
+/* 屏名与 stage 必须对上：窄屏点不到按钮时，最容易出现「看着 0 其实停在同一屏」 */
+const EXPECT = { 'Intro 开考页': 'stage-intro', 'Answer 答题页': 'stage-answer', 'Review 检查答案': 'stage-review',
+  'Submit 确认交卷': 'stage-submit', 'Result 成绩报告': 'stage-result' };
+const stageBad = rows.filter(r => EXPECT[r.screen] && r.stage !== EXPECT[r.screen]);
+const bad = rows.filter(r => r.chars > 0);
+const errTotal = errsAll.reduce((n, e) => n + e.errors.length, 0);
+console.log('\n=== 模考五屏中文审计（4 档宽度） ===');
+console.log('base:', BASE, '| 屏次:', rows.length, '| 控制台错误:', errTotal);
+for (const w of WIDTHS) {
+  const rs = rows.filter(r => r.width === w);
+  console.log(`  ${w}px  —  ` + rs.map(r => `${r.screen}=${r.chars}`).join(' '));
+}
+for (const r of rows) if (r.chars) console.log(`  ← ${r.width}px ${r.screen} ${r.file} 中文字符=${r.chars} ${JSON.stringify(r.words)}`);
+for (const r of stageBad) console.log(`  ← ${r.width}px ${r.screen} 实际停在 ${r.stage || '(无 stage)'}`);
+console.log(bad.length === 0 && errTotal === 0 && stageBad.length === 0
+  ? `\n=== ${rows.length}/${rows.length} 屏纯净，中文 0，stage 全对（1280/655/515/390）===`
+  : `\n=== FAIL：${bad.length} 屏仍有中文 / ${stageBad.length} 屏 stage 不对 / ${errTotal} 条控制台错误 ===`);
+fs.writeFileSync(path.join(OUT, 'mock-cjk.json'), JSON.stringify({ base: BASE, time: new Date().toISOString(), widths: WIDTHS, rows, errors: errsAll }, null, 2));
+process.exit(bad.length === 0 && errTotal === 0 && stageBad.length === 0 ? 0 : 1);

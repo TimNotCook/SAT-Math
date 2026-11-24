@@ -17,7 +17,7 @@ HASH_FILES = [
     'data/figure_crops.js', 'data/choice_crops.js',
     'grade-core.js', 'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
     'exam.js', 'drill.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
-    'bluebook-shell.js', 'cloud-config.js', 'firebase-cloud.js', 'cloud-account.js',
+    'bluebook-shell.js', 'cloud-config.js', 'cloud-account.js',
     'workbuddy-cloud.js', 'github-auth.js', 'supa-cloud.js',
     'scratch-pad.js', 'wrong-page.js', 'theme.js',
     'app.css', 'bluebook.css', 'glass.css',
@@ -30,7 +30,7 @@ BUMP = [
     'data/figure_crops.js', 'data/choice_crops.js',
     'grade-core.js', 'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
     'exam.js', 'drill.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
-    'bluebook-shell.js', 'cloud-config.js', 'firebase-cloud.js', 'cloud-account.js',
+    'bluebook-shell.js', 'cloud-config.js', 'cloud-account.js',
     'workbuddy-cloud.js', 'github-auth.js', 'supa-cloud.js', 'scratch-pad.js', 'wrong-page.js', 'theme.js', 'app.css', 'bluebook.css', 'glass.css',
 ]
 HTML = ['exam.html', 'drill.html', 'wrong.html']

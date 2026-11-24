@@ -1,6 +1,6 @@
 /* WorkBuddy 邮箱验证码适配层 (window.TDWB)
    通过隐藏沙箱 iframe (auth-relay.html) 调用 WorkBuddy Cloud SDK，
-   与 Firebase (window.TDFB) 及 GitHub 令牌 (window.TDGH) 并存，互不干扰。 */
+   与 GitHub 令牌 (window.TDGH) 并存，互不干扰。 */
 (function () {
   'use strict';
 

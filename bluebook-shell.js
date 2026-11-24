@@ -31,12 +31,14 @@
 
   function setText(el, txt) { if (el) el.textContent = txt; }
 
-  /* 板块名统一排版：「1.1 · 线性方程与函数图像」→「1.1 线性方程与函数图像」。
-     官方页签（Section 2, Module 1: Math 之类）保持原样。 */
+  /* 板块名统一排版：只认「编号 · 名称」这一种形状（例：「1.1 · 线性方程与函数图像」）。
+     其它文本一律原样返回——官方页签、提示语、含「·」的普通句子都不动，
+     免得把 "Estimated SAT Math Score · 200–800" 这类标签也改成空格。 */
   function sectionText(raw) {
     var s = String(raw || '').trim();
-    if (!s || /^Section\s/i.test(s) || /^UNIT\s/i.test(s)) return s;
-    return s.replace(/\s*·\s*/g, ' ').replace(/\s+/g, ' ');
+    var m = s.match(/^(\d+(?:\.\d+)*)\s*·\s*(\S.*)$/);
+    if (!m) return s;
+    return (m[1] + ' ' + m[2]).replace(/\s+/g, ' ');
   }
 
   function dressDrill() {

@@ -132,7 +132,9 @@ body.drill-nav-open{overflow:hidden}
 .exam-submit-main{width:min(660px,calc(100% - 48px));margin:64px auto 96px;padding:32px;text-align:left;background:var(--paper);border:1px solid var(--bb-line);border-radius:var(--radius-lg);box-shadow:var(--shadow-2)}
 .exam-submit-count{margin:20px 0 6px;color:var(--bb-ink);font-size:44px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
 .exam-submit-actions{justify-content:flex-start}
-.score-hero{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px;align-items:start}
+.score-hero{display:grid;grid-template-columns:minmax(220px,max-content) minmax(0,1fr);gap:28px;align-items:start}
+/* 1280 下「Estimated SAT Math Score · 200–800」原来在 220px 首列里断成两行，标签保持单行 */
+#resScoreLabel{white-space:nowrap}
 .score-num small{color:var(--bb-sub);font-size:16px;font-weight:400}
 .kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px}
 .kv div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--bb-line-soft);font-size:12.5px}
