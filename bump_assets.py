@@ -21,8 +21,11 @@ HASH_FILES = [
     'workbuddy-cloud.js', 'github-auth.js', 'supa-cloud.js',
     'scratch-pad.js', 'wrong-page.js', 'theme.js',
     'app.css', 'bluebook.css', 'glass.css',
+    # 讲义复习（jiangyi）：图与数据改动必须能换版本，否则改了也到不了浏览器
+    # （本项目已经吃过两次「文件建了但页面拿的是旧缓存」的亏：supa-cloud.js、github-auth.js）
+    'data/jiangyi.js', 'data/jiangyi_figures.js', 'jiangyi-core.js', 'jiangyi-page.js',
     # HTML 原始内容参与摘要：文案改动也能刷新缓存（先读原文再替换，幂等不破坏自引用）
-    'exam.html', 'drill.html', 'wrong.html',
+    'exam.html', 'drill.html', 'wrong.html', 'jiangyi.html',
 ]
 # 需要加版本号的脚本（CSS 也一起，避免样式缓存）
 BUMP = [
@@ -32,13 +35,14 @@ BUMP = [
     'exam.js', 'drill.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
     'bluebook-shell.js', 'cloud-config.js', 'cloud-account.js',
     'workbuddy-cloud.js', 'github-auth.js', 'supa-cloud.js', 'scratch-pad.js', 'wrong-page.js', 'theme.js', 'app.css', 'bluebook.css', 'glass.css',
+    'data/jiangyi.js', 'data/jiangyi_figures.js', 'jiangyi-core.js', 'jiangyi-page.js',
 ]
-HTML = ['exam.html', 'drill.html', 'wrong.html']
+HTML = ['exam.html', 'drill.html', 'wrong.html', 'jiangyi.html']
 
 
 def digest():
     h = hashlib.sha256()
-    html_names = {'exam.html', 'drill.html', 'wrong.html'}
+    html_names = set(HTML)
     for f in HASH_FILES:
         p = os.path.join(ROOT, f)
         if os.path.exists(p):
