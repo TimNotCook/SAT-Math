@@ -7,17 +7,18 @@
   <meta name="theme-color" content="#2563eb">
   <!-- CSP：静态站无响应头通道，用 meta 兜底。白名单仅含实际用到的源；'unsafe-inline' 供页面内联 script/style；tesseract 的 WASM 与 worker 内 new Function 在 worker 线程执行，不受页面 script-src 约束，故无需 'unsafe-eval'。 -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn https://apis.google.com https://www.gstatic.com https://accounts.google.com; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com https://sat-math-a07ae.firebaseapp.com https://*.firebaseapp.com https://apis.google.com https://accounts.google.com https://appleid.apple.com https://www.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
-  <title>SAT Math · 抽查与模考</title>
+  <title>SAT Math Prep · 抽查与模考</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="app.css?v=657dedfbdb98">
   <link rel="stylesheet" href="bluebook.css?v=657dedfbdb98">
   <link rel="stylesheet" href="glass.css?v=657dedfbdb98"><script src="theme.js?v=657dedfbdb98"></script>
-  <style>#questionNav{z-index:68!important}body.is-mock .mainnav,body.is-mock .bankpill{display:none}</style>
+  <style>#questionNav{z-index:68!important}body.is-mock .mainnav,body.is-mock .bankpill{display:none}body.is-mock .mock-hide{display:none}</style>
 </head>
 <body class="exam-page protected">
   <script>/* 模考屏一律英文：隐藏站内导航与题库胶囊，退出按钮改英文；练习/抽查模式不受影响 */
   (function(){var mock=/[?&]mode=mock/.test(location.search);if(!mock)return;document.body.classList.add("is-mock");
-  document.addEventListener("DOMContentLoaded",function(){var x=document.getElementById("btnExamExit");if(x){x.textContent="Exit";x.title="Exit the test and return";}});})();</script>
+  document.addEventListener("DOMContentLoaded",function(){var x=document.getElementById("btnExamExit");if(x){x.textContent="Exit";x.title="Exit the test and return";}
+    Array.prototype.forEach.call(document.querySelectorAll("[data-en]"),function(el){el.textContent=el.getAttribute("data-en");});});})();</script>
   <header class="appbar">
     <div class="appbar-inner">
       <a class="brand" href="drill.html"><b>SAT Math Prep</b></a>
@@ -27,7 +28,7 @@
         <a href="wrong.html" data-module="wrong">错题回顾</a>
         <a href="exam.html?mode=mock" data-module="mock">模考</a>
       </nav>
-      <span class="bankpill">题库 <span id="bankCount"></span> 题</span>
+      <span class="bankpill" id="bankPill">本单元 <span id="bankCount"></span> 题</span>
       <a class="appbar-exit" id="btnExamExit" href="drill.html" title="退出本模块，返回上一个页面">退出</a>
     </div>
   </header>
@@ -120,20 +121,20 @@
       <div class="exam-stage-head">
         <div>
           <p class="exam-eyebrow">CHECK YOUR WORK</p>
-          <h1>检查答案</h1>
-          <p>点击题号回到答题页定位，也可以直接在下表修改答案。交卷后答案将被锁定。</p>
+          <h1 data-en="Check Answers">检查答案</h1>
+          <p data-en="Select a question number to jump back to it, or edit answers directly in the table below. Answers are locked after you submit.">点击题号回到答题页定位，也可以直接在下表修改答案。交卷后答案将被锁定。</p>
         </div>
         <button class="btn" id="btnReviewNav" type="button">Question Menu</button>
       </div>
       <div class="rev-summary" id="revSummary"></div>
       <div class="exam-table-wrap">
         <table class="rev-table"><thead><tr>
-          <th>题号</th><th>知识点 / 出处</th><th>状态</th><th>你的答案</th><th>定位</th>
+          <th data-en="Question">题号</th><th data-en="Topic / Source">知识点 / 出处</th><th data-en="Status">状态</th><th data-en="Your Answer">你的答案</th><th data-en="Go">定位</th>
         </tr></thead><tbody id="revBody"></tbody></table>
       </div>
       <div class="exam-button-row exam-review-actions">
-        <button class="btn" id="btnBackAnswer" type="button">返回答题</button>
-        <button class="btn primary" id="btnGoSubmit" type="button">交卷</button>
+        <button class="btn" id="btnBackAnswer" type="button" data-en="Back to Test">返回答题</button>
+        <button class="btn primary" id="btnGoSubmit" type="button" data-en="Submit">交卷</button>
       </div>
     </main>
   </section>
@@ -141,13 +142,13 @@
   <section class="stage" id="stage-submit" hidden>
     <main class="exam-submit-main exam-panel">
       <p class="exam-eyebrow">SUBMIT SECTION</p>
-      <h1 id="subTitle">确认交卷？</h1>
+      <h1 id="subTitle" data-en="Submit your answers?">确认交卷？</h1>
       <div class="exam-submit-count tnum" id="subCount">0 / 22</div>
       <p id="subDesc"></p>
       <div class="exam-notice" id="subWarn"></div>
       <div class="exam-button-row exam-submit-actions">
-        <button class="btn" id="btnSubBack" type="button">继续检查</button>
-        <button class="btn danger" id="btnSubConfirm" type="button">确认交卷并锁定答案</button>
+        <button class="btn" id="btnSubBack" type="button" data-en="Keep Reviewing">继续检查</button>
+        <button class="btn danger" id="btnSubConfirm" type="button" data-en="Submit and Lock Answers">确认交卷并锁定答案</button>
       </div>
     </main>
   </section>
@@ -161,14 +162,14 @@
           <p id="resSub"></p>
         </div>
         <div class="exam-button-row">
-          <button class="btn" id="btnResHome" type="button">查看错题回顾</button>
-          <button class="btn" id="btnResAgain" type="button">再做一次</button>
+          <button class="btn" id="btnResHome" type="button" data-en="Review Missed Questions">查看错题回顾</button>
+          <button class="btn" id="btnResAgain" type="button" data-en="Take Another Test">再做一次</button>
         </div>
       </div>
       <section class="exam-panel exam-score-panel">
         <div class="score-hero">
           <div>
-            <p class="exam-note" id="resScoreLabel">预估 SAT 数学分数 · 200–800</p>
+            <p class="exam-note" id="resScoreLabel" data-en="Estimated SAT Math Score · 200–800">预估 SAT 数学分数 · 200–800</p>
             <div class="score-num tnum" id="resScore">—</div>
             <p class="exam-note" id="resPath"></p>
           </div>
@@ -178,17 +179,17 @@
           </div>
         </div>
       </section>
-      <h2 class="exam-section-title">薄弱点报告</h2>
+      <h2 class="exam-section-title" data-en="Weakness Report">薄弱点报告</h2>
       <div class="res-grid">
-        <section class="exam-panel"><h3>需优先补强的单元</h3><div id="resUnits"></div></section>
-        <section class="exam-panel"><h3>具体知识点</h3><div id="resTopics"></div></section>
+        <section class="exam-panel"><h3 data-en="Units to Prioritize">需优先补强的单元</h3><div id="resUnits"></div></section>
+        <section class="exam-panel mock-hide"><h3>具体知识点</h3><div id="resTopics"></div></section>
       </div>
-      <section class="exam-panel exam-priority-panel"><h3>复习优先级排序</h3><div id="resPriority"></div></section>
-      <section class="exam-panel"><h3>本次错题类型分布（按你的作答自动归因）</h3><div id="resTypes"></div></section>
-      <h2 class="exam-section-title">逐题得分明细</h2>
+      <section class="exam-panel exam-priority-panel mock-hide"><h3>复习优先级排序</h3><div id="resPriority"></div></section>
+      <section class="exam-panel mock-hide"><h3>本次错题类型分布（按你的作答自动归因）</h3><div id="resTypes"></div></section>
+      <h2 class="exam-section-title" data-en="Question-by-Question Results">逐题得分明细</h2>
       <div class="exam-tabs">
-        <button class="tab on" data-rtab="all" type="button">全部题目</button>
-        <button class="tab" data-rtab="wrong" type="button">仅错题</button>
+        <button class="tab on" data-rtab="all" type="button" data-en="All Questions">全部题目</button>
+        <button class="tab" data-rtab="wrong" type="button" data-en="Incorrect Only">仅错题</button>
       </div>
       <div id="resList"></div>
     </main>

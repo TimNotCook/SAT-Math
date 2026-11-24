@@ -32,6 +32,8 @@
 
   const MODE_NAME = { mock: 'SAT 数学全真模考', quiz: '单元抽查' };
   const OFFICIAL = MODE === 'mock';               // only the official mock may use Desmos
+  const T = (zh, en) => (OFFICIAL ? en : zh);     // 模考层纯英文：docs/UI-COPY.md v1.1
+  const UNIT_EN = { 1: 'Heart of Algebra', 2: 'Problem Solving & Data Analysis', 3: 'Advanced Math', 4: 'Geometry & Trigonometry' };
   document.querySelectorAll('.exam-modules a').forEach(a => {
     const on = a.dataset.module === MODE;
     a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page');
@@ -331,12 +333,18 @@
         ' · reason: ' + reasonText(last.reason) + '</div>' +
         '<button type="button" class="btn slim" id="btnExportSalvage">Export unsaved record (JSON)</button>';
     } else {
-      const modeName = last.mode === 'mock' ? '模考' : (last.mode === 'quiz' ? '单元抽查' : '练习');
-      host.innerHTML = '<div class="exam-salvage-head">未交卷记录 · 共 ' + list.length + ' 卷</div>' +
-        '<div class="exam-salvage-row">最近：' + new Date(last.date).toLocaleString('zh-CN') +
-        ' · ' + modeName + ' · 已答 ' + last.answered + '/' + last.total +
-        ' · 作废原因：' + reasonText(last.reason) + '</div>' +
-        '<button type="button" class="btn slim" id="btnExportSalvage">导出未交卷档案（JSON）</button>';
+      const modeName = OFFICIAL ? 'Mock Test' : (last.mode === 'mock' ? '模考' : (last.mode === 'quiz' ? '单元抽查' : '练习'));
+      host.innerHTML = OFFICIAL
+        ? '<div class="exam-salvage-head">Unsaved test records · ' + list.length + '</div>' +
+          '<div class="exam-salvage-row">Latest: ' + new Date(last.date).toLocaleString('en-US') +
+          ' · ' + modeName + ' · answered ' + last.answered + '/' + last.total +
+          ' · reason: ' + reasonText(last.reason) + '</div>' +
+          '<button type="button" class="btn slim" id="btnExportSalvage">Export unsaved record (JSON)</button>'
+        : '<div class="exam-salvage-head">未交卷记录 · 共 ' + list.length + ' 卷</div>' +
+          '<div class="exam-salvage-row">最近：' + new Date(last.date).toLocaleString('zh-CN') +
+          ' · ' + modeName + ' · 已答 ' + last.answered + '/' + last.total +
+          ' · 作废原因：' + reasonText(last.reason) + '</div>' +
+          '<button type="button" class="btn slim" id="btnExportSalvage">导出未交卷档案（JSON）</button>';
     }
     $('btnExportSalvage').addEventListener('click', exportSalvage);
   }
@@ -567,7 +575,7 @@
     $('clockText').textContent = fmt((official ? O.secondsPerModule : S.durationSec) * 1000);
     $('clockLabel').textContent = 'Time Remaining';
     $('tbTotal').textContent = official ? 'Section 2 of 2 · Math' : 'Unit ' + QUIZ_UNIT;
-    $('bankCount').textContent = String(BANK.length);
+    $('bankCount').textContent = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
   }
 
   /* =====================================================================
@@ -805,20 +813,21 @@
     const rows = [];
     for (let i = lo; i <= hi; i++) {
       const inst = S.paper[i], q = byId(inst.id), a = S.answers[inst.uid], locked = isLocked(inst.uid);
-      const ctl = locked ? `<b>${esc(a.v || '—')}</b> <span class="tiny muted">已锁定</span>`
+      const ctl = locked ? `<b>${esc(a.v || '—')}</b> <span class="tiny muted">${OFFICIAL ? 'Locked' : '已锁定'}</span>`
         : q.type === 'mcq'
           ? `<div class="miniopts">${optLetters(q.id).map(L => `<button class="${a.v === L ? 'on' : ''}" data-uid="${esc(inst.uid)}" data-l="${L}">${L}</button>`).join('')}</div>`
-          : `<input class="gridmini editable" data-uid="${esc(inst.uid)}" value="${esc(a.v)}" placeholder="输入答案">`;
+          : `<input class="gridmini editable" data-uid="${esc(inst.uid)}" value="${esc(a.v)}" placeholder="${OFFICIAL ? 'Enter answer' : '输入答案'}">`;
       rows.push(`<tr><td><b>Q${i - lo + 1}</b></td>
-        <td>${esc(q.topic)}<div class="tiny muted">U${q.unit} · ${esc(q.source)} ${inst.from === 'wrong' ? '· 历史错题' : ''}${a.marked ? ' · 已标记' : ''}</div></td>
-        <td><span class="pill ${a.v ? 'wait' : 'no'}">${a.v ? '已作答' : '未作答'}</span></td>
-        <td>${ctl}</td><td><button class="btn slim" data-go="${i}">前往</button></td></tr>`);
+        <td>${OFFICIAL ? '' : esc(q.topic)}<div class="tiny muted">U${q.unit} · ${esc(q.source)} ${inst.from === 'wrong' ? (OFFICIAL ? '· Previously missed' : '· 历史错题') : ''}${a.marked ? (OFFICIAL ? ' · Marked' : ' · 已标记') : ''}</div></td>
+        <td><span class="pill ${a.v ? 'wait' : 'no'}">${OFFICIAL ? (a.v ? 'Answered' : 'Not answered') : (a.v ? '已作答' : '未作答')}</span></td>
+        <td>${ctl}</td><td><button class="btn slim" data-go="${i}">${OFFICIAL ? 'Go' : '前往'}</button></td></tr>`);
     }
     $('revBody').innerHTML = rows.join('');
     const answered = rows.length && Array.from({ length: hi - lo + 1 }, (_, k) => S.answers[S.paper[lo + k].uid].v).filter(Boolean).length;
     const marked = Array.from({ length: hi - lo + 1 }, (_, k) => S.answers[S.paper[lo + k].uid].marked).filter(Boolean).length;
-    $('revSummary').innerHTML = `<div class="s"><b>${answered}</b><span>已作答</span></div><div class="s"><b>${hi - lo + 1 - answered}</b><span>未作答</span></div>
-      <div class="s"><b>${marked}</b><span>已标记</span></div><div class="s"><b>${MODE === 'mock' ? 'Module ' + S.module : MODE_NAME[MODE]}</b><span>当前范围</span></div>`;
+    const RS = OFFICIAL ? ['Answered', 'Not answered', 'Marked', 'Current range'] : ['已作答', '未作答', '已标记', '当前范围'];
+    $('revSummary').innerHTML = `<div class="s"><b>${answered}</b><span>${RS[0]}</span></div><div class="s"><b>${hi - lo + 1 - answered}</b><span>${RS[1]}</span></div>
+      <div class="s"><b>${marked}</b><span>${RS[2]}</span></div><div class="s"><b>${MODE === 'mock' ? 'Module ' + S.module : MODE_NAME[MODE]}</b><span>${RS[3]}</span></div>`;
     $('revBody').querySelectorAll('.miniopts button').forEach(b => b.addEventListener('click', () => {
       S.answers[b.dataset.uid].v = b.dataset.l || b.getAttribute('data-l'); persist(); renderReview();
     }));
@@ -929,38 +938,51 @@
 
   function renderResult() {
     const r = S.result; if (!r) return;
-    $('resTitle').textContent = MODE_NAME[r.mode] + ' · 成绩报告';
-    $('resSub').textContent = new Date(r.date).toLocaleString('zh-CN') + ' · ' +
-      (r.auto ? '计时归零自动交卷' : '手动交卷') + ' · 答案已锁定' +
-      (MODE === 'mock' ? ' · Module 2 路径：' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : '未进入') : '');
+    $('resTitle').textContent = OFFICIAL ? 'Score Report' : MODE_NAME[r.mode] + ' · 成绩报告';
+    $('resSub').textContent = new Date(r.date).toLocaleString(OFFICIAL ? 'en-US' : 'zh-CN') + ' · ' +
+      (OFFICIAL
+        ? ((r.auto ? 'Auto-submitted when time expired' : 'Submitted manually') + ' · Answers locked' +
+           (MODE === 'mock' ? ' · Module 2 path: ' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : 'not reached') : ''))
+        : ((r.auto ? '计时归零自动交卷' : '手动交卷') + ' · 答案已锁定' +
+           (MODE === 'mock' ? ' · Module 2 路径：' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : '未进入') : '')));
     const pct = Math.round(r.correct / r.total * 100);
     /* 只有模考换算 200–800 分；单元抽测只展示正确率，不出分、不折成 44 题。 */
     const isMock = MODE === 'mock';
-    $('resScoreLabel').textContent = isMock ? '预估 SAT 数学分数 · 200–800' : '本次练习正确率';
+    $('resScoreLabel').textContent = isMock ? T('预估 SAT 数学分数 · 200–800', 'Estimated SAT Math Score · 200–800') : '本次练习正确率';
     $('resScore').innerHTML = isMock
       ? r.estimate.scaled + '<small> / 800</small>'
       : pct + '<small>%</small>';
     $('resPath').textContent = isMock
-      ? '原始分 raw ' + r.estimate.raw + ' / ' + r.estimate.rawMax + ' · 参考路径 ' + (r.estimate.path === 'easy' ? 'easier' : 'harder')
+      ? (OFFICIAL
+          ? 'Raw score ' + r.estimate.raw + ' / ' + r.estimate.rawMax + ' · Adaptive path: ' + (r.estimate.path === 'easy' ? 'easier' : 'harder')
+          : '原始分 raw ' + r.estimate.raw + ' / ' + r.estimate.rawMax + ' · 参考路径 ' + (r.estimate.path === 'easy' ? 'easier' : 'harder'))
       : '答对 ' + r.correct + ' / ' + r.total + ' 题 · 正确率 ' + pct + '%';
     const avg = Math.round(r.elapsed / r.total);
     const slow = Math.max(0, ...r.detail.map(d => d.seconds));
-    $('resKV').innerHTML = `<div><span>答对 / 总题</span><b>${r.correct} / ${r.total}</b></div>
-      <div><span>正确率</span><b>${pct}%</b></div>
-      <div><span>原始分（每题 1 分）</span><b>${r.correct} 分</b></div>
-      <div><span>总用时</span><b>${fmt(r.elapsed * 1000)}</b></div>
-      <div><span>平均每题</span><b>${fmt(avg * 1000)}</b></div>
-      <div><span>最长单题</span><b>${fmt(slow * 1000)}</b></div>
-      <div><span>错题数</span><b>${r.total - r.correct}</b></div>
-      <div><span>限时 / 实耗</span><b>${fmt(r.durationSec * 1000)} / ${fmt(r.elapsed * 1000)}</b></div>`;
+    const KV = OFFICIAL
+      ? ['Correct / Total', 'Accuracy', 'Raw score (1 pt each)', 'Total time', 'Average per question', 'Longest question', 'Incorrect', 'Time limit / Used']
+      : ['答对 / 总题', '正确率', '原始分（每题 1 分）', '总用时', '平均每题', '最长单题', '错题数', '限时 / 实耗'];
+    $('resKV').innerHTML = `<div><span>${KV[0]}</span><b>${r.correct} / ${r.total}</b></div>
+      <div><span>${KV[1]}</span><b>${pct}%</b></div>
+      <div><span>${KV[2]}</span><b>${r.correct}${OFFICIAL ? ' pts' : ' 分'}</b></div>
+      <div><span>${KV[3]}</span><b>${fmt(r.elapsed * 1000)}</b></div>
+      <div><span>${KV[4]}</span><b>${fmt(avg * 1000)}</b></div>
+      <div><span>${KV[5]}</span><b>${fmt(slow * 1000)}</b></div>
+      <div><span>${KV[6]}</span><b>${r.total - r.correct}</b></div>
+      <div><span>${KV[7]}</span><b>${fmt(r.durationSec * 1000)} / ${fmt(r.elapsed * 1000)}</b></div>`;
     $('resBasis').textContent = isMock
-      ? r.estimate.basis + '。' + O.scaleNote
+      ? (OFFICIAL
+          ? 'Estimate converts raw points to the 200–800 scale. It is a practice estimate, not an official score.'
+          : r.estimate.basis + '。' + O.scaleNote)
       : '单元练习只统计本次正确率与错题分布，不换算 SAT 分数。';
 
     const rep = r.report;
-    $('resUnits').innerHTML = rep.units.map(u => `<div class="kp-row"><span class="nm" title="${esc(u.name)}">${esc(u.name)}</span>
+    $('resUnits').innerHTML = rep.units.map(u => {
+      const nm = OFFICIAL ? (UNIT_EN[u.unit] || u.name) : u.name;
+      return `<div class="kp-row"><span class="nm" title="${esc(nm)}">${esc(nm)}</span>
       <span class="bar"><i style="width:${Math.round((1 - u.rate) * 100)}%;background:${u.rate > .5 ? 'var(--bad)' : u.rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
-      <span class="pct">错 ${u.wrong}/${u.n}</span></div>`).join('') || '<div class="small muted">本次全部答对，无需补强</div>';
+      <span class="pct">${OFFICIAL ? 'Wrong ' : '错 '}${u.wrong}/${u.n}</span></div>`;
+    }).join('') || `<div class="small muted">${OFFICIAL ? 'All correct — nothing to prioritize' : '本次全部答对，无需补强'}</div>`;
     $('resTopics').innerHTML = rep.topics.slice(0, 12).map(t => `<div class="kp-row"><span class="nm" title="${esc(t.name)}">${esc(t.name)}</span>
       <span class="bar"><i style="width:${Math.round((1 - t.rate) * 100)}%;background:${t.rate > .5 ? 'var(--bad)' : t.rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
       <span class="pct">错 ${t.wrong}/${t.n}</span></div>`).join('');
@@ -978,22 +1000,25 @@
     const AN = window.TD_ANALYSIS;
     $('resList').innerHTML = list.map(d => {
       let causeHtml = '';
-      if (!d.correct && AN) {
+      if (!d.correct && AN && !OFFICIAL) {
         const q = BANK.find(x => x.id === d.id) || {};
         const a = AN.analyze(q, d.given, (window.TD_TEXT || {})[d.id]);
         causeHtml = `<div class="cause-box"><b>错因 · ${esc(a.title)}</b><p>${esc(a.cause)}</p><p class="fix">${esc(a.fix)}</p></div>`;
       }
+      const meta = OFFICIAL
+        ? 'U' + d.unit + ' · ' + (d.type === 'grid' ? 'Grid-in' : 'Multiple choice') + ' · ' + d.points + ' pt'
+        : 'U' + d.unit + ' · ' + (d.type === 'grid' ? '填空' : '选择') + ' · 得 ' + d.points + ' 分';
       return `<div class="rev-item ${d.correct ? 'ok' : 'no'}">
-      <div class="badge">${d.correct ? '对' : '错'}</div>
-      <div class="body"><div class="ttl">Q${d.pos} · ${esc(d.topic)}
-        <span class="tiny muted">U${d.unit} · ${d.type === 'grid' ? '填空' : '选择'} · 得 ${d.points} 分${d.from === 'wrong' ? ' · 历史错题' : ''}${d.marked ? ' · 曾标记' : ''}</span></div>
-        <div class="sub">${esc(d.source)} · 用时 ${fmt(d.seconds * 1000)}</div>
-        <div class="ans"><span>你的答案 <b style="color:${d.correct ? 'var(--ok)' : 'var(--bad)'}">${esc(d.given || '—')}</b></span>
-          <span>正确答案 <b>${esc(d.answer)}</b></span></div>
-        ${!d.correct && d.hint ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(d.hint)}</div>` : ''}
-        ${causeHtml}</div>
+      <div class="badge">${d.correct ? '✓' : '✗'}</div>
+      <div class="body"><div class="ttl">Q${d.pos}${OFFICIAL ? '' : ' · ' + esc(d.topic)}
+        <span class="tiny muted">${meta}${d.from === 'wrong' ? (OFFICIAL ? ' · Previously missed' : ' · 历史错题') : ''}${d.marked ? (OFFICIAL ? ' · Marked' : ' · 曾标记') : ''}</span></div>
+        <div class="sub">${esc(d.source)}${OFFICIAL ? ' · Time ' : ' · 用时 '}${fmt(d.seconds * 1000)}</div>
+        <div class="ans"><span>${OFFICIAL ? 'Your answer' : '你的答案'} <b style="color:${d.correct ? 'var(--ok)' : 'var(--bad)'}">${esc(d.given || '—')}</b></span>
+          <span>${OFFICIAL ? 'Correct answer' : '正确答案'} <b>${esc(d.answer)}</b></span></div>
+        ${!d.correct && d.hint && !OFFICIAL ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(d.hint)}</div>` : ''}
+        ${causeHtml}
       </div>`;
-    }).join('') || '<div class="small muted">无错题</div>';
+    }).join('') || `<div class="small muted">${OFFICIAL ? 'No incorrect answers' : '无错题'}</div>`;
   }
 
   /* 本次错题按错因类型聚合：仅依据作答内容归类，给出共性改进方向 */
@@ -1041,7 +1066,7 @@
      ===================================================================== */
   function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600); }
 
-  $('bankCount').textContent = String(BANK.length);
+  $('bankCount').textContent = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
   $('btnStart').addEventListener('click', startSession);
   $('btnPrev').addEventListener('click', () => goTo(S.idx - 1));
   $('btnNext').addEventListener('click', () => goTo(S.idx + 1));
@@ -1075,8 +1100,11 @@
   if (!OFFICIAL) {
     $('btnDirections').hidden = true;
     $('btnReference').textContent = '公式参考';
-    $('navLegend').innerHTML = '<span><i class="is-answered"></i>已答</span><span><i></i>未答</span>' +
-      '<span><i class="is-marked"></i>已标记</span><span><i class="is-current"></i>当前</span>';
+    $('navLegend').innerHTML = OFFICIAL
+      ? '<span><i class="is-answered"></i>Answered</span><span><i></i>Not answered</span>' +
+        '<span><i class="is-marked"></i>Marked for review</span><span><i class="is-current"></i>Current</span>'
+      : '<span><i class="is-answered"></i>已答</span><span><i></i>未答</span>' +
+        '<span><i class="is-marked"></i>已标记</span><span><i class="is-current"></i>当前</span>';
     $('btnReviewNav').textContent = '打开题目导航';
   }
   window.TD_UI.bindTools({
