@@ -306,7 +306,10 @@
   function secUrl(s, i) {
     return 'drill.html?unit=' + UNIT_OF(s) + '&sec=' + encodeURIComponent(s) + (i ? '&i=' + i : '');
   }
-  function sectionLabel(s) { return s + ' · ' + SECTION_CN[s]; }
+  /* 板块名统一为「1.1 线性方程与函数图像」：代码与名称之间用空格，不再用「·」。
+     做题页顶栏、页脚、导语、结果标题共用这一个来源，避免同一条板块名在不同位置
+     一半带点一半不带。 */
+  function sectionLabel(s) { return s + ' ' + SECTION_CN[s]; }
 
   function groupTag(s) { return isLegacy(s) ? '精编原题组' : '教材板块'; }
   function secHref(s) { return secUrl(s, 1); }
