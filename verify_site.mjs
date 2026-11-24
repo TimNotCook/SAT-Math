@@ -37,7 +37,7 @@ const PAGES=[
   {name:'单元练习 drill',url:'/drill.html',need:['#appnav','.drill-context','真题练习']},
   {name:'做题视图 drill',url:'/drill.html?sec=1.1&i=1',need:['#questionView','Mark for Review','Question 1 of','完成']},
   {name:'单元抽查 exam',url:'/exam.html?mode=quiz&unit=1',need:['.appbar','.exam-start-main','单元抽查','#btnStart']},
-  {name:'模考 exam',url:'/exam.html?mode=mock',need:['.appbar','.stage','模考','Start']},
+  {name:'模考 exam',url:'/exam.html?mode=mock',need:['.appbar','.stage','Start','SAT Math Prep','Exit'],absent:['真题练习','单元抽查','错题回顾','题库']},
   {name:'错题回顾 wrong',url:'/wrong.html',need:['#appnav','图片识别导入']},
 ];
 const results=[];
@@ -64,6 +64,10 @@ for(const p of PAGES){
       ok=!!q.result?.value;
     }else ok=(d.body||'').includes(needle);
     checks.push({needle,ok});
+  }
+  for(const needle of (p.absent||[])){
+    const ok=!(d.body||'').includes(needle);
+    checks.push({needle:'不应出现：'+needle,ok});
   }
   // 资源检测：用页面内 fetch 检查关键 JS/CSS 可达
   const resCheck=await c.send('Runtime.evaluate',{expression:`(async()=>{const urls=[...document.querySelectorAll('script[src],link[rel=stylesheet]')].map(x=>x.src||x.href).filter(Boolean);const out=[];for(const u of urls.slice(0,12)){try{const r=await fetch(u,{method:'HEAD'});out.push([u.split('/').pop(),r.status])}catch(e){out.push([u.split('/').pop(),'ERR'])}}return JSON.stringify(out)})()`,awaitPromise:true,returnByValue:true});
