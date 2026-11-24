@@ -1117,3 +1117,36 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button.drill-next-bu
   body.exam-page:has(#stage-answer:not([hidden])) .exam-clock-group{
     flex:0 0 auto!important; justify-self:auto!important; align-self:center!important}
 }
+
+/* =====================================================================
+   BOTTOM GAP — 2026-11-24 实测修正（Tim 截图里的「底下留白好多」）
+   问题：做题页的答题条（.drill-footer，sticky bottom:0）没贴到窗口底。
+   1280×960 / DPR2 实测 footTop=798、条高 70 → 条下面剩 92px 白边。
+   根因：footer 的 sticky 只能走到它父级（#questionView）的底边，
+   而父级高度由内容撑出来（.drill-main 的 min-height:calc(100dvh - 260px)
+   那个魔法数字还差 92px），内容比一屏短时自然够不到窗口底。
+   做法：不再算魔法数字——body/#questionView/main 全部改成纵向 flex 链，
+   main 吃掉剩余高度，父级正好等于一屏，sticky footer 自动落到窗口底。
+   模考答题页（#stage-answer）走同一套；内容超过一屏时 sticky 行为不变。
+   ===================================================================== */
+body.drill-page:has(#questionView:not([hidden])){
+  display:flex!important; flex-direction:column!important; min-height:calc(100dvh - 1px)!important;
+}
+body.drill-page:has(#questionView:not([hidden])) #questionView{
+  display:flex!important; flex-direction:column!important; flex:1 1 auto!important; min-height:0!important;
+}
+body.drill-page:has(#questionView:not([hidden])) .drill-main{
+  flex:1 0 auto!important; min-height:0!important; padding-bottom:28px!important;
+}
+body.drill-page:has(#questionView:not([hidden])) .drill-footer{flex:0 0 auto!important}
+
+body.exam-page:has(#stage-answer:not([hidden])){
+  display:flex!important; flex-direction:column!important; min-height:calc(100dvh - 1px)!important;
+}
+body.exam-page:has(#stage-answer:not([hidden])) #stage-answer{
+  display:flex!important; flex-direction:column!important; flex:1 1 auto!important; min-height:0!important;
+}
+body.exam-page:has(#stage-answer:not([hidden])) .exam-main{
+  flex:1 0 auto!important; min-height:0!important;
+}
+body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{flex:0 0 auto!important}
