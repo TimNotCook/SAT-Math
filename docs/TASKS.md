@@ -9,7 +9,7 @@
 - 唯一权威版本 = `origin/main`；交付前用 `git ls-remote origin refs/heads/main` 核对哈希。
 - 现存本地工作区（草稿区，不承载独有内容）：Mac `~/Work/SAT-Math`、Mac `~/Work/SAT-Math-live`、云主机 `~/SAT-Math-vm`。
 - 推送走 `safe_push.sh`，禁止 `git push --force`。
-- 注意：`TimNotCook/SAT-Math-Prep` **不存在**（404），`SAT-Math` 的简介里那句 "Redirect to SAT-Math-Prep" 是错的描述，不要按它去找仓库。
+- `TimNotCook/SAT-Math-Prep` 是**另一个线上仓库**，不是本项目目标库；本项目唯一写入目标是 `SAT-Math`。对它的 404 属于“无权限看到”，不等于已删除，不要据此推断。
 
 ## 基线快照（已实测）
 
@@ -34,7 +34,7 @@
 
 ## 已完成（勿重复做）
 
-- **云主机归位（开发者④前半段）**：`~/SAT-Math-vm` 原在 `ca36aa8`，与 `54535f9` 逐字节相同（`git diff` 为空），已 `reset --hard origin/main`；现三份工作区一致。开发者只需做④剩下的「清僵尸副本」。
+- **云主机归位（开发者④前半段）**：`~/SAT-Math-vm` 原在 `ca36aa8`，与 `54535f9` 逐字节相同（`git diff` 为空），已 `reset --hard origin/main`；现三份工作区一致。开发者只需做④剩下的「清僵尸副本」——**仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本**（云主机上疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对）。
 - 任务台账 `docs/TASKS.md` 入库（`8f6e46c`、`ead8277`）。
 
 ## 冲突与待澄清（开工前先看）
@@ -42,7 +42,7 @@
 1. **码农 β③「清 Firebase 死代码」会打断码农 α 的登录收尾**。Firebase 不是死代码：`drill.html` 明确引入 `firebase-cloud.js`，`cloud-config.js`/`cloud-account.js` 都在调它，Google 与邮箱密码通道依赖它。建议改为「仅清 Supabase 迁移后确认无用的调用」，等码农 α 的三通道回归过了再动。
 2. **阴影题数量对不上**：开发者①写「4 道」，验收写「5 道」。需要老板给准数，否则验收无法判定。
 3. 「删掉题库 1009 题」（码农 β④）删的是**页面文案**，不是题目；题库仍须 1009 题，与开发者验收里的「题库仍 1009」不冲突。
-4. `~/Work/SAT-Math-Prep` 旧副本 HEAD `d28aad1` **已在 SAT-Math 历史中存在**，无独有内容，可安全删除；目前未动，等开发者④执行。
+4. **`SAT-Math-Prep` 边界（全员遵守，此前“可清理”结论作废）**：它是另一个线上仓库，不是本项目目标库。任何交付物、任务单、素材都**不许往里放**，也不许拿它当备份或第二信源；本机 `~/Work/SAT-Math-Prep` 副本**原样保留**——不删除、不改动、不往里提交（用户 2026-11-24 明确指示）。用本机凭据访问同样是 `Repository not found`，属于“无权限看到”，不等于已删除。
 
 ## 签收规则
 
