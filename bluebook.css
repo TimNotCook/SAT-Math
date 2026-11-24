@@ -1157,5 +1157,4 @@ body.exam-page:has(#stage-intro.active) #stage-intro{
   display:flex!important;flex-direction:column;justify-content:center;
   min-height:calc(100dvh - 1px);padding:0;
 }
-body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px}
-body.exam-page:has(#stage-intro.active):has(#stage-intro.active) .exam-start-main{margin-block:auto}
+body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px;margin-block:auto}
