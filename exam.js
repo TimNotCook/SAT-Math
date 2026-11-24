@@ -140,6 +140,8 @@
      Start/测试 button is clicked, so a page load, refresh or module switch can
      never show answer / review / submit / result content on the main screen. */
   let resumeStage = null, startClicked = false;
+  /* 有存档但校验不过时置位：开场页要明说「存档已过期」，不能默默吞掉。 */
+  let sessionExpired = false;
   /* Snapshot of the session as last observed on disk. Writes re-read the disk
      and replay only locally changed fields on top of it, so a stale tab can
      never erase answers/results another tab just saved under the same key. */
@@ -191,6 +193,9 @@
   function startSession() {
     /* Explicit Start click: this is the ONLY trigger that reveals test content. */
     startClicked = true;
+    sessionExpired = false;
+    const expiredNotice = $('introNotice');
+    if (expiredNotice) expiredNotice.hidden = true;
     if (resumeStage) {
       const target = resumeStage;
       resumeStage = null;
@@ -216,13 +221,61 @@
     setStage('answer'); renderAll(); startTicker();
     if (!OFFICIAL) toast('计时开始，不可暂停或重置');
   }
+  /* ---------------------------------------------------------------------
+     存档兼容层
+     旧版/半途版本可能没有 m1Size、moduleEndsAt，或写到一半就中断。直接
+     adopt() 会让模块区间变成 [0, -1]，题号显示成 "Question 1 of 0"。
+     能推断的字段就地补齐；推断不出来的判为过期，交回新卷并明示。
+     --------------------------------------------------------------------- */
+  function repairSaved(saved) {
+    if (!saved || saved.mode !== MODE) return null;
+    const paper = saved.paper;
+    if (!Array.isArray(paper) || !paper.length) return null;
+    if (!(Number(saved.startedAt) > 0) || !(Number(saved.endsAt) > Number(saved.startedAt))) return null;
+    /* 题目 id 已不在题库（删题/换库）时不能硬恢复，否则卷面一半是空题 */
+    if (paper.some(x => !x || typeof x.uid !== 'string' || !x.uid || !byId(x.id))) return null;
+    if (!saved.answers || typeof saved.answers !== 'object') saved.answers = {};
+    paper.forEach(x => {
+      const a = saved.answers[x.uid];
+      if (!a || typeof a !== 'object') saved.answers[x.uid] = { v: '', marked: false, spent: 0, locked: false };
+    });
+    const total = paper.length;
+    let inModule2 = saved.module === 2;
+    if (MODE === 'mock') {
+      /* 旧存档没有 m1Size：按每题的 module 标记数；没有标记的老卷按
+         「前 22 题是模块一」处理，22 题以内说明还没进模块二。 */
+      let m1 = paper.filter(x => x.module === 1).length;
+      if (!m1) m1 = total >= O.questionsPerModule * 2 ? O.questionsPerModule : total;
+      if (!(m1 > 0) || (inModule2 && m1 >= total)) return null;
+      if (!inModule2 && (!saved.m2Options || !Array.isArray(saved.m2Options.hard) || !Array.isArray(saved.m2Options.easy))) return null;
+      saved.m1Size = m1;
+    } else {
+      inModule2 = false;
+    }
+    saved.module = inModule2 ? 2 : 1;
+    if (!(saved.durationSec > 0)) saved.durationSec = Math.round((saved.endsAt - saved.startedAt) / 1000);
+    /* 旧存档只有一个总时钟；缺分模块截止时间就按总时钟走，不做提前收卷 */
+    if (!(saved.moduleEndsAt > 0)) saved.moduleEndsAt = saved.endsAt;
+    const lo = inModule2 ? saved.m1Size : 0;
+    const hi = (inModule2 ? total : (saved.m1Size || total)) - 1;
+    saved.idx = clamp(Number(saved.idx) || lo, lo, Math.max(lo, hi));
+    /* 标记为完成但成绩报告丢了：当未完成处理，避免进入空白结果页 */
+    if (saved.finished && !saved.result) {
+      saved.finished = false; saved.locked = false;
+      if (saved.stage === 'result') saved.stage = 'answer';
+    }
+    return saved;
+  }
   function restoreOrIntro() {
     const saved = load(KEY_SESSION);
-    if (saved && saved.mode === MODE && saved.paper && saved.paper.length && saved.endsAt) {
-      adopt(saved);
+    const fixed = repairSaved(saved);
+    if (fixed) {
+      /* 补齐后的字段写回磁盘，下一次刷新不用再修一遍 */
+      save(KEY_SESSION, fixed);
+      adopt(fixed);
       lastQTs = Date.now();
-      resumeStage = saved.finished && saved.result ? 'result'
-        : (saved.stage && saved.stage !== 'intro' ? saved.stage : 'answer');
+      resumeStage = fixed.finished && fixed.result ? 'result'
+        : (fixed.stage && fixed.stage !== 'intro' ? fixed.stage : 'answer');
       /* Always land on the short main page. Answers, marks and the absolute
          endsAt stay stored; the wall-clock timer keeps running in the
          background without any test content being rendered. */
@@ -231,6 +284,11 @@
       /* Do not write the stored remaining time while on the start page:
          the countdown is revealed only by the Start click. */
       return true;
+    }
+    /* 存档存在但校验不过：删掉它，标记过期，按新卷开考 */
+    if (saved && saved.mode === MODE) {
+      try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
+      sessionExpired = true;
     }
     resumeStage = null;
     adopt(newSession()); renderIntro(); setStage('intro'); return false;
@@ -345,6 +403,8 @@
 
   function renderIntro() {
     const official = MODE === 'mock';
+    const notice = $('introNotice');
+    if (notice) { notice.hidden = !sessionExpired; notice.textContent = sessionExpired ? '存档已过期，请重新开始' : ''; }
     $('introEyebrow').textContent = official ? 'SECTION 2, MODULE 1: MATH' : 'UNIT MASTERY CHECK';
     $('introTitle').textContent = official ? 'SAT Math Prep' : '单元抽查';
     /* 单元抽查说明小字做减法：整段删除；官方模考保留 Bluebook 原文 */
@@ -421,7 +481,10 @@
      ===================================================================== */
   function range() {
     if (MODE !== 'mock') return [0, S.paper.length - 1];
-    return S.module === 1 ? [0, S.m1Size - 1] : [S.m1Size, S.paper.length - 1];
+    const n = S.paper.length;
+    /* 防御：m1Size 异常时退回整卷，绝不产生 [0,-1] 这种空区间（会显示 of 0） */
+    if (!(S.m1Size > 0) || S.m1Size > n || (S.module === 2 && S.m1Size >= n)) return [0, n - 1];
+    return S.module === 1 ? [0, S.m1Size - 1] : [S.m1Size, n - 1];
   }
   const cur = () => S.paper[S.idx];
   const curQ = () => byId(cur().id);
@@ -433,7 +496,7 @@
   function renderAll() { renderQuestion(); renderNavigator(); tick(); }
   function renderQuestion() {
     const inst = cur(), q = curQ(), a = curA(), [lo, hi] = range();
-    const pos = S.idx - lo + 1, total = hi - lo + 1;
+    const pos = S.idx - lo + 1, total = Math.max(1, hi - lo + 1);
     const T = (window.TD_TEXT || {})[q.id] || {};
     const CH = T.choices || {};
     $('qStem').innerHTML = window.TD_FIG ? window.TD_FIG.fmtMath((T.stem || q.stem || '题干文字暂缺。').trim() || '题干文字暂缺。') : esc((T.stem || q.stem || '题干文字暂缺。').trim() || '题干文字暂缺。');

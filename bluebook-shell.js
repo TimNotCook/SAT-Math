@@ -31,6 +31,14 @@
 
   function setText(el, txt) { if (el) el.textContent = txt; }
 
+  /* 板块名统一排版：「1.1 · 线性方程与函数图像」→「1.1 线性方程与函数图像」。
+     官方页签（Section 2, Module 1: Math 之类）保持原样。 */
+  function sectionText(raw) {
+    var s = String(raw || '').trim();
+    if (!s || /^Section\s/i.test(s) || /^UNIT\s/i.test(s)) return s;
+    return s.replace(/\s*·\s*/g, ' ').replace(/\s+/g, ' ');
+  }
+
   function dressDrill() {
     var bar = document.querySelector('#questionView .drill-context-inner');
     if (!bar || bar.dataset.bb) return;
@@ -41,34 +49,41 @@
       var title = left.querySelector('.drill-context-title');
       setText(title, 'Math');
       var sec = left.querySelector('#currentSection');
-      if (sec) { setText(sec, 'Section 2, Module 1: Math'); if (sec.classList) sec.classList.add('exam-context-meta'); }
+      if (sec) {
+        /* 真实板块名由 drill.js 写入，这里只统一排版；不再覆写成通用的
+           "Section 2, Module 1: Math"（那是外壳硬编码，丢掉了板块。 */
+        setText(sec, sectionText(sec.textContent));
+        if (sec.classList) sec.classList.add('exam-context-meta');
+      }
     }
 
     // Practice is untimed — no timer capsule, no PRACTICE TEST band.
 
     var right = bar.querySelector('.drill-context-right');
     if (right) {
+      /* 复用题库页原有的 Reference 按钮，直接搬进工具簇。不能再新建一个：
+         旧逻辑把原按钮改名 btnReferenceOld 留在一旁，CSS 的隐藏规则
+         只认 #btnReference，于是题面上出现两个 Reference。 */
       var oldRef = $('btnReference');
-      right.className = 'drill-context-right bb-tools';
       var tools = document.createElement('div');
       tools.className = 'bb-toolcluster';
-      // Practice mode has no Desmos calculator: do not render a Calculator
-      // button here (it would have no handler and look broken). Reference and
-      // a plain 退出 (exit) button; the calculator appears solely on the
-      // official mock screen.
-      tools.innerHTML =
-        '<button type="button" class="bb-tool" id="btnReference">' + REF_ICON + '<span>Reference</span></button>' +
-        '<button type="button" class="bb-tool" id="btnBbExit">' + EXIT_ICON + '<span>退出</span></button>';
+      var exitBtn = document.createElement('button');
+      exitBtn.type = 'button';
+      exitBtn.className = 'bb-tool';
+      exitBtn.id = 'btnBbExit';
+      exitBtn.innerHTML = EXIT_ICON + '<span>退出</span>';
+      if (oldRef) {
+        oldRef.classList.add('bb-tool');
+        var icon = oldRef.querySelector('svg');
+        if (icon) { icon.setAttribute('width', '15'); icon.setAttribute('height', '15'); }
+        tools.appendChild(oldRef);
+      }
+      tools.appendChild(exitBtn);
+      right.className = 'drill-context-right bb-tools';
       right.innerHTML = '';
       right.appendChild(tools);
-      var newRef = tools.querySelector('#btnReference');
-      if (oldRef && newRef && oldRef !== newRef) {
-        oldRef.id = 'btnReferenceOld';
-        newRef.addEventListener('click', function () { var o = $('btnReferenceOld'); if (o) o.click(); });
-      }
       // 退出 = back to the section list (no site nav in test mode)
-      var exitBtn = tools.querySelector('#btnBbExit');
-      if (exitBtn) exitBtn.addEventListener('click', function () {
+      exitBtn.addEventListener('click', function () {
         var p = new URLSearchParams(location.search);
         location.href = 'drill.html' + (p.get('unit') ? '?unit=' + encodeURIComponent(p.get('unit')) : '');
       });
@@ -111,9 +126,26 @@
     ob.observe(pos, { childList: true, subtree: true, characterData: true });
   }
 
+  /* 板块名由 drill.js 每次渲染写入，外壳先跑一次可能还读不到；
+     这里做一次性观察，写入后立刻把中间的「·」统一掉。只改自己那一格文本。 */
+  function watchSection() {
+    var sec = $('currentSection');
+    if (!sec || sec.dataset.bbWatch) return;
+    sec.dataset.bbWatch = '1';
+    var last = sec.textContent;
+    var ob = new MutationObserver(function () {
+      var now = sec.textContent;
+      if (now === last) return;
+      var fixed = sectionText(now);
+      last = fixed;
+      if (fixed !== now) sec.textContent = fixed;
+    });
+    ob.observe(sec, { childList: true, subtree: true, characterData: true });
+  }
+
   function init() {
     injectNavLayer();
-    if (isDrillQuestion()) { dressDrill(); watchPosition(); }
+    if (isDrillQuestion()) { dressDrill(); watchPosition(); watchSection(); }
     else if (isExamQuestion()) { dressExam(); watchPosition(); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
