@@ -10,6 +10,15 @@
     .forEach(function (id) { els[id] = document.getElementById(id); });
 
   var boardId = null, section = null, index = 0;
+  /* 选项表格：data/jiangyi.js 里的 choiceTables（每题最多四张）目前 core 归一化时会丢掉，
+     这里直接按 id 去读原始 JY_BANK 拿回来。等编程者把这一行挪进 core 的 normalize，
+     块可直接删掉，不影响渲染。（「表是选项」的题：JY1-042 p32 #3） */
+  var RAW = {};
+  (window.JY_BANK || []).forEach(function (r) { if (r && r.id) RAW[r.id] = r; });
+  function choiceTablesOf(q) {
+    var raw = q && RAW[q.id];
+    return raw && Array.isArray(raw.choiceTables) ? raw.choiceTables : null;
+  }
   var VIEWS = ['jyBoards', 'jySections', 'jyQuiz', 'jyResult'];
   function esc(s) { return A && A.esc ? A.esc(s) : String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -108,13 +117,18 @@
     } else { els.jyFigure.hidden = true; els.jyFigure.innerHTML = ''; }
     var saved = J.answerOf(q.id), val = saved ? String(saved.v || '') : '';
     if (q.type === 'mcq') {
+      var cts = choiceTablesOf(q);
       els.jyAnswerArea.innerHTML = '<div class="drill-choices" role="group" aria-label="答案选项">' +
         q.choices.map(function (text, i) {
           var L = String.fromCharCode(65 + i);
+          /* 选项本身是一张表（原书四张两列表）：渲染真表格，不用扫描裁图 */
+          var body = (cts && cts[i])
+            ? '<span class="drill-choice-text drill-choice-table">' + tableHtml(cts[i]) + '</span>'
+            : '<span class="drill-choice-text">' + fmt(text) + '</span>';
           return '<button type="button" class="drill-choice' + (val.toUpperCase() === L ? ' on' : '') +
             '" data-choice="' + L + '" aria-pressed="' + (val.toUpperCase() === L) + '">' +
             '<span class="drill-choice-letter">' + L + '</span>' +
-            '<span class="drill-choice-text">' + fmt(text) + '</span></button>';
+            body + '</button>';
         }).join('') + '</div>';
       els.jyAnswerArea.querySelectorAll('[data-choice]').forEach(function (btn) {
         btn.addEventListener('click', function () {
