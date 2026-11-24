@@ -121,7 +121,9 @@
     els.jyBackList.href = '#';
     els.jyNumber.textContent = String(index + 1);
     els.jyPosition.textContent = '第 ' + (index + 1) + ' / ' + qs.length + ' 题';
-    els.jyStem.innerHTML = fmt(q.stem) + (q.table ? tableHtml(q.table) : '');
+    /* 教材原题在题卡上保留一枚来源胶囊（练习册原页），窄屏页脚会隐藏来源，靠它兜住 */
+    var bookChip = q.group === 'textbook' ? '<span class="jy-book-chip">' + esc(J.sourceLabel(q)) + '</span>' : '';
+    els.jyStem.innerHTML = bookChip + fmt(q.stem) + (q.table ? tableHtml(q.table) : '');
     if (q.fig && window.JY_FIG && window.JY_FIG.render) {
       els.jyFigure.hidden = false;
       try { els.jyFigure.innerHTML = window.JY_FIG.render(q.fig); }
