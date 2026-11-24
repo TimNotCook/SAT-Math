@@ -12,12 +12,15 @@
   <link rel="stylesheet" href="app.css?v=2f54674265f8">
   <link rel="stylesheet" href="bluebook.css?v=2f54674265f8">
   <link rel="stylesheet" href="glass.css?v=2f54674265f8"><script src="theme.js?v=2f54674265f8"></script>
-  <style>#questionNav{z-index:68!important}</style>
+  <style>#questionNav{z-index:68!important}body.is-mock .mainnav,body.is-mock .bankpill{display:none}</style>
 </head>
 <body class="exam-page protected">
+  <script>/* 模考屏一律英文：隐藏站内导航与题库胶囊，退出按钮改英文；练习/抽查模式不受影响 */
+  (function(){var mock=/[?&]mode=mock/.test(location.search);if(!mock)return;document.body.classList.add("is-mock");
+  document.addEventListener("DOMContentLoaded",function(){var x=document.getElementById("btnExamExit");if(x){x.textContent="Exit";x.title="Exit the test and return";}});})();</script>
   <header class="appbar">
     <div class="appbar-inner">
-      <a class="brand" href="drill.html"><b>SAT Math</b></a>
+      <a class="brand" href="drill.html"><b>SAT Math Prep</b></a>
       <nav class="mainnav exam-modules" aria-label="主要功能">
         <a href="drill.html" data-module="drill">真题练习</a>
         <a href="exam.html?mode=quiz&unit=1" data-module="quiz">单元抽查</a>

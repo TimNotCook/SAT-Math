@@ -82,6 +82,8 @@
     var open = false, hand = false, active = null;
     var tool = 'pen';
     var ink = { pen: PENS[0], marker: MARKERS[0] };
+    var MOCK = /[?&]mode=mock/.test(location.search);   // 模考屏一律英文，练习屏维持中文
+    var T = function (zh, en) { return MOCK ? en : zh; };
     var widthIdx = { pen: 1, marker: 1 };      // 默认中档
     var store = {}, key = '', undoStack = [], redoStack = [];
     var self, timer = null;
@@ -96,9 +98,9 @@
     layer.className = 'mist-layer';
     layer.innerHTML =
       '<div class="mist-toolbar">' +
-        '<button type="button" data-tool="pen" class="on" title="钢笔">' + ICONS.pen + '</button>' +
-        '<button type="button" data-tool="marker" title="荧光笔">' + ICONS.marker + '</button>' +
-        '<button type="button" data-tool="eraser" title="橡皮（整笔擦除）">' + ICONS.eraser + '</button>' +
+        '<button type="button" data-tool="pen" class="on" title="' + T('钢笔', 'Pen') + '">' + ICONS.pen + '</button>' +
+        '<button type="button" data-tool="marker" title="' + T('荧光笔', 'Highlighter') + '">' + ICONS.marker + '</button>' +
+        '<button type="button" data-tool="eraser" title="' + T('橡皮（整笔擦除）', 'Eraser') + '">' + ICONS.eraser + '</button>' +
         '<span class="mist-sep"></span>' +
         '<button type="button" class="mist-sw" data-color="0" title="颜色 1"></button>' +
         '<button type="button" class="mist-sw" data-color="1" title="颜色 2"></button>' +
@@ -108,12 +110,12 @@
         '<button type="button" class="mist-size" data-size="1" title="中"></button>' +
         '<button type="button" class="mist-size" data-size="2" title="粗"></button>' +
         '<span class="mist-sep"></span>' +
-        '<button type="button" data-undo="1" title="撤销">' + ICONS.undo + '</button>' +
-        '<button type="button" data-redo="1" title="重做">' + ICONS.redo + '</button>' +
-        '<button type="button" data-hand="1" title="移动：让开画布，可点选项与翻页">' + ICONS.hand + '</button>' +
+        '<button type="button" data-undo="1" title="' + T('撤销', 'Undo') + '">' + ICONS.undo + '</button>' +
+        '<button type="button" data-redo="1" title="' + T('重做', 'Redo') + '">' + ICONS.redo + '</button>' +
+        '<button type="button" data-hand="1" title="' + T('移动：让开画布，可点选项与翻页', 'Move: get the canvas out of the way') + '">' + ICONS.hand + '</button>' +
         '<span class="mist-sep"></span>' +
-        '<button type="button" data-clear="1" class="mist-text" title="清空本题">清空</button>' +
-        '<button type="button" data-done="1" class="mist-text mist-done">完成</button>' +
+        '<button type="button" data-clear="1" class="mist-text" title="' + T('清空本题', 'Clear this question') + '">' + T('清空', 'Clear') + '</button>' +
+        '<button type="button" data-done="1" class="mist-text mist-done">' + T('完成', 'Done') + '</button>' +
       '</div>' +
       '<div class="mist-hint"></div>' +
       '<canvas class="mist-canvas"></canvas>';

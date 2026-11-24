@@ -404,7 +404,7 @@
   function renderIntro() {
     const official = MODE === 'mock';
     const notice = $('introNotice');
-    if (notice) { notice.hidden = !sessionExpired; notice.textContent = sessionExpired ? '存档已过期，请重新开始' : ''; }
+    if (notice) { notice.hidden = !sessionExpired; notice.textContent = sessionExpired ? (OFFICIAL ? 'This saved test has expired. Start a new test.' : '存档已过期，请重新开始') : ''; }
     $('introEyebrow').textContent = official ? 'SECTION 2, MODULE 1: MATH' : 'UNIT MASTERY CHECK';
     $('introTitle').textContent = official ? 'SAT Math Prep' : '单元抽查';
     /* 单元抽查说明小字做减法：整段删除；官方模考保留 Bluebook 原文 */
@@ -562,8 +562,8 @@
       const refreshGridFeedback = () => {
         if (isLocked(cur().uid)) { gridWarn.hidden = true; gridInput.classList.remove('is-invalid'); return; }
         const s = gridInput.value.trim(); let warn = '';
-        if (s && /[^0-9./\-]/.test(s)) warn = '只能输入数字、小数点、斜杠和负号，不要带 %、$、逗号、字母或单位';
-        else if (s && !/^-?(?:\d+(?:\.\d+)?|\.\d+|\d+\/\d+)$/.test(s)) warn = '格式无效：可写小数（如 0.75）或分数（如 3/4）';
+        if (s && /[^0-9./\-]/.test(s)) warn = OFFICIAL ? 'Use digits, a decimal point, a slash, or a minus sign only. No %, $, commas, letters, or units.' : '只能输入数字、小数点、斜杠和负号，不要带 %、$、逗号、字母或单位';
+        else if (s && !/^-?(?:\d+(?:\.\d+)?|\.\d+|\d+\/\d+)$/.test(s)) warn = OFFICIAL ? 'Invalid format. Enter a decimal (e.g., 0.75) or a fraction (e.g., 3/4).' : '格式无效：可写小数（如 0.75）或分数（如 3/4）';
         gridWarn.hidden = !warn; gridWarn.textContent = warn;
         gridInput.classList.toggle('is-invalid', !!warn);
       };
@@ -803,7 +803,7 @@
     save(KEY_RESULTS, all);                       // independent store; original state untouched
     persist();
     renderResult(); setStage('result'); window.scrollTo(0, 0);
-    if (auto) toast('时间归零 · 已自动交卷并锁定答案');
+    if (auto) toast(OFFICIAL ? 'Time is up. Your test was submitted automatically and answers are locked.' : '时间归零 · 已自动交卷并锁定答案');
   }
 
   function renderResult() {
@@ -903,7 +903,7 @@
         if (inTool) return; // official reference sheet / Desmos must stay usable
         if (editable && evt === 'selectstart') return;                    // allow caret selection in answer fields
         e.preventDefault(); e.stopPropagation();
-        if (evt === 'paste' || evt === 'copy' || evt === 'cut') toast('考试期间禁止复制 / 粘贴题目与选项内容');
+        if (evt === 'paste' || evt === 'copy' || evt === 'cut') toast(OFFICIAL ? 'Copying or pasting test content is not allowed during the test.' : '考试期间禁止复制 / 粘贴题目与选项内容');
       }, true));
     document.addEventListener('keydown', e => {
       const mod = e.metaKey || e.ctrlKey, k = (e.key || '').toLowerCase();
@@ -989,7 +989,7 @@
   const exitBtn = $('btnExamExit');
   if (exitBtn) exitBtn.addEventListener('click', e => {
     if (S && S.startedAt && !S.finished && S.stage !== 'intro') {
-      if (!window.confirm('退出后计时不会暂停，但作答与进度已自动保存。确定退出吗？')) {
+      if (!window.confirm(OFFICIAL ? 'The timer will not pause. Your answers and progress are saved. Exit the test?' : '退出后计时不会暂停，但作答与进度已自动保存。确定退出吗？')) {
         e.preventDefault(); return;
       }
     }
