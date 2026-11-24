@@ -1,0 +1,241 @@
+/* TD SAT Math · 讲义复习（JIANGYI）core
+   ------------------------------------------------------------------
+   一个完全独立的板块组：与现有 20 个教材板块（1.1 … 4.4、L1 … L3、
+   专项 T 系列）不共享 CATALOG / SECS / 状态 key，互不影响进度与统计。
+
+   数据文件 data/jiangyi.js 由题库侧产出，schema 固定（改字段前必须同步本
+   文件顶部与 tools/verify_jiangyi.mjs 的校验规则）：
+
+   window.TD_JIANGYI = {
+     source: '讲义（TESTDAILY）',
+     units: [
+       { id: 1, en: 'Algebra', cn: '代数',
+         sections: [ { id: '1.1', cn: '线性方程与函数图像', expect: 14, pages: [131,132] } ] },
+       …4 个单元
+     ],
+     questions: [
+       { id: 'JY1-001',            // 新前缀，绝不与 U1-01 / TD-xx 混号
+         unit: 1, section: '1.1',   // section 填真实小节号，供筛选/完成度
+         page: 131, no: 12,         // 原书页码 + 页内题号
+         source: '讲义 p131 #12',   // 三段齐全：讲义 + p{页} + #{页内题号}
+         stem: '…', choices: ['-7','-2','2/7','7/2'],
+         answer: 'A',               // 只抄答案页 p191–196，不许自己算
+         figure: 'fig/jy/1-1-12.svg', // 矢量重画；无图则不填
+         proof: 'docs/jiangyi-proof/JY1-001.png' // 原页对照截图（验收用）
+       } ]
+   }
+
+   规则（写死在这里，不靠人记）：
+   1. 例题（Example）不录：答案页没有对应答案的一律不录 —— 由 expect 与
+      id 连续性 + 验收脚本兜住；录入侧不得夹带「看着像题」的段落。
+   2. 对账口径：每节应有数 = 答案页该节最大题号（units[].sections[].expect），
+      已录数必须等于它，差一道不算完成。
+   3. 图形一律矢量，禁止裁扫描页（原书带 TESTDAILY / SAT教研组 水印）。
+*/
+(function () {
+  'use strict';
+  var DATA = window.TD_JIANGYI || { source: '', units: [], questions: [] };
+  var KEY = 'tdsat_jiangyi_v1';
+  var RESULTS_KEY = 'tdsat_exam_suite_results_v1';
+  var CJK = /[\u4e00-\u9fff]/;
+
+  function read(key) {
+    try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+  }
+  function write(key, v) {
+    try { localStorage.setItem(key, JSON.stringify(v)); return true; } catch (e) { return false; }
+  }
+  function strip(s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim(); }
+  function secKey(s) {
+    var p = String(s).split('.');
+    return (+p[0] || 0) * 100 + (+p[1] || 0);
+  }
+
+  /* ---------- 归一化：把数据文件里的题变成判分/渲染都能吃的形状 ---------- */
+  function normalize(raw, i) {
+    if (!raw || !raw.id) return null;
+    var id = strip(raw.id);
+    var m = id.match(/^JY(\d)-(\d{3,})$/);
+    if (!m) return null;                                  // 只认 JY1-001 这类新前缀
+    var unit = Number(raw.unit) || Number(m[1]);
+    var section = strip(raw.section);
+    if (!/^[1-4]\.\d/.test(section)) return null;         // section 必须是真实小节号
+    var page = Number(raw.page), no = Number(raw.no);
+    if (!(page > 0) || !(no > 0)) return null;
+    var source = strip(raw.source) || ('讲义 p' + page + ' #' + no);
+    var stem = strip(raw.stem);
+    if (!stem) return null;
+    var choices = Array.isArray(raw.choices) ? raw.choices.map(strip) : [];
+    var type = choices.length >= 2 ? 'mcq' : 'grid';
+    var answer = strip(raw.answer);
+    return {
+      id: id, unit: unit, section: section, page: page, no: no, source: source,
+      stem: raw.stem, text: stem, choices: choices, type: type,
+      answer: answer, value: type === 'grid' ? Number(answer) : undefined,
+      figure: raw.figure || null, figures: raw.figure ? [raw.figure] : [],
+      proof: raw.proof || ('docs/jiangyi-proof/' + id + '.png'),
+      unitName: raw.unitName || null, hint: raw.hint || '',
+      area: raw.area || 'problem-solving', origin: 'jiangyi', board: 'JY' + unit,
+      no_: no
+    };
+  }
+
+  var ALL = (DATA.questions || []).map(normalize).filter(Boolean);
+  var BY_ID = {};
+  ALL.forEach(function (q) { BY_ID[q.id] = q; });
+
+  /* 板块内顺序：小节号 → 页码 → 页内题号（严格，不掺 id 字典序） */
+  ALL.sort(function (a, b) {
+    return secKey(a.section) - secKey(b.section) || a.page - b.page || a.no - b.no ||
+      a.id.localeCompare(b.id);
+  });
+
+  /* ---------- 四个子板块（与现有 20 个板块分开，编号固定 JY1…JY4） ---------- */
+  var BOARD_META = [
+    { id: 'JY1', unit: 1, en: 'Algebra', cn: '代数' },
+    { id: 'JY2', unit: 2, en: 'Problem Solving and Data Analysis', cn: '问题解决与数据分析' },
+    { id: 'JY3', unit: 3, en: 'Advanced Math', cn: '高等数学' },
+    { id: 'JY4', unit: 4, en: 'Geometry and Trigonometry', cn: '几何与三角' }
+  ];
+  var DECLARED = {};
+  (DATA.units || []).forEach(function (u) {
+    (u.sections || []).forEach(function (s) {
+      DECLARED[u.id + '|' + s.id] = { cn: s.cn || '', expect: Number(s.expect) || 0, pages: s.pages || [] };
+    });
+  });
+
+  function board(id) {
+    return BOARD_META.find(function (b) { return b.id === id; }) || null;
+  }
+  function boards() { return BOARD_META.slice(); }
+
+  /* 该板块下的小节：以数据里真实出现的小节为准，按小节号排序 */
+  function sectionsOf(boardId) {
+    var b = board(boardId); if (!b) return [];
+    var seen = {}, out = [];
+    ALL.forEach(function (q) {
+      if (q.unit !== b.unit) return;
+      if (seen[q.section]) return;
+      seen[q.section] = 1; out.push(q.section);
+    });
+    return out.sort(function (x, y) { return secKey(x) - secKey(y); });
+  }
+  function questionsOf(boardId, section) {
+    var b = board(boardId); if (!b) return [];
+    return ALL.filter(function (q) {
+      return q.unit === b.unit && (!section || q.section === section);
+    });
+  }
+  function declared(unit, section) { return DECLARED[unit + '|' + section] || null; }
+
+  /* ---------- 状态：独立 key，答案按题 id 存 ---------- */
+  var S = read(KEY) || { answers: {}, cursor: 0, submitted: {}, last: null, startedAt: null };
+  if (!S.answers) S.answers = {};
+  if (!S.submitted) S.submitted = {};
+  function save() { write(KEY, S); }
+  function answerOf(qid) { return S.answers[qid] || null; }
+  function answerQ(q, v) {
+    var correct = window.TDGrade ? window.TDGrade.isCorrect(q, v) : false;
+    S.answers[q.id] = { v: v == null ? '' : String(v), correct: correct, ts: Date.now() };
+    save();
+    return correct;
+  }
+  function clearQ(qid) { delete S.answers[qid]; save(); }
+  function setCursor(boardId, section, i) {
+    S.last = { board: boardId, section: section, i: i }; S.cursor = i; save();
+  }
+
+  function sectionStats(boardId, section) {
+    var qs = questionsOf(boardId, section);
+    var answered = 0, correct = 0;
+    qs.forEach(function (q) {
+      var a = S.answers[q.id];
+      if (a && strip(a.v)) { answered++; if (a.correct) correct++; }
+    });
+    var d = declared(board(boardId).unit, section);
+    return {
+      board: boardId, section: section, total: qs.length, answered: answered, correct: correct,
+      expect: d ? d.expect : qs.length, cn: d ? d.cn : '',
+      complete: qs.length > 0 && answered === qs.length,
+      reconciled: !!(d && d.expect === qs.length)
+    };
+  }
+  function boardStats(boardId) {
+    var b = board(boardId); if (!b) return null;
+    var qs = questionsOf(boardId);
+    var answered = 0, correct = 0, done = 0, secs = sectionsOf(boardId);
+    qs.forEach(function (q) {
+      var a = S.answers[q.id];
+      if (a && strip(a.v)) { answered++; if (a.correct) correct++; }
+    });
+    secs.forEach(function (s) { if (sectionStats(boardId, s).complete) done++; });
+    return {
+      board: boardId, unit: b.unit, en: b.en, cn: b.cn,
+      total: qs.length, answered: answered, correct: correct, sections: secs.length,
+      completeSections: done, percent: qs.length ? Math.round(answered / qs.length * 100) : 0,
+      accuracy: answered ? Math.round(correct / answered * 100) : 0,
+      dataReady: qs.length > 0
+    };
+  }
+  function allStats() { return boards().map(function (b) { return boardStats(b.id); }); }
+
+  /* ---------- 交卷：写进统一 results 仓库（mode='jiangyi'），错题页能读到；不计入模考/抽查 ---------- */
+  function submitSection(boardId, section) {
+    var b = board(boardId), qs = questionsOf(boardId, section);
+    if (!b || !qs.length) return null;
+    var answered = 0, correct = 0;
+    var detail = qs.map(function (q, i) {
+      var a = S.answers[q.id] || {};
+      if (strip(a.v)) { answered++; if (a.correct) correct++; }
+      return { pos: i + 1, uid: q.id, id: q.id, unit: q.unit, section: q.section,
+        topic: q.source, type: q.type, given: a.v == null ? '' : a.v, correct: !!a.correct };
+    });
+    var rec = {
+      date: Date.now(), mode: 'jiangyi', board: boardId, section: section,
+      unit: b.unit, path: null, auto: false, total: qs.length, correct: correct,
+      answered: answered, elapsed: 0, detail: detail
+    };
+    var all = read(RESULTS_KEY) || []; all.push(rec); if (all.length > 40) all.shift();
+    write(RESULTS_KEY, all);
+    S.submitted[section] = { at: rec.date, correct: correct, total: qs.length };
+    save();
+    return rec;
+  }
+  function submittedOf(section) { return S.submitted[section] || null; }
+
+  /* ---------- 来源标签：3.4 · p131 #12（学生一眼能回到原书那一页） ---------- */
+  function sourceLabel(q) {
+    var sec = q.section, page = q.page, no = q.no;
+    return sec + ' · p' + page + ' #' + no;
+  }
+
+  /* ---------- 数据自检（页面与 tools/verify_jiangyi.mjs 共用同一套规则） ---------- */
+  function audit() {
+    var issues = [];
+    var counts = {};
+    ALL.forEach(function (q) {
+      if (!q.source || !/^讲义\s*p\d+\s*#\d+\s*$/.test(q.source)) issues.push({ id: q.id, rule: 'source' });
+      if (!strip(q.stem)) issues.push({ id: q.id, rule: 'stem' });
+      if (q.type === 'mcq') {
+        if (!q.choices.length) issues.push({ id: q.id, rule: 'choices' });
+        if (!/^[A-D]$/.test(q.answer)) issues.push({ id: q.id, rule: 'answer-letter' });
+      }
+      counts[q.unit + '|' + q.section] = (counts[q.unit + '|' + q.section] || 0) + 1;
+    });
+    Object.keys(DECLARED).forEach(function (k) {
+      var d = DECLARED[k], got = counts[k] || 0;
+      if (d.expect && got !== d.expect) issues.push({ key: k, rule: 'count', expect: d.expect, got: got });
+    });
+    return issues;
+  }
+
+  window.TD_JY = {
+    ALL: ALL, BY_ID: BY_ID, boards: boards, board: board, sectionsOf: sectionsOf,
+    questionsOf: questionsOf, sourceLabel: sourceLabel, declared: declared,
+    stats: sectionStats, boardStats: boardStats, allStats: allStats,
+    answerOf: answerOf, answerQ: answerQ, clearQ: clearQ, setCursor: setCursor,
+    submitSection: submitSection, submittedOf: submittedOf, audit: audit,
+    state: S, save: save, KEY: KEY, RESULTS_KEY: RESULTS_KEY,
+    grade: function (q, v) { return window.TDGrade ? window.TDGrade.isCorrect(q, v) : null; }
+  };
+})();

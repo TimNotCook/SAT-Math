@@ -95,6 +95,13 @@ function importData(data){
   all=collect();render();feedback(msg);
   return{added:added,written:written,readOnly:readOnly,created:created,message:msg};
 }
+/* 讲义复习（JY1-001 这类题）不在 TD_BANK 里：只有 jiangyi-core.js 载入时才查得到。
+   这样错题回顾能收讲义的错，又不会把 JY 混进 CATALOG / 现有 20 个板块。 */
+function questionById(id){
+  var q=A.BANK.questions.find(function(x){return x.id===id;});
+  if(!q&&window.TD_JY&&window.TD_JY.BY_ID)q=window.TD_JY.BY_ID[id];
+  return q;
+}
 function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*$/,'').trim()||A.SECTION_CN[q.section]||'综合';}
  function add(map,q,given,source,date){
    if(!q||map[q.id]&&map[q.id].corrected&&source!=='单元练习')return;
@@ -124,20 +131,28 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
      A.CATALOG[s].forEach(function(q){var a=st.answers[q.id];
        if(a&&a.correct===false&&stillWrong(q,a.v))
          add(map,q,a.v,a.importSrc===IMPORT_MARK?'导入错题':'单元练习',a.ts||0);});});
-   load('tdsat_exam_suite_results_v1').forEach(function(r){var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':'考试练习';
+   load('tdsat_exam_suite_results_v1').forEach(function(r){var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':r.mode==='jiangyi'?'讲义复习':'考试练习';
      /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(r.void)return;
-     (r.detail||[]).forEach(function(d){var q=A.BANK.questions.find(function(x){return x.id===d.id;});
+     if(r.mode==='jiangyi'&&!window.TD_JY)return;
+     (r.detail||[]).forEach(function(d){var q=questionById(d.id);
+       if(r.mode==='jiangyi'&&!String(d.given==null?'':d.given).trim())return; /* 讲义未作答不算错题 */
        if(!d.correct&&stillWrong(q,d.given))add(map,q,d.given,name,r.date||0);});});
    var legacy=load('tdsat_state_v1')||{},legacyWrong=legacy.wrong||{},legacySeen={};
    Object.keys(legacyWrong).forEach(function(id){
      var key=id+'|历史错题';
      if(Object.prototype.hasOwnProperty.call(legacyWrong,id)&&!legacySeen[key]){
-       var old=legacyWrong[id]||{},q=A.BANK.questions.find(function(x){return x.id===id;});
+       var old=legacyWrong[id]||{},q=questionById(id);
        legacySeen[key]=true;
        var lg=old.given||old.v||old.answer||'';
        if(stillWrong(q,lg))add(map,q,lg,'历史错题',old.last||old.ts||old.date||0);
      }
    });
+   /* 讲义复习的作答存在自己的 key：只补错题，不参与上面 20 个板块的订正判定。 */
+   if(window.TD_JY&&window.TD_JY.state){
+     var jy=window.TD_JY.state.answers||{};
+     Object.keys(jy).forEach(function(id){var a=jy[id],q=window.TD_JY.BY_ID[id];
+       if(q&&a&&a.correct===false&&String(a.v||'').trim())add(map,q,a.v,'讲义复习',a.ts||0);});
+   }
    /* A later correct practice answer marks the historical mistake as corrected. */
    Object.keys(map).forEach(function(id){var x=map[id];A.SECS.some(function(s){var st=A.secState(s,false),a=st&&st.answers[id];
      if(a&&a.correct){x.corrected=true;x.current=a.v;return true;}return false;});});
@@ -173,7 +188,12 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
  var REVIEW={1:'回顾等式变形、斜率截距与函数代入。',2:'回顾部分与总体、百分比、比例及单位。',3:'回顾函数结构、方程等价变形与图像关系。',4:'回顾几何公式、三角比、角度弧度和单位。'};
  function answerLabel(x,right){var q=x.q,v=right?String(q.answer==null?q.value:q.answer||''):x.given;
    if(!v)return'未作答';if(q.type==='mcq'){var t=choiceText(q,v);return v+(t?' · '+t:'');}return v;}
- function drillLink(q){for(var i=0;i<A.SECS.length;i++){var s=A.SECS[i],k=A.CATALOG[s].findIndex(function(x){return x.id===q.id;});
+ function drillLink(q){
+   if(window.TD_JY&&q&&q.origin==='jiangyi'){
+     var i=window.TD_JY.questionsOf(q.board,q.section).findIndex(function(x){return x.id===q.id;});
+     return 'jiangyi.html?b='+q.board+'&s='+encodeURIComponent(q.section)+'&i='+(i>=0?i+1:1);
+   }
+   for(var i=0;i<A.SECS.length;i++){var s=A.SECS[i],k=A.CATALOG[s].findIndex(function(x){return x.id===q.id;});
    if(k>=0)return A.secUrl(s,k+1);}return'drill.html';}
  var all=collect();
  document.getElementById('backPractice').href='drill.html';
@@ -233,7 +253,7 @@ function importedGroupHtml(){
    if(!rows.length){document.getElementById('wrongList').innerHTML='<div class="empty-panel"><h2>'+(all.length?'该单元暂无错题记录':(importedHtml?'题库暂无错题，仅显示导入错题':'还没有错题记录'))+'</h2><p>完成真题练习、单元抽查或模考后，错题会自动汇总到这里。</p><a class="btn primary" href="drill.html">开始真题练习</a></div>'+importedHtml;return;}
    var html='';A.UNITS.forEach(function(u){var list=rows.filter(function(x){return x.q.unit===u.id;});if(!list.length)return;
      html+='<section class="wrong-unit"><h2>UNIT '+u.id+' · '+esc(u.cn)+'<span>'+list.length+' 道</span></h2>'+list.map(function(x){var q=x.q,a=analysis(x),sec=q.section||'L'+q.unit;
-       return'<article class="wrong-card'+(x.corrected?' corrected':'')+'"><div class="wrong-card-head"><b>'+esc(sec)+' · 第 '+(q.no||'—')+' 题</b><span>'+esc(x.sources.join(' / '))+(x.attempts>1?' · '+x.attempts+' 次记录':'')+(x.corrected?' · 已在练习中订正':'')+'</span></div>'+
+       return'<article class="wrong-card'+(x.corrected?' corrected':'')+'"><div class="wrong-card-head"><b>'+esc((q.origin==='jiangyi'&&window.TD_JY)?window.TD_JY.sourceLabel(q):(sec+' · 第 '+(q.no||'—')+' 题'))+'</b><span>'+esc(x.sources.join(' / '))+(x.attempts>1?' · '+x.attempts+' 次记录':'')+(x.corrected?' · 已在练习中订正':'')+'</span></div>'+
        figHtml(q)+
        '<p class="wrong-stem">'+mathfmt(((T[q.id]||{}).stem||q.stem||'题干文字暂缺。').trim())+'</p>'+
        '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+

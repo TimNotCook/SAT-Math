@@ -147,6 +147,13 @@
       '<small>' + st.answered + ' / ' + st.total + ' 题 · ' + st.sections + ' 个' +
       (topicMode ? ' Topic ' : '') + '板块</small></button>';
   }
+  /* 第三组「讲义复习」：只放一个入口，不占 CATALOG / SECS，进度在
+     jiangyi.html 与独立存储 tdsat_jiangyi_v1 里，和上面两组互不影响。 */
+  function jiangyiNavItem() {
+    return '<button type="button" class="drill-board-nav-item" data-board="jiangyi">' +
+      '<b>讲义复习</b><span>讲义题按小节顺序，题卡标注 p{页} #{题号}，与上面两组完全分开</span>' +
+      '<small>4 个子板块 · 独立进度</small></button>';
+  }
   function groupedHtml(secs, units, topicMode) {
     var html = '';
     units.forEach(function (u) {
@@ -169,13 +176,15 @@
     var rg = groupStats(reg), sg = groupStats(sp);
     els.boardNav.innerHTML =
       boardNavItem('unit', '单元练习', '教材常规板块，按单元分组', rg, false) +
-      boardNavItem('special', '专项训练', '按 Topic 分组的专项板块', sg, true);
+      boardNavItem('special', '专项训练', '按 Topic 分组的专项板块', sg, true) +
+      jiangyiNavItem();
     var panelHtml = activeBoard === 'special'
       ? groupedHtml(sp, specialUnits(), true)
       : groupedHtml(reg, A.UNITS.map(function (u) { return u.id; }), false);
     els.boardPanel.innerHTML = panelHtml || emptyNotice('题库暂未加载板块列表，请刷新页面重试。');
     els.boardNav.querySelectorAll('[data-board]').forEach(function (b) {
       b.addEventListener('click', function () {
+        if (b.dataset.board === 'jiangyi') { location.href = 'jiangyi.html'; return; }
         activeBoard = b.dataset.board;
         var url = new URL(location.href);
         url.searchParams.set('board', activeBoard);
@@ -185,7 +194,8 @@
     });
     renderResume();
     setExit(null, false);
-    document.title = PAGE_TITLE;
+    /* 标题要跟着当前分组走：停在「单元练习」就写单元练习，不再永远是真题练习。 */
+    document.title = PAGE_TITLE + (activeBoard === 'special' ? ' · 专项训练' : ' · 单元练习');
     showView('select');
   }
   function renderUnitView() {
@@ -197,7 +207,7 @@
       ? rowsHtml(regularRows)
       : emptyNotice('该单元暂无可选的常规板块，请刷新页面重试。');
     setExit('drill.html', true);
-    document.title = PAGE_TITLE;
+    document.title = PAGE_TITLE + ' · 单元练习 · U' + selectedUnit + ' ' + (A.unit(selectedUnit).cn || '');
     showView('unit');
     window.scrollTo(0, 0);
   }
@@ -223,7 +233,7 @@
         '继续上次练习 · ' + esc(A.sectionLabel(last)) + '</a>'
       : '';
     setExit('drill.html', true);
-    document.title = PAGE_TITLE;
+    document.title = PAGE_TITLE + ' · 专项训练 · U' + selectedUnit + ' ' + (A.unit(selectedUnit).cn || '');
     showView('special');
     window.scrollTo(0, 0);
   }
@@ -296,7 +306,7 @@
     var back = document.querySelector('#resultView .drill-result-actions .btn.primary');
     if (back) back.href = boardUrl(sec);
     setExit(boardUrl(sec), true);
-    document.title = PAGE_TITLE;
+    document.title = PAGE_TITLE + ' · 成绩 · ' + A.sectionLabel(sec);
     showView('result');
     window.scrollTo(0, 0);
   }
