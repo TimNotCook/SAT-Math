@@ -27,13 +27,11 @@
       return '<button type="button" class="jy-board-card" data-board="' + st.board + '">' +
         '<b>U' + st.unit + ' ' + esc(st.en) + '</b>' +
         '<span>' + esc(st.cn) + '</span>' +
-        '<small>' + (st.dataReady
-          ? '已录 ' + st.total + ' 题 · ' + st.sections + ' 个小节'
-          : '待录入') + '</small>' +
-        '<small>' + (st.dataReady
-          ? '完成 ' + st.answered + ' / ' + st.total + ' · ' + st.percent + '%'
-          : '本组数据未到') + '</small>' +
-        '<span class="jy-bar"><i style="width:' + (st.percent || 0) + '%"></i></span>' +
+        (st.dataReady
+          ? '<small>已录 ' + st.total + ' 题 · ' + st.sections + ' 个小节</small>' +
+            '<small>完成 ' + st.answered + ' / ' + st.total + ' · ' + st.percent + '%</small>' +
+            '<span class="jy-bar"><i style="width:' + (st.percent || 0) + '%"></i></span>'
+          : '<small>待题库录入</small>') +
         '</button>';
     }).join('');
     els.jyBoardCards.querySelectorAll('[data-board]').forEach(function (b) {
