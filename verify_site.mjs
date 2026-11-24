@@ -36,7 +36,7 @@ async function cdp(){
 const NO_RES=['firebase-cloud.js'];   // Firebase 模块已摘除：任何页面都不许再加载
 const PAGES=[
   {name:'单元练习 drill',url:'/drill.html',need:['#appnav','.drill-context','真题练习']},
-  {name:'做题视图 drill',url:'/drill.html?sec=1.1&i=1',need:['#questionView','Mark for Review','Question 1 of','完成']},
+  {name:'做题视图 drill',url:'/drill.html?sec=1.1&i=1',need:['#questionView','Mark for Review','Question 1 of','Scratch']},
   {name:'单元抽查 exam',url:'/exam.html?mode=quiz&unit=1',need:['.appbar','.exam-start-main','单元抽查','#btnStart']},
   {name:'模考 exam',url:'/exam.html?mode=mock',need:['.appbar','.stage','Start','SAT Math Prep','Exit'],absent:['真题练习','单元抽查','错题回顾','题库']},
   {name:'错题回顾 wrong',url:'/wrong.html',need:['#appnav','图片识别导入']},
