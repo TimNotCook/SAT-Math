@@ -1150,3 +1150,12 @@ body.exam-page:has(#stage-answer:not([hidden])) .exam-main{
   flex:1 0 auto!important; min-height:0!important;
 }
 body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{flex:0 0 auto!important}
+
+/* INTRO BALANCE — 2026-11-25 模考开始页：内容只有 440 高而窗口 960，底部空 520px
+   改成头部以下整块垂直居中，上下空白平分；内容超出窗口时自然从顶部开始滚 */
+body.exam-page:has(#stage-intro.active) #stage-intro{
+  display:flex!important;flex-direction:column;justify-content:center;
+  min-height:calc(100dvh - 1px);padding:0;
+}
+body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px}
+body.exam-page:has(#stage-intro.active):has(#stage-intro.active) .exam-start-main{margin-block:auto}
