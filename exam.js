@@ -818,7 +818,7 @@
           ? `<div class="miniopts">${optLetters(q.id).map(L => `<button class="${a.v === L ? 'on' : ''}" data-uid="${esc(inst.uid)}" data-l="${L}">${L}</button>`).join('')}</div>`
           : `<input class="gridmini editable" data-uid="${esc(inst.uid)}" value="${esc(a.v)}" placeholder="${OFFICIAL ? 'Enter answer' : '输入答案'}">`;
       rows.push(`<tr><td><b>Q${i - lo + 1}</b></td>
-        <td>${OFFICIAL ? '' : esc(q.topic)}<div class="tiny muted">U${q.unit} · ${esc(q.source)} ${inst.from === 'wrong' ? (OFFICIAL ? '· Previously missed' : '· 历史错题') : ''}${a.marked ? (OFFICIAL ? ' · Marked' : ' · 已标记') : ''}</div></td>
+        <td>${OFFICIAL ? '' : esc(q.topic)}<div class="tiny muted">U${q.unit} ${OFFICIAL ? '' : '· ' + esc(q.source)} ${inst.from === 'wrong' ? (OFFICIAL ? '· Previously missed' : '· 历史错题') : ''}${a.marked ? (OFFICIAL ? ' · Marked' : ' · 已标记') : ''}</div></td>
         <td><span class="pill ${a.v ? 'wait' : 'no'}">${OFFICIAL ? (a.v ? 'Answered' : 'Not answered') : (a.v ? '已作答' : '未作答')}</span></td>
         <td>${ctl}</td><td><button class="btn slim" data-go="${i}">${OFFICIAL ? 'Go' : '前往'}</button></td></tr>`);
     }
@@ -1012,7 +1012,7 @@
       <div class="badge">${d.correct ? '✓' : '✗'}</div>
       <div class="body"><div class="ttl">Q${d.pos}${OFFICIAL ? '' : ' · ' + esc(d.topic)}
         <span class="tiny muted">${meta}${d.from === 'wrong' ? (OFFICIAL ? ' · Previously missed' : ' · 历史错题') : ''}${d.marked ? (OFFICIAL ? ' · Marked' : ' · 曾标记') : ''}</span></div>
-        <div class="sub">${esc(d.source)}${OFFICIAL ? ' · Time ' : ' · 用时 '}${fmt(d.seconds * 1000)}</div>
+        <div class="sub">${OFFICIAL ? '' : esc(d.source) + ' · '}${OFFICIAL ? 'Time ' : '用时 '}${fmt(d.seconds * 1000)}</div>
         <div class="ans"><span>${OFFICIAL ? 'Your answer' : '你的答案'} <b style="color:${d.correct ? 'var(--ok)' : 'var(--bad)'}">${esc(d.given || '—')}</b></span>
           <span>${OFFICIAL ? 'Correct answer' : '正确答案'} <b>${esc(d.answer)}</b></span></div>
         ${!d.correct && d.hint && !OFFICIAL ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(d.hint)}</div>` : ''}
