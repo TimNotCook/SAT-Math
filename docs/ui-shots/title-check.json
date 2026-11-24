@@ -1,0 +1,34 @@
+{
+  "base": "https://timnotcook.github.io/SAT-Math",
+  "time": "2026-11-24T07:30:35.269Z",
+  "rows": [
+    {
+      "page": "index",
+      "url": "/index.html",
+      "title": "SAT Math Prep · 真题练习",
+      "file": "title-index.png",
+      "ok": true
+    },
+    {
+      "page": "drill",
+      "url": "/drill.html",
+      "title": "SAT Math Prep · 真题练习",
+      "file": "title-drill.png",
+      "ok": true
+    },
+    {
+      "page": "exam",
+      "url": "/exam.html?mode=quiz&unit=1",
+      "title": "SAT Math Prep · 抽查与模考",
+      "file": "title-exam.png",
+      "ok": true
+    },
+    {
+      "page": "wrong",
+      "url": "/wrong.html",
+      "title": "SAT Math Prep · 错题回顾",
+      "file": "title-wrong.png",
+      "ok": true
+    }
+  ]
+}

@@ -1,6 +1,6 @@
-# UI-COPY.md — 界面语言方案 **v1.1（已批，待执行）**
+# UI-COPY.md — 界面语言方案 **v1.2（已批，五屏已执行）**
 
-> 状态：**老板已批**，可据此改文案，但按排期执行，不得插队。
+> 状态：**老板已批，五屏已执行**。范围更正：原写「模考屏」实际只做了 Intro/Answer 两屏，v1.2 起明确为 **Intro / Answer / Review / Submit / Result 五屏**，验收以 `tools/mock_cjk.mjs` 为准（不许人工口头写「0」）。
 > 提出：主会话（当前工作进度）｜2026-11-24 14:5x（HK）
 > 依据：老板原话——「统一成全中文，还是『题目英文 + 操作中文』（更像 Bluebook）。这决定码农 β 的工作量，也决定练习页英文标签保留多少。模仿 Bluebook 就行」。
 > **批复（2026-11-24 15:3x HK，老板原话）：「B，隐藏，符合」**——即：① 选 B（照 Bluebook）；② 模考模式**隐藏**站内导航与题库胶囊；③ 成绩报告/归因用**中文**，符合预期。
@@ -85,3 +85,13 @@ python3 tools/copy_audit.py --rev HEAD --summary drill.js drill.html index.html
 - `aria-label` 等无障碍文本与同屏可见文案同语言。
 - 品牌名 `SAT Math Prep` 保持英文。
 - 9 条文案可一次改完，但须与「模考计算器实测」分开提交，便于回滚。
+
+
+## 六、变更记录
+
+- **v1.1 → v1.2（2026-11-24 15:2x）**
+  - 范围：模考五屏（含 Review / Submit / Result），不含练习与抽查。
+  - 新增处理面：Review 表头/说明/按钮/状态列；Submit 标题与按钮；Result 分数区、薄弱点报告、单元英文名、逐题明细；报告页日期 `en-US`、`Module 2 path: harder`。
+  - 模考屏隐藏：题目 `topic`、中文出处（讲义/练习册页码）、具体知识点/复习优先级/错题类型三块（内容为中文知识库，Bluebook 无此页）。
+  - 验收脚本：`tools/mock_cjk.mjs`（五屏 CJK=0 + 五张截图）、`tools/quiz_regress.mjs`（抽查 4 单元）、`tools/title_check.mjs`（四页品牌）。
+  - 提交：`3a5df5b`、`c478f9b`、`ea55706`；记录见 `docs/VERIFY-2026-11-24.md` 第 6–9 节。

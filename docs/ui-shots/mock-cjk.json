@@ -1,0 +1,47 @@
+{
+  "base": "https://timnotcook.github.io/SAT-Math",
+  "time": "2026-11-24T07:27:29.296Z",
+  "rows": [
+    {
+      "screen": "Intro 开考页",
+      "file": "01-intro.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-intro",
+      "text": "SAT Math Prep | Exit | SAT Math Prep | The digital SAT Math section has two modules. Each module has 22 questions and is timed separately. | 22 Questions | 35 minutes | Module 1 of 2 | Directions | The questions in this section address a number of important math skills. | Start | Clear | Done"
+    },
+    {
+      "screen": "Answer 答题页",
+      "file": "02-answer.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-answer",
+      "text": "Section 2, Module 1: Math | 34:57 | Time Remaining | Hide | 1 | Directions | Mark for Review | Reference | Calculator | Review | Submit | In the xy-plane, the graph of the equation y = 3 | x | is translated 6 units down. What is an equation of the resulting graph? | A | y = -6(3) | x | B | y = 3 | x+6 | C | y = 3 | x | - 6 | D | y = 3 | x-6 | Section 2, Module 1 of 2 | Question 1 of 22 | Back | Next | Clear | Done"
+    },
+    {
+      "screen": "Review 检查答案",
+      "file": "03-review.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-review",
+      "text": "SAT Math Prep | Exit | Check Answers | Select a question number to jump back to it, or edit answers directly in the table below. Answers are locked after you submit. | Question Menu | 0 | Answered | 22 | Not answered | 0 | Marked | Module 1 | Current range | Question | Topic / Source | Status | Your Answer | Go | Q1 | U3 | Not answered | A | B | C | D | Go | Q2 | U1 | Not answered | A | B | C | D | Go | Q3 | U1 | Not answered | A | B | C | D | Go | Q4 | U3 | Not answered | Go | Q5 | U1 | Not answered | A | B | C | D | Go | Q6 | U1 | Not answered | A | B | C | D | Go | Q7 | U3 | Not answered | A | B | C | D | Go | Q8 | U3 | Not answered | Go | Q9 | U4 | Not answered | A | B | C | D | Go | Q10 | U2 | Not answered | A | B | C | D | Go | Q11 | U4 | Not answered | A | B | C | D | Go | Q12 | U3 | Not answered | Go | Q13 | U2 | Not answered | A | B | C | D | Go | Q14 | U3 | Not answered | A | B | C | D | Go | Q15 | U4 | Not answered | A | B | C | D | Go | Q16 | U3 | Not answered | Go | Q17 | U2 | Not answered | A | B | C | D | Go | Q18 | U1 | Not answered | A | B | C | D | Go | Q19 | U1 | Not answered | A | B | C | D | Go | Q20 | U3 | Not answered | Go | Q21 | U1 | Not answered | A | B | C | D | Go | Q22 | U1 | Not answered | A | B | C | D | Go | Back to Test | Submit | Clear | Done"
+    },
+    {
+      "screen": "Submit 确认交卷",
+      "file": "04-submit.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-submit",
+      "text": "SAT Math Prep | Exit | Finish Module 1? | 0 / 22 | Math · Module 1 of 2 | After you move on to Module 2, you will not be able to return to Module 1 or change its answers. | Keep Reviewing | Proceed to Module 2 | Clear | Done"
+    },
+    {
+      "screen": "Result 成绩报告",
+      "file": "05-result.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-result",
+      "text": "SAT Math Prep | Exit | Score Report | 11/24/2026, 2:27:25 PM · Submitted manually · Answers locked · Module 2 path: easier | Review Missed Questions | Take Another Test | Estimated SAT Math Score · 200–800 | 200 | / 800 | Raw score 0 / 44 · Adaptive path: easier | Correct / Total | 0 / 44 | Accuracy | 0% | Raw score (1 pt each) | 0 pts | Total time | 00:16 | Average per question | 00:00 | Longest question | 00:13 | Incorrect | 44 | Time limit / Used | 70:00 / 00:16 | Estimate converts raw points to the 200–800 scale. It is a practice estimate, not an official score. | Weakness Report | Units to Prioritize | Heart of Algebra | Wrong 15/15 | Advanced Math | Wrong 15/15 | Problem Solving & Data Analysis | Wrong 7/7 | Geometry & Trigonometry | Wrong 7/7 | Question-by-Question Results | All Questions | Incorrect Only | ✗ | Q1 | U3 · Multiple choice · 0 pt | Time 00:03 | Your answer | — | Correct answer | C | ✗ | Q2 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q3 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q4 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 17 | ✗ | Q5 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q6 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q7 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q8 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 12 | ✗ | Q9 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q10 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q11 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q12 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 12 | ✗ | Q13 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q14 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q15 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q16 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 225 | ✗ | Q17 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q18 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q19 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q20 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 12 | ✗ | Q21 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q22 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q23 | U2 · Multiple choice · 0 pt | Time 00:13 | Your answer | — | Correct answer | B | ✗ | Q24 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q25 |"
+    }
+  ],
+  "errors": []
+}
