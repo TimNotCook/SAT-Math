@@ -121,3 +121,32 @@ GH_TOKEN=$(printf "protocol=https\nhost=github.com\n\n" | git credential fill | 
 - **令牌持久性**：PAT 只存 `sessionStorage`（有意为之，避免明文落盘），代价是**新标签页需要重新粘贴**。这也是为什么账号密码方案更该做。
 
 **给台账的口径**：跨设备进度同步 = 可用（GitHub 令牌通道）；用户名映射表 = 阻塞（等 Supabase 项目）；两者不可混记。
+
+---
+
+## 七、2026-11-24 20:xx：Supabase 后端已建成并跑通（A 方案落地）
+
+**后端**：Supabase 项目 `sat-math`（org: TimNotCook's Org，免费版，Asia-Pacific），project ref `ofsnrzfmjqyrmkvdwnbo`，URL `https://ofsnrzfmjqyrmkvdwnbo.supabase.co`。
+客户端只用 publishable key（`sb_publishable_…`，已写入 `cloud-config.js`，公开可见无妨，RLS 兜底）。
+
+**库结构**（`supabase/schema.sql` 已执行，含表级 grant）：
+- `public.progress(user_id uuid pk, payload jsonb, nickname, email, updated_at)`，RLS `progress_own` 仅 authenticated 且 `auth.uid()=user_id`；匿名读返回 401（已验证）。
+- `public.usernames(username pk, uid, email, created_at)`，anon 可 SELECT（登录前按用户名换邮箱），insert 仅 authenticated 且 `auth.uid()=uid`。
+- 认证设置：`Confirm email` 已关闭 → 注册即登录，不需要点邮件链接。
+
+**端到端实测（真机 headless Chrome，对线上站点）**：
+
+| 步骤 | 结果 |
+| --- | --- |
+| A 机注册 `timalpha / satmath.demo1@qq.com` | 面板提示「账号已创建，正在打开你的学习档案…」 |
+| A 机做 1.1 第 1 题选 A | 状态「进度已自动保存」 |
+| B 机（全新 profile）用**用户名 + 密码**登录 | 状态「登录成功，正在打开你的学习档案…」 |
+| B 机本地快照与 A 机比对 | **逐字节一致**（2 条），做题页该题仍为已选 |
+
+DB 侧核对：`GET /rest/v1/usernames?select=username,email,uid` → `[{username:"timalpha", email:"satmath.demo1@qq.com", uid:"068792f6-…"}]`；`GET /rest/v1/progress` 匿名 401（符合 RLS 预期）。
+
+**同时修掉的致命疏忽**：`supa-cloud.js` 早就躺在仓库里，但三个 HTML 从来没引用它 —— 也就是说之前即使填了 URL/key，`window.TDSUPA` 依然是 undefined，后端等于没接。commit `893ad77` 补上脚本挂载，并纳入 `bump_assets.py` 哈希清单。
+
+**已知代价（今日已上线，需 Tim 拍板是否接受）**：
+- `usernames` 对匿名可读 → 知道用户名即可换到邮箱。当前只有 1 条测试数据；若不接受，改成「用户名只做展示名」（注册表单去掉用户名字段，登录只收邮箱）。
+- 测试账号 `timalpha`、`satmath-probe2@qq.com` 留在库里，需要的话可以删。
