@@ -93,7 +93,10 @@ test('填空：value 是有限数，且与答案页的数值一致', () => {
   BANK.forEach(q => {
     if (q.type !== 'grid') return;
     assert.ok(Number.isFinite(q.value), q.id + ' 填空题缺少数值 value');
-    assert.ok(String(q.answer).indexOf(String(q.value)) >= 0, q.id + ' value 与答案页答案不对应');
+    // 答案页的小数常省略前导 0（".9411 or ..."），两种写法都算对上
+    const forms = [String(q.value), String(q.value).replace(/^0\./, '.'), String(q.value).replace(/^0\./, '')];
+    assert.ok(forms.some(f => String(q.answer).indexOf(f) >= 0),
+      q.id + ' value 与答案页答案不对应');
   });
 });
 

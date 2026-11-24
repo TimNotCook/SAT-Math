@@ -58,6 +58,11 @@
       ln.push('<line x1="' + X(p[0][0]).toFixed(1) + '" y1="' + Y(p[0][1]).toFixed(1) + '" x2="' + X(p[1][0]).toFixed(1) + '" y2="' + Y(p[1][1]).toFixed(1) + '" stroke="' + LINE + '" stroke-width="2.3" stroke-linecap="round"/>');
     });
 
+    // 标点：原书用实心圆点把「关键点」钉出来（p18 #11 的两个点）
+    (o.dots || []).forEach(function (d) {
+      ln.push('<circle cx="' + X(d[0]).toFixed(1) + '" cy="' + Y(d[1]).toFixed(1) + '" r="3.4" fill="' + LINE + '"/>');
+    });
+
     // 线一律裁到画框内，防止穿出网格（原书里线也是被框住的）
     UID++;
     var clip = '<clipPath id="jcp' + UID + '"><rect x="' + (X(x0) - 2) + '" y="' + (Y(y1) - 2) + '" width="' + (pw + 4) + '" height="' + (ph + 4) + '"/></clipPath>';
@@ -102,6 +107,14 @@
       x: { min: -6.6, max: 6.6, step: 1, labels: [-6, -4, -2, 2, 4, 6] },
       y: { min: -6.6, max: 7.4, step: 1, labels: [6, 4, 2, -2, -4, -6] },
       lines: [{ m: -5 / 2, b: 5, x0: -0.9, x1: 4.6 }], originO: true },
+
+    // p18 #11：网格 -10..10，两条线：y = -(1/4)x + 4（过 (-4,5)、(8,2) 两个实心点）与 y = 2（水平线），
+    // 交点正是 (8,2)。新加入的 x + 4y = -16 即 y = -(1/4)x - 4，与第一条线斜率相同、截距不同 → 无解。
+    'JY1-011': { type: 'plane', w: 440, h: 430,
+      x: { min: -10.2, max: 10.9, step: 1, labels: [-10, -8, -6, -4, -2, 2, 4, 6, 8, 10] },
+      y: { min: -10.6, max: 10.9, step: 1, labels: [10, 8, 6, 4, 2, -2, -4, -6, -8, -10] },
+      lines: [{ m: -0.25, b: 4, x0: -10.2, x1: 10.9 }, { m: 0, b: 2, x0: -10.2, x1: 10.9 }],
+      dots: [[-4, 5], [8, 2]], originO: true },
 
     // p9 #5：四选图。答案页 p191 写 C，所以 C 是正确图：y 截距恰为 1、
     // 斜率 -a/b 落在 (-1,0)、x 截距 = b/a = 2；A/B/D 是三个错图（斜率 -1、截距 1.5、斜率 -2）。
