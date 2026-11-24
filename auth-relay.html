@@ -185,7 +185,8 @@ async function dbCall(a) {
    用途：判断后端有没有开 storage 通道（database 被 403 挡住时的备选承载）。 */
 async function storageCall(a) {
   var bucket = String(a.bucket || '');
-  if (bucket && !/^tdsync/.test(bucket)) return { error: { message: 'bucket 未授权：' + bucket } };
+  /* 本应用只开通了 runtime 一个桶；tdsync 前缀留给后续自建桶，其余一律拒绝 */
+  if (bucket && !/^(runtime|tdsync)/.test(bucket)) return { error: { message: 'bucket 未授权：' + bucket } };
   var storage = cloud.storage;
   if (a.op === 'buckets') return await storage.listBuckets();
   if (a.op === 'upload') {

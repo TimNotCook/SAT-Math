@@ -75,10 +75,10 @@ const script = `(async () => {
   out.init = await send('init', { data:{}, endpoint: cfg.endpoint, publishableKey: cfg.publishableKey });
   const strip = (r) => r.timeout ? { timeout: true } : { ok: r.ok, data: r.ok ? r.data : null,
     err: r.ok ? null : { message: (r.error && (r.error.message || r.error.error_description)) || '', code: (r.error && r.error.code) || '', status: (r.error && r.error.status) || 0 } };
-  out.buckets = strip(await send('storage', { op: 'buckets' }));
+  out.buckets = { ok: true, data: 'listBuckets 不受支持，直接测 runtime 桶' };
   const stamp = 'probe-' + Date.now() + '.json';
-  out.upload = strip(await send('storage', { op: 'upload', bucket: 'tdsync', path: stamp, text: JSON.stringify({ hello: 'probe', at: new Date().toISOString() }) }));
-  out.download = strip(await send('storage', { op: 'download', bucket: 'tdsync', path: stamp }));
+  out.upload = strip(await send('storage', { op: 'upload', bucket: process.env.BUCKET || 'runtime', path: stamp, text: JSON.stringify({ hello: 'probe', at: new Date().toISOString() }) }));
+  out.download = strip(await send('storage', { op: 'download', bucket: process.env.BUCKET || 'runtime', path: stamp }));
   return JSON.stringify(out);
 })()`;
 
