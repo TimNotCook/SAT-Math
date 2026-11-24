@@ -98,8 +98,12 @@ function importData(data){
 /* 讲义复习（JY1-001 这类题）不在 TD_BANK 里：只有 jiangyi-core.js 载入时才查得到。
    这样错题回顾能收讲义的错，又不会把 JY 混进 CATALOG / 现有 20 个板块。 */
 function questionById(id){
-  var q=A.BANK.questions.find(function(x){return x.id===id;});
-  if(!q&&window.TD_JY&&window.TD_JY.BY_ID)q=window.TD_JY.BY_ID[id];
+  /* 重复题干归并（口径见 docs/bank-duplicates.md）：副本 id 先换成 canonical，
+     同一道题只在错题本里记一笔。data/aliases.js 由 tools/dup_groups.mjs --alias 生成。 */
+  var alias = window.TD_ALIAS || {};
+  var cid = alias[String(id)] || String(id);
+  var q=A.BANK.questions.find(function(x){return x.id===cid;});
+  if(!q&&window.TD_JY&&window.TD_JY.BY_ID)q=window.TD_JY.BY_ID[cid];
   return q;
 }
 function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*$/,'').trim()||A.SECTION_CN[q.section]||'综合';}

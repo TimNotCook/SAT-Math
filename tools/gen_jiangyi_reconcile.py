@@ -101,6 +101,21 @@ def main():
     lines.append("| %d | %d | %d |" % (need, have, need - have))
     lines.append("\n单节全绿的记法：`已录 = 应有`。当前完成 **%d / %d 节**。\n" %
                  (sum(1 for r in rows if r[2] == r[1]), len(rows)))
+    lines.append("\n## 内容缺口（视觉层，与上面数字对账表并列）\n")
+    lines.append("数字对得上不代表页面看得对：这一节记的是「数据里有、页面上看不到」或「原页本身就缺」的条目。"
+                 "来源 `data/content-gaps.json`，状态只允许：待修 / 待核 / 原页缺印 / 已核无缺。\n")
+    gaps = json.loads((ROOT / "data" / "content-gaps.json").read_text())["gaps"] if (ROOT / "data" / "content-gaps.json").exists() else []
+    lines.append("| 层 | 编号 | 位置 | 缺口类型 | 现象 | 证据 | 状态 |")
+    lines.append("|---|---|---|---|---|---|---|")
+    for g in gaps:
+        lines.append("| %s | %s | %s | %s | %s | %s | %s |" %
+                     (g["layer"], g["id"], g["loc"], g["kind"], g["detail"], g["evidence"], g["status"]))
+    if gaps:
+        todo = sum(1 for g in gaps if g["status"] == "待修")
+        lines.append("\n待修 **%d** 条、待核 %d 条、原页缺印 %d 条、已核无缺 %d 条。\n" %
+                     (todo, sum(1 for g in gaps if g["status"] == "待核"),
+                      sum(1 for g in gaps if g["status"] == "原页缺印"),
+                      sum(1 for g in gaps if g["status"] == "已核无缺")))
     lines.append("\n## 录入规则（可执行，已写进 test/jiangyi.test.js）\n")
     lines.append("1. 答案页（p191–196）里查不到题号的段落，一律不录——Example 例题就死在这一条上。")
     lines.append("2. 每题 `source` 必须三段齐全：`讲义 p{页} #{页内题号}`。")
