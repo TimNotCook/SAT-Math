@@ -1047,7 +1047,9 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-choice.is-selected .drill
 body:has(#questionView:not([hidden])) #theme-toggle,
 body:has(#stage-answer:not([hidden])) #theme-toggle,
 body.exam-page:has(#stage-answer:not([hidden])) #theme-toggle{display:none!important}
-/* Next 按钮：官方深蓝实心，去除 GLASS 层电光蓝渐变残留 */
+/* Next 按钮：官方深蓝实心，去除 GLASS 层电光蓝渐变残留；
+   圆角与 Back 对齐（同为 5px）。此前这里留着 18px 药丸圆角，而 Back 在
+   做题页被统一成 5px，结果一对按钮一方一圆。 */
 body:has(#questionView:not([hidden])) .drill-page-button.drill-next-button,
 body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button.drill-next-button{
   background:#0057B8!important;
@@ -1055,7 +1057,7 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button.drill-next-bu
   color:#FFFFFF!important;
   background-image:none!important;
   box-shadow:none!important;
-  border-radius:18px!important;
+  border-radius:5px!important;
 }
 body:has(#questionView:not([hidden])) .drill-page-button.drill-next-button:hover,
 body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button.drill-next-button:hover{
