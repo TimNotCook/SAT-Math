@@ -606,6 +606,8 @@
 
   /* 页面里已有「草稿」按钮时自动接管（会克隆按钮，丢掉页面旧草稿板的监听） */
   function autoAttach() {
+    /* 模考层（？mode=mock）不开草稿：直接不渲染，避免「禁用但留在 DOM」的半死按钮 */
+    if (/[?&]mode=mock/.test(location.search)) return;
     var b = document.getElementById('btnScratch');
     if (b && !ScratchPad.instance) ScratchPad.attach(b);
   }

@@ -1179,8 +1179,12 @@
     if (event.persisted && !startClicked && S) { showStage('intro'); renderIntro(); }
   });
 
-  /* 草稿薄雾板：除模考外的练习/抽查都可涂画写草稿，答案区保持可直接填写 */
-  if (MODE !== 'mock' && window.ScratchPad) {
+  /* 草稿薄雾板：除模考外的练习/抽查都可涂画写草稿，答案区保持可直接填写。
+     模考层不开草稿：按钮连同工具条一起从 DOM 移除，不留「禁用但还在」的半死控件。 */
+  if (MODE === 'mock') {
+    const deadBtn = $('btnScratch');
+    if (deadBtn) deadBtn.remove();
+  } else if (window.ScratchPad) {
     const scratchBtn = $('btnScratch');
     if (scratchBtn) {
       /* HTML 默认是英文（模考层纯英文）；练习/抽查是中文功能层，这里换回中文 */

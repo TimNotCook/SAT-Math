@@ -142,22 +142,51 @@ check('drill-390', '上一题有 aria-label', !!drillNav.prev && drillNav.prev.t
 check('drill-390', '下一题有 aria-label', !!drillNav.next && drillNav.next.trim(), drillNav.next);
 check('drill-390', '练习页窄屏可视文字也被隐藏', drillNav.prevText === 'none' && drillNav.nextText === 'none', drillNav.prevText + '/' + drillNav.nextText);
 
-/* ---------- 2. 模考层草稿按钮：无中文残留 ---------- */
+/* ---------- 2. 模考层：草稿整块不存在（不开就删干净，不留半死按钮） ---------- */
 await viewport(1280, 900);
 await openExam('mock');
 await startMock();
-const mockScratch = await ev(`(()=>{const b=document.getElementById('btnScratch');
-  if(!b)return{missing:true};
-  const html=b.outerHTML;
-  return {title:b.getAttribute('title'),label:(b.querySelector('span')||{}).textContent,
-    hasCJK:${CJK.toString()}.test(html),hidden:b.hidden}})()`);
-check('scratch', '模考 DOM 里草稿按钮存在', !mockScratch.missing, mockScratch.missing ? 'missing' : 'found');
-check('scratch', '#btnScratch 的 title 不含中文', !CJK.test(mockScratch.title || ''), mockScratch.title);
-check('scratch', '#btnScratch 的可视文案不含中文', !CJK.test(mockScratch.label || ''), mockScratch.label);
-check('scratch', '#btnScratch 整段 outerHTML 无中文', !mockScratch.hasCJK, mockScratch.hasCJK ? 'has CJK' : 'clean');
-await domPanel('DOM：？mode=mock 的 #btnScratch（title + 文案全英文）',
-  await ev(`document.getElementById('btnScratch').outerHTML`));
+const mockScratch = await ev(`(()=>{
+  const b=document.getElementById('btnScratch');
+  const layer=document.querySelector('.mist-layer');
+  const dead=[...document.querySelectorAll('#stage-answer [title]')].filter(el=>/^(Pen|Highlighter|Eraser|颜色|Undo|Redo|Clear|Done|钢笔|荧光笔)/.test(el.getAttribute('title')||''));
+  return {button:!!b, layer:!!layer, toolbar:!!document.querySelector('.mist-toolbar'),
+    deadCount:dead.length, deadTitles:dead.slice(0,3).map(e=>e.getAttribute('title').join=',')}})()`);
+check('scratch', '模考 DOM 无 #btnScratch', !mockScratch.button, mockScratch.button ? 'still there' : 'removed');
+check('scratch', '模考 DOM 无草稿层 .mist-layer', !mockScratch.layer, mockScratch.layer ? 'present' : 'absent');
+check('scratch', '模考 DOM 无 Pen/Highlighter/颜色 半死按钮', mockScratch.deadCount === 0, mockScratch.deadCount + ' ' + mockScratch.deadTitles);
+await domPanel('DOM：？mode=mock 答题页 —— #btnScratch / .mist-layer / .mist-toolbar 全为 null（草稿整块未渲染）',
+  await ev(`JSON.stringify({btnScratch:document.getElementById('btnScratch'),
+    mistLayer:document.querySelector('.mist-layer'),
+    mistToolbar:document.querySelector('.mist-toolbar'),
+    pen:document.querySelector('[title="Pen"]')||document.querySelector('[title="钢笔"]')},null,1)`));
 await shot('dom-scratch');
+await ev(`(()=>{const p=document.getElementById('__domproof');if(p)p.remove()})()`);
+
+/* ---------- 3. 抽查层：草稿是「开」的，必须真能用（不是禁用壳） ---------- */
+await openExam('quiz');
+await sleep(600);
+const quizBtn = await ev(`(()=>{const b=document.getElementById('btnScratch');
+  return b?{title:b.getAttribute('title'),label:(b.querySelector('span')||{}).textContent,hidden:b.hidden}:{missing:true}})()`);
+check('quiz', '抽查层草稿按钮存在且可见', !quizBtn.missing && !quizBtn.hidden, quizBtn.missing ? 'missing' : ('hidden=' + quizBtn.hidden));
+check('quiz', '抽查层 title 保留中文', CJK.test(quizBtn.title || ''), quizBtn.title);
+check('quiz', '抽查层文案保留中文', quizBtn.label === '草稿', quizBtn.label);
+const quizPad = await ev(`(async()=>{const b=document.getElementById('btnScratch');b.click();
+  await new Promise(r=>setTimeout(r,400));
+  const layer=document.querySelector('.mist-layer');
+  if(!layer)return{opened:false};
+  const pen=layer.querySelector('[data-tool="pen"]'), hl=layer.querySelector('[data-tool="marker"]');
+  const cs=getComputedStyle(layer);
+  return {opened:true, display:cs.display, vis:cs.visibility, pe:getComputedStyle(layer.querySelector('.mist-toolbar')).pointerEvents,
+    penTitle:pen&&pen.getAttribute('title'), penPe:pen&&getComputedStyle(pen).pointerEvents, penDisabled:pen&&pen.disabled,
+    hlTitle:hl&&hl.getAttribute('title'), canvas:!!layer.querySelector('.mist-canvas'),
+    btnPressed:b.getAttribute('aria-pressed')}})()`);
+check('quiz', '点开草稿后工具条真的出现', quizPad.opened && quizPad.display !== 'none', quizPad.opened ? ('display=' + quizPad.display) : 'no layer');
+check('quiz', '工具条可点（不是 pointer-events:none 的死壳）', quizPad.penPe === 'auto' && !quizPad.penDisabled, 'pe=' + quizPad.penPe + ' disabled=' + quizPad.penDisabled);
+check('quiz', 'Pen / Highlighter 都在且带名字', !!quizPad.penTitle && !!quizPad.hlTitle, (quizPad.penTitle || '') + ' / ' + (quizPad.hlTitle || ''));
+await domPanel('DOM：？mode=quiz 点开草稿后的 .mist-toolbar（Pen / Highlighter 可点，aria-pressed=true）',
+  await ev(`document.querySelector('.mist-toolbar').outerHTML.slice(0,1400) + '\n[aria-pressed]=' + document.getElementById('btnScratch').getAttribute('aria-pressed')`));
+await shot('quiz-scratch');
 await ev(`(()=>{const p=document.getElementById('__domproof');if(p)p.remove()})()`);
 
 /* ---------- 3. 练习/抽查层仍是中文（防回归） ---------- */
