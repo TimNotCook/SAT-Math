@@ -1,108 +1,91 @@
-# 云同步落地决策（码农 α · 2026-11-24）
+# 云同步落地结论（码农 α · 2026-11-24 定稿）
 
-> **16:20 更新（先看这段，下面的旧结论已被它取代）**
-> database 确实建不了表（403，见证据），但 **storage 的 `runtime` 桶是通的**，对象路径必须 `users/<uid>/…`。
-> 也就是说后端给的是"按用户隔离的文件存储"，不是关系表 —— **`profiles` 不用换后端了**，已改走
-> `runtime/users/<uid>/tdsat-profile.json`（commit `d23a48e`），**只差一个能登录的账号做真机验收**。
-> 用户名映射表仍然没有"登录前公共可读"的通道（storage 下载也要登录态），建议先退回"用户名只做展示名"。
+> **结论：`profiles` 和 `usernames` 在现有后端都做不到。**
+> 不是"没建表"，也不是"缺登录态"——是网关把整个 `/.cloud/*`（database + storage）对本站 Origin 一律 403，
+> 响应里连 CORS 头都不给，浏览器连请求都发不出去。认证 `/v1/*` 正常，说明这个应用**只开了认证，没开数据库和存储**。
+> 下面两段探针任何人可重跑复现。
 
-> 一句话：`profiles` 表和用户名映射表**不是"忘了建"，是建不了** —— WorkBuddy 后端的数据路由对本站 Origin 一律 403，
-> 连"表在不在"都问不到。要么换后端（Supabase，推荐），要么平台侧开库。今天先交证据 + 三条路，你拍一条我立刻做。
-
-## 一、证据（30 秒可复现）
+## 一、证据（两条命令，30 秒）
 
 ```bash
-node tools/probe_cloud_db.mjs
+node tools/probe_cloud_db.mjs        # database
+node tools/probe_cloud_storage.mjs   # storage
 ```
 
-2026-11-24 线上 main 实跑输出：
+2026-11-24 线上 main 实跑：
 
 ```
-后端：https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host
-SDK：sdk-ready，init：ok
-
+== database ==
   profiles     不可用 → TypeError: Failed to fetch
   usernames    不可用 → TypeError: Failed to fetch
-  kv           不可用 → TypeError: Failed to fetch
-  users        不可用 → TypeError: Failed to fetch
-  progress     不可用 → TypeError: Failed to fetch
+  ← 403 /.cloud/database/rest/profiles?select=id%2Cpayload%2Cupdated_at | ACAO=none
 
-== 网络实况 ==
-  → OPTIONS https://.../.cloud/database/rest/profiles?select=id%2Cpayload%2Cupdated_at
-  ← 403 /.cloud/database/rest/profiles?... | ACAO=none
-  ✗ net::ERR_FAILED
+== storage ==
+  匿名写 users/<假uid>/  拒绝 → Failed to fetch
+  非法桶名              拒绝 → Only the "runtime" storage bucket is available.   ← SDK 客户端拦的
+  非法路径              拒绝 → Object paths must use users/<uid>/... or shared/<ownerUid>/.... ← SDK 客户端拦的
+  ← 403 /.cloud/storage/object/runtime/users/anon-probe/probe-….json | ACAO=none
 ```
 
-**为什么是"建不了"而不是"没建"**：SDK 的真实数据请求打到 `/.cloud/database/rest/<表名>`，浏览器的 CORS 预检（OPTIONS）直接 403，
-且响应里没有任何 `Access-Control-Allow-Origin` → 浏览器连 GET 都发不出去。这不是表结构问题，是整个数据路由没对本应用开放。
-同一后端上 `/v1/verification`、`/v1/signin` 是可用的（登录能过），说明**只开了认证，没开数据库**。
+读法：
+- 后两条是 SDK 自己的校验（说明桶名/路径规则确实存在），但**合法路径那一条走到底仍然是 403 且无 CORS 头**；
+- database 与 storage 是同一类拦截 → 被挡的是 `/.cloud/*` 这个前缀，不是某张表，也不是"没登录"；
+- 同一后端 `/v1/verification`、`/v1/signin` 是通的（发码、密码登录都能过）。
 
-顺带解释"换设备看不到进度"的机制：`workbuddy-cloud.js` 的 `getArchive` / `pushProgress` 都用 try/catch 静默兜底，
-403 被吞掉，用户界面照样显示"已登录 · 进度自动保存"，实际只写在本机 localStorage。
+为什么必须看状态码：如果只是缺登录态，那是 401 + CORS 头；现在是 403 + 无头，浏览器层就断了，登录也救不回来。
 
-## 二、三条路（选一条）
+## 二、三件事各自的结论
 
-| | 方案 | 需要谁做什么 | 我这边工时 | 风险 / 代价 |
-|---|---|---|---|---|
-| **A（推荐）** | **Supabase 建 `profiles` + `usernames`** | 你给 **项目 URL + anon key**（免费版，控制台 5 分钟） | 4–6 小时（建表 + RLS + 客户端接入 + 两机实测） | 国内可直连（已实测）；多一个云厂商；免费额度够用 |
-| B | 让 WorkBuddy 平台开数据库 | 应用控制台开通 database、把 `https://timnotcook.github.io` 加进 CORS、建表 | 我改代码 2 小时 | 责任方不在我们手里，等待不可控；且要重开一次联调 |
-| C（兜底） | GitHub 令牌通道（**代码已可用**） | 用户自备 GitHub PAT，粘贴一次 | 0（已有） | 要 GitHub 账号；令牌存 sessionStorage，**每次重启浏览器要重贴**，不算"登录即同步" |
+| 事 | 结论 |
+|---|---|
+| `profiles` 表 | **做不到**：database 未开通；替代方案（runtime 桶文件存储）同样 403，也不成立 |
+| 用户名映射表 | **做不到**：既没有表，也没有"登录前可读"的通道（storage 下载要登录，且同样 403） |
+| 云同步 | **是假的**：`workbuddy-cloud.js` 的 `getArchive/pushProgress` 一直 try/catch 静默兜底，403 被吞，界面照样显示"进度自动保存"，实际只写本机 localStorage。这就是"换设备看不到进度"的机制 |
 
-推荐 **A 为主 + C 兜底**：A 保证"邮箱密码登录换设备就能看到进度"，C 让已经有 PAT 的人今天就能用。
+客户端链路（登录 → 读档案 → 合并本机 → 定时推）本身完整，缺的只有后端落点。
 
-## 三、表结构（A / B 通用，可直接跑）
+## 三、已做的无害改动（不改变结论）
+
+- `workbuddy-cloud.js`：档案读写改成 **storage 优先、db 兜底**（commit `d23a48e`）。
+  后端哪天开通 `/.cloud/*` 会自动生效，不用再改客户端；没开通时行为与之前一致（返回 false，不阻断登录）。
+- `auth-relay.html`：加受限 `storage` 通道（只放 `runtime`/`tdsync` 前缀桶），commit `e9f0d08`。
+  没有它就无法证明 storage 是 403 而不是"没写"。
+
+## 四、两条出路（都要你拍）
+
+| | 怎么做 | 谁来 | 我这边工时 |
+|---|---|---|---|
+| **B（最少改动）** | 平台给本应用开通 `/.cloud/database/rest` 与 `/.cloud/storage`，并把 `https://timnotcook.github.io` 加进 CORS 白名单 | WorkBuddy 侧，不在我们手里，等待不可控 | 开表 1h + 联调 1h |
+| **A（我们自己能控）** | Supabase 免费版：你给 `URL + anon key` | 你 5 分钟 | 4–6h（建表 + RLS + 客户端接入 + 两机实测） |
+
+选 A 时直接用这份表结构（已按现有客户端字段对齐）：
 
 ```sql
--- 1) 学习档案：一人一行，只有本人能读写
 create table profiles (
-  id          uuid primary key references auth.users(id) on delete cascade,
-  payload     jsonb not null default '{}',
-  nickname    text,
-  updated_at  timestamptz not null default now()
+  id         uuid primary key references auth.users(id) on delete cascade,
+  payload    jsonb not null default '{}',
+  nickname   text,
+  updated_at timestamptz not null default now()
 );
 alter table profiles enable row level security;
 create policy profiles_own on profiles
   for all using (auth.uid() = id) with check (auth.uid() = id);
 
--- 2) 用户名登记（若要做"用户名登录"）
 create table usernames (
-  username    text primary key check (username ~ '^[a-z0-9_]{3,20}$'),
-  uid         uuid not null references auth.users(id) on delete cascade,
-  email       text not null,
-  created_at  timestamptz not null default now()
+  username   text primary key check (username ~ '^[a-z0-9_]{3,20}$'),
+  uid        uuid not null references auth.users(id) on delete cascade,
+  email      text not null,
+  created_at timestamptz not null default now()
 );
 ```
 
-### 用户名这条要单独拍一下：两种做法，代价不同
+用户名这条还有一个要先拍的点：
+- **做法 1（推荐，今天能收）**：用户名只做展示名，登录仍用邮箱。零泄露、不依赖新后端。
+- **做法 2**：真用户名登录。需要 `usernames` 匿名可读，等于"知道用户名就能拿到邮箱"，只能靠限流缓解，不能根治。
 
-- **做法 1（零泄露，推荐）**：用户名**只做展示名**，登录仍用邮箱。
-  不需要 `usernames` 表，今天就能做，只改 UI 文案与「显示名」字段。
-- **做法 2（真·用户名登录）**：需要 `usernames` 表**匿名可读**（登录前要解析）。但表里一旦放明文邮箱，
-  任何人拿到用户名就能批量取邮箱（撞库/骚扰面）。缓解手段只有限流 RPC，不能根治。
+## 五、我需要两句话
 
-我建议先上 **做法 1**，等有后端了再评估做法 2。**这条也请你拍。**
+1. 走 **A（Supabase）** 还是 **B（等平台开库）**；走 A 就把 `URL + anon key` 给我。
+2. 用户名走 **做法 1** 还是 **做法 2**。
 
-## 四、客户端要改的点（A 方案确定后我一次性交）
-
-| 文件 | 改什么 |
-|---|---|
-| `workbuddy-cloud.js` | `getArchive` / `pushProgress` 换成 Supabase 读写；403 不再静默吞 |
-| `cloud-account.js` | `auth()` 增加 supabase 分支；同步失败时状态改成「仅本机保存」而不是「进度自动保存」 |
-| `cloud-config.js` | 增加 supabase URL / anon key 字段 |
-| 设置面板 | 账户页三通道文案对齐，补「同步状态」明细（上次同步时间 / 是否成功） |
-
-## 五、我需要你回的一句话
-
-1. 选 **A / B / C**（选 A 的话把 Supabase `URL + anon key` 贴给我，5 分钟就能开工）；
-2. 用户名走 **做法 1（只做展示名）** 还是 **做法 2（真用户名登录）**。
-
-## 六、16:20 的落地状态（取代上面"选 A/B/C"那一段）
-
-| 事 | 现在在哪 | 还差什么 |
-|---|---|---|
-| `profiles`（档案） | **已改道 storage**：`runtime/users/<uid>/tdsat-profile.json`，db 保留兜底，commit `d23a48e`；relay 新增受限 `storage` 通道，commit `fe241a1`→`e9f0d08` | **一个能登录的账号**（邮箱+密码）才能在真机上验"写完→换机读回" |
-| 跨设备同步 | 客户端链路本来完整（`afterSignIn` → `getArchive` → `mergeLocalWithCloud` → `silentPush`） | 同上；11-25 上午两机实测必须拿到账号 |
-| 用户名映射表 | **做不了**：storage 下载同样要登录态，`shared/<ownerUid>/` 也只对 owner 可见，没有"登录前公共可读" | 要么平台开 database，要么 Supabase，要么退回做法 1（只做展示名） |
-
-所以现在的卡点只剩两件外部输入：**① 测试账号（邮箱+密码）② 用户名要不要退回展示名**。
-Supabase 只剩"用户名映射表"这一件事需要它，`profiles` 不必再等。
+在这两句话之前，台账上这两格只能记：**阻塞，后端未开 `/.cloud/*`（证据：`tools/probe_cloud_db.mjs`、`tools/probe_cloud_storage.mjs`）**。
