@@ -118,7 +118,8 @@
     var saved = J.answerOf(q.id), val = saved ? String(saved.v || '') : '';
     if (q.type === 'mcq') {
       var cts = choiceTablesOf(q);
-      els.jyAnswerArea.innerHTML = '<div class="drill-choices" role="group" aria-label="答案选项">' +
+      els.jyAnswerArea.innerHTML = '<div class="drill-choices' + (cts && cts.length ? ' drill-choices--tables' : '') +
+        '" role="group" aria-label="答案选项">' +
         q.choices.map(function (text, i) {
           var L = String.fromCharCode(65 + i);
           /* 选项本身是一张表（原书四张两列表）：渲染真表格，不用扫描裁图；出错退回文字，绝不空屏 */

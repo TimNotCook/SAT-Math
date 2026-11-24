@@ -8,10 +8,10 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>SAT Math Prep · 讲义复习</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=0c546467dcd3">
-  <link rel="stylesheet" href="bluebook.css?v=0c546467dcd3">
-  <link rel="stylesheet" href="glass.css?v=0c546467dcd3">
-  <script src="theme.js?v=0c546467dcd3"></script>
+  <link rel="stylesheet" href="app.css?v=da666582ec14">
+  <link rel="stylesheet" href="bluebook.css?v=da666582ec14">
+  <link rel="stylesheet" href="glass.css?v=da666582ec14">
+  <script src="theme.js?v=da666582ec14"></script>
   <style>
     .jy-board-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0 8px}
     .jy-board-card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);text-align:left;cursor:pointer;transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
@@ -32,6 +32,13 @@
     .drill-choice-text.drill-choice-table{display:block}
     .drill-choice .jy-table{margin:0;font-size:13px}
     .drill-choice .jy-table th,.drill-choice .jy-table td{padding:5px 12px}
+    /* 选项是四张表时按原页 2×2 摆（A 左上 C 右上 / B 左下 D 右下），窄屏自动收成一列 */
+    .drill-choices--tables{display:grid!important;grid-template-columns:repeat(2,minmax(0,max-content));column-gap:18px;row-gap:16px;justify-content:start;align-items:start}
+    .drill-choices--tables .drill-choice{width:auto!important;min-height:0!important;padding:8px 14px!important;align-items:flex-start}
+    @media (max-width:560px){
+      .drill-choices--tables{grid-template-columns:1fr;row-gap:12px}
+      .drill-choices--tables .drill-choice{width:100%!important}
+    }
     .jy-grid{display:flex;gap:10px;align-items:center;max-width:320px}
     .jy-grid input{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit}
     .jy-empty{padding:28px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--sub);text-align:center}
@@ -125,11 +132,11 @@
   <!-- 讲义页与真题题库隔离：不加载 data/questions.js（560K），只给 app-core 一个空题库，
        这样导航栏仍由 app-core 单一来源渲染，讲义进度也不会碰到教材 CATALOG。 -->
   <script>window.TD_BANK = window.TD_BANK || { units: [], questions: [] };</script>
-  <script src="grade-core.js?v=0c546467dcd3" defer></script>
-  <script src="app-core.js?v=0c546467dcd3" defer></script>
-  <script src="data/jiangyi.js?v=0c546467dcd3" defer></script>
-  <script src="data/jiangyi_figures.js?v=0c546467dcd3" defer></script>
-  <script src="jiangyi-core.js?v=0c546467dcd3" defer></script>
-  <script src="jiangyi-page.js?v=0c546467dcd3" defer></script>
+  <script src="grade-core.js?v=da666582ec14" defer></script>
+  <script src="app-core.js?v=da666582ec14" defer></script>
+  <script src="data/jiangyi.js?v=da666582ec14" defer></script>
+  <script src="data/jiangyi_figures.js?v=da666582ec14" defer></script>
+  <script src="jiangyi-core.js?v=da666582ec14" defer></script>
+  <script src="jiangyi-page.js?v=da666582ec14" defer></script>
 </body>
 </html>
