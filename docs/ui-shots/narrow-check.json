@@ -1,0 +1,188 @@
+{
+ "base": "http://127.0.0.1:8811",
+ "time": "2026-11-24T12:14:51.285Z",
+ "rows": [
+  {
+   "page": "做题视图 1.1",
+   "url": "/drill.html?sec=1.1&i=1",
+   "width": 655,
+   "file": "narrow-drill-practice-655.png",
+   "vw": 655,
+   "docW": 655,
+   "hscroll": false,
+   "over": [],
+   "overCount": 0,
+   "pill": null,
+   "stage": ""
+  },
+  {
+   "page": "真题练习 列表",
+   "url": "/drill.html",
+   "width": 655,
+   "file": "narrow-drill-list-655.png",
+   "vw": 655,
+   "docW": 655,
+   "hscroll": false,
+   "over": [],
+   "overCount": 0,
+   "pill": null,
+   "stage": ""
+  },
+  {
+   "page": "抽查 开考",
+   "url": "/exam.html?mode=quiz&unit=1",
+   "width": 655,
+   "file": "narrow-quiz-intro-655.png",
+   "vw": 655,
+   "docW": 655,
+   "hscroll": false,
+   "over": [],
+   "overCount": 0,
+   "pill": null,
+   "stage": "stage-intro"
+  },
+  {
+   "page": "模考 开场",
+   "url": "/exam.html?mode=mock",
+   "width": 655,
+   "file": "narrow-mock-intro-655.png",
+   "vw": 655,
+   "docW": 655,
+   "hscroll": false,
+   "over": [
+    {
+     "el": "text",
+     "right": 152,
+     "left": 139,
+     "w": 13,
+     "scrollW": 126,
+     "clientW": 88,
+     "overflowX": "visible",
+     "ws": "nowrap",
+     "outside": false,
+     "clippedX": true,
+     "text": ""
+    }
+   ],
+   "overCount": 1,
+   "pill": null,
+   "stage": "stage-answer"
+  },
+  {
+   "page": "错题回顾",
+   "url": "/wrong.html",
+   "width": 655,
+   "file": "narrow-wrong-655.png",
+   "vw": 655,
+   "docW": 655,
+   "hscroll": false,
+   "over": [],
+   "overCount": 0,
+   "pill": null,
+   "stage": ""
+  },
+  {
+   "page": "做题视图 1.1",
+   "url": "/drill.html?sec=1.1&i=1",
+   "width": 390,
+   "file": "narrow-drill-practice-390.png",
+   "vw": 390,
+   "docW": 390,
+   "hscroll": false,
+   "over": [],
+   "overCount": 0,
+   "pill": null,
+   "stage": ""
+  },
+  {
+   "page": "真题练习 列表",
+   "url": "/drill.html",
+   "width": 390,
+   "file": "narrow-drill-list-390.png",
+   "vw": 390,
+   "docW": 390,
+   "hscroll": false,
+   "over": [],
+   "overCount": 0,
+   "pill": {
+    "el": "a.drill-resume",
+    "right": 378,
+    "w": 366,
+    "h": 41,
+    "scrollW": 366,
+    "clientW": 366,
+    "ws": "nowrap",
+    "overflowX": "hidden",
+    "heightOverflow": false,
+    "text": "继续上次练习 · 1.1 线性方程与函数图像 第 1 题"
+   },
+   "stage": ""
+  },
+  {
+   "page": "抽查 开考",
+   "url": "/exam.html?mode=quiz&unit=1",
+   "width": 390,
+   "file": "narrow-quiz-intro-390.png",
+   "vw": 390,
+   "docW": 390,
+   "hscroll": false,
+   "over": [],
+   "overCount": 0,
+   "pill": null,
+   "stage": "stage-intro"
+  },
+  {
+   "page": "模考 开场",
+   "url": "/exam.html?mode=mock",
+   "width": 390,
+   "file": "narrow-mock-intro-390.png",
+   "vw": 390,
+   "docW": 390,
+   "hscroll": false,
+   "over": [
+    {
+     "el": "span#tbSection.exam-context-meta",
+     "right": 154,
+     "left": 12,
+     "w": 142,
+     "scrollW": 158,
+     "clientW": 142,
+     "overflowX": "hidden",
+     "ws": "nowrap",
+     "outside": false,
+     "clippedX": true,
+     "text": "Section 2, Module 1: Math"
+    },
+    {
+     "el": "text",
+     "right": 63,
+     "left": 53,
+     "w": 10,
+     "scrollW": 95,
+     "clientW": 88,
+     "overflowX": "visible",
+     "ws": "nowrap",
+     "outside": false,
+     "clippedX": true,
+     "text": ""
+    }
+   ],
+   "overCount": 2,
+   "pill": null,
+   "stage": "stage-answer"
+  },
+  {
+   "page": "错题回顾",
+   "url": "/wrong.html",
+   "width": 390,
+   "file": "narrow-wrong-390.png",
+   "vw": 390,
+   "docW": 390,
+   "hscroll": false,
+   "over": [],
+   "overCount": 0,
+   "pill": null,
+   "stage": ""
+  }
+ ]
+}

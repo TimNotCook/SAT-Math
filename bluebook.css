@@ -1074,3 +1074,44 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button.drill-next-bu
 .exam-salvage[hidden]{display:none!important}
 .exam-salvage-head{font-weight:700;color:var(--bb-official-ink)}
 .exam-salvage-row{margin:6px 0 10px;line-height:1.6}
+
+/* =====================================================================
+   NARROW HEADER — 2026-11-24 实测修正（390 / 655 两档）
+   问题：390 下导航末端「模考」被裁、右侧「设置」整颗出屏点不到；655 抽查页「设置」也差 45px。
+   做法：≤760 单行收紧（藏题库胶囊、缩间距），保证右侧设置留在屏内；
+        ≤640 一行真放不下才折两行，导航整行可横滑。
+   答题页 Section 标签改省略号，不再钻到计时器底下。
+   ===================================================================== */
+@media (max-width:760px){
+  .drill-page .appbar-inner, .exam-page .appbar-inner{gap:14px!important;padding:0 16px!important}
+  .drill-page .appbar .bankpill, .exam-page .appbar .bankpill{display:none!important}
+  .drill-page .appbar .appbar-exit, .exam-page .appbar .appbar-exit{order:8}
+  .drill-page .appbar .td-acct-btn, .exam-page .appbar .td-acct-btn{order:9}
+  /* 「继续上次练习」单行不折行；超长就省略号，别把卡片撑高/撑破 */
+  .drill-resume{display:block!important;max-width:100%!important;white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important}
+}
+
+@media (max-width:640px){
+  .drill-page .appbar-inner, .exam-page .appbar-inner{
+    height:auto!important; min-height:52px!important; flex-wrap:wrap!important;
+    padding:6px 14px!important; row-gap:0; column-gap:10px; align-items:center}
+  .drill-page .appbar .mainnav, .exam-page .appbar .mainnav{
+    order:10; flex:0 0 100%!important; width:100%!important; height:40px!important;
+    justify-content:flex-start!important; overflow-x:auto; overflow-y:hidden; padding-bottom:2px}
+  .drill-page .appbar .mainnav a, .exam-page .appbar .mainnav a{
+    height:40px!important; padding:0 12px!important}
+  .drill-page .appbar .appbar-exit, .exam-page .appbar .appbar-exit,
+  .drill-page .appbar .td-acct-btn, .exam-page .appbar .td-acct-btn{margin-left:auto}
+
+  body.exam-page:has(#stage-answer:not([hidden])) .exam-context-inner{
+    display:flex!important; flex-direction:row!important; align-items:center!important;
+    gap:8px!important; padding:0 12px!important}
+  body.exam-page:has(#stage-answer:not([hidden])) .exam-context-left{
+    flex:1 1 auto!important; min-width:0!important; width:auto!important;
+    justify-content:flex-start!important; overflow:hidden}
+  .exam-context .exam-context-meta, #tbSection{
+    display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap!important}
+  body.exam-page:has(#stage-answer:not([hidden])) .exam-clock-group{
+    flex:0 0 auto!important; justify-self:auto!important; align-self:center!important}
+}
