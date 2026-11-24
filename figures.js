@@ -227,9 +227,11 @@
     // data-angle-key pairs an angle label with the arc that belongs to it,
     // so verify_figures.mjs can assert the drawn span matches the value.
     var dk = opts.dataKey ? ' data-angle-key="' + opts.dataKey + '"' : '';
+    // white halo keeps a tick label readable when a boundary line runs under it
+    var halo = opts.halo ? ' stroke="#ffffff" stroke-width="2" paint-order="stroke fill"' : '';
     return '<text x="' + x.toFixed(1) + '" y="' + (y + dy).toFixed(1) +
       '" font-family="' + FONT + '" font-size="' + sz + '" fill="' + fill +
-      '" ' + a + dk + '>' + esc(s) + '</text>';
+      '" ' + a + dk + halo + '>' + esc(s) + '</text>';
   }
   function line(x1, y1, x2, y2, w, color) {
     return '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) +
@@ -515,12 +517,20 @@
           '" x2="' + PX(x.max).toFixed(1) + '" y2="' + PY(gy).toFixed(1) + '" stroke="' + GRID + '" stroke-width="1"/>');
       }
     }
-    // axes
-    out.push('<line x1="' + PX(x.min).toFixed(1) + '" y1="' + PY(y.min).toFixed(1) +
-      '" x2="' + PX(x.max).toFixed(1) + '" y2="' + PY(y.min).toFixed(1) + '" stroke="' + INK + '" stroke-width="1.8"/>');
+    /* axes — default: the x-axis sits on y.min and the y-axis on x.min (data
+       that starts at 0). axesAt:'zero' instead puts each axis on the real
+       x=0 / y=0 line whenever 0 is inside that range, which is how the book
+       prints a coordinate plane (axes cross at the origin, arrows at both
+       ends). Used by the shaded-inequality figures. */
+    var zy = (o.axesAt === 'zero' && y.min < 0 && y.max > 0) ? 0 : null;
+    var zx = (o.axesAt === 'zero' && x.min < 0 && x.max > 0) ? 0 : null;
+    var axYv = zy != null ? zy : y.min;   // data-y of the horizontal axis
+    var axXv = zx != null ? zx : x.min;   // data-x of the vertical axis
+    out.push('<line x1="' + PX(x.min).toFixed(1) + '" y1="' + PY(axYv).toFixed(1) +
+      '" x2="' + PX(x.max).toFixed(1) + '" y2="' + PY(axYv).toFixed(1) + '" stroke="' + INK + '" stroke-width="1.8"/>');
     if (o.yAxis !== false) {
-      out.push('<line x1="' + PX(x.min).toFixed(1) + '" y1="' + PY(y.min).toFixed(1) +
-        '" x2="' + PX(x.min).toFixed(1) + '" y2="' + PY(y.max).toFixed(1) + '" stroke="' + INK + '" stroke-width="1.8"/>');
+      out.push('<line x1="' + PX(axXv).toFixed(1) + '" y1="' + PY(y.min).toFixed(1) +
+        '" x2="' + PX(axXv).toFixed(1) + '" y2="' + PY(y.max).toFixed(1) + '" stroke="' + INK + '" stroke-width="1.8"/>');
     }
     // tick labels — replicate the SAT/B bluebook conventions seen in the
     // original book scans: the y-axis never carries a "0" (the origin label
@@ -528,32 +538,47 @@
     // Per-figure overrides: origin:"O", x.labels/y.labels:[values to label],
     // x.cats:[[text,at]...] for category axes, y.showZero:true for bar charts.
     var xHasTicks = !x.cats;
+    var labOut = [];   // tick labels are painted AFTER the data, so a line never cuts through the text
+    var yLabPad = (o.yLabelPad != null ? o.yLabelPad : (zx != null ? 14 : 9));   // wider gutter when a data line runs near the axis
     for (var gx2 = x.min; gx2 <= x.max + 1e-9; gx2 += x.step) {
       if (!xHasTicks) continue;
       if (x.labels && !x.labels.some(function (v) { return Math.abs(v - gx2) < 1e-9; })) continue;
-      var xlab = tk(gx2);
-      if (o.origin === 'O' && Math.abs(gx2) < 1e-9) xlab = 'O';
-      out.push(txt(PX(gx2), PY(y.min) + 17, xlab, { size: 11, fill: FAINT }));
+      if (o.origin === 'O' && Math.abs(gx2) < 1e-9) continue;   // "O" is drawn below, left of the origin
+      labOut.push(txt(PX(gx2), PY(axYv) + 17, tk(gx2), { size: 11, fill: FAINT }));
     }
+    if (o.origin === 'O' && zx == null) labOut.push(txt(PX(0), PY(axYv) + 17, 'O', { size: 11, fill: FAINT }));
+    if (o.origin === 'O' && zx != null) labOut.push(txt(PX(0) - yLabPad, PY(axYv) + 4, 'O', { anchor: 'end', size: 11, fill: FAINT, halo: o.axesAt === 'zero' }));
     (x.cats || []).forEach(function (c) {
-      out.push(txt(PX(c[1]), PY(y.min) + 17, c[0], { size: 11, fill: FAINT }));
+      labOut.push(txt(PX(c[1]), PY(axYv) + 17, c[0], { size: 11, fill: FAINT }));
     });
     if (o.yAxis !== false) {
       for (var gy2 = y.min; gy2 <= y.max + 1e-9; gy2 += y.step) {
         if (y.labels && !y.labels.some(function (v) { return Math.abs(v - gy2) < 1e-9; })) continue;
         if (Math.abs(gy2) < 1e-9 && !y.showZero) continue;
-        out.push(txt(PX(x.min) - 9, PY(gy2) + 4, ytk(gy2), { anchor: 'end', size: 11, fill: FAINT }));
+        labOut.push(txt(PX(axXv) - yLabPad, PY(gy2) + 4, ytk(gy2), { anchor: 'end', size: 11, fill: FAINT, halo: o.axesAt === 'zero' }));
       }
     }
-    // axis arrows
-    out.push('<path d="M ' + PX(x.max).toFixed(1) + ' ' + (PY(y.min) - 5).toFixed(1) + ' l -7 5 l 7 5 z" fill="' + INK + '"/>');
+    // axis arrows — filled triangle with its TIP on the axis end
+    var axX = PX(x.max), axY = PY(axYv), ayX = PX(axXv), ayY = PY(y.max);
+    out.push('<polygon points="' + axX.toFixed(1) + ',' + axY.toFixed(1) + ' ' +
+      (axX - 9).toFixed(1) + ',' + (axY - 5).toFixed(1) + ' ' +
+      (axX - 9).toFixed(1) + ',' + (axY + 5).toFixed(1) + '" fill="' + INK + '"/>');
     if (o.yAxis !== false) {
-      out.push('<path d="M ' + (PX(x.min) - 5).toFixed(1) + ' ' + PY(y.max).toFixed(1) + ' l 5 7 l 5 -7 z" fill="' + INK + '"/>');
+      out.push('<polygon points="' + ayX.toFixed(1) + ',' + ayY.toFixed(1) + ' ' +
+        (ayX - 5).toFixed(1) + ',' + (ayY + 9).toFixed(1) + ' ' +
+        (ayX + 5).toFixed(1) + ',' + (ayY + 9).toFixed(1) + '" fill="' + INK + '"/>');
     }
-    // axis titles
-    if (x.label) out.push(txt(padL + pw / 2, H - 8, x.label, { size: 12, fill: INK }));
-    if (o.yAxis !== false && y.label) out.push('<text x="16" y="' + (padT + ph / 2) + '" font-family="' + FONT +
-      '" font-size="12" fill="' + INK + '" text-anchor="middle" transform="rotate(-90 16 ' + (padT + ph / 2) + ')">' + esc(y.label) + '</text>');
+    // axis titles. Default: "x" centred under the frame, "y" rotated at the
+    // far left. axisLabelsEnd:true prints them at the arrow tips ("x" right of
+    // the x-arrow, "y" above the y-arrow), the way the book does.
+    if (o.axisLabelsEnd) {
+      if (x.label) out.push(txt(PX(x.max) + 12, PY(axYv) + 2, x.label, { anchor: 'start', size: 12, fill: INK }));
+      if (o.yAxis !== false && y.label) out.push(txt(PX(axXv) + 9, PY(y.max) - 6, y.label, { anchor: 'start', size: 12, fill: INK }));
+    } else {
+      if (x.label) out.push(txt(padL + pw / 2, H - 8, x.label, { size: 12, fill: INK }));
+      if (o.yAxis !== false && y.label) out.push('<text x="16" y="' + (padT + ph / 2) + '" font-family="' + FONT +
+        '" font-size="12" fill="' + INK + '" text-anchor="middle" transform="rotate(-90 16 ' + (padT + ph / 2) + ')">' + esc(y.label) + '</text>');
+    }
     // clip series/marks to the plot rectangle (real graphs cut curves at the frame)
     var __cid = 'tdclip' + ((chart.__seq = (chart.__seq || 0) + 1));
     out.push('<defs><clipPath id="' + __cid + '"><rect x="' + padL + '" y="' + padT + '" width="' + pw + '" height="' + ph + '"/></clipPath></defs>');
@@ -625,6 +650,8 @@
       if (m.label) out.push(txt(lx, ly, m.label, { size: 11, fill: ACCENT, anchor: m.anchor || 'start' }));
     });
     out.push('</g>');
+    // labels last: text stays legible even where a boundary line crosses the axis
+    labOut.forEach(function (l) { out.push(l); });
     out.push('</svg>');
     return wrap(out.join(''));
   }

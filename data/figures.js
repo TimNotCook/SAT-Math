@@ -638,6 +638,24 @@ Object.assign(window.TD_FIG_SPECS, {
   "SP1-099": {"type":"table","head":["x","g(x)"],"rows":[["\u221227","3"],["\u22129","0"],["21","5"]]},
   "SP1-101": {"type":"table","head":["x","y"],"rows":[["\u22122s","24"],["\u2212s","21"],["s","15"]]}
 });
+Object.assign(window.TD_FIG_SPECS, {
+  /* ===== 阴影不等式图 → 矢量 spec 重画（2026-11-24） =====
+     这 5 题此前依赖「原书图形 1:1 裁剪」的位图（有水印、有扫描噪点），
+     现按要求改回矢量重画：轴在原点交叉（axesAt:'zero'）、网格步长与标签
+     步长分离（与原书一致）、阴影由 region 多边形填出；无水印、无扫描纹。
+     几何全部由题干不等式解析给出，不再依赖像素反推：
+       U1-12            虚线 y = 1-4x，阴影 y > 1-4x        → 答案 D
+       U1-13 / TD-15-01 虚线 y = 15x-20，阴影 y > 15x-20   → 答案 C（同一张图）
+       TD-15-02         水平带 33 ≤ y ≤ 60                 → 答案 D（y ≥ 33）
+       TD-15-03         实线 y = -2x+13，阴影 y > -2x+13   → 答案 D（(8,0) 在阴影内）
+     标签步长按原书：U1-12/TD-15-03 每 2 标一次(网格 1)；U1-13 的 y 每 10 标一次
+     (网格 5)；TD-15-02 的 x 每 5 标一次。 */
+  "U1-12": {"type":"chart","w":430,"h":400,"x":{"min":-8,"max":8,"step":1,"label":"x","labels":[-8,-6,-4,-2,0,2,4,6,8]},"y":{"min":-8,"max":8,"step":1,"label":"y","labels":[-8,-6,-4,-2,2,4,6,8]},"grid":true,"origin":"O","axesAt":"zero","axisLabelsEnd":true,"yLabelPad":12,"series":[{"kind":"region","points":[[-1.85,8.4],[8.4,8.4],[8.4,-8.4],[2.35,-8.4]]},{"kind":"line","points":[[-1.85,8.4],[2.35,-8.4]],"dash":"7 4"}]},
+  "U1-13": {"type":"chart","w":430,"h":420,"x":{"min":-7,"max":7,"step":1,"label":"x","labels":[-6,-4,-2,0,2,4,6]},"y":{"min":-55,"max":15,"step":5,"label":"y","labels":[10,-10,-20,-30,-40,-50]},"grid":true,"origin":"O","axesAt":"zero","axisLabelsEnd":true,"yLabelPad":26,"series":[{"kind":"region","points":[[-7.4,15.4],[2.36,15.4],[-2.36,-55.4],[-7.4,-55.4]]},{"kind":"line","points":[[-2.36,-55.4],[2.36,15.4]],"dash":"7 4"}]},
+  "TD-15-01": {"type":"chart","w":430,"h":420,"x":{"min":-7,"max":7,"step":1,"label":"x","labels":[-6,-4,-2,0,2,4,6]},"y":{"min":-55,"max":15,"step":5,"label":"y","labels":[10,-10,-20,-30,-40,-50]},"grid":true,"origin":"O","axesAt":"zero","axisLabelsEnd":true,"yLabelPad":26,"series":[{"kind":"region","points":[[-7.4,15.4],[2.36,15.4],[-2.36,-55.4],[-7.4,-55.4]]},{"kind":"line","points":[[-2.36,-55.4],[2.36,15.4]],"dash":"7 4"}]},
+  "TD-15-02": {"type":"chart","w":470,"h":400,"x":{"min":-15,"max":15,"step":5,"label":"x","labels":[-15,-10,-5,0,5,10,15]},"y":{"min":0,"max":60,"step":5,"label":"y","labels":[5,10,15,20,25,30,35,40,45,50,55,60]},"grid":true,"origin":"O","axesAt":"zero","axisLabelsEnd":true,"series":[{"kind":"region","points":[[-15.6,60.6],[15.6,60.6],[15.6,32.9],[-15.6,32.9]]},{"kind":"line","points":[[-15,60],[15,60]]},{"kind":"line","points":[[-15,33],[15,33]]}]},
+  "TD-15-03": {"type":"chart","w":430,"h":400,"x":{"min":-8,"max":8,"step":1,"label":"x","labels":[-8,-6,-4,-2,0,2,4,6,8]},"y":{"min":-8,"max":8,"step":1,"label":"y","labels":[-8,-6,-4,-2,2,4,6,8]},"grid":true,"origin":"O","axesAt":"zero","axisLabelsEnd":true,"yLabelPad":12,"series":[{"kind":"region","points":[[2.3,8.4],[8.4,8.4],[8.4,-3.8]]},{"kind":"line","points":[[2.3,8.4],[8.4,-3.8]]}]}
+});
 Object.assign(window.TD_CHOICE_GRAPHS, {
   "TD-22-14": {"A":{"kind":"line","xInt":20,"yInt":15,"xmax":40,"ymax":40},"B":{"kind":"line","xInt":15,"yInt":20,"xmax":40,"ymax":40},"C":{"kind":"line","xInt":15,"yInt":20,"xmax":20,"ymax":20},"D":{"kind":"line","xInt":30,"yInt":40,"xmax":40,"ymax":40}}
 });
