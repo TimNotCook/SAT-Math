@@ -116,11 +116,13 @@
     </div>
   </main>
 
-  <script src="data/questions.js"></script>
-  <script src="grade-core.js"></script>
-  <script src="app-core.js"></script>
-  <script src="data/jiangyi.js"></script>
-  <script src="jiangyi-core.js"></script>
-  <script src="jiangyi-page.js"></script>
+  <!-- 讲义页与真题题库隔离：不加载 data/questions.js（560K），只给 app-core 一个空题库，
+       这样导航栏仍由 app-core 单一来源渲染，讲义进度也不会碰到教材 CATALOG。 -->
+  <script>window.TD_BANK = window.TD_BANK || { units: [], questions: [] };</script>
+  <script src="grade-core.js" defer></script>
+  <script src="app-core.js" defer></script>
+  <script src="data/jiangyi.js" defer></script>
+  <script src="jiangyi-core.js" defer></script>
+  <script src="jiangyi-page.js" defer></script>
 </body>
 </html>
