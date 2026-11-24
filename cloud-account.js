@@ -17,10 +17,13 @@
   var FB = window.TDFB || null;
   var WB = window.TDWB || null;
   var GH = window.TDGH || null;
-  // 数据通道优先级：GitHub 令牌 > WorkBuddy 邮箱验证码 > Firebase。
+  var SB = window.TDSUPA || null;   // Supabase 通道：cloud-config 里填了 url + anonKey 才存在
+  // 数据通道优先级：GitHub 令牌 > Supabase > WorkBuddy 邮箱验证码 > Firebase。
   function auth() {
     if (GH && GH.active && GH.active()) return GH;
+    if (SB && SB.available && SB.available() && SB.active && SB.active()) return SB;
     if (WB && WB.active && WB.active()) return WB;
+    if (SB && SB.available && SB.available()) return SB;
     return FB;
   }
   var SNAP_PREFIX = 'tdsat_';
@@ -869,6 +872,137 @@
     linkToggle(b, '没有账号？注册', function () { emailMode = 'register'; });
   }
 
+  /* ---------- Supabase 通道（cloud-config 填了 supabase.url + anonKey 才出现） ---------- */
+  var supaPending = null;   // 注册待验证：{ email, username }
+
+  function renderSupaLogin(b) {
+    b.appendChild(el('div', 'td-acct-who', '登录（邮箱或用户名 + 密码）'));
+    var idf = field('邮箱或用户名', 'text', 'you@example.com 或 你的用户名', 'username');
+    if (otpEmail) idf.input.value = otpEmail;
+    b.appendChild(idf.box); ui.email = idf.input;
+    var pw = pwInput(b, '密码', '输入密码', 'current-password', doSupaSignIn);
+    idf.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') pw.focus(); });
+    wideBtn(b, '登录', doSupaSignIn);
+    linkToggle(b, '没有账号？注册（邮箱 + 用户名）', function () { emailMode = 'supaRegister'; renderBody(); });
+    linkToggle(b, '忘记密码？', function () { emailMode = 'supaReset'; renderBody(); });
+  }
+
+  function renderSupaRegister(b) {
+    b.appendChild(el('div', 'td-acct-who', '注册新账号（邮箱 + 用户名 + 密码）'));
+    var em = field('邮箱', 'email', 'you@example.com', 'email');
+    b.appendChild(em.box); ui.email = em.input;
+    var un = field('用户名', 'text', '3–20 位小写字母/数字/下划线', 'username');
+    un.input.maxLength = 20; un.input.pattern = '[a-z0-9_]{3,20}';
+    b.appendChild(un.box); ui.username = un.input;
+    var pw = pwInput(b, '设置密码', '至少 6 位，之后登录用它', 'new-password', doSupaRegister);
+    wideBtn(b, '注册并登录', doSupaRegister);
+    linkToggle(b, '已有账号？返回登录', function () { emailMode = 'login'; renderBody(); });
+    b.appendChild(el('p', 'td-acct-note',
+      '用户名之后可以当登录名用；邮箱和密码用于找回账号。'));
+  }
+
+  function renderSupaVerify(b) {
+    b.appendChild(el('div', 'td-acct-who', '验证邮箱（' + (supaPending ? supaPending.email : '') + '）'));
+    codeInput(b, doSupaVerify);
+    wideBtn(b, '完成验证并登录', doSupaVerify);
+    b.appendChild(el('p', 'td-acct-note', '邮件里是 6 位数字验证码，填进来就完成注册。'));
+  }
+
+  function renderSupaReset(b) {
+    b.appendChild(el('div', 'td-acct-who', '重置密码'));
+    var em = field('邮箱', 'email', 'you@example.com', 'email');
+    b.appendChild(em.box); ui.email = em.input;
+    wideBtn(b, '发送重置邮件', doSupaReset);
+    linkToggle(b, '返回登录', function () { emailMode = 'login'; renderBody(); });
+  }
+
+  async function doSupaSignIn() {
+    var id = ui && ui.email ? ui.email.value.trim() : '';
+    var pw = ui && ui.pw ? ui.pw.value : '';
+    if (!id) { setError('请填写邮箱或用户名。'); return; }
+    if (!pw) { setError('请填写密码。'); return; }
+    try {
+      setBusy(true); setError('');
+      await SB.signInEmail(id, pw);
+      setStatus('登录成功，正在打开你的学习档案…', 'ok');
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); }
+  }
+
+  async function doSupaRegister() {
+    var em = ui && ui.email ? ui.email.value.trim() : '';
+    var un = ui && ui.username ? ui.username.value.trim() : '';
+    var pw = ui && ui.pw ? ui.pw.value : '';
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { setError('邮箱格式不正确。'); return; }
+    if (!/^[a-z0-9_]{3,20}$/.test(un)) { setError('用户名要 3–20 位小写字母、数字或下划线。'); return; }
+    if (String(pw).length < 6) { setError('密码至少 6 位。'); return; }
+    try {
+      setBusy(true); setError('');
+      var r = await SB.signUpEmail(em, pw, un);
+      if (r && r.verified === false) {
+        supaPending = { email: em, username: un };
+        emailMode = 'supaVerify';
+        renderBody();
+        setStatus('验证码已发到 ' + em + '，填进下面的框就完成注册。', 'ok');
+        return;
+      }
+      setStatus('账号已创建，正在打开你的学习档案…', 'ok');
+    } catch (e) {
+      var msg = friendlyError(e);
+      if (e && e.status === 409) msg = '这个用户名已经被占用了，换一个。';
+      else if (e && e.code === 'auth/email-already-in-use') msg = '这个邮箱已经注册过：返回登录，或点「忘记密码」重置。';
+      setError(msg);
+    } finally { setBusy(false); }
+  }
+
+  async function doSupaVerify() {
+    var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
+    if (!code) { setError('请填写验证码。'); return; }
+    if (!supaPending) { setError('注册信息丢了，请重新注册。'); return; }
+    try {
+      setBusy(true); setError('');
+      await SB.confirmRegister(supaPending.email, code);
+      supaPending = null;
+      setStatus('账号已激活，正在打开你的学习档案…', 'ok');
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); }
+  }
+
+  async function doSupaReset() {
+    var em = ui && ui.email ? ui.email.value.trim() : '';
+    if (!em) { setError('请填写邮箱。'); return; }
+    try {
+      setBusy(true); setError('');
+      await SB.sendReset(em);
+      setStatus('重置邮件已发送，请查收 ' + em, 'ok');
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); }
+  }
+
+  /* GitHub 令牌备用通道（Supabase / WorkBuddy 之外） */
+  function renderAltLogin(b) {
+    // 备用通道：登录连不上时，可用 GitHub 令牌把进度存进自己的私有仓库。
+    var alt = el('div', 'td-gh-alt');
+    var altToggle = el('button', 'td-acct-toggle', '其他登录方式（GitHub 令牌）');
+    altToggle.type = 'button';
+    var altBox = el('div');
+    altBox.hidden = true;
+    altToggle.onclick = function () { altBox.hidden = !altBox.hidden; };
+    alt.appendChild(altToggle);
+    alt.appendChild(altBox);
+    var gt = field('GitHub 令牌', 'password', '粘贴 Personal Access Token', 'off');
+    altBox.appendChild(gt.box);
+    ui.ghToken = gt.input;
+    var gl = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 GitHub 令牌登录');
+    gl.type = 'button'; gl.setAttribute('data-busy', '1'); gl.onclick = doGhLogin;
+    altBox.appendChild(gl);
+    altBox.appendChild(el('p', 'td-acct-note',
+      '进度存进你自己的私有仓库 sat-math-data（首次同步会自动创建）。' +
+      '推荐用 Fine-grained 令牌、只勾选该仓库的 Contents 读写（github.com → Settings → Developer settings → Personal access tokens）。' +
+      '令牌仅保存在本标签页会话内，关闭标签即失效；随时可在 GitHub 设置里吊销。'));
+    b.appendChild(alt);
+  }
+
   function renderAccountTab() {
     var b = ui.body;
     ui.email = null; ui.pw = null; ui.otpCode = null; ui.otpSendBtn = null;
@@ -905,6 +1039,18 @@
       acts.appendChild(out); b.appendChild(acts);
       b.appendChild(el('p', 'td-acct-note',
         '做题进度会自动保存，换设备或重新登录后接着练，不需要任何手动操作。'));
+      return;
+    }
+
+    var hasSB = !!(SB && SB.available && SB.available());
+    if (hasSB) {
+      if (emailMode === 'supaRegister') renderSupaRegister(b);
+      else if (emailMode === 'supaVerify') renderSupaVerify(b);
+      else if (emailMode === 'supaReset') renderSupaReset(b);
+      else renderSupaLogin(b);
+      b.appendChild(el('p', 'td-acct-note',
+        '登录后会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。'));
+      renderAltLogin(b);
       return;
     }
 
@@ -973,26 +1119,7 @@
     b.appendChild(el('p', 'td-acct-note',
       '登录后会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。'));
 
-    // 备用通道：登录连不上时，可用 GitHub 令牌把进度存进自己的私有仓库。
-    var alt = el('div', 'td-gh-alt');
-    var altToggle = el('button', 'td-acct-toggle', '其他登录方式（GitHub 令牌）');
-    altToggle.type = 'button';
-    var altBox = el('div');
-    altBox.hidden = true;
-    altToggle.onclick = function () { altBox.hidden = !altBox.hidden; };
-    alt.appendChild(altToggle);
-    alt.appendChild(altBox);
-    var gt = field('GitHub 令牌', 'password', '粘贴 Personal Access Token', 'off');
-    altBox.appendChild(gt.box);
-    ui.ghToken = gt.input;
-    var gl = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 GitHub 令牌登录');
-    gl.type = 'button'; gl.setAttribute('data-busy', '1'); gl.onclick = doGhLogin;
-    altBox.appendChild(gl);
-    altBox.appendChild(el('p', 'td-acct-note',
-      '进度存进你自己的私有仓库 sat-math-data（首次同步会自动创建）。' +
-      '推荐用 Fine-grained 令牌、只勾选该仓库的 Contents 读写（github.com → Settings → Developer settings → Personal access tokens）。' +
-      '令牌仅保存在本标签页会话内，关闭标签即失效；随时可在 GitHub 设置里吊销。'));
-    b.appendChild(alt);
+    renderAltLogin(b);
   }
 
   function row(label, desc) {

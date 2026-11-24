@@ -3,6 +3,9 @@
    服务端按 Origin 授权，仅 timnotcook.github.io 可用，无需用户登录、不落地密钥）。
    账号登录/进度同步走下面的 Firebase 配置，两者互不影响。 */
 window.TD_CLOUD_CONFIG = {
+  /* Supabase：账号 + 进度同步后端。填 Project URL 与 anon public key 即启用；
+     留空则完全不影响现有 WorkBuddy / Firebase / GitHub 三条通道。 */
+  supabase: { url: '', anonKey: '' },
   endpoint: 'https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host',
   oauthRelayBaseUrl: 'https://www.workbuddy.cn/v2/as/genie-baas/oauth',
   publishableKey: 'wbpk_pPcOWwIERzGpCOL1DrMIpc_LE340Pmct6RC6isIn87fzbeYBy6JP1XJ',
