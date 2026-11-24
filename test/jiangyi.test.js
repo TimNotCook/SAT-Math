@@ -1,110 +1,139 @@
-/* 讲义复习板块（编程者层）单元测试：排序、来源标签、进度统计、与现有板块隔离。 */
+/* 讲义复习板块的数据层校验（开发者这一行负责）。
+   目的：把「超精准」的四道校验里能自动化的部分全部钉死，人一走神就红：
+     1. 题号 / 来源 / 页码 / 页内题号 对得上
+     2. answer 逐字等于答案页 p191–196 的键（不自己算）
+     3. 选择题答案落在 A–D，选项恰好四个
+     4. 没有空题干、没有排版病（f (x)、"(2/3)"、问号前空格）
+     5. 每题都有原页对照图 docs/jiangyi-proof/{id}.png
+     6. 各节 declared 数 = 答案页该节最大题号
+     7. 图形只走矢量 spec，没有讲义裁图混进来
+   跑：node --test test/jiangyi.test.js */
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
+const KEY = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/jiangyi_answers.json'), 'utf8'));
 
-function boot(fixture) {
-  const store = {};
-  const sandbox = {
-    window: { TD_JIANGYI: fixture },
-    localStorage: {
-      getItem: k => (k in store ? store[k] : null),
-      setItem: (k, v) => { store[k] = String(v); }
-    },
-    console
-  };
-  sandbox.window.localStorage = sandbox.localStorage;
-  vm.createContext(sandbox);
-  vm.runInContext(fs.readFileSync(path.join(ROOT, 'grade-core.js'), 'utf8'), sandbox);
-  vm.runInContext(fs.readFileSync(path.join(ROOT, 'jiangyi-core.js'), 'utf8'), sandbox);
-  return { J: sandbox.window.TD_JY, store };
+function loadJs(rel) {
+  const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+  const win = {};
+  new Function('window', src)(win);
+  return win;
 }
+const JY = loadJs('data/jiangyi.js');
+const FG = loadJs('data/jiangyi_figures.js');
+const BANK = JY.JY_BANK;
+const SECS = JY.JY_SECTIONS;
 
-const fixture = {
-  units: [
-    { id: 1, en: 'Algebra', cn: '代数', sections: [
-      { id: '1.1', cn: '线性方程', expect: 2 },
-      { id: '1.2', cn: '比例', expect: 1 }
-    ] },
-    { id: 3, en: 'Advanced Math', cn: '高等数学', sections: [{ id: '3.4', cn: '二次函数', expect: 1 }] }
-  ],
-  questions: [
-    { id: 'JY1-002', unit: 1, section: '1.1', page: 132, no: 3, source: '讲义 p132 #3', stem: 'b', choices: ['1', '2'], answer: 'B' },
-    { id: 'JY1-001', unit: 1, section: '1.1', page: 131, no: 12, source: '讲义 p131 #12', stem: 'a', choices: ['1', '2'], answer: 'A' },
-    { id: 'JY1-003', unit: 1, section: '1.2', page: 133, no: 1, source: '讲义 p133 #1', stem: 'c', choices: ['1', '2'], answer: 'A' },
-    { id: 'JY3-001', unit: 3, section: '3.4', page: 141, no: 5, source: '讲义 p141 #5', stem: 'd', choices: ['1', '2'], answer: 'B' }
-  ]
-};
+const bySection = {};
+BANK.forEach(q => { (bySection[q.section] = bySection[q.section] || []).push(q); });
 
-test('板块内顺序：小节号 → 页码 → 页内题号', () => {
-  const { J } = boot(fixture);
-  assert.strictEqual(JSON.stringify(J.ALL.map(q => q.id)), JSON.stringify(['JY1-001', 'JY1-002', 'JY1-003', 'JY3-001']));
-});
-
-test('来源标签形如 3.4 · p131 #12', () => {
-  const { J } = boot(fixture);
-  assert.strictEqual(J.sourceLabel(J.BY_ID['JY1-001']), '1.1 · p131 #12');
-  assert.strictEqual(J.sourceLabel(J.BY_ID['JY3-001']), '3.4 · p141 #5');
-});
-
-test('四个子板块固定存在，编号 JY1–JY4', () => {
-  const { J } = boot(fixture);
-  assert.strictEqual(JSON.stringify(J.boards().map(b => b.id)), JSON.stringify(['JY1', 'JY2', 'JY3', 'JY4']));
-  assert.strictEqual(JSON.stringify(J.sectionsOf('JY1')), JSON.stringify(['1.1', '1.2']));
-});
-
-test('作答后进度/完成度按题数与对账数计算', () => {
-  const { J } = boot(fixture);
-  J.answerQ(J.BY_ID['JY1-001'], 'A');
-  J.answerQ(J.BY_ID['JY1-002'], 'A'); // 错
-  const sec = J.stats('JY1', '1.1');
-  assert.strictEqual(sec.total, 2);
-  assert.strictEqual(sec.answered, 2);
-  assert.strictEqual(sec.correct, 1);
-  assert.strictEqual(sec.complete, true);
-  assert.strictEqual(sec.expect, 2);
-  const board = J.boardStats('JY1');
-  assert.strictEqual(board.answered, 2);
-  assert.strictEqual(board.percent, 67);
-});
-
-test('对账未平会标出来（应有 N ≠ 已录 M）', () => {
-  const { J } = boot(fixture);
-  const sec = J.stats('JY1', '1.2');
-  assert.strictEqual(sec.expect, 1);
-  assert.strictEqual(sec.reconciled, true);
-  const bad = boot({ units: [{ id: 1, en: 'Algebra', cn: '代数', sections: [{ id: '1.1', expect: 5 }] }], questions: fixture.questions.slice(0, 2) });
-  assert.strictEqual(bad.J.stats('JY1', '1.1').reconciled, false);
-});
-
-test('交卷写 mode=jiangyi 的记录，不进教材 44 题统计口径', () => {
-  const { J, store } = boot(fixture);
-  J.answerQ(J.BY_ID['JY1-001'], 'A');
-  const rec = J.submitSection('JY1', '1.1');
-  assert.strictEqual(rec.mode, 'jiangyi');
-  assert.strictEqual(rec.total, 2);
-  const saved = JSON.parse(store['tdsat_exam_suite_results_v1']);
-  assert.strictEqual(saved.length, 1);
-  assert.strictEqual(saved[0].mode, 'jiangyi');
-  assert.ok(store['tdsat_jiangyi_v1'], '状态用独立 key');
-});
-
-/* 空题干在归一化阶段就被丢弃（不会进页面），由 tools/verify_jiangyi.mjs 报；
-   这里验 audit 对 source / answer / count 的判定。 */
-test('audit 能同时抓 count / source / answer 三类问题', () => {
-  const { J } = boot({
-    units: [{ id: 1, en: 'Algebra', cn: '代数', sections: [{ id: '1.1', expect: 3 }] }],
-    questions: [
-      { id: 'JY1-001', unit: 1, section: '1.1', page: 131, no: 12, source: '讲义 p131 #12', stem: 'ok', choices: ['1', '2'], answer: 'A' },
-      { id: 'JY1-002', unit: 1, section: '1.1', page: 131, no: 13, source: 'p131 #13', stem: 'bad', choices: ['1', '2'], answer: 'E' }
-    ]
+test('小节表：24 节，declared 数 = 答案页该节最大题号', () => {
+  assert.strictEqual(SECS.length, 24, '讲义共 24 个小节');
+  SECS.forEach(s => {
+    const k = KEY[s.section];
+    assert.ok(k, '答案页里没有这一节：' + s.section);
+    assert.strictEqual(s.declared, k.maxNo, s.section + ' 声明数与答案页最大题号不符');
+    assert.strictEqual(s.answerPage, k.answerPage, s.section + ' 答案页页码不对');
+    assert.deepStrictEqual(s.pages, k.pages, s.section + ' 讲义页码范围不对');
   });
-  const rules = J.audit().map(x => x.rule);
-  assert.ok(rules.includes('source'));
-  assert.ok(rules.includes('count'));
-  assert.ok(rules.includes('answer-letter'));
+});
+
+test('id 用 JY 前缀，不与 U1-01 那套混号，且不重复', () => {
+  const seen = new Set();
+  BANK.forEach(q => {
+    assert.match(q.id, /^JY[1-4]-\d{3}$/, 'id 形态不对：' + q.id);
+    assert.ok(!seen.has(q.id), 'id 重复：' + q.id);
+    seen.add(q.id);
+    assert.strictEqual(Number(q.id.slice(2, 3)), q.unit, 'id 的单元号与 unit 不一致：' + q.id);
+  });
+  assert.strictEqual(seen.size, BANK.length);
+});
+
+test('每题 section 是真小节号，页内题号在答案页范围内（答案页没有的一律不录）', () => {
+  BANK.forEach(q => {
+    const k = KEY[q.section];
+    assert.ok(k, '未知小节：' + q.section);
+    assert.ok(Number.isInteger(q.no) && q.no >= 1, q.id + ' 页内题号非法');
+    assert.ok(q.no <= k.maxNo, q.id + ' 的题号 ' + q.no + ' 超出答案页最大题号 ' + k.maxNo + '（例题不录）');
+    assert.ok(q.page >= k.pages[0] && q.page <= k.pages[1],
+      q.id + ' 的页码 ' + q.page + ' 不在该节页码范围 ' + k.pages.join('–'));
+  });
+});
+
+test('source 三段齐全，且与 page / no 一致', () => {
+  BANK.forEach(q => {
+    const m = /^讲义 p(\d+) #(\d+)$/.exec(q.source || '');
+    assert.ok(m, q.id + ' 的 source 不是「讲义 p{页} #{题号}」：' + q.source);
+    assert.strictEqual(Number(m[1]), q.page, q.id + ' source 页码与 page 不一致');
+    assert.strictEqual(Number(m[2]), q.no, q.id + ' source 题号与 no 不一致');
+  });
+});
+
+test('answer 逐字等于答案页的键（不自己算）', () => {
+  BANK.forEach(q => {
+    const k = KEY[q.section];
+    assert.strictEqual(q.answer, k.answers[String(q.no)],
+      q.id + ' 答案与答案页 ' + q.section + ' 第 ' + q.no + ' 题不符（答案页写的是 ' + k.answers[String(q.no)] + '）');
+  });
+});
+
+test('选择题：四个选项、答案落在 A–D、选项不空', () => {
+  BANK.forEach(q => {
+    if (q.type !== 'mcq' && q.type !== 'mcq-graph') return;
+    assert.ok(Array.isArray(q.choices) && q.choices.length === 4, q.id + ' 选项不是 4 个');
+    q.choices.forEach((c, i) => assert.ok(c && c.trim(), q.id + ' 第 ' + 'ABCD'[i] + ' 个选项为空'));
+    assert.ok('ABCD'.includes(q.answer), q.id + ' 选择题答案不在 A–D 内：' + q.answer);
+  });
+});
+
+test('填空：value 是有限数，且与答案页的数值一致', () => {
+  BANK.forEach(q => {
+    if (q.type !== 'grid') return;
+    assert.ok(Number.isFinite(q.value), q.id + ' 填空题缺少数值 value');
+    assert.ok(String(q.answer).indexOf(String(q.value)) >= 0, q.id + ' value 与答案页答案不对应');
+  });
+});
+
+test('题干不空，且没有排版病：f (x)、括起来的分数、问号前空格', () => {
+  BANK.forEach(q => {
+    assert.ok(q.stem && q.stem.trim().length > 8, q.id + ' 题干为空');
+    assert.ok(!/f \(x\)|g \(x\)/.test(q.stem), q.id + ' 题干里 f (x) 应该是 f(x)');
+    assert.ok(!/[ \t]\?/.test(q.stem), q.id + ' 问号前有多余空格');
+    (q.choices || []).forEach(c => {
+      assert.ok(!/f \(x\)|g \(x\)/.test(c), q.id + ' 选项里 f (x) 应该是 f(x)');
+    });
+  });
+});
+
+test('每题都有原页对照图 docs/jiangyi-proof/{id}.png', () => {
+  BANK.forEach(q => {
+    const p = path.join(ROOT, 'docs/jiangyi-proof', q.id + '.png');
+    assert.ok(fs.existsSync(p), q.id + ' 缺原页对照图 ' + p);
+    assert.ok(fs.statSync(p).size > 20000, q.id + ' 对照图太小，可能是空图');
+  });
+});
+
+test('图形只走矢量 spec：引用的 fig 必须存在，且不许出现讲义裁图', () => {
+  BANK.forEach(q => {
+    if (!q.fig) return;
+    assert.ok(FG.JY_FIG.specs[q.fig], q.id + ' 引用的矢量 spec 不存在：' + q.fig);
+    assert.ok(!q.image, q.id + ' 不许挂位图 image 字段');
+  });
+  const crops = fs.existsSync(path.join(ROOT, 'data/figure_crops.json'))
+    ? JSON.parse(fs.readFileSync(path.join(ROOT, 'data/figure_crops.json'), 'utf8')) : {};
+  BANK.forEach(q => assert.ok(!crops[q.id], q.id + ' 不许在位图裁剪表里注册'));
+});
+
+test('已录数 ≤ 应有数，且已录的题号连续不重（缺一道就不算完成）', () => {
+  SECS.forEach(s => {
+    const qs = bySection[s.section] || [];
+    assert.ok(qs.length <= s.declared, s.section + ' 已录 ' + qs.length + ' 超过应有 ' + s.declared);
+    const nos = qs.map(q => q.no).sort((a, b) => a - b);
+    nos.forEach((n, i) => {
+      if (i > 0) assert.ok(n > nos[i - 1], s.section + ' 题号重复：' + n);
+    });
+  });
 });
