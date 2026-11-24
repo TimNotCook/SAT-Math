@@ -38,6 +38,8 @@
       '.mist-toolbar .mist-size::after{content:"";display:block;background:currentColor;border-radius:50%;width:var(--d,6px);height:var(--d,6px)}',
       '.mist-toolbar .mist-sep{width:1px;height:22px;background:#e7eaf1;margin:0 4px}',
       '.mist-toolbar .mist-text{width:auto;padding:0 12px;font:600 13px/1 -apple-system,system-ui,"PingFang SC",sans-serif}',
+      /* 窄屏（≤520）工具条换两行：390 宽下原来单行溢出，Clear/Done 被切掉一半 */
+      '@media (max-width:520px){.mist-toolbar{top:auto;bottom:96px;flex-wrap:wrap;width:calc(100vw - 16px);justify-content:center;row-gap:4px;max-height:calc(100vh - 24px);overflow-y:auto}.mist-hint{display:none}}',
       '.mist-toolbar .mist-done{background:#1f2328;color:#fff}',
       '.mist-toolbar .mist-done:hover{background:#000;color:#fff}',
       '.mist-hint{position:fixed;top:62px;left:50%;transform:translateX(-50%);z-index:71;pointer-events:none;',
