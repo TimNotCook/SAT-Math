@@ -158,6 +158,8 @@ window.addEventListener('message', function (ev) {
           res = await cloud.auth.handleWorkBuddyCallback(); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'handleWorkBuddyCallback'); return;
         case 'db':
           res = await dbCall(args); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'db'); return;
+        case 'storage':
+          res = await storageCall(args); reply(id, !res.error, okShape(res), res.error ? errShape(res.error) : null, 'storage'); return;
         default:
           reply(id, false, null, { message: 'unknown method: ' + method }, method); return;
       }
@@ -177,6 +179,26 @@ async function dbCall(a) {
     q = q.insert(a.payload).select();
   } else return { error: { message: 'unknown db op: ' + a.op } };
   return q;
+}
+
+/* 文件存储探测/读写：只允许 tdsync 前缀的桶，避免被当成通用网盘滥用。
+   用途：判断后端有没有开 storage 通道（database 被 403 挡住时的备选承载）。 */
+async function storageCall(a) {
+  var bucket = String(a.bucket || '');
+  if (bucket && !/^tdsync/.test(bucket)) return { error: { message: 'bucket 未授权：' + bucket } };
+  var storage = cloud.storage;
+  if (a.op === 'buckets') return await storage.listBuckets();
+  if (a.op === 'upload') {
+    var blob = new Blob([String(a.text == null ? '' : a.text)], { type: 'application/json' });
+    return await storage.from(bucket).upload(String(a.path || ''), blob, { upsert: true, contentType: 'application/json' });
+  }
+  if (a.op === 'download') {
+    var got = await storage.from(bucket).download(String(a.path || ''));
+    if (!got.error && got.data && typeof got.data.text === 'function') got.data = await got.data.text();
+    return got;
+  }
+  if (a.op === 'remove') return await storage.from(bucket).remove([String(a.path || '')]);
+  return { error: { message: 'unknown storage op: ' + a.op } };
 }
 
 /* 优先加载本地 SDK（国内零外部依赖），失败时再依次回退到 unpkg 与 jsDelivr */
