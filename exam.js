@@ -116,11 +116,11 @@
   function mergedState() {
     const base = oldState(), w = {};
     Object.keys(base.wrong).forEach(id => { w[id] = Object.assign({}, base.wrong[id]); });
-    (load(KEY_RESULTS) || []).forEach(r => (r.detail || []).forEach(d => {
+    (load(KEY_RESULTS) || []).forEach(r => { if (r.void) return; (r.detail || []).forEach(d => {
       if (d.correct) return;
       const x = w[d.id] || (w[d.id] = { count: 0 });
       x.count = (x.count || 0) + 1; x.last = r.date || x.last;
-    }));
+    }); });
     const pm = practiceMistakes();
     pm.wrongIds.forEach(id => {
       const x = w[id] || (w[id] = { count: 0 });
@@ -142,6 +142,8 @@
   let resumeStage = null, startClicked = false;
   /* 有存档但校验不过时置位：开场页要明说「存档已过期」，不能默默吞掉。 */
   let sessionExpired = false;
+  /* 开场页顶部的说明条（存档作废 / 模块一自动切换都走这里，不另开弹窗）。 */
+  let introNote = '';
   /* Snapshot of the session as last observed on disk. Writes re-read the disk
      and replay only locally changed fields on top of it, so a stale tab can
      never erase answers/results another tab just saved under the same key. */
@@ -194,9 +196,22 @@
     /* Explicit Start click: this is the ONLY trigger that reveals test content. */
     startClicked = true;
     sessionExpired = false;
+    introNote = '';
     const expiredNotice = $('introNotice');
     if (expiredNotice) expiredNotice.hidden = true;
     if (resumeStage) {
+      /* 开始页停着的这段时间里计时也在走（ticker 不起）。点 Start 前再判一次，
+         避免「刚点开始就被判进模块二 / 直接出分」的黑箱。 */
+      const late = C.sessionTimeout(S, Date.now());
+      if (late === 'total') {
+        finalize(true, 'time');
+        toast(OFFICIAL ? 'Time is up. Your answers have been scored.' : '计时已结束，已按已作答内容出分');
+        return;
+      }
+      if (late === 'module1') {
+        enterModule2();
+        toast(OFFICIAL ? 'Module 1 time is up. You are now in Module 2.' : 'Module 1 时间已到，已自动进入 Module 2');
+      }
       const target = resumeStage;
       resumeStage = null;
       S.stage = target;
@@ -223,72 +238,165 @@
   }
   /* ---------------------------------------------------------------------
      存档兼容层
-     旧版/半途版本可能没有 m1Size、moduleEndsAt，或写到一半就中断。直接
-     adopt() 会让模块区间变成 [0, -1]，题号显示成 "Question 1 of 0"。
-     能推断的字段就地补齐；推断不出来的判为过期，交回新卷并明示。
+     规则见 exam-core.js 的 parseSession（纯函数，有单测）：
+     能按官方 22/22 结构确定性重建就恢复，不能就作废并留档。
+     绝不再「猜一个区间」——区间错了，题号和判分就是两套口径。
      --------------------------------------------------------------------- */
+  const REASON_CN = {
+    'missing': '没有可读的存档', 'mode': '存档属于另一种模式', 'paper-empty': '卷面为空',
+    'paper-shape': '卷面格式损坏', 'paper-uid': '卷面题号缺失', 'bank': '题目已不在题库',
+    'clock': '计时字段损坏', 'shape': '卷形不是 22/44 题', 'm1': '模块切分异常',
+    'm2-options': '缺少模块二备用卷', 'runtime': '运行中会话结构异常'
+  };
+  const REASON_EN = {
+    'missing': 'no readable saved test', 'mode': 'saved under another mode', 'paper-empty': 'empty paper',
+    'paper-shape': 'malformed paper', 'paper-uid': 'missing question ids', 'bank': 'questions no longer in the bank',
+    'clock': 'broken timing fields', 'shape': 'paper is not 22/44 questions', 'm1': 'module split is inconsistent',
+    'm2-options': 'Module 2 backup paper missing', 'runtime': 'in-memory session is inconsistent'
+  };
+  /* 模考层纯英文（docs/UI-COPY.md）；练习/抽查层中文。 */
+  const reasonText = r => OFFICIAL ? (REASON_EN[r] || ('unknown reason ' + (r || ''))) : (REASON_CN[r] || ('未知原因 ' + (r || '')));
+
   function repairSaved(saved) {
-    if (!saved || saved.mode !== MODE) return null;
-    const paper = saved.paper;
-    if (!Array.isArray(paper) || !paper.length) return null;
-    if (!(Number(saved.startedAt) > 0) || !(Number(saved.endsAt) > Number(saved.startedAt))) return null;
-    /* 题目 id 已不在题库（删题/换库）时不能硬恢复，否则卷面一半是空题 */
-    if (paper.some(x => !x || typeof x.uid !== 'string' || !x.uid || !byId(x.id))) return null;
-    if (!saved.answers || typeof saved.answers !== 'object') saved.answers = {};
-    paper.forEach(x => {
-      const a = saved.answers[x.uid];
-      if (!a || typeof a !== 'object') saved.answers[x.uid] = { v: '', marked: false, spent: 0, locked: false };
-    });
-    const total = paper.length;
-    let inModule2 = saved.module === 2;
-    if (MODE === 'mock') {
-      /* 旧存档没有 m1Size：按每题的 module 标记数；没有标记的老卷按
-         「前 22 题是模块一」处理，22 题以内说明还没进模块二。 */
-      let m1 = paper.filter(x => x.module === 1).length;
-      if (!m1) m1 = total >= O.questionsPerModule * 2 ? O.questionsPerModule : total;
-      if (!(m1 > 0) || (inModule2 && m1 >= total)) return null;
-      if (!inModule2 && (!saved.m2Options || !Array.isArray(saved.m2Options.hard) || !Array.isArray(saved.m2Options.easy))) return null;
-      saved.m1Size = m1;
-    } else {
-      inModule2 = false;
-    }
-    saved.module = inModule2 ? 2 : 1;
-    if (!(saved.durationSec > 0)) saved.durationSec = Math.round((saved.endsAt - saved.startedAt) / 1000);
-    /* 旧存档只有一个总时钟；缺分模块截止时间就按总时钟走，不做提前收卷 */
-    if (!(saved.moduleEndsAt > 0)) saved.moduleEndsAt = saved.endsAt;
-    const lo = inModule2 ? saved.m1Size : 0;
-    const hi = (inModule2 ? total : (saved.m1Size || total)) - 1;
-    saved.idx = clamp(Number(saved.idx) || lo, lo, Math.max(lo, hi));
-    /* 标记为完成但成绩报告丢了：当未完成处理，避免进入空白结果页 */
-    if (saved.finished && !saved.result) {
-      saved.finished = false; saved.locked = false;
-      if (saved.stage === 'result') saved.stage = 'answer';
-    }
-    return saved;
+    return C.parseSession(saved, { mode: MODE, isQuestionId: id => !!byId(id) });
   }
+
+  /* 作废前留档：卷面 + 作答写进 results（void:true，不进错题统计），可导出。
+     宁可多一条「未交卷」记录，也不静默清零 35 分钟。 */
+  function salvageSession(session, reason) {
+    if (!session || !Array.isArray(session.paper)) return null;   // 卷面为空也要留一条「这卷作废」记录
+    const answers = session.answers || {};
+    const detail = session.paper.map((inst, i) => {
+      const q = byId(inst && inst.id) || {};
+      const a = answers[inst.uid] || {};
+      return {
+        pos: i + 1, uid: inst.uid, id: inst.id, unit: q.unit || null,
+        section: q.section || null, topic: q.topic || null, type: q.type || null,
+        image: q.image || null, given: a.v == null ? '' : String(a.v),
+        marked: !!a.marked, spent: Math.round((a.spent || 0) / 1000)
+      };
+    });
+    const now = Date.now();
+    const rec = {
+      date: now, mode: session.mode || MODE, unit: QUIZ_UNIT, sub: null,
+      module: session.module || 1, path: session.path || null, auto: false,
+      void: true, reason: reason || 'invalid', total: detail.length,
+      answered: detail.filter(d => d.given).length,
+      durationSec: session.durationSec || 0,
+      elapsed: session.startedAt ? Math.max(0, Math.round((Math.min(now, session.endsAt || now) - session.startedAt) / 1000)) : 0,
+      startedAt: session.startedAt || null, endsAt: session.endsAt || null,
+      plan: session.plan || null, detail
+    };
+    const all = load(KEY_RESULTS) || []; all.push(rec); if (all.length > 40) all.shift();
+    save(KEY_RESULTS, all);
+    return rec;
+  }
+
+  function voidRecords() { return (load(KEY_RESULTS) || []).filter(r => r && r.void); }
+
+  function exportSalvage() {
+    const list = voidRecords();
+    if (!list.length) return;
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      note: OFFICIAL
+        ? 'SAT Math Prep · unsaved test record (paper and answers kept before voiding; never graded)'
+        : 'SAT Math Prep · 未交卷档案（作废前的卷面与作答，未参与判分）',
+      records: list
+    };
+    try {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      a.href = url; a.download = 'sat-math-salvage-' + stamp + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast(OFFICIAL ? 'Exported ' + list.length + ' unsaved record(s)'
+        : '已导出 ' + list.length + ' 卷未交卷档案');
+    } catch (e) { console.warn('导出未交卷档案失败', e); }
+  }
+
+  function renderSalvage() {
+    const host = $('introSalvage');
+    if (!host) return;
+    const list = voidRecords();
+    if (!list.length) { host.hidden = true; host.innerHTML = ''; return; }
+    const last = list[list.length - 1];
+    host.hidden = false;
+    if (OFFICIAL) {
+      const when = new Date(last.date).toLocaleString('en-US');
+      host.innerHTML = '<div class="exam-salvage-head">Unsaved test · ' + list.length + '</div>' +
+        '<div class="exam-salvage-row">Latest: ' + when + ' · answered ' + last.answered + '/' + last.total +
+        ' · reason: ' + reasonText(last.reason) + '</div>' +
+        '<button type="button" class="btn slim" id="btnExportSalvage">Export unsaved record (JSON)</button>';
+    } else {
+      const modeName = last.mode === 'mock' ? '模考' : (last.mode === 'quiz' ? '单元抽查' : '练习');
+      host.innerHTML = '<div class="exam-salvage-head">未交卷记录 · 共 ' + list.length + ' 卷</div>' +
+        '<div class="exam-salvage-row">最近：' + new Date(last.date).toLocaleString('zh-CN') +
+        ' · ' + modeName + ' · 已答 ' + last.answered + '/' + last.total +
+        ' · 作废原因：' + reasonText(last.reason) + '</div>' +
+        '<button type="button" class="btn slim" id="btnExportSalvage">导出未交卷档案（JSON）</button>';
+    }
+    $('btnExportSalvage').addEventListener('click', exportSalvage);
+  }
+
+  /* 运行中结构异常（理论上不可达）：同样走留档 + 重置，不给错数。 */
+  function runtimeVoid() {
+    salvageSession(S, 'runtime');
+    try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
+    sessionExpired = true;
+    introNote = OFFICIAL
+      ? 'This test’s saved data was damaged. Its paper and your answers were kept and can be exported below; a new test starts now.'
+      : '本卷结构异常，已留存卷面与作答，可在下方导出；现在开始一份新卷。';
+    resumeStage = null;
+    adopt(newSession()); renderIntro(); setStage('intro');
+  }
+
   function restoreOrIntro() {
     const saved = load(KEY_SESSION);
     const fixed = repairSaved(saved);
-    if (fixed) {
+    if (fixed.status === 'ok') {
+      const s = fixed.session;
       /* 补齐后的字段写回磁盘，下一次刷新不用再修一遍 */
-      save(KEY_SESSION, fixed);
-      adopt(fixed);
+      save(KEY_SESSION, s);
+      adopt(s);
       lastQTs = Date.now();
-      resumeStage = fixed.finished && fixed.result ? 'result'
-        : (fixed.stage && fixed.stage !== 'intro' ? fixed.stage : 'answer');
-      /* Always land on the short main page. Answers, marks and the absolute
-         endsAt stay stored; the wall-clock timer keeps running in the
-         background without any test content being rendered. */
+      resumeStage = s.finished && s.result ? 'result'
+        : (s.stage && s.stage !== 'intro' ? s.stage : 'answer');
+      /* 时间已经走完的情况必须在开始页就说清楚：不能等用户点 Start 才突然
+         进模块二或直接出分（那是「看起来正常」的假象）。 */
+      const timeout = C.sessionTimeout(S, Date.now());
+      if (timeout === 'total') {
+        finalize(true, 'time');
+        toast(OFFICIAL ? 'Time is up. Your answers have been scored.' : '计时已结束，已按已作答内容出分');
+        return true;
+      }
+      if (timeout === 'module1') {
+        enterModule2();
+        resumeStage = 'answer';
+        const left = fmt(Math.max(0, S.moduleEndsAt - Date.now()));
+        introNote = OFFICIAL
+          ? 'Module 1 time is up. You are now in Module 2 (' + left + ' remaining).'
+          : 'Module 1 时间已到，已自动进入 Module 2（本模块剩余 ' + left + '）。';
+      }
       showStage('intro');           // also hides the timer group
       renderIntro();
       /* Do not write the stored remaining time while on the start page:
          the countdown is revealed only by the Start click. */
       return true;
     }
-    /* 存档存在但校验不过：删掉它，标记过期，按新卷开考 */
+    /* 存档存在但无法按官方结构重建：留档 → 作废 → 明示，按新卷开考 */
     if (saved && saved.mode === MODE) {
+      const rec = salvageSession(saved, fixed.reason);
       try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
       sessionExpired = true;
+      const kept = rec ? (rec.answered + '/' + rec.total) : '';
+      introNote = OFFICIAL
+        ? 'This saved test could not be restored (' + reasonText(fixed.reason) + '). Its paper and answers were kept' +
+          (kept ? ' (' + kept + ' answered)' : '') + ' and can be exported below; a new test starts now.'
+        : '存档已过期（' + reasonText(fixed.reason) + '），已留存卷面与作答' +
+          (kept ? '（已答 ' + kept + '）' : '') + '，可在下方导出；现在开始一份新卷。';
     }
     resumeStage = null;
     adopt(newSession()); renderIntro(); setStage('intro'); return false;
@@ -404,7 +512,14 @@
   function renderIntro() {
     const official = MODE === 'mock';
     const notice = $('introNotice');
-    if (notice) { notice.hidden = !sessionExpired; notice.textContent = sessionExpired ? (OFFICIAL ? 'This saved test has expired. Start a new test.' : '存档已过期，请重新开始') : ''; }
+    if (notice) {
+      const fallback = OFFICIAL ? 'This saved test has expired. Start a new test.' : '存档已过期，请重新开始';
+      const msg = introNote || (sessionExpired ? fallback : '');
+      notice.hidden = !msg;
+      notice.textContent = msg;
+      notice.classList.toggle('exam-note-warn', !!sessionExpired);
+    }
+    renderSalvage();
     $('introEyebrow').textContent = official ? 'SECTION 2, MODULE 1: MATH' : 'UNIT MASTERY CHECK';
     $('introTitle').textContent = official ? 'SAT Math Prep' : '单元抽查';
     /* 单元抽查说明小字做减法：整段删除；官方模考保留 Bluebook 原文 */
@@ -480,11 +595,10 @@
      ANSWER
      ===================================================================== */
   function range() {
-    if (MODE !== 'mock') return [0, S.paper.length - 1];
-    const n = S.paper.length;
-    /* 防御：m1Size 异常时退回整卷，绝不产生 [0,-1] 这种空区间（会显示 of 0） */
-    if (!(S.m1Size > 0) || S.m1Size > n || (S.module === 2 && S.m1Size >= n)) return [0, n - 1];
-    return S.module === 1 ? [0, S.m1Size - 1] : [S.m1Size, n - 1];
+    const rg = C.sessionRange(S);
+    /* 恢复时已校验过；真出现 null 说明内存里的会话被写坏了，宁可作废也不凑区间 */
+    if (!rg) throw new Error('session-invalid');
+    return [rg.lo, rg.hi];
   }
   const cur = () => S.paper[S.idx];
   const curQ = () => byId(cur().id);
@@ -493,10 +607,16 @@
   function editableRange() { return range(); }
 
   const CHECK_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
-  function renderAll() { renderQuestion(); renderNavigator(); tick(); }
+  function renderAll() {
+    try { renderQuestion(); renderNavigator(); tick(); }
+    catch (e) {
+      if (e && e.message === 'session-invalid') { runtimeVoid(); return; }
+      throw e;
+    }
+  }
   function renderQuestion() {
     const inst = cur(), q = curQ(), a = curA(), [lo, hi] = range();
-    const pos = S.idx - lo + 1, total = Math.max(1, hi - lo + 1);
+    const pos = S.idx - lo + 1, total = hi - lo + 1;   // 合法会话的区间由 sessionRange 保证非空
     const T = (window.TD_TEXT || {})[q.id] || {};
     const CH = T.choices || {};
     $('qStem').innerHTML = window.TD_FIG ? window.TD_FIG.fmtMath((T.stem || q.stem || '题干文字暂缺。').trim() || '题干文字暂缺。') : esc((T.stem || q.stem || '题干文字暂缺。').trim() || '题干文字暂缺。');

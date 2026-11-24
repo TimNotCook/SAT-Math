@@ -825,8 +825,92 @@
     };
   }
 
+  /* =====================================================================
+     SESSION REPAIR（存档兼容层，纯函数，无 DOM）
+     规则只有两条：能按官方 22/22 结构确定性重建 → ok；否则 → expired。
+     绝不「猜一个看起来对的区间」：区间错了，题号和判分就是两套口径。
+     ===================================================================== */
+  function parseSession(saved, opts) {
+    opts = opts || {};
+    const per = opts.perModule || OFFICIAL.questionsPerModule;
+    const total = per * 2;
+    const isBank = typeof opts.isQuestionId === 'function' ? opts.isQuestionId : function () { return true; };
+    const fail = reason => ({ status: 'expired', reason, session: null });
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return fail('missing');
+    const mode = opts.mode || saved.mode;
+    if (!mode || saved.mode !== mode) return fail('mode');
+    const paper = saved.paper;
+    if (!Array.isArray(paper) || !paper.length) return fail('paper-empty');
+    const n = paper.length;
+    for (let i = 0; i < n; i++) {
+      const x = paper[i];
+      if (!x || typeof x !== 'object') return fail('paper-shape');
+      if (typeof x.uid !== 'string' || !x.uid) return fail('paper-uid');
+      if (!isBank(x.id)) return fail('bank');
+    }
+    if (!(Number(saved.startedAt) > 0) || !(Number(saved.endsAt) > Number(saved.startedAt))) return fail('clock');
+    const s = JSON.parse(JSON.stringify(saved));
+    let m1;
+    if (mode === 'mock') {
+      /* 官方卷只有两种合法形态：22 题（只在 Module 1）/ 44 题（两模块） */
+      if (n !== per && n !== total) return fail('shape');
+      if (n === per && s.module === 2) return fail('shape');   // 模块二却没有模块一的卷：不可重建
+      if (s.m1Size != null && Number(s.m1Size) !== per) return fail('m1');
+      m1 = per;
+      if (!s.m2Options || !Array.isArray(s.m2Options.hard) || !Array.isArray(s.m2Options.easy)) {
+        /* 22 题且仍在模块一：没有 m2Options 就无法在交卷时补齐 44 题 */
+        if (n === per) return fail('m2-options');
+      }
+    } else {
+      m1 = n;
+    }
+    s.m1Size = m1;
+    if (!(s.durationSec > 0)) s.durationSec = Math.round((s.endsAt - s.startedAt) / 1000);
+    if (!(s.moduleEndsAt > 0)) s.moduleEndsAt = s.endsAt;
+    const inModule2 = mode === 'mock' && s.module === 2;
+    s.module = inModule2 ? 2 : 1;
+    if (!s.answers || typeof s.answers !== 'object') s.answers = {};
+    paper.forEach(function (x) {
+      const a = s.answers[x.uid];
+      if (!a || typeof a !== 'object') s.answers[x.uid] = { v: '', marked: false, spent: 0, locked: false };
+      else {
+        if (a.v == null) a.v = '';
+        a.marked = !!a.marked; a.locked = !!a.locked;
+        a.spent = Number(a.spent) > 0 ? Number(a.spent) : 0;
+      }
+    });
+    const lo = inModule2 ? m1 : 0;
+    const hi = (inModule2 ? n : m1) - 1;
+    const idx = Number(s.idx);
+    s.idx = Math.min(Math.max(Number.isFinite(idx) ? idx : lo, lo), Math.max(lo, hi));
+    if (s.finished && !s.result) { s.finished = false; s.locked = false; if (s.stage === 'result') s.stage = 'answer'; }
+    return { status: 'ok', reason: '', session: s };
+  }
+
+  /* 当前会话可作答的区间。非法会话返回 null —— 调用方必须走「作废」而不是凑一个区间。 */
+  function sessionRange(s) {
+    if (!s || !Array.isArray(s.paper) || !s.paper.length) return null;
+    const n = s.paper.length;
+    if (s.mode !== 'mock') return { lo: 0, hi: n - 1 };
+    const m1 = Number(s.m1Size);
+    if (!(m1 > 0) || m1 > n) return null;
+    if (s.module === 2 && m1 >= n) return null;
+    return s.module === 2 ? { lo: m1, hi: n - 1 } : { lo: 0, hi: m1 - 1 };
+  }
+
+  /* 刷新回到开始页时，这段会话是否已经「时间到」。
+     total  = 70 分钟走完（必须直接出分，不能等你点 Start）
+     module1 = 模块一 35 分钟走完（应自动进模块二，并明确告知） */
+  function sessionTimeout(s, now) {
+    if (!s || !(Number(s.startedAt) > 0) || s.finished) return '';
+    if (now >= s.endsAt) return 'total';
+    if (s.mode === 'mock' && s.module === 1 && now >= s.moduleEndsAt) return 'module1';
+    return '';
+  }
+
   return {
     OFFICIAL, SCALE, QUIZ_TIERS, scaledScore, parseNum, grade, shuffle, byId, unitName,
+    parseSession, sessionRange, sessionTimeout,
     distributeTypes, buildModule, interleave, routeModule2, buildFullPaper,
     buildPracticePool, practiceDurationSec,
     quizTier, quizPlan, weakTopicsOf, buildQuizPaper, unitWrongIds,

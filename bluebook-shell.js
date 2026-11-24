@@ -46,8 +46,8 @@
 
     var left = bar.querySelector('.drill-context-left');
     if (left) {
-      var title = left.querySelector('.drill-context-title');
-      setText(title, 'Math');
+      /* 顶栏只留真实板块名；旧的孤立品牌标签（SAT Math / Math）已删除，
+         品牌统一由 P1-7 那一项单独做，避免半行英文半行中文并排。 */
       var sec = left.querySelector('#currentSection');
       if (sec) {
         /* 真实板块名由 drill.js 写入，这里只统一排版；不再覆写成通用的

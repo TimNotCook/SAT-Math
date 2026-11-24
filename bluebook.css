@@ -1066,3 +1066,11 @@ body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button.drill-next-bu
   transform:none!important;
   box-shadow:none!important;
 }
+
+/* 开始页：存档作废 / Module 自动切换的说明条 + 未交卷留档面板（新增控件，不改旧规则） */
+.exam-intro-note{margin:10px 0 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--bb-sub);font-size:13px;line-height:1.6}
+.exam-intro-note.exam-note-warn{border-color:#e2c39a;background:#fdf6ec;color:#7a4a16}
+.exam-salvage{margin:12px 0 0;padding:12px 14px;border:1px dashed var(--line-strong);border-radius:10px;font-size:12.5px;color:var(--bb-sub)}
+.exam-salvage[hidden]{display:none!important}
+.exam-salvage-head{font-weight:700;color:var(--bb-official-ink)}
+.exam-salvage-row{margin:6px 0 10px;line-height:1.6}

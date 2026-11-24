@@ -125,6 +125,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
        if(a&&a.correct===false&&stillWrong(q,a.v))
          add(map,q,a.v,a.importSrc===IMPORT_MARK?'导入错题':'单元练习',a.ts||0);});});
    load('tdsat_exam_suite_results_v1').forEach(function(r){var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':'考试练习';
+     /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(r.void)return;
      (r.detail||[]).forEach(function(d){var q=A.BANK.questions.find(function(x){return x.id===d.id;});
        if(!d.correct&&stillWrong(q,d.given))add(map,q,d.given,name,r.date||0);});});
    var legacy=load('tdsat_state_v1')||{},legacyWrong=legacy.wrong||{},legacySeen={};
