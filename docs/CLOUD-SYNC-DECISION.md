@@ -89,3 +89,35 @@ create table usernames (
 2. 用户名走 **做法 1** 还是 **做法 2**。
 
 在这两句话之前，台账上这两格只能记：**阻塞，后端未开 `/.cloud/*`（证据：`tools/probe_cloud_db.mjs`、`tools/probe_cloud_storage.mjs`）**。
+
+---
+
+## 六、2026-11-24 晚：GitHub 令牌通道跨设备实测 —— 通过
+
+**结论（可复现）**：不依赖任何新后端，现有 GitHub 令牌通道已经能完成"换设备看到进度"。
+
+| 步骤 | 机器 | 结果 |
+| --- | --- | --- |
+| 登录（粘贴 PAT） | A（全新 profile） | 成功，`TDGH.user().login = TimNotCook`，面板提示"已为你建立专属学习档案" |
+| 做 1 道题（1.1 第 1 题选 A） | A | 1.2 秒后面板提示"进度已自动保存" |
+| 全新浏览器登录同账号 | B（全新 profile，登录前 `tdsat_*` 为 0 条） | 登录后本地快照与 A 机**逐字节一致**（2 条 `tdsat_*`）；做题页显示"1 / 25 题"且该题选项 A 仍处于选中态 |
+
+复现命令（需本机 GitHub 令牌，不入库）：
+
+```bash
+GH_TOKEN=$(printf "protocol=https\nhost=github.com\n\n" | git credential fill | sed -n 's/password=//p') node /tmp/xdev3.mjs
+# 输出关键行： [B] 快照与 A 机一致 = true (A 2 条 / B 2 条)
+```
+
+**今晚顺手修掉的两个真 bug（都已在线上生效）**：
+
+1. `github-auth.js` 的 `pushProgress` 并发写同一 sha → 稳定 409，界面表现为"暂时无法保存进度"。改为队列串行 + 409/422 重取 sha 重试（400/1000ms 退避）。
+2. Contents API 的 GET 被浏览器缓存，拿回旧 sha → 每次 PUT 必 409。GET 全部加 `_=<ts>` 破缓存 + `cache:'no-store'`。
+3. `bump_assets.py` 漏了 `github-auth.js` / `supa-cloud.js`，这两个文件永远带固定 `?v=1bc3f91…`，改了也到不了浏览器。已纳入哈希清单。
+
+**仍未闭环的两格（明确写着，不装完成）**：
+
+- **profiles / usernames（账号密码登录）**：代码与 DDL 就位，卡在"没有可用的 Supabase 项目"。创建 Supabase 项目必须注册账号并过邮箱验证，本机无任何 supabase 会话（Chrome Cookie 库、配置文件均查过），我没有收信能力，无法自行完成 —— 需要 Tim 本人点一次"用 GitHub 登录 supabase.com → New project（免费 Singapore 区）→ Settings → API 复制 URL + anon key"，之后我只改 `cloud-config.js` 两行即可，5 分钟内可验证。
+- **令牌持久性**：PAT 只存 `sessionStorage`（有意为之，避免明文落盘），代价是**新标签页需要重新粘贴**。这也是为什么账号密码方案更该做。
+
+**给台账的口径**：跨设备进度同步 = 可用（GitHub 令牌通道）；用户名映射表 = 阻塞（等 Supabase 项目）；两者不可混记。
