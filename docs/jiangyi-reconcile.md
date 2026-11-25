@@ -21,26 +21,26 @@
 
 | 小节 | 标题 | 答案页 | 应有 N | 已录 M | 缺 N-M | 页码分布 | 答案键（照抄 p191–196） |
 |---|---|---|---|---|---|---|---|
-| 2.1 | Ratios, rates, proportions, percentages, and unit conversion | p192 | 13 | 0 | 13 | p39–p44（待逐题确认） | 1.A 2.6.75 or 27/4 3.D 4.15 5.2.24 6.1.8 or 9/5 7.A 8.D 9.B 10.A 11.B 12.A 13.A |
-| 2.2 | Scatter plots and tables and graphs | p192 | 9 | 0 | 9 | p45–p53（待逐题确认） | 1.第一空 250，第二空 123.5 2.C 3.B 4.3 5.1/4 6.D 7.A 8..5 or 1/2 9.4.5 or 9/2 |
-| 2.3 | Linear and exponential relationship | p193 | 19 | 0 | 19 | p54–p65（待逐题确认） | 1.D 2.D 3.B 4.C 5.D 6.D 7.B 8.D 9.C 10.A 11.C 12.410 13.D 14.C 15.C 16.A 17.D 18.B 19.D |
-| 2.4 | Probabilities and conditional probabilities | p193 | 3 | 0 | 3 | p66–p69（待逐题确认） | 1.B 2..3833 or 23/60 3.C |
-| 2.5 | Data analysis: center and spread | p193 | 20 | 0 | 20 | p70–p90（待逐题确认） | 1.A 2.C 3.44 4.C 5.B 6.B 7.1 8.A 9.A 10.D 11.B 12.C 13.B 14.A 15.B 16.D 17.A 18.D 19.C 20.C |
-| 2.6 | Survey, observational studies, and experiments | p193 | 7 | 0 | 7 | p91–p99（待逐题确认） | 1.C 2.C 3.D 4.D 5.C 6.D 7.B |
-| 2.7 | Inference from sample statistics and margin of error | p193 | 3 | 0 | 3 | p100–p102（待逐题确认） | 1.C 2.D 3.D |
-| **小计** |  |  | **74** | **0** | **74** |  |  |
+| 2.1 | Ratios, rates, proportions, percentages, and unit conversion | p192 | 13 | 13 | 0 | p39×2、p41×4、p42×2、p43×2、p44×3 | 1.A 2.6.75 or 27/4 3.D 4.15 5.2.24 6.1.8 or 9/5 7.A 8.D 9.B 10.A 11.B 12.A 13.A |
+| 2.2 | Scatter plots and tables and graphs | p192 | 9 | 9 | 0 | p45×1、p46×1、p47×1、p48×1、p49×1、p50×1、p51×1、p52×1、p53×1 | 1.第一空 250，第二空 123.5 2.C 3.B 4.3 5.1/4 6.D 7.A 8..5 or 1/2 9.4.5 or 9/2 |
+| 2.3 | Linear and exponential relationship | p193 | 19 | 19 | 0 | p55×1、p56×2、p57×2、p58×2、p59×2、p60×2、p61×3、p62×2、p63×2、p64×1 | 1.D 2.D 3.B 4.C 5.D 6.D 7.B 8.D 9.C 10.A 11.C 12.410 13.D 14.C 15.C 16.A 17.D 18.B 19.D |
+| 2.4 | Probabilities and conditional probabilities | p193 | 3 | 3 | 0 | p67×1、p68×1、p69×1 | 1.B 2..3833 or 23/60 3.C |
+| 2.5 | Data analysis: center and spread | p193 | 20 | 19 | 1 | p71×1、p72×3、p73×1、p74×1、p75×1、p76×1、p78×1、p80×1、p81×1、p82×1、p83×1、p85×1、p86×1、p87×1、p89×2、p90×1 | 1.A 2.C 3.44 4.C 5.B 6.B 7.1 8.A 9.A 10.D 11.B 12.C 13.B 14.A 15.B 16.D 17.A 18.D 19.C 20.C |
+| 2.6 | Survey, observational studies, and experiments | p193 | 7 | 7 | 0 | p92×2、p94×1、p95×1、p96×1、p98×1、p99×1 | 1.C 2.C 3.D 4.D 5.C 6.D 7.B |
+| 2.7 | Inference from sample statistics and margin of error | p193 | 3 | 3 | 0 | p101×2、p102×1 | 1.C 2.D 3.D |
+| **小计** |  |  | **74** | **73** | **1** |  |  |
 
 ## U3 Advanced Math
 
 | 小节 | 标题 | 答案页 | 应有 N | 已录 M | 缺 N-M | 页码分布 | 答案键（照抄 p191–196） |
 |---|---|---|---|---|---|---|---|
-| 3.1 | Equivalent Expressions: factoring and isolating | p194 | 6 | 0 | 6 | p103–p106（待逐题确认） | 1.D 2.D 3.B 4.8 5.A 6.D |
+| 3.1 | Equivalent Expressions: factoring and isolating | p194 | 6 | 6 | 0 | p104×2、p105×3、p106×1 | 1.D 2.D 3.B 4.8 5.A 6.D |
 | 3.2 | Operation: exponents and radicals, rational expressions, polynomials | p194 | 11 | 0 | 11 | p107–p112（待逐题确认） | 1.D 2.B 3.7/6 4.C 5..017 or .0177 or .0178 or 4/225 6.D 7.D 8.C 9.D 10.29 11.C |
 | 3.3 | Solving: quadratic, radical, and fractional equations; systems of non-linear equations | p194 | 19 | 0 | 19 | p113–p125（待逐题确认） | 1.B 2.D 3.B 4.168 5.C 6.D 7.29/3 or 9.666 or 9.667 8.A 9..625 or 1/16 10.C 11.51 12.50 13.B 14.D 15.D 16.A 17.14.5 or 29/2 18.C 19.C |
 | 3.4 | Graphing: quadratic, exponential and polynomial functions | p194 | 22 | 0 | 22 | p126–p143（待逐题确认） | 1.25/4 or 50/8 or 6.25 2.D 3.C 4.B 5.C 6.B 7.B 8.24 9.-2112 10.D 11.D 12.A 13.9 14.B 15.C 16.B 17.C 18.B 19.C 20.B 21.A 22.C |
 | 3.5 | Function notations and transformations | p195 | 4 | 0 | 4 | p144–p146（待逐题确认） | 1.B 2.76 3.B 4.A |
 | 3.6 | Creating and interpreting nonlinear functions | p195 | 6 | 0 | 6 | p147–p149（待逐题确认） | 1.A 2.D 3.A 4.A 5.B 6.D |
-| **小计** |  |  | **68** | **0** | **68** |  |  |
+| **小计** |  |  | **68** | **6** | **62** |  |  |
 
 ## U4 Geometry and Trigonometry
 
@@ -57,9 +57,9 @@
 
 | 应有 N | 已录 M | 缺 N-M |
 |---|---|---|
-| 243 | 49 | 194 |
+| 243 | 128 | 115 |
 
-单节全绿的记法：`已录 = 应有`。当前完成 **6 / 24 节**。
+单节全绿的记法：`已录 = 应有`。当前完成 **13 / 24 节**。
 
 
 ## Unit 4：教材原题子组（JY4 · 练习册 P200–207，不计入官方 52 道）

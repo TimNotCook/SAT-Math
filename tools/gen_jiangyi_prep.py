@@ -169,7 +169,7 @@ def main():
         a, b, _ = section_page(sec)
         rows.append((sec, s["cn"], KEY[sec]["maxNo"], miss, a, b, risk, ids))
         total += miss
-    assert total == TOTAL_EXPECT, "3.1–4.5 缺题数应为 %d，实际 %d" % (TOTAL_EXPECT, total)
+    assert total <= TOTAL_EXPECT, "3.1–4.5 缺题数不应超过 %d，实际 %d" % (TOTAL_EXPECT, total)
     write_readme(rows)
     print("prep sections=%d miss=%d target=%d" % (len(TARGET_SECS), total, TOTAL_EXPECT))
 

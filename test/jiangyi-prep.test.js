@@ -59,7 +59,11 @@ test('答案键逐条照抄答案页，不自己算', () => {
   });
 });
 
-test('README 索引的合计是 120', () => {
+test('README 索引的合计与真实缺号数一致', () => {
   const md = fs.readFileSync(path.join(ROOT, 'docs/jiangyi-prep/README.md'), 'utf8');
-  assert.match(md, /\| \*\*合计\*\* \|[^|]*\| \*\*120\*\* \| \*\*120\*\* \|/);
+  const miss = SECS.reduce((n, s) => n + missOf(s.section).length, 0);
+  const row = md.split('\n').find(l => l.startsWith('| **合计** |'));
+  assert.ok(row, 'README 缺合计行');
+  const nums = (row.match(/\*\*(\d+)\*\*/g) || []).map(x => x.replace(/\*/g, ''));
+  assert.strictEqual(nums[1], String(miss), 'README 合计缺号 ' + nums[1] + ' 与真实 ' + miss + ' 不一致');
 });
