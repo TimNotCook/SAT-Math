@@ -905,7 +905,8 @@
         axisLabelsEnd: true, yLabelPad: (s.yLabelPad != null ? s.yLabelPad : 13),
         series: s.series || [], marks: s.marks || [] };
       var svg = chart(cspec);
-      svg = svg.replace(/^<div class="td-figure td-figure--svg">/, '').replace(/<\/div>$/, '');
+      svg = svg.replace(/^<div class="td-figure td-figure--svg">/, '').replace(/<\/div>$/, '')
+        .replace('class="td-figsvg"', 'class="td-figsvg td-choicesvg"');
       return '<div class="td-choicegraph">' + svg + '</div>';
     }
     var G = 300, pad = 28;                      // canvas 300x300, pad for labels
