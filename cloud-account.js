@@ -876,105 +876,93 @@
   var supaPending = null;   // 注册待验证：{ email, username }
 
   function renderSupaLogin(b) {
-    b.appendChild(el('div', 'td-acct-who', '登录（邮箱或用户名 + 密码）'));
-    var idf = field('邮箱或用户名', 'text', 'you@example.com 或 你的用户名', 'username');
-    if (otpEmail) idf.input.value = otpEmail;
-    b.appendChild(idf.box); ui.email = idf.input;
+    b.appendChild(el('div', 'td-acct-who', '登录（用户名 + 密码）'));
+    var un = field('用户名', 'text', '你的用户名', 'username');
+    un.input.maxLength = 20;
+    b.appendChild(un.box); ui.username = un.input;
     var pw = pwInput(b, '密码', '输入密码', 'current-password', doSupaSignIn);
-    idf.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') pw.focus(); });
+    un.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') pw.focus(); });
     wideBtn(b, '登录', doSupaSignIn);
-    linkToggle(b, '没有账号？注册（邮箱 + 用户名）', function () { emailMode = 'supaRegister'; renderBody(); });
-    linkToggle(b, '忘记密码？', function () { emailMode = 'supaReset'; renderBody(); });
+    linkToggle(b, '没有账号？用用户名注册', function () { emailMode = 'supaRegister'; renderBody(); });
+    b.appendChild(el('p', 'td-acct-note', '账号只认用户名，不收邮箱'));
   }
 
   function renderSupaRegister(b) {
-    b.appendChild(el('div', 'td-acct-who', '注册新账号（邮箱 + 用户名 + 密码）'));
-    var em = field('邮箱', 'email', 'you@example.com', 'email');
-    b.appendChild(em.box); ui.email = em.input;
-    var un = field('用户名', 'text', '3–20 位小写字母/数字/下划线', 'username');
-    un.input.maxLength = 20; un.input.pattern = '[a-z0-9_]{3,20}';
+    b.appendChild(el('div', 'td-acct-who', '注册（用户名 + 密码）'));
+    var un = field('用户名', 'text', '3–20 位小写字母/数字，可用 . _ -', 'username');
+    un.input.maxLength = 20;
     b.appendChild(un.box); ui.username = un.input;
     var pw = pwInput(b, '设置密码', '至少 6 位，之后登录用它', 'new-password', doSupaRegister);
     wideBtn(b, '注册并登录', doSupaRegister);
     linkToggle(b, '已有账号？返回登录', function () { emailMode = 'login'; renderBody(); });
     b.appendChild(el('p', 'td-acct-note',
-      '用户名之后可以当登录名用；邮箱和密码用于找回账号。'));
+      '只记用户名，不收邮箱：内部用 用户名@satmath.local 作为占位邮箱，界面上不会出现。'));
   }
 
   function renderSupaVerify(b) {
-    b.appendChild(el('div', 'td-acct-who', '验证邮箱（' + (supaPending ? supaPending.email : '') + '）'));
-    codeInput(b, doSupaVerify);
-    wideBtn(b, '完成验证并登录', doSupaVerify);
-    b.appendChild(el('p', 'td-acct-note', '邮件里是 6 位数字验证码，填进来就完成注册。'));
+    b.appendChild(el('div', 'td-acct-who', '不需要邮箱验证'));
+    b.appendChild(el('p', 'td-acct-note', '现在注册即登录，没有验证码这一步。'));
+    linkToggle(b, '返回登录', function () { emailMode = 'login'; renderBody(); });
   }
 
   function renderSupaReset(b) {
-    b.appendChild(el('div', 'td-acct-who', '重置密码'));
-    var em = field('邮箱', 'email', 'you@example.com', 'email');
-    b.appendChild(em.box); ui.email = em.input;
-    wideBtn(b, '发送重置邮件', doSupaReset);
+    b.appendChild(el('div', 'td-acct-who', '密码重置'));
+    b.appendChild(el('p', 'td-acct-note',
+      '账号不收邮箱，所以没有「邮件重置」，也不做安全问题。' +
+      '忘了密码：联系管理员（后续可以加「登录态内改密码」）。'));
     linkToggle(b, '返回登录', function () { emailMode = 'login'; renderBody(); });
   }
 
   async function doSupaSignIn() {
-    var id = ui && ui.email ? ui.email.value.trim() : '';
+    var un = ui && ui.username ? ui.username.value.trim() : '';
     var pw = ui && ui.pw ? ui.pw.value : '';
-    if (!id) { setError('请填写邮箱或用户名。'); return; }
+    if (!un) { setError('请填写用户名。'); return; }
     if (!pw) { setError('请填写密码。'); return; }
     try {
       setBusy(true); setError('');
-      await SB.signInEmail(id, pw);
+      await SB.signInEmail(un, pw);
       setStatus('登录成功，正在打开你的学习档案…', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); }
   }
 
   async function doSupaRegister() {
-    var em = ui && ui.email ? ui.email.value.trim() : '';
-    var un = ui && ui.username ? ui.username.value.trim() : '';
+    var un = ui && ui.username ? ui.username.value.trim().toLowerCase() : '';
     var pw = ui && ui.pw ? ui.pw.value : '';
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { setError('邮箱格式不正确。'); return; }
-    if (!/^[a-z0-9_]{3,20}$/.test(un)) { setError('用户名要 3–20 位小写字母、数字或下划线。'); return; }
+    if (!/^[a-z0-9][a-z0-9._-]{2,19}$/.test(un)) { setError('用户名要 3–20 位：小写字母/数字，可用 . _ -，首字符必须是字母或数字。'); return; }
     if (String(pw).length < 6) { setError('密码至少 6 位。'); return; }
     try {
       setBusy(true); setError('');
-      var r = await SB.signUpEmail(em, pw, un);
-      if (r && r.verified === false) {
-        supaPending = { email: em, username: un };
-        emailMode = 'supaVerify';
-        renderBody();
-        setStatus('验证码已发到 ' + em + '，填进下面的框就完成注册。', 'ok');
-        return;
-      }
+      await SB.register(un, pw);
       setStatus('账号已创建，正在打开你的学习档案…', 'ok');
     } catch (e) {
       var msg = friendlyError(e);
       if (e && e.status === 409) msg = '这个用户名已经被占用了，换一个。';
-      else if (e && e.code === 'auth/email-already-in-use') msg = '这个邮箱已经注册过：返回登录，或点「忘记密码」重置。';
       setError(msg);
     } finally { setBusy(false); }
   }
 
   async function doSupaVerify() {
-    var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
-    if (!code) { setError('请填写验证码。'); return; }
-    if (!supaPending) { setError('注册信息丢了，请重新注册。'); return; }
-    try {
-      setBusy(true); setError('');
-      await SB.confirmRegister(supaPending.email, code);
-      supaPending = null;
-      setStatus('账号已激活，正在打开你的学习档案…', 'ok');
-    } catch (e) { setError(friendlyError(e)); }
-    finally { setBusy(false); }
+    setError('现在注册即登录，没有验证码这一步。');
   }
 
   async function doSupaReset() {
-    var em = ui && ui.email ? ui.email.value.trim() : '';
-    if (!em) { setError('请填写邮箱。'); return; }
+    setError('账号不收邮箱，没有邮件重置；改密码请联系管理员。');
+  }
+
+  async function doRenameUsername(input) {
+    if (!SB || !SB.renameUsername) { setError('当前后端不支持改用户名。'); return; }
+    var next = String(input && input.value || '').trim().toLowerCase();
+    if (!/^[a-z0-9][a-z0-9._-]{2,19}$/.test(next)) {
+      setError('用户名要 3–20 位：小写字母/数字，可用 . _ -，首字符必须是字母或数字。');
+      return;
+    }
     try {
       setBusy(true); setError('');
-      await SB.sendReset(em);
-      setStatus('重置邮件已发送，请查收 ' + em, 'ok');
+      var got = await SB.renameUsername(next);
+      if (input) input.value = got;
+      setStatus('用户名已改为 ' + got + '，旧名已失效。', 'ok');
+      renderBody();
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); }
   }
@@ -1029,8 +1017,24 @@
       });
       rowBox.appendChild(save);
       b.appendChild(rowBox);
-      b.appendChild(el('p', 'td-acct-note', '昵称只用于显示，不会展示你的邮箱或手机号。'));
+      b.appendChild(el('p', 'td-acct-note', '昵称只用于显示，不参与登录。'));
       ui.nameInput = f.input;
+
+      var unF = field('用户名（登录用）', 'text', '3–20 位小写字母/数字，可用 . _ -', 'username');
+      unF.input.value = (user && user.username) || '';
+      unF.input.maxLength = 20;
+      var unRow = el('div', 'td-nick-row');
+      unRow.appendChild(unF.box);
+      var unSave = el('button', 'td-acct-btn2 td-nick-save', '改用户名');
+      unSave.type = 'button'; unSave.setAttribute('data-busy', '1');
+      unSave.onclick = function () { doRenameUsername(unF.input); };
+      unF.input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') doRenameUsername(unF.input);
+      });
+      unRow.appendChild(unSave);
+      b.appendChild(unRow);
+      b.appendChild(el('p', 'td-acct-note',
+        '改完旧用户名立刻失效、新用户名立刻可登录，之前用它登录过的记录仍然认你这个账号。'));
 
       var acts = el('div', 'td-acct-actions');
       var out = el('button', 'td-acct-btn2', '退出登录');

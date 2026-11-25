@@ -181,17 +181,15 @@
     return currentUser;
   }
 
-  /* ---------- 用户名 ↔ 邮箱 ---------- */
-  function looksLikeEmail(v) { return String(v || '').indexOf('@') > 0; }
+  /* ---------- 用户名模型 ----------
+     身份 = 用户名；邮箱只是内部的伪邮箱 <用户名>@<emailDomain>，用户不填、界面不显示。
+     登录查名：先查 usernames（现役），再查 username_alias（曾用名），都走 resolve_login RPC，
+     这样匿名端只读得到 username / user_id 两列，读不到 email 列。 */
+  var EMAIL_DOM = String(CFG.emailDomain || 'satmath.local').replace(/^@/, '');
   function normUser(v) { return String(v || '').trim().toLowerCase(); }
-
-  async function emailOfUsername(username) {
-    var name = normUser(username);
-    if (!name) throw errOf(400, { msg: '请填写邮箱或用户名。' });
-    var rows = await rest('/usernames?username=eq.' + encodeURIComponent(name) + '&select=email', { timeout: 15000 });
-    if (rows && rows.length) return rows[0].email;
-    throw errOf(404, { msg: '没有找到这个用户名。' });
-  }
+  function internalEmail(u) { return normUser(u) + '@' + EMAIL_DOM; }
+  function validUser(u) { return /^[a-z0-9][a-z0-9._-]{2,19}$/.test(u); }
+  function badInput(msg) { return errOf(400, { msg: msg }); }
 
   async function usernameTaken(username) {
     var name = normUser(username);
@@ -199,24 +197,33 @@
     try {
       var rows = await rest('/usernames?username=eq.' + encodeURIComponent(name) + '&select=username', { timeout: 12000 });
       return !!(rows && rows.length);
-    } catch (e) { return false; } // 查不到就交给数据库唯一约束兜底
+    } catch (e) { return false; } // 查不到就交给数据库唯一索引兜底
   }
 
-  async function bindUsername(tk, username, email, uid) {
+  async function loginEmail(username) {
     var name = normUser(username);
-    if (!name) return;
-    try {
-      await rest('/usernames', {
-        method: 'POST',
-        token: tk,
-        headers: { Prefer: 'return=minimal' },
-        body: [{ username: name, uid: uid, email: email }],
-        timeout: 15000
-      });
-    } catch (e) {
-      // 409 = 已被占用；自己重复注册同一条不算错
-      if (e.status !== 409 && !/duplicate/i.test(String(e.message))) console.warn('用户名映射写入失败', e);
-    }
+    if (!name) throw badInput('请填写用户名。');
+    var r = await raw('/rest/v1/rpc/resolve_login', {
+      method: 'POST',
+      headers: authHeaders(null),
+      body: JSON.stringify({ p_username: name }),
+      timeout: 15000
+    });
+    var mail = typeof r === 'string' ? r : (Array.isArray(r) ? r[0] : (r && r.email) || '');
+    if (!mail) throw errOf(404, { msg: '没有找到这个用户名。', code: 'auth/username-not-found' });
+    return mail;
+  }
+
+  async function bindUsername(tk, username, uid) {
+    var name = normUser(username);
+    if (!name || !uid) return;
+    await rest('/usernames', {
+      method: 'POST',
+      token: tk,
+      headers: { Prefer: 'return=minimal' },
+      body: [{ username: name, user_id: uid, email: internalEmail(name) }],
+      timeout: 15000
+    });
   }
 
   /* ---------- 对外 API ---------- */
@@ -232,86 +239,81 @@
     },
     user: function () { return currentUser; },
 
-    // 登录：邮箱或用户名 + 密码
+    // 登录：只收用户名 + 密码（邮箱不再对外）
     signInEmail: async function (identifier, pw) {
-      var id = String(identifier || '').trim();
-      var email = looksLikeEmail(id) ? id : await emailOfUsername(id);
+      var name = normUser(identifier);
+      var email = await loginEmail(name);
       var r = await raw('/auth/v1/token?grant_type=password', {
         method: 'POST',
         headers: authHeaders(null),
         body: JSON.stringify({ email: email, password: String(pw || '') }),
         timeout: 20000
       });
-      return sessionFrom(r);
+      var u = sessionFrom(r);
+      // 老账号若 metadata 里没写用户名，补成当前名（不改 auth.users.email）
+      if (!(u && u.username)) {
+        try {
+          var fresh = await raw('/auth/v1/user', {
+            method: 'PUT',
+            headers: authHeaders(session.access),
+            body: JSON.stringify({ data: { username: name, display_name: name } }),
+            timeout: 15000
+          });
+          if (fresh && fresh.id) { session.user = fresh; saveSession(session); currentUser = toUser(fresh); }
+        } catch (e) { /* 元数据失败不影响登录 */ }
+      }
+      return currentUser;
     },
 
-    // 注册第一步：建账号并发验证码邮件（此时还没登录）
-    startRegister: async function (email, pw, username) {
-      var mail = String(email || '').trim();
+    // 注册：只收用户名 + 密码，内部拼 <用户名>@satmath.local 交给 Supabase signUp
+    register: async function (username, pw) {
       var name = normUser(username);
-      if (!looksLikeEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确。' });
-      if (!name) throw errOf(400, { msg: '请填写用户名。' });
+      if (!validUser(name)) throw badInput('用户名要 3–20 位：小写字母/数字，可用 . _ -，首字符必须是字母或数字。');
+      if (String(pw || '').length < 6) throw badInput('密码至少 6 位。');
       if (await usernameTaken(name)) throw errOf(409, { msg: '这个用户名已被占用，换一个吧。' });
+      var mail = internalEmail(name);
       var r = await raw('/auth/v1/signup', {
         method: 'POST',
         headers: authHeaders(null),
-        body: JSON.stringify({
-          email: mail,
-          password: String(pw || ''),
-          data: { username: name, display_name: name }
-        }),
+        body: JSON.stringify({ email: mail, password: String(pw), data: { username: name, display_name: name } }),
         timeout: 20000
       });
-      // 项目若关闭了「Confirm email」，signup 会直接返回会话
-      if (r && r.access_token) {
-        var u = sessionFrom(r);
-        await bindUsername(r.access_token, name, mail, (r.user && r.user.id) || '');
-        return { verified: true, user: u };
+      if (!(r && r.access_token)) {
+        throw errOf(400, {
+          msg: '注册没有拿到会话：项目若开着「Confirm email」，伪邮箱收不到验证信。请管理员在 Auth 设置里关闭邮箱确认。',
+          code: 'auth/email-not-confirm'
+        });
       }
-      try { localStorage.setItem('tdsat_auth_pending', JSON.stringify({ email: mail, username: name, at: Date.now() })); } catch (e) {}
-      return { verified: false, email: mail, username: name };
+      sessionFrom(r);
+      await bindUsername(r.access_token, name, (r.user && r.user.id) || '');
+      return { verified: true, user: currentUser, username: name };
     },
+    // 兼容旧调用名（旧代码传 email 的那几个入口一律不再接受真实邮箱）
+    startRegister: async function (_email, pw, username) { return this.register(username, pw); },
+    signUpEmail: async function (_email, pw, username) { return this.register(username, pw); },
+    confirmRegister: async function () { throw badInput('现在不需要邮箱验证：注册即登录。'); },
+    resendCode: async function () { throw badInput('现在不需要邮箱验证：注册即登录。'); },
+    sendReset: async function () { throw badInput('账号不收邮箱，没有邮件重置；改密码请联系管理员。'); },
 
-    // 注册第二步：输入 6 位验证码
-    confirmRegister: async function (email, code) {
-      var mail = String(email || '').trim();
-      var token = String(code || '').trim();
-      if (!mail || !token) throw errOf(400, { msg: '请填写邮箱和验证码。' });
-      var r = await raw('/auth/v1/verify', {
+    // 改用户名：新旧名原子切换（服务端 rename_username：插别名 + 改现役名 + user_id = auth.uid() 校验）
+    renameUsername: async function (name) {
+      var tk = await token();
+      var next = normUser(name);
+      if (!validUser(next)) throw badInput('用户名要 3–20 位：小写字母/数字，可用 . _ -，首字符必须是字母或数字。');
+      var r = await raw('/rest/v1/rpc/rename_username', {
         method: 'POST',
-        headers: authHeaders(null),
-        body: JSON.stringify({ type: 'signup', email: mail, token: token }),
-        timeout: 20000
+        headers: authHeaders(tk),
+        body: JSON.stringify({ p_new: next }),
+        timeout: 15000
       });
-      var u = sessionFrom(r);
-      var meta = (r.user && r.user.user_metadata) || {};
-      await bindUsername(r.access_token, meta.username || '', mail, (r.user && r.user.id) || '');
-      try { localStorage.removeItem('tdsat_auth_pending'); } catch (e) {}
-      return u;
+      var got = typeof r === 'string' ? r : next;
+      if (session && session.user) {
+        session.user.user_metadata = Object.assign({}, session.user.user_metadata || {}, { username: got, display_name: got });
+        saveSession(session);
+      }
+      emit();
+      return got;
     },
-
-    resendCode: async function (email) {
-      await raw('/auth/v1/resend', {
-        method: 'POST',
-        headers: authHeaders(null),
-        body: JSON.stringify({ type: 'signup', email: String(email || '').trim() }),
-        timeout: 20000
-      });
-      return true;
-    },
-
-    sendReset: async function (email) {
-      await raw('/auth/v1/recover', {
-        method: 'POST',
-        headers: authHeaders(null),
-        body: JSON.stringify({ email: String(email || '').trim() }),
-        timeout: 20000
-      });
-      return true;
-    },
-
-    // 兼容旧调用名
-    signUpEmail: async function (email, pw, username) { return this.startRegister(email, pw, username); },
 
     signOut: async function () {
       var tk = session && session.access;

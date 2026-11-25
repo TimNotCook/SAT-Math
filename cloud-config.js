@@ -7,7 +7,9 @@ window.TD_CLOUD_CONFIG = {
      留空则完全不影响现有 WorkBuddy / Firebase / GitHub 三条通道。 */
   supabase: {
     url: 'https://ofsnrzfmjqyrmkvdwnbo.supabase.co',
-    anonKey: 'sb_publishable_lUmLQYeK0WBOh3BfTb9OXA_pxX_wjbp'
+    anonKey: 'sb_publishable_lUmLQYeK0WBOh3BfTb9OXA_pxX_wjbp',
+    /* 用户名即身份：内部伪邮箱 = <用户名>@emailDomain，用户不填也不显示 */
+    emailDomain: 'satmath.local'
   },
   endpoint: 'https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host',
   oauthRelayBaseUrl: 'https://www.workbuddy.cn/v2/as/genie-baas/oauth',
