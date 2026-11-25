@@ -1,0 +1,88 @@
+name: ingest-transcribe-fragments
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/transcribe/**'
+      - '.github/workflows/ingest-transcribe-fragments.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: ingest-fragments
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Declare sections
+        run: |
+          set -e
+          python3 - <<'PY'
+          import json,glob
+          P='data/questions.js'
+          needs={}
+          for p in sorted(glob.glob('docs/transcribe/*/fragments/*.json')):
+              fr=json.load(open(p,encoding='utf-8'))
+              for q in fr.get('questions') or []:
+                  sec=q.get('section'); u=q.get('unit')
+                  if not sec or u is None: continue
+                  parts=sec.split('.')
+                  if len(parts)!=3 or not parts[2].startswith('T'): continue
+                  needs[(int(u),sec)]=parts[2][1:]
+          text=open(P,encoding='utf-8').read()
+          GROUP={'2.7':'Unit 2 · 03 Problem Solving 专项练习','4.5':'Unit 4 · 04 Geometry 专项练习'}
+          TOPIC={(4,'24'):'Area and Volume',(4,'25'):'Geometry',(4,'26'):'Right Triangles and Trigonometry',(4,'27'):'Circles',(2,'17'):'比率、比例与单位换算',(2,'18'):'百分数',(2,'19'):'图表与数据'}
+          added=[]
+          for (u,sec),t in sorted(needs.items()):
+              if '"id":"%s"'%sec in text: continue
+              i=text.find('{"id":%d,'%u)
+              if i<0:
+                  print('unit %d not found'%u); raise SystemExit(1)
+              s=text.find('"sections":[',i)+len('"sections":[')
+              d=1; j=s
+              while j<len(text):
+                  c=text[j]
+                  if c=='[': d+=1
+                  elif c==']':
+                      d-=1
+                      if d==0: break
+                  j+=1
+              parent=sec.rsplit('.',1)[0]
+              ins=[]
+              if '"id":"%s"'%parent not in text:
+                  cn=GROUP.get(parent,'Unit %d · 专项练习'%u)
+                  ins.append('{"count":0,"cn":%s,"id":"%s","isGroup":true,"childCount":0}'%(json.dumps(cn,ensure_ascii=True),parent))
+              cn=TOPIC.get((u,t),'Topic %s'%t)
+              ins.append('{"count":0,"cn":%s,"id":"%s","topic":%s,"parent":"%s"}'%(json.dumps('Topic %s · %s'%(t,cn),ensure_ascii=True),sec,t,parent))
+              body=text[s:j]; prefix=',' if body.strip() else ''
+              text=text[:s]+body+prefix+','.join(ins)+text[j:]; added.append(sec)
+          open(P,'w',encoding='utf-8').write(text)
+          print('declared:',added)
+          PY
+      - name: Merge fragments
+        run: |
+          set -e
+          for f in $(ls docs/transcribe/*/fragments/*.json | sort); do
+            echo "== $f"
+            python3 tools/merge_transcribe_fragment.py --fragment "$f" | tail -3
+          done
+      - name: Rollup, bump, test
+        run: |
+          set -e
+          python3 tools/rollup_declarations.py --write | tail -16
+          python3 bump_assets.py | tail -2
+          node --test test/*.test.js | tail -6
+      - name: Commit if changed
+        run: |
+          set -e
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git diff --quiet; then echo 'NO_CHANGES'; exit 0; fi
+          git add -A
+          git commit -m 'feat(ingest): 题包自动入库（声明分组 + rollup + bump_assets）'
+          git push
