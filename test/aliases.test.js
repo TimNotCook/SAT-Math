@@ -36,8 +36,17 @@ test('alias 无链、双方都在题库里', () => {
   }
 });
 
-test('canonical 优先级不倒挂', () => {
+/* Unit 4 那 9 道已从真题侧撤出、改挂讲义复习 JY4「教材原题」子组（练习册 P200–207）。
+   口径（Tim 2026-11-25）：8 道 dup 的 canonical 一律回 TD 教材侧，U4 副本标 dup；
+   所以 U4 → TD 是**唯一允许**的优先级倒挂，其他倒挂一律报错。 */
+const JY4_ALLOW = /^U4-0\d$/;
+
+test('canonical 优先级不倒挂（JY4 教材原题例外）', () => {
   for (const [from, to] of Object.entries(ALIAS)) {
+    if (JY4_ALLOW.test(from)) {
+      assert.ok(/^TD-4[12]-/.test(to), `JY4 教材原题只能归并到 TD-41/42：${from} -> ${to}`);
+      continue;
+    }
     assert.ok(rank(to) <= rank(from), `优先级倒挂：${from}(${rank(from)}) -> ${to}(${rank(to)})`);
   }
 });

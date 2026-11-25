@@ -9,7 +9,8 @@
 
   /* ---------- catalog: EVERY question is filed into exactly one independent group.
      Textbook 474 questions -> 20 groups 1.1 ... 4.4 (one section = one independent set).
-     Legacy 64 curated questions -> 4 groups L1 ... L4 (kept, never merged away). ---------- */
+     Legacy 64 curated questions -> L1 ... L3 in the drill side; L4 is gone:
+     Unit 4 那 9 道已迁入讲义复习 JY4「教材原题」子组（练习册 P200–207）。 ---------- */
   var CATALOG = {};
   BANK.questions.forEach(function (q) {
     /* Unit 4 的 9 道精编原题已移交讲义复习 JY4「教材原题」子组（练习册 P200–207），

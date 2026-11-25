@@ -52,8 +52,22 @@ const dup = [...groups.values()].filter(g => g.length > 1)
   })
   .sort((a, b) => a.canonical.localeCompare(b.canonical));
 
+/* Unit 4 的 9 道精编原题已从真题侧撤出，改挂讲义复习 JY4「教材原题」子组（练习册 P200–207）。
+   它们与 TD 教材 4.1 / 4.2 是同一批原题，canonical 一律回 TD（教材板块才是正式家），
+   U4 副本标 dup、错题本归并。口径由 Tim 2026-11-25 定：8 道标 dup，U4-01 独占保留。
+   （实测 U4-01 与 TD-41-01 也是同题 P200 #1、答案同为 D，已在 docs/VERIFY-2026-11-25.md 挂待裁决。）*/
+const JY4_DUP = {
+  'U4-02': 'TD-41-02', 'U4-03': 'TD-41-03', 'U4-04': 'TD-41-05', 'U4-05': 'TD-41-06',
+  'U4-06': 'TD-42-03', 'U4-07': 'TD-42-04', 'U4-08': 'TD-42-09', 'U4-09': 'TD-42-10'
+};
+
 const alias = {};
 for (const g of dup) for (const m of g.members.slice(1)) alias[m.id] = g.canonical;
+/* JY4 教材原题：显式覆盖自动判定（自动判定会把 TD 反向指到 U4） */
+for (const [from, to] of Object.entries(JY4_DUP)) {
+  for (const k of Object.keys(alias)) if (alias[k] === from) delete alias[k];
+  alias[from] = to;
+}
 
 const stats = {
   questions: items.length,
@@ -82,9 +96,29 @@ if (process.argv.includes('--doc')) {
   L.push('| # | canonical（显示保留） | 同组 alias（标 alias / 错题归并到此） |');
   L.push('|---|---|---|');
   dup.forEach((g, i) => {
-    const others = g.members.slice(1).map(m => m.id + (m.source ? '（' + m.source + '）' : '')).join('、');
-    L.push(`| ${i + 1} | **${g.canonical}** | ${others} |`);
+    const canon = alias[g.canonical] || g.canonical; /* JY4 口径覆盖：canonical 可能被显式改指 TD */
+    const others = g.members.map(m => m.id).filter(id => id !== canon).map(id => {
+      const it = g.members.find(m => m.id === id);
+      return id + (it && it.source ? '（' + it.source + '）' : '');
+    }).join('、');
+    L.push(`| ${i + 1} | **${canon}** | ${others} |`);
   });
+  L.push('\n## Unit 4 教材原题子组（JY4 · 练习册 P200–207）\n');
+  L.push('口径（Tim 2026-11-25）：这 9 道已从真题侧的隐藏板块撤出，改挂「讲义复习 Unit4・教材原题」子组；');
+  L.push('**不计入讲义官方 4.1–4.5 的 52 道**（4.1=2、4.2=14、4.3=8、4.4=12、4.5=16）。');
+  L.push('其中 8 道与 TD 教材 4.1 / 4.2 是同一批原题 → canonical 回 TD，U4 副本标 dup、错题本归并；U4-01 独占保留。\n');
+  L.push('| U4 编号 | 原书位置 | 处理 | 归并到 | 备注 |');
+  L.push('|---|---|---|---|---|');
+  const u4items = items.filter(x => /^U4-0\d/.test(x.id));
+  const u4only = u4items.find(x => x.id === 'U4-01');
+  L.push(`| U4-01 | ${u4only ? u4only.source : '练习册 P200 #1'} | 独占保留 | — | 按口径不标 dup；实测与 TD-41-01 同题（P200 #1，答案同为 D），见 docs/VERIFY-2026-11-25.md 待裁决 |`);
+  for (const [from, to] of Object.entries(JY4_DUP)) {
+    const it = items.find(x => x.id === from);
+    const auto = dup.some(g => g.members.some(m => m.id === from));
+    L.push(`| ${from} | ${it ? it.source : '—'} | 标 dup | **${to}** | ${auto ? '题干归一可自动命中' : '题干有 OCR 漂移，按页号 / 题号对账'} |`);
+  }
+  L.push('\n> 自动归一这一轮只抓到 8 组里的 4 组（U4-02/04/05/08），另外 4 组题干差在 `line l/I`、空格、标点这类 OCR 漂移上，');
+  L.push('> 靠「练习册页 + 小节题号」对账补齐。alias 总条数 ' + Object.keys(alias).length + '。\n');
   L.push('\n## 错题本归并规则\n');
   L.push('1. `wrong-page.js` 的 `questionById(id)` 先查 `window.TD_ALIAS[id]`，命中即换成 canonical 再取题；记录 map 的键因此恒为 canonical id。');
   L.push('2. 同一道题在「单元精编」错一次、在「练习册」再错一次，合并为**一条**错题记录，`attempts` 累加、`sources` 追加来源。');

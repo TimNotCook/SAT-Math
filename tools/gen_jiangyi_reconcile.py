@@ -101,6 +101,29 @@ def main():
     lines.append("| %d | %d | %d |" % (need, have, need - have))
     lines.append("\n单节全绿的记法：`已录 = 应有`。当前完成 **%d / %d 节**。\n" %
                  (sum(1 for r in rows if r[2] == r[1]), len(rows)))
+    # ---------- Unit 4：教材原题子组（不计入官方 52 道） ----------
+    u4_secs = ["4.1", "4.2", "4.3", "4.4", "4.5"]
+    u4_need = sum(KEY[s]["maxNo"] for s in u4_secs)
+    u4_have = sum(recorded(s) for s in u4_secs)
+    legacy_u4 = re.findall(r'"id"\s*:\s*"(U4-0\d)"[^{}]*?"origin"\s*:\s*"legacy"', (ROOT / "questions.js").read_text())
+    legacy_u4 = sorted(set(legacy_u4))
+    alias_src = (ROOT / "data" / "aliases.js").read_text() if (ROOT / "data" / "aliases.js").exists() else ""
+    dup_map = re.findall(r'"(U4-0\d)"\s*:\s*"(TD-[0-9]{2}-[0-9]{2})"', alias_src)
+    dup_map = sorted(set(dup_map))
+    lines.append("\n## Unit 4：教材原题子组（JY4 · 练习册 P200–207，不计入官方 52 道）\n")
+    lines.append("官方 4.1–4.5 的题数按答案页算：%s = **%d 道**（已录 %d）。" %
+                 (" + ".join("%s=%d" % (s, KEY[s]["maxNo"]) for s in u4_secs), u4_need, u4_have))
+    lines.append("另有 **%d 道**精编原题（%s）已从真题侧的隐藏板块整体撤出，改挂「讲义复习 Unit4・教材原题」子组，"
+                 "**不计入上面这个 %d**、也不并进 4.1 / 4.2 的官方题数。\n" %
+                 (len(legacy_u4), "、".join(legacy_u4), u4_need))
+    lines.append("| U4 编号 | 处理 | 归并到（canonical） |")
+    lines.append("|---|---|---|")
+    lines.append("| U4-01 | 独占保留（不标 dup） | — |")
+    for f, t in dup_map:
+        lines.append("| %s | 标 dup | **%s** |" % (f, t))
+    lines.append("\n8 道 dup 在 `data/aliases.js` 里映射到 TD 教材侧同一题（canonical 回 TD，教材板块才是正式家），"
+                 "错题本按 alias 归并成一条。实测 U4-01 与 TD-41-01 也是同一题（练习册 P200 #1、答案同为 D），"
+                 "按现口径不标 dup，差异挂在 docs/VERIFY-2026-11-25.md 待裁决。\n")
     lines.append("\n## 内容缺口（视觉层，与上面数字对账表并列）\n")
     lines.append("数字对得上不代表页面看得对：这一节记的是「数据里有、页面上看不到」或「原页本身就缺」的条目。"
                  "来源 `data/content-gaps.json`，状态只允许：待修 / 待核 / 原页缺印 / 已核无缺。\n")
