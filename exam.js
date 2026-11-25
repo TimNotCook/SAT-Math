@@ -472,8 +472,11 @@
     if (calcBtn) calcBtn.hidden = name !== 'answer';
     $('tbStage').textContent = STAGE_LABEL[name] || name.toUpperCase();
     $('contextTitle').textContent = MODE === 'mock' ? 'Math' : MODE_NAME[MODE];
+    /* 390 窄屏实测：「Section 2, Module 1: Math」被省略号裁到 142px，
+       Module 号看不见。窄屏换短写法，宽屏保留 Bluebook 原句。 */
+    var narrowTop = !!(window.matchMedia && window.matchMedia('(max-width:520px)').matches);
     $('tbSection').textContent = MODE === 'mock'
-      ? 'Section 2, Module ' + S.module + ': Math'
+      ? (narrowTop ? 'Sec 2 · M' + S.module + ': Math' : 'Section 2, Module ' + S.module + ': Math')
       : 'Unit ' + QUIZ_UNIT + ' · 单元抽查';
   }
   function setStage(name) {

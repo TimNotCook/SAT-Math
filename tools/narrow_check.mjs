@@ -9,7 +9,7 @@ import path from 'path';
 
 const BASE = process.argv[2] || 'https://timnotcook.github.io/SAT-Math';
 const OUT = process.argv[3] || 'docs/ui-shots';
-const WIDTHS = [655, 390];
+const WIDTHS = (process.env.WIDTHS || '655,390').split(',').map(Number).filter(Boolean);
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = 9580 + Math.floor(Math.random() * 80);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -67,6 +67,8 @@ const PAGES = [
   { name: 'quiz-intro', url: '/exam.html?mode=quiz&unit=1', label: '抽查 开考' },
   { name: 'mock-intro', url: '/exam.html?mode=mock', label: '模考 开场' },
   { name: 'wrong', url: '/wrong.html', label: '错题回顾' },
+  { name: 'jiangyi-list', url: '/jiangyi.html', label: '讲义复习 列表' },
+  { name: 'jiangyi-sec', url: '/jiangyi.html?b=JY1&s=1.1&i=1', label: '讲义复习 做题' },
 ];
 
 const c = await cdp();

@@ -8,10 +8,10 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>SAT Math Prep · 讲义复习</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=d355fc1284ed">
-  <link rel="stylesheet" href="bluebook.css?v=d355fc1284ed">
-  <link rel="stylesheet" href="glass.css?v=d355fc1284ed">
-  <script src="theme.js?v=d355fc1284ed"></script>
+  <link rel="stylesheet" href="app.css?v=94659b058554">
+  <link rel="stylesheet" href="bluebook.css?v=94659b058554">
+  <link rel="stylesheet" href="glass.css?v=94659b058554">
+  <script src="theme.js?v=94659b058554"></script>
   <style>
     .jy-board-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0 8px}
     .jy-board-card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);text-align:left;cursor:pointer;transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
@@ -43,14 +43,15 @@
 </head>
 <body class="drill-page jy-page site-shell">
   <aside class="site-rail" aria-label="全站导航">
-    <a class="rail-brand" href="index.html">SAT Math Prep</a>
-    <a href="drill.html">真题练习</a>
-    <a href="jiangyi.html" aria-current="page">讲义复习</a>
-    <a href="exam.html?mode=mock">模考</a>
-    <a href="wrong.html">错题本</a>
-    <div class="rail-sep"></div>
-    <a class="rail-back" href="drill.html">← 返回真题练习</a>
-  </aside>
+  <a class="rail-brand" href="drill.html">SAT Math Prep</a>
+  <a href="drill.html">真题练习</a>
+  <a href="jiangyi.html" aria-current="page">讲义复习</a>
+  <a href="exam.html?mode=quiz&unit=1">单元抽查</a>
+  <a href="wrong.html">错题回顾</a>
+  <a href="exam.html?mode=mock">模考</a>
+  <div class="rail-sep"></div>
+  <a class="rail-back" href="drill.html">← 返回真题练习</a>
+</aside>
 
   <!-- 1) 四个子板块 -->
   <main class="drill-select" id="jyBoards">
@@ -136,12 +137,12 @@
   <!-- 讲义页与真题题库隔离：不加载 data/questions.js（560K），只给 app-core 一个空题库，
        这样导航栏仍由 app-core 单一来源渲染，讲义进度也不会碰到教材 CATALOG。 -->
   <script>window.TD_BANK = window.TD_BANK || { units: [], questions: [] };</script>
-  <script src="grade-core.js?v=d355fc1284ed" defer></script>
-  <script src="app-core.js?v=d355fc1284ed" defer></script>
-  <script src="data/jiangyi.js?v=d355fc1284ed" defer></script>
-  <script src="data/jiangyi_figures.js?v=d355fc1284ed" defer></script>
-  <script src="choice-figures.js?v=d355fc1284ed" defer></script>
-  <script src="jiangyi-core.js?v=d355fc1284ed" defer></script>
-  <script src="jiangyi-page.js?v=d355fc1284ed" defer></script>
+  <script src="grade-core.js?v=94659b058554" defer></script>
+  <script src="app-core.js?v=94659b058554" defer></script>
+  <script src="data/jiangyi.js?v=94659b058554" defer></script>
+  <script src="data/jiangyi_figures.js?v=94659b058554" defer></script>
+  <script src="choice-figures.js?v=94659b058554" defer></script>
+  <script src="jiangyi-core.js?v=94659b058554" defer></script>
+  <script src="jiangyi-page.js?v=94659b058554" defer></script>
 </body>
 </html>

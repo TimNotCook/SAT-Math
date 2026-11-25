@@ -82,6 +82,7 @@ const hasEntry = (links, target) => links.some(l => {
   const base = normHref(l.href), want = normHref(target);
   if (base !== want) return false;
   if (target.includes('mode=mock')) return String(l.href).includes('mode=mock');
+  if (target.includes('mode=quiz')) return String(l.href).includes('mode=quiz');
   return true;
 });
 
@@ -90,7 +91,7 @@ const PAGES = [
   { file: 'drill.html', label: '练习页' },
   { file: 'wrong.html', label: '错题页' }
 ];
-const ENTRIES = ['drill.html', 'jiangyi.html', 'exam.html?mode=mock', 'wrong.html'];
+const ENTRIES = ['drill.html', 'jiangyi.html', 'exam.html?mode=quiz&unit=1', 'wrong.html', 'exam.html?mode=mock'];
 
 for (const pg of PAGES) {
   await goto(`${BASE}/${pg.file}`);
@@ -120,6 +121,18 @@ ENTRIES.forEach(href => {
   check(`nav/root·${href}`, `跳转后可见入口 ${href}`, hasEntry(rootEntries, href) ? '有' : `缺失（共 ${rootEntries.length} 个可见链接）`,
     hasEntry(rootEntries, href));
 });
+
+/* 抽查页：五项导航必须齐、且侧栏高亮落在「单元抽查」而不是「模考」 */
+await goto(`${BASE}/exam.html?mode=quiz&unit=1`);
+const quizLinks = (await ev(VISIBLE_LINKS)) || [];
+ENTRIES.forEach(href => {
+  check(`nav/exam-quiz·${href}`, `可见入口 ${href}`, hasEntry(quizLinks, href) ? '有' : `缺失（共 ${quizLinks.length} 个可见链接）`,
+    hasEntry(quizLinks, href));
+});
+const quizCur = await ev(`(() => { const a = document.querySelector('.site-rail a[aria-current="page"]'); return a ? a.textContent.trim() : ''; })()`);
+check('nav/exam-quiz·高亮', '侧栏高亮「单元抽查」', `实际 ${quizCur || '无'}`, quizCur === '单元抽查');
+const brandHref = await ev(`(() => { const a = document.querySelector('.site-rail .rail-brand'); return a ? a.getAttribute('href') : ''; })()`);
+check('nav/brand·直指 drill', '侧栏品牌 href=drill.html', `实际 ${brandHref || '无'}`, brandHref === 'drill.html');
 
 /* 讲义页返回导航 */
 await goto(`${BASE}/jiangyi.html`);
