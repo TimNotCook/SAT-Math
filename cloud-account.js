@@ -304,8 +304,6 @@
     try { window.TDSync = { notify: onLocalWrite }; } catch (e) { console.warn('注册同步通知未生效', e); }
   }
 
-  /* 登录成功后：自动决定"切到该账号档案 / 归档本机进度 / 拉取别的设备进度"，
-     全部后台完成，不弹确认、不让用户做选择。 */
   async function afterSignIn() {
     var A = auth();
     if (!user || !A) return;
@@ -318,8 +316,6 @@
       renderBody();
       return;
     }
-
-    /* 昵称：档案 > Auth displayName > 默认「同学」；首次自动建档，永不显示邮箱。 */
     var cloudNick = archive && archive.nickname ? archive.nickname : '';
     nickname = cloudNick || (user && user.displayName) || '';
     if (!nickname) nickname = DEFAULT_NICK;
@@ -328,12 +324,9 @@
       try { await A.updateNickname(nickname); } catch (e) { /* 下次登录会重试 */ }
     }
     try { if (user && !user.displayName) user.displayName = nickname; } catch (e) { console.warn('写入昵称未生效', e); }
-
     var cloudPayload = archive && archive.payload ? canon(archive.payload) : null;
     var cloudHash = cloudPayload && Object.keys(cloudPayload).length ? hashOf(cloudPayload) : '';
     var lh = localHash();
-
-    /* 回到旧账号时，先恢复"登出后以游客身份做题"留下的增量，保证零丢失。 */
     var draft = loadDraft();
     if (draft && draft.uid === uid && draft.payload && Object.keys(draft.payload).length) {
       suppress = true;
@@ -345,7 +338,6 @@
       reloadSoon('正在打开你的学习档案…');
       return;
     }
-
     if (prof.owner === uid) {
       if (lh !== prof.lastSynced) {
         var ok = await silentPush();
@@ -408,13 +400,11 @@
       }
     }, 1000);
   }
-
   function syncOtpSendBtn() {
     if (!ui || !ui.otpSendBtn) return;
     ui.otpSendBtn.disabled = busy || otpCooldown > 0;
     ui.otpSendBtn.textContent = otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码');
   }
-
   async function doSendOtp(forReset) {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     if (!email) { setError('请先填写邮箱。'); return; }
@@ -431,7 +421,6 @@
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); syncOtpSendBtn(); }
   }
-
   async function doWbSignIn() {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     var pw = ui && ui.pw ? ui.pw.value : '';
@@ -445,7 +434,6 @@
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); }
   }
-
   async function doWbRegister() {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
@@ -462,7 +450,6 @@
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); }
   }
-
   async function doWbReset() {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
@@ -479,7 +466,6 @@
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); }
   }
-
   async function doVerifyOtp() {
     var email = ui && ui.email ? ui.email.value.trim() : otpEmail;
     var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
@@ -494,7 +480,6 @@
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); }
   }
-
   async function doGoogle() {
     try { setBusy(true); setError(''); await FB.signInGoogle(); }
     catch (e) { setError(friendlyError(e)); }
