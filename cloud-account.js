@@ -718,6 +718,8 @@
       '.site-rail .td-acct-btn.rail-settings:hover{background:#f3f7fc!important;color:#1d4ed8!important}',
       '@media(max-width:999px){.site-rail .td-acct-btn.rail-settings{margin:0 0 0 auto;width:auto;',
       'padding:8px 10px!important;font-size:13px!important}}',
+      /* 做题视图顶栏版：跟 Reference / 退出 同一排的幽灵按钮 */
+      '.drill-context-right .td-acct-btn.ctx-settings{padding:6px 8px!important;margin:0 2px 0 0!important}',
       '@media(max-width:640px){.td-acct-btn{font-size:12px;padding:5px 9px}}'
     ].join('');
     document.head.appendChild(css);
@@ -1239,9 +1241,31 @@
   }
 
   function mountButton(btn) {
+    function vis(el) { return !!el && el.getClientRects().length > 0; }
+    function host() {
+      // 全站侧栏（app.css 的 .site-rail）：列表视图下唯一稳定可见的导航容器。
+      var rail = document.querySelector('.site-rail');
+      if (vis(rail)) return { node: rail, cls: 'rail-settings', first: false };
+      // 做题视图：侧栏被冻结规则整块 display:none，入口改挂顶部工具条右侧（Reference / 退出 那一排）。
+      var ctx = document.querySelector('.drill-context-right');
+      if (vis(ctx)) return { node: ctx, cls: 'ctx-settings', first: true };
+      return null;
+    }
+    function place() {
+      var h = host();
+      if (!h) return false;
+      if (btn.parentNode !== h.node) {
+        btn.classList.remove('rail-settings', 'ctx-settings');
+        btn.classList.add(h.cls);
+        btn.removeAttribute('style');
+        if (h.first && h.node.firstChild) h.node.insertBefore(btn, h.node.firstChild);
+        else h.node.appendChild(btn);
+        return true;
+      }
+      if (!btn.classList.contains(h.cls)) btn.classList.add(h.cls);
+      return true;
+    }
     function attach() {
-      // 全站侧栏（app.css 的 .site-rail）：五个页面都有，是唯一稳定可见的导航容器。
-      // 旧的 #appnav 在改成侧栏后整块 0 尺寸，挂上去等于按钮不可见，故优先挂侧栏。
       var rail = document.querySelector('.site-rail');
       if (rail && !btn.isConnected) {
         if (!btn.classList.contains('rail-settings')) btn.classList.add('rail-settings');
@@ -1259,7 +1283,14 @@
       if (bar && !btn.isConnected) { bar.appendChild(btn); return true; }
       return btn.isConnected;
     }
-    if (attach()) return;
+    if (!place()) {
+      if (attach()) { /* 侧栏还没渲染出来时先挂后补 */ }
+    }
+    // 列表 ⇄ 做题 切换时侧栏会整块隐藏，每 900ms 重新找一个「当前真的可见」的宿主
+    setInterval(function () {
+      if (document.visibilityState === 'hidden') return;
+      place();
+    }, 900);
     var obs = new MutationObserver(function () { if (attach()) obs.disconnect(); });
     obs.observe(document.body, { childList: true, subtree: true });
     setTimeout(function () {
