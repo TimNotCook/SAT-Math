@@ -39,7 +39,8 @@
 
 ## #22（R04-122，grid，配图）
 - **原页定位**：p12.jpg 右半（书页 163）右栏上题框，册内 #22。
-- **逐字核对**："Note: Figure not drawn to scale.\nIn the figure above, tan B = 3/4. If BC = 15 and DA = 4, what is the length of DE?"
+- **逐字核对**："Note: Figure not drawn to scale.
+In the figure above, tan B = 3/4. If BC = 15 and DA = 4, what is the length of DE?"
   - 易错点：`tan B` 无括号；`3/4`、`BC = 15`、`DA = 4`；求 DE（非 BD/AB）。
 - **选项确认**：grid，`choices:{}`。
 - **图形 ↔ spec**：原图 = 直角在 A 的大直角△BAC（B 顶、A 左下直角、C 右下），D 在 AB 上（直角标记），DE 水平连到斜边上的 E；`figSpec.type=rawSvg` 手绘 svg：外三角三边 + DE 水平线 + A/D 两处直角小方块 + 顶点标签 B/A/C/D/E。
@@ -57,9 +58,9 @@
 
 ## #24（R04-124，grid）
 - **原页定位**：p13.jpg 左半（书页 164）左栏中题框，册内 #24。
-- **逐字核对**："Triangle ABC is similar to triangle DEF, where angle A corresponds to angle D and angle C corresponds to angle F. Angles C and F are right angles.\nIf tan(A) = 50/7, what is the value of tan(E)?"
-  - 易错点：`tan(A)`、`tan(E)` 带括号（照原页，区别于 #20/#27 的 `tan A`）；A↔D、C↔F → B↔E；整段换行 `
-` 照原页空行。
+- **逐字核对**："Triangle ABC is similar to triangle DEF, where angle A corresponds to angle D and angle C corresponds to angle F. Angles C and F are right angles.
+If tan(A) = 50/7, what is the value of tan(E)?"
+  - 易错点：`tan(A)`、`tan(E)` 带括号（照原页，区别于 #20/#27 的 `tan A`）；A↔D、C↔F → B↔E；整段换行（Note 提示行与题干正文之间空行）照原页。
 - **选项确认**：grid，`choices:{}`。
 - **图形 ↔ spec**：无图，`figSpec:null`。
 - **答案复算（独立复算）**：∠E↔∠B = 90°−∠A，tan E = tan B = cot A = 1/tan A = **7/50**（value 0.14，answer "7/50"）。
@@ -85,7 +86,8 @@
 
 ## #27（R04-127，grid）
 - **原页定位**：p13.jpg 左半（书页 164）右栏中题框，册内 #27。
-- **逐字核对**："Triangle ABC is similar to triangle DEF, where angle A corresponds to angle D and angles C and F are right angles. The length of AB is 2.8 times the length of DE.\nIf tan A = 20/21, what is the value of sin D?"
+- **逐字核对**："Triangle ABC is similar to triangle DEF, where angle A corresponds to angle D and angles C and F are right angles. The length of AB is 2.8 times the length of DE.
+If tan A = 20/21, what is the value of sin D?"
   - 易错点：`tan A` 无括号；`2.8` 一位小数（区别 #20 的 2.9）；`20/21`；2.8 缩放比为干扰。
 - **选项确认**：grid，`choices:{}`。
 - **图形 ↔ spec**：无图，`figSpec:null`。
@@ -94,7 +96,8 @@
 
 ## #28（R04-128，grid，配图）
 - **原页定位**：p13.jpg 左半（书页 164）右栏下题框，册内 #28。
-- **逐字核对**："Note: Figure not drawn to scale.\nAccording to a US law, ramps for use by the general public must form an angle with level ground such that tanθ ≤ 1/12. If the ramp in the figure conforms to this law and has a height of 28.9 inches, what is the least possible value of x, in inches?"
+- **逐字核对**："Note: Figure not drawn to scale.
+According to a US law, ramps for use by the general public must form an angle with level ground such that tanθ ≤ 1/12. If the ramp in the figure conforms to this law and has a height of 28.9 inches, what is the least possible value of x, in inches?"
   - 易错点：`tanθ` 无括号、`θ` 变量；`≤`（U+2264）；`1/12`；`28.9 inches`；`least possible value`（取等号边界）。
 - **选项确认**：grid，`choices:{}`。
 - **图形 ↔ spec**：原图 = 坡道直角三角形，θ 在左下，底边标 x，斜边标 "length of the ramp"，竖直边标 "height of the ramp"；`figSpec.type=rawSvg` 手绘 svg：水平地面 + 竖直高边 + 斜边 + 直角小方块 + θ 弧标 + x/双标签。
@@ -187,4 +190,4 @@
 ## 汇总
 - mcq 6 题：#21=C、#23=D、#33=C、#34=C、#35=D、#37=B；grid 12 题：#20=21/29、#22=6、#24=7/50、#25=15/17、#26=177、#27=20/29、#28=346.8、#29=12、#30=392、#31=103.2、#32=250/3、#36=−1/2。合计 18 题。
 - 配图 2 题：#22（rawSvg 直角△+DE 辅助线）、#28（rawSvg 坡道三角+θ/x/双标签）；其余 16 题 `figSpec:null`。
-- 自查修掉的差异条数：**0**（题干/选项一次成稿，放大复核与本地不变量自检、数值复算均未发现需改字）。
+- 自查修掉的差异条数：**0**（题干/选项一次成稿，放大复核与本地不变量自检、数值复算均未发现需改字；推送传输层 2 处格式差异已按本地定稿回修：JSON 文件尾换行对齐仓内无尾换行惯例、#24 易错点换行表述去转义）。
