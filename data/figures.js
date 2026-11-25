@@ -817,3 +817,15 @@ Object.assign(window.TD_FIG_SPECS, {
 Object.assign(window.TD_FIG_SPECS, {
   "R03-361": {"type":"table","head":["Hours practiced","6 to 13 points","14 or more points","Total"],"rows":[["3 to 5 hours","6","4","10"],["More than 5 hours","4","26","30"],["Total","10","30","40"]]},
 });
+
+/* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
+Object.assign(window.TD_FIG_SPECS, {
+  "R03-241": {"type":"table","head":["Rhesus factor","A","B","AB","O"],"headGroups":[{"label":"Blood type","span":4}],"rows":[["+","33","93","37","7"],["\u2212","7","2","1","x"]]},
+  "R03-243": {"type":"table","head":["","Phone","Email"],"rows":[["Dinner dance","55%","80%"],["Football game","20%","10%"],["Picnic","20%","5%"],["Pool party","5%","5%"],["Total","100%","100%"]]},
+  "R03-245": {"type":"table","head":["","0-9 years","10-19 years","20+ years","Total"],"rows":[["Group A","7","14","9","30"],["Group B","6","4","20","30"],["Group C","17","12","1","30"],["Total","30","30","30","90"]]},
+  "R03-246": {"type":"table","head":["Subject","Sixth","Seventh","Eighth","Total"],"headGroups":[{"label":"Grade level","span":3}],"rows":[["English","4","10","7","21"],["Mathematics","10","1","9","20"],["Science","2","8","4","14"],["Social studies","8","7","10","25"],["Total","24","26","30","80"]]},
+  "R03-247": {"type":"table","head":["","Asked for repairs","Did not ask for repairs","Total"],"rows":[["Asked about a bill","48","623","671"],["Did not ask about a bill","130","90","220"],["Total","178","713","891"]]},
+  "R03-248": {"type":"table","caption":"Number of Contestants by Score and Day","head":["Day","5 out of 5","4 out of 5","3 out of 5","2 out of 5","1 out of 5","0 out of 5","Total"],"rows":[["Day 1","2","3","4","6","2","3","20"],["Day 2","2","3","5","5","4","1","20"],["Day 3","3","3","4","5","3","2","20"],["Total","7","9","13","16","9","6","60"]]},
+  "R03-250": {"type":"table","head":["","Lions","Stars","Total"],"rows":[["Small","6","8","14"],["Medium","24","34","58"],["Large","18","26","44"],["Total","48","68","116"]]},
+  "R03-251": {"type":"table","caption":"2013 State-Level Taxes","head":["","State sales tax","No state sales tax"],"rows":[["State income tax","39","4"],["No state income tax","6","1"]]},
+});
