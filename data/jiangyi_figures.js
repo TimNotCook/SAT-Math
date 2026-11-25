@@ -113,6 +113,107 @@
     return { w: W, h: H, body: g.join('') };
   }
 
+
+  // 散点图 / 统计图表（2.2 起用）：网格可只画横线（原书 p47/p51 就是这种），
+  // 刻度可给成「数值 + 显示串」（千分位 5,000）并可斜排，支持图表标题、轴标题、
+  // 拟合直线 y = m*x + b、二次模型曲线、以及任意折线路径（p52 的曲线）。
+  function scatter(o) {
+    var W = o.w, H = o.h;
+    var ml = o.ml || 68, mr = o.mr || 34;
+    var mb = o.mb || (o.xTitle ? 52 : 36), mt = o.mt || (o.title ? 40 : 26);
+    var xmin = o.x.min, xmax = o.x.max, ymin = o.y.min, ymax = o.y.max;
+    var pw = W - ml - mr, ph = H - mt - mb;
+    function X(v) { return ml + (v - xmin) / (xmax - xmin) * pw; }
+    function Y(v) { return mt + (ymax - v) / (ymax - ymin) * ph; }
+    function txt(v) {
+      if (o.xText && o.xText[String(v)] !== undefined) return o.xText[String(v)];
+      return String(v);
+    }
+    function lt(prefix, v) {
+      var d = (prefix === 'x' ? o.xText : o.yText) || {};
+      return d[String(v)] !== undefined ? d[String(v)] : String(v);
+    }
+    var g = [], i, xs = o.x.step || 1, ys = o.y.step || 1;
+    var grid = o.grid || 'both';
+    if (grid !== 'y') {
+      for (i = Math.ceil(xmin / xs) * xs; i <= xmax + 1e-9; i += xs)
+        g.push('<line x1="' + X(i).toFixed(1) + '" y1="' + Y(ymin) + '" x2="' + X(i).toFixed(1) + '" y2="' + Y(ymax) + '" stroke="' + GRID + '"/>');
+    }
+    if (grid !== 'x') {
+      for (i = Math.ceil(ymin / ys) * ys; i <= ymax + 1e-9; i += ys)
+        g.push('<line x1="' + X(xmin) + '" y1="' + Y(i).toFixed(1) + '" x2="' + X(xmax) + '" y2="' + Y(i).toFixed(1) + '" stroke="' + GRID + '"/>');
+    }
+    // 框线：原书统计图四边都有细框
+    var fr = '<rect x="' + X(xmin).toFixed(1) + '" y="' + Y(ymax).toFixed(1) + '" width="' + pw + '" height="' + ph + '" fill="none" stroke="' + INK + '" stroke-width="1.1"/>';
+    // 轴箭头：x 向右、y 向上，都落在框边
+    var ax = '';
+    ax += '<path d="M ' + (X(xmax) + 9) + ' ' + Y(ymin) + ' L ' + (X(xmax) + 1) + ' ' + (Y(ymin) - 3.4) + ' L ' + (X(xmax) + 1) + ' ' + (Y(ymin) + 3.4) + ' Z" fill="' + INK + '"/>';
+    ax += '<path d="M ' + X(xmin) + ' ' + (Y(ymax) - 9) + ' L ' + (X(xmin) - 3.4) + ' ' + (Y(ymax) - 1) + ' L ' + (X(xmin) + 3.4) + ' ' + (Y(ymax) - 1) + ' Z" fill="' + INK + '"/>';
+    ax += '<text x="' + (X(xmax) + 12) + '" y="' + (Y(ymin) + 9) + '" font-size="13" font-style="italic" fill="' + INK + '">x</text>';
+    ax += '<text x="' + (X(xmin) - 1) + '" y="' + (Y(ymax) - 13) + '" font-size="13" font-style="italic" fill="' + INK + '">y</text>';
+    if (o.originO) ax += '<text x="' + (X(xmin) - 4) + '" y="' + (Y(ymin) - 6) + '" font-size="12" fill="' + LAB + '" text-anchor="end">O</text>';
+    // 刻度：x 在轴下、y 在轴左；o.xRotate 时斜排
+    var tl = [];
+    (o.x.labels || []).forEach(function (v) {
+      var xx = X(v).toFixed(1), yy = (Y(ymin) + 16);
+      var t = '<text x="' + xx + '" y="' + yy + '" font-size="11.5" fill="' + LAB + '" text-anchor="' + (o.xRotate ? 'end' : 'middle') + '"' +
+        (o.xRotate ? ' transform="rotate(-42 ' + xx + ' ' + yy + ')"' : '') + '>' + esc(lt('x', v)) + '</text>';
+      tl.push(t);
+    });
+    (o.y.labels || []).forEach(function (v) {
+      tl.push('<text x="' + (X(xmin) - 6) + '" y="' + (Y(v) + 4) + '" font-size="11.5" fill="' + LAB + '" text-anchor="end">' + esc(lt('y', v)) + '</text>');
+    });
+    // 标题与轴标题
+    var tt = '';
+    if (o.title) {
+      var ti = Array.isArray(o.title) ? o.title : [o.title];
+      ti.forEach(function (line, k) {
+        tt += '<text x="' + (W / 2) + '" y="' + (16 + k * 15) + '" font-size="12.5" fill="' + INK + '" text-anchor="middle">' + esc(line) + '</text>';
+      });
+    }
+    if (o.xTitle) {
+      var xi = Array.isArray(o.xTitle) ? o.xTitle : [o.xTitle];
+      xi.forEach(function (line, k) {
+        tt += '<text x="' + (ml + pw / 2) + '" y="' + (H - 8 - (xi.length - 1 - k) * 14) + '" font-size="12" fill="' + INK + '" text-anchor="middle">' + esc(line) + '</text>';
+      });
+    }
+    if (o.yTitle) {
+      var yl = Array.isArray(o.yTitle) ? o.yTitle : [o.yTitle];
+      yl.forEach(function (line, k) {
+        var tx = 14 + (k - (yl.length - 1) / 2) * 13;
+        var ty = mt + ph / 2;
+        tt += '<text x="' + tx + '" y="' + ty + '" font-size="11.5" fill="' + INK + '" text-anchor="middle" transform="rotate(-90 ' + tx + ' ' + ty + ')">' + esc(line) + '</text>';
+      });
+    }
+    // 点
+    var dots = (o.dots || []).map(function (d) {
+      return '<circle cx="' + X(d[0]).toFixed(1) + '" cy="' + Y(d[1]).toFixed(1) + '" r="' + (o.dotR || 3.5) + '" fill="' + LINE + '"/>';
+    }).join('');
+    // 直线
+    var line = '';
+    if (o.line) {
+      var s0 = o.line.x0 === undefined ? xmin : o.line.x0, s1 = o.line.x1 === undefined ? xmax : o.line.x1;
+      line = '<line x1="' + X(s0).toFixed(1) + '" y1="' + Y(o.line.m * s0 + o.line.b).toFixed(1) + '" x2="' + X(s1).toFixed(1) + '" y2="' + Y(o.line.m * s1 + o.line.b).toFixed(1) + '" stroke="' + LINE + '" stroke-width="1.9" stroke-linecap="round"/>';
+    }
+    // 二次模型曲线 / 折线路径
+    var cv = '';
+    if (o.curve && o.curve.a !== undefined) {
+      var pts = [], n = 90;
+      for (i = 0; i <= n; i++) {
+        var xx2 = xmin + (xmax - xmin) * i / n, yy2 = o.curve.a * xx2 * xx2 + o.curve.b * xx2 + (o.curve.c || 0);
+        if (yy2 >= ymin - 0.2 && yy2 <= ymax + 0.2) pts.push(X(xx2).toFixed(1) + ',' + Y(yy2).toFixed(1));
+      }
+      if (pts.length > 1) cv = '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + LINE + '" stroke-width="1.9"/>';
+    } else if (o.curve && o.curve.pts) {
+      var p2 = o.curve.pts.map(function (q) { return X(q[0]).toFixed(1) + ',' + Y(q[1]).toFixed(1); });
+      cv = '<polyline points="' + p2.join(' ') + '" fill="none" stroke="' + LINE + '" stroke-width="1.9"/>';
+    }
+    UID++;
+    var clip = '<clipPath id="jsc' + UID + '"><rect x="' + X(xmin) + '" y="' + Y(ymax) + '" width="' + pw + '" height="' + ph + '"/></clipPath>';
+    var body = fr + clip + '<g clip-path="url(#jsc' + UID + ')">' + g.join('') + cv + line + dots + '</g>' + ax + tl.join('') + tt;
+    return { w: W, h: H, body: body };
+  }
+
   function wrap(body) {
     return '<svg viewBox="0 0 ' + body.w + ' ' + body.h + '" width="100%" preserveAspectRatio="xMidYMid meet" role="img" style="max-width:' + body.w + 'px">' + body.body + '</svg>';
   }
@@ -212,7 +313,97 @@
            y: { min: -2, max: 2, step: 0.5, labels: [1] }, lines: [{ m: -0.5, b: 1, x0: -2, x1: 2 }] },
       D: { w: 272, h: 252, x: { min: -2, max: 2, step: 0.5, labels: [1] },
            y: { min: -2, max: 2, step: 0.5, labels: [1] }, lines: [{ m: -2, b: 1, x0: -2, x1: 2 }] }
-    } }
+    } },
+
+    // ===== 2.2 散点图（p45–p53）：点坐标按原页 240dpi 花样量取，误差 <1 个刻度；
+    // 只有原书给的方程/拟合线按印刷坐标重画，曲线按原页逐点采样。
+    // p45 #1：relative housing cost vs population density，line y = 0.0125x + 61
+    'JY2-014': { type: 'scatter', w: 540, h: 420,
+      x: { min: 0, max: 26000, step: 5000, labels: [0, 5000, 10000, 15000, 20000, 25000] },
+      xText: { '5000': '5,000', '10000': '10,000', '15000': '15,000', '20000': '20,000', '25000': '25,000' },
+      y: { min: 0, max: 400, step: 50, labels: [0, 50, 100, 150, 200, 250, 300, 350, 400] },
+      xTitle: ['Population density', '(people per square mile land area)'],
+      yTitle: ['Relative housing cost', '(percent of national average cost)'],
+      dots: [[800, 86], [2350, 78], [3000, 80], [3300, 86], [3800, 95], [3300, 211],
+             [6110, 121], [7620, 245], [10540, 125], [11200, 179], [12100, 168], [15140, 308], [25000, 398]],
+      line: { m: 0.0125, b: 61, x0: 0, x1: 25800 }, dotR: 3.4 },
+
+    // p46 #2：x 0–10 每 2、y 0–20 每 4；线 y = 0.786x + 6.07（原页量线），x=5 时预测 10.0、实点 14
+    'JY2-015': { type: 'scatter', w: 430, h: 400,
+      x: { min: 0, max: 10, step: 2, labels: [0, 2, 4, 6, 8, 10] },
+      y: { min: 0, max: 20, step: 4, labels: [0, 4, 8, 12, 16, 20] },
+      dots: [[1, 4.8], [2, 8.8], [5, 14], [7, 7.5], [8, 11.3], [9, 15.3]],
+      line: { m: 0.786, b: 6.07, x0: 0, x1: 9.7 } },
+
+    // p47 #3：十家慈善机构，只有横网格；x 0–7,000 每 1,000 斜排，y 70–95 每 5
+    'JY2-016': { type: 'scatter', w: 540, h: 440,
+      title: ['Income and Percent of Total Expenses Spent', 'on Programs for Ten Charities in 2011'],
+      x: { min: 0, max: 7000, step: 1000, labels: [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000] },
+      xText: { '1000': '1,000', '2000': '2,000', '3000': '3,000', '4000': '4,000', '5000': '5,000', '6000': '6,000', '7000': '7,000' },
+      xRotate: true, grid: 'y',
+      y: { min: 70, max: 95, step: 5, labels: [70, 75, 80, 85, 90, 95] },
+      yTitle: ['Percent of total expenses', 'spent on programs'],
+      xTitle: 'Total income (millions of dollars)',
+      dots: [[1200, 74], [1400, 81], [1400, 84], [1500, 85], [3500, 84],
+             [3700, 92], [4400, 91], [4600, 89], [4700, 80], [6200, 87]],
+      line: { m: 0.001856, b: 78.55, x0: 1250, x1: 6200 }, dotR: 3.2 },
+
+    // p48 #4：下降拟合线；y 轴从 2 起标（0 不标），x 0–8
+    'JY2-017': { type: 'scatter', w: 470, h: 410,
+      x: { min: 0, max: 8, step: 1, labels: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
+      y: { min: 0, max: 16, step: 2, labels: [2, 4, 6, 8, 10, 12, 14, 16] },
+      dots: [[1, 15.5], [2, 10], [3, 8], [4, 8], [5, 4], [6, 3.2], [7, 1]],
+      line: { m: -2.08, b: 15.2, x0: 0, x1: 7.3 } },
+
+    // p49 #5：12 个速度 + 二次模型；曲线按原页采样点走折线（不用 a/b/c 硬拟合）
+    'JY2-018': { type: 'scatter', w: 540, h: 400,
+      x: { min: 0, max: 80, step: 5, labels: [0, 10, 20, 30, 40, 50, 60, 70, 80] },
+      y: { min: 21, max: 31, step: 1, labels: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31] },
+      xTitle: 'Speed (miles per hour)', yTitle: 'Average fuel economy (miles per gallon)',
+      dots: [[10, 23.6], [15, 25.4], [20, 27.3], [25, 29.1], [30, 28.9], [35, 30.3],
+             [40, 30.0], [45, 30.3], [50, 30.4], [55, 29.0], [60, 27.2], [65, 24.0]],
+      curve: { pts: [[3, 20.6], [5, 21.2], [10, 23.4], [15, 25.3], [20, 27.2], [25, 28.8],
+                     [30, 29.4], [35, 30.05], [40, 30.2], [45, 30.15], [50, 29.9], [55, 29.3],
+                     [60, 27.0], [65, 24.0], [70, 21.5], [73, 19.5]] },
+      dotR: 3.2 },
+
+    // p50 #6：Ice Cream Sales；x 10–26 每 2、y 300–1,000 每 100；线 d = 33t + 84
+    'JY2-019': { type: 'scatter', w: 540, h: 420,
+      title: 'Ice Cream Sales',
+      x: { min: 10, max: 26, step: 2, labels: [10, 12, 14, 16, 18, 20, 22, 24, 26] },
+      y: { min: 300, max: 1000, step: 100, labels: [300, 400, 500, 600, 700, 800, 900, 1000] },
+      yText: { '1000': '1,000' },
+      xTitle: 'Temperature (°C)', yTitle: 'Sales (dollars)',
+      dots: [[11.4, 480], [14.1, 520], [15.2, 630], [17.0, 700], [17.5, 710], [18.0, 715],
+             [18.6, 705], [19.1, 700], [22.1, 820], [22.6, 740], [23.3, 830], [24.0, 700]],
+      line: { m: 33, b: 84, x0: 11, x1: 25 }, dotR: 3.2 },
+
+    // p51 #7：Minimum Wage；只有横网格；x 0–80（标到 70）、y 0–8；线 y = 0.096x - 0.488
+    'JY2-020': { type: 'scatter', w: 540, h: 420,
+      title: 'Minimum Wage',
+      x: { min: 0, max: 80, step: 10, labels: [0, 10, 20, 30, 40, 50, 60, 70] },
+      grid: 'y',
+      y: { min: 0, max: 8, step: 1, labels: [1, 2, 3, 4, 5, 6, 7, 8] },
+      xTitle: 'Years since 1940', yTitle: 'Minimum wage (dollars per hour)',
+      dots: [[0, 0.25], [10, 0.75], [20, 0.95], [30, 1.6], [40, 3.05], [50, 3.75], [60, 5.1], [70, 7.2]],
+      line: { m: 0.096, b: -0.488, x0: 5, x1: 70 }, dotR: 3.2 },
+
+    // p52 #8：动量随时间，曲线 + 三个实心点 (4,7)(6,7.8)(8,10)；x=2 时 y=5.8
+    'JY2-021': { type: 'scatter', w: 430, h: 410,
+      x: { min: 0, max: 8, step: 1, labels: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
+      y: { min: 0, max: 11, step: 1, labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+      xTitle: 'Time (seconds)', yTitle: 'Momentum (newton-seconds)',
+      curve: { pts: [[0, 0.2], [0.5, 1.7], [1, 3.2], [1.5, 4.8], [2, 5.8], [2.5, 6.25], [3, 6.55],
+                     [4, 7], [5, 7.35], [6, 7.8], [7, 8.8], [8, 10]] },
+      dots: [[4, 7], [6, 7.8], [8, 10]], dotR: 3.4 },
+
+    // p53 #9：纯散点；x 0–10 每 2、y 0–16（横网格每 1、标每 2）
+    'JY2-022': { type: 'scatter', w: 450, h: 430,
+      x: { min: 0, max: 10, step: 2, labels: [0, 2, 4, 6, 8, 10] },
+      y: { min: 0, max: 16, step: 1, labels: [0, 2, 4, 6, 8, 10, 12, 14, 16] },
+      xTitle: 'Days after January 11', yTitle: 'Length of time (hours)',
+      dots: [[1, 14], [2, 6], [3, 10], [4, 15], [5, 14], [6, 7], [7, 11], [8, 14], [9, 13.5]],
+      dotR: 3.4 }
   };
 
   window.JY_FIG = {
@@ -221,6 +412,7 @@
       var s = specs[id];
       if (!s) return '';
       if (s.type === 'quadrants') return wrap(quadrants(s));
+      if (s.type === 'scatter') return wrap(scatter(s));
       return wrap(s.type === 'quad' ? quad(s) : plane(s));
     },
     // 单格渲染：把 quad spec 里的某一个选项面板单独画出来（renderPanel('JY1-040','A')）。

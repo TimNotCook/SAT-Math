@@ -234,7 +234,30 @@ window.JY_BANK = [
  "choices":["25 meters per second", "32 meters per second", "250 meters per second", "324 meters per second"]},
 {"id": "JY2-013", "unit": 2, "section": "2.1", "no": 13, "page": 44, "source": "讲义 p44 #13", "type": "mcq", "answer": "A",
  "stem":"The area of a rectangular region is increasing at a rate of 20 square feet per hour. Which of the following is closest to this rate in square meters per minute? (Use 1 meter = 3.28 feet.)",
- "choices":["0.03", "0.10", "1.09", "2.03"]},
+ "choices":["0.03", "0.10", "1.09", "2.03"]},{"id": "JY2-014", "unit": 2, "section": "2.2", "no": 1, "page": 45, "source": "讲义 p45 #1", "type": "grid", "figure": "JY2-014", "answer": "第一空 250，第二空 123.5", "value": 250, 
+ "stem":"The scatterplot above shows the relative housing cost and the population density for several large US cities in the year 2005. The equation of the line of best fit is y = 0.0125x + 61. According to the graph, the predicted relative housing cost for a population density of 15,000 people per square mile land area is approximately ____ of the national average cost. According to the equation of the line of best fit, the predicted relative housing cost for a population density of 5,000 people per square mile land area is ____ of the national average cost.",
+ "note":"原题两个空：第一空 250（读图），第二空 123.5（代入 y = 0.0125x + 61）。现有 grid 单值模型只承载第一空，value 取 250；note 仅内部记录，不进学生端渲染。"
+},{"id": "JY2-015", "unit": 2, "section": "2.2", "no": 2, "page": 46, "source": "讲义 p46 #2", "type": "mcq", "figure": "JY2-015", "answer": "C", 
+ "stem":"The scatterplot shows the relationship between two variables, x and y. A line of best fit is also shown. At x = 5, how many units greater is the actual y-value of the data point than the y-value predicted by the line of best fit?",
+ "choices":["14", "10", "4", "2"]
+},{"id": "JY2-016", "unit": 2, "section": "2.2", "no": 3, "page": 47, "source": "讲义 p47 #3", "type": "mcq", "figure": "JY2-016", "answer": "B", 
+ "stem":"The scatterplot above shows data for ten charities along with the line of best fit. For the charity with the greatest percent of total expenses spent on programs, which of the following is closest to the difference of the actual percent and the percent predicted by the line of best fit?",
+ "choices":["10%", "7%", "4%", "1%"]
+},{"id": "JY2-017", "unit": 2, "section": "2.2", "no": 4, "page": 48, "source": "讲义 p48 #4", "type": "grid", "figure": "JY2-017", "answer": "3", "value": 3, 
+ "stem":"The scatterplot shows the relationship between two variables, x and y. A line of best fit for the data is also shown. For how many data points does the line of best fit predict a y-value greater than the y-value of the actual data point?"
+},{"id": "JY2-018", "unit": 2, "section": "2.2", "no": 5, "page": 49, "source": "讲义 p49 #5", "type": "grid", "figure": "JY2-018", "answer": "1/4", "value": 0.25, 
+ "stem":"The scatterplot above shows the average fuel economy for a certain class of car driven at 12 different speeds. The graph of a quadratic model for the data is also shown. For what fraction of the 12 speeds does the model overestimate the average fuel economy?"
+},{"id": "JY2-019", "unit": 2, "section": "2.2", "no": 6, "page": 50, "source": "讲义 p50 #6", "type": "mcq", "figure": "JY2-019", "answer": "D", 
+ "stem":"The scatterplot above shows a company's ice cream sales d, in dollars, and the high temperature t, in degrees Celsius (°C), on 12 different days. A line of best fit for the data is also shown. Which of the following could be an equation of the line of best fit?",
+ "choices":["d = 0.03t + 402", "d = 10t + 402", "d = 33t + 300", "d = 33t + 84"]
+},{"id": "JY2-020", "unit": 2, "section": "2.2", "no": 7, "page": 51, "source": "讲义 p51 #7", "type": "mcq", "figure": "JY2-020", "answer": "A", 
+ "stem":"The scatterplot above shows the federal-mandated minimum wage every 10 years between 1940 and 2010. A line of best fit is shown, and its equation is y = 0.096x - 0.488. What does the line of best fit predict about the increase in the minimum wage over the 70-year period?",
+ "choices":["Each year between 1940 and 2010, the average increase in minimum wage was 0.096 dollars.", "Each year between 1940 and 2010, the average increase in minimum wage was 0.49 dollars.", "Every 10 years between 1940 and 2010, the average increase in minimum wage was 0.096 dollars", "Every 10 years between 1940 and 2010, the average increase in minimum wage was 0.488 dollars."]
+},{"id": "JY2-021", "unit": 2, "section": "2.2", "no": 8, "page": 52, "source": "讲义 p52 #8", "type": "grid", "figure": "JY2-021", "answer": ".5 or 1/2", "value": 0.5, 
+ "stem":"The graph shows the momentum y, in newton-seconds, of an object x seconds after the object started moving, for 0 ≤ x ≤ 8. What is the average rate of change, in newton-seconds per second, in the momentum of the object from x = 2 to x = 6?"
+},{"id": "JY2-022", "unit": 2, "section": "2.2", "no": 9, "page": 53, "source": "讲义 p53 #9", "type": "grid", "figure": "JY2-022", "answer": "4.5 or 9/2", "value": 4.5, 
+ "stem":"The scatterplot shows the relationship between the length of time y, in hours, a certain bird spent in flight and the number of days after January 11, x. What is the average rate of change, in hours per day, of the length of time the bird spent in flight on January 13 to the length of time the bird spent in flight on January 15?"
+},
 {"id": "JY4-047", "unit": 4, "section": "4.1", "no": 1, "page": 200, "group": "textbook", "source": "\u7ec3\u4e60\u518c P200 #1", "type": "mcq", "answer": "D", "figure": "images/fig/U4-01.png",
  "stem":"In the figure, line k is parallel to line l. What is the value of z?",
  "choices":["24", "66", "106", "114"]},
