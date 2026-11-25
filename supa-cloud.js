@@ -191,22 +191,31 @@
   function validUser(u) { return /^[a-z0-9][a-z0-9._-]{2,19}$/.test(u); }
   function badInput(msg) { return errOf(400, { msg: msg }); }
 
-  async function usernameTaken(username) {
-    var name = normUser(username);
-    if (!name) return false;
-    try {
-      var rows = await rest('/usernames?username=eq.' + encodeURIComponent(name) + '&select=username', { timeout: 12000 });
-      return !!(rows && rows.length);
-    } catch (e) {
-      // 显式降级，不静默假装「没重名」：
-      // 匿名端只被授权读 username / user_id 列（见 docs/account-model.md 第三节）；
-      // 请求 email 列或整表（select=*）会拿 42501 permission denied。本探测只 select=username，
-      // 授权已覆盖；一旦被拒（授权回退 / 网络失败），控制台告警，查重交给数据库唯一索引兜底
-      // （注册时由服务端 409 顶回），不在客户端猜「可用」。
-      console.warn('[TDSUPA] usernameTaken 查重失败，降级为唯一索引兜底：',
-        (e && e.status) || '', (e && e.message) || e);
-      return false;
-    }
+  /* 占用判定：只认服务端唯一约束顶回来的冲突信号，不靠匿名端先读 usernames 表枚举。
+   * 注册前读表这条路已按 2026-11-25 裁定废弃——anon 能遍历全站用户名，抢注/撞库的代价
+   * 大于「注册前先看一眼名字能不能用」的体验收益；查重完全交给数据库唯一约束。
+   * 冲突来源只有两种：
+   *   · GoTrue signup：确定性伪邮箱 <用户名>@satmath.local 已存在 → 422
+   *     error_code=user_already_exists，msg "User already registered"（线上探针实测，
+   *     证据见 docs/bugfix-2026-11-25-register-unique-constraint.md）；
+   *   · 写 usernames 行：唯一索引冲突 → Postgres 23505 unique_violation / duplicate key。
+   * 网络失败、42501 授权拒绝、5xx 等一律不算「被占用」，原样往上抛，不冒充冲突。 */
+  function isConflictError(e) {
+    if (!e) return false;
+    var body = e.raw || {};
+    var hay = [
+      e.message, body.msg, body.message, body.error, body.error_description,
+      body.error_code, body.code, body.details, body.hint
+    ].map(function (x) { return String(x == null ? '' : x).toLowerCase(); }).join(' ');
+    if (/user_already_exists|already registered|already been registered|email-already-in-use/.test(hay)) return true;
+    if (/23505|unique_violation|duplicate key|unique constraint/.test(hay)) return true;
+    return false;
+  }
+
+  function errUsernameTaken() {
+    var e = errOf(409, { msg: '这个用户名已被占用，换一个吧。' });
+    e.code = 'auth/username-already-in-use';
+    return e;
   }
 
   async function loginEmail(username) {
@@ -301,27 +310,42 @@
       return currentUser;
     },
 
-    // 注册：只收用户名 + 密码，内部拼 <用户名>@satmath.local 交给 Supabase signUp
+    // 注册：只收用户名 + 密码，内部拼 <用户名>@satmath.local 交给 Supabase signUp。
+    // 查重走唯一约束兜底（见上方 isConflictError）：注册前不读表枚举，直接尝试插入；
+    // signup 撞上已有伪邮箱、或写 usernames 行撞上唯一索引，当场翻成 409「名字被占」。
     register: async function (username, pw) {
       var name = normUser(username);
       if (!validUser(name)) throw badInput('用户名要 3–20 位：小写字母/数字，可用 . _ -，首字符必须是字母或数字。');
       if (String(pw || '').length < 6) throw badInput('密码至少 6 位。');
-      if (await usernameTaken(name)) throw errOf(409, { msg: '这个用户名已被占用，换一个吧。' });
       var mail = internalEmail(name);
-      var r = await raw('/auth/v1/signup', {
-        method: 'POST',
-        headers: authHeaders(null),
-        body: JSON.stringify({ email: mail, password: String(pw), data: { username: name, display_name: name } }),
-        timeout: 20000
-      });
+      var r;
+      try {
+        r = await raw('/auth/v1/signup', {
+          method: 'POST',
+          headers: authHeaders(null),
+          body: JSON.stringify({ email: mail, password: String(pw), data: { username: name, display_name: name } }),
+          timeout: 20000
+        });
+      } catch (e) {
+        if (isConflictError(e)) throw errUsernameTaken();
+        throw e;
+      }
       if (!(r && r.access_token)) {
+        // 个别 GoTrue 形态对已存在邮箱只回 user 不发会话：先按冲突字段复核，
+        // 确属占用才报 409；否则才是「没拿到会话」的邮箱确认问题——两条报错不许串。
+        if (isConflictError({ raw: r, message: r && (r.msg || r.message) })) throw errUsernameTaken();
         throw errOf(400, {
           msg: '注册没有拿到会话：项目若开着「Confirm email」，伪邮箱收不到验证信。请管理员在 Auth 设置里关闭邮箱确认。',
           code: 'auth/email-not-confirm'
         });
       }
       sessionFrom(r);
-      await bindUsername(r.access_token, name, (r.user && r.user.id) || '');
+      try {
+        await bindUsername(r.access_token, name, (r.user && r.user.id) || '');
+      } catch (e) {
+        if (isConflictError(e)) throw errUsernameTaken();
+        throw e;
+      }
       return { verified: true, user: currentUser, username: name };
     },
     // 兼容旧调用名（旧代码传 email 的那几个入口一律不再接受真实邮箱）

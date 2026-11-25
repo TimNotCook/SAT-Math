@@ -18,14 +18,14 @@
 
 ## 三、RLS 与列级授权（选了「列级授权 + RPC」，不是全表开放）
 策略：
-- `usernames_select_anon`（anon, SELECT, `true`）——只能配合列级授权读 `username / user_id`
+- `usernames_select_anon`（anon, SELECT, `true`）——只能配合列级授权读 `username / user_id`（**历史残留**，新代码不依赖，见三之附二）
 - `usernames_select_self`（authenticated, SELECT, `user_id = auth.uid()`）
 - `usernames_insert_self`（authenticated, INSERT, `WITH CHECK user_id = auth.uid()`）
 - `usernames_update_self`（authenticated, UPDATE, `USING user_id = auth.uid()` + `WITH CHECK user_id = auth.uid()`）
 - `username_alias` 开启 RLS，**不给 anon / authenticated 任何策略**，只有 SECURITY DEFINER 函数能碰
 
 列级授权（`revoke all` 之后逐列 grant）：
-- `anon`：`select (username, user_id)` —— **没有 email**
+- `anon`：`select (username, user_id)` —— **没有 email**（历史残留授权，新代码不申请、不依赖，见三之附二）
 - `authenticated`：`select (username, user_id, created_at, updated_at)`、`insert (username, user_id, email)`、`update (username, email, updated_at)`
 
 函数：
@@ -64,11 +64,17 @@ curl -s -i "https://ofsnrzfmjqyrmkvdwnbo.supabase.co/rest/v1/usernames?select=em
 
 结论（修正此前「anon 读 usernames 全被拒」的笼统说法）：**42501 只发生在请求未授权列（email）或整表 `select=*` 时**；`username / user_id` 列的列级授权线上已生效，查名与计数可用。授权 SQL 留档 `docs/sql/anon-usernames-select.sql`（重建/复核用，需管理员在 Dashboard 执行，客户端不可自助）。
 
+### 三之附二：2026-11-25 晚裁定——anon 读 usernames 改为设计禁止，查重走唯一约束
+
+**新策略（现网代码以此为准）**：注册查重不再让 anon 预读 `usernames` 表枚举用户名。anon 直读 `usernames` 属**设计禁止**——匿名端能遍历全站用户名，抢注/撞库代价大于注册查重的体验收益；新代码不向 anon 申请、也不依赖任何列级 SELECT。占用判定完全交给数据库唯一约束：GoTrue signup 撞上已存在的确定性伪邮箱 → 422 `user_already_exists`；写 `usernames` 行撞唯一索引 → Postgres `23505`，客户端统一翻 409「这个用户名已被占用，换一个吧。」（实现见 `supa-cloud.js` 的 `isConflictError` / `register`）。
+
+**与上方实测矩阵的关系（不篡改实测事实）**：上表 A/B/F 的 200 是 2026-11-25 白天线上快照，说明当时线上残留的 `select (username, user_id)` 列级授权仍生效；这只是**历史残留**，新客户端代码不再走这条路。若管理员回收该授权（对应 `docs/sql/anon-usernames-select.sql` 封档内的回滚语句），注册/登录行为不受影响：登录走 SECURITY DEFINER 的 `resolve_login` RPC，注册查重走唯一约束。
+
 ## 四、客户端
 - `supa-cloud.js`：`register(username, pw)` → `signUp(pseudoEmail)` → 写 `usernames` 行；`signInEmail(username, pw)` → `rpc/resolve_login` 取伪邮箱 → `signInWithPassword`；`renameUsername(newName)` → `rpc/rename_username`
 - `cloud-account.js`：面板只有「用户名」「密码」，档案页加「用户名（登录用）+ 改用户名」，不再出现邮箱字段
 - `cloud-config.js`：新增 `supabase.emailDomain = 'satmath.local'`
-- `usernameTaken()`（注册前查重）：只 `select=username`，落在已授权列；catch 不再静默 `return false` 假装「没重名」——`console.warn` 显式降级，查重交给数据库唯一索引兜底（注册时服务端 409 顶回）。登录失败与 42501 无关：登录走 SECURITY DEFINER 的 `resolve_login` RPC，anon 列级授权管不到 RPC。
+- 注册查重（2026-11-25 晚起）：旧的 `usernameTaken()` 匿名预读函数已删除；本地格式/密码校验过后直接 signup，占用判定靠服务端唯一约束（422 `user_already_exists` / 23505 → 409），注册路径不读 `usernames` 表。登录失败与 42501 无关：登录走 SECURITY DEFINER 的 `resolve_login` RPC，anon 列级授权管不到 RPC。
 
 ## 五、清理记录
 - 2026-11-25 08:09 HKT（00:09 UTC）：已清理测试账号 `timalpha`（Auth 邮箱 satmath.demo1@qq.com）与探针 `satmath-probe2@qq.com`；连带删掉它们的 `usernames` / `username_alias` / `progress` 行，`auth.identities` 一并清。
