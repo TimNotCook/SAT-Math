@@ -27,6 +27,7 @@
   var CFG = (window.TD_CLOUD_CONFIG || {}).supabase || {};
   var BASE = String(CFG.url || '').replace(/\/+$/, '');
   var KEY = CFG.anonKey || '';
+  var SITE_URL = String(CFG.siteUrl || '').replace(/\/+$/, '');
   var SESSION_KEY = 'tdsat_auth_v1';
 
   var stateCb = null;
@@ -223,10 +224,14 @@
   async function sendOtp(email) {
     var mail = String(email || '').trim();
     if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送登录邮件。' });
+    var body = { email: mail, create_user: true };
+    /* 显式带 redirect_to：否则后端按后台 Site URL 回跳，可能落到站点根、丢掉
+       /SAT-Math/ 路径段，导致回跳 hash 接不到本站壳页。 */
+    if (SITE_URL) body.redirect_to = SITE_URL + '/';
     await raw('/auth/v1/otp', {
       method: 'POST',
       headers: authHeaders(null),
-      body: JSON.stringify({ email: mail, create_user: true }),
+      body: JSON.stringify(body),
       timeout: 20000
     });
     return true;
