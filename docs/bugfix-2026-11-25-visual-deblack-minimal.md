@@ -183,10 +183,36 @@ alpha ≥ 0.5 且相对亮度 ≤ 0.14 记 dark-fill；渐变同阈值停点记 
 
 ## 五、线上核验
 
-> 提交推送后回填：线上 `?v=` 实测值、时刻、回拉 CSS 黑值 grep 结果、
-> 四项脚本线上复测数字。
+- 推送提交：`be926bb55074ccb68249f10bc92da6e4b239284a`
+  （`fix(ui): 去黑+极简化+排版统一……`；普通 `push origin main`，未 force push；
+  rebase 吸收了并行的 `aad8ce8` auth 与 `6642141` auth 文档提交，
+  HTML 仅 `?v=` 哈希冲突，保留上游结构后重算哈希）。
+- 线上 `?v=` 实测：**`5911ab9ec507`**（2026-11-25 23:37:07 +07 回拉
+  `drill.html` / `index.html` 核对，五页同值；首次拉取仍是旧哈希
+  `4e757a6431a8`，属 Pages 部署延迟，约 45 秒后刷新对齐）。
+- 线上 CSS 回拉比对（本地 vs 线上，SHA-256 前 16 位）：
 
-（待回填）
+  | 文件 | 本地 | 线上 | 结论 |
+  |---|---|---|---|
+  | `bluebook.css` | `c60dac4a90014fbb` | `c60dac4a90014fbb` | 逐字节一致 |
+  | `glass.css` | `c2af3e35cc3eaf05` | `c2af3e35cc3eaf05` | 逐字节一致 |
+  | `app.css` | `920f62935c4d7ec2` | `920f62935c4d7ec2` | 逐字节一致 |
+
+- 线上 CSS grep：`#000 / #111 / #0b0b0c / #1f2022 / #1f2328 / #1d1d1f / #2c2c2e`
+  作为 `background` 取值 **0 命中**；`--bb-official-chip` 线上定义为 `#ffffff`。
+- 线上四项脚本复测（base `https://timnotcook.github.io/SAT-Math`，2026-11-25
+  23:3x +07）：
+
+  | 脚本 | 线上结果 |
+  |---|---|
+  | `verify_nav.mjs` | **38 / 38 通过，0 失败**（五页 `?v=` 同值校验通过） |
+  | `verify_a11y.mjs` | **20 / 20 通过，0 失败** |
+  | `verify_session.mjs` | **22 / 22 通过，0 失败** |
+  | `narrow_check.mjs` | **14 屏次**，横向滚动 **0**，出框 **0** |
+
+- 线上纯黑探针（CDP，1280 / 655 / 390 × 八页 × default/hover/focus/弹层展开，
+  75 组合）：**dark-fill = 0，dark-gradient = 0**，
+  证据 `black-audit.json`（`base` 记录线上地址）。
 
 ## 六、待办上报（红线范围，本次未动）
 

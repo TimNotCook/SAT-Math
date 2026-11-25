@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-25T16:35:06.066Z",
-  "base": "http://127.0.0.1:8492",
+  "generatedAt": "2026-11-25T16:41:12.921Z",
+  "base": "https://timnotcook.github.io/SAT-Math",
   "tag": "after",
   "threshold": {
     "backgroundAlpha": 0.5,
@@ -28,10 +28,10 @@
       "page": "drill",
       "state": "hover",
       "hovered": {
-        "x": 0,
-        "y": 0,
-        "tag": "a",
-        "cls": "btn primary"
+        "x": 107.5,
+        "y": 333.25,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
       },
       "count": 0,
       "flags": []
