@@ -445,7 +445,7 @@ window.TD_FIG_SPECS = {
   /* PDF03 · Topic 17 表格（SP2-001/002） */
   'SP2-001': {
     'type': 'table',
-    'head': ['Species of tree', 'Growthfactor'],
+    'head': ['Species of tree', 'Growth factor'],
     'rows': [
       ['Red maple', '4.5'],
       ['River birch', '3.5'],
