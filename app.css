@@ -415,3 +415,105 @@ sup{font-size:.68em;line-height:0;position:relative;vertical-align:super}
 .td-frac{display:inline-grid!important;grid-template-columns:auto!important;align-items:stretch!important;vertical-align:middle}
 .td-frac .td-num,.td-frac .td-den{grid-column:1!important;grid-row:auto;display:block!important;width:100%!important;justify-self:stretch!important;text-align:center;padding-left:.18em;padding-right:.18em}
 .td-frac .td-num{border-bottom:1.4px solid currentColor}
+
+/* =====================================================================
+   全站外壳：左侧 216px site-rail + 大标题 + 卡片网格
+   唯一一份侧栏样式，首页 / 讲义 / 真题 / 模考 / 错题共用。
+   ===================================================================== */
+.site-rail{position:fixed;left:0;top:0;bottom:0;width:216px;padding:22px 14px;background:#fff;border-right:1px solid var(--line,#e6eaf0);display:flex;flex-direction:column;gap:4px;z-index:30}
+.site-rail .rail-brand{font-size:15px;font-weight:800;color:var(--navy,#0f2744);text-decoration:none;padding:6px 12px 14px;letter-spacing:.01em}
+.site-rail a{display:block;padding:10px 12px;border-radius:9px;color:var(--navy,#0f2744);text-decoration:none;font-size:14px;font-weight:600;line-height:1.35}
+.site-rail a:hover{background:#f3f7fc}
+.site-rail a[aria-current]{background:#eaf1fd;color:#1d4ed8;box-shadow:inset 3px 0 0 #2563eb}
+.site-rail .rail-sep{height:1px;background:var(--line,#e6eaf0);margin:10px 8px}
+.site-rail .rail-back{color:#1d4ed8;font-weight:700}
+@media(min-width:1000px){body.site-shell{padding-left:216px}}
+@media(max-width:999px){
+  .site-rail{position:static;width:auto;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line,#e6eaf0);padding:10px 12px}
+  .site-rail .rail-brand{padding:8px 10px}
+  .site-rail .rail-sep{display:none}
+}
+
+/* 侧栏接管站点导航后，隐藏旧的顶部 appbar（链接不再重复两遍）。 */
+body.site-shell #appnav,
+body.site-shell > .appbar{display:none!important}
+
+/* 入口视图统一：大标题 + 一行灰副标题 + 卡片网格。 */
+body.shell-drill .drill-select-eyebrow{display:none!important}
+body.shell-drill .drill-crumb{display:none!important}
+body.shell-drill .drill-select h1{font-size:clamp(30px,3.4vw,38px)!important;font-weight:650!important;letter-spacing:0!important;line-height:1.18!important;color:var(--ink)!important;margin:0 0 10px!important}
+body.shell-drill .drill-select-lead{font-size:13px!important;line-height:1.6!important;color:var(--sub)!important;max-width:64ch!important;margin-bottom:22px!important}
+body.shell-drill .drill-select-h{font-size:12px!important;font-weight:700!important;color:var(--sub)!important;letter-spacing:.06em!important;margin:26px 0 12px!important;padding-bottom:8px!important}
+
+/* 落地页：三个分组卡片横排，下面的板块列表改成同款卡片网格。 */
+body.shell-drill .drill-board-layout{display:block!important}
+body.shell-drill .drill-board-nav{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px!important;border:0!important;padding:0!important;margin:0 0 30px!important}
+body.shell-drill .drill-board-nav-item{padding:18px!important;border:1px solid var(--line)!important;border-radius:var(--radius)!important;background:var(--paper)!important;box-shadow:none!important;transition:border-color .15s var(--ease),box-shadow .15s var(--ease),background-color .15s var(--ease)}
+body.shell-drill .drill-board-nav-item:hover{border-color:var(--blue-line)!important;box-shadow:inset 3px 0 0 var(--blue)!important}
+body.shell-drill .drill-board-nav-item.on{border-color:var(--blue-line)!important;background:#fff!important;box-shadow:inset 3px 0 0 var(--blue)!important}
+
+body.shell-drill .drill-board-panel{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px!important;align-items:start}
+body.shell-drill .drill-board-panel .drill-group-h{grid-column:1/-1;margin:12px 0 0!important;font-size:12.5px!important;font-weight:800!important;color:var(--sub)!important;letter-spacing:.06em!important;text-transform:none}
+body.shell-drill .drill-board-panel .drill-group-h:first-child{margin-top:0!important}
+
+/* 板块卡片：来源/编号徽标 + 名称 + 进度，hover 左边 3px 蓝条。 */
+body.shell-drill .drill-section-list,
+body.shell-drill .drill-board-panel{background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important}
+body.shell-drill .drill-section-list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px!important}
+body.shell-drill .drill-section-row{
+  display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;
+  grid-template-areas:"code code code" "name name name" "meta meta go";
+  align-items:center;gap:8px 10px!important;min-height:112px;
+  padding:18px!important;border:1px solid var(--line)!important;border-radius:var(--radius)!important;
+  background:var(--paper)!important;box-shadow:none!important;
+  transition:border-color .15s var(--ease),box-shadow .15s var(--ease),background-color .15s var(--ease)}
+body.shell-drill .drill-section-row:hover{border-color:var(--blue-line)!important;box-shadow:inset 3px 0 0 var(--blue)!important;background:#fff!important}
+body.shell-drill .drill-section-row .drill-section-code{grid-area:code;justify-self:start;padding:2px 8px;border-radius:6px;background:var(--wash);color:var(--blue-strong);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+body.shell-drill .drill-section-row .drill-section-name{grid-area:name;font-size:15px;font-weight:700;line-height:1.45;color:var(--ink);white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+body.shell-drill .drill-section-row .drill-section-meta{grid-area:meta;font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums}
+body.shell-drill .drill-section-row .drill-section-go{grid-area:go;justify-self:end;align-self:end;font-size:12.5px;font-weight:700;color:var(--blue-strong);white-space:nowrap}
+body.shell-drill .drill-unit-row{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px!important;margin-bottom:10px!important}
+body.shell-drill .drill-unit-button{padding:18px!important;border:1px solid var(--line)!important;border-radius:var(--radius)!important;background:var(--paper)!important;box-shadow:none!important;transition:border-color .15s var(--ease),box-shadow .15s var(--ease),background-color .15s var(--ease)}
+body.shell-drill .drill-unit-button:hover{border-color:var(--blue-line)!important;box-shadow:inset 3px 0 0 var(--blue)!important}
+body.shell-drill .drill-unit-button.on{border-color:var(--blue-line)!important;box-shadow:inset 3px 0 0 var(--blue)!important;background:#fff!important}
+
+/* 模考 intro：大标题 + 灰副标题 + 开始卡片。 */
+body.shell-exam .exam-start-main{max-width:860px}
+body.shell-exam .exam-start-actions{margin-top:22px}
+body.shell-exam .exam-start-card{max-width:440px;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);box-shadow:var(--shadow-1);display:flex;flex-direction:column;gap:6px;transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
+body.shell-exam .exam-start-card:hover{border-color:var(--blue-line);box-shadow:inset 3px 0 0 var(--blue),var(--shadow-1)}
+body.shell-exam .exam-start-card .exam-card-kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+body.shell-exam .exam-start-card .exam-card-title{margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+body.shell-exam .exam-start-card .exam-card-sub{font-size:12.5px;color:var(--sub);line-height:1.6}
+body.shell-exam .exam-start-card .btn{margin-top:8px;align-self:flex-start}
+body.exam-page:not(.is-mock) .exam-card-title.is-mock,
+body.exam-page.is-mock .exam-card-title.is-quiz{display:none}
+
+/* 错题页：page-head 大标题 + 副标题；hero 与筛选条拆成卡片网格。 */
+body.shell-wrong .wrong-hero{
+  display:grid!important;grid-template-columns:minmax(220px,.9fr) minmax(0,1.4fr);
+  gap:14px!important;align-items:stretch;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  padding:0!important;margin-bottom:20px!important}
+body.shell-wrong .wrong-hero-main{padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);box-shadow:var(--shadow-1)}
+body.shell-wrong .wrong-hero-kv{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
+body.shell-wrong .wrong-hero-kv>div{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:6px;padding:18px!important;border:1px solid var(--line)!important;border-radius:var(--radius)!important;background:var(--paper)!important;box-shadow:var(--shadow-1)}
+body.shell-wrong .wrong-hero-kv>div:last-child{border-bottom:1px solid var(--line)!important}
+body.shell-wrong .wrong-hero-kv span{font-size:12.5px;color:var(--sub)}
+body.shell-wrong .wrong-hero-kv b{font-size:22px;line-height:1.1}
+body.shell-wrong .wrong-toolbar{padding:16px 18px!important;border:1px solid var(--line)!important;border-radius:var(--radius)!important;background:var(--paper)!important;box-shadow:var(--shadow-1);margin-bottom:14px!important}
+body.shell-wrong .wrong-toolbar .unit-filter{display:flex;flex-wrap:wrap;gap:8px}
+
+@media(max-width:999px){
+  body.shell-drill .drill-board-nav{grid-template-columns:1fr!important}
+  body.shell-drill .drill-board-panel,
+  body.shell-drill .drill-section-list{grid-template-columns:1fr!important}
+  body.shell-drill .drill-unit-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  body.shell-wrong .wrong-hero{grid-template-columns:1fr!important}
+  body.shell-wrong .wrong-hero-kv{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:560px){
+  body.shell-drill .drill-unit-row{grid-template-columns:1fr!important}
+  body.shell-wrong .wrong-hero-kv{grid-template-columns:1fr!important}
+}

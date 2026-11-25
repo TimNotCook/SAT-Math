@@ -9,12 +9,21 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.supabase.in https://api.github.com https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
   <title>SAT Math Prep · 抽查与模考</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=eeaabd167a97">
-  <link rel="stylesheet" href="bluebook.css?v=eeaabd167a97">
-  <link rel="stylesheet" href="glass.css?v=eeaabd167a97"><script src="theme.js?v=eeaabd167a97"></script>
+  <link rel="stylesheet" href="app.css?v=b3e7c1a95d02">
+  <link rel="stylesheet" href="bluebook.css?v=b3e7c1a95d02">
+  <link rel="stylesheet" href="glass.css?v=b3e7c1a95d02"><script src="theme.js?v=b3e7c1a95d02"></script>
   <style>#questionNav{z-index:68!important}body.is-mock .mainnav,body.is-mock .bankpill{display:none}body.is-mock .mock-hide{display:none}</style>
 </head>
-<body class="exam-page protected">
+<body class="exam-page protected site-shell shell-exam">
+  <aside class="site-rail" aria-label="全站导航">
+    <a class="rail-brand" href="index.html">SAT Math Prep</a>
+    <a href="drill.html">真题练习</a>
+    <a href="jiangyi.html">讲义复习（JY1–JY4）</a>
+    <a href="exam.html?mode=mock" aria-current="page">模考</a>
+    <a href="wrong.html">错题本</a>
+    <div class="rail-sep"></div>
+    <a class="rail-back" href="drill.html">← 返回真题练习</a>
+  </aside>
   <script>/* 模考屏一律英文：隐藏站内导航与题库胶囊，退出按钮改英文；练习/抽查模式不受影响 */
   (function(){var mock=/[?&]mode=mock/.test(location.search);if(!mock)return;document.body.classList.add("is-mock");
   document.addEventListener("DOMContentLoaded",function(){var x=document.getElementById("btnExamExit");if(x){x.textContent="Exit";x.title="Exit the test and return";}
@@ -61,7 +70,13 @@
       <div id="introDirections"></div>
       <div id="introOptions"></div>
       <div class="exam-start-actions">
-        <button class="btn primary" id="btnStart" type="button">Start</button>
+        <div class="exam-start-card">
+          <span class="exam-card-kicker">FULL MOCK</span>
+          <strong class="exam-card-title is-mock">开始模考</strong>
+          <strong class="exam-card-title is-quiz">开始单元抽查</strong>
+          <span class="exam-card-sub">22 题 · 35 分钟 · 计时开始后中途可退出</span>
+          <button class="btn primary" id="btnStart" type="button">Start</button>
+        </div>
       </div>
     </main>
   </section>
@@ -215,20 +230,20 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/questions.js?v=eeaabd167a97" defer></script>
-  <script src="data/text.js?v=eeaabd167a97" defer></script>
-  <script src="data/figures.js?v=eeaabd167a97" defer></script>
-  <script src="data/figure_crops.js?v=eeaabd167a97" defer></script>
-  <script src="data/choice_crops.js?v=eeaabd167a97" defer></script>
-  <script src="app-ui.js?v=eeaabd167a97" defer></script>
-  <script src="figures.js?v=eeaabd167a97" defer></script>
+  <script src="data/questions.js?v=b3e7c1a95d02" defer></script>
+  <script src="data/text.js?v=b3e7c1a95d02" defer></script>
+  <script src="data/figures.js?v=b3e7c1a95d02" defer></script>
+  <script src="data/figure_crops.js?v=b3e7c1a95d02" defer></script>
+  <script src="data/choice_crops.js?v=b3e7c1a95d02" defer></script>
+  <script src="app-ui.js?v=b3e7c1a95d02" defer></script>
+  <script src="figures.js?v=b3e7c1a95d02" defer></script>
 
-  <script src="grade-core.js?v=eeaabd167a97" defer></script>
-  <script src="exam-core.js?v=eeaabd167a97" defer></script>
-  <script src="analysis.js?v=eeaabd167a97" defer></script>
-  <script src="scratch-pad.js?v=eeaabd167a97" defer></script>
-  <script src="exam.js?v=eeaabd167a97" defer></script>
-  <script src="cloud-config.js?v=eeaabd167a97" defer></script><script src="supa-cloud.js?v=eeaabd167a97" defer></script>
-  <script src="github-auth.js?v=eeaabd167a97" defer></script><script src="workbuddy-cloud.js?v=eeaabd167a97" defer></script><script src="cloud-account.js?v=eeaabd167a97" defer></script>
+  <script src="grade-core.js?v=b3e7c1a95d02" defer></script>
+  <script src="exam-core.js?v=b3e7c1a95d02" defer></script>
+  <script src="analysis.js?v=b3e7c1a95d02" defer></script>
+  <script src="scratch-pad.js?v=b3e7c1a95d02" defer></script>
+  <script src="exam.js?v=b3e7c1a95d02" defer></script>
+  <script src="cloud-config.js?v=b3e7c1a95d02" defer></script><script src="supa-cloud.js?v=b3e7c1a95d02" defer></script>
+  <script src="github-auth.js?v=b3e7c1a95d02" defer></script><script src="workbuddy-cloud.js?v=b3e7c1a95d02" defer></script><script src="cloud-account.js?v=b3e7c1a95d02" defer></script>
 </body>
 </html>
