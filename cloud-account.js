@@ -711,6 +711,13 @@
       'html[data-compact="1"] .drill-unit-button{padding:12px!important}',
       'html[data-compact="1"] .appbar-inner,html[data-compact="1"] .drill-context,',
       'html[data-compact="1"] .drill-questionbar-inner{min-height:48px!important}',
+      /* 侧栏版设置入口：宽屏贴底一行（跟导航项同款），窄屏并进顶部横条最右 */
+      '.site-rail .td-acct-btn.rail-settings{margin:auto 0 0;width:100%;justify-content:flex-start;gap:8px;',
+      'padding:10px 12px!important;border-radius:9px!important;color:var(--navy,#0f2744)!important;',
+      'font-size:14px!important;font-weight:600!important;text-align:left}',
+      '.site-rail .td-acct-btn.rail-settings:hover{background:#f3f7fc!important;color:#1d4ed8!important}',
+      '@media(max-width:999px){.site-rail .td-acct-btn.rail-settings{margin:0 0 0 auto;width:auto;',
+      'padding:8px 10px!important;font-size:13px!important}}',
       '@media(max-width:640px){.td-acct-btn{font-size:12px;padding:5px 9px}}'
     ].join('');
     document.head.appendChild(css);
@@ -1233,6 +1240,14 @@
 
   function mountButton(btn) {
     function attach() {
+      // 全站侧栏（app.css 的 .site-rail）：五个页面都有，是唯一稳定可见的导航容器。
+      // 旧的 #appnav 在改成侧栏后整块 0 尺寸，挂上去等于按钮不可见，故优先挂侧栏。
+      var rail = document.querySelector('.site-rail');
+      if (rail && !btn.isConnected) {
+        if (!btn.classList.contains('rail-settings')) btn.classList.add('rail-settings');
+        rail.appendChild(btn);
+        return true;
+      }
       // 顶部导航栏由 app-ui.js 渲染进 #appnav（内含 .appbar-inner）。
       // 注意：.drill-nav-header 是题号弹层的 header（默认 hidden），不能挂这里。
       var bar = document.querySelector('#appnav .mainnav') ||
