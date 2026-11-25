@@ -101,7 +101,7 @@ def main():
     done = sum(1 for s in SECTIONS if len(BY_SEC.get(s["section"], [])) == (KEY[s["section"]]["maxNo"] if s["section"] in KEY else 0))
     lines.append("| %d | %d | %d | %d / %d |" % (total_need, total_have, total_need - total_have, done, len(SECTIONS)))
     lines.append("\n派工注意：")
-    lines.append("1. `data/jiangyi.js` 同一时间只允许一个人写；α 正在 1.6，本节不要派第二人，冲突会整文件覆盖。")
+    lines.append("1. `data/jiangyi.js` 同一时间只允许一个人写；开工前看本表确认本节无人占用，冲突会整文件覆盖。（U1 已全部结案，下一节从 2.1 起。）")
     lines.append("2. 缺号列是「页内题号」，对应 `source` 必须写成 `讲义 p{页} #页内题号`；页码从原书页码范围里数。")
     lines.append("3. 图表列只反映**已录样本**的实况；没录的节要翻原页确认（大图逐张走矢量 spec，表格走 `table` / `choiceTables`，一律不许裁原页）。")
     lines.append("4. 每节录完跑 `python3 tools/gen_jiangyi_reconcile.py`，`已录 = 应有` 才算结案。")
