@@ -214,6 +214,114 @@
     return { w: W, h: H, body: body };
   }
 
+  // ---------------- 2.5 起的统计图形：直方图 / 点图 / 箱线图 ----------------
+  // 三种都只吃几何参数，坐标全部现算：直方图给每根柱的 [lo,hi,n]，点图给
+  // [{x, n}]（n = 该值上有几个点），箱线图给 min/Q1/中位/Q3/max。
+  // 多块面板（原书 p73 #5 左右两张直方图、p78 #9 上下两行点图）用 cols / rows 排。
+
+  function statFrame(X, Y, y0, labels, labelY, tickH) {
+    var out = [];
+    labels.forEach(function (v) {
+      out.push('<line x1="' + X(v).toFixed(1) + '" y1="' + Y(y0) + '" x2="' + X(v).toFixed(1) + '" y2="' + (Y(y0) + (tickH || 5)) + '" stroke="' + INK + '"/>',
+               '<text x="' + X(v).toFixed(1) + '" y="' + (Y(y0) + labelY) + '" font-size="11.5" fill="' + LAB + '" text-anchor="middle">' + esc(v) + '</text>');
+    });
+    return out.join('');
+  }
+
+  function hist(o) {
+    var W = o.w, H = o.h, cols = o.cols || 1, gap = o.gap || 26;
+    var pw = (W - gap * (cols - 1)) / cols, ph = H - (o.xTitle ? 44 : 28) - 18;
+    var out = [];
+    (o.panels || []).forEach(function (p, i) {
+      var ox = i * (pw + gap), oy = 16;
+      var yMax = p.yMax || o.yMax || 10, yStep = p.yStep || o.yStep || 2;
+      var xmin = p.xMin !== undefined ? p.xMin : o.xMin, xmax = p.xMax !== undefined ? p.xMax : o.xMax;
+      function X(v) { return ox + 34 + (v - xmin) / (xmax - xmin) * (pw - 44); }
+      function Y(v) { return oy + ph - v / yMax * ph; }
+      var g = [];
+      for (var t = 0; t <= yMax + 1e-9; t += yStep) {
+        g.push('<line x1="' + (ox + 34) + '" y1="' + Y(t).toFixed(1) + '" x2="' + (ox + pw - 10) + '" y2="' + Y(t).toFixed(1) + '" stroke="' + GRID + '"/>',
+               '<text x="' + (ox + 28) + '" y="' + (Y(t) + 4) + '" font-size="11.5" fill="' + LAB + '" text-anchor="end">' + t + '</text>');
+      }
+      (p.bars || []).forEach(function (b) {
+        var x1 = X(b.lo), x2 = X(b.hi), y = Y(b.n);
+        if (b.n > 0) g.push('<rect x="' + x1.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + (x2 - x1).toFixed(1) + '" height="' + (Y(0) - y).toFixed(1) + '" fill="#B9BDC4" stroke="' + INK + '" stroke-width="1"/>');
+        else g.push('<line x1="' + x1.toFixed(1) + '" y1="' + Y(0) + '" x2="' + x2.toFixed(1) + '" y2="' + Y(0) + '" stroke="' + INK + '" stroke-width="1"/>');
+      });
+      // 轴
+      g.push('<line x1="' + (ox + 34) + '" y1="' + Y(0) + '" x2="' + (ox + pw - 6) + '" y2="' + Y(0) + '" stroke="' + INK + '" stroke-width="1.5"/>',
+             '<line x1="' + (ox + 34) + '" y1="' + Y(0) + '" x2="' + (ox + 34) + '" y2="' + (oy + 6) + '" stroke="' + INK + '" stroke-width="1.5"/>');
+      var ticks = p.ticks || o.ticks || [];
+      ticks.forEach(function (v) {
+        g.push('<line x1="' + X(v).toFixed(1) + '" y1="' + Y(0) + '" x2="' + X(v).toFixed(1) + '" y2="' + (Y(0) + 5) + '" stroke="' + INK + '"/>',
+               '<text x="' + X(v).toFixed(1) + '" y="' + (Y(0) + 17) + '" font-size="11.5" fill="' + LAB + '" text-anchor="middle">' + esc(v) + '</text>');
+      });
+      if (p.title || o.title) g.push('<text x="' + (ox + pw / 2) + '" y="' + (oy - 3) + '" font-size="13" fill="' + INK + '" text-anchor="middle">' + esc(p.title || o.title) + '</text>');
+      out.push(g.join(''));
+    });
+    var extra = '';
+    if (o.yTitle) extra += '<text x="10" y="' + (H / 2) + '" font-size="12.5" fill="' + LAB + '" text-anchor="middle" transform="rotate(-90 10 ' + (H / 2) + ')">' + esc(o.yTitle) + '</text>';
+    if (o.xTitle) extra += '<text x="' + (W / 2) + '" y="' + (H - 8) + '" font-size="12.5" fill="' + LAB + '" text-anchor="middle">' + esc(o.xTitle) + '</text>';
+    return { w: W, h: H, body: out.join('') + extra };
+  }
+
+  function dotplot(o) {
+    var W = o.w, H = o.h, title = o.title ? 26 : 8;
+    var rows = o.rows || [], rowH = o.rowH || 58, labW = o.labW || 62, pitch = o.pitch || 11;
+    var xmin = o.x.min, xmax = o.x.max;
+    function X(v) { return labW + 8 + (v - xmin) / (xmax - xmin) * (W - labW - 26); }
+    var out = [];
+    if (o.title) out.push('<text x="' + (W / 2) + '" y="16" font-size="13" fill="' + INK + '" text-anchor="middle">' + esc(o.title) + '</text>');
+    rows.forEach(function (r, i) {
+      var base = title + i * rowH + rowH - 18;
+      (r.dots || []).forEach(function (d) {
+        for (var k = 0; k < (d.n || 1); k++)
+          out.push('<circle cx="' + X(d.x).toFixed(1) + '" cy="' + (base - 6 - k * pitch) + '" r="3" fill="' + LINE + '"/>');
+      });
+      out.push('<line x1="' + (labW + 2) + '" y1="' + base + '" x2="' + (W - 10) + '" y2="' + base + '" stroke="' + INK + '" stroke-width="1.5"/>');
+      if (r.label) out.push('<text x="' + (labW - 6) + '" y="' + (base + 4) + '" font-size="12" fill="' + LAB + '" text-anchor="end">' + esc(r.label) + '</text>');
+    });
+    // 只在最后一条基线上画刻度
+    var base = title + rows.length * rowH - 18;
+    (o.ticks || []).forEach(function (v) {
+      out.push('<line x1="' + X(v).toFixed(1) + '" y1="' + base + '" x2="' + X(v).toFixed(1) + '" y2="' + (base + 5) + '" stroke="' + INK + '"/>',
+               '<text x="' + X(v).toFixed(1) + '" y="' + (base + 17) + '" font-size="11.5" fill="' + LAB + '" text-anchor="middle">' + esc(v) + '</text>');
+    });
+    if (o.xTitle) out.push('<text x="' + (W / 2) + '" y="' + (base + 34) + '" font-size="12.5" fill="' + LAB + '" text-anchor="middle">' + esc(o.xTitle) + '</text>');
+    return { w: W, h: H, body: out.join('') };
+  }
+
+  function boxplot(o) {
+    var W = o.w, H = o.h, title = o.title ? 26 : 10;
+    var rows = o.rows || [], labW = o.labW || 58;
+    var xmin = o.x.min, xmax = o.x.max;
+    function X(v) { return labW + 6 + (v - xmin) / (xmax - xmin) * (W - labW - 24); }
+    var axisY = H - (o.xTitle ? 42 : 26);
+    var out = [];
+    if (o.title) out.push('<text x="' + (W / 2) + '" y="15" font-size="13" fill="' + INK + '" text-anchor="middle">' + esc(o.title) + '</text>');
+    var bh = 11, top = title + 6, gap = (axisY - 12 - top) / rows.length;
+    rows.forEach(function (r, i) {
+      var base = top + gap * (i + 0.5);
+      out.push('<line x1="' + X(r.min).toFixed(1) + '" y1="' + base + '" x2="' + X(r.q1).toFixed(1) + '" y2="' + base + '" stroke="' + LINE + '" stroke-width="1.7"/>',
+               '<line x1="' + X(r.q3).toFixed(1) + '" y1="' + base + '" x2="' + X(r.max).toFixed(1) + '" y2="' + base + '" stroke="' + LINE + '" stroke-width="1.7"/>',
+               '<line x1="' + X(r.min).toFixed(1) + '" y1="' + (base - 4) + '" x2="' + X(r.min).toFixed(1) + '" y2="' + (base + 4) + '" stroke="' + LINE + '" stroke-width="1.7"/>',
+               '<line x1="' + X(r.max).toFixed(1) + '" y1="' + (base - 4) + '" x2="' + X(r.max).toFixed(1) + '" y2="' + (base + 4) + '" stroke="' + LINE + '" stroke-width="1.7"/>',
+               '<rect x="' + X(r.q1).toFixed(1) + '" y="' + (base - bh / 2) + '" width="' + (X(r.q3) - X(r.q1)).toFixed(1) + '" height="' + bh + '" fill="none" stroke="' + LINE + '" stroke-width="1.7"/>',
+               '<line x1="' + X(r.med).toFixed(1) + '" y1="' + (base - bh / 2) + '" x2="' + X(r.med).toFixed(1) + '" y2="' + (base + bh / 2) + '" stroke="' + LINE + '" stroke-width="1.7"/>');
+      if (r.label) out.push('<text x="' + (labW - 6) + '" y="' + (base + 4) + '" font-size="12" fill="' + LAB + '" text-anchor="end">' + esc(r.label) + '</text>');
+      (r.letters || []).forEach(function (L) {
+        out.push('<text x="' + X(L.v).toFixed(1) + '" y="' + (base + bh / 2 + 16) + '" font-size="12.5" font-style="italic" fill="' + INK + '" text-anchor="middle">' + esc(L.t) + '</text>');
+      });
+    });
+    out.push('<line x1="' + labW + '" y1="' + axisY + '" x2="' + (W - 12) + '" y2="' + axisY + '" stroke="' + INK + '" stroke-width="1.5"/>');
+    (o.ticks || []).forEach(function (v) {
+      out.push('<line x1="' + X(v).toFixed(1) + '" y1="' + axisY + '" x2="' + X(v).toFixed(1) + '" y2="' + (axisY + 5) + '" stroke="' + INK + '"/>',
+               '<text x="' + X(v).toFixed(1) + '" y="' + (axisY + 17) + '" font-size="11.5" fill="' + LAB + '" text-anchor="middle">' + esc(v) + '</text>');
+    });
+    if (o.xTitle) out.push('<text x="' + (W / 2) + '" y="' + (H - 6) + '" font-size="12.5" fill="' + LAB + '" text-anchor="middle">' + esc(o.xTitle) + '</text>');
+    return { w: W, h: H, body: out.join('') };
+  }
+
   function wrap(body) {
     return '<svg viewBox="0 0 ' + body.w + ' ' + body.h + '" width="100%" preserveAspectRatio="xMidYMid meet" role="img" style="max-width:' + body.w + 'px">' + body.body + '</svg>';
   }
@@ -403,7 +511,50 @@
       y: { min: 0, max: 16, step: 1, labels: [0, 2, 4, 6, 8, 10, 12, 14, 16] },
       xTitle: 'Days after January 11', yTitle: 'Length of time (hours)',
       dots: [[1, 14], [2, 6], [3, 10], [4, 15], [5, 14], [6, 7], [7, 11], [8, 14], [9, 13.5]],
-      dotR: 3.4 }
+      dotR: 3.4 },
+
+    // p73 #5：两组直方图，横轴 10–60 每 10 一格，纵轴 0–12 每 2 一格
+    'JY2-049': { type: 'hist', w: 470, h: 250, cols: 2, xMin: 10, xMax: 60,
+      ticks: [10, 20, 30, 40, 50, 60], yMax: 12, yStep: 2,
+      xTitle: 'Integer', yTitle: 'Frequency',
+      panels: [
+        { title: 'Data Set A', bars: [{ lo: 10, hi: 20, n: 0 }, { lo: 20, hi: 30, n: 3 }, { lo: 30, hi: 40, n: 4 }, { lo: 40, hi: 50, n: 7 }, { lo: 50, hi: 60, n: 9 }] },
+        { title: 'Data Set B', bars: [{ lo: 10, hi: 20, n: 3 }, { lo: 20, hi: 30, n: 4 }, { lo: 30, hi: 40, n: 7 }, { lo: 40, hi: 50, n: 9 }, { lo: 50, hi: 60, n: 0 }] }
+      ] },
+    // p78 #9：两行点图，0–5 分（Class A 原页可见 22 点，题干写 24 人，按原页可见点渲染）
+    'JY2-053': { type: 'dotplot', w: 470, h: 242, rowH: 104, pitch: 10, x: { min: -0.55, max: 5.55 },
+      ticks: [0, 1, 2, 3, 4, 5], xTitle: 'Quiz score',
+      rows: [
+        { label: 'Class A', dots: [{ x: 0, n: 1 }, { x: 1, n: 1 }, { x: 2, n: 3 }, { x: 3, n: 7 }, { x: 4, n: 7 }, { x: 5, n: 3 }] },
+        { label: 'Class B', dots: [{ x: 0, n: 4 }, { x: 1, n: 4 }, { x: 2, n: 4 }, { x: 3, n: 4 }, { x: 4, n: 4 }, { x: 5, n: 4 }] }
+      ] },
+    // p81 #12：15 个值 22–26
+    'JY2-056': { type: 'dotplot', w: 430, h: 104, rowH: 68, pitch: 10, title: 'Data Set A', x: { min: 21.45, max: 26.55 },
+      ticks: [22, 23, 24, 25, 26],
+      rows: [{ dots: [{ x: 22, n: 5 }, { x: 23, n: 4 }, { x: 24, n: 3 }, { x: 25, n: 2 }, { x: 26, n: 1 }] }] },
+    // p85 #15：25 名婴儿开始走路的月龄（原页可见 23 点）
+    'JY2-059': { type: 'dotplot', w: 470, h: 142, rowH: 88, pitch: 10, title: 'Age of 25 Babies When They Began Walking',
+      x: { min: 8, max: 16 }, ticks: [8, 9, 10, 11, 12, 13, 14, 15, 16], xTitle: 'Age(months)',
+      rows: [{ dots: [{ x: 9, n: 1 }, { x: 10, n: 1 }, { x: 11, n: 1 }, { x: 12, n: 3 }, { x: 13, n: 5 }, { x: 14, n: 6 }, { x: 15, n: 6 }] }] },
+    // p86 #16：13 颗木星卫星的公转周期
+    'JY2-060': { type: 'dotplot', w: 470, h: 104, rowH: 60, pitch: 10, x: { min: 719.6, max: 732.4 },
+      ticks: [720, 722, 724, 726, 728, 730, 732], xTitle: 'Orbital period (days)',
+      rows: [{ dots: [{ x: 721, n: 2 }, { x: 723, n: 3 }, { x: 724, n: 2 }, { x: 726, n: 1 }, { x: 727, n: 1 }, { x: 728, n: 1 }, { x: 730, n: 2 }, { x: 732, n: 1 }] }] },
+    // p89 #18：min 37 / Q1 51 / 中位 61 / Q3 84 / max 87
+    'JY2-062': { type: 'boxplot', w: 470, h: 140, x: { min: 34, max: 90 },
+      ticks: [37, 51, 61, 84, 87],
+      rows: [{ min: 37, q1: 51, med: 61, q3: 84, max: 87 }] },
+    // p89 #19：100 个互异值的箱线图，Q1 70 / 中位 80 / Q3 90，轴 10–100
+    'JY2-063': { type: 'boxplot', w: 470, h: 145, x: { min: 8, max: 101 },
+      ticks: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      rows: [{ min: 38, q1: 70, med: 80, q3: 90, max: 96 }] },
+    // p90 #20：两组瞪羚体重的箱线图
+    'JY2-064': { type: 'boxplot', w: 470, h: 205, x: { min: 19.3, max: 32.6 },
+      ticks: [20, 22, 24, 26, 28, 30, 32], xTitle: 'Mass (kilograms)',
+      rows: [
+        { label: 'Group 1', min: 21.5, q1: 22.5, med: 24.8, q3: 26.2, max: 28.3 },
+        { label: 'Group 2', min: 22.1, q1: 23.3, med: 24.3, q3: 25.2, max: 28.4 }
+      ] }
   };
 
   window.JY_FIG = {
@@ -413,6 +564,9 @@
       if (!s) return '';
       if (s.type === 'quadrants') return wrap(quadrants(s));
       if (s.type === 'scatter') return wrap(scatter(s));
+      if (s.type === 'hist') return wrap(hist(s));
+      if (s.type === 'dotplot') return wrap(dotplot(s));
+      if (s.type === 'boxplot') return wrap(boxplot(s));
       return wrap(s.type === 'quad' ? quad(s) : plane(s));
     },
     // 单格渲染：把 quad spec 里的某一个选项面板单独画出来（renderPanel('JY1-040','A')）。
