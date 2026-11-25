@@ -29,6 +29,16 @@
   }
   function title(t) { document.title = 'SAT Math Prep · ' + t; }
 
+  /* P1-A：轻提示（复用 bluebook.css 的 #toast 样式，2.6s 自动消失，不挡列表） */
+  function jyToast(msg) {
+    var t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(jyToast._t);
+    jyToast._t = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+
   /* ---------- 四个子板块 ---------- */
   function renderBoards() {
     var list = J.allStats();
@@ -78,11 +88,14 @@
     els.jySectionList.innerHTML = secs.length ? secs.map(function (s) {
       var x = J.stats(id, s);
       if (!x.total) {
-        return '<div class="drill-section-row" style="opacity:.55;cursor:default">' +
+        /* P1-A：0 题小节是禁用态、不是链接。data-empty="1" 命中页内作用域样式：
+           悬停无高亮/无浮起、无手型光标、整行降饱和；右侧是独立「待录入」徽标。
+           误点只弹轻提示，绝不进做题页。 */
+        return '<div class="drill-section-row jy-empty-row" data-empty="1" aria-disabled="true">' +
           '<span class="drill-section-code">' + esc(s) + '</span>' +
           '<span class="drill-section-name">' + esc(x.cn || '未命名小节') + '</span>' +
-          '<span class="drill-section-meta">已录 0 / 应有 ' + x.expect + ' · 待录入</span>' +
-          '<span class="drill-section-go">—</span></div>';
+          '<span class="drill-section-meta">已录 0 / 应有 ' + x.expect + ' 题</span>' +
+          '<span class="drill-section-go"><span class="jy-empty-badge">待录入</span></span></div>';
       }
       var sub = J.submittedOf(s);
       return '<a class="drill-section-row" href="#" data-sec="' + esc(s) + '"' + (sub ? ' data-result="1"' : '') + '>' +
@@ -95,6 +108,10 @@
     }).join('') : '<p class="jy-empty">该板块暂无小节数据。</p>';
     els.jySectionList.querySelectorAll('[data-sec]').forEach(function (a) {
       a.addEventListener('click', function (e) { e.preventDefault(); openSection(id, a.dataset.sec); });
+    });
+    /* 禁用行单独绑：只弹轻提示，不进 openSection */
+    els.jySectionList.querySelectorAll('[data-empty="1"]').forEach(function (row) {
+      row.addEventListener('click', function () { jyToast('本节题目尚未录入，先在题库里补题'); });
     });
     title('讲义复习 · U' + b.unit + ' ' + b.en);
     show('jySections');

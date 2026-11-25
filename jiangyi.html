@@ -8,10 +8,10 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>SAT Math Prep · 讲义复习</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=04dbb74e4646">
-  <link rel="stylesheet" href="bluebook.css?v=04dbb74e4646">
-  <link rel="stylesheet" href="glass.css?v=04dbb74e4646">
-  <script src="theme.js?v=04dbb74e4646"></script>
+  <link rel="stylesheet" href="app.css?v=feb82233b1b5">
+  <link rel="stylesheet" href="bluebook.css?v=feb82233b1b5">
+  <link rel="stylesheet" href="glass.css?v=feb82233b1b5">
+  <script src="theme.js?v=feb82233b1b5"></script>
   <style>
     .jy-board-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0 8px}
     .jy-board-card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);text-align:left;cursor:pointer;transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
@@ -39,6 +39,29 @@
     .jy-empty{padding:28px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--sub);text-align:center}
     .jy-result-row{display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line-soft)}
     .jy-result-row .s{font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums;min-width:120px}
+    /* P1-A：0 题小节禁用态。只命中 data-empty="1"，不改任何共享 CSS 现有声明：
+       悬停无高亮/无浮起/无投影、无手型光标、整行降饱和；右侧独立「待录入」灰 pill。
+       选择器带 .jy-page 前缀，特异性压过 glass/bluebook 里 .drill-section-row:hover 的 !important。 */
+    .jy-page .drill-section-row[data-empty="1"]{
+      cursor:default!important;opacity:.62!important;
+      background:transparent!important;border:0!important;border-bottom:1px solid var(--line-soft,rgba(35,35,40,.08))!important;
+      border-radius:0!important;box-shadow:none!important;transform:none!important;
+    }
+    .jy-page .drill-section-row[data-empty="1"]:hover,
+    .jy-page .drill-section-row[data-empty="1"]:focus,
+    .jy-page .drill-section-row[data-empty="1"]:focus-visible{
+      background:transparent!important;border-color:transparent!important;box-shadow:none!important;transform:none!important;outline:none!important;
+    }
+    .jy-page .drill-section-row[data-empty="1"] .drill-section-code{
+      background:var(--wash,#f0f2f5)!important;color:var(--sub,#8a9099)!important;
+    }
+    .jy-page .drill-section-row[data-empty="1"] .drill-section-name,
+    .jy-page .drill-section-row[data-empty="1"] .drill-section-meta{color:var(--sub,#8a9099)!important}
+    .jy-page .jy-empty-badge{
+      display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;
+      background:var(--wash,#f0f2f5);color:var(--sub,#8a9099);
+      font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap;
+    }
   </style>
 </head>
 <body class="drill-page jy-page site-shell">
@@ -134,15 +157,16 @@
     </div>
   </main>
 
+  <div id="toast" role="status" aria-live="polite"></div>
   <!-- 讲义页与真题题库隔离：不加载 data/questions.js（560K），只给 app-core 一个空题库，
        这样导航栏仍由 app-core 单一来源渲染，讲义进度也不会碰到教材 CATALOG。 -->
   <script>window.TD_BANK = window.TD_BANK || { units: [], questions: [] };</script>
-  <script src="grade-core.js?v=04dbb74e4646" defer></script>
-  <script src="app-core.js?v=04dbb74e4646" defer></script>
-  <script src="data/jiangyi.js?v=04dbb74e4646" defer></script>
-  <script src="data/jiangyi_figures.js?v=04dbb74e4646" defer></script>
-  <script src="choice-figures.js?v=04dbb74e4646" defer></script>
-  <script src="jiangyi-core.js?v=04dbb74e4646" defer></script>
-  <script src="jiangyi-page.js?v=04dbb74e4646" defer></script>
+  <script src="grade-core.js?v=feb82233b1b5" defer></script>
+  <script src="app-core.js?v=feb82233b1b5" defer></script>
+  <script src="data/jiangyi.js?v=feb82233b1b5" defer></script>
+  <script src="data/jiangyi_figures.js?v=feb82233b1b5" defer></script>
+  <script src="choice-figures.js?v=feb82233b1b5" defer></script>
+  <script src="jiangyi-core.js?v=feb82233b1b5" defer></script>
+  <script src="jiangyi-page.js?v=feb82233b1b5" defer></script>
 </body>
 </html>
