@@ -1,13 +1,20 @@
-/* SAT Math — 账号与进度同步后端（Supabase，邮箱验证码 OTP 唯一通道）。
+/* SAT Math — 账号与进度同步后端（Supabase，邮箱登录唯一通道）。
  *
  * 为什么是 Supabase：identitytoolkit.googleapis.com 在国内不翻墙直接超时；
  * Supabase 的 REST / Auth 接口国内实测可直连。
  *
- * 登录流程（一轮到底，仅邮箱 + 邮件验证码，无第三方令牌）：
- *   1. sendOtp(email)   → POST /auth/v1/otp { email, create_user: true }
- *      邮件里收到 6 位数字验证码（首次登录自动建档，create_user=true）。
- *   2. verifyOtp(email, code) → POST /auth/v1/verify { type: 'email', token, email }
- *      成功返回 access_token / refresh_token / expires_in，落 localStorage 持久会话。
+ * 当前过渡形态：**邮件链接登录（magic link）**。
+ *   1. sendOtp(email) → POST /auth/v1/otp { email, create_user: true }
+ *      邮件里收到一条登录链接（首次登录自动建档，create_user=true）。
+ *   2. 用户在邮件里点链接，Supabase 回跳到本站，会话参数带在 `location.hash`
+ *      （`#access_token=...&refresh_token=...&expires_in=3600&type=magiclink`）；
+ *      `consumeHashSession()` 在页面加载时取出参数，按 packSession 等价路径落
+ *      localStorage，再清掉地址栏 hash。
+ *
+ * [BLOCKED-BY-EXTERNAL] 数字验证码版本：`verifyOtp(email, code)`（6 位码
+ * `POST /auth/v1/verify { type: 'email', token, email }`）代码保留未删，但当前
+ * 默认 SMTP 下邮件模板被硬门禁锁死、加不进 `{{ .Token }}`，UI 不接这条路径。
+ * 等总监提供自定义 SMTP 凭据、模板挂上 `{{ .Token }}` 后，再把面板切回数字码版本。
  *
  * 会话持久：packSession 结构沿用旧版，localStorage key `tdsat_auth_v1`；
  * 刷新页面、关标签页再开、跨标签页（storage 事件）都能恢复；过期用 refresh_token 续期。
@@ -112,6 +119,31 @@
       return s;
     } catch (e) { return null; }
   }
+
+  /* 邮件链接回调：解析 location.hash 里的 access_token / refresh_token / expires_in，
+     落本地会话后清掉 hash，避免 token 留在地址栏。hash 里不带 user 对象，
+     user 由 boot() 随后用 access_token 调 /auth/v1/user 补全。 */
+  function consumeHashSession() {
+    if (typeof location === 'undefined') return false;
+    var hash = String(location.hash || '');
+    if (hash.indexOf('access_token=') < 0) return false;
+    var params;
+    try { params = new URLSearchParams(hash.slice(1)); } catch (e) { return false; }
+    var access = params.get('access_token');
+    if (!access) return false;
+    var expiresAt;
+    var expAt = Number(params.get('expires_at'));
+    if (expAt > 0) expiresAt = expAt * 1000 - 30000;
+    else expiresAt = Date.now() + ((Number(params.get('expires_in')) || 3600) * 1000) - 30000;
+    saveSession({
+      access: access,
+      refresh: params.get('refresh_token') || '',
+      expiresAt: expiresAt,
+      user: {}
+    });
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* 老浏览器兜底 */ }
+    return true;
+  }
   function toUser(u) {
     if (!u || !u.id) return null;
     var meta = u.user_metadata || {};
@@ -152,6 +184,7 @@
   function boot() {
     if (booted) return booted;
     booted = (async function () {
+      consumeHashSession();
       session = loadSession();
       if (!session) { emit(); return; }
       session = await refreshIfNeeded();
@@ -182,13 +215,14 @@
     return currentUser;
   }
 
-  /* ---------- 邮箱验证码 OTP ---------- */
+  /* ---------- 邮箱登录 ---------- */
   function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim()); }
 
-  // 发码：create_user=true，首次输入邮箱即自动建档（后端 disable_signup:false）。
+  // 发送登录邮件：create_user=true，首次输入邮箱即自动建档（后端 disable_signup:false）。
+  // 当前后端默认邮件模板回的是 magic link（点链接回站带 hash 会话），不是数字码。
   async function sendOtp(email) {
     var mail = String(email || '').trim();
-    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再获取验证码。' });
+    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送登录邮件。' });
     await raw('/auth/v1/otp', {
       method: 'POST',
       headers: authHeaders(null),
@@ -198,11 +232,12 @@
     return true;
   }
 
-  // 收码：6 位数字验证码换会话。
+  // [BLOCKED-BY-EXTERNAL] 6 位数字验证码换会话。当前默认 SMTP 模板加不进
+  // {{ .Token }}，此路径不接 UI；等自定义 SMTP + 模板改造完成后再启用。
   async function verifyOtp(email, code) {
     var mail = String(email || '').trim();
     var token = String(code || '').trim();
-    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再获取验证码。' });
+    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送登录邮件。' });
     if (!/^\d{6}$/.test(token)) throw errOf(400, { msg: '请输入邮件里收到的 6 位数字验证码。' });
     var r = await raw('/auth/v1/verify', {
       method: 'POST',
@@ -233,6 +268,7 @@
     user: function () { return currentUser; },
 
     sendOtp: sendOtp,
+    sendMagicLink: sendOtp,
     verifyOtp: verifyOtp,
 
     signOut: async function () {

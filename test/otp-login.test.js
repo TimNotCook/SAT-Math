@@ -147,6 +147,63 @@ describe('报错映射', () => {
   });
 });
 
+describe('magic link 回调：hash 会话接住', () => {
+  function loadHashModule(hash, fetchStub) {
+    const store = {};
+    const cleared = [];
+    const sandbox = {
+      console, JSON, Math, String, Number, Array, Object, Date, isFinite,
+      setTimeout, clearTimeout,
+      setInterval: function () { return 0; },
+      addEventListener: function () {},
+      URLSearchParams,
+      localStorage: {
+        getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+        setItem: (k, v) => { store[k] = String(v); },
+        removeItem: k => { delete store[k]; }
+      },
+      location: { hash, pathname: '/SAT-Math/drill.html', search: '' },
+      history: { replaceState: (_, __, url) => cleared.push(url) },
+      fetch: fetchStub
+    };
+    sandbox.window = sandbox;
+    sandbox.TD_CLOUD_CONFIG = {
+      supabase: { url: 'https://example.supabase.co', anonKey: 'test-anon-key' }
+    };
+    vm.createContext(sandbox);
+    vm.runInContext(SRC, sandbox, { filename: 'supa-cloud.js' });
+    return { SB: sandbox.TDSUPA, store, cleared };
+  }
+
+  test('hash 带 access_token/refresh_token/expires_at → 落 localStorage，清掉 hash，/user 补全档案', async () => {
+    const hash = '#access_token=tk-hash&refresh_token=rt-hash&expires_at=1893456000&expires_in=3600&type=magiclink';
+    const { SB, store, cleared } = loadHashModule(hash, async (url) => {
+      if (url.endsWith('/auth/v1/user')) return makeRes(200, { id: 'uid-hash', email: 'hash@example.com', user_metadata: { display_name: '同学' } });
+      return makeRes(404, {});
+    });
+
+    let got = null;
+    SB.onState(u => { got = u; });
+    await new Promise(r => setTimeout(r, 30));
+
+    const saved = JSON.parse(store[SESSION_KEY]);
+    assert.equal(saved.access, 'tk-hash');
+    assert.equal(saved.refresh, 'rt-hash');
+    assert.ok(saved.expiresAt > Date.now(), 'expiresAt 应在未来');
+    assert.equal(cleared.length, 1);
+    assert.equal(cleared[0], '/SAT-Math/drill.html');
+    assert.equal(got.uid, 'uid-hash');
+    assert.equal(got.email, 'hash@example.com');
+  });
+
+  test('hash 里没有 access_token → 不写会话，也不清 hash', async () => {
+    const { SB, store, cleared } = loadHashModule('#foo=bar', async () => makeRes(404, {}));
+    await new Promise(r => setTimeout(r, 30));
+    assert.equal(store[SESSION_KEY], undefined);
+    assert.equal(cleared.length, 0);
+  });
+});
+
 describe('会话本地恢复', () => {
   test('localStorage 已有未过期快照 → onState 静默恢复出当前用户', async () => {
     const seed = {

@@ -1,11 +1,13 @@
-/* TD SAT Math — 独立账号系统（Supabase 邮箱验证码 OTP，唯一登录通道）。
+/* TD SAT Math — 独立账号系统（Supabase 邮箱登录，唯一通道）。
  *
  * 登录后每个账号拥有完全独立的学习档案：进度自动保存、切换账号自动切换档案，
  * 用户无需理解"云端 / 备份 / 恢复 / 同步"，也不需要点任何保存按钮。
  * 昵称由用户在设置里自定义，界面上不展示邮箱。
  *
- * 登录流程一轮到底：填邮箱 → 点「获取验证码」→ 填邮件里的 6 位码 → 登录；
- * 首次登录自动建档。全程仅邮箱 + 邮件验证码，不设口令、不用账号名、不接第三方令牌。
+ * 当前过渡形态：邮件链接登录。填邮箱 → 点「发送登录邮件」→ 收信 → 点邮件里的
+ * 登录按钮 → 回站自动登录；首次登录自动建档。不设口令、不用账号名、不接第三方令牌。
+ * [BLOCKED-BY-EXTERNAL] 6 位数字验证码版本待自定义 SMTP + 邮件模板加 {{ .Token }} 后切回，
+ * 前端验码接口保留在 supa-cloud.js，面板不接这条路径。
  *
  * 档案归属：本机 localStorage 始终是当前账号档案的工作副本。
  *   tdprofile_v1       （不参与同步）记录 { owner, lastSynced }
@@ -135,13 +137,13 @@
   function friendlyError(e) {
     var c = e && e.code, m = e && e.message;
     if (c === 'auth/invalid-email') return '邮箱格式不正确，请检查后再试。';
-    if (c === 'auth/invalid-code' || c === 'auth/email-not-confirm') return '验证码不对或已过期，请用最新一封邮件里的码，或重新获取。';
+    if (c === 'auth/invalid-code' || c === 'auth/email-not-confirm') return '登录链接已失效或邮件有误，请重新发送登录邮件。';
     if (c === 'auth/too-many-requests') return '操作太频繁了，等一分钟再试。';
     if (c === 'auth/network-request-failed') return '网络异常，请检查连接后重试。';
     if (c === 'auth/internal-error') return '登录服务返回异常，请刷新页面后重试。';
     var lm = String(m || '').toLowerCase();
     if (lm.indexOf('does not match') >= 0 || lm.indexOf('verification code') >= 0 || lm.indexOf('token') >= 0 || lm.indexOf('expired') >= 0) {
-      return '验证码不对或已过期，请用最新一封邮件里的码，或重新获取。';
+      return '登录链接已失效或邮件有误，请重新发送登录邮件。';
     }
     if (lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return '登录服务暂时连不上，请检查网络后重试。';
     return m || '操作失败，请重试。';
@@ -393,7 +395,12 @@
     renderBody();
   }
 
-  /* ---------- 登录动作（邮箱验证码 OTP） ---------- */
+  /* ---------- 登录动作（邮件链接） ---------- */
+  function sendBtnLabel() {
+    if (otpCooldown > 0) return '重新发送 (' + otpCooldown + 's)';
+    return otpSent ? '重新发送' : '发送登录邮件';
+  }
+
   function startOtpCooldown() {
     otpCooldown = 60;
     if (otpCountdownTimer) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
@@ -403,7 +410,7 @@
       if (otpCooldown <= 0) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
       if (ui && ui.otpSendBtn) {
         ui.otpSendBtn.disabled = busy || otpCooldown > 0;
-        ui.otpSendBtn.textContent = otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码');
+        ui.otpSendBtn.textContent = sendBtnLabel();
       }
     }, 1000);
   }
@@ -411,38 +418,23 @@
   function syncOtpSendBtn() {
     if (!ui || !ui.otpSendBtn) return;
     ui.otpSendBtn.disabled = busy || otpCooldown > 0;
-    ui.otpSendBtn.textContent = otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码');
+    ui.otpSendBtn.textContent = sendBtnLabel();
   }
 
-  async function doSendOtp() {
+  async function doSendLink() {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     if (!email) { setError('请先填写邮箱。'); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
       setBusy(true); setError('');
       otpEmail = email;
-      await SB.sendOtp(email);
+      await (SB.sendMagicLink || SB.sendOtp)(email);
       otpSent = true;
       startOtpCooldown();
       renderBody(); // 重绘会把状态栏重置成「未登录」，所以提示必须写在它之后
-      setStatus('验证码已发送至 ' + email + '，10 分钟内有效，记得看一眼垃圾箱。', 'ok');
+      setStatus('已发送到 ' + email + '，点邮件里的登录按钮即可完成登录。链接只能用一次，请尽快点击（也可以在垃圾箱里找一下）。', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); syncOtpSendBtn(); }
-  }
-
-  async function doVerifyOtp() {
-    var email = ui && ui.email ? ui.email.value.trim() : otpEmail;
-    var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
-    if (!email) { setError('请填写邮箱。'); return; }
-    if (!code) { setError('请填写收到的邮箱验证码。'); return; }
-    if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
-    try {
-      setBusy(true); setError('');
-      await SB.verifyOtp(email, code);
-      otpSent = false;
-      setStatus('验证码登录成功，正在打开你的学习档案…', 'ok');
-    } catch (e) { setError(friendlyError(e)); }
-    finally { setBusy(false); }
   }
 
   async function saveNickname(name) {
@@ -648,18 +640,10 @@
     return { box: f, input: input };
   }
 
-  function wideBtn(b, text, onclick) {
-    var btn = el('button', 'td-acct-btn2 td-acct-btn--wide', text);
-    btn.type = 'button';
-    btn.setAttribute('data-busy', '1');
-    btn.onclick = onclick;
-    b.appendChild(btn);
-    return btn;
-  }
 
   function renderAccountTab() {
     var b = ui.body;
-    ui.email = null; ui.otpCode = null; ui.otpSendBtn = null;
+    ui.email = null; ui.otpSendBtn = null;
     if (user) {
       var p = el('div', 'td-prof');
       var initial = (displayName().trim().charAt(0) || DEFAULT_NICK).toUpperCase();
@@ -702,35 +686,24 @@
       return;
     }
 
-    /* 唯一流程：填邮箱 → 获取验证码 → 填 6 位码 → 登录。 */
-    b.appendChild(el('div', 'td-acct-who', '邮箱验证码登录'));
+    /* 唯一流程：填邮箱 → 发送登录邮件 → 点邮件里的链接回站自动登录。 */
+    b.appendChild(el('div', 'td-acct-who', '邮箱链接登录'));
     var em = field('邮箱', 'email', 'you@example.com', 'email');
     if (otpEmail) em.input.value = otpEmail;
-    b.appendChild(em.box); ui.email = em.input;
 
     var row = el('div', 'td-otp-row');
     row.appendChild(em.box);
-    var sendBtn = el('button', 'td-acct-btn2 td-otp-send',
-      otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码'));
+    var sendBtn = el('button', 'td-acct-btn2 td-otp-send', sendBtnLabel());
     sendBtn.type = 'button';
     sendBtn.setAttribute('data-busy', '1');
     if (otpCooldown > 0) sendBtn.disabled = true;
-    sendBtn.onclick = doSendOtp;
+    sendBtn.onclick = doSendLink;
     ui.otpSendBtn = sendBtn;
     row.appendChild(sendBtn);
     b.appendChild(row);
+    ui.email = em.input;
 
-    if (otpSent) {
-      var cf = field('验证码', 'text', '输入邮箱收到的 6 位验证码', 'one-time-code');
-      cf.input.inputMode = 'numeric';
-      cf.input.maxLength = 6;
-      b.appendChild(cf.box);
-      ui.otpCode = cf.input;
-      cf.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doVerifyOtp(); });
-      wideBtn(b, '登录', doVerifyOtp);
-    } else {
-      em.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSendOtp(); });
-    }
+    em.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSendLink(); });
 
     b.appendChild(el('p', 'td-acct-note',
       '首次登录会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。'));
