@@ -38,3 +38,40 @@
 ## 五、清理记录
 - 2026-11-25 08:09 HKT（00:09 UTC）：已清理测试账号 `timalpha`（Auth 邮箱 satmath.demo1@qq.com）与探针 `satmath-probe2@qq.com`；连带删掉它们的 `usernames` / `username_alias` / `progress` 行，`auth.identities` 一并清。
 - 清理后实测：`auth.users` 剩 1（`satmath-probe@qq.com`，无用户名、从未登录，属遗留探针）；`usernames` 0 行、`username_alias` 0 行、`progress` 0 行。
+
+## 六、验收记录（2026-11-25）
+### 1) 两台独立浏览器（两个全新 Chrome profile，各不带任何登录态）
+序列与结果（浏览器内走站点自己的 `TDSUPA` 客户端，`?v=621ebd047247`）：
+```
+A register  -> {"ok":1,"user":"qa.web3","uid":"58be7744-9358-4d25-8bd5-8e2082137ec4"}
+A archive   -> {"arch":{"n":0}}
+A signOut   -> {"user":false}
+B signIn    -> {"ok":1,"user":"qa.web3","uid":"58be7744-9358-4d25-8bd5-8e2082137ec4"}   # A、B 同 uid
+B archive   -> {"arch":{"n":0}}                                                       # 快照一致
+A rename    -> {"ok":1,"now":"qa.web4","user":"qa.web4"}
+B old name  -> {"status":410,"err":"这个用户名已经改过名，请用新用户名登录。"}        # 旧名登录失败
+B new name  -> {"ok":1,"user":"qa.web4","uid":"58be7744-9358-4d25-8bd5-8e2082137ec4"} # 新名登录成功，且显示新名
+```
+### 2) API 层（curl，直接打 GoTrue/PostgREST）
+```
+1 注册伪邮箱 qa.tim5@satmath.local  -> access_token YES
+2 写 usernames 行（authenticated）   -> 201
+3 匿名 resolve_login('qa.tim5')     -> "qa.tim5@satmath.local" 200
+4 匿名 select=email                 -> 401 permission denied（email 列不开放）
+5 匿名 select=username,user_id      -> 200 返回 [{username,user_id}]
+6 用户名登录                         -> token YES
+7 rename_username('qa.tim6')        -> "qa.tim6" 200
+8 旧名 resolve -> null；is_retired_username -> true
+9 旧名登录（客户端）                 -> 410「已改过名」
+10 新名登录                          -> token YES
+```
+### 3) 测试与部署
+- `node --test test/*.test.js` → **111 pass / 0 fail**
+- 线上资源：`supa-cloud.js?v=621ebd047247`（`cloud-config.js` / `cloud-account.js` 同批 bump，drill/exam/wrong 三页同值）
+- 证据图：`docs/account-evidence/panel-no-email.png`（设置面板只有 用户名 + 密码）、`docs/account-evidence/B-old-name-410.png`
+- SQL 全文：`docs/sql/account-model.sql`
+
+### 4) 已知边界（不粉饰）
+- 伪邮箱是 Auth 的登录标识，改名不会改 `auth.users.email`（前端无 service role，红线内）。因此**知道旧伪邮箱 + 密码**仍能在 GoTrue 层直接换到 token；站点客户端只按用户名登录，旧名会以 410 拦住。要彻底废掉旧伪邮箱需 Edge Function + service role。
+- 无邮箱即无自助改密，`renderSupaReset` 明示“联系管理员”。
+- `auth.users` 仍剩 1 个遗留探针 `satmath-probe@qq.com`（无用户名、从未登录），要不要删等你一句话。
