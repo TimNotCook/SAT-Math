@@ -7,4 +7,23 @@ window.TD_CHOICE_CROPS = {
   "C": "images/choice/U1-01_C.png",
   "D": "images/choice/U1-01_D.png"
  }
+,
+ "TD-22-14": {
+  "A": "images/choice/TD-22-14_A.png",
+  "B": "images/choice/TD-22-14_B.png",
+  "C": "images/choice/TD-22-14_C.png",
+  "D": "images/choice/TD-22-14_D.png"
+ },
+ "TD-33-19": {
+  "A": "images/choice/TD-33-19_A.png",
+  "B": "images/choice/TD-33-19_B.png",
+  "C": "images/choice/TD-33-19_C.png",
+  "D": "images/choice/TD-33-19_D.png"
+ },
+ "SR-232": {
+  "A": "images/choice/SR-232_A.png",
+  "B": "images/choice/SR-232_B.png",
+  "C": "images/choice/SR-232_C.png",
+  "D": "images/choice/SR-232_D.png"
+ }
 };

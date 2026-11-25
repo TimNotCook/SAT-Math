@@ -15,6 +15,9 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const KEY = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/jiangyi_answers.json'), 'utf8'));
+/* 教材原题（练习册 P200–207）走另一套答案页与 source 形态，见下面对照。 */
+const TBK = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/jiangyi_textbook_answers.json'), 'utf8'));
+const isBook = q => q.group === 'textbook';
 
 function loadJs(rel) {
   const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -28,7 +31,7 @@ const BANK = JY.JY_BANK;
 const SECS = JY.JY_SECTIONS;
 
 const bySection = {};
-BANK.forEach(q => { (bySection[q.section] = bySection[q.section] || []).push(q); });
+BANK.forEach(q => { if (isBook(q)) return; (bySection[q.section] = bySection[q.section] || []).push(q); });
 
 test('小节表：24 节，declared 数 = 答案页该节最大题号', () => {
   assert.strictEqual(SECS.length, 24, '讲义共 24 个小节');
@@ -54,6 +57,14 @@ test('id 用 JY 前缀，不与 U1-01 那套混号，且不重复', () => {
 
 test('每题 section 是真小节号，页内题号在答案页范围内（答案页没有的一律不录）', () => {
   BANK.forEach(q => {
+    if (isBook(q)) {
+      const bk = TBK[q.section];
+      assert.ok(bk, q.id + ' 的 section 在练习册答案页里没有：' + q.section);
+      assert.ok(Number.isInteger(q.no) && q.no >= 1 && q.no <= bk.maxNo,
+        q.id + ' 的题号 ' + q.no + ' 超出练习册答案页该节最大题号 ' + bk.maxNo);
+      assert.ok(q.page >= 200 && q.page <= 207, q.id + ' 的练习册页码必须在 P200–P207：' + q.page);
+      return;
+    }
     const k = KEY[q.section];
     assert.ok(k, '未知小节：' + q.section);
     assert.ok(Number.isInteger(q.no) && q.no >= 1, q.id + ' 页内题号非法');
@@ -65,6 +76,13 @@ test('每题 section 是真小节号，页内题号在答案页范围内（答�
 
 test('source 三段齐全，且与 page / no 一致', () => {
   BANK.forEach(q => {
+    if (isBook(q)) {
+      const m = /^练习册 P(\d+) #(\d+)$/.exec(q.source || '');
+      assert.ok(m, q.id + ' 的 source 不是「练习册 P{页} #{题号}」：' + q.source);
+      assert.strictEqual(Number(m[1]), q.page, q.id + ' source 页码与 page 不一致');
+      assert.strictEqual(Number(m[2]), q.no, q.id + ' source 题号与 no 不一致');
+      return;
+    }
     const m = /^讲义 p(\d+) #(\d+)$/.exec(q.source || '');
     assert.ok(m, q.id + ' 的 source 不是「讲义 p{页} #{题号}」：' + q.source);
     assert.strictEqual(Number(m[1]), q.page, q.id + ' source 页码与 page 不一致');
@@ -74,6 +92,12 @@ test('source 三段齐全，且与 page / no 一致', () => {
 
 test('answer 逐字等于答案页的键（不自己算）', () => {
   BANK.forEach(q => {
+    if (isBook(q)) {
+      const bk = TBK[q.section];
+      assert.strictEqual(q.answer, bk.answers[String(q.no)],
+        q.id + ' 答案与练习册答案页 P' + bk.answerPage + ' ' + q.section + ' 第 ' + q.no + ' 题不符（答案页写的是 ' + bk.answers[String(q.no)] + '）');
+      return;
+    }
     const k = KEY[q.section];
     assert.strictEqual(q.answer, k.answers[String(q.no)],
       q.id + ' 答案与答案页 ' + q.section + ' 第 ' + q.no + ' 题不符（答案页写的是 ' + k.answers[String(q.no)] + '）');
@@ -122,6 +146,14 @@ test('每题都有原页对照图 docs/jiangyi-proof/{id}.png', () => {
 test('图形只走矢量 spec：引用的 fig 必须存在，且不许出现讲义裁图', () => {
   BANK.forEach(q => {
     if (!q.figure) return;
+    /* 教材原题例外：figure 值是练习册原页题目图（images/fig/U4-0x.png），
+       矢量重画排进图形线（码农 α），数据侧先保证「有图可看、文件存在」。 */
+    if (isBook(q)) {
+      assert.match(q.figure, /^images\/fig\/\S+\.png$/, q.id + ' 的 figure 不是图片路径：' + q.figure);
+      assert.ok(fs.existsSync(path.join(ROOT, q.figure)), q.id + ' 引用的图片不存在：' + q.figure);
+      assert.ok(!FG.JY_FIG.specs[q.figure], q.id + ' 教材原题不该直接引用讲义 spec');
+      return;
+    }
     assert.ok(FG.JY_FIG.specs[q.figure], q.id + ' 引用的矢量 spec 不存在：' + q.figure);
     assert.ok(!q.image, q.id + ' 不许挂位图 image 字段');
   });

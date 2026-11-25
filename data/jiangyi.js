@@ -14,6 +14,12 @@
      table    可选，[["x","g (x)"],["2","-4"],...] 用真表格渲染，不用截图
      figure   可选，矢量 spec 的键（见 data/jiangyi_figures.js）；也可填图片路径
 
+   教材原题（Unit 4 练习册 P200–207，group:'textbook'）字段差异：
+     source   "练习册 P{page} #{no}"，题卡只显示「练习册 P{page}」，不写讲义页码
+     answer   照抄练习册答案页 P246（见 data/jiangyi_textbook_answers.json），不自己算
+     figure   值是图片路径（原页题目图），不是 JY_FIG 的 spec 键
+   教材原题不计入官方小节 declared；各节 declared 仍只按讲义答案页 p191–196 的最大题号。
+
    各节 declared 数 = 答案页该节最大题号；已录必须等于它，差一道不算完成。 */
 
 window.JY_SECTIONS = [
@@ -180,4 +186,30 @@ window.JY_BANK = [
 {"id":"JY1-045","unit":1,"section":"1.5","no":6,"page":35,"source":"讲义 p35 #6","type":"mcq-graph","answer":"B","figure":"JY1-045",
  "stem":"The shaded region shown above represents the solution to which of the following systems of inequalities?",
  "choices":["y < x\ny \u2264 4","y < x\ny \u2265 4","y > x\ny \u2264 4","y > x\ny \u2265 4"]}
+
+,
+{"id": "JY4-047", "unit": 4, "section": "4.1", "no": 1, "page": 200, "group": "textbook", "source": "\u7ec3\u4e60\u518c P200 #1", "type": "mcq", "answer": "D", "figure": "images/fig/U4-01.png",
+ "stem":"In the figure, line k is parallel to line l. What is the value of z?",
+ "choices":["24", "66", "106", "114"]},
+{"id": "JY4-048", "unit": 4, "section": "4.1", "no": 2, "page": 200, "group": "textbook", "source": "\u7ec3\u4e60\u518c P200 #2", "type": "grid", "answer": "164", "value": 164, "figure": "images/fig/U4-02.png",
+ "stem":"Note: Figure not drawn to scale. In the figure, line n intersects lines r and s. Line r is parallel to line s. What is the value of x?"},
+{"id": "JY4-049", "unit": 4, "section": "4.1", "no": 3, "page": 201, "group": "textbook", "source": "\u7ec3\u4e60\u518c P201 #3", "type": "mcq", "answer": "D", "figure": "images/fig/U4-03.png",
+ "stem":"Note: Figure not drawn to scale. In the figure, line p is parallel to line q, and line t intersects both lines. What is the value of x+142?",
+ "choices":["52", "90", "142", "180"]},
+{"id": "JY4-050", "unit": 4, "section": "4.1", "no": 5, "page": 202, "group": "textbook", "source": "\u7ec3\u4e60\u518c P202 #5", "type": "mcq", "answer": "D", "figure": "images/fig/U4-04.png",
+ "stem":"Note: Figure not drawn to scale. In the figure, two lines intersect at a point. If w = 130, what is the value of z?",
+ "choices":["30", "50", "65", "130"]},
+{"id": "JY4-051", "unit": 4, "section": "4.1", "no": 6, "page": 203, "group": "textbook", "source": "\u7ec3\u4e60\u518c P203 #6", "type": "grid", "answer": "127", "value": 127, "figure": "images/fig/U4-05.png",
+ "stem":"Note: Figure not drawn to scale. In the figure shown, line r is parallel to line s, and both lines are intersected by line t. If x = 2w + 24, y = 5w + 29, and 7w = a, where a is a constant, what is the value of a?"},
+{"id": "JY4-052", "unit": 4, "section": "4.2", "no": 3, "page": 205, "group": "textbook", "source": "\u7ec3\u4e60\u518c P205 #3", "type": "mcq", "answer": "A",
+ "stem":"Triangles ABC and DEF are similar, where A corresponds to D, and B corresponds to E. The measure of angle A is 26\u00b0, and AB=4. Which of the following statements must be true?\nI. The measure of angle D is 26\u00b0.\nII. DE=4",
+ "choices":["I only", "II only", "I and II", "Neither I nor II"]},
+{"id": "JY4-053", "unit": 4, "section": "4.2", "no": 4, "page": 205, "group": "textbook", "source": "\u7ec3\u4e60\u518c P205 #4", "type": "grid", "answer": "65", "value": 65, "figure": "images/fig/U4-07.png",
+ "stem":"Note: Figure not drawn to scale. In the figure, AC=CD. The measure of angle EBC is 29\u00b0, and the measure of angle ACD is 108\u00b0. What is the value of x?"},
+{"id": "JY4-054", "unit": 4, "section": "4.2", "no": 9, "page": 207, "group": "textbook", "source": "\u7ec3\u4e60\u518c P207 #9", "type": "mcq", "answer": "C", "figure": "images/fig/U4-08.png",
+ "stem":"Note: Figures not drawn to scale. For the triangles shown, triangle ABC is dilated by a scale factor of 3 to obtain triangle XYZ, where d=16. What is the measure, in degrees, of angle X?",
+ "choices":["20", "57", "60", "63"]},
+{"id": "JY4-055", "unit": 4, "section": "4.2", "no": 10, "page": 207, "group": "textbook", "source": "\u7ec3\u4e60\u518c P207 #10", "type": "mcq", "answer": "A", "figure": "images/fig/U4-09.png",
+ "stem":"Note: Figure not drawn to scale. In the triangle shown, what is the value of x?",
+ "choices":["13", "13\u221a2", "26", "26\u221a2"]}
 ];
