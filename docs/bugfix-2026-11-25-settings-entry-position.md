@@ -79,7 +79,7 @@
   `docs/ui-shots/bugfix-2026-11-25/settings-rail.json`
 
 ## 本地验收
-- `node --test test/*.test.js`：**131 / 131 通过，0 失败**（基线 131/0）。
+- `node --test test/*.test.js`：**139 / 139 通过，0 失败**（基线 131/0；并入隔壁 2.5–2.7 题库提交后测试增至 139）。
 - `python3 bump_assets.py` 后 `python3 bump_assets.py --check`：**PASS**，五页 `?v=` 同值。
 - `node tools/verify_a11y.mjs --out /tmp/proof-a11y-local`：**20 / 20 通过，0 失败**。
 - `node tools/verify_session.mjs --out /tmp/proof-session-local`：**22 / 22 通过，0 失败**。
@@ -87,4 +87,34 @@
   **14 屏次，横向滚动 0，出框 0**。
 
 ## 线上实测
-（推送、Pages 发布后补：commit hash、线上 `?v=` 实测值与时刻、线上三档复测位置数值。）
+- 修复提交：`8722a0cc24e3657be2ed1ce5b424ae085c3b53f6`（`fix(ui): 设置入口收口到「← 返回真题练习」同一组……`），推送时间 2026-11-25 19:15:59 +0700，普通 `push origin main`，未使用 force push。
+- 线上 `?v=` 实测：**`09e7f0f6bc57`**（2026-11-25 19:22 +0700 回拉五页 HTML 核对；该合并哈希在隔壁 2.7 题库提交 `1017ddf` 后刷新，`cloud-account.js` 本体未变）。
+- 线上 `cloud-account.js` 与本地逐字节一致（SHA-256 前 16 位 `c98f1d0c379cf88e`）：`.rail-tail` 规则 ×7，旧的 `margin:auto 0 0` / `margin:0 0 0 auto` 计数 **0**。
+
+### 线上三档复测（CDP 无头 Chrome，等待轮询至少两轮后读数；与本地修复后数值一致）
+
+#### wrong.html（有 `.rail-back`，父级 `rail-tail`）
+| 宽度 | 按钮 rect (x,y,w×h) | 返回链接 rect (x,y,w×h) | y 差 | 水平间距 | 结论 |
+|---|---|---|---|---|---|
+| 1280 | 14, 354.6, 187×43.8 | 14, 311.7, 187×38.9 | 42.9（纵向 gap 4.0px） | — | 竖排相邻，链接下方；未贴底（bottom=398.4 / 栏高 900） |
+| 655 | 597, 53.3, 46×38.1 | 464.3, 52.9, 124.7×38.9 | 0.4 | 8px | 同行相邻，整组靠右 |
+| 390 | 332, 96.2, 46×38.1 | 199.3, 95.8, 124.7×38.9 | 0.4 | 8px | 同行相邻（第二行），整组靠右，无孤岛 |
+
+#### drill.html 列表（无 `.rail-back`，父级 `rail-tail`，锚点在 `.rail-sep` 之后）
+| 宽度 | 按钮 rect (x,y,w×h) | 结论 |
+|---|---|---|
+| 1280 | 14, 311.7, 187×43.1 | 分隔线下方整行，常规流排布，未贴底 |
+| 655 | 537.9, 10.7, 46×37.4 | 导航流末尾，与相邻项同 gap，未甩到行尾 |
+| 390 | 236, 53.6, 46×37.4 | 导航流末尾，与相邻项同 gap，无孤岛 |
+
+#### 做题视图兜底（`drill.html?sec=1.1&i=1`，父级 `drill-context-right bb-tools`）
+| 宽度 | 按钮 rect (x,y,w×h) | 结论 |
+|---|---|---|
+| 1280 | 1056.1, 6.3, 42×33.4 | 兜底路径原样可用 |
+| 655 | 431.1, 6.3, 42×33.4 | 兜底路径原样可用 |
+| 390 | 166.1, 6.3, 42×33.4 | 兜底路径原样可用 |
+
+### 线上验收脚本（base `https://timnotcook.github.io/SAT-Math`，2026-11-25 19:2x +0700）
+- `node tools/verify_a11y.mjs --base <线上> --out /tmp/proof-live2-a11y`：**20 / 20 通过，0 失败**，退出码 0。
+- `node tools/verify_session.mjs --base <线上> --out /tmp/proof-live2-session`：**22 / 22 通过，0 失败**，退出码 0。
+- `node tools/narrow_check.mjs <线上> /tmp/proof-live2-narrow`：**14 屏次，横向滚动 0**，退出码 0。模考/做题视图下有 8 个题面、选项节点 sw 略宽于 clientW（`overflowX:hidden`，无横向滚动），名单内不含 `.td-acct-btn` / `.rail-tail`，与本次设置入口改动无关。
