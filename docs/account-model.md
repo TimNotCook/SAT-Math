@@ -1,5 +1,7 @@
 # 账号模型：用户名即身份（2026-11-25）
 
+> 脱敏：文中 `<qa-NN>`、`<uid-01>` 是占位符。真实测试账号名与 user_id 已从仓库移除，只留在 Supabase Dashboard 里；要复现请自己新建账号，别再往仓库写明文。
+
 ## 一、结论
 - 身份 = **用户名**；Supabase Auth 里的邮箱是内部伪邮箱 `<用户名>@satmath.local`，用户不填、界面不显示。
 - 注册只收 `用户名 + 密码`；登录只收 `用户名 + 密码`；改名只改用户名，**不动 auth.users.email**（前端没有 service role key，也不需要）。
@@ -43,24 +45,24 @@
 ### 1) 两台独立浏览器（两个全新 Chrome profile，各不带任何登录态）
 序列与结果（浏览器内走站点自己的 `TDSUPA` 客户端，`?v=621ebd047247`）：
 ```
-A register  -> {"ok":1,"user":"qa.web3","uid":"58be7744-9358-4d25-8bd5-8e2082137ec4"}
+A register  -> {"ok":1,"user":"<qa-01>","uid":"<uid-01>"}
 A archive   -> {"arch":{"n":0}}
 A signOut   -> {"user":false}
-B signIn    -> {"ok":1,"user":"qa.web3","uid":"58be7744-9358-4d25-8bd5-8e2082137ec4"}   # A、B 同 uid
+B signIn    -> {"ok":1,"user":"<qa-01>","uid":"<uid-01>"}   # A、B 同 uid
 B archive   -> {"arch":{"n":0}}                                                       # 快照一致
-A rename    -> {"ok":1,"now":"qa.web4","user":"qa.web4"}
+A rename    -> {"ok":1,"now":"<qa-02>","user":"<qa-02>"}
 B old name  -> {"status":410,"err":"这个用户名已经改过名，请用新用户名登录。"}        # 旧名登录失败
-B new name  -> {"ok":1,"user":"qa.web4","uid":"58be7744-9358-4d25-8bd5-8e2082137ec4"} # 新名登录成功，且显示新名
+B new name  -> {"ok":1,"user":"<qa-02>","uid":"<uid-01>"} # 新名登录成功，且显示新名
 ```
 ### 2) API 层（curl，直接打 GoTrue/PostgREST）
 ```
-1 注册伪邮箱 qa.tim5@satmath.local  -> access_token YES
+1 注册伪邮箱 <qa-03>@satmath.local  -> access_token YES
 2 写 usernames 行（authenticated）   -> 201
-3 匿名 resolve_login('qa.tim5')     -> "qa.tim5@satmath.local" 200
+3 匿名 resolve_login('<qa-03>')     -> "<qa-03>@satmath.local" 200
 4 匿名 select=email                 -> 401 permission denied（email 列不开放）
 5 匿名 select=username,user_id      -> 200 返回 [{username,user_id}]
 6 用户名登录                         -> token YES
-7 rename_username('qa.tim6')        -> "qa.tim6" 200
+7 rename_username('<qa-04>')        -> "<qa-04>" 200
 8 旧名 resolve -> null；is_retired_username -> true
 9 旧名登录（客户端）                 -> 410「已改过名」
 10 新名登录                          -> token YES
@@ -90,16 +92,16 @@ B new name  -> {"ok":1,"user":"qa.web4","uid":"58be7744-9358-4d25-8bd5-8e2082137
 
 | # | 相对时刻 | 步骤 | 实测结果 |
 |---|---|---|---|
-| 1 | 13.2s | A 机注册 `qa.seq634927` | `loggedIn=true`，状态「已为你建立专属学习档案」 |
+| 1 | 13.2s | A 机注册 `<qa-05>` | `loggedIn=true`，状态「已为你建立专属学习档案」 |
 | 2 | 20.5s | A 机答 1.1 第 1 题，等自动同步 | 云端档案 `{"n":3}` |
 | 3 | 23.8s | A 机登出 | 面板回到「登录（用户名 + 密码）」 |
 | 4 | 27.8s | B 机（全新 profile）打开账户 | 未登录，「进度保存在这台设备」 |
-| 5 | 31.9s | B 机用 `qa.seq634927` 登录 | `loggedIn=true`，云端档案 `{"n":3}`（与 A 机一致） |
+| 5 | 31.9s | B 机用 `<qa-05>` 登录 | `loggedIn=true`，云端档案 `{"n":3}`（与 A 机一致） |
 | 6 | 35.8s | B 机登出 | 回到登录表单 |
 | 7 | 42.2s | A 机重新登录 | `loggedIn=true` |
-| 8 | 43.9s | A 机改名 `qa.seq634927` → `qa.sq634927` | 状态「用户名已改为 qa.sq634927，旧名已失效。」，输入框自动变新名 |
-| 9 | 48.5s | B 机用旧名 `qa.seq634927` 登录 | 失败：`.td-acct-err` =「这个用户名已经改过名，请用新用户名登录。」 |
-| 10 | 51.4s | B 机用新名 `qa.sq634927` 登录 | `loggedIn=true`，云端档案 `{"n":3}` |
+| 8 | 43.9s | A 机改名 `<qa-05>` → `<qa-06>` | 状态「用户名已改为 <qa-06>，旧名已失效。」，输入框自动变新名 |
+| 9 | 48.5s | B 机用旧名 `<qa-05>` 登录 | 失败：`.td-acct-err` =「这个用户名已经改过名，请用新用户名登录。」 |
+| 10 | 51.4s | B 机用新名 `<qa-06>` 登录 | `loggedIn=true`，云端档案 `{"n":3}` |
 | 11 | 51.8s | 三处快照对比 | A `{"n":3}` · B 改名前 `{"n":3}` · B 改名后 `{"n":3}` |
 | 12 | 53.7s | B 机打开同一题（`drill.html?unit=1&sec=1.1&i=1`） | 已答选项恢复：`aria-pressed="true"` 的是 **A** |
 
@@ -110,10 +112,10 @@ B new name  -> {"ok":1,"user":"qa.web4","uid":"58be7744-9358-4d25-8bd5-8e2082137
 
 | # | 时刻 | 步骤 | 实测结果 |
 |---|---|---|---|
-| S1 | 10.8s | 注册 `qa.one710870` | `loggedIn=true` |
+| S1 | 10.8s | 注册 `<qa-07>` | `loggedIn=true` |
 | S2 | 12.3s | 登出 | 面板回到「登录（用户名 + 密码）」 |
 | S3 | 15.1s | 用旧名重新登录 | `loggedIn=true`，状态「进度已自动保存」 |
-| S4 | 16.4s | 改名 → `qa.on710870` | 状态「用户名已改为 qa.on710870，旧名已失效。」 |
+| S4 | 16.4s | 改名 → `<qa-08>` | 状态「用户名已改为 <qa-08>，旧名已失效。」 |
 | S5 | 18.9s | 用旧名登录 | 失败：「这个用户名已经改过名，请用新用户名登录。」 |
 | S6 | 21.1s | 用新名登录 | `loggedIn=true`，状态「进度已自动保存」 |
 
@@ -125,8 +127,8 @@ B new name  -> {"ok":1,"user":"qa.web4","uid":"58be7744-9358-4d25-8bd5-8e2082137
 （`cloud-account.js?v=728bf5a9d926`）。修后重跑上面两套序列，全部按预期通过。
 
 ### 4) 本轮测试账号清理状态（如实）
-本轮 UI 序列共新建 7 个 `qa.*` 账号（`qa.seq039328`、`qa.seq883685→qa.sq883685`、`qa.seq169929→qa.sq169929`、
-`qa.seq991132→qa.sq991132`、`qa.seq634927→qa.sq634927`、`qa.one262044`、`qa.one710870→qa.on710870`）。
+本轮 UI 序列共新建 7 个 `qa.*` 账号（`<qa-09>`、`<qa-10>→<qa-11>`、`<qa-12>→<qa-13>`、
+`<qa-14>→<qa-15>`、`<qa-05>→<qa-06>`、`<qa-16>`、`<qa-07>→<qa-08>`）。
 清理语句已入库为 `docs/sql/cleanup-qa.sql`，但**这次没能在 dashboard 里执行**：
 当前 bu 浏览器窗口 viewport 上报为 0×0（`page_info()` 返回 `w=0,h=0`，截图接口报
 「viewport unavailable」），Monaco 编辑器只接受可信输入，合成粘贴/输入事件不生效；

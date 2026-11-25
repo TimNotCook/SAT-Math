@@ -1,7 +1,54 @@
 # 清理 qa.* 测试账号 · 执行手册（Supabase Dashboard）
 
 > 给 Tim 用的一页纸。照着点，不用读代码。SQL 只在 `docs/sql/cleanup-qa.sql` 里有那一份，别另抄。
-> 目标：删掉 11 个 `qa.*` 实测账号（内部伪邮箱 `qa.<名字>@satmath.local`）及它们在 `usernames` / `username_alias` / `progress` 里的连带数据，不碰任何真实账号。
+> 目标：删掉全部 `qa.*` 实测账号（内部伪邮箱 `qa.<名字>@satmath.local`）及它们在 `usernames` / `username_alias` / `progress` 里的连带数据，不碰任何真实账号。
+> 账号口径 **11 个**；2026-11-25 只读实测 `usernames` 里只见到 **10 行**现役名，差的 1 个在第 2 步复核（见「0-A 执行前基线」）。
+> 脱敏：文中 `<qa-NN>` 为占位符，仓库里不留明文测试账号名与密码。
+
+## 0-A. 执行前基线（2026-11-25 11:02 UTC+8 · 只读通道实测 · 已脱敏）
+
+**通道**：PostgREST + 项目 publishable key（`cloud-config.js` 里那把公开 key），匿名角色 `anon`，**只读**。
+授权现状决定了能看到什么：`public.usernames` 对 anon 的行级策略是 `usernames_select_anon using (true)`（全表放开），列级只给 `username` / `user_id`。
+
+```bash
+curl -s -D - -o names.json \
+  -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Prefer: count=exact" \
+  "$SUPA/rest/v1/usernames?select=username,user_id&limit=200"
+# 响应头 content-range: 0-0/10  → 全表 10 行，limit=200 没截断
+```
+
+**实测结果（只报数量与形态，不写具体名）**
+
+| 项 | 实测 | 说明 |
+|---|---|---|
+| `public.usernames` 总行数 | **10** | `content-range: 0-0/10` |
+| 其中 `qa.*` | **10** | 占 100%，一条真人名都没有 |
+| 其中真人现役名 | **0** | 删 `timalpha` + 探针邮箱后，线上已无真人账号 |
+| 形态（字母位记 a、数字位记 9） | `qa.aa999999` ×5 · `qa.aaa999999` ×3 · `qa.a999999` ×2 | 长度 10–12，全部符合 `^[a-z0-9][a-z0-9._-]{2,19}$` |
+| 去重 `user_id` | **10** | 一账号一行，无重复绑定 |
+
+**这个通道拿不到什么（所以第 2 步仍必须在 Dashboard 跑）**
+
+- `public.username_alias` / `public.progress`：anon 无授权，实打 `401 42501 permission denied`。
+- `auth.users`：不在 PostgREST 暴露的 schema，任何前端 key 都读不到。
+- `public.profiles`：**本库没有这张表** —— `GET /rest/v1/profiles` 返回 `PGRST205: Could not find the table 'public.profiles' in the schema cache`。真实档案表是 `public.progress`（列 `user_id / payload / nickname / updated_at`），核对时别去等一张不存在的表。
+
+**和「11 个」口径差 1**
+
+只读通道看到 10 行现役名，口径是 11 个 qa 账号。差的 1 个大概率是「auth 用户建成了、`usernames` 行没写成」（注册中途失败）。清理按 `email like 'qa.%@satmath.local'` 命中 auth 用户，**不受这 1 个影响**。
+执行前务必先用第 2 步 2.2 的 `qa_users` 复核：是 11 就按 11 删，`qa_names` 会是 10。
+
+**清理后应为（期望值）**
+
+| 表 | qa 行（清理前） | 清理后 qa 行应剩 |
+|---|---|---|
+| `auth.users` | 以 2.2 `qa_users` 为准（口径 11） | **0** |
+| `public.usernames` | **10**（实测） | **0** |
+| `public.username_alias` | 以 2.2 `qa_alias` 为准（改名过的账号） | **0**（全表可能仍 >0：真人曾用名不受影响） |
+| `public.progress` | 以 2.2 `qa_progress` 为准（只算真做过题的） | **0** |
+| 真人现役名 | **0** | **0**（删完不会"少人"——线上本来就没有真人账号） |
+
+**不用 Dashboard 就能先验的一条**：清理后重跑上面那条 curl，`content-range` 应变成 `*/0`（或 `0-0/0` 空结果）。这是最早能确认"名字表真删干净"的信号。
 
 ## 0. 动手前先知道三件事
 
@@ -53,7 +100,7 @@ select
 | `public.username_alias` | ______ | ______ | ______ |
 | `public.progress` | ______ | ______ | ______ |
 
-判定线：`qa_users = 11`，`qa_names = 11`（每个账号注册时都会建一行），`qa_alias` 只算改过名的账号（11-25 序列里改过 `qa.web3→qa.web4`、`qa.seq…→qa.sq…`，所以是 **2~11 之间**，具体看 2.2 给的数），`qa_progress` 只算真做过题的账号（**可能小于 11**，看 2.2）。**别用“应该都是 11”去卡 progress**——没做过题的账号本来就没有档案行。
+判定线：`qa_users` 以口径 11 为准（第 2 步实测），`qa_names = 10`（2026-11-25 只读实测 10 行；注册中途失败的那 1 个没有名字行），`qa_alias` 只算改过名的账号（11-25 序列里改过 `<qa-01>→<qa-02>`、`qa.seq…→qa.sq…`，所以是 **2~11 之间**，具体看 2.2 给的数），`qa_progress` 只算真做过题的账号（**可能小于 11**，看 2.2）。**别用“应该都是 11”去卡 progress**——没做过题的账号本来就没有档案行。
 
 ## 3. 执行删除（就一份 SQL）
 
