@@ -41,13 +41,14 @@ TITLES = {
 
 
 def entries():
-    """从 data/jiangyi.js 的 JY_BANK 里取 (section, page)，SECTIONS 不算。"""
-    out = []
-    for m in re.finditer(r'"id"\s*:\s*"JY\d-\d{3}"\s*,\s*"unit"\s*:\s*\d\s*,\s*'
-                         r'"section"\s*:\s*"(\d\.\d)"\s*,\s*"no"\s*:\s*\d+\s*,\s*'
-                         r'"page"\s*:\s*(\d+)', JS):
-        out.append((m.group(1), m.group(2)))
-    return out
+    """从 data/jiangyi.js 的 JY_BANK 里取 (section, page)。
+
+    排除 group=='textbook' 的教材原题子组（JY4 · 练习册 P200–207）：那 9 道不计入
+    官方 4.1–4.5 的 52，混进来会让 4.1 出现「已录 5 / 应有 2」的负数缺口。
+    """
+    m = re.search(r"window\.JY_BANK\s*=\s*(\[.*?\n\]);", JS, re.S)
+    bank = json.loads(m.group(1)) if m else []
+    return [(q["section"], str(q["page"])) for q in bank if q.get("group") != "textbook"]
 
 
 ENTRIES = entries()
