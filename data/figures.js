@@ -804,3 +804,16 @@ Object.assign(window.TD_FIG_SPECS, {
   "R03-001": {"type":"table","head":["Species of tree","Growth factor"],"rows":[["Red maple","4.5"],["River birch","3.5"],["Cottonwood","2.0"],["Black walnut","4.5"],["White birch","5.0"],["American elm","4.0"],["Pin oak","3.0"],["Shagbark hickory","7.5"]]},
   "R03-002": {"type":"table","head":["State","Low","Medium","High","Total"],"rows":[["Texas","4","2","3","9"],["California","1","0","1","2"],["Oregon","1","0","1","2"],["Indiana","0","2","0","2"],["Colorado","1","1","0","2"],["Iowa","2","0","0","2"],["Oklahoma","1","0","0","1"],["Total","10","5","5","20"]]},
 });
+
+/* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
+Object.assign(window.TD_FIG_SPECS, {
+  "R03-301": {"type":"table","head":["Response","Frequency"],"rows":[["Strongly favor","56"],["Somewhat favor","214"],["Somewhat oppose","104"],["Strongly oppose","37"]]},
+  "R03-303": {"type":"table","head":["Candidate","Votes"],"rows":[["Angel Cruz","483"],["Terry Smith","320"]]},
+  "R03-304": {"type":"table","head":["Sample","Percent in favor","Margin of error"],"rows":[["A","52%","4.2%"],["B","48%","1.6%"]]},
+  "R03-306": {"type":"table","head":["Texting behavior","Talks on cell phone daily","Does not talk on cell phone daily","Total"],"rows":[["Light","110","146","256"],["Medium","139","164","303"],["Heavy","166","74","240"],["Total","415","384","799"]]},
+});
+
+/* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
+Object.assign(window.TD_FIG_SPECS, {
+  "R03-361": {"type":"table","head":["Hours practiced","6 to 13 points","14 or more points","Total"],"rows":[["3 to 5 hours","6","4","10"],["More than 5 hours","4","26","30"],["Total","10","30","40"]]},
+});
