@@ -1158,3 +1158,42 @@ body.exam-page:has(#stage-intro.active) #stage-intro{
   min-height:calc(100dvh - 1px);padding:0;
 }
 body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px;margin-block:auto}
+
+/* =====================================================================
+   选项划掉 / CROSS-OUT — 2026-11-25 有意新增，非模板漂移
+   官方 Digital SAT 的 cross-out 是独立于作答的草稿动作：行右侧一颗灰色
+   ✕，点击只给该选项加删除线（图形选项压灰斜线），不选中、不改判分、
+   不动 Mark for Review。✕ 绝对定位在选项卡右侧，不参与行高，因此
+   .drill-choice 的 52px / 图形行原高度和选项卡宽度都保持不变；390 下
+   右侧仍留 4px 安全边，不会被挤出视口。详见 docs/drill-template-freeze.md。
+   ===================================================================== */
+.drill-choice-row{position:relative}
+.drill-choice-row .drill-choice{width:100%!important}
+.crossout-toggle{
+  position:absolute;right:-28px;top:50%;transform:translateY(-50%);z-index:2;
+  width:24px;height:24px;padding:0;display:grid;place-items:center;
+  border:1px solid #cfd6df!important;border-radius:50%!important;
+  background:#fff!important;color:#8a94a3!important;box-shadow:none!important;
+  cursor:pointer;transition:color .15s var(--ease),border-color .15s var(--ease),background-color .15s var(--ease);
+}
+.crossout-toggle:hover{border-color:#9aa3b2!important;background:#f4f6f9!important;color:#4b5563!important}
+.crossout-toggle:focus-visible{outline:2px solid #0057b8;outline-offset:2px}
+.crossout-toggle.is-on{border-color:#aab2bd!important;background:#e9edf2!important;color:#4b5563!important}
+.crossout-toggle:disabled{opacity:.55;cursor:default}
+.crossout-toggle svg{display:block;pointer-events:none}
+.drill-choice.is-crossed .drill-choice-text{
+  color:#7c8590!important;text-decoration:line-through!important;
+  text-decoration-color:#9aa3ae!important;text-decoration-thickness:2px;
+}
+.drill-choice.is-crossed .drill-choice-letter{opacity:.62}
+.drill-choice.is-image-option.is-crossed{position:relative;overflow:hidden}
+.drill-choice.is-image-option.is-crossed .drill-choice-text{text-decoration:none!important;color:inherit!important}
+.drill-choice.is-image-option.is-crossed::after{
+  content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;pointer-events:none;
+  background:repeating-linear-gradient(135deg,rgba(90,99,112,.18) 0 8px,rgba(90,99,112,.02) 8px 16px);
+}
+.drill-choice.is-image-option.is-crossed .drill-choice-fig,
+.drill-choice.is-image-option.is-crossed .td-choicegraph{
+  filter:grayscale(.9);opacity:.6;
+}
+.crossout-note{margin-top:6px;color:#6b7280!important}

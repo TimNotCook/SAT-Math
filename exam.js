@@ -686,15 +686,20 @@
           disp = '<span class="drill-choice-placeholder">图形或公式选项</span>';
           cls = it.isFig ? ' is-figure is-missing' : '';
         }
-        return `<button type="button" class="drill-choice${cls}${selected ? ' is-selected' : ''}" data-choice="${L}" role="radio" aria-checked="${selected}" ${locked ? 'disabled' : ''}>` +
+        const image = it.visual ? ' is-image-option' : '';
+        return `<div class="drill-choice-row" data-choice="${L}">` +
+          `<button type="button" class="drill-choice${cls}${image}${selected ? ' is-selected' : ''}" data-choice="${L}" role="radio" aria-checked="${selected}" ${locked ? 'disabled' : ''}>` +
           `<span class="drill-choice-letter">${L}</span><span class="drill-choice-text">${disp}</span>` +
-          `<span class="drill-choice-check" aria-hidden="true">${CHECK_ICON}</span></button>`;
+          `<span class="drill-choice-check" aria-hidden="true">${CHECK_ICON}</span></button>` +
+          (window.TD_CROSSOUT ? window.TD_CROSSOUT.buttonHtml(L, window.TD_CROSSOUT.has(q.id, L), locked) : '') +
+          `</div>`;
       }).join('') + '</div>';
       area.querySelectorAll('.drill-choice').forEach(button => button.addEventListener('click', () => {
         if (isLocked(cur().uid)) return;
         curA().v = button.dataset.choice;
         persist(); renderQuestion(); renderNavigator();
       }));
+      if (window.TD_CROSSOUT) window.TD_CROSSOUT.bind(area, q.id, locked);
     } else {
       area.innerHTML = '<div class="drill-gridin"><label for="gridAnswer">' +
         (OFFICIAL ? 'Answer' : '输入答案') + '</label>' +
@@ -836,12 +841,13 @@
     const rows = [];
     for (let i = lo; i <= hi; i++) {
       const inst = S.paper[i], q = byId(inst.id), a = S.answers[inst.uid], locked = isLocked(inst.uid);
+      const crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(q.id) : [];
       const ctl = locked ? `<b>${esc(a.v || '—')}</b> <span class="tiny muted">${OFFICIAL ? 'Locked' : '已锁定'}</span>`
         : q.type === 'mcq'
           ? `<div class="miniopts">${optLetters(q.id).map(L => `<button class="${a.v === L ? 'on' : ''}" data-uid="${esc(inst.uid)}" data-l="${L}">${L}</button>`).join('')}</div>`
           : `<input class="gridmini editable" data-uid="${esc(inst.uid)}" value="${esc(a.v)}" placeholder="${OFFICIAL ? 'Enter answer' : '输入答案'}">`;
       rows.push(`<tr><td><b>Q${i - lo + 1}</b></td>
-        <td>${OFFICIAL ? '' : esc(q.topic)}<div class="tiny muted">U${q.unit} ${OFFICIAL ? '' : '· ' + esc(q.source)} ${inst.from === 'wrong' ? (OFFICIAL ? '· Previously missed' : '· 历史错题') : ''}${a.marked ? (OFFICIAL ? ' · Marked' : ' · 已标记') : ''}</div></td>
+        <td>${OFFICIAL ? '' : esc(q.topic)}<div class="tiny muted">U${q.unit} ${OFFICIAL ? '' : '· ' + esc(q.source)} ${inst.from === 'wrong' ? (OFFICIAL ? '· Previously missed' : '· 历史错题') : ''}${a.marked ? (OFFICIAL ? ' · Marked' : ' · 已标记') : ''}${crossed.length ? (OFFICIAL ? ' · Crossed out: ' : ' · 已划掉：') + crossed.join(', ') : ''}</div></td>
         <td><span class="pill ${a.v ? 'wait' : 'no'}">${OFFICIAL ? (a.v ? 'Answered' : 'Not answered') : (a.v ? '已作答' : '未作答')}</span></td>
         <td>${ctl}</td><td><button class="btn slim" data-go="${i}">${OFFICIAL ? 'Go' : '前往'}</button></td></tr>`);
     }
@@ -1022,6 +1028,7 @@
     const r = S.result, list = resultTab === 'wrong' ? r.detail.filter(d => !d.correct) : r.detail;
     const AN = window.TD_ANALYSIS;
     $('resList').innerHTML = list.map(d => {
+      const crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(d.id) : [];
       let causeHtml = '';
       if (!d.correct && AN && !OFFICIAL) {
         const q = BANK.find(x => x.id === d.id) || {};
@@ -1038,6 +1045,7 @@
         <div class="sub">${OFFICIAL ? '' : esc(d.source) + ' · '}${OFFICIAL ? 'Time ' : '用时 '}${fmt(d.seconds * 1000)}</div>
         <div class="ans"><span>${OFFICIAL ? 'Your answer' : '你的答案'} <b style="color:${d.correct ? 'var(--ok)' : 'var(--bad)'}">${esc(d.given || '—')}</b></span>
           <span>${OFFICIAL ? 'Correct answer' : '正确答案'} <b>${esc(d.answer)}</b></span></div>
+        ${crossed.length ? `<div class="sub crossout-note">${OFFICIAL ? 'Crossed out: ' : '已划掉：'}${crossed.join(', ')}</div>` : ''}
         ${!d.correct && d.hint && !OFFICIAL ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(d.hint)}</div>` : ''}
         ${causeHtml}
       </div>`;
@@ -1108,6 +1116,16 @@
   });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && !$('questionNav').hidden) closeNavigator(true);
+    if (event.repeat || S.stage !== 'answer') return;
+    const letter = window.TD_CROSSOUT && window.TD_CROSSOUT.keyLetter(event);
+    if (!letter || window.TD_CROSSOUT.isEditableTarget(event.target)) return;
+    if (window.ScratchPad && ScratchPad.isOpen()) return;
+    const q = curQ();
+    if (!q || q.type !== 'mcq' || isLocked(cur().uid)) return;
+    const row = $('answerArea').querySelector('.drill-choice-row[data-choice="' + letter + '"]');
+    if (!row) return;
+    event.preventDefault();
+    window.TD_CROSSOUT.toggleRow(row, q.id, letter);
   });
     $('btnMark').addEventListener('click', () => { const a = curA(); if (!isLocked(cur().uid)) { a.marked = !a.marked; persist(); renderQuestion(); renderNavigator(); } });
   $('btnReview').addEventListener('click', () => { accumulateTime(); renderReview(); setStage('review'); window.scrollTo(0, 0); });

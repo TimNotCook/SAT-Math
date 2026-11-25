@@ -7,6 +7,11 @@ const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 
+test('五页版本清单必须含 index.html，不能只守四页', async () => {
+  const { PAGES } = await import('../tools/versions.mjs');
+  assert.deepStrictEqual(PAGES, ['index.html', 'exam.html', 'drill.html', 'wrong.html', 'jiangyi.html']);
+});
+
 test('bump_assets.py --check：五页 ?v= 同值且对齐内容哈希', () => {
   const out = execFileSync('python3', ['bump_assets.py', '--check'], { cwd: ROOT, encoding: 'utf8' });
   assert.match(out, /asset version: [0-9a-f]{12}/);

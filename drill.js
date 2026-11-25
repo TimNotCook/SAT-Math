@@ -287,6 +287,7 @@
       var label = state === 'right' ? '正确' : (state === 'wrong' ? '错误' : '未作答');
       var stem = ((window.TD_TEXT || {})[r.q.id] || {}).stem || r.q.stem || '';
       stem = String(stem).replace(/\s+/g, ' ').trim();
+      var crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(r.q.id) : [];
       var causeHtml = '';
       if (state === 'wrong' && window.TD_ANALYSIS) {
         var a = window.TD_ANALYSIS.analyze(r.q, r.given, textFor(r.q));
@@ -300,7 +301,9 @@
         '<p class="drill-result-stem" title="' + esc(stem) + '">' + fmt(stem) + '</p>' +
         '<div class="drill-result-answers"><div><span>你的答案</span><b>' +
         fmt(answerLabel(r.q, r.given)) + '</b></div><div><span>正确答案</span><b>' +
-        fmt(answerLabel(r.q, r.q.answer)) + '</b></div></div>' + causeHtml + '</article>';
+        fmt(answerLabel(r.q, r.q.answer)) + '</b></div></div>' +
+        (crossed.length ? '<div class="tiny muted crossout-note">划掉：' + crossed.join('、') + '</div>' : '') +
+        causeHtml + '</article>';
     }).join('');
     els.resultPracticeLink.href = A.secUrl(sec, 1);
     var back = document.querySelector('#resultView .drill-result-actions .btn.primary');
@@ -436,10 +439,14 @@
         inner = '<span class="drill-choice-placeholder">图形或公式选项</span>';
         cls = it.isFig ? ' is-figure is-missing' : '';
       }
-      html += '<button type="button" class="drill-choice' + cls + '" data-choice="' + letter +
-        '" aria-pressed="' + selected + '"><span class="drill-choice-letter">' + letter + '</span>' +
+      html += '<div class="drill-choice-row" data-choice="' + letter + '">' +
+        '<button type="button" class="drill-choice' + cls + (it.visual ? ' is-image-option' : '') +
+        '" data-choice="' + letter + '" aria-pressed="' + selected +
+        '"><span class="drill-choice-letter">' + letter + '</span>' +
         '<span class="drill-choice-text">' + inner + '</span>' +
-        '<span class="drill-choice-check" aria-hidden="true">' + CHECK_ICON + '</span></button>';
+        '<span class="drill-choice-check" aria-hidden="true">' + CHECK_ICON + '</span></button>' +
+        (window.TD_CROSSOUT ? window.TD_CROSSOUT.buttonHtml(letter, window.TD_CROSSOUT.has(q.id, letter), false) : '') +
+        '</div>';
     });
     return html + '</div>';
   }
@@ -566,6 +573,7 @@
       Array.prototype.forEach.call(els.answers.querySelectorAll('.drill-choice'), function (button) {
         button.addEventListener('click', function () { toggleChoice(button.dataset.choice); });
       });
+      if (window.TD_CROSSOUT) window.TD_CROSSOUT.bind(els.answers, q.id, false);
       appendLineToggle(els.answers, q);
       return;
     }
@@ -750,6 +758,15 @@
   });
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && !els.nav.hidden) closeNavigator(true);
+    if (event.repeat || els.questionView.hidden || !section || !questions.length) return;
+    var letter = window.TD_CROSSOUT && window.TD_CROSSOUT.keyLetter(event);
+    if (!letter || window.TD_CROSSOUT.isEditableTarget(event.target) || scratchPad.isOpen()) return;
+    var q = currentQuestion();
+    if (!q || q.type !== 'mcq') return;
+    var row = els.answers.querySelector('.drill-choice-row[data-choice="' + letter + '"]');
+    if (!row) return;
+    event.preventDefault();
+    window.TD_CROSSOUT.toggleRow(row, q.id, letter);
   });
   els.mark.addEventListener('click', function () {
     A.toggleMark(section, currentQuestion().id);
