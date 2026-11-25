@@ -5,7 +5,8 @@
 
    全局：window.JY_FIG.specs[id]、window.JY_FIG.render(id) -> '<svg …>'。
    spec 形态：
-     {type:'plane', w, h, x:{min,max,step,labels}, y:{...}, lines:[{m,b,x0,x1}]}
+     {type:'plane', w, h, x:{min,max,step,labels}, y:{...}, lines:[{m,b,x0,x1}],
+      curves:[{kind:'poly',coef:[…]}|{kind:'rat',a,h,c}|{kind:'exp',a,b,c}], noGrid:true}
      {type:'quad',  w, h, panels:{A:{…plane}, B:…, C:…, D:…}, cols:2}
    线的画法统一用 y = m*x + b，x 只画在 [x0, x1]，这样和原书「线穿出网格」一致。 */
 
@@ -38,11 +39,15 @@
     function X(v) { return ml + (v - x0) / (x1 - x0) * pw; }
     function Y(v) { return mt + (y1 - v) / (y1 - y0) * ph; }
     var g = [], i;
-    var xs = o.x.step || 1, ys = o.y.step || 1;
-    for (i = Math.ceil(x0 / xs) * xs; i <= x1 + 1e-9; i += xs)
-      g.push('<line x1="' + X(i).toFixed(1) + '" y1="' + Y(y0) + '" x2="' + X(i).toFixed(1) + '" y2="' + Y(y1) + '" stroke="' + GRID + '"/>');
-    for (i = Math.ceil(y0 / ys) * ys; i <= y1 + 1e-9; i += ys)
-      g.push('<line x1="' + X(x0) + '" y1="' + Y(i).toFixed(1) + '" x2="' + X(x1) + '" y2="' + Y(i).toFixed(1) + '" stroke="' + GRID + '"/>');
+    // noGrid：原书有些「形状题」只画十字轴、不带网格（p142 #21 的四张选项图就是），
+    // 网格是底纹不是信息，缺了就少画，别拿网格凑版式。
+    if (!o.noGrid) {
+      var xs = o.x.step || 1, ys = o.y.step || 1;
+      for (i = Math.ceil(x0 / xs) * xs; i <= x1 + 1e-9; i += xs)
+        g.push('<line x1="' + X(i).toFixed(1) + '" y1="' + Y(y0) + '" x2="' + X(i).toFixed(1) + '" y2="' + Y(y1) + '" stroke="' + GRID + '"/>');
+      for (i = Math.ceil(y0 / ys) * ys; i <= y1 + 1e-9; i += ys)
+        g.push('<line x1="' + X(x0) + '" y1="' + Y(i).toFixed(1) + '" x2="' + X(x1) + '" y2="' + Y(i).toFixed(1) + '" stroke="' + GRID + '"/>');
+    }
 
     // 轴（x=0 / y=0），尖端落在框边
     var axY = (x0 <= 0 && 0 <= x1), axX = (y0 <= 0 && 0 <= y1);
@@ -84,6 +89,22 @@
         shd.push('<polygon points="' + poly.map(function (p) { return X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' ') + '" fill="#DCE1E8"/>');
       }
     }
+
+    // 函数曲线（3.4 起用）：本节整节都是「图形长什么样」，平面里必须能画曲线。
+    // kind:'poly' 给系数（从高次到常数，Horner 求值）；kind:'rat' 是 a/(x-h)+c；
+    // kind:'exp' 是 a*b^x+c。采样点全交给 clipPath 裁，跑出画框不会污染别处。
+    (o.curves || []).forEach(function (c) {
+      var n = c.n || 320, xa = (c.x0 === undefined ? x0 : c.x0), xb = (c.x1 === undefined ? x1 : c.x1);
+      var pts = [], k, xx, yy, j;
+      for (k = 0; k <= n; k++) {
+        xx = xa + (xb - xa) * k / n;
+        if (c.kind === 'poly') { yy = 0; for (j = 0; j < c.coef.length; j++) yy = yy * xx + c.coef[j]; }
+        else if (c.kind === 'rat') yy = c.a / (xx - c.h) + (c.c || 0);
+        else if (c.kind === 'exp') yy = c.a * Math.pow(c.b, xx) + (c.c || 0);
+        if (isFinite(yy)) pts.push(X(xx).toFixed(1) + ',' + Y(yy).toFixed(1));
+      }
+      if (pts.length > 1) ln.push('<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + LINE + '" stroke-width="' + (c.width || 2.1) + '" stroke-linecap="round"/>');
+    });
 
     // 标点：原书用实心圆点把「关键点」钉出来（p18 #11 的两个点）
     (o.dots || []).forEach(function (d) {
@@ -554,7 +575,52 @@
       rows: [
         { label: 'Group 1', min: 21.5, q1: 22.5, med: 24.8, q3: 26.2, max: 28.3 },
         { label: 'Group 2', min: 22.1, q1: 23.3, med: 24.3, q3: 25.2, max: 28.4 }
-      ] }
+      ] },
+
+    // ---- 3.4 图像（p128–p143）----
+    // p134 #13：y = a^x + b，渐近线 y = -4，标点 (0,-3)、(1,1) → y = 5^x - 4
+    'JY3-085': { type: 'plane', w: 430, h: 330,
+      x: { min: -4, max: 4, step: 1, labels: [-4, -2, 2, 4] },
+      y: { min: -6, max: 10, step: 1, labels: [-6, -4, -2, 2, 4, 6, 8, 10] },
+      lines: [{ m: 0, b: -4, x0: -4, x1: 4, dash: true }],
+      curves: [{ kind: 'exp', a: 1, b: 5, c: -4 }],
+      dots: [[0, -3], [1, 1]] },
+    // p138 #17：三次曲线，三个 x 截距（-1.2 / 3.4 / 7.0），左谷右峰
+    'JY3-099': { type: 'plane', w: 460, h: 340,
+      x: { min: -8, max: 8, step: 1, labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+      y: { min: -16, max: 16, step: 2, labels: [-16, -12, -8, -4, 4, 8, 12, 16] },
+      curves: [{ kind: 'poly', coef: [-0.35, 3.22, -3.962, -9.996] }] },
+    // p139 #18：x^2(x-2)(x+3) —— 0 处是切点（双根），-3 与 2 处穿越
+    'JY3-100': { type: 'plane', w: 420, h: 300,
+      x: { min: -3.5, max: 3.5, step: 1, labels: [-3, -2, -1, 1, 2, 3] },
+      y: { min: -20, max: 20, step: 5, labels: [-20, -10, 10, 20] },
+      curves: [{ kind: 'poly', coef: [1, 1, -6, 0, 0] }] },
+    // p139 #19：W 形四次，(x+3)(x+1)^2(x-2)^2 —— -1 与 2 处切、-3 处穿越
+    'JY3-101': { type: 'plane', w: 460, h: 320,
+      x: { min: -4, max: 4, step: 1, labels: [-4, -3, -2, -1, 1, 2, 3, 4] },
+      y: { min: -10, max: 32, step: 5, labels: [10, 20, 30] },
+      curves: [{ kind: 'poly', coef: [1, 1, -9, -5, 16, 12] }] },
+    // p140 #20：-(1/10)x(x-4)(x+5)^2 —— -5 处切、0 与 4 处穿越
+    'JY3-102': { type: 'plane', w: 470, h: 340,
+      x: { min: -8, max: 8, step: 1, labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+      y: { min: -100, max: 100, step: 20, labels: [-100, -80, -60, -40, -20, 20, 40, 60, 80, 100] },
+      curves: [{ kind: 'poly', coef: [-0.1, -0.6, 1.5, 10, 0] }] },
+    // p142 #21：四张纯形状图（无网格）——A 是真图 (k-x)/(1+x)，k 取 2：
+    // y = -1 + 3/(x+1)；B/C/D 是错图，改渐近线位置和符号就行
+    'JY3-103': { type: 'quad', cols: 2, order: ['A', 'C', 'B', 'D'], panels: {
+      A: { w: 240, h: 170, noGrid: true, x: { min: -3.6, max: 3.6, step: 1 }, y: { min: -5, max: 6, step: 1 },
+        curves: [{ kind: 'rat', a: 3, h: -1, c: -1 }] },
+      C: { w: 240, h: 170, noGrid: true, x: { min: -3.6, max: 3.6, step: 1 }, y: { min: -5, max: 6, step: 1 },
+        curves: [{ kind: 'rat', a: -1, h: 0, c: -1 }] },
+      B: { w: 240, h: 170, noGrid: true, x: { min: -3.6, max: 3.6, step: 1 }, y: { min: -5, max: 6, step: 1 },
+        curves: [{ kind: 'rat', a: 1, h: 0, c: 1 }] },
+      D: { w: 240, h: 170, noGrid: true, x: { min: -3.6, max: 3.6, step: 1 }, y: { min: -5, max: 6, step: 1 },
+        curves: [{ kind: 'rat', a: 1, h: 0, c: 0 }] } } },
+    // p143 #22：只画左半支，竖直渐近线 x = -4（原页标题写 f(x)=a/(x+b)，由图得 6/(x+4)）
+    'JY3-104': { type: 'plane', w: 440, h: 330,
+      x: { min: -10, max: 0, step: 1, labels: [-10, -8, -6, -4, -2] },
+      y: { min: -10, max: 0, step: 1, labels: [0, -2, -4, -6, -8, -10] },
+      curves: [{ kind: 'rat', a: 6, h: -4, c: 0, x0: -10, x1: -4.06 }] }
   };
 
   window.JY_FIG = {
