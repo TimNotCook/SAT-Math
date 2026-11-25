@@ -1,4 +1,20 @@
 [
-  {"id":"R04-072","answer":"D","value":null,"note":"T25a#12：B 为 SSA（60° 非夹角，7<10sin60 有两解）不充分；D 给 ∠M=70/∠T=50 走 AA 充分。依据 docs/transcribe/answer-audit-04.md（commit 8d76f54）"},
-  {"id":"R04-103","answer":"B","value":null,"note":"T26a#3：题干问 leg，C=94 是斜边 L√2；leg=47√2。依据 docs/transcribe/answer-audit-04.md（commit 8d76f54）"}
+  {
+    "id": "R04-072",
+    "answer": "D",
+    "value": null,
+    "note": "T25a#12：B 为 SSA（60° 非夹角，7<10sin60 有两解）不充分；D 给 ∠M=70/∠T=50 走 AA 充分。依据 docs/transcribe/answer-audit-04.md（commit 8d76f54）"
+  },
+  {
+    "id": "R04-103",
+    "answer": "B",
+    "value": null,
+    "note": "T26a#3：题干问 leg，C=94 是斜边 L√2；leg=47√2。依据 docs/transcribe/answer-audit-04.md（commit 8d76f54）"
+  },
+  {
+    "id": "R04-077",
+    "answer": "121",
+    "value": 121,
+    "note": "T25a#17：p07高倍图确认 b、c 在 s 同侧 t 两侧为邻补角（非对顶角）；a+b=180→k=15→b=59，c=121。依据 docs/transcribe/answer-audit-04.md §8.1"
+  }
 ]
