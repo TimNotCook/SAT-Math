@@ -72,7 +72,7 @@ curl -s -i "https://ofsnrzfmjqyrmkvdwnbo.supabase.co/rest/v1/usernames?select=em
 
 ## 五、清理记录
 - 2026-11-25 08:09 HKT（00:09 UTC）：已清理测试账号 `timalpha`（Auth 邮箱 satmath.demo1@qq.com）与探针 `satmath-probe2@qq.com`；连带删掉它们的 `usernames` / `username_alias` / `progress` 行，`auth.identities` 一并清。
-- 清理后实测：`auth.users` 剩 1（`satmath-probe@qq.com`，无用户名、从未登录，属遗留探针）；`usernames` 0 行、`username_alias` 0 行、`progress` 0 行。
+- 清理后实测（2026-11-25 巡检快照）：`auth.users` 剩 1（`satmath-probe@qq.com`，无用户名、从未登录，属遗留探针）；`usernames` 0 行、`username_alias` 0 行、`progress` 0 行。同日复测：`usernames` 已有 1 行（`timnotcook`，`resolve_login` 200）——0 行是巡检时点，不是永久现值。
 
 ## 六、验收记录（2026-11-25）
 ### 1) 两台独立浏览器（两个全新 Chrome profile，各不带任何登录态）
