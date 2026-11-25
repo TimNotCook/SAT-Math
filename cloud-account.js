@@ -593,6 +593,7 @@
     try { await auth().signOut(); } catch (e) { /* ignore */ }
     user = null; nickname = '';
     // owner 保持原 uid：本机副本仍属于该账号，登录别的账号时才会切档。
+    emailMode = 'login';  // 登出后一律回到登录表单，不停在注册/重置页
     setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
     setError(''); setBusy(false); renderBody();
   }
