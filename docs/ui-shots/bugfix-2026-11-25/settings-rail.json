@@ -1,0 +1,958 @@
+{
+  "bugfix": "2026-11-25-settings-entry-position",
+  "capturedAt": "2026-11-25T18:55:08",
+  "liveBase": "https://timnotcook.github.io/SAT-Math/",
+  "baselineCommit": "45bb652",
+  "views": {
+    "wrong": "wrong.html · 有 .rail-back（← 返回真题练习）",
+    "drill": "drill.html 列表 · 无 .rail-back，锚点在分隔线之后",
+    "question": "drill.html?sec=1.1&i=1 · 做题视图，.drill-context-right 兜底宿主"
+  },
+  "results": [
+    {
+      "view": "wrong",
+      "width": 1280,
+      "shot": "settings-rail-1280.png",
+      "fixed": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/wrong.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "rail-tail",
+        "btn": {
+          "x": 14,
+          "y": 354.6,
+          "width": 187,
+          "height": 43.8,
+          "right": 201,
+          "bottom": 398.4
+        },
+        "back": {
+          "x": 14,
+          "y": 311.7,
+          "width": 187,
+          "height": 38.9,
+          "right": 201,
+          "bottom": 350.6
+        },
+        "sep": {
+          "x": 22,
+          "y": 290.7,
+          "width": 171,
+          "height": 1,
+          "right": 193,
+          "bottom": 291.7
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 216,
+          "height": 900,
+          "right": 216,
+          "bottom": 900
+        },
+        "ctx": null,
+        "yDiff": 42.9,
+        "hGap": -187,
+        "group": "adjacent-after-back",
+        "after": true,
+        "conclusion": "竖排相邻（返回链接下方）",
+        "computedMargin": "0px",
+        "computedWidth": "187px",
+        "prevSibling": "rail-back",
+        "nextSibling": null
+      },
+      "acceptance": {
+        "pass": true,
+        "reason": "宽屏竖排相邻：返回链接 bottom=350.6，按钮 top=354.6，纵向间距 4.0px；DOM 紧跟 .rail-back"
+      },
+      "baseline": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/wrong.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "site-rail",
+        "btn": {
+          "x": 14,
+          "y": 834.2,
+          "width": 187,
+          "height": 43.8,
+          "right": 201,
+          "bottom": 878
+        },
+        "back": {
+          "x": 14,
+          "y": 305.7,
+          "width": 187,
+          "height": 38.9,
+          "right": 201,
+          "bottom": 344.6
+        },
+        "sep": {
+          "x": 22,
+          "y": 290.7,
+          "width": 171,
+          "height": 1,
+          "right": 193,
+          "bottom": 291.7
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 216,
+          "height": 900,
+          "right": 216,
+          "bottom": 900
+        },
+        "ctx": null,
+        "yDiff": 528.5,
+        "hGap": -187,
+        "group": "adjacent-after-back",
+        "after": true,
+        "conclusion": "竖排相邻（返回链接下方）",
+        "computedMargin": "485.609px 0px 0px",
+        "computedWidth": "187px",
+        "prevSibling": "rail-back",
+        "nextSibling": null
+      }
+    },
+    {
+      "view": "wrong",
+      "width": 655,
+      "shot": "settings-rail-655.png",
+      "fixed": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/wrong.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "rail-tail",
+        "btn": {
+          "x": 597,
+          "y": 53.3,
+          "width": 46,
+          "height": 38.1,
+          "right": 643,
+          "bottom": 91.4
+        },
+        "back": {
+          "x": 464.3,
+          "y": 52.9,
+          "width": 124.7,
+          "height": 38.9,
+          "right": 589,
+          "bottom": 91.8
+        },
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 655,
+          "height": 102.8,
+          "right": 655,
+          "bottom": 102.8
+        },
+        "ctx": null,
+        "yDiff": 0.4,
+        "hGap": 8,
+        "group": "adjacent-after-back",
+        "after": true,
+        "conclusion": "同一行相邻，间距 8px",
+        "computedMargin": "0px",
+        "computedWidth": "46px",
+        "prevSibling": "rail-back",
+        "nextSibling": null
+      },
+      "acceptance": {
+        "pass": true,
+        "reason": "窄屏同行相邻：y 差 0.4px，水平间距 8px（≤8px 小 gap），整组靠右"
+      },
+      "baseline": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/wrong.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "site-rail",
+        "btn": {
+          "x": 597,
+          "y": 52.9,
+          "width": 46,
+          "height": 38.9,
+          "right": 643,
+          "bottom": 91.8
+        },
+        "back": {
+          "x": 12,
+          "y": 52.9,
+          "width": 124.7,
+          "height": 38.9,
+          "right": 136.7,
+          "bottom": 91.8
+        },
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 655,
+          "height": 102.8,
+          "right": 655,
+          "bottom": 102.8
+        },
+        "ctx": null,
+        "yDiff": 0,
+        "hGap": 460.3,
+        "group": "adjacent-after-back",
+        "after": true,
+        "conclusion": "同一行相邻，间距 460.3px",
+        "computedMargin": "0px 0px 0px 456.312px",
+        "computedWidth": "46px",
+        "prevSibling": "rail-back",
+        "nextSibling": null
+      }
+    },
+    {
+      "view": "wrong",
+      "width": 390,
+      "shot": "settings-rail-390.png",
+      "fixed": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/wrong.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "rail-tail",
+        "btn": {
+          "x": 332,
+          "y": 96.2,
+          "width": 46,
+          "height": 38.1,
+          "right": 378,
+          "bottom": 134.3
+        },
+        "back": {
+          "x": 199.3,
+          "y": 95.8,
+          "width": 124.7,
+          "height": 38.9,
+          "right": 324,
+          "bottom": 134.7
+        },
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 145.7,
+          "right": 390,
+          "bottom": 145.7
+        },
+        "ctx": null,
+        "yDiff": 0.4,
+        "hGap": 8,
+        "group": "adjacent-after-back",
+        "after": true,
+        "conclusion": "同一行相邻，间距 8px",
+        "computedMargin": "0px",
+        "computedWidth": "46px",
+        "prevSibling": "rail-back",
+        "nextSibling": null
+      },
+      "acceptance": {
+        "pass": true,
+        "reason": "窄屏同行相邻：y 差 0.4px，水平间距 8px（≤8px 小 gap），整组靠右"
+      },
+      "baseline": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/wrong.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "site-rail",
+        "btn": {
+          "x": 332,
+          "y": 95.8,
+          "width": 46,
+          "height": 38.1,
+          "right": 378,
+          "bottom": 133.9
+        },
+        "back": {
+          "x": 236,
+          "y": 52.9,
+          "width": 124.7,
+          "height": 38.9,
+          "right": 360.7,
+          "bottom": 91.8
+        },
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 144.9,
+          "right": 390,
+          "bottom": 144.9
+        },
+        "ctx": null,
+        "yDiff": 42.9,
+        "hGap": -28.7,
+        "group": "adjacent-after-back",
+        "after": true,
+        "conclusion": "竖排相邻（返回链接下方）",
+        "computedMargin": "0px 0px 0px 320px",
+        "computedWidth": "46px",
+        "prevSibling": "rail-back",
+        "nextSibling": null
+      }
+    },
+    {
+      "view": "drill",
+      "width": 1280,
+      "shot": "settings-rail-drill-1280.png",
+      "fixed": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "rail-tail",
+        "btn": {
+          "x": 14,
+          "y": 311.7,
+          "width": 187,
+          "height": 43.1,
+          "right": 201,
+          "bottom": 354.8
+        },
+        "back": null,
+        "sep": {
+          "x": 22,
+          "y": 290.7,
+          "width": 171,
+          "height": 1,
+          "right": 193,
+          "bottom": 291.7
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 216,
+          "height": 900,
+          "right": 216,
+          "bottom": 900
+        },
+        "ctx": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px",
+        "computedWidth": "187px",
+        "prevSibling": null,
+        "nextSibling": null
+      },
+      "acceptance": {
+        "pass": true,
+        "reason": "无返回链接：锚点在 .rail-sep 之后（父级 .rail-tail，前兄弟 None），常规流排布"
+      },
+      "baseline": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "site-rail",
+        "btn": {
+          "x": 14,
+          "y": 834.9,
+          "width": 187,
+          "height": 43.1,
+          "right": 201,
+          "bottom": 878
+        },
+        "back": null,
+        "sep": {
+          "x": 22,
+          "y": 290.7,
+          "width": 171,
+          "height": 1,
+          "right": 193,
+          "bottom": 291.7
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 216,
+          "height": 900,
+          "right": 216,
+          "bottom": 900
+        },
+        "ctx": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "529.203px 0px 0px",
+        "computedWidth": "187px",
+        "prevSibling": "rail-sep",
+        "nextSibling": null
+      }
+    },
+    {
+      "view": "drill",
+      "width": 655,
+      "shot": "settings-rail-drill-655.png",
+      "fixed": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "rail-tail",
+        "btn": {
+          "x": 537.9,
+          "y": 10.7,
+          "width": 46,
+          "height": 37.4,
+          "right": 583.9,
+          "bottom": 48.2
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 655,
+          "height": 59.9,
+          "right": 655,
+          "bottom": 59.9
+        },
+        "ctx": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px",
+        "computedWidth": "46px",
+        "prevSibling": null,
+        "nextSibling": null
+      },
+      "acceptance": {
+        "pass": true,
+        "reason": "无返回链接：锚点在 .rail-sep 之后（父级 .rail-tail，前兄弟 None），常规流排布"
+      },
+      "baseline": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "site-rail",
+        "btn": {
+          "x": 597,
+          "y": 10,
+          "width": 46,
+          "height": 38.9,
+          "right": 643,
+          "bottom": 48.9
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 655,
+          "height": 59.9,
+          "right": 655,
+          "bottom": 59.9
+        },
+        "ctx": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px 0px 0px 59.0625px",
+        "computedWidth": "46px",
+        "prevSibling": "rail-sep",
+        "nextSibling": null
+      }
+    },
+    {
+      "view": "drill",
+      "width": 390,
+      "shot": "settings-rail-drill-390.png",
+      "fixed": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "rail-tail",
+        "btn": {
+          "x": 236,
+          "y": 53.6,
+          "width": 46,
+          "height": 37.4,
+          "right": 282,
+          "bottom": 91
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 102.8,
+          "right": 390,
+          "bottom": 102.8
+        },
+        "ctx": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px",
+        "computedWidth": "46px",
+        "prevSibling": null,
+        "nextSibling": null
+      },
+      "acceptance": {
+        "pass": true,
+        "reason": "无返回链接：锚点在 .rail-sep 之后（父级 .rail-tail，前兄弟 None），常规流排布"
+      },
+      "baseline": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings",
+        "parentClass": "site-rail",
+        "btn": {
+          "x": 332,
+          "y": 52.9,
+          "width": 46,
+          "height": 38.9,
+          "right": 378,
+          "bottom": 91.8
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 102.8,
+          "right": 390,
+          "bottom": 102.8
+        },
+        "ctx": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px 0px 0px 96px",
+        "computedWidth": "46px",
+        "prevSibling": "rail-sep",
+        "nextSibling": null
+      }
+    },
+    {
+      "view": "question",
+      "width": 1280,
+      "shot": "settings-rail-ctx-1280.png",
+      "fixed": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html?sec=1.1&i=1&unit=1",
+        "cls": "td-acct-btn td-acct-icon-btn ctx-settings",
+        "parentClass": "drill-context-right bb-tools",
+        "btn": {
+          "x": 1056.1,
+          "y": 6.3,
+          "width": 42,
+          "height": 33.4,
+          "right": 1098.1,
+          "bottom": 39.7
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "ctx": {
+          "x": 1056.1,
+          "y": 6.3,
+          "width": 201.9,
+          "height": 33.4,
+          "right": 1258,
+          "bottom": 39.7
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px 2px 0px 0px",
+        "computedWidth": "42px",
+        "prevSibling": null,
+        "nextSibling": "bb-toolcluster"
+      },
+      "acceptance": {
+        "pass": true,
+        "reason": "做题视图兜底：挂在 .drill-context-right（ctx-settings），三档宽度均有尺寸"
+      },
+      "baseline": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html?sec=1.1&i=1&unit=1",
+        "cls": "td-acct-btn td-acct-icon-btn ctx-settings",
+        "parentClass": "drill-context-right bb-tools",
+        "btn": {
+          "x": 1056.1,
+          "y": 6.3,
+          "width": 42,
+          "height": 33.4,
+          "right": 1098.1,
+          "bottom": 39.7
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "ctx": {
+          "x": 1056.1,
+          "y": 6.3,
+          "width": 201.9,
+          "height": 33.4,
+          "right": 1258,
+          "bottom": 39.7
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px 2px 0px 0px",
+        "computedWidth": "42px",
+        "prevSibling": null,
+        "nextSibling": "bb-toolcluster"
+      }
+    },
+    {
+      "view": "question",
+      "width": 655,
+      "shot": "settings-rail-ctx-655.png",
+      "fixed": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html?sec=1.1&i=1&unit=1",
+        "cls": "td-acct-btn td-acct-icon-btn ctx-settings",
+        "parentClass": "drill-context-right bb-tools",
+        "btn": {
+          "x": 431.1,
+          "y": 6.3,
+          "width": 42,
+          "height": 33.4,
+          "right": 473.1,
+          "bottom": 39.7
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "ctx": {
+          "x": 431.1,
+          "y": 6.3,
+          "width": 201.9,
+          "height": 33.4,
+          "right": 633,
+          "bottom": 39.7
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px 2px 0px 0px",
+        "computedWidth": "42px",
+        "prevSibling": null,
+        "nextSibling": "bb-toolcluster"
+      },
+      "acceptance": {
+        "pass": true,
+        "reason": "做题视图兜底：挂在 .drill-context-right（ctx-settings），三档宽度均有尺寸"
+      },
+      "baseline": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html?sec=1.1&i=1&unit=1",
+        "cls": "td-acct-btn td-acct-icon-btn ctx-settings",
+        "parentClass": "drill-context-right bb-tools",
+        "btn": {
+          "x": 431.1,
+          "y": 6.3,
+          "width": 42,
+          "height": 33.4,
+          "right": 473.1,
+          "bottom": 39.7
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "ctx": {
+          "x": 431.1,
+          "y": 6.3,
+          "width": 201.9,
+          "height": 33.4,
+          "right": 633,
+          "bottom": 39.7
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px 2px 0px 0px",
+        "computedWidth": "42px",
+        "prevSibling": null,
+        "nextSibling": "bb-toolcluster"
+      }
+    },
+    {
+      "view": "question",
+      "width": 390,
+      "shot": "settings-rail-ctx-390.png",
+      "fixed": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html?sec=1.1&i=1&unit=1",
+        "cls": "td-acct-btn td-acct-icon-btn ctx-settings",
+        "parentClass": "drill-context-right bb-tools",
+        "btn": {
+          "x": 166.1,
+          "y": 6.3,
+          "width": 42,
+          "height": 33.4,
+          "right": 208.1,
+          "bottom": 39.7
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "ctx": {
+          "x": 166.1,
+          "y": 6.3,
+          "width": 201.9,
+          "height": 33.4,
+          "right": 368,
+          "bottom": 39.7
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px 2px 0px 0px",
+        "computedWidth": "42px",
+        "prevSibling": null,
+        "nextSibling": "bb-toolcluster"
+      },
+      "acceptance": {
+        "pass": true,
+        "reason": "做题视图兜底：挂在 .drill-context-right（ctx-settings），三档宽度均有尺寸"
+      },
+      "baseline": {
+        "present": true,
+        "url": "http://127.0.0.1:8642/drill.html?sec=1.1&i=1&unit=1",
+        "cls": "td-acct-btn td-acct-icon-btn ctx-settings",
+        "parentClass": "drill-context-right bb-tools",
+        "btn": {
+          "x": 166.1,
+          "y": 6.3,
+          "width": 42,
+          "height": 33.4,
+          "right": 208.1,
+          "bottom": 39.7
+        },
+        "back": null,
+        "sep": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "ctx": {
+          "x": 166.1,
+          "y": 6.3,
+          "width": 201.9,
+          "height": 33.4,
+          "right": 368,
+          "bottom": 39.7
+        },
+        "yDiff": null,
+        "hGap": null,
+        "group": "no-rail-back",
+        "after": null,
+        "conclusion": "无返回链接，锚点在分隔线之后",
+        "computedMargin": "0px 2px 0px 0px",
+        "computedWidth": "42px",
+        "prevSibling": null,
+        "nextSibling": "bb-toolcluster"
+      }
+    }
+  ]
+}

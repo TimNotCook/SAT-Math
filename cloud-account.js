@@ -717,12 +717,20 @@
       'html[data-compact="1"] .drill-unit-button{padding:12px!important}',
       'html[data-compact="1"] .appbar-inner,html[data-compact="1"] .drill-context,',
       'html[data-compact="1"] .drill-questionbar-inner{min-height:48px!important}',
-      /* 侧栏版设置入口：宽屏贴底一行（跟导航项同款），窄屏并进顶部横条最右 */
-      '.site-rail .td-acct-btn.rail-settings{margin:auto 0 0;width:100%;justify-content:flex-start;gap:8px;',
+      /* 侧栏版设置入口：与「← 返回真题练习」收进同一个 .rail-tail 组（DOM 锚点在
+         分隔线之后；有返回链接则链接在前、按钮紧跟其后）。宽屏不再被 margin:auto
+         顶到侧栏底，窄屏不再 margin-left:auto 单独飞到横条最右；视觉沿用导航项同款。 */
+      '.rail-tail{display:flex;flex-direction:column;gap:4px;margin-top:6px}',
+      '.site-rail .td-acct-btn.rail-settings{margin:0;width:100%;justify-content:flex-start;gap:8px;',
       'padding:10px 12px!important;border-radius:9px!important;color:var(--navy,#0f2744)!important;',
       'font-size:14px!important;font-weight:600!important;text-align:left}',
       '.site-rail .td-acct-btn.rail-settings:hover{background:#f3f7fc!important;color:#1d4ed8!important}',
-      '@media(max-width:999px){.site-rail .td-acct-btn.rail-settings{margin:0 0 0 auto;width:auto;',
+      '@media(max-width:999px){',
+      /* 横条模式：整组（链接 + 按钮）靠右，按钮紧挨链接右侧；组内不换行、不分裂。
+         无返回链接的页面（drill 列表）按钮保持常规流，不单独甩到行尾。 */
+      '.rail-tail{flex-direction:row;align-items:center;gap:8px;margin-top:0}',
+      '.rail-tail:has(.rail-back){margin-left:auto}',
+      '.site-rail .td-acct-btn.rail-settings{margin:0;width:auto;',
       'padding:8px 10px!important;font-size:13px!important}}',
       /* 做题视图顶栏版：跟 Reference / 退出 同一排的幽灵按钮 */
       '.drill-context-right .td-acct-btn.ctx-settings{padding:6px 8px!important;margin:0 2px 0 0!important}',
@@ -1296,6 +1304,39 @@
       if (vis(ctx)) return { node: ctx, cls: 'ctx-settings', first: true };
       return null;
     }
+    function railTail(rail) {
+      // 明确插入锚点：在分隔线之后建一个 .rail-tail 组；有「← 返回真题练习」就把
+      // 链接收进组内排在前面，按钮紧跟其后；没有返回链接（drill 列表）组里只放按钮。
+      // 不靠 appendChild 到宿主末尾硬凑位置。
+      var tail = rail.querySelector('.rail-tail');
+      if (!tail) {
+        tail = el('div', 'rail-tail');
+        var back = rail.querySelector('.rail-back');
+        if (back) {
+          back.parentNode.insertBefore(tail, back);
+          tail.appendChild(back);
+        } else {
+          var seps = rail.querySelectorAll('.rail-sep');
+          var anchor = seps.length ? seps[seps.length - 1] : null;
+          rail.insertBefore(tail, anchor ? anchor.nextSibling : null);
+        }
+      }
+      return tail;
+    }
+    function placeIn(h) {
+      if (h.cls === 'rail-settings') {
+        var tail = railTail(h.node);
+        var back = tail.querySelector('.rail-back');
+        var next = back ? back.nextSibling : null;
+        var atAnchor = back ? btn.previousElementSibling === back : btn.parentNode === tail;
+        if (btn.parentNode !== tail || !atAnchor) tail.insertBefore(btn, next);
+      } else {
+        if (btn.parentNode !== h.node) {
+          if (h.node.firstChild) h.node.insertBefore(btn, h.node.firstChild);
+          else h.node.appendChild(btn);
+        }
+      }
+    }
     function place() {
       var h = host();
       if (!h) return false;
@@ -1303,18 +1344,19 @@
         btn.classList.remove('rail-settings', 'ctx-settings');
         btn.classList.add(h.cls);
         btn.removeAttribute('style');
-        if (h.first && h.node.firstChild) h.node.insertBefore(btn, h.node.firstChild);
-        else h.node.appendChild(btn);
-        return true;
+      } else if (!btn.classList.contains(h.cls)) {
+        btn.classList.add(h.cls);
       }
-      if (!btn.classList.contains(h.cls)) btn.classList.add(h.cls);
+      placeIn(h);
       return true;
     }
     function attach() {
       var rail = document.querySelector('.site-rail');
       if (rail && !btn.isConnected) {
         if (!btn.classList.contains('rail-settings')) btn.classList.add('rail-settings');
-        rail.appendChild(btn);
+        var tail = railTail(rail);
+        var back = tail.querySelector('.rail-back');
+        tail.insertBefore(btn, back ? back.nextSibling : null);
         return true;
       }
       // 顶部导航栏由 app-ui.js 渲染进 #appnav（内含 .appbar-inner）。
