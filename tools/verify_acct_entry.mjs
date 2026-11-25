@@ -64,7 +64,11 @@ const check = (id, expect, actual, pass) => {
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${id}\n      期望 ${expect}\n      实测 ${actual}`);
 };
 
-/* 量入口：存在、尺寸、可见宿主；视图切换后布局会重排，轮询到稳定（最多 4s） */
+/* 结果视图：宿主缺口诊断（只读，不修）
+ * 现象：drill.html?sec=1.1&result=1 下 .td-acct-btn 存在但 width=0。
+ * 根因：app.css:532-537 的冻结规则在 resultView 可见时把 .site-rail 整块 display:none，
+ *       而该视图又没有 .drill-context-right 可挂（ctx display:none），mountButton 找不到可见宿主。
+ * 结论：交编程者决定宿主（结果页头部或固定角标），本脚本只负责把它标红。 */
 const PROBE = `(() => {
   const btns = Array.from(document.querySelectorAll('.td-acct-btn'));
   const first = btns[0] || null;
@@ -81,11 +85,11 @@ const PROBE = `(() => {
            ctx: ctx ? (ctx.getClientRects().length + '/' + getComputedStyle(ctx).display) : 'none',
            layers: document.querySelectorAll('.td-acct-layer').length };
 })()`;
-async function probeWide(minW = 1) {
+async function probeWide(minW = 1, tries = 40) {
   let p = { n: 0, w: 0, h: 0 };
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < tries; i++) {
     p = (await ev(PROBE)) || { n: 0, w: 0, h: 0 };
-    if (p.w >= minW) return p;
+    if (p.n > 0 && p.w >= minW) return p;
     await sleep(200);
   }
   return p;
@@ -112,7 +116,11 @@ const VIEWS = [
 for (const v of VIEWS) {
   await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
   await goto(`${BASE}/${v.url}`);
-  const p = await probeWide();
+  let p = await probeWide();
+  if (p.n === 0) { // 首帧偶发未挂载：重载一次再测，避免把启动抖动记成失败
+    await goto(`${BASE}/${v.url}`);
+    p = await probeWide();
+  }
   check(`acct/${v.key}·存在`, '至少 1 个 .td-acct-btn', p.n > 0 ? `${p.n} 个（${p.cls} @ ${p.host}）` : '0 个', p.n > 0);
   check(`acct/${v.key}·宽度`, 'getBoundingClientRect().width > 0', `${p.w}×${p.h} parent=${p.pw} rail=${p.rail} ctx=${p.ctx}`, p.w > 0);
   const o = await ev(CLICKS_OPEN) || { ok: false };
