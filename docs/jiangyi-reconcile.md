@@ -14,8 +14,8 @@
 | 1.3 | Interpreting linear functions or equations | p191 | 8 | 8 | 0 | p19×1、p20×2、p21×2、p22×2、p23×1 | 1.D 2.C 3.A 4.A 5.A 6.D 7.5 8.A |
 | 1.4 | Word problems: linear equations and inequalities | p191 | 11 | 11 | 0 | p24×2、p25×3、p26×2、p27×1、p28×3 | 1.D 2.A 3.A 4.D 5.248 6.D 7.A 8.A 9.C 10.-14 11.A |
 | 1.5 | Linear inequalities and graphs | p192 | 6 | 6 | 0 | p30×1、p31×1、p32×1、p34×2、p35×1 | 1.A 2.D 3.D 4.D 5.C 6.B |
-| 1.6 | Absolute value and equations | p192 | 4 | 0 | 4 | p36–p38（待逐题确认） | 1.D 2.9 3.A 4.A |
-| **小计** |  |  | **49** | **45** | **4** |  |  |
+| 1.6 | Absolute value and equations | p192 | 4 | 4 | 0 | p37×3、p38×1 | 1.D 2.9 3.A 4.A |
+| **小计** |  |  | **49** | **49** | **0** |  |  |
 
 ## U2 Problem Solving and Data Analysis
 
@@ -57,9 +57,9 @@
 
 | 应有 N | 已录 M | 缺 N-M |
 |---|---|---|
-| 243 | 54 | 189 |
+| 243 | 58 | 185 |
 
-单节全绿的记法：`已录 = 应有`。当前完成 **5 / 24 节**。
+单节全绿的记法：`已录 = 应有`。当前完成 **6 / 24 节**。
 
 
 ## Unit 4：教材原题子组（JY4 · 练习册 P200–207，不计入官方 52 道）
