@@ -73,6 +73,10 @@ vm 沙箱加载 `supa-cloud.js`，stub `fetch` / `localStorage`，覆盖：
   的新注册」区分，按既有邮箱确认报错处理；当前项目邮箱确认关闭，实测冲突走 422。
 
 ## 五、commit 与线上版本
-- commit：待 `safe_push.sh` 推送后回填（推送前 HEAD = `45bb652`）。
-- 线上 `?v=`：待轮询本次提交生效后回填；本地 `bump_assets.py` 试算 `edad4807f62c`，
-  以 safe_push 实推、线上回拉为准。
+- 推送前 HEAD：`45bb6526d487188d11aa68e3b8f62200053a569a`（= origin/main 基线）。
+- 本次 commit：`e7bb1c06bda9677a7a66ab7d153ed5af275aeb17`（短 `e7bb1c0`），
+  `git ls-remote origin refs/heads/main` 核对远端 HEAD 与本地一致。
+- 线上 `?v=`：**`edad4807f62c`**，index / exam / drill / wrong / jiangyi 五页同值。
+  实测时刻 2026-11-25 19:43 HKT：回拉线上 `supa-cloud.js?v=edad4807f62c`，
+  与本地工作区 `diff` 完全一致；`isConflictError` 命中 5 处、`auth/username-already-in-use`
+  在 217 行、全文件无 `usernameTaken` 残留。
