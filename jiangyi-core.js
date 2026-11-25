@@ -246,7 +246,7 @@
   /* ---------- 来源标签：3.4 · p131 #12（学生一眼能回到原书那一页） ---------- */
   function sourceLabel(q) {
     var page = q.page, no = q.no;
-    if (q && q.group === 'textbook') return '练习册 P' + page + ' #' + no;
+    if (q && q.group === 'textbook') return '练习册 P' + page;
     return q.section + ' · p' + page + ' #' + no;
   }
 

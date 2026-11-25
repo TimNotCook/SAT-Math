@@ -172,9 +172,9 @@ const groupQuiz = await ev(`(() => ({
   footer: document.getElementById('jyFooterSection') ? document.getElementById('jyFooterSection').textContent : '',
   id: window.TD_JY.groupQuestions('JY4')[0] ? window.TD_JY.groupQuestions('JY4')[0].id : ''
 }))()`);
-check('jy4/九题可达', '第 1 / 9 题，页脚「练习册 P200 #…」',
+check('jy4/九题可达', '第 1 / 9 题，页脚「练习册 P200」',
   groupQuiz ? `${groupQuiz.position} · ${groupQuiz.footer} · ${groupQuiz.id}` : '读不到做题页',
-  !!groupQuiz && /第 1 \/ 9 题/.test(groupQuiz.position) && /^练习册 P2\d\d #\d+$/.test(groupQuiz.footer));
+  !!groupQuiz && /第 1 \/ 9 题/.test(groupQuiz.position) && /^练习册 P2\d\d$/.test(groupQuiz.footer));
 await shot('jy4-textbook-1280.png');
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
 await sleep(400);

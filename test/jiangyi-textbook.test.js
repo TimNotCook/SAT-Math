@@ -1,6 +1,6 @@
 /* JY4「教材原题」子组路由回归（不依赖真实题库数据，用 9 题 fixture 锁接口）：
    - 子组单独成组，不计入 JY4 官方小节题数
-   - 来源标签走「练习册 P… #…」，不写成讲义页码
+   - 来源标签走「练习册 P…」，不写讲义页码，也不显示题号
    - 子组能独立交卷、出结果
    真实数据的 9 题由开发者在 data/jiangyi.js 落地后自动进入同一路由。 */
 const test = require('node:test');
@@ -59,10 +59,10 @@ test('教材原题单独成组：9 题、标签固定、不进官方小节', () 
   assert.strictEqual(J.groupStats('JY4').total, 9);
 });
 
-test('来源胶囊：教材原题写练习册原页，官方题仍写讲义页码', () => {
+test('来源胶囊：教材原题只写练习册页码（不带题号），官方题仍写讲义页码', () => {
   const J = boot({ sections, questions: official.concat(textbook) });
   const q = J.BY_ID['JY4-047'];
-  assert.strictEqual(J.sourceLabel(q), '练习册 P200 #2');
+  assert.strictEqual(J.sourceLabel(q), '练习册 P200');
   assert.strictEqual(J.sourceLabel(J.BY_ID['JY4-001']), '4.1 · p190 #1');
 });
 
