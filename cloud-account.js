@@ -691,7 +691,7 @@
       '.td-acct-toggle{display:block;margin-top:10px;font-size:12.5px;color:var(--blue,#2563eb);',
       'background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-align:left}',
       '.td-gh-alt{margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft,#eef3fb)}',
-      /* 用户名通道维护中折叠块：与备用通道同款分隔线，说明用淡黄提示块 */
+      /* 用户名 + 密码登录折叠块（需先注册）：与第三方通道同款分隔线，说明用淡黄提示块 */
       '.td-supa-maintain{margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft,#eef3fb)}',
       '.td-acct-maintain-note{margin:10px 0 0;background:var(--warn-soft,#fbf3e2);color:var(--warn,#b07a12);',
       'border-radius:6px;padding:8px 10px}',
@@ -1106,7 +1106,7 @@
     if (hasSB) {
       /* GitHub 令牌提为默认主位；用户名通道折叠进维护块，见 renderSupaMaintenance */
       renderGhPrimary(b);
-      b.appendChild(el('div', 'td-acct-or', '用户名通道维护中'));
+      b.appendChild(el('div', 'td-acct-or', '或使用用户名 + 密码登录（需先注册）'));
       renderSupaMaintenance(b);
       b.appendChild(el('p', 'td-acct-note',
         '登录后会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。'));
