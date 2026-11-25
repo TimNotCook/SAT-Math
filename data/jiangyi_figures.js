@@ -161,24 +161,25 @@
 
 
     // p30 #1：5y + 3x <= 15 的四选图。原书排法是 A 左上 / C 右上 / B 左下 / D 右下。
-    // 正确图 A：y <= 3 - 0.6x（下降、y 截距 3、x 截距 5），影在线下；
-    // B 同斜率平移抬高、影在上；C 上升、影在下；D 上升、影在上。
+    // 量原页 p30 四张嵌入图（xref A=3463 / B=3466 / C=3467 / D=3470）：四个图的线都是 y 截距 3、
+    // |斜率| 0.60、格距 1，差别只在「升/降」和「影在哪一侧」：
+    // A 降 + 影在下 = 正确图 y <= 3 - 0.6x；B 同一条线、影在上；C 升 + 影在下；D 升 + 影在上。
     'JY1-040': { type: 'quad', cols: 2, order: ['A', 'C', 'B', 'D'], panels: {
-      A: { w: 250, h: 250, x: { min: -1.4, max: 5.9, step: 0.5, labels: [-1, 1, 2, 3, 4, 5] },
-           y: { min: -1.2, max: 4.8, step: 0.5, labels: [1, 2, 3, 4] },
+      A: { w: 320, h: 250, x: { min: -1.4, max: 5.9, step: 1, labels: [-1, 1, 2, 3, 4, 5] },
+           y: { min: -1.15, max: 4.6, step: 1, labels: [1, 2, 3, 4] },
            lines: [{ m: -0.6, b: 3, x0: -1.4, x1: 5.9 }], shade: [{ m: -0.6, b: 3, side: 'below' }],
            originO: true, originText: '0' },
-      B: { w: 250, h: 250, x: { min: -1.4, max: 5.9, step: 0.5, labels: [-1, 1, 2, 3, 4, 5] },
-           y: { min: -1.2, max: 4.8, step: 0.5, labels: [1, 2, 3, 4] },
-           lines: [{ m: -0.6, b: 3.6, x0: -1.4, x1: 5.9 }], shade: [{ m: -0.6, b: 3.6, side: 'above' }],
+      B: { w: 320, h: 250, x: { min: -1.4, max: 5.9, step: 1, labels: [-1, 1, 2, 3, 4, 5] },
+           y: { min: -1.15, max: 4.6, step: 1, labels: [1, 2, 3, 4] },
+           lines: [{ m: -0.6, b: 3, x0: -1.4, x1: 5.9 }], shade: [{ m: -0.6, b: 3, side: 'above' }],
            originO: true, originText: '0' },
-      C: { w: 250, h: 250, x: { min: -6.4, max: 1.3, step: 0.5, labels: [-5, -4, -3, -2, 1] },
-           y: { min: -1.2, max: 4.8, step: 0.5, labels: [1, 2, 3, 4] },
-           lines: [{ m: 0.6, b: 4, x0: -6.4, x1: 1.3 }], shade: [{ m: 0.6, b: 4, side: 'below' }],
+      C: { w: 320, h: 250, x: { min: -6.4, max: 1.3, step: 1, labels: [-5, -4, -3, -2, -1, 1] },
+           y: { min: -1.2, max: 4.85, step: 1, labels: [1, 2, 3, 4] },
+           lines: [{ m: 0.6, b: 3, x0: -6.4, x1: 1.3 }], shade: [{ m: 0.6, b: 3, side: 'below' }],
            originO: true, originText: '0' },
-      D: { w: 250, h: 250, x: { min: -6.4, max: 1.3, step: 0.5, labels: [-5, -4, -3, -2, 1] },
-           y: { min: -1.2, max: 4.8, step: 0.5, labels: [1, 2, 3, 4] },
-           lines: [{ m: 0.6, b: 4.2, x0: -6.4, x1: 1.3 }], shade: [{ m: 0.6, b: 4.2, side: 'above' }],
+      D: { w: 320, h: 250, x: { min: -6.4, max: 1.3, step: 1, labels: [-5, -4, -3, -2, -1, 1] },
+           y: { min: -1.2, max: 4.85, step: 1, labels: [1, 2, 3, 4] },
+           lines: [{ m: 0.6, b: 3, x0: -6.4, x1: 1.3 }], shade: [{ m: 0.6, b: 3, side: 'above' }],
            originO: true, originText: '0' }
     } },
 
@@ -202,14 +203,14 @@
     // p9 #5：四选图。答案页 p191 写 C，所以 C 是正确图：y 截距恰为 1、
     // 斜率 -a/b 落在 (-1,0)、x 截距 = b/a = 2；A/B/D 是三个错图（斜率 -1、截距 1.5、斜率 -2）。
     'JY1-005': { type: 'quad', cols: 2, panels: {
-      A: { w: 232, h: 232, x: { min: -3.2, max: 3.4, step: 1, labels: [1] },
-           y: { min: -2.2, max: 3.4, step: 1, labels: [1] }, lines: [{ m: -1, b: 1, x0: -3.2, x1: 3.4 }] },
-      B: { w: 250, h: 250, x: { min: -3.2, max: 4.2, step: 1, labels: [1] },
-           y: { min: -2.4, max: 4.2, step: 1, labels: [1] }, lines: [{ m: -1, b: 1.5, x0: -3.2, x1: 3.4 }] },
-      C: { w: 232, h: 232, x: { min: -3.2, max: 3.4, step: 1, labels: [1] },
-           y: { min: -2.2, max: 3.4, step: 1, labels: [1] }, lines: [{ m: -0.5, b: 1, x0: -3.2, x1: 3.4 }] },
-      D: { w: 232, h: 232, x: { min: -3.2, max: 3.4, step: 1, labels: [1] },
-           y: { min: -2.2, max: 3.4, step: 1, labels: [1] }, lines: [{ m: -2, b: 2, x0: -3.2, x1: 1.6 }] }
+      A: { w: 232, h: 232, x: { min: -3.2, max: 3.4, step: 0.5, labels: [1] },
+           y: { min: -2.2, max: 3.4, step: 0.5, labels: [1] }, lines: [{ m: -1, b: 1, x0: -3.2, x1: 3.4 }] },
+      B: { w: 250, h: 250, x: { min: -3.2, max: 4.2, step: 0.5, labels: [1] },
+           y: { min: -2.4, max: 4.2, step: 0.5, labels: [1] }, lines: [{ m: -1, b: 1.5, x0: -3.2, x1: 3.4 }] },
+      C: { w: 232, h: 232, x: { min: -3.2, max: 3.4, step: 0.5, labels: [1] },
+           y: { min: -2.2, max: 3.4, step: 0.5, labels: [1] }, lines: [{ m: -0.5, b: 1, x0: -3.2, x1: 3.4 }] },
+      D: { w: 232, h: 232, x: { min: -3.2, max: 3.4, step: 0.5, labels: [1] },
+           y: { min: -2.2, max: 3.4, step: 0.5, labels: [1] }, lines: [{ m: -2, b: 2, x0: -3.2, x1: 1.6 }] }
     } }
   };
 
@@ -220,6 +221,14 @@
       if (!s) return '';
       if (s.type === 'quadrants') return wrap(quadrants(s));
       return wrap(s.type === 'quad' ? quad(s) : plane(s));
+    },
+    // 单格渲染：把 quad spec 里的某一个选项面板单独画出来（renderPanel('JY1-040','A')）。
+    // 选项图要「一个选项一张图」时走这里——不用另造字段，也不用再往 specs 里塞第二套 id；
+    // 非 quad spec 或该面板不存在时返回空串，调用方据此回退成纯文字选项。
+    renderPanel: function (id, letter) {
+      var s = specs[id];
+      if (!s || s.type !== 'quad' || !s.panels || !s.panels[letter]) return '';
+      return wrap(plane(s.panels[letter]));
     }
   };
 })();

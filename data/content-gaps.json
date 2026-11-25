@@ -15,8 +15,8 @@
       "layer": "讲义复习",
       "loc": "1.5 线性不等式与图像 · 讲义 p30 #1",
       "kind": "选项内容缺",
-      "detail": "四个选项是四张坐标图，choices 只有 A–D，图未渲染（与 JY1-042 同一类）。",
-      "evidence": "实机 ?b=JY1&s=1.5&i=1 探针：choices 文本均为字母，无 figure 输出。",
+      "detail": "四个选项是四张坐标图，choices 只有 A–D，页面只印出四个字母。数据侧本轮已重做：照 p30 四张嵌入图（A=xref3463 / B=3466 / C=3467 / D=3470）重校 JY_FIG 的 quad spec——四条线同为 y 截距 3、|斜率|0.60、格距 1，A 降影在下（正确图 y ≤ 3 − 0.6x）、B 同线影在上、C 升影在下、D 升影在上；并给出单格渲染入口 JY_FIG.renderPanel('JY1-040', 'A'..'D')。页面侧仍缺「选项里放图」的那一步，等编程者定字段名后接线，故状态仍记待修。",
+      "evidence": "本地渲染对照：docs/jiangyi-proof 与临时对照图（原页四图逐格对齐，格距方正）；JY_FIG.renderPanel('JY1-040','A'..'D') 四个面板各出 SVG（3584–3686 字节，无空图）。线上 ?b=JY1&s=1.5&i=1 目前仍是四个字母。",
       "status": "待修"
     },
     {
@@ -45,6 +45,15 @@
       "detail": "题干表格数据侧 q.table 完整，讲义页已正常渲染；Tim 提的「p8 表格缺」若指讲义这一页，则复现失败。",
       "evidence": "实机 ?b=JY1&s=1.1&i=3 探针：stemHasTable=true，表格五行齐全（x=2..5 / g(x)=-4..2）。",
       "status": "已核无缺"
+    },
+    {
+      "id": "JY1-005",
+      "layer": "讲义复习",
+      "loc": "1.1 线性方程与函数图像 · 讲义 p9 #5",
+      "kind": "选项内容缺",
+      "detail": "与 JY1-040 同类：四个选项是四张坐标图（a x + b y = b，0 < a < b），choices 只有 A–D。data/jiangyi_figures.js 里早有 quad spec（C 为答案图：y 截距 1、斜率 −0.5、x 截距 2），本轮把四格格距按原页改成 0.5（原来画成 1，比原书稀一半）；选项里同样还只是字母。",
+      "evidence": "data/jiangyi_figures.js 'JY1-005' 四面板渲染 11228 字节、格距 0.5；线上 ?b=JY1&s=1.1&i=5 仍是四个字母。",
+      "status": "待修"
     }
   ]
 }
