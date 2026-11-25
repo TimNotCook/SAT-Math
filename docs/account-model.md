@@ -123,3 +123,13 @@ B new name  -> {"ok":1,"user":"qa.web4","uid":"58be7744-9358-4d25-8bd5-8e2082137
 同机跑 S2 时发现：**注册完登出，设置面板停在「注册（用户名 + 密码）」表单，不是登录表单**——
 `emailMode` 变量在注册后没复位。已修：`doSignOut()` 里 `emailMode = 'login'`，提交 `b57a94e`
 （`cloud-account.js?v=728bf5a9d926`）。修后重跑上面两套序列，全部按预期通过。
+
+### 4) 本轮测试账号清理状态（如实）
+本轮 UI 序列共新建 7 个 `qa.*` 账号（`qa.seq039328`、`qa.seq883685→qa.sq883685`、`qa.seq169929→qa.sq169929`、
+`qa.seq991132→qa.sq991132`、`qa.seq634927→qa.sq634927`、`qa.one262044`、`qa.one710870→qa.on710870`）。
+清理语句已入库为 `docs/sql/cleanup-qa.sql`，但**这次没能在 dashboard 里执行**：
+当前 bu 浏览器窗口 viewport 上报为 0×0（`page_info()` 返回 `w=0,h=0`，截图接口报
+「viewport unavailable」），Monaco 编辑器只接受可信输入，合成粘贴/输入事件不生效；
+页面内改用 `api.supabase.com/platform/pg-meta/.../query` 需要 dashboard 的 access token（401）。
+所以这一条是**待执行**，不是已完成——在 SQL Editor 粘一次 `docs/sql/cleanup-qa.sql` 即可，
+执行后那四个计数应该是 `users=?`（取决于遗留探针）、`names=0`、`alias=0`、`prog=0`。
