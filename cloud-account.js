@@ -999,12 +999,12 @@
       '令牌是明文存在本机的，公用电脑上用完请退出；随时可在 GitHub 设置里吊销。'));
   }
 
-  /* 用户名 + 密码通道维护中：默认折叠，展开先给维护说明，旧表单原样保留（通道恢复即启用）。
+  /* 用户名 + 密码通道需先注册：默认折叠，展开先给说明，旧表单原样保留（不禁用，已注册用户可直接用）。
      不在此处禁用表单：万一已注册老用户要试，提交后 404「没有找到这个用户名」会与说明同屏，
      不会再出现"点了没反应"的静默。 */
   function renderSupaMaintenance(b) {
     var box = el('div', 'td-supa-maintain');
-    var toggle = el('button', 'td-acct-toggle', '用户名 + 密码登录（通道维护中，暂不可用）');
+    var toggle = el('button', 'td-acct-toggle', '用户名 + 密码登录（需先注册）');
     toggle.type = 'button';
     toggle.setAttribute('aria-expanded', String(supaMaintainOpen));
     var mBody = el('div');
@@ -1013,8 +1013,8 @@
     box.appendChild(toggle);
     box.appendChild(mBody);
     mBody.appendChild(el('p', 'td-acct-note td-acct-maintain-note',
-      '当前站点的用户名账号通道正在维护：暂时没有可登录的用户名账号，' +
-      '直接提交会收到「没有找到这个用户名」。请先用上方 GitHub 令牌登录，做题进度照样自动保存；通道恢复后这里会重新开放。'));
+      '本站用户名账号只对已注册账号开放。如果你还没注册，或登录时看到「没有找到这个用户名」，' +
+      '请直接用上方 GitHub 令牌登录（做题进度照样自动保存）；也可以在这里就地注册。'));
     if (emailMode === 'supaRegister') renderSupaRegister(mBody);
     else if (emailMode === 'supaVerify') renderSupaVerify(mBody);
     else if (emailMode === 'supaReset') renderSupaReset(mBody);
