@@ -32,10 +32,43 @@
 - `resolve_login(p_username text) returns text`（SECURITY DEFINER，`execute` 给 anon）：先查 `usernames`，再查 `username_alias`，只返回内部伪邮箱
 - `rename_username(p_new text) returns text`（SECURITY DEFINER，`execute` 只给 authenticated）：校验 `auth.uid()`、校验新名在两张表都未被占，旧名写入 `username_alias`，再改 `usernames.username`，一次事务内完成
 
+### 三之附：2026-11-25 42501 线上复核（anon 直读矩阵）
+
+登录本身走 SECURITY DEFINER 的 `resolve_login` RPC，**不受列级授权影响**；anon 直读 `usernames` 只用于注册前查名（`usernameTaken`）与计数。用 `cloud-config.js` 的 anonKey 直打 PostgREST 复核（命令可复现，`<anonKey>` = `cloud-config.js` 里的 `supabase.anonKey`）：
+
+```bash
+# A. 只读 username 列（查名/计数用途）→ 200
+curl -s -i "https://ofsnrzfmjqyrmkvdwnbo.supabase.co/rest/v1/usernames?select=username&limit=1" \
+  -H "apikey: <anonKey>" -H "Authorization: Bearer <anonKey>"
+# HTTP/2 200  content-range: 0-0/*
+# [{"username":"timnotcook"}]
+
+# B. username + user_id 两列 → 200
+curl -s -i "https://ofsnrzfmjqyrmkvdwnbo.supabase.co/rest/v1/usernames?select=username,user_id&limit=1" \
+  -H "apikey: <anonKey>" -H "Authorization: Bearer <anonKey>"
+# HTTP/2 200
+# [{"username":"timnotcook","user_id":"48124a73-f2c9-4469-a79a-ff70f58d6e2a"}]
+
+# C. 读 email 列 → 401 / 42501（设计如此，email 永不授 anon）
+curl -s -i "https://ofsnrzfmjqyrmkvdwnbo.supabase.co/rest/v1/usernames?select=email&limit=1" \
+  -H "apikey: <anonKey>" -H "Authorization: Bearer <anonKey>"
+# HTTP/2 401
+# {"code":"42501","details":null,"hint":"Grant the required privileges to the current role with: GRANT SELECT ON public.usernames TO anon;",
+#  "message":"permission denied for table usernames"}
+
+# D. username,email 混列 → 401 / 42501；E. select=* → 401 / 42501（同上）
+
+# F. 计数（Prefer: count=exact）+ select=username → 200，content-range: 0-0/1
+# G. resolve_login('timnotcook') → 200 "timnotcook@satmath.local"；resolve_login('bogus-zzz') → 200 null
+```
+
+结论（修正此前「anon 读 usernames 全被拒」的笼统说法）：**42501 只发生在请求未授权列（email）或整表 `select=*` 时**；`username / user_id` 列的列级授权线上已生效，查名与计数可用。授权 SQL 留档 `docs/sql/anon-usernames-select.sql`（重建/复核用，需管理员在 Dashboard 执行，客户端不可自助）。
+
 ## 四、客户端
 - `supa-cloud.js`：`register(username, pw)` → `signUp(pseudoEmail)` → 写 `usernames` 行；`signInEmail(username, pw)` → `rpc/resolve_login` 取伪邮箱 → `signInWithPassword`；`renameUsername(newName)` → `rpc/rename_username`
 - `cloud-account.js`：面板只有「用户名」「密码」，档案页加「用户名（登录用）+ 改用户名」，不再出现邮箱字段
 - `cloud-config.js`：新增 `supabase.emailDomain = 'satmath.local'`
+- `usernameTaken()`（注册前查重）：只 `select=username`，落在已授权列；catch 不再静默 `return false` 假装「没重名」——`console.warn` 显式降级，查重交给数据库唯一索引兜底（注册时服务端 409 顶回）。登录失败与 42501 无关：登录走 SECURITY DEFINER 的 `resolve_login` RPC，anon 列级授权管不到 RPC。
 
 ## 五、清理记录
 - 2026-11-25 08:09 HKT（00:09 UTC）：已清理测试账号 `timalpha`（Auth 邮箱 satmath.demo1@qq.com）与探针 `satmath-probe2@qq.com`；连带删掉它们的 `usernames` / `username_alias` / `progress` 行，`auth.identities` 一并清。
