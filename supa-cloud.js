@@ -210,7 +210,18 @@
       timeout: 15000
     });
     var mail = typeof r === 'string' ? r : (Array.isArray(r) ? r[0] : (r && r.email) || '');
-    if (!mail) throw errOf(404, { msg: '没有找到这个用户名。', code: 'auth/username-not-found' });
+    if (!mail) {
+      // 先查现役名；查不到再看是不是「改过名的旧名」——旧名一律不许登录，只给明确提示
+      var retired = false;
+      try {
+        retired = await raw('/rest/v1/rpc/is_retired_username', {
+          method: 'POST', headers: authHeaders(null),
+          body: JSON.stringify({ p_username: name }), timeout: 12000
+        }) === true;
+      } catch (e) { /* 判不出来就按未找到处理 */ }
+      if (retired) throw errOf(410, { msg: '这个用户名已经改过名，请用新用户名登录。', code: 'auth/username-retired' });
+      throw errOf(404, { msg: '没有找到这个用户名。', code: 'auth/username-not-found' });
+    }
     return mail;
   }
 
