@@ -5,9 +5,10 @@
   var els = {};
   ['jyBoards', 'jyBoardCards', 'jyDataNotice', 'jySections', 'jyCrumb', 'jyBoardTitle', 'jyBoardLead',
     'jySectionList', 'jyGroupList', 'jyQuiz', 'jyCurrent', 'jyBackList', 'jyNumber', 'jyPosition',
-    'jyStem', 'jyFigure', 'jyAnswerArea', 'jyFooterSection', 'jyPrev', 'jyNext', 'jySubmit',
+    'jyPositionButton', 'jyMark', 'jyMarkLabel', 'btnScratch',
+    'jyStem', 'jyFigure', 'jyAnswerArea', 'jyFooterSection', 'jyPrev', 'jyNext', 'jySubmitTop',
     'jyResult', 'jyResultTitle', 'jyResultAccuracy', 'jyResultFraction', 'jyResultWrong', 'jyResultBack']
-    .forEach(function (id) { els[id] = document.getElementById(id); });
+    .forEach(function (id) { els[id] = document.getElementById(id === 'jyQuiz' ? 'questionView' : id); });
 
   var boardId = null, section = null, index = 0;
   /* 选项表格：data/jiangyi.js 里的 choiceTables（每题最多四张）目前 core 归一化时会丢掉，
@@ -23,6 +24,79 @@
   function esc(s) { return A && A.esc ? A.esc(s) : String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   }); }
+  var markedQ = {};
+  var scratchPad = (function () {
+    var layer, canvas, ctx, toolbar, open = false, mode = 'pen', drawing = false, last = null;
+    function build() {
+      if (layer) return;
+      layer = document.createElement('div');
+      layer.className = 'mist-layer';
+      layer.innerHTML =
+        '<div class="mist-toolbar">' +
+          '<button type="button" data-tool="pen" class="on">黑笔</button>' +
+          '<button type="button" data-tool="red">红笔</button>' +
+          '<button type="button" data-tool="eraser">橡皮</button>' +
+          '<span class="mist-tool-sep"></span>' +
+          '<button type="button" data-tool="clear">清空</button>' +
+          '<button type="button" data-tool="done" class="mist-done">完成</button>' +
+        '</div><canvas class="mist-canvas"></canvas>';
+      document.body.appendChild(layer);
+      canvas = layer.querySelector('.mist-canvas');
+      ctx = canvas.getContext('2d');
+      toolbar = layer.querySelector('.mist-toolbar');
+      toolbar.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-tool]'); if (!b) return;
+        var tool = b.dataset.tool;
+        if (tool === 'done') { close(); return; }
+        if (tool === 'clear') { clear(); return; }
+        mode = tool;
+        toolbar.querySelectorAll('[data-tool]').forEach(function (x) {
+          x.classList.toggle('on', x.dataset.tool === mode);
+        });
+      });
+      canvas.addEventListener('pointerdown', function (e) {
+        drawing = true; last = pos(e); canvas.setPointerCapture(e.pointerId); dot(last);
+      });
+      canvas.addEventListener('pointermove', function (e) {
+        if (!drawing) return; var p = pos(e); line(last, p); last = p;
+      });
+      canvas.addEventListener('pointerup', function () { drawing = false; last = null; });
+      canvas.addEventListener('pointercancel', function () { drawing = false; last = null; });
+      window.addEventListener('resize', sizeCanvas);
+      document.addEventListener('keydown', function (e) { if (open && e.key === 'Escape') close(); });
+    }
+    function pos(e) { var r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    function radius() { return mode === 'eraser' ? 18 : 3.5; }
+    function applyStyle() {
+      if (mode === 'eraser') { ctx.globalCompositeOperation = 'destination-out'; ctx.strokeStyle = 'rgba(0,0,0,1)'; }
+      else { ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = mode === 'red' ? '#d63333' : '#1a1a1a'; }
+      ctx.lineWidth = radius();
+    }
+    function dot(p) {
+      applyStyle(); ctx.beginPath(); ctx.arc(p.x, p.y, radius() / 2, 0, Math.PI * 2);
+      ctx.fillStyle = ctx.strokeStyle; ctx.fill();
+    }
+    function line(a, b) {
+      applyStyle(); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    function sizeCanvas() {
+      if (!canvas) return;
+      var dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr; canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + 'px'; canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    }
+    function clear() {
+      if (!ctx) return; ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.restore();
+    }
+    function openPad() { build(); sizeCanvas(); layer.classList.add('show'); document.body.classList.add('scratch-on'); open = true; }
+    function close() {
+      if (!layer) return; layer.classList.remove('show'); document.body.classList.remove('scratch-on'); clear(); open = false;
+    }
+    return { toggle: function () { open ? close() : openPad(); }, clear: clear, isOpen: function () { return open; } };
+  })();
   function show(id) {
     VIEWS.forEach(function (v) { els[v].hidden = v !== id; });
     if (id !== 'jyQuiz') window.scrollTo(0, 0);
@@ -121,6 +195,10 @@
     els.jyBackList.href = '#';
     els.jyNumber.textContent = String(index + 1);
     els.jyPosition.textContent = '第 ' + (index + 1) + ' / ' + qs.length + ' 题';
+    els.jyPositionButton.textContent = 'Question ' + (index + 1) + ' of ' + qs.length;
+    var marked = !!markedQ[q.id];
+    els.jyMark.setAttribute('aria-pressed', marked ? 'true' : 'false');
+    els.jyMarkLabel.textContent = marked ? 'Marked for Review' : 'Mark for Review';
     /* 教材原题在题卡上保留一枚来源胶囊（练习册原页），窄屏页脚会隐藏来源，靠它兜住 */
     var bookChip = q.group === 'textbook' ? '<span class="jy-book-chip">' + esc(J.sourceLabel(q)) + '</span>' : '';
     els.jyStem.innerHTML = bookChip + fmt(q.stem) + (q.table ? tableHtml(q.table) : '');
@@ -196,7 +274,12 @@
   els.jyPrev.addEventListener('click', function () { if (index > 0) { index--; renderQ(); } });
   els.jyNext.addEventListener('click', function () { if (index < qs.length - 1) { index++; renderQ(); } });
   els.jyBackList.addEventListener('click', function (e) { e.preventDefault(); openBoard(boardId); });
-  els.jySubmit.addEventListener('click', function () {
+  els.jyMark.addEventListener('click', function () {
+    var q = qs[index]; if (!q) return;
+    markedQ[q.id] = !markedQ[q.id]; renderQ();
+  });
+  els.btnScratch.addEventListener('click', scratchPad.toggle);
+  els.jySubmitTop.addEventListener('click', function () {
     var rec = J.submitSection(boardId, section);
     if (rec) renderResult(rec); else openBoard(boardId);
   });
