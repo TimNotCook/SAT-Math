@@ -3,8 +3,9 @@
  * 与已摘除的 Firebase 模块同构门面（旧接口方法这里都有），由 cloud-account.js 按活跃后端调用。
  *
  * 安全模型（2026-11 根修）：
- *   - 令牌只存 sessionStorage（标签页会话级），关闭标签即失效，不写 localStorage；
- *   - 旧版本残留在 localStorage 的明文令牌会在下次加载时迁移进 sessionStorage 并删除；
+ *   - 令牌默认持久保存在本机 localStorage（换标签页 / 重开浏览器仍保持登录）；
+ *     用户点「退出登录」会同时清掉 localStorage 与 sessionStorage 里的令牌；
+ *   - 令牌是明文落盘的，这是"免每次重输"的代价；建议用 Fine-grained PAT，只授权 sat-math-data 单仓库 Contents 读写；
  *   - 建议使用 Fine-grained PAT 并只授权 sat-math-data 单仓库的 Contents 读写；
  *     首次同步若仓库不存在，会用令牌自动创建该私有仓库（登录页有明确提示）。
  *
@@ -150,8 +151,8 @@
           email: me.email || '',
           login: me.login
         };
-        try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) { console.warn('保存令牌失败', e); }
-        try { localStorage.removeItem(TOKEN_KEY); } catch (e) { console.warn('清除旧版令牌残留失败', e); }  // 清除旧版明文残留
+        try { localStorage.setItem(TOKEN_KEY, token); } catch (e) { console.warn('保存令牌失败', e); }
+        try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) { /* 本标签页缓存，拿不到也不影响持久登录 */ }
         persistProfile();
         if (stateCb) stateCb(currentUser);
       } catch (e) {
@@ -220,16 +221,15 @@
     }
   };
 
-  /* 会话恢复：令牌从 sessionStorage 读取（仅本标签页有效）。
-     旧版本残留在 localStorage 的明文令牌：迁移到 sessionStorage 后立即删除。 */
+  /* 会话恢复：localStorage 是持久来源（换标签、重开浏览器都还在），
+     sessionStorage 作为本标签页的旧来源仍然兼容（老版本留下的、或临时会话）。 */
   (function restore() {
     try {
-      var legacy = localStorage.getItem(TOKEN_KEY);
-      if (legacy) {
-        try { sessionStorage.setItem(TOKEN_KEY, legacy); } catch (e2) { console.warn('迁移令牌失败', e2); }
-        localStorage.removeItem(TOKEN_KEY);
+      var saved = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY) || null;
+      if (saved) {
+        try { localStorage.setItem(TOKEN_KEY, saved); } catch (e2) { console.warn('同步令牌到本机失败', e2); }
       }
-      token = sessionStorage.getItem(TOKEN_KEY) || null;
+      token = saved;
       var p = JSON.parse(localStorage.getItem(PROF_KEY) || 'null');
       if (token && p && p.uid) { currentUser = p; meLogin = p.login; }
     } catch (e) { token = null; currentUser = null; }

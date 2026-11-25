@@ -997,7 +997,8 @@
     altBox.appendChild(el('p', 'td-acct-note',
       '进度存进你自己的私有仓库 sat-math-data（首次同步会自动创建）。' +
       '推荐用 Fine-grained 令牌、只勾选该仓库的 Contents 读写（github.com → Settings → Developer settings → Personal access tokens）。' +
-      '令牌仅保存在本标签页会话内，关闭标签即失效；随时可在 GitHub 设置里吊销。'));
+      '令牌保存在这台设备的浏览器里，换标签页、重开浏览器都不用重输；点「退出登录」即清掉。' +
+      '令牌是明文存在本机的，公用电脑上用完请退出；随时可在 GitHub 设置里吊销。'));
     b.appendChild(alt);
   }
 
