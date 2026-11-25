@@ -1,0 +1,343 @@
+{
+  "base": "https://timnotcook.github.io/SAT-Math",
+  "time": "2026-11-25T10:41:39.167Z",
+  "widths": [
+    390,
+    655,
+    1280
+  ],
+  "u2": {
+    "390": {
+      "list": {
+        "emptyCount": 6,
+        "popCount": 1,
+        "empty": [
+          {
+            "code": "2.2",
+            "name": "散点图与表格图像",
+            "meta": "已录 0 / 应有 9 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.3",
+            "name": "线性与指数关系",
+            "meta": "已录 0 / 应有 19 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.4",
+            "name": "概率与条件概率",
+            "meta": "已录 0 / 应有 3 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.5",
+            "name": "数据分析：集中趋势与离散程度",
+            "meta": "已录 0 / 应有 20 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.6",
+            "name": "调查、观察性研究与实验",
+            "meta": "已录 0 / 应有 7 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.7",
+            "name": "样本统计推断与误差范围",
+            "meta": "已录 0 / 应有 3 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          }
+        ],
+        "firstRect": {
+          "x": 195,
+          "y": 364
+        },
+        "idle": {
+          "background": "rgba(0, 0, 0, 0)",
+          "boxShadow": "none",
+          "transform": "none",
+          "borderRadius": "0px",
+          "cursor": "default"
+        }
+      },
+      "hover": {
+        "background": "rgba(0, 0, 0, 0)",
+        "boxShadow": "none",
+        "transform": "none",
+        "borderRadius": "0px",
+        "cursor": "default"
+      },
+      "click": {
+        "displayBefore": "none",
+        "displayAfter": "none",
+        "toastText": "本节题目尚未录入，先在题库里补题",
+        "toastShown": true,
+        "toastAutoDismissed": true,
+        "enteredQuiz": false
+      },
+      "hoverChanged": false
+    },
+    "655": {
+      "list": {
+        "emptyCount": 6,
+        "popCount": 1,
+        "empty": [
+          {
+            "code": "2.2",
+            "name": "散点图与表格图像",
+            "meta": "已录 0 / 应有 9 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.3",
+            "name": "线性与指数关系",
+            "meta": "已录 0 / 应有 19 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.4",
+            "name": "概率与条件概率",
+            "meta": "已录 0 / 应有 3 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.5",
+            "name": "数据分析：集中趋势与离散程度",
+            "meta": "已录 0 / 应有 20 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.6",
+            "name": "调查、观察性研究与实验",
+            "meta": "已录 0 / 应有 7 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.7",
+            "name": "样本统计推断与误差范围",
+            "meta": "已录 0 / 应有 3 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          }
+        ],
+        "firstRect": {
+          "x": 328,
+          "y": 333
+        },
+        "idle": {
+          "background": "rgba(0, 0, 0, 0)",
+          "boxShadow": "none",
+          "transform": "none",
+          "borderRadius": "0px",
+          "cursor": "default"
+        }
+      },
+      "hover": {
+        "background": "rgba(0, 0, 0, 0)",
+        "boxShadow": "none",
+        "transform": "none",
+        "borderRadius": "0px",
+        "cursor": "default"
+      },
+      "click": {
+        "displayBefore": "none",
+        "displayAfter": "none",
+        "toastText": "本节题目尚未录入，先在题库里补题",
+        "toastShown": true,
+        "toastAutoDismissed": true,
+        "enteredQuiz": false
+      },
+      "hoverChanged": false
+    },
+    "1280": {
+      "list": {
+        "emptyCount": 6,
+        "popCount": 1,
+        "empty": [
+          {
+            "code": "2.2",
+            "name": "散点图与表格图像",
+            "meta": "已录 0 / 应有 9 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.3",
+            "name": "线性与指数关系",
+            "meta": "已录 0 / 应有 19 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.4",
+            "name": "概率与条件概率",
+            "meta": "已录 0 / 应有 3 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.5",
+            "name": "数据分析：集中趋势与离散程度",
+            "meta": "已录 0 / 应有 20 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.6",
+            "name": "调查、观察性研究与实验",
+            "meta": "已录 0 / 应有 7 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          },
+          {
+            "code": "2.7",
+            "name": "样本统计推断与误差范围",
+            "meta": "已录 0 / 应有 3 题",
+            "badge": "待录入",
+            "cursor": "default",
+            "opacity": "0.62"
+          }
+        ],
+        "firstRect": {
+          "x": 748,
+          "y": 236
+        },
+        "idle": {
+          "background": "rgba(0, 0, 0, 0)",
+          "boxShadow": "none",
+          "transform": "none",
+          "borderRadius": "0px",
+          "cursor": "default"
+        }
+      },
+      "hover": {
+        "background": "rgba(0, 0, 0, 0)",
+        "boxShadow": "none",
+        "transform": "none",
+        "borderRadius": "0px",
+        "cursor": "default"
+      },
+      "click": {
+        "displayBefore": "none",
+        "displayAfter": "none",
+        "toastText": "本节题目尚未录入，先在题库里补题",
+        "toastShown": true,
+        "toastAutoDismissed": true,
+        "enteredQuiz": false
+      },
+      "hoverChanged": false
+    }
+  },
+  "u1": {
+    "390": {
+      "row": {
+        "sec": "1.1",
+        "name": "线性方程与函数图像",
+        "go": "开始"
+      },
+      "idle": {
+        "background": "rgba(0, 0, 0, 0)",
+        "boxShadow": "rgba(31, 45, 61, 0.05) 0px 2px 10px 0px",
+        "transform": "none",
+        "cursor": "pointer"
+      },
+      "hover": {
+        "background": "rgba(29, 29, 31, 0.04)",
+        "boxShadow": "rgba(31, 45, 61, 0.09) 0px 3px 10px 0px, rgba(255, 255, 255, 0.78) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.32) 0px 0px 0px 1px inset",
+        "transform": "matrix(1, 0, 0, 1, 0, -1)",
+        "cursor": "pointer"
+      },
+      "hoverChanged": true,
+      "click": {
+        "displayBefore": "none",
+        "displayAfter": "block",
+        "enteredQuiz": true,
+        "quizCurrent": "U1 Algebra · 1.1",
+        "stem": "The graph of the line in the xy-plane above shows the relati"
+      }
+    },
+    "655": {
+      "row": {
+        "sec": "1.1",
+        "name": "线性方程与函数图像",
+        "go": "开始"
+      },
+      "idle": {
+        "background": "rgba(0, 0, 0, 0)",
+        "boxShadow": "rgba(31, 45, 61, 0.05) 0px 2px 10px 0px",
+        "transform": "none",
+        "cursor": "pointer"
+      },
+      "hover": {
+        "background": "rgba(29, 29, 31, 0.04)",
+        "boxShadow": "rgba(31, 45, 61, 0.09) 0px 3px 10px 0px, rgba(255, 255, 255, 0.78) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.32) 0px 0px 0px 1px inset",
+        "transform": "matrix(1, 0, 0, 1, 0, -1)",
+        "cursor": "pointer"
+      },
+      "hoverChanged": true,
+      "click": {
+        "displayBefore": "none",
+        "displayAfter": "block",
+        "enteredQuiz": true,
+        "quizCurrent": "U1 Algebra · 1.1",
+        "stem": "The graph of the line in the xy-plane above shows the relati"
+      }
+    },
+    "1280": {
+      "row": {
+        "sec": "1.1",
+        "name": "线性方程与函数图像",
+        "go": "开始"
+      },
+      "idle": {
+        "background": "rgba(0, 0, 0, 0)",
+        "boxShadow": "rgba(31, 45, 61, 0.05) 0px 2px 10px 0px",
+        "transform": "none",
+        "cursor": "pointer"
+      },
+      "hover": {
+        "background": "rgba(29, 29, 31, 0.04)",
+        "boxShadow": "rgba(31, 45, 61, 0.09) 0px 3px 10px 0px, rgba(255, 255, 255, 0.78) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.32) 0px 0px 0px 1px inset",
+        "transform": "matrix(1, 0, 0, 1, 0, -1)",
+        "cursor": "pointer"
+      },
+      "hoverChanged": true,
+      "click": {
+        "displayBefore": "none",
+        "displayAfter": "block",
+        "enteredQuiz": true,
+        "quizCurrent": "U1 Algebra · 1.1",
+        "stem": "The graph of the line in the xy-plane above shows the relati"
+      }
+    }
+  }
+}

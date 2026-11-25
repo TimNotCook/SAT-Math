@@ -1,6 +1,6 @@
 {
   "base": "https://timnotcook.github.io/SAT-Math",
-  "time": "2026-11-24T07:28:09.846Z",
+  "time": "2026-11-25T10:40:34.068Z",
   "rows": [
     {
       "unit": 1,
@@ -21,11 +21,12 @@
         "isMock": false,
         "nav": [
           "真题练习",
+          "讲义复习",
           "单元抽查",
           "错题回顾",
           "模考"
         ],
-        "navCount": 4,
+        "navCount": 5,
         "pill": "本单元 268 题",
         "pillVisible": true,
         "exit": "退出",
@@ -54,12 +55,13 @@
         "isMock": false,
         "nav": [
           "真题练习",
+          "讲义复习",
           "单元抽查",
           "错题回顾",
           "模考"
         ],
-        "navCount": 4,
-        "pill": "本单元 145 题",
+        "navCount": 5,
+        "pill": "本单元 330 题",
         "pillVisible": true,
         "exit": "退出",
         "startBtn": "开始抽测",
@@ -87,12 +89,13 @@
         "isMock": false,
         "nav": [
           "真题练习",
+          "讲义复习",
           "单元抽查",
           "错题回顾",
           "模考"
         ],
-        "navCount": 4,
-        "pill": "本单元 454 题",
+        "navCount": 5,
+        "pill": "本单元 453 题",
         "pillVisible": true,
         "exit": "退出",
         "startBtn": "开始抽测",
@@ -120,12 +123,13 @@
         "isMock": false,
         "nav": [
           "真题练习",
+          "讲义复习",
           "单元抽查",
           "错题回顾",
           "模考"
         ],
-        "navCount": 4,
-        "pill": "本单元 85 题",
+        "navCount": 5,
+        "pill": "本单元 238 题",
         "pillVisible": true,
         "exit": "退出",
         "startBtn": "开始抽测",
