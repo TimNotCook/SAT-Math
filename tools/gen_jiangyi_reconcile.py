@@ -136,8 +136,9 @@ def main():
     if gaps:
         todo = sum(1 for g in gaps if g["status"] == "待修")
         done = sum(1 for g in gaps if g["status"] == "已修复")
-        lines.append("\n已修复 **%d** 条、待修 **%d** 条、待核 %d 条、原页缺印 %d 条、已核无缺 %d 条。\n" %
-                     (done, todo, sum(1 for g in gaps if g["status"] == "待核"),
+        lines.append("\n已修复 **%d** 条、已定案不补 **%d** 条、待修 **%d** 条、待核 %d 条、原页缺印 %d 条、已核无缺 %d 条。\n" %
+                     (done, sum(1 for g in gaps if g["status"] == "已定案、不补"), todo,
+                      sum(1 for g in gaps if g["status"] == "待核"),
                       sum(1 for g in gaps if g["status"] == "原页缺印"),
                       sum(1 for g in gaps if g["status"] == "已核无缺")))
     lines.append("\n## 录入规则（可执行，已写进 test/jiangyi.test.js）\n")
