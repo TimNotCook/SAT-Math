@@ -139,3 +139,37 @@
       'aria-hidden="true"><circle cx="12" cy="12" r="3"></circle>' +
       '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>设置</span>';
   }
+  function friendlyError(e) {
+    var c = e && e.code, m = e && e.message;
+    if (c === 'auth/operation-not-allowed') return '该登录方式暂未开放，请换一种方式。';
+    if (c === 'auth/invalid-email') return '邮箱格式不正确。';
+    if (c === 'auth/weak-password') return '密码太短，请至少输入 6 位。';
+    if (c === 'auth/email-already-in-use') return '该邮箱已注册，请直接登录。';
+    if (c === 'auth/user-not-found' || c === 'auth/invalid-credential') return '邮箱或密码不正确。';
+    if (c === 'auth/wrong-password') return '密码不正确。';
+    if (c === 'auth/too-many-requests') return '尝试次数过多，请稍后再试。';
+    if (c === 'auth/popup-closed-by-user') return '登录窗口已关闭。';
+    if (c === 'auth/apple-provider-disabled') return 'Apple 登录暂未开放，请稍后再试。';
+    if (c === 'auth/account-exists-with-different-credential') return '该邮箱已用其他方式注册，请用原方式登录。';
+    if (c === 'auth/network-request-failed') return '网络异常，请检查连接后重试。';
+    if (c === 'auth/unauthorized-domain') return '当前网址未被 Firebase 授权，「Google / Apple 登录」用不了；请改用邮箱密码登录。';
+    if (c === 'auth/popup-blocked') return '浏览器拦下了登录弹窗，请允许弹窗后重试。';
+    if (c === 'auth/cancelled-popup-request') return '上一次登录还没结束，请稍等两秒再点。';
+    if (c === 'auth/internal-error') return '登录服务返回异常，请刷新页面后重试。';
+    // 国内通道（腾讯云开发）的错误码
+    if (c === 'invalid_username_or_password') return '邮箱或密码不正确。';
+    if (c === 'INVALID_USERNAME_OR_PASSWORD') return '邮箱或密码不正确。';
+    if (c === 'vcode-missing') return '请先点「获取验证码」，收到邮件后再填验证码。';
+    if (c === 'invalid_request') return m || '请求参数不对，请检查后重试。';
+    if (c === 'permission-denied') return '没有权限，请重新登录后再试。';
+    if (c === 'rate-limited') return '操作太频繁了，等一分钟再试。';
+    var lm = String(m || '').toLowerCase();
+    if (lm.indexOf('does not match') >= 0 || lm.indexOf('verification code') >= 0) {
+      return '验证码不对或已过期，请用最新一封邮件里的码，或重新获取。';
+    }
+    if (c === 'auth/network-request-failed') return '网络异常；国内网络可能连不上 Google，建议改用上方「邮箱验证码登录」。';
+    if (!c && lm.indexOf('otp') >= 0 || lm.indexOf('token') >= 0 || lm.indexOf('expired') >= 0) return '验证码无效或已过期，请重新获取后再试。';
+    if (!c && lm.indexOf('sdk load failed') >= 0) return '验证码组件加载失败，请刷新页面或检查网络后重试。';
+    if (!c && lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return '验证码服务暂时连不上，请检查网络后重试，或改用下方 Firebase / GitHub 令牌登录。';
+    return m || '操作失败，请重试。';
+  }
