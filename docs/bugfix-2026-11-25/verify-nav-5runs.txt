@@ -1,0 +1,898 @@
+P2-C 主验收 · verify_nav --base https://timnotcook.github.io/SAT-Math
+执行时间 2026-11-25 15:24–15:30（HKT）；线上 ?v= 全程 3a31dbadc74c（五页一致）。
+有效全绿轮次：RUN 1 / 2 / 3 / 5 / 6 / 7，均 38/38、exit=0。
+RUN 4（32/38）为导航时序抖动：nav/drill.html·落点 实测「实际 /」、0 个可见链接；
+其「资源版本/五页同值」本身 PASS（五页 =3a31dbadc74c），非版本不一致、与本次补丁无关，按规矩补跑 RUN 6/7。
+下面为每轮完整原始输出。
+
+==================== RUN 1 / 5 · 2026-11-25 15:24:19 ====================
+pre-check index.html ?v=3a31dbadc74c
+pre-check exam.html ?v=3a31dbadc74c
+pre-check drill.html ?v=3a31dbadc74c
+pre-check wrong.html ?v=3a31dbadc74c
+pre-check jiangyi.html ?v=3a31dbadc74c
+PASS  nav/jiangyi.html·落点
+      期望 停在 jiangyi.html
+      实测 实际 /SAT-Math/jiangyi.html
+PASS  nav/jiangyi.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/jiangyi.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/jiangyi.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/drill.html·落点
+      期望 停在 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/drill.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/drill.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/drill.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/wrong.html·落点
+      期望 停在 wrong.html
+      实测 实际 /SAT-Math/wrong.html
+PASS  nav/wrong.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/wrong.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/wrong.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/root·跳转
+      期望 根地址跳到 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/root·drill.html
+      期望 跳转后可见入口 drill.html
+      实测 有
+PASS  nav/root·jiangyi.html
+      期望 跳转后可见入口 jiangyi.html
+      实测 有
+PASS  nav/root·exam.html?mode=quiz&unit=1
+      期望 跳转后可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/root·wrong.html
+      期望 跳转后可见入口 wrong.html
+      实测 有
+PASS  nav/root·exam.html?mode=mock
+      期望 跳转后可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/exam-quiz·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/exam-quiz·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·高亮
+      期望 侧栏高亮「单元抽查」
+      实测 实际 单元抽查
+PASS  nav/brand·直指 drill
+      期望 侧栏品牌 href=drill.html
+      实测 实际 drill.html
+PASS  nav/jiangyi·返回导航
+      期望 返回真题练习链接可见
+      实测 ← 返回真题练习 → drill.html (w=125)
+PASS  gate/全量缺选项
+      期望 缺选项题数 = 0（白名单为空）
+      实测 0 道 
+PASS  gate/2.2#14 渲染
+      期望 4 个按钮都含矢量图、0 个提示挡板
+      实测 buttons=4 svg=4 prompt=无
+PASS  l4/真题侧移除
+      期望 L4 不存在；legacy U4 = 0；4.1 仍可见
+      实测 L4=false legacyU4=0 4.1=6 unit4=true
+PASS  jy4/子组入口
+      期望 JY4 板块里出现「Unit 4・教材原题（练习册 P200–207）」
+      实测 教材原题 · 单独成组
+0 / 9 题 · 进入 ›
+Unit 4・教材原题（练习册 P200–207）
+来自练习册原页
+PASS  jy4/九题可达
+      期望 第 1 / 9 题，页脚「练习册 P200」
+      实测 第 1 / 9 题 · 练习册 P200 · JY4-047
+PASS  资源版本/五页同值
+      期望 五页均至少 1 个 ?v=；每页唯一；跨页同值
+      实测 index.html=3a31dbadc74c | exam.html=3a31dbadc74c | drill.html=3a31dbadc74c | wrong.html=3a31dbadc74c | jiangyi.html=3a31dbadc74c
+
+38/38 通过，截图在 /tmp/vn-p2c-run1
+exit=0
+--------------------
+==================== RUN 2 / 5 · 2026-11-25 15:25:00 ====================
+pre-check index.html ?v=3a31dbadc74c
+pre-check exam.html ?v=3a31dbadc74c
+pre-check drill.html ?v=3a31dbadc74c
+pre-check wrong.html ?v=3a31dbadc74c
+pre-check jiangyi.html ?v=3a31dbadc74c
+PASS  nav/jiangyi.html·落点
+      期望 停在 jiangyi.html
+      实测 实际 /SAT-Math/jiangyi.html
+PASS  nav/jiangyi.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/jiangyi.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/jiangyi.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/drill.html·落点
+      期望 停在 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/drill.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/drill.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/drill.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/wrong.html·落点
+      期望 停在 wrong.html
+      实测 实际 /SAT-Math/wrong.html
+PASS  nav/wrong.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/wrong.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/wrong.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/root·跳转
+      期望 根地址跳到 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/root·drill.html
+      期望 跳转后可见入口 drill.html
+      实测 有
+PASS  nav/root·jiangyi.html
+      期望 跳转后可见入口 jiangyi.html
+      实测 有
+PASS  nav/root·exam.html?mode=quiz&unit=1
+      期望 跳转后可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/root·wrong.html
+      期望 跳转后可见入口 wrong.html
+      实测 有
+PASS  nav/root·exam.html?mode=mock
+      期望 跳转后可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/exam-quiz·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/exam-quiz·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·高亮
+      期望 侧栏高亮「单元抽查」
+      实测 实际 单元抽查
+PASS  nav/brand·直指 drill
+      期望 侧栏品牌 href=drill.html
+      实测 实际 drill.html
+PASS  nav/jiangyi·返回导航
+      期望 返回真题练习链接可见
+      实测 ← 返回真题练习 → drill.html (w=125)
+PASS  gate/全量缺选项
+      期望 缺选项题数 = 0（白名单为空）
+      实测 0 道 
+PASS  gate/2.2#14 渲染
+      期望 4 个按钮都含矢量图、0 个提示挡板
+      实测 buttons=4 svg=4 prompt=无
+PASS  l4/真题侧移除
+      期望 L4 不存在；legacy U4 = 0；4.1 仍可见
+      实测 L4=false legacyU4=0 4.1=6 unit4=true
+PASS  jy4/子组入口
+      期望 JY4 板块里出现「Unit 4・教材原题（练习册 P200–207）」
+      实测 教材原题 · 单独成组
+0 / 9 题 · 进入 ›
+Unit 4・教材原题（练习册 P200–207）
+来自练习册原页
+PASS  jy4/九题可达
+      期望 第 1 / 9 题，页脚「练习册 P200」
+      实测 第 1 / 9 题 · 练习册 P200 · JY4-047
+PASS  资源版本/五页同值
+      期望 五页均至少 1 个 ?v=；每页唯一；跨页同值
+      实测 index.html=3a31dbadc74c | exam.html=3a31dbadc74c | drill.html=3a31dbadc74c | wrong.html=3a31dbadc74c | jiangyi.html=3a31dbadc74c
+
+38/38 通过，截图在 /tmp/vn-p2c-run2
+exit=0
+--------------------
+==================== RUN 3 / 5 · 2026-11-25 15:25:35 ====================
+pre-check index.html ?v=3a31dbadc74c
+pre-check exam.html ?v=3a31dbadc74c
+pre-check drill.html ?v=3a31dbadc74c
+pre-check wrong.html ?v=3a31dbadc74c
+pre-check jiangyi.html ?v=3a31dbadc74c
+PASS  nav/jiangyi.html·落点
+      期望 停在 jiangyi.html
+      实测 实际 /SAT-Math/jiangyi.html
+PASS  nav/jiangyi.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/jiangyi.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/jiangyi.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/drill.html·落点
+      期望 停在 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/drill.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/drill.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/drill.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/wrong.html·落点
+      期望 停在 wrong.html
+      实测 实际 /SAT-Math/wrong.html
+PASS  nav/wrong.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/wrong.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/wrong.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/root·跳转
+      期望 根地址跳到 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/root·drill.html
+      期望 跳转后可见入口 drill.html
+      实测 有
+PASS  nav/root·jiangyi.html
+      期望 跳转后可见入口 jiangyi.html
+      实测 有
+PASS  nav/root·exam.html?mode=quiz&unit=1
+      期望 跳转后可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/root·wrong.html
+      期望 跳转后可见入口 wrong.html
+      实测 有
+PASS  nav/root·exam.html?mode=mock
+      期望 跳转后可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/exam-quiz·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/exam-quiz·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·高亮
+      期望 侧栏高亮「单元抽查」
+      实测 实际 单元抽查
+PASS  nav/brand·直指 drill
+      期望 侧栏品牌 href=drill.html
+      实测 实际 drill.html
+PASS  nav/jiangyi·返回导航
+      期望 返回真题练习链接可见
+      实测 ← 返回真题练习 → drill.html (w=125)
+PASS  gate/全量缺选项
+      期望 缺选项题数 = 0（白名单为空）
+      实测 0 道 
+PASS  gate/2.2#14 渲染
+      期望 4 个按钮都含矢量图、0 个提示挡板
+      实测 buttons=4 svg=4 prompt=无
+PASS  l4/真题侧移除
+      期望 L4 不存在；legacy U4 = 0；4.1 仍可见
+      实测 L4=false legacyU4=0 4.1=6 unit4=true
+PASS  jy4/子组入口
+      期望 JY4 板块里出现「Unit 4・教材原题（练习册 P200–207）」
+      实测 教材原题 · 单独成组
+0 / 9 题 · 进入 ›
+Unit 4・教材原题（练习册 P200–207）
+来自练习册原页
+PASS  jy4/九题可达
+      期望 第 1 / 9 题，页脚「练习册 P200」
+      实测 第 1 / 9 题 · 练习册 P200 · JY4-047
+PASS  资源版本/五页同值
+      期望 五页均至少 1 个 ?v=；每页唯一；跨页同值
+      实测 index.html=3a31dbadc74c | exam.html=3a31dbadc74c | drill.html=3a31dbadc74c | wrong.html=3a31dbadc74c | jiangyi.html=3a31dbadc74c
+
+38/38 通过，截图在 /tmp/vn-p2c-run3
+exit=0
+--------------------
+==================== RUN 4 / 5 · 2026-11-25 15:26:14 ====================
+pre-check index.html ?v=3a31dbadc74c
+pre-check exam.html ?v=3a31dbadc74c
+pre-check drill.html ?v=3a31dbadc74c
+pre-check wrong.html ?v=3a31dbadc74c
+pre-check jiangyi.html ?v=3a31dbadc74c
+PASS  nav/jiangyi.html·落点
+      期望 停在 jiangyi.html
+      实测 实际 /SAT-Math/jiangyi.html
+PASS  nav/jiangyi.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/jiangyi.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/jiangyi.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+FAIL  nav/drill.html·落点
+      期望 停在 drill.html
+      实测 实际 /
+FAIL  nav/drill.html·drill.html
+      期望 可见入口 drill.html
+      实测 缺失（共 0 个可见链接）
+FAIL  nav/drill.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 缺失（共 0 个可见链接）
+FAIL  nav/drill.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 缺失（共 0 个可见链接）
+FAIL  nav/drill.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 缺失（共 0 个可见链接）
+FAIL  nav/drill.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 缺失（共 0 个可见链接）
+PASS  nav/wrong.html·落点
+      期望 停在 wrong.html
+      实测 实际 /SAT-Math/wrong.html
+PASS  nav/wrong.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/wrong.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/wrong.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/root·跳转
+      期望 根地址跳到 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/root·drill.html
+      期望 跳转后可见入口 drill.html
+      实测 有
+PASS  nav/root·jiangyi.html
+      期望 跳转后可见入口 jiangyi.html
+      实测 有
+PASS  nav/root·exam.html?mode=quiz&unit=1
+      期望 跳转后可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/root·wrong.html
+      期望 跳转后可见入口 wrong.html
+      实测 有
+PASS  nav/root·exam.html?mode=mock
+      期望 跳转后可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/exam-quiz·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/exam-quiz·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·高亮
+      期望 侧栏高亮「单元抽查」
+      实测 实际 单元抽查
+PASS  nav/brand·直指 drill
+      期望 侧栏品牌 href=drill.html
+      实测 实际 drill.html
+PASS  nav/jiangyi·返回导航
+      期望 返回真题练习链接可见
+      实测 ← 返回真题练习 → drill.html (w=125)
+PASS  gate/全量缺选项
+      期望 缺选项题数 = 0（白名单为空）
+      实测 0 道 
+PASS  gate/2.2#14 渲染
+      期望 4 个按钮都含矢量图、0 个提示挡板
+      实测 buttons=4 svg=4 prompt=无
+PASS  l4/真题侧移除
+      期望 L4 不存在；legacy U4 = 0；4.1 仍可见
+      实测 L4=false legacyU4=0 4.1=6 unit4=true
+PASS  jy4/子组入口
+      期望 JY4 板块里出现「Unit 4・教材原题（练习册 P200–207）」
+      实测 教材原题 · 单独成组
+0 / 9 题 · 进入 ›
+Unit 4・教材原题（练习册 P200–207）
+来自练习册原页
+PASS  jy4/九题可达
+      期望 第 1 / 9 题，页脚「练习册 P200」
+      实测 第 1 / 9 题 · 练习册 P200 · JY4-047
+PASS  资源版本/五页同值
+      期望 五页均至少 1 个 ?v=；每页唯一；跨页同值
+      实测 index.html=3a31dbadc74c | exam.html=3a31dbadc74c | drill.html=3a31dbadc74c | wrong.html=3a31dbadc74c | jiangyi.html=3a31dbadc74c
+
+32/38 通过，截图在 /tmp/vn-p2c-run4
+exit=1
+--------------------
+==================== RUN 5 / 5 · 2026-11-25 15:27:31 ====================
+pre-check index.html ?v=3a31dbadc74c
+pre-check exam.html ?v=3a31dbadc74c
+pre-check drill.html ?v=3a31dbadc74c
+pre-check wrong.html ?v=3a31dbadc74c
+pre-check jiangyi.html ?v=3a31dbadc74c
+PASS  nav/jiangyi.html·落点
+      期望 停在 jiangyi.html
+      实测 实际 /SAT-Math/jiangyi.html
+PASS  nav/jiangyi.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/jiangyi.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/jiangyi.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/drill.html·落点
+      期望 停在 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/drill.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/drill.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/drill.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/wrong.html·落点
+      期望 停在 wrong.html
+      实测 实际 /SAT-Math/wrong.html
+PASS  nav/wrong.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/wrong.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/wrong.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/root·跳转
+      期望 根地址跳到 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/root·drill.html
+      期望 跳转后可见入口 drill.html
+      实测 有
+PASS  nav/root·jiangyi.html
+      期望 跳转后可见入口 jiangyi.html
+      实测 有
+PASS  nav/root·exam.html?mode=quiz&unit=1
+      期望 跳转后可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/root·wrong.html
+      期望 跳转后可见入口 wrong.html
+      实测 有
+PASS  nav/root·exam.html?mode=mock
+      期望 跳转后可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/exam-quiz·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/exam-quiz·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·高亮
+      期望 侧栏高亮「单元抽查」
+      实测 实际 单元抽查
+PASS  nav/brand·直指 drill
+      期望 侧栏品牌 href=drill.html
+      实测 实际 drill.html
+PASS  nav/jiangyi·返回导航
+      期望 返回真题练习链接可见
+      实测 ← 返回真题练习 → drill.html (w=125)
+PASS  gate/全量缺选项
+      期望 缺选项题数 = 0（白名单为空）
+      实测 0 道 
+PASS  gate/2.2#14 渲染
+      期望 4 个按钮都含矢量图、0 个提示挡板
+      实测 buttons=4 svg=4 prompt=无
+PASS  l4/真题侧移除
+      期望 L4 不存在；legacy U4 = 0；4.1 仍可见
+      实测 L4=false legacyU4=0 4.1=6 unit4=true
+PASS  jy4/子组入口
+      期望 JY4 板块里出现「Unit 4・教材原题（练习册 P200–207）」
+      实测 教材原题 · 单独成组
+0 / 9 题 · 进入 ›
+Unit 4・教材原题（练习册 P200–207）
+来自练习册原页
+PASS  jy4/九题可达
+      期望 第 1 / 9 题，页脚「练习册 P200」
+      实测 第 1 / 9 题 · 练习册 P200 · JY4-047
+PASS  资源版本/五页同值
+      期望 五页均至少 1 个 ?v=；每页唯一；跨页同值
+      实测 index.html=3a31dbadc74c | exam.html=3a31dbadc74c | drill.html=3a31dbadc74c | wrong.html=3a31dbadc74c | jiangyi.html=3a31dbadc74c
+
+38/38 通过，截图在 /tmp/vn-p2c-run5
+exit=0
+--------------------
+ALL_DONE
+==================== RUN 6 / 5（补跑）· 2026-11-25 15:29:10 ====================
+pre-check index.html ?v=3a31dbadc74c
+pre-check exam.html ?v=3a31dbadc74c
+pre-check drill.html ?v=3a31dbadc74c
+pre-check wrong.html ?v=3a31dbadc74c
+pre-check jiangyi.html ?v=3a31dbadc74c
+PASS  nav/jiangyi.html·落点
+      期望 停在 jiangyi.html
+      实测 实际 /SAT-Math/jiangyi.html
+PASS  nav/jiangyi.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/jiangyi.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/jiangyi.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/drill.html·落点
+      期望 停在 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/drill.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/drill.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/drill.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/wrong.html·落点
+      期望 停在 wrong.html
+      实测 实际 /SAT-Math/wrong.html
+PASS  nav/wrong.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/wrong.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/wrong.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/root·跳转
+      期望 根地址跳到 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/root·drill.html
+      期望 跳转后可见入口 drill.html
+      实测 有
+PASS  nav/root·jiangyi.html
+      期望 跳转后可见入口 jiangyi.html
+      实测 有
+PASS  nav/root·exam.html?mode=quiz&unit=1
+      期望 跳转后可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/root·wrong.html
+      期望 跳转后可见入口 wrong.html
+      实测 有
+PASS  nav/root·exam.html?mode=mock
+      期望 跳转后可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/exam-quiz·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/exam-quiz·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·高亮
+      期望 侧栏高亮「单元抽查」
+      实测 实际 单元抽查
+PASS  nav/brand·直指 drill
+      期望 侧栏品牌 href=drill.html
+      实测 实际 drill.html
+PASS  nav/jiangyi·返回导航
+      期望 返回真题练习链接可见
+      实测 ← 返回真题练习 → drill.html (w=125)
+PASS  gate/全量缺选项
+      期望 缺选项题数 = 0（白名单为空）
+      实测 0 道 
+PASS  gate/2.2#14 渲染
+      期望 4 个按钮都含矢量图、0 个提示挡板
+      实测 buttons=4 svg=4 prompt=无
+PASS  l4/真题侧移除
+      期望 L4 不存在；legacy U4 = 0；4.1 仍可见
+      实测 L4=false legacyU4=0 4.1=6 unit4=true
+PASS  jy4/子组入口
+      期望 JY4 板块里出现「Unit 4・教材原题（练习册 P200–207）」
+      实测 教材原题 · 单独成组
+0 / 9 题 · 进入 ›
+Unit 4・教材原题（练习册 P200–207）
+来自练习册原页
+PASS  jy4/九题可达
+      期望 第 1 / 9 题，页脚「练习册 P200」
+      实测 第 1 / 9 题 · 练习册 P200 · JY4-047
+PASS  资源版本/五页同值
+      期望 五页均至少 1 个 ?v=；每页唯一；跨页同值
+      实测 index.html=3a31dbadc74c | exam.html=3a31dbadc74c | drill.html=3a31dbadc74c | wrong.html=3a31dbadc74c | jiangyi.html=3a31dbadc74c
+
+38/38 通过，截图在 /tmp/vn-p2c-run6
+exit=0
+--------------------
+==================== RUN 7 / 5（补跑）· 2026-11-25 15:29:48 ====================
+pre-check index.html ?v=3a31dbadc74c
+pre-check exam.html ?v=3a31dbadc74c
+pre-check drill.html ?v=3a31dbadc74c
+pre-check wrong.html ?v=3a31dbadc74c
+pre-check jiangyi.html ?v=3a31dbadc74c
+PASS  nav/jiangyi.html·落点
+      期望 停在 jiangyi.html
+      实测 实际 /SAT-Math/jiangyi.html
+PASS  nav/jiangyi.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/jiangyi.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/jiangyi.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/jiangyi.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/drill.html·落点
+      期望 停在 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/drill.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/drill.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/drill.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/drill.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/wrong.html·落点
+      期望 停在 wrong.html
+      实测 实际 /SAT-Math/wrong.html
+PASS  nav/wrong.html·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/wrong.html·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/wrong.html·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/wrong.html·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/root·跳转
+      期望 根地址跳到 drill.html
+      实测 实际 /SAT-Math/drill.html
+PASS  nav/root·drill.html
+      期望 跳转后可见入口 drill.html
+      实测 有
+PASS  nav/root·jiangyi.html
+      期望 跳转后可见入口 jiangyi.html
+      实测 有
+PASS  nav/root·exam.html?mode=quiz&unit=1
+      期望 跳转后可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/root·wrong.html
+      期望 跳转后可见入口 wrong.html
+      实测 有
+PASS  nav/root·exam.html?mode=mock
+      期望 跳转后可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·drill.html
+      期望 可见入口 drill.html
+      实测 有
+PASS  nav/exam-quiz·jiangyi.html
+      期望 可见入口 jiangyi.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=quiz&unit=1
+      期望 可见入口 exam.html?mode=quiz&unit=1
+      实测 有
+PASS  nav/exam-quiz·wrong.html
+      期望 可见入口 wrong.html
+      实测 有
+PASS  nav/exam-quiz·exam.html?mode=mock
+      期望 可见入口 exam.html?mode=mock
+      实测 有
+PASS  nav/exam-quiz·高亮
+      期望 侧栏高亮「单元抽查」
+      实测 实际 单元抽查
+PASS  nav/brand·直指 drill
+      期望 侧栏品牌 href=drill.html
+      实测 实际 drill.html
+PASS  nav/jiangyi·返回导航
+      期望 返回真题练习链接可见
+      实测 ← 返回真题练习 → drill.html (w=125)
+PASS  gate/全量缺选项
+      期望 缺选项题数 = 0（白名单为空）
+      实测 0 道 
+PASS  gate/2.2#14 渲染
+      期望 4 个按钮都含矢量图、0 个提示挡板
+      实测 buttons=4 svg=4 prompt=无
+PASS  l4/真题侧移除
+      期望 L4 不存在；legacy U4 = 0；4.1 仍可见
+      实测 L4=false legacyU4=0 4.1=6 unit4=true
+PASS  jy4/子组入口
+      期望 JY4 板块里出现「Unit 4・教材原题（练习册 P200–207）」
+      实测 教材原题 · 单独成组
+0 / 9 题 · 进入 ›
+Unit 4・教材原题（练习册 P200–207）
+来自练习册原页
+PASS  jy4/九题可达
+      期望 第 1 / 9 题，页脚「练习册 P200」
+      实测 第 1 / 9 题 · 练习册 P200 · JY4-047
+PASS  资源版本/五页同值
+      期望 五页均至少 1 个 ?v=；每页唯一；跨页同值
+      实测 index.html=3a31dbadc74c | exam.html=3a31dbadc74c | drill.html=3a31dbadc74c | wrong.html=3a31dbadc74c | jiangyi.html=3a31dbadc74c
+
+38/38 通过，截图在 /tmp/vn-p2c-run7
+exit=0
+--------------------
+ALL_DONE

@@ -136,4 +136,25 @@ heal ok = true version = 70f626f24ada fetch 调用次数 = 7
 
 ## 线上验收（5 连跑）
 
-见 `docs/bugfix-2026-11-25/verify-nav-5runs.txt`。
+推送后线上 ?v= = `3a31dbadc74c`（五页一致，轮询第 1 次即生效）。
+`node tools/verify_nav.mjs --base https://timnotcook.github.io/SAT-Math` 连跑结果：
+
+| 轮次 | 时间(HKT) | 通过 | exit |
+| --- | --- | --- | --- |
+| RUN 1 | 15:24:19 | 38/38 | 0 |
+| RUN 2 | 15:25:00 | 38/38 | 0 |
+| RUN 3 | 15:25:35 | 38/38 | 0 |
+| RUN 4 | 15:26:14 | 32/38 | 1（导航时序抖动，见下） |
+| RUN 5 | 15:27:31 | 38/38 | 0 |
+| RUN 6（补跑） | 15:29:10 | 38/38 | 0 |
+| RUN 7（补跑） | 15:29:48 | 38/38 | 0 |
+
+有效全绿轮次 6 轮（RUN 1/2/3/5/6/7），均 38/38。RUN 4 的 FAIL 全部集中在
+`nav/drill.html·落点`（实测「实际 /」、0 个可见链接）——页面导航落点的时序抖动，
+其「资源版本/五页同值」本身 PASS（五页 =3a31dbadc74c），不是版本不一致、与本次补丁
+无关；按规矩补跑 RUN 6/7。全程线上 ?v= 未被并行代理顶掉。
+
+另跑 `node tools/verify_a11y.mjs --base https://timnotcook.github.io/SAT-Math`：
+20/20 通过、exit=0，本次改动无回归。
+
+完整原始输出见 `docs/bugfix-2026-11-25/verify-nav-5runs.txt`。
