@@ -561,49 +561,87 @@ window.TD_FIG_SPECS = {
    0..10 grid used in the book (or a wider window where the roots demand it). */
 window.TD_CHOICE_GRAPHS = {
 
-  // TD-22-14: 40x + 30y = 600  -> correct line x-int 15, y-int 20 (choice B).
+  /* ===== 选项图统一改成「完整坐标平面」spec（2026-11-25 重画） =====
+     旧版只有 {kind,xInt,yInt,xmax,ymax}，画出来是 300×300 的简化格子：
+     没有刻度数字、没有原点 O、线只连两个截距、曲线靠手调系数。
+     新版一律写成 chart 形态（x/y 轴定义 + series），由正式图的同一个
+     chart() 渲染：网格 + 刻度数字 + 原点 O + 轴箭头（箭头尖端落在边框），
+     线的两端用裁剪框切在坐标系里，跟原书「线穿出网格」一致。
+     几何口径：斜率/截距由题干方程解出，不靠像素反推。 */
+
+  /* 40x + 30y = 600 → x 截距 15、y 截距 20，正确答案 B。
+     A = 截距对调(20,15)；D = 同斜率整体放大(30,40)。
+     C 沿用仓库既有口径（同 B 的截距、坐标轴标注区间更小）；原页 p89 扫描
+     不在仓库，这条无法核刻度，已在 docs/choice-figures-12.md 标为待核。 */
   'TD-22-14': {
-    A: { kind: 'line', xInt: 20, yInt: 15, xmax: 40, ymax: 40 },
-    B: { kind: 'line', xInt: 15, yInt: 20, xmax: 40, ymax: 40 },
-    C: { kind: 'line', xInt: 15, yInt: 20, xmax: 20, ymax: 20 },
-    D: { kind: 'line', xInt: 30, yInt: 40, xmax: 40, ymax: 40 }
+    A: { x: { min: 0, max: 40, step: 10, label: 'x', labels: [10, 20, 30, 40] },
+         y: { min: 0, max: 40, step: 10, label: 'y', labels: [10, 20, 30, 40] },
+         series: [{ kind: 'line', points: [[0, 15], [40, -15]] }] },
+    B: { x: { min: 0, max: 40, step: 10, label: 'x', labels: [10, 20, 30, 40] },
+         y: { min: 0, max: 40, step: 10, label: 'y', labels: [10, 20, 30, 40] },
+         series: [{ kind: 'line', points: [[0, 20], [15, 0]] }] },
+    C: { x: { min: 0, max: 20, step: 5, label: 'x', labels: [5, 10, 15, 20] },
+         y: { min: 0, max: 20, step: 5, label: 'y', labels: [5, 10, 15, 20] },
+         series: [{ kind: 'line', points: [[0, 20], [15, 0]] }] },
+    D: { x: { min: 0, max: 40, step: 10, label: 'x', labels: [10, 20, 30, 40] },
+         y: { min: 0, max: 40, step: 10, label: 'y', labels: [10, 20, 30, 40] },
+         series: [{ kind: 'line', points: [[0, 40], [30, 0]] }] }
   },
 
-  // TD-33-18: decreasing exponential function -> choice D.
+  /* 递降指数函数 → 正确答案 D（y 截距 10、向右单调减）。
+     A/B 两条直线（升/降），C 递升指数（过 (0,1)、x≈6 到 10）；
+     A、C 的形状与原页裁剪图逐格对得上，B、D 原页裁剪只拍到 A、C，属既有口径。 */
   'TD-33-18': {
-    A: { kind: 'line', xInt: 2, yInt: -3, xmin: 0, xmax: 10, ymin: -4, ymax: 12 },
-    B: { kind: 'line', xInt: 4, yInt: 6, xmin: 0, xmax: 10, ymin: 0, ymax: 10 },
-    C: { kind: 'expGrowth', yInt: 1, xmin: 0, xmax: 7, ymin: 0, ymax: 10 },
-    D: { kind: 'expDecay', yInt: 10, xmin: 0, xmax: 10, ymin: 0, ymax: 10 }
+    A: { x: { min: 0, max: 10, step: 1, label: 'x', labels: [2, 4, 6, 8, 10] },
+         y: { min: 0, max: 10, step: 1, label: 'y', labels: [2, 4, 6, 8, 10] },
+         series: [{ kind: 'line', points: [[0, -3], [10, 12]] }] },
+    B: { x: { min: 0, max: 10, step: 1, label: 'x', labels: [2, 4, 6, 8, 10] },
+         y: { min: 0, max: 10, step: 1, label: 'y', labels: [2, 4, 6, 8, 10] },
+         series: [{ kind: 'line', points: [[0, 6], [10, -9]] }] },
+    C: { x: { min: 0, max: 10, step: 1, label: 'x', labels: [2, 4, 6, 8, 10] },
+         y: { min: 0, max: 10, step: 1, label: 'y', labels: [2, 4, 6, 8, 10] },
+         series: [{ kind: 'exp', a: 1, b: 1.47 }] },
+    D: { x: { min: 0, max: 10, step: 1, label: 'x', labels: [2, 4, 6, 8, 10] },
+         y: { min: 0, max: 10, step: 1, label: 'y', labels: [2, 4, 6, 8, 10] },
+         series: [{ kind: 'exp', a: 10, b: 0.46 }] }
   },
 
-  // TD-33-19: polynomial with roots x=7 and x=-5 (factor x+5) -> choice A.
+  /* f(x)=0 有一解 x=7、且含因式 (x+5) → 图像必须过 (-5,0) 与 (7,0)，答案 A。
+     四条都是三次曲线，只差第三根的位置/重根/开口方向——刻度读得出来才分得清。 */
   'TD-33-19': {
-    A: { kind: 'cubic', roots: [-5, 3, 7], sign: -1, xmin: -6, xmax: 8, ymin: -6, ymax: 6 },
-    B: { kind: 'cubic', roots: [-5, 2, 7], sign: 1, xmin: -6, xmax: 8, ymin: -6, ymax: 6 },
-    C: { kind: 'cubic', roots: [-5, 2.5, 7], sign: 1, xmin: -6, xmax: 8, ymin: -6, ymax: 6 },
-    D: { kind: 'cubic', roots: [-5, 4.5, 4.5], sign: -1, xmin: -6, xmax: 8, ymin: -6, ymax: 6 }
-  },
-
-  // U1-01: which line has slope -1 through (0,1)? All four are negative-slope
-  // lines; option B sits in the negative quadrant (both intercepts ≈ -1).
-  'U1-01': {
-    A: { kind: 'line', xInt: 1, yInt: 1, xmax: 4, ymax: 4 },
-    B: { kind: 'line', xInt: -1, yInt: -1, xmin: -2, xmax: 2, ymin: -2, ymax: 2 },
-    C: { kind: 'line', xInt: 3, yInt: 1, xmax: 4, ymax: 4 },
-    D: { kind: 'line', xInt: 0.5, yInt: 1, xmax: 4, ymax: 4 }
-  },
-
-  // SR-232: ax + by = b, 0 < a < b -> y = -(a/b)x + b. Need positive intercepts
-  // and a shallow negative slope in (-1, 0). Correct answer C (y-int 1, x-int 4).
-  'SR-232': {
-    A: { kind: 'line', xInt: 2, yInt: 2, xmin: -4, xmax: 4, ymin: -4, ymax: 4 },
-    B: { kind: 'line', xInt: -2, yInt: -2, xmin: -4, xmax: 4, ymin: -4, ymax: 4 },
-    C: { kind: 'line', xInt: 4, yInt: 1, xmin: -4, xmax: 4, ymin: -4, ymax: 4 },
-    D: { kind: 'line', xInt: 1, yInt: 3, xmin: -4, xmax: 4, ymin: -4, ymax: 4 }
+    A: { x: { min: -6, max: 8, step: 2, label: 'x', labels: [-6, -4, -2, 2, 4, 6, 8] },
+         y: { min: -6, max: 6, step: 2, label: 'y', labels: [-6, -4, -2, 2, 4, 6] },
+         series: [{ kind: 'poly', roots: [-5, 3, 7], sign: -1 }] },
+    B: { x: { min: -6, max: 8, step: 2, label: 'x', labels: [-6, -4, -2, 2, 4, 6, 8] },
+         y: { min: -6, max: 6, step: 2, label: 'y', labels: [-6, -4, -2, 2, 4, 6] },
+         series: [{ kind: 'poly', roots: [-5, 2, 7], sign: 1 }] },
+    C: { x: { min: -6, max: 8, step: 2, label: 'x', labels: [-6, -4, -2, 2, 4, 6, 8] },
+         y: { min: -6, max: 6, step: 2, label: 'y', labels: [-6, -4, -2, 2, 4, 6] },
+         series: [{ kind: 'poly', roots: [-5, 2.5, 7], sign: 1 }] },
+    D: { x: { min: -6, max: 8, step: 2, label: 'x', labels: [-6, -4, -2, 2, 4, 6, 8] },
+         y: { min: -6, max: 6, step: 2, label: 'y', labels: [-6, -4, -2, 2, 4, 6] },
+         series: [{ kind: 'poly', roots: [-5, 4.5, 4.5], sign: -1 }] }
   }
-
 };
+
+/* ax + by = b（0 < a < b）→ y = 1 − (a/b)x：y 截距 1、斜率在 (−1, 0)，
+   正确答案 C（过 (0,1) 与 (3,0)）。SR-232 与 U1-01 是同一题同一组图，共用一份 spec。 */
+window.TD_CHOICE_GRAPHS['U1-01'] = {
+  A: { x: { min: -4, max: 4, step: 1, label: 'x', labels: [-4, -2, 2, 4] },
+       y: { min: -4, max: 4, step: 1, label: 'y', labels: [-4, -2, 2, 4] },
+       series: [{ kind: 'line', points: [[-4, 5], [4, -3]] }] },          /* y = -x + 1 */
+  B: { x: { min: -4, max: 4, step: 1, label: 'x', labels: [-4, -2, 2, 4] },
+       y: { min: -4, max: 4, step: 1, label: 'y', labels: [-4, -2, 2, 4] },
+       series: [{ kind: 'line', points: [[-4, 3], [4, -5]] }] },          /* y = -x - 1 */
+  C: { x: { min: -4, max: 4, step: 1, label: 'x', labels: [-4, -2, 2, 4] },
+       y: { min: -4, max: 4, step: 1, label: 'y', labels: [-4, -2, 2, 4] },
+       series: [{ kind: 'line', points: [[-4, 2.33], [4, -0.33]] }] },    /* y = -x/3 + 1 */
+  D: { x: { min: -4, max: 4, step: 1, label: 'x', labels: [-4, -2, 2, 4] },
+       y: { min: -4, max: 4, step: 1, label: 'y', labels: [-4, -2, 2, 4] },
+       series: [{ kind: 'line', points: [[-4, 9], [4, -7]] }] }           /* y = -2x + 1 */
+};
+window.TD_CHOICE_GRAPHS['SR-232'] = window.TD_CHOICE_GRAPHS['U1-01'];
+
 
 
 /* ===== 订正回写 FOLDED_PATCH_FIX (2026-11-22) =====
@@ -657,7 +695,4 @@ Object.assign(window.TD_FIG_SPECS, {
   "TD-15-01": {"type":"chart","w":430,"h":420,"x":{"min":-7,"max":7,"step":1,"label":"x","labels":[-6,-4,-2,0,2,4,6]},"y":{"min":-55,"max":15,"step":5,"label":"y","labels":[10,-10,-20,-30,-40,-50]},"grid":true,"origin":"O","axesAt":"zero","axisLabelsEnd":true,"yLabelPad":26,"series":[{"kind":"region","points":[[-7.4,15.4],[2.36,15.4],[-2.36,-55.4],[-7.4,-55.4]]},{"kind":"line","points":[[-2.36,-55.4],[2.36,15.4]],"dash":"7 4"}]},
   "TD-15-02": {"type":"chart","w":470,"h":400,"x":{"min":-15,"max":15,"step":5,"label":"x","labels":[-15,-10,-5,0,5,10,15]},"y":{"min":0,"max":60,"step":5,"label":"y","labels":[5,10,15,20,25,30,35,40,45,50,55,60]},"grid":true,"origin":"O","axesAt":"zero","axisLabelsEnd":true,"series":[{"kind":"region","points":[[-15.6,60.6],[15.6,60.6],[15.6,32.9],[-15.6,32.9]]},{"kind":"line","points":[[-15,33],[15,33]]}]},
   "TD-15-03": {"type":"chart","w":430,"h":400,"x":{"min":-8,"max":8,"step":1,"label":"x","labels":[-8,-6,-4,-2,0,2,4,6,8]},"y":{"min":-8,"max":8,"step":1,"label":"y","labels":[-8,-6,-4,-2,2,4,6,8]},"grid":true,"origin":"O","axesAt":"zero","axisLabelsEnd":true,"yLabelPad":12,"series":[{"kind":"region","points":[[2.3,8.4],[8.4,8.4],[8.4,-3.8]]},{"kind":"line","points":[[2.3,8.4],[8.4,-3.8]]}]}
-});
-Object.assign(window.TD_CHOICE_GRAPHS, {
-  "TD-22-14": {"A":{"kind":"line","xInt":20,"yInt":15,"xmax":40,"ymax":40},"B":{"kind":"line","xInt":15,"yInt":20,"xmax":40,"ymax":40},"C":{"kind":"line","xInt":15,"yInt":20,"xmax":20,"ymax":20},"D":{"kind":"line","xInt":30,"yInt":40,"xmax":40,"ymax":40}}
 });

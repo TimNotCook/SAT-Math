@@ -606,6 +606,20 @@
           pts.push([PX(t), PY(v)]);
         }
         out.push(pathFrom(pts));
+      } else if (s.kind === 'poly') {
+        /* 多项式：按根写成 sign·k·∏(t-r)，k 自动归一化到框内（不靠手调系数） */
+        var proots = s.roots || [-1, 1], psign = s.sign || 1;
+        var samples = [], tt, vv, mxv = 0;
+        var fine = (x.max - x.min) / 240;
+        for (tt = x.min; tt <= x.max + 1e-9; tt += fine) {
+          vv = psign;
+          proots.forEach(function (r) { vv *= (tt - r); });
+          samples.push([tt, vv]);
+          if (Math.abs(vv) > mxv) mxv = Math.abs(vv);
+        }
+        var fit = Math.min(Math.abs(y.max), Math.abs(y.min)) * 0.9;
+        var pk = s.k || (mxv > 1e-9 ? fit / mxv : 1);
+        out.push(pathFrom(samples.map(function (p2) { return [PX(p2[0]), PY(p2[1] * pk)]; })));
       } else if (s.kind === 'line') {
         out.push(pathFrom((s.points || []).map(function (p) { return [PX(p[0]), PY(p[1])]; }), s.dash));
       } else if (s.kind === 'points') {
@@ -882,6 +896,18 @@
     var specs = window.TD_CHOICE_GRAPHS || {};
     var s = specs[q.id] && specs[q.id][letter];
     if (!s) return '';
+    /* 新形态：选项图直接写成完整坐标平面 spec（x/y 轴定义 + series），
+       交给正式图的 chart() 渲染器 —— 刻度、原点 O、轴箭头、越界裁切
+       都和题目大图同一套几何，不再用早期那套 300×300 的简化画法。 */
+    if (s.x && s.y) {
+      var cspec = { w: s.w || 340, h: s.h || 320, padL: 38, padR: 26, padT: 22, padB: 34,
+        x: s.x, y: s.y, grid: s.grid !== false, origin: 'O', axesAt: 'zero',
+        axisLabelsEnd: true, yLabelPad: (s.yLabelPad != null ? s.yLabelPad : 13),
+        series: s.series || [], marks: s.marks || [] };
+      var svg = chart(cspec);
+      svg = svg.replace(/^<div class="td-figure td-figure--svg">/, '').replace(/<\/div>$/, '');
+      return '<div class="td-choicegraph">' + svg + '</div>';
+    }
     var G = 300, pad = 28;                      // canvas 300x300, pad for labels
     var xmin = s.xmin != null ? s.xmin : 0, xmax = s.xmax != null ? s.xmax : 10;
     var ymin = s.ymin != null ? s.ymin : 0, ymax = s.ymax != null ? s.ymax : 10;
