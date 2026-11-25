@@ -17,12 +17,16 @@ function load(file, key) {
 }
 
 const ALIAS = load('data/aliases.js', 'TD_ALIAS');
-const BANK = load('questions.js', 'TD_BANK').questions;
+const BANK = load('data/questions.js', 'TD_BANK').questions;
 const JYBANK = fs.existsSync(path.join(ROOT, 'data/jiangyi.js')) ? load('data/jiangyi.js', 'JY_BANK') : [];
 const ids = new Set([...BANK.map(q => q.id), ...JYBANK.map(q => q.id)]);
 
 function rank(id) {
+  /* R03-/R04-（03/04 册逐字重录）与 U 同级：同组并列时按 id 字典序取 R 为 canonical
+     （"R03-…" < "U2-…"）——这样旧 U2 卷、旧 SP2 录的副本都归到新录，且 rank 不倒挂。 */
+  if (/^R\d\d-/.test(id)) return 0;
   if (/^U\d/.test(id)) return 0;
+  if (/^JY4-/.test(id)) return 3;   /* JY4 = Unit4 教材原题子组，正式家在 TD 教材侧 */
   if (/^JY/.test(id)) return 1;
   if (/^TD/.test(id)) return 2;
   return 3;
