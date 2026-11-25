@@ -403,16 +403,18 @@
   function choiceMarkup(q, choices, current) {
     var text = textFor(q);
     var figList = text.figure || [];
-    var crops = (window.TD_CHOICE_CROPS && window.TD_CHOICE_CROPS[q.id]) || null;
+    var resolver = window.TD_CHOICE_FIGURES;
     var items = ['A', 'B', 'C', 'D'].map(function (letter) {
+      var txt = (choices[letter] || '').trim();
+      var hit = resolver ? resolver.resolve(q, letter, { text: text }) : null;
+      if (hit && hit.source === 'legacy' && txt) hit = null; /* 旧通路保持「有文字先用文字」 */
       var isFig = figList.indexOf(letter) >= 0;
       return {
-        letter: letter, txt: (choices[letter] || '').trim(), isFig: isFig,
-        figSrc: (isFig && crops) ? crops[letter] : null,
-        vecFig: (isFig && window.TD_FIG && window.TD_FIG.choiceGraph) ? window.TD_FIG.choiceGraph(q, letter) : ''
+        letter: letter, txt: txt, isFig: isFig, hit: hit,
+        visual: !!(hit && (hit.kind === 'image' || hit.kind === 'vector'))
       };
     });
-    if (!items.some(function (it) { return it.txt || it.figSrc || it.vecFig; })) {
+    if (!items.some(function (it) { return it.txt || it.visual; })) {
       return '<div class="drill-choices" role="group" aria-label="答案选项" data-choices="missing">' +
         '<p class="drill-choice-missing" style="padding:14px 16px;border:1px dashed var(--line);border-radius:10px;color:var(--sub);margin:0">' +
         '选项缺失：这道题的选项在原书里无法识别，本题暂不可作答。</p></div>';
@@ -421,15 +423,15 @@
     items.forEach(function (it) {
       var letter = it.letter, selected = current === letter;
       var inner, cls;
-      if (it.txt) {
+      if (it.txt && !(it.hit && it.hit.source === 'field')) {
         inner = window.TD_FIG ? window.TD_FIG.fmtMath(it.txt) : esc(it.txt);
         cls = '';
-      } else if (it.vecFig) {
-        inner = it.vecFig;
-        cls = ' is-figure';
-      } else if (it.figSrc) {
-        inner = '<img class="drill-choice-fig" src="' + it.figSrc + '" alt="选项 ' + letter + '" loading="lazy" decoding="async" onerror="var p=document.createElement(\'span\');p.className=\'drill-choice-placeholder\';p.textContent=\'图形暂缺\';this.replaceWith(p);">';
-        cls = ' is-figure';
+      } else if (it.hit && it.visual) {
+        inner = it.hit.html;
+        cls = it.hit.cls;
+      } else if (it.hit && it.hit.kind === 'missing') {
+        inner = it.hit.html;
+        cls = it.hit.cls;
       } else {
         inner = '<span class="drill-choice-placeholder">图形或公式选项</span>';
         cls = it.isFig ? ' is-figure is-missing' : '';

@@ -33,6 +33,17 @@ const SECS = JY.JY_SECTIONS;
 const bySection = {};
 BANK.forEach(q => { if (isBook(q)) return; (bySection[q.section] = bySection[q.section] || []).push(q); });
 
+test('JY1-040：四张平面图走 choiceFigures，不再占题干图位', () => {
+  const q = BANK.find(x => x.id === 'JY1-040');
+  assert.ok(q, '缺 JY1-040');
+  assert.strictEqual(q.figure, undefined, '题干图字段应已移除');
+  assert.deepStrictEqual(Object.keys(q.choiceFigures).sort(), ['A', 'B', 'C', 'D']);
+  ['A', 'B', 'C', 'D'].forEach(L => {
+    assert.strictEqual(q.choiceFigures[L].vector, 'JY1-040#' + L);
+    assert.match(FG.JY_FIG.renderPanel('JY1-040', L), /^<svg /);
+  });
+});
+
 test('小节表：24 节，declared 数 = 答案页该节最大题号', () => {
   assert.strictEqual(SECS.length, 24, '讲义共 24 个小节');
   SECS.forEach(s => {

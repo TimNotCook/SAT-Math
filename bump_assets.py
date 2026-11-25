@@ -16,7 +16,7 @@ HASH_FILES = [
     'data/questions.js', 'data/text.js', 'data/figures.js',
     'data/figure_crops.js', 'data/choice_crops.js',
     'grade-core.js', 'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
-    'exam.js', 'drill.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
+    'exam.js', 'drill.js', 'choice-figures.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
     'bluebook-shell.js', 'cloud-config.js', 'cloud-account.js',
     'workbuddy-cloud.js', 'github-auth.js', 'supa-cloud.js',
     'scratch-pad.js', 'wrong-page.js', 'theme.js',
@@ -27,20 +27,20 @@ HASH_FILES = [
     # 重复题干 alias 映射（改动即换版本，否则错题本归并到不了浏览器）
     'data/aliases.js',
     # HTML 原始内容参与摘要：文案改动也能刷新缓存（先读原文再替换，幂等不破坏自引用）
-    'exam.html', 'drill.html', 'wrong.html', 'jiangyi.html',
+    'index.html', 'exam.html', 'drill.html', 'wrong.html', 'jiangyi.html',
 ]
 # 需要加版本号的脚本（CSS 也一起，避免样式缓存）
 BUMP = [
     'data/questions.js', 'data/text.js', 'data/figures.js',
     'data/figure_crops.js', 'data/choice_crops.js',
     'grade-core.js', 'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
-    'exam.js', 'drill.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
+    'exam.js', 'drill.js', 'choice-figures.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
     'bluebook-shell.js', 'cloud-config.js', 'cloud-account.js',
     'workbuddy-cloud.js', 'github-auth.js', 'supa-cloud.js', 'scratch-pad.js', 'wrong-page.js', 'theme.js', 'app.css', 'bluebook.css', 'glass.css',
     'data/jiangyi.js', 'data/jiangyi_figures.js', 'jiangyi-core.js', 'jiangyi-page.js',
     'data/aliases.js',
 ]
-HTML = ['exam.html', 'drill.html', 'wrong.html', 'jiangyi.html']
+HTML = ['index.html', 'exam.html', 'drill.html', 'wrong.html', 'jiangyi.html']
 
 
 def digest():

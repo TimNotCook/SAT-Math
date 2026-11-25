@@ -87,6 +87,7 @@
       stem: raw.stem, text: stem, choices: choices, type: type,
       answer: answer, value: type === 'grid' ? Number(answer) : undefined,
       figure: raw.figure || null, figures: raw.figure ? [raw.figure] : [],
+      choiceFigures: raw.choiceFigures || null,
       fig: raw.fig || null, table: Array.isArray(raw.table) ? raw.table : null,
       proof: raw.proof || ('docs/jiangyi-proof/' + id + '.png'),
       unitName: raw.unitName || null, hint: raw.hint || '',

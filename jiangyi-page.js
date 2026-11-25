@@ -141,13 +141,21 @@
       els.jyAnswerArea.innerHTML = '<div class="drill-choices" role="group" aria-label="答案选项">' +
         q.choices.map(function (text, i) {
           var L = String.fromCharCode(65 + i);
-          /* 选项本身是一张表（原书四张两列表）：渲染真表格，不用扫描裁图；出错退回文字，绝不空屏 */
-          var body = '<span class="drill-choice-text">' + fmt(text) + '</span>';
-          if (cts && cts[i]) {
-            try { body = '<span class="drill-choice-text drill-choice-table">' + tableHtml(cts[i]) + '</span>'; }
-            catch (e) { body = '<span class="drill-choice-text">' + fmt(text) + '</span>'; }
+          var fig = window.TD_CHOICE_FIGURES ? window.TD_CHOICE_FIGURES.resolve(q, L) : null;
+          var extra = '', body;
+          if (fig && (fig.kind === 'image' || fig.kind === 'vector')) {
+            body = fig.html; extra = fig.cls;
+          } else if (fig && fig.kind === 'missing') {
+            body = fig.html; extra = fig.cls;
+          } else {
+            /* 选项本身是一张表（原书四张两列表）：渲染真表格，不用扫描裁图；出错退回文字，绝不空屏 */
+            body = '<span class="drill-choice-text">' + fmt(text) + '</span>';
+            if (cts && cts[i]) {
+              try { body = '<span class="drill-choice-text drill-choice-table">' + tableHtml(cts[i]) + '</span>'; }
+              catch (e) { body = '<span class="drill-choice-text">' + fmt(text) + '</span>'; }
+            }
           }
-          return '<button type="button" class="drill-choice' + (val.toUpperCase() === L ? ' on' : '') +
+          return '<button type="button" class="drill-choice' + extra + (val.toUpperCase() === L ? ' on' : '') +
             '" data-choice="' + L + '" aria-pressed="' + (val.toUpperCase() === L) + '">' +
             '<span class="drill-choice-letter">' + L + '</span>' +
             body + '</button>';

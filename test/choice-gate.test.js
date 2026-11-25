@@ -42,8 +42,9 @@ test('练习页渲染：缺选项题不再生成四个空按钮', () => {
   const src = fs.readFileSync(path.join(ROOT, 'drill.js'), 'utf8');
   assert.match(src, /data-choices="missing"/);
   assert.match(src, /选项缺失/);
-  assert.ok(src.includes('return it.txt || it.figSrc || it.vecFig'),
-    '闸门判定必须同时看 文字 / 裁图 / 矢量图 三种来源');
+  assert.ok(src.includes('return it.txt || it.visual'),
+    '闸门判定必须同时看 文字 / 统一选项图（裁图或矢量）两种来源');
+  assert.match(src, /TD_CHOICE_FIGURES/, '练习页必须走统一选项图解析器');
 });
 
 test('模考页渲染同样走闸门', () => {

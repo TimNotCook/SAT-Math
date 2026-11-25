@@ -538,3 +538,6 @@ body.exam-page:has(#stage-result:not([hidden])) .site-rail{display:none!importan
 
 /* 成绩页沿用模板自带的顶部导航（做题页本身没有这条）。 */
 body.site-shell:has(#resultView:not([hidden])) #appnav{display:block!important}
+
+/* 统一选项图：矢量选项（choiceFigures.vector）在按钮里等比缩放。 */
+.drill-choice-text .td-choicegraph--field svg{display:block;margin:2px auto}

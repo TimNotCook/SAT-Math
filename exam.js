@@ -652,29 +652,37 @@
     area.innerHTML = '';
     if (q.type === 'mcq') {
       const figList = T.figure || [];
-      const crops = (window.TD_CHOICE_CROPS && window.TD_CHOICE_CROPS[q.id]) || null;
-      const gateItems = optLetters(q.id).map(L => {
-        const raw = (CH[L] || '').trim(), isFig = figList.indexOf(L) >= 0;
-        return { L, raw, isFig,
-          figSrc: (isFig && crops) ? crops[L] : null,
-          vecFig: (isFig && window.TD_FIG && window.TD_FIG.choiceGraph) ? window.TD_FIG.choiceGraph(q, L) : '' };
-      });
-      if (!gateItems.some(it => it.raw || it.figSrc || it.vecFig)) {
+      const resolver = window.TD_CHOICE_FIGURES;
+      const opt = L => {
+        const raw = (CH[L] || '').trim();
+        let hit = resolver ? resolver.resolve(q, L, { text: T }) : null;
+        if (hit && hit.source === 'legacy' && raw) hit = null; /* 旧通路保持「有文字先用文字」 */
+        const isFig = figList.indexOf(L) >= 0;
+        const visual = !!(hit && (hit.kind === 'image' || hit.kind === 'vector'));
+        return { L, raw, isFig, hit, visual };
+      };
+      if (!optLetters(q.id).some(L => { const it = opt(L); return it.raw || it.visual; })) {
         area.innerHTML = '<div class="drill-choices" role="radiogroup" aria-label="答案选项" data-choices="missing">' +
           '<p class="drill-choice-missing" style="padding:14px 16px;border:1px dashed var(--line);border-radius:10px;color:var(--sub);margin:0">' +
           '选项缺失：这道题的选项在原书里无法识别，本题暂不可作答。</p></div>';
         return;
       }
       area.innerHTML = '<div class="drill-choices" role="radiogroup" aria-label="答案选项">' + optLetters(q.id).map(L => {
-        const raw = (CH[L] || '').trim(), selected = a.v === L;
-        const isFig = figList.indexOf(L) >= 0;
-        const figSrc = (isFig && crops) ? crops[L] : null;
-        const vecFig = (isFig && window.TD_FIG && window.TD_FIG.choiceGraph) ? window.TD_FIG.choiceGraph(q, L) : '';
+        const it = opt(L), selected = a.v === L;
         let disp, cls;
-        if (raw) { disp = window.TD_FIG ? window.TD_FIG.fmtMath(raw) : esc(raw); cls = ''; }
-        else if (vecFig) { disp = vecFig; cls = ' is-figure'; }
-        else if (figSrc) { disp = '<img class="drill-choice-fig" src="' + figSrc + '" alt="选项 ' + L + '" loading="lazy" decoding="async" onerror="var p=document.createElement(\'span\');p.className=\'drill-choice-placeholder\';p.textContent=\'图形暂缺\';this.replaceWith(p);">'; cls = ' is-figure'; }
-        else { disp = '<span class="drill-choice-placeholder">图形或公式选项</span>'; cls = isFig ? ' is-figure is-missing' : ''; }
+        if (it.raw && !(it.hit && it.hit.source === 'field')) {
+          disp = window.TD_FIG ? window.TD_FIG.fmtMath(it.raw) : esc(it.raw);
+          cls = '';
+        } else if (it.hit && it.visual) {
+          disp = it.hit.html;
+          cls = it.hit.cls;
+        } else if (it.hit && it.hit.kind === 'missing') {
+          disp = it.hit.html;
+          cls = it.hit.cls;
+        } else {
+          disp = '<span class="drill-choice-placeholder">图形或公式选项</span>';
+          cls = it.isFig ? ' is-figure is-missing' : '';
+        }
         return `<button type="button" class="drill-choice${cls}${selected ? ' is-selected' : ''}" data-choice="${L}" role="radio" aria-checked="${selected}" ${locked ? 'disabled' : ''}>` +
           `<span class="drill-choice-letter">${L}</span><span class="drill-choice-text">${disp}</span>` +
           `<span class="drill-choice-check" aria-hidden="true">${CHECK_ICON}</span></button>`;
