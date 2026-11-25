@@ -347,7 +347,6 @@
     }
 
     if (prof.owner === uid) {
-      /* 同一账号：以变化为准，全自动，不提示、不让用户做选择。 */
       if (lh !== prof.lastSynced) {
         var ok = await silentPush();
         setStatus(ok ? '进度已自动保存' : '暂时无法保存进度，联网后会自动重试', ok ? 'ok' : 'warn');
@@ -363,32 +362,26 @@
         setStatus('进度已自动保存', 'ok');
       }
     } else {
-      /* 切换到另一个账号 / 首次登录：绝不把 A 的进度串给 B。 */
       if (prof.owner && prof.owner !== 'guest' && lh !== prof.lastSynced) {
         saveDraft(prof.owner, snapshot());
       }
       var fresh = !prof.owner || prof.owner === 'guest';
       if (cloudPayload && Object.keys(cloudPayload).length) {
-        // 该账号已有档案 → 切过去。首次登录且本机有"无主"进度时先并入，避免丢题。
         var target = (fresh && Object.keys(snapshot()).length)
           ? mergeLocalWithCloud(cloudPayload) : cloudPayload;
-        // canon()/mergeLocalWithCloud() 每次返回新对象，引用比较永远为真；
-        // 改为内容指纹比对，只有真的发生了合并（内容有差异）才回传，避免无谓覆盖。
         var merged = hashOf(target) !== cloudHash;
         suppress = true;
         try { applyPayload(target); } finally { suppress = false; }
         prof.owner = uid; prof.lastSynced = localHash(); saveProf();
-        if (merged) await silentPush();  // 把并集回传该账号
+        if (merged) await silentPush();
         renderBody();
         reloadSoon('正在打开你的学习档案…');
         return;
       } else if (fresh) {
-        // 首次在这台设备使用该账号 → 把已有做题记录归到它名下
         var ok2 = await silentPush();
         prof.owner = uid; saveProf();
         setStatus(ok2 ? '已为你建立专属学习档案' : '暂时无法保存进度，联网后会自动重试', ok2 ? 'ok' : 'warn');
       } else {
-        // 新账号、本机副本属于别的账号 → 干净起点，不串档
         suppress = true;
         try { applyPayload({}); } finally { suppress = false; }
         prof.owner = uid; prof.lastSynced = localHash(); saveProf();
@@ -422,7 +415,6 @@
     ui.otpSendBtn.textContent = otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码');
   }
 
-  // forReset=true 时发的是「重设密码」的码
   async function doSendOtp(forReset) {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     if (!email) { setError('请先填写邮箱。'); return; }
@@ -434,13 +426,12 @@
       else await WB.sendOtp(email);
       otpSent = true;
       startOtpCooldown();
-      renderBody(); // 重绘会把状态栏重置成「未登录」，所以提示必须写在它之后
+      renderBody();
       setStatus('验证码已发送至 ' + email + '，5 分钟内有效，记得看一眼垃圾箱。', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); syncOtpSendBtn(); }
   }
 
-  // 日常登录：邮箱 + 密码
   async function doWbSignIn() {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     var pw = ui && ui.pw ? ui.pw.value : '';
@@ -448,14 +439,13 @@
     if (!pw) { setError('请填写密码。'); return; }
     try {
       setBusy(true); setError('');
-      otpEmail = email; // 登录失败会被重绘，留着邮箱免得用户重填
+      otpEmail = email;
       await WB.signInPassword(email, pw);
       setStatus('登录成功，正在打开你的学习档案…', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); }
   }
 
-  // 注册：验证码证明邮箱是你的 + 自设密码
   async function doWbRegister() {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
@@ -473,7 +463,6 @@
     finally { setBusy(false); }
   }
 
-  // 忘记密码：发码 → 码 + 新密码 → 重设并登录
   async function doWbReset() {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
@@ -491,7 +480,6 @@
     finally { setBusy(false); }
   }
 
-  // 老账号：只用验证码登录
   async function doVerifyOtp() {
     var email = ui && ui.email ? ui.email.value.trim() : otpEmail;
     var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
@@ -574,14 +562,12 @@
     try { await silentPush(); } catch (e) { /* 离线时下次登录会补 */ }
     try { await auth().signOut(); } catch (e) { /* ignore */ }
     user = null; nickname = '';
-    // owner 保持原 uid：本机副本仍属于该账号，登录别的账号时才会切档。
-    emailMode = 'login';  // 登出后一律回到登录表单，不停在注册/重置页
-    supaMaintainOpen = false; // 维护折叠块收回，别把展开态留给下一个人
+    emailMode = 'login';
+    supaMaintainOpen = false;
     setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
     setError(''); setBusy(false); renderBody();
   }
   function onState(u, provider) {
-    // 通道互斥：各 SDK 初始化都会广播空态，不能让它覆盖已生效的其他通道会话。
     if (GH && GH.active && GH.active() && (!u || String(u.uid || '').indexOf('gh:') !== 0)) return;
     if (WB && WB.active && WB.active() && provider !== 'workbuddy' && (!u || String(u.uid || '').indexOf('wb:') !== 0)) return;
     if (FB && FB.active && FB.active() && provider === 'workbuddy' && !u) return;
