@@ -261,8 +261,24 @@
         timeout: 20000
       });
       var u = sessionFrom(r);
+      // 用户名以 usernames 表为准（改名后别的设备也能拿到新名），metadata 只当缓存
+      var synced = null;
+      try {
+        var uid = u && u.uid;
+        if (uid) {
+          var rows = await rest('/usernames?user_id=eq.' + encodeURIComponent(uid) + '&select=username', {
+            token: session.access, timeout: 12000
+          });
+          if (rows && rows.length) synced = String(rows[0].username || '');
+        }
+      } catch (e) { /* 读不到就用 metadata */ }
+      if (synced) {
+        session.user.user_metadata = Object.assign({}, session.user.user_metadata || {}, { username: synced, display_name: synced });
+        saveSession(session);
+        currentUser = toUser(session.user);
+      }
       // 老账号若 metadata 里没写用户名，补成当前名（不改 auth.users.email）
-      if (!(u && u.username)) {
+      if (!(currentUser && currentUser.username)) {
         try {
           var fresh = await raw('/auth/v1/user', {
             method: 'PUT',
@@ -321,6 +337,15 @@
       if (session && session.user) {
         session.user.user_metadata = Object.assign({}, session.user.user_metadata || {}, { username: got, display_name: got });
         saveSession(session);
+        try {
+          var fresh = await raw('/auth/v1/user', {
+            method: 'PUT',
+            headers: authHeaders(session.access),
+            body: JSON.stringify({ data: { username: got, display_name: got } }),
+            timeout: 12000
+          });
+          if (fresh && fresh.id) { session.user = fresh; saveSession(session); }
+        } catch (e) { /* metadata 写失败不影响改名结果，usernames 表才是真相 */ }
       }
       emit();
       return got;
