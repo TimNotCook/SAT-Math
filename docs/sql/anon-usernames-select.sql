@@ -1,0 +1,33 @@
+-- anon 读 public.usernames 的最小列级授权（登录前查名 / 计数用途）
+-- ---------------------------------------------------------------------------
+-- 【执行位置】需管理员在 Supabase Dashboard → SQL Editor 手动执行，客户端（anon key）
+-- 不可自助授权；本仓库没有 service_role key，前端无法、也不应提权。
+--
+-- 【用途写死】只允许 anon 在「登录前查重 / 账号计数」时读 username 列：
+--   · 注册前 usernameTaken() 直读：/usernames?username=eq.<name>&select=username
+--   · （可选）账号计数：Prefer: count=exact + select=username
+-- 不含 email、不含 user_id 之外的任何列；email 列永远不授给 anon。
+--
+-- 【2026-11-25 线上复核】当前线上已生效等价授权（username, user_id 两列可读），
+-- 本文件用于重建 / 迁移 / 复核：若换项目或授权被回收，粘一次本文件即可复原，
+-- 不要给 anon 全表 GRANT SELECT（那会把 email 列一起放开）。
+-- 实测矩阵（anonKey 直打 PostgREST，命令见 docs/account-model.md 第三节附）：
+--   select=username              → 200
+--   select=username,user_id      → 200
+--   select=email                 → 401 / 42501 permission denied（设计如此）
+--   select=username,email         → 401 / 42501
+--   select=*                     → 401 / 42501
+
+-- 1) 先收干净（避免历史全表授权残留），再按列最小授予
+revoke all on public.usernames from anon;
+grant select (username, user_id) on public.usernames to anon;
+-- 只需要查名/计数时可收紧为单列：
+-- grant select (username) on public.usernames to anon;
+
+-- 2) RLS 策略配合（列级授权之外，行可见性由策略决定；与 docs/sql/account-model.sql 一致）
+-- create policy if not exists usernames_select_anon on public.usernames
+--   for select to anon using (true);
+
+-- 回滚（撤销 anon 的列级授权，回到「匿名读不到 usernames」）：
+-- revoke select (username, user_id) on public.usernames from anon;
+-- drop policy if exists usernames_select_anon on public.usernames;
