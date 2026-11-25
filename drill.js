@@ -599,7 +599,7 @@
     function refreshGridFeedback() {
       var s = gridInput.value.trim();
       var warn = '';
-      if (s && /[^0-9.\/\-]/.test(s)) warn = '只能输入数字、小数点、斜杠和负号，不要带 %、$、逗号、字母或单位';
+      if (s && /[^0-9./\-]/.test(s)) warn = '只能输入数字、小数点、斜杠和负号，不要带 %、$、逗号、字母或单位';
       else if (s && !/^-?(?:\d+(?:\.\d+)?|\.\d+|\d+\/\d+)$/.test(s)) warn = '格式无效：可写小数（如 0.75）或分数（如 3/4）';
       gridWarn.hidden = !warn;
       gridWarn.textContent = warn;
