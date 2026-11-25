@@ -177,7 +177,7 @@ window.JY_BANK = [
                  {"head":["x","y"],"rows":[["3","17"],["5","31"],["8","52"]]},
                  {"head":["x","y"],"rows":[["3","21"],["5","27"],["8","52"]]},
                  {"head":["x","y"],"rows":[["3","21"],["5","35"],["8","56"]]}],
- "note":"原书 p32 题干写 \u201csystem of inequalities\u201d，但页面上只印出 y > 7x - 4 一条，第一条被页眉压掉、全页无痕迹；按「原页原样」只录可见的一条，不自行补写。"},
+ "note":"教材原页只印出一条 y > 7x - 4，题干写作 system of inequalities 与页面不符，属教材漏印；按原页录入可见内容，不自行补写。"},
 {"id":"JY1-043","unit":1,"section":"1.5","no":4,"page":34,"source":"讲义 p34 #4","type":"mcq","answer":"D",
  "stem":"y \u2264 3x + 1\nx - y \u2265 1\nWhich of the following ordered pairs (x, y) satisfies the system of inequalities above?",
  "choices":["(-2, -1)","(-1, 3)","(1, 5)","(2, -1)"]},
