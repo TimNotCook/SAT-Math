@@ -439,11 +439,11 @@ body.site-shell #appnav,
 body.site-shell > .appbar{display:none!important}
 
 /* 入口视图统一：大标题 + 一行灰副标题 + 卡片网格。 */
-body.shell-drill .drill-select-eyebrow{display:none!important}
+body.shell-drill .drill-select .drill-select-eyebrow{display:none!important}
 body.shell-drill .drill-crumb{display:none!important}
 body.shell-drill .drill-select h1{font-size:clamp(30px,3.4vw,38px)!important;font-weight:650!important;letter-spacing:0!important;line-height:1.18!important;color:var(--ink)!important;margin:0 0 10px!important}
-body.shell-drill .drill-select-lead{font-size:13px!important;line-height:1.6!important;color:var(--sub)!important;max-width:64ch!important;margin-bottom:22px!important}
-body.shell-drill .drill-select-h{font-size:12px!important;font-weight:700!important;color:var(--sub)!important;letter-spacing:.06em!important;margin:26px 0 12px!important;padding-bottom:8px!important}
+body.shell-drill .drill-select .drill-select-lead{font-size:13px!important;line-height:1.6!important;color:var(--sub)!important;max-width:64ch!important;margin-bottom:22px!important}
+body.shell-drill .drill-select .drill-select-h{font-size:12px!important;font-weight:700!important;color:var(--sub)!important;letter-spacing:.06em!important;margin:26px 0 12px!important;padding-bottom:8px!important}
 
 /* 落地页：三个分组卡片横排，下面的板块列表改成同款卡片网格。 */
 body.shell-drill .drill-board-layout{display:block!important}
@@ -517,3 +517,24 @@ body.shell-wrong .wrong-toolbar .unit-filter{display:flex;flex-wrap:wrap;gap:8px
   body.shell-drill .drill-unit-row{grid-template-columns:1fr!important}
   body.shell-wrong .wrong-hero-kv{grid-template-columns:1fr!important}
 }
+
+/* =====================================================================
+   做题 / 考试 / 成绩视图冻结：外壳整块退场，内容回到模板原始宽度。
+   视图仍由各页原有 hidden / active 状态控制，退出后 :has() 自动恢复侧栏。
+   ===================================================================== */
+body.site-shell:has(#questionView:not([hidden])),
+body.site-shell:has(#resultView:not([hidden])),
+body.exam-page:has(#stage-answer:not([hidden])),
+body.exam-page:has(#stage-review:not([hidden])),
+body.exam-page:has(#stage-submit:not([hidden])),
+body.exam-page:has(#stage-result:not([hidden])){padding-left:0!important}
+
+body.site-shell:has(#questionView:not([hidden])) .site-rail,
+body.site-shell:has(#resultView:not([hidden])) .site-rail,
+body.exam-page:has(#stage-answer:not([hidden])) .site-rail,
+body.exam-page:has(#stage-review:not([hidden])) .site-rail,
+body.exam-page:has(#stage-submit:not([hidden])) .site-rail,
+body.exam-page:has(#stage-result:not([hidden])) .site-rail{display:none!important}
+
+/* 成绩页沿用模板自带的顶部导航（做题页本身没有这条）。 */
+body.site-shell:has(#resultView:not([hidden])) #appnav{display:block!important}
