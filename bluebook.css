@@ -348,7 +348,7 @@ body:has(#stage-answer:not([hidden]))::before, body:has(#stage-answer:not([hidde
 .tnum{font-variant-numeric:tabular-nums}
 .score-num{margin:4px 0;color:var(--navy);font-size:60px;font-weight:700;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 #clockText{font-variant-numeric:tabular-nums}
-.choice.on{border-color:var(--blue);background:var(--blue-soft);box-shadow:inset 3px 0 0 var(--blue)}
+.choice.on{border-color:var(--blue);background:var(--blue-soft)}
 .exam-section-title{margin:32px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:15px;font-weight:700}
 .bb-modal{position:relative;width:min(720px,100%);max-height:86vh;display:flex;flex-direction:column;border-radius:var(--radius-lg);background:var(--paper);box-shadow:var(--shadow-3);overflow:hidden;border:1px solid var(--line)}
 .bb-modal-backdrop{position:absolute;inset:0;background:var(--bb-veil);backdrop-filter:blur(4px)}
@@ -445,7 +445,7 @@ body:has(#questionView:not([hidden])), body:has(#stage-answer:not([hidden])){bac
 .drill-unit-button:hover, .drill-unit-button.on{border-color:var(--blue)!important;background:#f5f9ff!important;box-shadow:0 4px 14px rgba(37,99,235,.08)!important}
 .drill-section-code{color:var(--blue-strong)!important;font-weight:700;font-variant-numeric:tabular-nums;font-family:var(--mono);display:inline-flex;align-items:center;justify-content:center;min-width:52px;height:34px;padding:0 10px;border-radius:8px!important;background:var(--blue-soft)!important;font:800 14px/1 var(--mono);letter-spacing:.02em}
 .drill-section-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600!important;font-size:15px!important;color:var(--ink)}
-.drill-section-row:hover{background:#f7faff!important;text-decoration:none;box-shadow:inset 3px 0 0 var(--blue)!important}
+.drill-section-row:hover{background:#f7faff!important;text-decoration:none}
 .unit-pick button{min-height:68px;padding:18px 14px;border:1px solid var(--line)!important;border-radius:12px!important;background:#fff!important;color:var(--ink);font-size:12.5px;line-height:1.5;box-shadow:var(--shadow-1)!important;transition:border-color .15s var(--ease),box-shadow .15s var(--ease),background-color .15s var(--ease);cursor:pointer;font:700 16px/1.3 var(--sans);text-align:center}
 .unit-pick button:hover, .unit-pick button.on{border-color:var(--blue)!important;background:var(--blue-soft)!important}
 .btn, .btn.primary, .exam-page .btn.primary, .exam-submit-button, .drill-page-button.drill-next-button{border-radius:8px!important;font-weight:600!important;box-shadow:none!important}
@@ -456,7 +456,7 @@ body:has(#questionView:not([hidden])), body:has(#stage-answer:not([hidden])){bac
 .drill-next-button:disabled{background:#fff!important;border-color:var(--line)!important;color:var(--faint)!important}
 .drill-questionbar, .drill-footer{background:#fff!important;border-color:var(--line)!important;box-shadow:none!important}
 .drill-question{outline:none;background:#fff!important;border:1px solid var(--line)!important;border-radius:14px!important;padding:40px 44px 36px;box-shadow:0 2px 12px rgba(16,39,66,.05)!important}
-.drill-choice[aria-pressed="true"], .drill-choice[aria-checked="true"], .drill-choice.is-selected, .choice.on{border-color:var(--blue)!important;background:var(--blue-soft)!important;box-shadow:inset 3px 0 0 var(--blue)!important}
+.drill-choice[aria-pressed="true"], .drill-choice[aria-checked="true"], .drill-choice.is-selected, .choice.on{border-color:var(--blue)!important;background:var(--blue-soft)!important}
 .drill-choice-letter, .choice .cl{border-color:var(--line-strong)!important;background:#fff!important;color:var(--sub)!important}
 .drill-choice[aria-pressed="true"] .drill-choice-letter, .drill-choice[aria-checked="true"] .drill-choice-letter, .drill-choice.is-selected .drill-choice-letter, .choice.on .cl{border-color:var(--blue)!important;background:var(--blue)!important;color:#fff!important}
 .drill-choice-check, .choice.on .cs{color:var(--blue)!important}
@@ -576,7 +576,7 @@ body::before, body::after, body:has(#questionView:not([hidden]))::before, body:h
 .bb-modal-head{height:58px;flex:0 0 58px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#12233f!important;color:var(--paper);box-shadow:inset 0 3px 0 var(--blue);border-bottom:1px solid var(--line)}
 .bb-modal-backdrop, .drill-nav-backdrop{backdrop-filter:none!important;background:rgba(18,35,63,.42)!important}
 .exam-section-title, .bb-modal-head{border-bottom:1px solid var(--line)!important}
-.choice.on, .drill-choice[aria-pressed="true"], .drill-choice[aria-checked="true"], .drill-choice.is-selected{box-shadow:inset 3px 0 0 var(--blue)!important}
+
 .exam-special-panel, .bb-modal, .drill-nav-panel{border-radius:var(--radius)!important;box-shadow:var(--shadow-2)!important}
 .appbar, .brand, .brand::before, .drill-context, .exam-context, .btn, .choice, .drill-choice, .exam-eyebrow, .bb-modal, .drill-nav-panel{text-shadow:none!important}
 .drill-select-eyebrow, .exam-eyebrow{font-size:11.5px!important;letter-spacing:.16em!important;color:var(--blue)!important;font-weight:700!important;margin-bottom:12px!important;display:none!important}
@@ -589,7 +589,7 @@ body::before, body::after, body:has(#questionView:not([hidden]))::before, body:h
 .drill-board-nav-item b{font-size:16px;font-weight:800;letter-spacing:.02em;color:var(--navy)}
 .drill-board-nav-item span{font-size:12.5px;color:var(--sub);line-height:1.5}
 .drill-board-nav-item small{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
-.drill-board-nav-item.on{background:#fff;border-color:var(--blue-line);box-shadow:inset 3px 0 0 var(--blue)}
+.drill-board-nav-item.on{background:#fff;border-color:var(--blue-line)}
 .drill-group-h{font-size:14px;font-weight:800;color:var(--sub);letter-spacing:.02em;margin:20px 0 8px}
 .drill-group-h:first-child{margin-top:0}
 .mist-layer{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;transition:opacity .18s var(--ease, ease);background:rgba(255,255,255,.30);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
