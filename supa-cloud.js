@@ -226,9 +226,16 @@
     if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送登录邮件。' });
     var body = { email: mail, create_user: true };
     /* 显式带 redirect_to：否则后端按后台 Site URL 回跳，可能落到站点根、丢掉
-       /SAT-Math/ 路径段，导致回跳 hash 接不到本站壳页。 */
-    if (SITE_URL) body.redirect_to = SITE_URL + '/';
-    await raw('/auth/v1/otp', {
+       /SAT-Math/ 路径段，导致回跳 hash 接不到本站壳页。
+       实测本项目 GoTrue 从 **query string** 读 redirect_to，body 字段会被忽略；
+       两处都带上，兼容不同版本。 */
+    var otpPath = '/auth/v1/otp';
+    if (SITE_URL) {
+      var redirectTo = SITE_URL + '/';
+      body.redirect_to = redirectTo;
+      otpPath += '?redirect_to=' + encodeURIComponent(redirectTo);
+    }
+    await raw(otpPath, {
       method: 'POST',
       headers: authHeaders(null),
       body: JSON.stringify(body),

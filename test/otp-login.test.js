@@ -45,7 +45,7 @@ function loadModule(fetchStub, seedSession) {
   };
   sandbox.window = sandbox;
   sandbox.TD_CLOUD_CONFIG = {
-    supabase: { url: 'https://example.supabase.co', anonKey: 'test-anon-key' }
+    supabase: { url: 'https://example.supabase.co', anonKey: 'test-anon-key', siteUrl: 'https://example.com/SAT-Math/' }
   };
   vm.createContext(sandbox);
   vm.runInContext(SRC, sandbox, { filename: 'supa-cloud.js' });
@@ -70,12 +70,15 @@ describe('sendOtp：发码请求形状', () => {
     });
 
     await SB.sendOtp('Newbie@Example.com');
-    const otp = calls.find(c => c.url.endsWith('/auth/v1/otp'));
+    const otp = calls.find(c => c.url.includes('/auth/v1/otp'));
     assert.ok(otp, '必须发出 otp 请求');
     assert.equal(otp.method, 'POST');
     assert.equal(otp.body.email, 'Newbie@Example.com');
     assert.equal(otp.body.create_user, true);
     assert.equal(otp.headers.apikey, 'test-anon-key');
+    /* redirect_to 必须同时进 body 与 query string：实测后端只认 query。 */
+    assert.equal(otp.body.redirect_to, 'https://example.com/SAT-Math/');
+    assert.match(otp.url, /redirect_to=https%3A%2F%2Fexample\.com%2FSAT-Math%2F/);
   });
 
   test('邮箱格式不合法 → 400，不发网络请求', async () => {
@@ -168,7 +171,7 @@ describe('magic link 回调：hash 会话接住', () => {
     };
     sandbox.window = sandbox;
     sandbox.TD_CLOUD_CONFIG = {
-      supabase: { url: 'https://example.supabase.co', anonKey: 'test-anon-key' }
+      supabase: { url: 'https://example.supabase.co', anonKey: 'test-anon-key', siteUrl: 'https://example.com/SAT-Math/' }
     };
     vm.createContext(sandbox);
     vm.runInContext(SRC, sandbox, { filename: 'supa-cloud.js' });
