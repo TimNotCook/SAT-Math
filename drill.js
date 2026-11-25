@@ -120,10 +120,11 @@
       b.addEventListener('click', function () { onPick(+b.dataset.unit); });
     });
   }
-  function sectionRow(s, label, meta, go, href, done) {
+  function sectionRow(s, label, meta, go, href, done, sub) {
     return '<a class="drill-section-row" href="' + href + '"' + (done ? ' data-result="1"' : '') + '>' +
       '<span class="drill-section-code">' + esc(s) + '</span>' +
-      '<span class="drill-section-name">' + esc(label) + '</span>' +
+      '<span class="drill-section-name">' + esc(label) +
+      (sub ? '<em class="drill-section-sub">' + esc(sub) + '</em>' : '') + '</span>' +
       '<span class="drill-section-meta">' + esc(meta) + '</span>' +
       '<span class="drill-section-go">' + esc(go) + '</span></a>';
   }
@@ -136,7 +137,7 @@
       var go = done ? '查看结果' : (st.answered ? '继续' : '开始');
       return sectionRow(s, A.SECTION_CN[s] || s,
         st.answered + ' / ' + st.total + ' 题' + (done ? ' · 已公布结果' : (st.completed ? ' · 已完成' : '')),
-        go, href, done);
+        go, href, done, A.SECTION_SUB ? A.SECTION_SUB[s] : '');
     }).join('');
   }
   var activeBoard = 'unit';
@@ -161,8 +162,15 @@
         return A.UNIT_OF(s) === u && !A.isLegacy(s);
       });
       if (!members.length) return;
-      html += '<h2 class="drill-group-h">Unit ' + u + ' · ' + esc(A.unit(u).cn || '') + '</h2>' +
-        rowsHtml(members);
+      var head = 'Unit ' + u + ' · ' + esc(A.unit(u).cn || ''), sub = '';
+      if (topicMode) {
+        /* 专项训练按册分组：主标题「Unit N · 专项练习」，副标题「XX 册」（取自群组节点 cn/sub） */
+        var gn = A.specialGroupNode ? A.specialGroupNode(u) : null;
+        head = gn && /^Unit\s*\d/.test(gn.cn || '') ? esc(gn.cn)
+          : ('Unit ' + u + ' · ' + esc((gn && gn.cn) || '专项练习'));
+        sub = (gn && gn.sub) ? '<p class="drill-group-sub">' + esc(gn.sub) + '</p>' : '';
+      }
+      html += '<h2 class="drill-group-h">' + head + '</h2>' + sub + rowsHtml(members);
     });
     var legacy = secs.filter(function (s) { return A.isLegacy(s); });
     if (legacy.length) {
@@ -591,7 +599,7 @@
     function refreshGridFeedback() {
       var s = gridInput.value.trim();
       var warn = '';
-      if (s && /[^0-9./\-]/.test(s)) warn = '只能输入数字、小数点、斜杠和负号，不要带 %、$、逗号、字母或单位';
+      if (s && /[^0-9.\/\-]/.test(s)) warn = '只能输入数字、小数点、斜杠和负号，不要带 %、$、逗号、字母或单位';
       else if (s && !/^-?(?:\d+(?:\.\d+)?|\.\d+|\d+\/\d+)$/.test(s)) warn = '格式无效：可写小数（如 0.75）或分数（如 3/4）';
       gridWarn.hidden = !warn;
       gridWarn.textContent = warn;
