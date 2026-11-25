@@ -84,17 +84,17 @@
 
 ## 内容缺口（视觉层，与上面数字对账表并列）
 
-数字对得上不代表页面看得对：这一节记的是「数据里有、页面上看不到」或「原页本身就缺」的条目。来源 `data/content-gaps.json`，状态只允许：待修 / 待核 / 原页缺印 / 已核无缺。
+数字对得上不代表页面看得对：这一节记的是「数据里有、页面上看不到」或「原页本身就缺」的条目。来源 `data/content-gaps.json`，状态只允许：已修复 / 待修 / 待核 / 原页缺印 / 已核无缺；`已修复` 必须带 commit 号，`已核无缺` 必须带实测判据。
 
 | 层 | 编号 | 位置 | 缺口类型 | 现象 | 证据 | 状态 |
 |---|---|---|---|---|---|---|
-| 讲义复习 | JY1-042 | 1.5 线性不等式与图像 · 讲义 p32 #3 | 选项内容缺 | 四个选项是四张表，数据侧 choiceTables 有 4 张，渲染层只读 choices 文本，页面只剩 A/B/C/D 四个字母。 | 实机 ?b=JY1&s=1.5&i=3 探针：choices=[{letter:A,text:"A"},{B},{C},{D}]，hasTable 全 false；jiangyi-page.js 无 choiceTables 分支。 | 待修 |
+| 讲义复习 | JY1-042 | 1.5 线性不等式与图像 · 讲义 p32 #3 | 选项内容缺 | 四个选项是四张表，原先渲染层只读 choices 文本、页面只剩 A/B/C/D 四个字母。已由 α 改成 choiceTables 结构化渲染（选项内真表格，不裁原页、无水印）。 | 修复 commit 0faaa89（p32 #3 四张选项表结构化渲染）；cd98040（tableHtml 同时吃 {head,rows} 与二维数组，修掉 TypeError: t.map 导致的空屏）。线上实测 ?b=JY1&s=1.5&i=3：表格 4 张、选项内各有真表格。 | 已修复 |
 | 讲义复习 | JY1-040 | 1.5 线性不等式与图像 · 讲义 p30 #1 | 选项内容缺 | 四个选项是四张坐标图，choices 只有 A–D，图未渲染（与 JY1-042 同一类）。 | 实机 ?b=JY1&s=1.5&i=1 探针：choices 文本均为字母，无 figure 输出。 | 待修 |
 | 讲义复习 | JY1-042 | 1.5 线性不等式与图像 · 讲义 p32 #3 · 题干 | 原页缺印 | 原书 p32 题干写 system of inequalities，页面只印出 y > 7x - 4 一条，第一条被页眉压掉；按原页原样只录可见的一条（数据侧 note 已记）。 | data/jiangyi.js 的 JY1-042.note；p32 原页对照图。 | 原页缺印 |
-| 练习册 | TD-11-10 | 1.1 线性方程与函数图像 · 练习册 P8 #10 | 题干表格缺 | 题干「The table shows four values of x…」的表格只有位图 images/fig/TD-11-10.png（36 KB），练习页不渲染题干图，表格看不到。 | questions.js 的 TD-11-10 只有 image 字段、无 table 字段；drill.js 的渲染分支只覆盖选项图（TD_CHOICE_CROPS / TD_FIG.choiceGraph），grep 无 q.image 渲染路径（exam.js 有）。 | 待修 |
+| 练习册 | TD-11-10 | 1.1 线性方程与函数图像 · 练习册 P8 #10 | 题干表格缺 | 题干表格一直在线上渲染（figures.js 的 tableFig 模板，drill 走 TD_FIG.showFigure），不是位图缺图。此前「表格图未渲染」是缓存假象：旧 ?v= 命中缓存、页面拿的是旧 data/text.js。本次无代码改动。 | 模板自首个镜像提交 74aca88 起就在 figures.js；线上实测 drill.html?sec=1.1&i=10（TD-11-10）：tables=1、题干「The table shows four values of x…」下表格完整。判据写进本行，防下一个人再当缺图报。 | 已修复 |
 | 讲义复习 | JY1-003 | 1.1 线性方程与函数图像 · 讲义 p8 #3 | 题干表格（对照项） | 题干表格数据侧 q.table 完整，讲义页已正常渲染；Tim 提的「p8 表格缺」若指讲义这一页，则复现失败。 | 实机 ?b=JY1&s=1.1&i=3 探针：stemHasTable=true，表格五行齐全（x=2..5 / g(x)=-4..2）。 | 已核无缺 |
 
-待修 **3** 条、待核 0 条、原页缺印 1 条、已核无缺 1 条。
+已修复 **2** 条、待修 **1** 条、待核 0 条、原页缺印 1 条、已核无缺 1 条。
 
 
 ## 录入规则（可执行，已写进 test/jiangyi.test.js）

@@ -126,7 +126,7 @@ def main():
                  "按现口径不标 dup，差异挂在 docs/VERIFY-2026-11-25.md 待裁决。\n")
     lines.append("\n## 内容缺口（视觉层，与上面数字对账表并列）\n")
     lines.append("数字对得上不代表页面看得对：这一节记的是「数据里有、页面上看不到」或「原页本身就缺」的条目。"
-                 "来源 `data/content-gaps.json`，状态只允许：待修 / 待核 / 原页缺印 / 已核无缺。\n")
+                 "来源 `data/content-gaps.json`，状态只允许：已修复 / 待修 / 待核 / 原页缺印 / 已核无缺；`已修复` 必须带 commit 号，`已核无缺` 必须带实测判据。\n")
     gaps = json.loads((ROOT / "data" / "content-gaps.json").read_text())["gaps"] if (ROOT / "data" / "content-gaps.json").exists() else []
     lines.append("| 层 | 编号 | 位置 | 缺口类型 | 现象 | 证据 | 状态 |")
     lines.append("|---|---|---|---|---|---|---|")
@@ -135,8 +135,9 @@ def main():
                      (g["layer"], g["id"], g["loc"], g["kind"], g["detail"], g["evidence"], g["status"]))
     if gaps:
         todo = sum(1 for g in gaps if g["status"] == "待修")
-        lines.append("\n待修 **%d** 条、待核 %d 条、原页缺印 %d 条、已核无缺 %d 条。\n" %
-                     (todo, sum(1 for g in gaps if g["status"] == "待核"),
+        done = sum(1 for g in gaps if g["status"] == "已修复")
+        lines.append("\n已修复 **%d** 条、待修 **%d** 条、待核 %d 条、原页缺印 %d 条、已核无缺 %d 条。\n" %
+                     (done, todo, sum(1 for g in gaps if g["status"] == "待核"),
                       sum(1 for g in gaps if g["status"] == "原页缺印"),
                       sum(1 for g in gaps if g["status"] == "已核无缺")))
     lines.append("\n## 录入规则（可执行，已写进 test/jiangyi.test.js）\n")

@@ -6,9 +6,9 @@
       "layer": "讲义复习",
       "loc": "1.5 线性不等式与图像 · 讲义 p32 #3",
       "kind": "选项内容缺",
-      "detail": "四个选项是四张表，数据侧 choiceTables 有 4 张，渲染层只读 choices 文本，页面只剩 A/B/C/D 四个字母。",
-      "evidence": "实机 ?b=JY1&s=1.5&i=3 探针：choices=[{letter:A,text:\"A\"},{B},{C},{D}]，hasTable 全 false；jiangyi-page.js 无 choiceTables 分支。",
-      "status": "待修"
+      "detail": "四个选项是四张表，原先渲染层只读 choices 文本、页面只剩 A/B/C/D 四个字母。已由 α 改成 choiceTables 结构化渲染（选项内真表格，不裁原页、无水印）。",
+      "evidence": "修复 commit 0faaa89（p32 #3 四张选项表结构化渲染）；cd98040（tableHtml 同时吃 {head,rows} 与二维数组，修掉 TypeError: t.map 导致的空屏）。线上实测 ?b=JY1&s=1.5&i=3：表格 4 张、选项内各有真表格。",
+      "status": "已修复"
     },
     {
       "id": "JY1-040",
@@ -33,9 +33,9 @@
       "layer": "练习册",
       "loc": "1.1 线性方程与函数图像 · 练习册 P8 #10",
       "kind": "题干表格缺",
-      "detail": "题干「The table shows four values of x…」的表格只有位图 images/fig/TD-11-10.png（36 KB），练习页不渲染题干图，表格看不到。",
-      "evidence": "questions.js 的 TD-11-10 只有 image 字段、无 table 字段；drill.js 的渲染分支只覆盖选项图（TD_CHOICE_CROPS / TD_FIG.choiceGraph），grep 无 q.image 渲染路径（exam.js 有）。",
-      "status": "待修"
+      "detail": "题干表格一直在线上渲染（figures.js 的 tableFig 模板，drill 走 TD_FIG.showFigure），不是位图缺图。此前「表格图未渲染」是缓存假象：旧 ?v= 命中缓存、页面拿的是旧 data/text.js。本次无代码改动。",
+      "evidence": "模板自首个镜像提交 74aca88 起就在 figures.js；线上实测 drill.html?sec=1.1&i=10（TD-11-10）：tables=1、题干「The table shows four values of x…」下表格完整。判据写进本行，防下一个人再当缺图报。",
+      "status": "已修复"
     },
     {
       "id": "JY1-003",

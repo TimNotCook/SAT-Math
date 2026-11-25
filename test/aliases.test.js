@@ -55,7 +55,7 @@ test('content-gaps 状态四档且 id 存在', () => {
   const f = path.join(ROOT, 'data/content-gaps.json');
   if (!fs.existsSync(f)) return;
   const gaps = JSON.parse(fs.readFileSync(f, 'utf8')).gaps;
-  const allowed = ['待修', '待核', '原页缺印', '已核无缺'];
+  const allowed = ['已修复', '待修', '待核', '原页缺印', '已核无缺'];
   for (const g of gaps) {
     assert.ok(allowed.includes(g.status), `状态非法：${g.id} ${g.status}`);
     assert.ok(ids.has(g.id), `缺口指向的题不存在：${g.id}`);

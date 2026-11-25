@@ -86,7 +86,8 @@ if (process.argv.includes('--doc')) {
   L.push('2. **统计**：`重复组` = 归一后题干相同的组数；`多余副本` = 每组除 canonical 之外的份数；`两两对数` = 组内 C(n,2) 之和。');
   L.push('3. **canonical 优先级**：`U`（单元精编 / 单元卷）> `JY`（讲义复习）> `TD`（TD 教材）> `SP/SR`（练习册 / 专项）。同级按 id 字典序。');
   L.push('4. **显示保留 canonical**；同组其余成员在 `data/aliases.js` 里标 alias 指向 canonical，错题本按 alias 归并。');
-  L.push('5. alias 是**数据层映射**，不改 1009 题题干文件（避免整文件 diff 噪音）；`data/aliases.js` 由 `--alias` 生成。\n');
+  L.push('5. alias 是**数据层映射**，不改 1009 题题干文件（避免整文件 diff 噪音）；`data/aliases.js` 由 `--alias` 生成。');
+  L.push('6. **落地提交**（本口径已入库，不是只留聊天）：`c161a41` 首版 42 组 / 50 份 / 60 对 + alias 50 条 + 错题本归并接入；`7ce2a1e` 补 JY4 教材原题 8 条 dup（canonical 回 TD）→ alias 54 条。文档与数据一起进库，checkout 即可复现。\n');
   L.push('## 本期数字\n');
   L.push(`| 题数（题库 + 讲义） | 重复组 | 多余副本 | 两两对数 | 组大小分布 |`);
   L.push('|---|---|---|---|---|');
