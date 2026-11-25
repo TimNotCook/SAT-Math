@@ -41,8 +41,6 @@
   var suppress = false;
   var pushTimer = null;
   var ui = null;
-  // 默认走「邮箱 + 密码」登录（国内直连、服务端校验密码）；
-  // otp = 只用验证码登录（老账号/不想设密码时用）。
   var emailMode = 'login'; // 'login' | 'register' | 'reset' | 'otp'
   var supaMaintainOpen = false; // 用户名维护折叠块的展开态（renderBody 重渲染后要保留）
   var otpSent = false;
@@ -70,7 +68,6 @@
   }
   function applyPrefs() {
     var root = document.documentElement;
-    // 全站大量尺寸用 px 写死，改 html font-size 无效；用 body zoom 才能真正放大/缩小。
     var zooms = { small: 0.92, normal: 1, large: 1.12 };
     if (document.body) document.body.style.zoom = zooms[prefs.fontScale] || 1;
     root.setAttribute('data-compact', prefs.compact ? '1' : '0');
@@ -91,7 +88,6 @@
     while (i) h = (h * 33) ^ str.charCodeAt(--i);
     return (h >>> 0).toString(36) + ':' + str.length;
   }
-  // 归一化：只保留参与同步的 tdsat_* 键，且按键排序，保证本机与档案的指纹可比。
   function canon(obj) {
     var out = {};
     Object.keys(obj || {}).filter(function (k) {
@@ -127,13 +123,10 @@
     var nodes = ui.root.querySelectorAll('[data-busy]');
     for (var i = 0; i < nodes.length; i++) nodes[i].disabled = !!on;
   }
-  // 界面上的名称：只用昵称，绝不回退到邮箱 / 手机号。
   function displayName() { return nickname || DEFAULT_NICK; }
 
-  // 设置齿轮图标（内联 SVG，无需外部图标字体）
   function setBtnIcon(btn) {
     if (!btn) return;
-    // Bluebook 顶栏风格：细线描边图标 + 文字标签（同 Reference / 退出）。
     btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" ' +
       'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" ' +
       'aria-hidden="true"><circle cx="12" cy="12" r="3"></circle>' +
@@ -156,7 +149,6 @@
     if (c === 'auth/popup-blocked') return '浏览器拦下了登录弹窗，请允许弹窗后重试。';
     if (c === 'auth/cancelled-popup-request') return '上一次登录还没结束，请稍等两秒再点。';
     if (c === 'auth/internal-error') return '登录服务返回异常，请刷新页面后重试。';
-    // 国内通道（腾讯云开发）的错误码
     if (c === 'invalid_username_or_password') return '邮箱或密码不正确。';
     if (c === 'INVALID_USERNAME_OR_PASSWORD') return '邮箱或密码不正确。';
     if (c === 'vcode-missing') return '请先点「获取验证码」，收到邮件后再填验证码。';
@@ -196,7 +188,6 @@
   }
   function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { console.warn('清除草稿失败', e); } }
 
-  // 用档案内容整体替换本机副本；本机外观偏好保持不变。
   function applyPayload(payload) {
     var keep = {}, k;
     for (k in NO_SYNC) {
@@ -216,11 +207,6 @@
     });
   }
 
-  /* 对象级深合并：键取并集；带数字时间戳 ts 的叶子（答题记录 {v,correct,ts}、
-     最近题 {mode,ids,ts}、进度标记 {sec,qid,ts} 等）按"最后写入者赢"取较新的
-     那份，绝不因"本机优先"而让旧答案覆盖新答案；数组取并集去重，不再整段丢弃
-     云端；其余无时间戳的轻量 UI 状态（cursor / completed / marks 等，不涉及判分）
-     冲突时仍以本机为准。仅用于"首次登录、本机进度无归属"的场景。 */
   function isPlainObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
   function itemSig(x) {
     if (isPlainObj(x)) {
@@ -243,7 +229,6 @@
   function deepMerge(lo, co) {
     if (lo === undefined) return co;
     if (co === undefined) return lo;
-    // 版本化叶子：两边都带数字 ts → 较新的那份胜出（最后写入者赢）。
     if (isPlainObj(lo) && isPlainObj(co) && typeof lo.ts === 'number' && typeof co.ts === 'number') {
       return co.ts > lo.ts ? co : lo;
     }
@@ -260,8 +245,6 @@
     }
     return lo;
   }
-  /* 首次登录一个已有档案的账号时，把本机"无主"做题记录并入该档案，
-     保证一条都不丢；冲突以本机为准。切换账号（owner 是别的 uid）不走这里。 */
   function mergeLocalWithCloud(cloudPayload) {
     var local = snapshot();
     var out = canon(cloudPayload);
@@ -317,8 +300,6 @@
     if (typeof k !== 'string' || k.indexOf(SNAP_PREFIX) !== 0 || NO_SYNC[k]) return;
     schedulePush();
   }
-  // 云同步通知总线：各写入点在 localStorage.setItem 后显式调用 window.TDSync.notify(key)。
-  // 替代旧方案（改写 Storage.prototype 全局劫持所有本地写入）——不再有全局 API 劫持。
   function exposeNotify() {
     try { window.TDSync = { notify: onLocalWrite }; } catch (e) { console.warn('注册同步通知未生效', e); }
   }
