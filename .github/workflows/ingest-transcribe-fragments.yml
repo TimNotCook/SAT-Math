@@ -4,6 +4,7 @@ on:
     branches: [ main ]
     paths:
       - 'docs/transcribe/**'
+      - 'tools/patch_answers.py'
       - '.github/workflows/ingest-transcribe-fragments.yml'
   workflow_dispatch:
 permissions:
@@ -36,7 +37,7 @@ jobs:
                   needs[(int(u),sec)]=parts[2][1:]
           text=open(P,encoding='utf-8').read()
           GROUP={'2.7':'Unit 2 · 03 Problem Solving 专项练习','4.5':'Unit 4 · 04 Geometry 专项练习'}
-          TOPIC={(4,'24'):'Area and Volume',(4,'25'):'Geometry',(4,'26'):'Right Triangles and Trigonometry',(4,'27'):'Circles',(2,'17'):'比率、比例与单位换算',(2,'18'):'百分数',(2,'19'):'图表与数据'}
+          TOPIC={(4,'24'):'Area and Volume',(4,'25'):'Geometry',(4,'26'):'Right Triangles and Trigonometry',(4,'27'):'Circles',(2,'17'):'比率、比例与单位换算',(2,'18'):'百分数',(2,'19'):'图表与数据',(2,'22'):'增减与比例应用',(2,'23'):'综合应用'}
           added=[]
           for (u,sec),t in sorted(needs.items()):
               if '"id":"%s"'%sec in text: continue
@@ -69,8 +70,12 @@ jobs:
           set -e
           for f in $(ls docs/transcribe/*/fragments/*.json | sort); do
             echo "== $f"
-            python3 tools/merge_transcribe_fragment.py --fragment "$f" | tail -3
+            python3 tools/merge_transcribe_fragment.py --fragment "$f" | tail -3 || exit 1
           done
+      - name: Apply answer patches
+        run: |
+          set -e
+          python3 tools/patch_answers.py
       - name: Rollup, bump, test
         run: |
           set -e
@@ -84,5 +89,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           if git diff --quiet; then echo 'NO_CHANGES'; exit 0; fi
           git add -A
-          git commit -m 'feat(ingest): 题包自动入库（声明分组 + rollup + bump_assets）'
+          git commit -m 'feat(ingest): 题包自动入库（声明分组 + 补丁 + rollup + bump_assets）'
           git push
