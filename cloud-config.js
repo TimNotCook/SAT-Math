@@ -8,7 +8,10 @@
 window.TD_CLOUD_CONFIG = {
   supabase: {
     url: 'https://ofsnrzfmjqyrmkvdwnbo.supabase.co',
-    anonKey: 'sb_publishable_lUmLQYeK0WBOh3BfTb9OXA_pxX_wjbp'
+    anonKey: 'sb_publishable_lUmLQYeK0WBOh3BfTb9OXA_pxX_wjbp',
+    /* magic link 回跳地址：/otp 请求显式带上 redirect_to，避免后端回退到后台
+       Site URL（站点根 timnotcook.github.io）把 /SAT-Math/ 路径段丢掉。 */
+    siteUrl: 'https://timnotcook.github.io/SAT-Math/'
   },
   /* 以下三项仅用于图片识别 VLM（image-import.js），不是登录通道。 */
   endpoint: 'https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host',
