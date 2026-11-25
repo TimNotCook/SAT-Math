@@ -236,6 +236,14 @@ delete from auth.users            where email like 'tp%@satmath.local';
 **判读**：出现 404 是**正确**结果（等价于“用户名不存在”），不要判失败。
 若这里出现 410（`is_retired_username` = true），才说明 alias 没删干净 → 回第 3 关。
 
+**4C 已实测（2026-11-25 · 匿名 RPC，只读，未写库）**
+
+- 取样：删前真实存在过的 4 个 qa 旧名（`<qa-05>`、`<qa-06>`、`<qa-03>`、`<qa-01>` 对应名）+ 1 个对照名 `qa.nonexistent999`。
+- 结果 5/5 全同：`resolve_login` = **`null`**（HTTP 200）、`is_retired_username` = **`false`**（HTTP 200）。
+- 客户端分支（`supa-cloud.js:222-223`）：`retired=false` → `errOf(404, {msg:'没有找到这个用户名。', code:'auth/username-not-found'})`。故 UI 第 3 行按代码路径成立，**无需再起浏览器复跑**（要留 UI 截图可另起一轮）。
+- 结论：**4C 通过**，qa 旧名现在的语义就是“用户名不存在”，与 410 无关。
+
+
 ---
 
 ## 收尾（勾完再收工）
@@ -246,7 +254,8 @@ delete from auth.users            where email like 'tp%@satmath.local';
 - [x] 第 3 关 `qa_alias_left` = 0、`orphan_alias` = 0（总监实测）
 - [x] 总量 `users / names / alias / prog` = `1 / 0 / 0 / 0`（总监实测）
 - [x] 4A **已关闭、不可复现**（清理前未抓证，作废，不判欠账）
-- [ ] 4C 交 404「用户名不存在」的复核（qa 旧名）**或** 4B 交 410（临时对，验完即删）—— 二选一即可
+- [x] 4C 已实测通过：4 个真实 qa 旧名 + 1 对照名 → `resolve_login=null`、`is_retired_username=false`（各 200）；UI 走 `supa-cloud.js:223` 的 404 `auth/username-not-found`
+- [ ] 4B 可选补证（要 410 截图才跑）：造临时对 → 改名 → 旧名 410 / 新名 200 → 回收
 - [ ] 浏览器里退出登录 / 清 `localStorage`：qa 账号的 session token 还有效，别拿旧 tab 继续点
 - [ ] `docs/account-model.md` §五 补一行实测：`清理 qa.* 10 个；users=?→1、names=10→0、alias=7→0、progress=10→0`（`users` 删前值待总监补）
 - [ ] 仓库明文扫描：`grep -rIoE 'qa\.[a-z0-9]{2,}' docs --include='*.md'` 只剩 `qa.%` 通配与 `<qa-NN>` 占位（`cleanup-qa.sql` 文件名会误命中，忽略）
