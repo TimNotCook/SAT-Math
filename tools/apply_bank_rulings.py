@@ -95,9 +95,20 @@ def replace_field(text, oid, field, value):
     pat = re.compile(r'"%s":"(?:[^"\\]|\\.)*"' % field)
     if not pat.search(seg):
         raise SystemExit('%s 里没有字段 %s' % (oid, field))
-    seg2 = pat.sub('"%s":%s' % (field, json.dumps(value, ensure_ascii=True)), seg, count=1)
+    repl = '"%s":%s' % (field, json.dumps(value, ensure_ascii=True))
+    seg2 = pat.sub(lambda m: repl, seg, count=1)
     return text[:sp[0]] + seg2 + text[sp[1]:], seg2 != seg
 
+
+
+def set_field(text, oid, field, value):
+    """有该字段就改值，没有就追加；用于 labels 的 cn/sub（sub 可能原本不存在）。"""
+    sp = obj_span(text, oid)
+    if sp is None:
+        raise SystemExit('裁定目标不存在：%s' % oid)
+    if has_field(text[sp[0]:sp[1]], field):
+        return replace_field(text, oid, field, value)
+    return add_fields(text, oid, {field: value})
 
 def main():
     with io.open(BANK, encoding='utf-8') as f:
@@ -127,11 +138,11 @@ def main():
         changed += ['hide ' + s['id']] if ch else []
 
     for lb in rulings.get('labels', []):
-        text, ch = replace_field(text, lb['id'], 'cn', lb['cn'])
+        text, ch = set_field(text, lb['id'], 'cn', lb['cn'])
         if ch:
             changed.append('cn ' + lb['id'])
         if lb.get('sub'):
-            text, ch2 = add_fields(text, lb['id'], {'sub': lb['sub']})
+            text, ch2 = set_field(text, lb['id'], 'sub', lb['sub'])
             if ch2:
                 changed.append('sub ' + lb['id'])
 
