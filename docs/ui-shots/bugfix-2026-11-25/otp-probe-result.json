@@ -1,0 +1,226 @@
+{
+  "results": [
+    {
+      "view": "index",
+      "btn": true,
+      "panel": true,
+      "panelSize": {
+        "w": 430,
+        "h": 330
+      },
+      "panelCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "bodyCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "sendCode": 1,
+      "panelText": "设置\n×\n账户\n外观\n练习\n关于\n未登录 · 进度保存在这台设备\n邮箱验证码登录\n邮箱\n获取验证码\n\n首次登录会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。"
+    },
+    {
+      "view": "drill",
+      "btn": true,
+      "panel": true,
+      "panelSize": {
+        "w": 430,
+        "h": 330
+      },
+      "panelCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "bodyCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "sendCode": 1,
+      "panelText": "设置\n×\n账户\n外观\n练习\n关于\n未登录 · 进度保存在这台设备\n邮箱验证码登录\n邮箱\n获取验证码\n\n首次登录会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。"
+    },
+    {
+      "view": "exam",
+      "btn": true,
+      "panel": true,
+      "panelSize": {
+        "w": 430,
+        "h": 330
+      },
+      "panelCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "bodyCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "sendCode": 1,
+      "panelText": "设置\n×\n账户\n外观\n练习\n关于\n未登录 · 进度保存在这台设备\n邮箱验证码登录\n邮箱\n获取验证码\n\n首次登录会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。"
+    },
+    {
+      "view": "wrong",
+      "btn": true,
+      "panel": true,
+      "panelSize": {
+        "w": 430,
+        "h": 332
+      },
+      "panelCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "bodyCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "sendCode": 1,
+      "panelText": "设置\n×\n账户\n外观\n练习\n关于\n未登录 · 进度保存在这台设备\n邮箱验证码登录\n邮箱\n获取验证码\n\n首次登录会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。"
+    },
+    {
+      "view": "jiangyi",
+      "btn": false,
+      "panel": false,
+      "panelSize": null,
+      "panelCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "bodyCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "sendCode": 0,
+      "panelText": ""
+    },
+    {
+      "view": "drill-1280",
+      "btn": true,
+      "panel": true,
+      "panelSize": {
+        "w": 430,
+        "h": 330
+      },
+      "panelCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "bodyCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "sendCode": 1,
+      "panelText": "设置\n×\n账户\n外观\n练习\n关于\n未登录 · 进度保存在这台设备\n邮箱验证码登录\n邮箱\n获取验证码\n\n首次登录会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。"
+    },
+    {
+      "view": "drill-655",
+      "btn": true,
+      "panel": true,
+      "panelSize": {
+        "w": 430,
+        "h": 330
+      },
+      "panelCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "bodyCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "sendCode": 1,
+      "panelText": "设置\n×\n账户\n外观\n练习\n关于\n未登录 · 进度保存在这台设备\n邮箱验证码登录\n邮箱\n获取验证码\n\n首次登录会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。"
+    },
+    {
+      "view": "drill-390",
+      "btn": true,
+      "panel": true,
+      "panelSize": {
+        "w": 350,
+        "h": 349
+      },
+      "panelCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "bodyCounts": {
+        "GitHub 令牌": 0,
+        "用户名": 0,
+        "Firebase": 0,
+        "密码": 0
+      },
+      "sendCode": 1,
+      "panelText": "设置\n×\n账户\n外观\n练习\n关于\n未登录 · 进度保存在这台设备\n邮箱验证码登录\n邮箱\n获取验证码\n\n首次登录会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。"
+    }
+  ],
+  "afterReload": {
+    "on": "1",
+    "prof": true,
+    "status": "已登录 · 进度自动保存",
+    "stored": true
+  },
+  "afterReload2": {
+    "on": "1",
+    "prof": true,
+    "status": "已登录 · 进度自动保存",
+    "stored": true
+  },
+  "newTab": {
+    "on": "1",
+    "prof": true,
+    "status": "已登录 · 进度自动保存",
+    "stored": true
+  },
+  "loggedPanel": {
+    "btn": true,
+    "panel": true,
+    "panelSize": {
+      "w": 430,
+      "h": 413
+    },
+    "panelCounts": {
+      "GitHub 令牌": 0,
+      "用户名": 0,
+      "Firebase": 0,
+      "密码": 0
+    },
+    "bodyCounts": {
+      "GitHub 令牌": 0,
+      "用户名": 0,
+      "Firebase": 0,
+      "密码": 0
+    },
+    "sendCode": 0,
+    "panelText": "设置\n×\n账户\n外观\n练习\n关于\n进度已自动保存\n同\n同学\n你的专属学习档案\n昵称\n保存\n\n昵称只用于显示，不参与登录。\n\n退出登录\n\n做题进度会自动保存，换设备或重新登录后接着练，不需要任何手动操作。"
+  },
+  "exceptions": []
+}

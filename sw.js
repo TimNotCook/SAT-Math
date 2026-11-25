@@ -4,7 +4,7 @@
    2) 版本化资源（?v= 哈希）    → cache-first（URL 含哈希即不可变，天然缓存键）
    3) images/fonts/vendor 大件  → stale-while-revalidate（先用缓存，后台静默更新）
    4) CDN 兜底（jsdelivr/unpkg）→ stale-while-revalidate（仅当本地 vendor 失败时用到）
-   5) API（GitHub/Firebase/WorkBuddy）→ 不拦截，network-only（数据绝不缓存、绝不回退陈旧响应）
+   5) API（Supabase 登录/进度、图片识别 VLM）→ 不拦截，network-only（数据绝不缓存、绝不回退陈旧响应）
 
    缓存版本号：每次部署请 bump 一次（或让 bump_assets.py 顺带写入），
    旧版本号对应的缓存会在 activate 阶段被清掉，避免 ?v= 哈希换新后缓存无限膨胀。

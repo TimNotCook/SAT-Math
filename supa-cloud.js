@@ -1,17 +1,18 @@
-/* SAT Math — 账号与进度同步后端（Supabase）。
+/* SAT Math — 账号与进度同步后端（Supabase，邮箱验证码 OTP 唯一通道）。
  *
- * 为什么不是 Firebase：identitytoolkit.googleapis.com 在国内不翻墙直接超时，
- * 注册/登录/发验证码全都走不通；Supabase 的 REST 接口国内实测可直连。
+ * 为什么是 Supabase：identitytoolkit.googleapis.com 在国内不翻墙直接超时；
+ * Supabase 的 REST / Auth 接口国内实测可直连。
  *
- * 对外暴露 window.TDFB，方法与旧 Firebase 模块保持一致，
- * cloud-account.js 只关心「谁登录了、档案读/写」，不关心底层是哪家后端。
+ * 登录流程（一轮到底，仅邮箱 + 邮件验证码，无第三方令牌）：
+ *   1. sendOtp(email)   → POST /auth/v1/otp { email, create_user: true }
+ *      邮件里收到 6 位数字验证码（首次登录自动建档，create_user=true）。
+ *   2. verifyOtp(email, code) → POST /auth/v1/verify { type: 'email', token, email }
+ *      成功返回 access_token / refresh_token / expires_in，落 localStorage 持久会话。
  *
- * 注册流程（邮箱验证码）：
- *   startRegister(email, password, username)
- *     → Supabase signup，邮件里带 6 位数字验证码（Auth 模板里需放 {{ .Token }}）
- *   confirmRegister(email, code)
- *     → verify(type=signup)，成功即拿到会话，密码在注册那一步就已设定
- * 之后登录：signInEmail('邮箱或用户名', password)，用户名会在 usernames 表里换成邮箱。
+ * 会话持久：packSession 结构沿用旧版，localStorage key `tdsat_auth_v1`；
+ * 刷新页面、关标签页再开、跨标签页（storage 事件）都能恢复；过期用 refresh_token 续期。
+ *
+ * 对外暴露 window.TDSUPA：cloud-account.js 只关心「谁登录了、档案读/写」，不关心底层细节。
  */
 (function () {
   'use strict';
@@ -26,7 +27,7 @@
   var currentUser = null;  // 给上层看的精简对象 { uid, email, displayName }
 
   function available() { return !!(BASE && KEY); }
-  /* 没填 URL / anon key 就完全不动，别把已有的 Firebase 通道顶掉 */
+  /* 没填 URL / anon key 就完全不动 */
   if (!available()) { return; }
 
   /* ---------- 基础请求 ---------- */
@@ -40,7 +41,6 @@
     if (low.indexOf('invalid login credentials') >= 0) e.code = 'auth/invalid-credential';
     else if (low.indexOf('email not confirmed') >= 0) e.code = 'auth/email-not-confirmed';
     else if (low.indexOf('user already registered') >= 0 || low.indexOf('already been registered') >= 0) e.code = 'auth/email-already-in-use';
-    else if (low.indexOf('password should be') >= 0 || low.indexOf('weak') >= 0) e.code = 'auth/weak-password';
     else if (low.indexOf('email rate limit') >= 0 || low.indexOf('too many') >= 0 || low.indexOf('security purposes') >= 0) e.code = 'auth/too-many-requests';
     else if (low.indexOf('token has expired') >= 0 || low.indexOf('invalid') >= 0 && low.indexOf('token') >= 0) e.code = 'auth/invalid-code';
     else if (status === 0 || low.indexOf('failed to fetch') >= 0 || low.indexOf('network') >= 0) e.code = 'auth/network-request-failed';
@@ -57,6 +57,8 @@
         if (!res.ok) throw errOf(res.status, body);
         return body;
       });
+    }).catch(function (e) {
+      throw errOf(0, { msg: (e && e.message) || '网络异常，请检查连接后重试。' });
     }), opts.timeout || 20000, '网络较慢：连不上登录服务，请检查网络后重试。');
   }
 
@@ -116,13 +118,12 @@
     return {
       uid: u.id,
       email: u.email || '',
-      displayName: meta.display_name || meta.nickname || '',
-      username: meta.username || ''
+      displayName: meta.display_name || meta.nickname || ''
     };
   }
-  function emit(force) {
+  function emit() {
     currentUser = session ? toUser(session.user) : null;
-    if (stateCb && (force || true)) stateCb(currentUser);
+    if (stateCb) stateCb(currentUser);
   }
 
   async function refreshIfNeeded() {
@@ -181,83 +182,46 @@
     return currentUser;
   }
 
-  /* ---------- 用户名模型 ----------
-     身份 = 用户名；邮箱只是内部的伪邮箱 <用户名>@<emailDomain>，用户不填、界面不显示。
-     登录查名：先查 usernames（现役），再查 username_alias（曾用名），都走 resolve_login RPC，
-     这样匿名端只读得到 username / user_id 两列，读不到 email 列。 */
-  var EMAIL_DOM = String(CFG.emailDomain || 'satmath.local').replace(/^@/, '');
-  function normUser(v) { return String(v || '').trim().toLowerCase(); }
-  function internalEmail(u) { return normUser(u) + '@' + EMAIL_DOM; }
-  function validUser(u) { return /^[a-z0-9][a-z0-9._-]{2,19}$/.test(u); }
-  function badInput(msg) { return errOf(400, { msg: msg }); }
+  /* ---------- 邮箱验证码 OTP ---------- */
+  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim()); }
 
-  /* 占用判定：只认服务端唯一约束顶回来的冲突信号，不靠匿名端先读 usernames 表枚举。
-   * 注册前读表这条路已按 2026-11-25 裁定废弃——anon 能遍历全站用户名，抢注/撞库的代价
-   * 大于「注册前先看一眼名字能不能用」的体验收益；查重完全交给数据库唯一约束。
-   * 冲突来源只有两种：
-   *   · GoTrue signup：确定性伪邮箱 <用户名>@satmath.local 已存在 → 422
-   *     error_code=user_already_exists，msg "User already registered"（线上探针实测，
-   *     证据见 docs/bugfix-2026-11-25-register-unique-constraint.md）；
-   *   · 写 usernames 行：唯一索引冲突 → Postgres 23505 unique_violation / duplicate key。
-   * 网络失败、42501 授权拒绝、5xx 等一律不算「被占用」，原样往上抛，不冒充冲突。 */
-  function isConflictError(e) {
-    if (!e) return false;
-    var body = e.raw || {};
-    var hay = [
-      e.message, body.msg, body.message, body.error, body.error_description,
-      body.error_code, body.code, body.details, body.hint
-    ].map(function (x) { return String(x == null ? '' : x).toLowerCase(); }).join(' ');
-    if (/user_already_exists|already registered|already been registered|email-already-in-use/.test(hay)) return true;
-    if (/23505|unique_violation|duplicate key|unique constraint/.test(hay)) return true;
-    return false;
-  }
-
-  function errUsernameTaken() {
-    var e = errOf(409, { msg: '这个用户名已被占用，换一个吧。' });
-    e.code = 'auth/username-already-in-use';
-    return e;
-  }
-
-  async function loginEmail(username) {
-    var name = normUser(username);
-    if (!name) throw badInput('请填写用户名。');
-    var r = await raw('/rest/v1/rpc/resolve_login', {
+  // 发码：create_user=true，首次输入邮箱即自动建档（后端 disable_signup:false）。
+  async function sendOtp(email) {
+    var mail = String(email || '').trim();
+    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再获取验证码。' });
+    await raw('/auth/v1/otp', {
       method: 'POST',
       headers: authHeaders(null),
-      body: JSON.stringify({ p_username: name }),
-      timeout: 15000
+      body: JSON.stringify({ email: mail, create_user: true }),
+      timeout: 20000
     });
-    var mail = typeof r === 'string' ? r : (Array.isArray(r) ? r[0] : (r && r.email) || '');
-    if (!mail) {
-      // 先查现役名；查不到再看是不是「改过名的旧名」——旧名一律不许登录，只给明确提示
-      var retired = false;
-      try {
-        retired = await raw('/rest/v1/rpc/is_retired_username', {
-          method: 'POST', headers: authHeaders(null),
-          body: JSON.stringify({ p_username: name }), timeout: 12000
-        }) === true;
-      } catch (e) { /* 判不出来就按未找到处理 */ }
-      if (retired) throw errOf(410, { msg: '这个用户名已经改过名，请用新用户名登录。', code: 'auth/username-retired' });
-      throw errOf(404, { msg: '没有找到这个用户名。', code: 'auth/username-not-found' });
-    }
-    return mail;
+    return true;
   }
 
-  async function bindUsername(tk, username, uid) {
-    var name = normUser(username);
-    if (!name || !uid) return;
-    await rest('/usernames', {
+  // 收码：6 位数字验证码换会话。
+  async function verifyOtp(email, code) {
+    var mail = String(email || '').trim();
+    var token = String(code || '').trim();
+    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再获取验证码。' });
+    if (!/^\d{6}$/.test(token)) throw errOf(400, { msg: '请输入邮件里收到的 6 位数字验证码。' });
+    var r = await raw('/auth/v1/verify', {
       method: 'POST',
-      token: tk,
-      headers: { Prefer: 'return=minimal' },
-      body: [{ username: name, user_id: uid, email: internalEmail(name) }],
-      timeout: 15000
+      headers: authHeaders(null),
+      body: JSON.stringify({ type: 'email', token: token, email: mail }),
+      timeout: 20000
     });
+    return sessionFrom(r);
   }
+
+  /* 跨标签页同步：别的标签页登录 / 退出后，本页按 localStorage 会话快照校正状态。 */
+  window.addEventListener('storage', function (ev) {
+    if (ev.key !== SESSION_KEY) return;
+    session = loadSession();
+    emit();
+    if (session) refreshIfNeeded();
+  });
 
   /* ---------- 对外 API ---------- */
-  function userMetaPayload(username) { return { data: { username: username, display_name: username } }; }
-
   window.TDSUPA = {
     available: available,
     backend: 'supabase',
@@ -268,121 +232,8 @@
     },
     user: function () { return currentUser; },
 
-    // 登录：只收用户名 + 密码（邮箱不再对外）
-    signInEmail: async function (identifier, pw) {
-      var name = normUser(identifier);
-      var email = await loginEmail(name);
-      var r = await raw('/auth/v1/token?grant_type=password', {
-        method: 'POST',
-        headers: authHeaders(null),
-        body: JSON.stringify({ email: email, password: String(pw || '') }),
-        timeout: 20000
-      });
-      var u = sessionFrom(r);
-      // 用户名以 usernames 表为准（改名后别的设备也能拿到新名），metadata 只当缓存
-      var synced = null;
-      try {
-        var uid = u && u.uid;
-        if (uid) {
-          var rows = await rest('/usernames?user_id=eq.' + encodeURIComponent(uid) + '&select=username', {
-            token: session.access, timeout: 12000
-          });
-          if (rows && rows.length) synced = String(rows[0].username || '');
-        }
-      } catch (e) { /* 读不到就用 metadata */ }
-      if (synced) {
-        session.user.user_metadata = Object.assign({}, session.user.user_metadata || {}, { username: synced, display_name: synced });
-        saveSession(session);
-        currentUser = toUser(session.user);
-      }
-      // 老账号若 metadata 里没写用户名，补成当前名（不改 auth.users.email）
-      if (!(currentUser && currentUser.username)) {
-        try {
-          var fresh = await raw('/auth/v1/user', {
-            method: 'PUT',
-            headers: authHeaders(session.access),
-            body: JSON.stringify({ data: { username: name, display_name: name } }),
-            timeout: 15000
-          });
-          if (fresh && fresh.id) { session.user = fresh; saveSession(session); currentUser = toUser(fresh); }
-        } catch (e) { /* 元数据失败不影响登录 */ }
-      }
-      return currentUser;
-    },
-
-    // 注册：只收用户名 + 密码，内部拼 <用户名>@satmath.local 交给 Supabase signUp。
-    // 查重走唯一约束兜底（见上方 isConflictError）：注册前不读表枚举，直接尝试插入；
-    // signup 撞上已有伪邮箱、或写 usernames 行撞上唯一索引，当场翻成 409「名字被占」。
-    register: async function (username, pw) {
-      var name = normUser(username);
-      if (!validUser(name)) throw badInput('用户名要 3–20 位：小写字母/数字，可用 . _ -，首字符必须是字母或数字。');
-      if (String(pw || '').length < 6) throw badInput('密码至少 6 位。');
-      var mail = internalEmail(name);
-      var r;
-      try {
-        r = await raw('/auth/v1/signup', {
-          method: 'POST',
-          headers: authHeaders(null),
-          body: JSON.stringify({ email: mail, password: String(pw), data: { username: name, display_name: name } }),
-          timeout: 20000
-        });
-      } catch (e) {
-        if (isConflictError(e)) throw errUsernameTaken();
-        throw e;
-      }
-      if (!(r && r.access_token)) {
-        // 个别 GoTrue 形态对已存在邮箱只回 user 不发会话：先按冲突字段复核，
-        // 确属占用才报 409；否则才是「没拿到会话」的邮箱确认问题——两条报错不许串。
-        if (isConflictError({ raw: r, message: r && (r.msg || r.message) })) throw errUsernameTaken();
-        throw errOf(400, {
-          msg: '注册没有拿到会话：项目若开着「Confirm email」，伪邮箱收不到验证信。请管理员在 Auth 设置里关闭邮箱确认。',
-          code: 'auth/email-not-confirm'
-        });
-      }
-      sessionFrom(r);
-      try {
-        await bindUsername(r.access_token, name, (r.user && r.user.id) || '');
-      } catch (e) {
-        if (isConflictError(e)) throw errUsernameTaken();
-        throw e;
-      }
-      return { verified: true, user: currentUser, username: name };
-    },
-    // 兼容旧调用名（旧代码传 email 的那几个入口一律不再接受真实邮箱）
-    startRegister: async function (_email, pw, username) { return this.register(username, pw); },
-    signUpEmail: async function (_email, pw, username) { return this.register(username, pw); },
-    confirmRegister: async function () { throw badInput('现在不需要邮箱验证：注册即登录。'); },
-    resendCode: async function () { throw badInput('现在不需要邮箱验证：注册即登录。'); },
-    sendReset: async function () { throw badInput('账号不收邮箱，没有邮件重置；改密码请联系管理员。'); },
-
-    // 改用户名：新旧名原子切换（服务端 rename_username：插别名 + 改现役名 + user_id = auth.uid() 校验）
-    renameUsername: async function (name) {
-      var tk = await token();
-      var next = normUser(name);
-      if (!validUser(next)) throw badInput('用户名要 3–20 位：小写字母/数字，可用 . _ -，首字符必须是字母或数字。');
-      var r = await raw('/rest/v1/rpc/rename_username', {
-        method: 'POST',
-        headers: authHeaders(tk),
-        body: JSON.stringify({ p_new: next }),
-        timeout: 15000
-      });
-      var got = typeof r === 'string' ? r : next;
-      if (session && session.user) {
-        session.user.user_metadata = Object.assign({}, session.user.user_metadata || {}, { username: got, display_name: got });
-        saveSession(session);
-        try {
-          var fresh = await raw('/auth/v1/user', {
-            method: 'PUT',
-            headers: authHeaders(session.access),
-            body: JSON.stringify({ data: { username: got, display_name: got } }),
-            timeout: 12000
-          });
-          if (fresh && fresh.id) { session.user = fresh; saveSession(session); }
-        } catch (e) { /* metadata 写失败不影响改名结果，usernames 表才是真相 */ }
-      }
-      emit();
-      return got;
-    },
+    sendOtp: sendOtp,
+    verifyOtp: verifyOtp,
 
     signOut: async function () {
       var tk = session && session.access;
@@ -451,7 +302,7 @@
         var r = await raw('/auth/v1/user', {
           method: 'PUT',
           headers: authHeaders(tk),
-          body: JSON.stringify(userMetaPayload(clean)),
+          body: JSON.stringify({ data: { display_name: clean } }),
           timeout: 15000
         });
         if (r && r.id) { session.user = r; saveSession(session); currentUser = toUser(r); }
@@ -459,9 +310,6 @@
       return clean;
     }
   };
-
-  /* 配置了就顶到 window.TDFB（cloud-account.js 只认这一个入口），同时留 TDSUPA 别名便于排查 */
-  window.TDFB = window.TDSUPA;
 
   // 后台每 20 分钟续期一次，避免长时间刷题后被踢下线
   setInterval(function () { if (session) refreshIfNeeded(); }, 20 * 60 * 1000);

@@ -1,8 +1,11 @@
-/* TD SAT Math — 独立账号系统（Firebase：Google / Apple / 邮箱密码）。
+/* TD SAT Math — 独立账号系统（Supabase 邮箱验证码 OTP，唯一登录通道）。
  *
  * 登录后每个账号拥有完全独立的学习档案：进度自动保存、切换账号自动切换档案，
  * 用户无需理解"云端 / 备份 / 恢复 / 同步"，也不需要点任何保存按钮。
- * 昵称由用户在设置里自定义，界面上永不展示邮箱或手机号。
+ * 昵称由用户在设置里自定义，界面上不展示邮箱。
+ *
+ * 登录流程一轮到底：填邮箱 → 点「获取验证码」→ 填邮件里的 6 位码 → 登录；
+ * 首次登录自动建档。全程仅邮箱 + 邮件验证码，不设口令、不用账号名、不接第三方令牌。
  *
  * 档案归属：本机 localStorage 始终是当前账号档案的工作副本。
  *   tdprofile_v1       （不参与同步）记录 { owner, lastSynced }
@@ -14,17 +17,11 @@
 (function () {
   'use strict';
 
-  var FB = window.TDFB || null;
-  var WB = window.TDWB || null;
-  var GH = window.TDGH || null;
   var SB = window.TDSUPA || null;   // Supabase 通道：cloud-config 里填了 url + anonKey 才存在
-  // 数据通道优先级：GitHub 令牌 > Supabase > WorkBuddy 邮箱验证码 > Firebase。
+  // 数据通道优先级：只有 Supabase 一条。
   function auth() {
-    if (GH && GH.active && GH.active()) return GH;
-    if (SB && SB.available && SB.available() && SB.active && SB.active()) return SB;
-    if (WB && WB.active && WB.active()) return WB;
     if (SB && SB.available && SB.available()) return SB;
-    return FB;
+    return null;
   }
   var SNAP_PREFIX = 'tdsat_';
   var NO_SYNC = { 'tdsat_prefs_v1': 1 };
@@ -41,15 +38,11 @@
   var suppress = false;
   var pushTimer = null;
   var ui = null;
-  // 默认走「邮箱 + 密码」登录（国内直连、服务端校验密码）；
-  // otp = 只用验证码登录（老账号/不想设密码时用）。
-  var emailMode = 'login'; // 'login' | 'register' | 'reset' | 'otp'
-  var supaMaintainOpen = false; // 用户名维护折叠块的展开态（renderBody 重渲染后要保留）
   var otpSent = false;
   var otpEmail = '';
   var otpCooldown = 0;
   var otpCountdownTimer = null;
-  var activeTab = 'account'; // account | appearance | about
+  var activeTab = 'account'; // account | appearance | practice | about
 
   /* ---------- preferences（外观，只存这台设备） ---------- */
   var PREFS_KEY = 'tdsat_prefs_v1';
@@ -127,7 +120,7 @@
     var nodes = ui.root.querySelectorAll('[data-busy]');
     for (var i = 0; i < nodes.length; i++) nodes[i].disabled = !!on;
   }
-  // 界面上的名称：只用昵称，绝不回退到邮箱 / 手机号。
+  // 界面上的名称：只用昵称，绝不回退到邮箱。
   function displayName() { return nickname || DEFAULT_NICK; }
 
   // 设置齿轮图标（内联 SVG，无需外部图标字体）
@@ -141,36 +134,16 @@
   }
   function friendlyError(e) {
     var c = e && e.code, m = e && e.message;
-    if (c === 'auth/operation-not-allowed') return '该登录方式暂未开放，请换一种方式。';
-    if (c === 'auth/invalid-email') return '邮箱格式不正确。';
-    if (c === 'auth/weak-password') return '密码太短，请至少输入 6 位。';
-    if (c === 'auth/email-already-in-use') return '该邮箱已注册，请直接登录。';
-    if (c === 'auth/user-not-found' || c === 'auth/invalid-credential') return '邮箱或密码不正确。';
-    if (c === 'auth/wrong-password') return '密码不正确。';
-    if (c === 'auth/too-many-requests') return '尝试次数过多，请稍后再试。';
-    if (c === 'auth/popup-closed-by-user') return '登录窗口已关闭。';
-    if (c === 'auth/apple-provider-disabled') return 'Apple 登录暂未开放，请稍后再试。';
-    if (c === 'auth/account-exists-with-different-credential') return '该邮箱已用其他方式注册，请用原方式登录。';
+    if (c === 'auth/invalid-email') return '邮箱格式不正确，请检查后再试。';
+    if (c === 'auth/invalid-code' || c === 'auth/email-not-confirm') return '验证码不对或已过期，请用最新一封邮件里的码，或重新获取。';
+    if (c === 'auth/too-many-requests') return '操作太频繁了，等一分钟再试。';
     if (c === 'auth/network-request-failed') return '网络异常，请检查连接后重试。';
-    if (c === 'auth/unauthorized-domain') return '当前网址未被 Firebase 授权，「Google / Apple 登录」用不了；请改用邮箱密码登录。';
-    if (c === 'auth/popup-blocked') return '浏览器拦下了登录弹窗，请允许弹窗后重试。';
-    if (c === 'auth/cancelled-popup-request') return '上一次登录还没结束，请稍等两秒再点。';
     if (c === 'auth/internal-error') return '登录服务返回异常，请刷新页面后重试。';
-    // 国内通道（腾讯云开发）的错误码
-    if (c === 'invalid_username_or_password') return '邮箱或密码不正确。';
-    if (c === 'INVALID_USERNAME_OR_PASSWORD') return '邮箱或密码不正确。';
-    if (c === 'vcode-missing') return '请先点「获取验证码」，收到邮件后再填验证码。';
-    if (c === 'invalid_request') return m || '请求参数不对，请检查后重试。';
-    if (c === 'permission-denied') return '没有权限，请重新登录后再试。';
-    if (c === 'rate-limited') return '操作太频繁了，等一分钟再试。';
     var lm = String(m || '').toLowerCase();
-    if (lm.indexOf('does not match') >= 0 || lm.indexOf('verification code') >= 0) {
+    if (lm.indexOf('does not match') >= 0 || lm.indexOf('verification code') >= 0 || lm.indexOf('token') >= 0 || lm.indexOf('expired') >= 0) {
       return '验证码不对或已过期，请用最新一封邮件里的码，或重新获取。';
     }
-    if (c === 'auth/network-request-failed') return '网络异常；国内网络可能连不上 Google，建议改用上方「邮箱验证码登录」。';
-    if (!c && lm.indexOf('otp') >= 0 || lm.indexOf('token') >= 0 || lm.indexOf('expired') >= 0) return '验证码无效或已过期，请重新获取后再试。';
-    if (!c && lm.indexOf('sdk load failed') >= 0) return '验证码组件加载失败，请刷新页面或检查网络后重试。';
-    if (!c && lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return '验证码服务暂时连不上，请检查网络后重试，或改用下方 Firebase / GitHub 令牌登录。';
+    if (lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return '登录服务暂时连不上，请检查网络后重试。';
     return m || '操作失败，请重试。';
   }
 
@@ -420,7 +393,7 @@
     renderBody();
   }
 
-  /* ---------- auth actions ---------- */
+  /* ---------- 登录动作（邮箱验证码 OTP） ---------- */
   function startOtpCooldown() {
     otpCooldown = 60;
     if (otpCountdownTimer) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
@@ -441,137 +414,37 @@
     ui.otpSendBtn.textContent = otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码');
   }
 
-  // forReset=true 时发的是「重设密码」的码
-  async function doSendOtp(forReset) {
+  async function doSendOtp() {
     var email = ui && ui.email ? ui.email.value.trim() : '';
     if (!email) { setError('请先填写邮箱。'); return; }
-    if (!WB || !WB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
+    if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
       setBusy(true); setError('');
       otpEmail = email;
-      if (forReset) await WB.sendResetCode(email);
-      else await WB.sendOtp(email);
+      await SB.sendOtp(email);
       otpSent = true;
       startOtpCooldown();
       renderBody(); // 重绘会把状态栏重置成「未登录」，所以提示必须写在它之后
-      setStatus('验证码已发送至 ' + email + '，5 分钟内有效，记得看一眼垃圾箱。', 'ok');
+      setStatus('验证码已发送至 ' + email + '，10 分钟内有效，记得看一眼垃圾箱。', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); syncOtpSendBtn(); }
   }
 
-  // 日常登录：邮箱 + 密码
-  async function doWbSignIn() {
-    var email = ui && ui.email ? ui.email.value.trim() : '';
-    var pw = ui && ui.pw ? ui.pw.value : '';
-    if (!email) { setError('请填写邮箱。'); return; }
-    if (!pw) { setError('请填写密码。'); return; }
-    try {
-      setBusy(true); setError('');
-      otpEmail = email; // 登录失败会被重绘，留着邮箱免得用户重填
-      await WB.signInPassword(email, pw);
-      setStatus('登录成功，正在打开你的学习档案…', 'ok');
-    } catch (e) { setError(friendlyError(e)); }
-    finally { setBusy(false); }
-  }
-
-  // 注册：验证码证明邮箱是你的 + 自设密码
-  async function doWbRegister() {
-    var email = ui && ui.email ? ui.email.value.trim() : '';
-    var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
-    var pw = ui && ui.pw ? ui.pw.value : '';
-    if (!email) { setError('请填写邮箱。'); return; }
-    if (!code) { setError('请填写邮箱收到的 6 位验证码。'); return; }
-    if (!pw) { setError('请设置密码（至少 8 位）。'); return; }
-    if (String(pw).length < 8) { setError('密码至少 8 位，可以用几个单词拼起来。'); return; }
-    try {
-      setBusy(true); setError('');
-      otpEmail = email;
-      await WB.registerWithPassword(email, code, pw);
-      setStatus('账号已创建，正在打开你的学习档案…', 'ok');
-    } catch (e) { setError(friendlyError(e)); }
-    finally { setBusy(false); }
-  }
-
-  // 忘记密码：发码 → 码 + 新密码 → 重设并登录
-  async function doWbReset() {
-    var email = ui && ui.email ? ui.email.value.trim() : '';
-    var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
-    var pw = ui && ui.pw ? ui.pw.value : '';
-    if (!email) { setError('请填写邮箱。'); return; }
-    if (!code) { setError('请填写邮箱收到的 6 位验证码。'); return; }
-    if (!pw) { setError('请设置新密码（至少 8 位）。'); return; }
-    if (String(pw).length < 8) { setError('密码至少 8 位，可以用几个单词拼起来。'); return; }
-    try {
-      setBusy(true); setError('');
-      otpEmail = email;
-      await WB.resetPassword(email, code, pw);
-      setStatus('密码已重设，正在打开你的学习档案…', 'ok');
-    } catch (e) { setError(friendlyError(e)); }
-    finally { setBusy(false); }
-  }
-
-  // 老账号：只用验证码登录
   async function doVerifyOtp() {
     var email = ui && ui.email ? ui.email.value.trim() : otpEmail;
     var code = ui && ui.otpCode ? ui.otpCode.value.trim() : '';
     if (!email) { setError('请填写邮箱。'); return; }
     if (!code) { setError('请填写收到的邮箱验证码。'); return; }
-    if (!WB || !WB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
+    if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
       setBusy(true); setError('');
-      await WB.verifyOtp(email, code);
+      await SB.verifyOtp(email, code);
       otpSent = false;
-      setStatus('验证码登录成功', 'ok');
+      setStatus('验证码登录成功，正在打开你的学习档案…', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); }
   }
 
-  async function doGoogle() {
-    try { setBusy(true); setError(''); await FB.signInGoogle(); }
-    catch (e) { setError(friendlyError(e)); }
-    finally { setBusy(false); }
-  }
-  async function doApple() {
-    try { setBusy(true); setError(''); await FB.signInApple(); }
-    catch (e) { setError(friendlyError(e)); }
-    finally { setBusy(false); }
-  }
-  async function doEmail() {
-    var email = ui && ui.email ? ui.email.value.trim() : '';
-    var pw = ui && ui.pw ? ui.pw.value : '';
-    if (!email) { setError('请填写邮箱。'); return; }
-    if (emailMode !== 'reset' && !pw) { setError('请填写密码。'); return; }
-    if (emailMode === 'register' && String(pw).length < 6) { setError('密码至少 6 位。'); return; }
-    try {
-      setBusy(true); setError('');
-      if (emailMode === 'register') await FB.signUpEmail(email, pw);
-      else if (emailMode === 'reset') {
-        await FB.sendReset(email);
-        setStatus('重置密码邮件已发送，请查收 ' + email, 'ok');
-        return;
-      } else await FB.signInEmail(email, pw);
-      if (emailMode !== 'reset') setStatus(emailMode === 'register' ? '账号已创建，正在打开你的学习档案…' : '登录成功，正在打开你的学习档案…', 'ok');
-    } catch (e) {
-      var msg = friendlyError(e);
-      if (emailMode === 'login' && (e && (e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password'))) {
-        msg = '邮箱或密码不正确。如果这个邮箱之前是用 Google / Apple 登录的，请改用同一种方式；也可以点「忘记密码？」重设密码。';
-      } else if (emailMode === 'register' && e && e.code === 'auth/email-already-in-use') {
-        msg = '这个邮箱已经有账号了：请返回登录；如果忘了密码，点「忘记密码？」重置。';
-      }
-      setError(msg);
-    }
-    finally { setBusy(false); }
-  }
-  async function doGhLogin() {
-    var pat = ui && ui.ghToken ? ui.ghToken.value.trim() : '';
-    if (!pat) { setError('请粘贴 GitHub 令牌。'); return; }
-    if (!GH) { setError('GitHub 登录模块未加载，请刷新页面重试。'); return; }
-    try {
-      setBusy(true); setError('');
-      await GH.signInToken(pat);
-    } catch (e) { setError((e && e.message) || '登录失败，请重试。'); }
-    finally { setBusy(false); }
-  }
   async function saveNickname(name) {
     var clean = String(name == null ? '' : name).trim().slice(0, 24);
     if (!clean) { setError('昵称不能为空。'); return; }
@@ -594,16 +467,11 @@
     try { await auth().signOut(); } catch (e) { /* ignore */ }
     user = null; nickname = '';
     // owner 保持原 uid：本机副本仍属于该账号，登录别的账号时才会切档。
-    emailMode = 'login';  // 登出后一律回到登录表单，不停在注册/重置页
-    supaMaintainOpen = false; // 维护折叠块收回，别把展开态留给下一个人
+    otpSent = false;
     setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
     setError(''); setBusy(false); renderBody();
   }
-  function onState(u, provider) {
-    // 通道互斥：各 SDK 初始化都会广播空态，不能让它覆盖已生效的其他通道会话。
-    if (GH && GH.active && GH.active() && (!u || String(u.uid || '').indexOf('gh:') !== 0)) return;
-    if (WB && WB.active && WB.active() && provider !== 'workbuddy' && (!u || String(u.uid || '').indexOf('wb:') !== 0)) return;
-    if (FB && FB.active && FB.active() && provider === 'workbuddy' && !u) return;
+  function onState(u) {
     var was = user;
     user = u || null;
     if (user) {
@@ -684,21 +552,9 @@
       '.td-otp-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}',
       '.td-otp-row .td-acct-field{flex:1;margin-bottom:0}',
       '.td-otp-send{white-space:nowrap;height:36px;padding:0 12px;font-size:13px}',
-      '.td-acct-apple{background:#000;color:#fff;border-color:#000;font-weight:600}',
-      '.td-acct-apple:hover{background:#1a1a1a}',
-      '.td-acct-apple:disabled{opacity:.55}',
       '.td-acct-note{font-size:12px;color:var(--sub,#51648a);line-height:1.6;margin:14px 0 0}',
-      '.td-acct-toggle{display:block;margin-top:10px;font-size:12.5px;color:var(--blue,#2563eb);',
-      'background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-align:left}',
-      '.td-gh-alt{margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft,#eef3fb)}',
-      /* 用户名 + 密码登录折叠块（需先注册）：与第三方通道同款分隔线，说明用淡黄提示块 */
-      '.td-supa-maintain{margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft,#eef3fb)}',
-      '.td-acct-maintain-note{margin:10px 0 0;background:var(--warn-soft,#fbf3e2);color:var(--warn,#b07a12);',
-      'border-radius:6px;padding:8px 10px}',
       '.td-acct-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}',
       '.td-acct-who{font-size:13px;font-weight:600;margin-bottom:4px;word-break:break-all}',
-      '.td-acct-or{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--sub,#51648a);font-size:12px}',
-      '.td-acct-or::before,.td-acct-or::after{content:"";flex:1;height:1px;background:var(--line,#d2e0f1)}',
       /* 个人档案头部 + 昵称编辑 */
       '.td-prof{display:flex;align-items:center;gap:12px;padding:2px 0 14px;',
       'border-bottom:1px solid var(--line-soft,#eef3fb);margin-bottom:14px}',
@@ -792,53 +648,6 @@
     return { box: f, input: input };
   }
 
-  /* ---- 国内直连通道（WorkBuddy / 腾讯云开发）的表单积木 ---- */
-  function setMode(m) { emailMode = m; setError(''); renderBody(); }
-
-  function linkToggle(b, text, onclick) {
-    var t = el('button', 'td-acct-toggle', text);
-    t.type = 'button';
-    t.onclick = function () { setError(''); onclick(); renderBody(); };
-    b.appendChild(t);
-    return t;
-  }
-
-  function emailWithSend(b, forReset) {
-    var em = field('邮箱', 'email', 'you@example.com', 'email');
-    if (otpEmail) em.input.value = otpEmail;
-    ui.email = em.input;
-    var row = el('div', 'td-otp-row');
-    row.appendChild(em.box);
-    var sendBtn = el('button', 'td-acct-btn2 td-otp-send',
-      otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码'));
-    sendBtn.type = 'button';
-    sendBtn.setAttribute('data-busy', '1');
-    if (otpCooldown > 0) sendBtn.disabled = true;
-    sendBtn.onclick = function () { doSendOtp(!!forReset); };
-    ui.otpSendBtn = sendBtn;
-    row.appendChild(sendBtn);
-    b.appendChild(row);
-    return em.input;
-  }
-
-  function codeInput(b, onEnter) {
-    var cf = field('验证码', 'text', '输入邮箱收到的 6 位验证码', 'one-time-code');
-    cf.input.inputMode = 'numeric';
-    cf.input.maxLength = 6;
-    b.appendChild(cf.box);
-    ui.otpCode = cf.input;
-    cf.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') onEnter(); });
-    return cf.input;
-  }
-
-  function pwInput(b, label, placeholder, autocomplete, onEnter) {
-    var pf = field(label, 'password', placeholder, autocomplete);
-    b.appendChild(pf.box);
-    ui.pw = pf.input;
-    pf.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') onEnter(); });
-    return pf.input;
-  }
-
   function wideBtn(b, text, onclick) {
     var btn = el('button', 'td-acct-btn2 td-acct-btn--wide', text);
     btn.type = 'button';
@@ -848,216 +657,9 @@
     return btn;
   }
 
-  // 登录：邮箱 + 密码（服务端校验）
-  function renderWbLogin(b) {
-    b.appendChild(el('div', 'td-acct-who', '登录（邮箱 + 密码）'));
-    var em = field('邮箱', 'email', 'you@example.com', 'email');
-    if (otpEmail) em.input.value = otpEmail;
-    b.appendChild(em.box); ui.email = em.input;
-    var pw = pwInput(b, '密码', '输入密码', 'current-password', doWbSignIn);
-    em.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') pw.focus(); });
-    wideBtn(b, '登录', doWbSignIn);
-    linkToggle(b, '没有账号？注册（验证码 + 自设密码）', function () { emailMode = 'register'; });
-    linkToggle(b, '忘记密码？', function () { emailMode = 'reset'; });
-    linkToggle(b, '不想用密码？改用验证码登录', function () { emailMode = 'otp'; });
-  }
-
-  // 注册：验证码证明邮箱 + 自设密码
-  function renderWbRegister(b) {
-    b.appendChild(el('div', 'td-acct-who', '注册新账号（邮箱验证码 + 自设密码）'));
-    emailWithSend(b, false);
-    codeInput(b, doWbRegister);
-    pwInput(b, '设置密码', '至少 8 位，之后登录用它', 'new-password', doWbRegister);
-    wideBtn(b, '注册并登录', doWbRegister);
-    linkToggle(b, '已有账号？返回登录', function () { emailMode = 'login'; });
-    b.appendChild(el('p', 'td-acct-note',
-      '先点「获取验证码」，邮件里的 6 位数字码证明这个邮箱是你的；填上码和你想要的密码，账号就建好了。'));
-  }
-
-  // 重设密码：发码 → 码 + 新密码
-  function renderWbReset(b) {
-    b.appendChild(el('div', 'td-acct-who', '重设密码'));
-    emailWithSend(b, true);
-    codeInput(b, doWbReset);
-    pwInput(b, '新密码', '至少 8 位', 'new-password', doWbReset);
-    wideBtn(b, '重设密码并登录', doWbReset);
-    linkToggle(b, '返回登录', function () { emailMode = 'login'; });
-    b.appendChild(el('p', 'td-acct-note',
-      '先点「获取验证码」（发的是重设密码专用码），填上码和新密码即可。'));
-  }
-
-  // 老账号：只用验证码登录
-  function renderWbOtp(b) {
-    b.appendChild(el('div', 'td-acct-who', '邮箱验证码登录（不设密码）'));
-    emailWithSend(b, false);
-    codeInput(b, doVerifyOtp);
-    wideBtn(b, '验证码登录', doVerifyOtp);
-    linkToggle(b, '改用邮箱 + 密码登录', function () { emailMode = 'login'; });
-    linkToggle(b, '没有账号？注册', function () { emailMode = 'register'; });
-  }
-
-  /* ---------- Supabase 通道（cloud-config 填了 supabase.url + anonKey 才出现） ---------- */
-  var supaPending = null;   // 注册待验证：{ email, username }
-
-  function renderSupaLogin(b) {
-    b.appendChild(el('div', 'td-acct-who', '登录（用户名 + 密码）'));
-    var un = field('用户名', 'text', '你的用户名', 'username');
-    un.input.maxLength = 20;
-    b.appendChild(un.box); ui.username = un.input;
-    var pw = pwInput(b, '密码', '输入密码', 'current-password', doSupaSignIn);
-    un.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') pw.focus(); });
-    wideBtn(b, '登录', doSupaSignIn);
-    linkToggle(b, '没有账号？用用户名注册', function () { emailMode = 'supaRegister'; renderBody(); });
-    b.appendChild(el('p', 'td-acct-note', '账号只认用户名，不收邮箱'));
-  }
-
-  function renderSupaRegister(b) {
-    b.appendChild(el('div', 'td-acct-who', '注册（用户名 + 密码）'));
-    var un = field('用户名', 'text', '3–20 位小写字母/数字，可用 . _ -', 'username');
-    un.input.maxLength = 20;
-    b.appendChild(un.box); ui.username = un.input;
-    var pw = pwInput(b, '设置密码', '至少 6 位，之后登录用它', 'new-password', doSupaRegister);
-    wideBtn(b, '注册并登录', doSupaRegister);
-    linkToggle(b, '已有账号？返回登录', function () { emailMode = 'login'; renderBody(); });
-    b.appendChild(el('p', 'td-acct-note',
-      '只记用户名，不收邮箱：内部用 用户名@satmath.local 作为占位邮箱，界面上不会出现。'));
-  }
-
-  function renderSupaVerify(b) {
-    b.appendChild(el('div', 'td-acct-who', '不需要邮箱验证'));
-    b.appendChild(el('p', 'td-acct-note', '现在注册即登录，没有验证码这一步。'));
-    linkToggle(b, '返回登录', function () { emailMode = 'login'; renderBody(); });
-  }
-
-  function renderSupaReset(b) {
-    b.appendChild(el('div', 'td-acct-who', '密码重置'));
-    b.appendChild(el('p', 'td-acct-note',
-      '账号不收邮箱，所以没有「邮件重置」，也不做安全问题。' +
-      '忘了密码：联系管理员（后续可以加「登录态内改密码」）。'));
-    linkToggle(b, '返回登录', function () { emailMode = 'login'; renderBody(); });
-  }
-
-  async function doSupaSignIn() {
-    var un = ui && ui.username ? ui.username.value.trim() : '';
-    var pw = ui && ui.pw ? ui.pw.value : '';
-    if (!un) { setError('请填写用户名。'); return; }
-    if (!pw) { setError('请填写密码。'); return; }
-    try {
-      setBusy(true); setError('');
-      await SB.signInEmail(un, pw);
-      setStatus('登录成功，正在打开你的学习档案…', 'ok');
-    } catch (e) { setError(friendlyError(e)); }
-    finally { setBusy(false); }
-  }
-
-  async function doSupaRegister() {
-    var un = ui && ui.username ? ui.username.value.trim().toLowerCase() : '';
-    var pw = ui && ui.pw ? ui.pw.value : '';
-    if (!/^[a-z0-9][a-z0-9._-]{2,19}$/.test(un)) { setError('用户名要 3–20 位：小写字母/数字，可用 . _ -，首字符必须是字母或数字。'); return; }
-    if (String(pw).length < 6) { setError('密码至少 6 位。'); return; }
-    try {
-      setBusy(true); setError('');
-      await SB.register(un, pw);
-      setStatus('账号已创建，正在打开你的学习档案…', 'ok');
-    } catch (e) {
-      var msg = friendlyError(e);
-      if (e && e.status === 409) msg = '这个用户名已经被占用了，换一个。';
-      setError(msg);
-    } finally { setBusy(false); }
-  }
-
-  async function doSupaVerify() {
-    setError('现在注册即登录，没有验证码这一步。');
-  }
-
-  async function doSupaReset() {
-    setError('账号不收邮箱，没有邮件重置；改密码请联系管理员。');
-  }
-
-  async function doRenameUsername(input) {
-    if (!SB || !SB.renameUsername) { setError('当前后端不支持改用户名。'); return; }
-    var next = String(input && input.value || '').trim().toLowerCase();
-    if (!/^[a-z0-9][a-z0-9._-]{2,19}$/.test(next)) {
-      setError('用户名要 3–20 位：小写字母/数字，可用 . _ -，首字符必须是字母或数字。');
-      return;
-    }
-    try {
-      setBusy(true); setError('');
-      var got = await SB.renameUsername(next);
-      if (input) input.value = got;
-      setStatus('用户名已改为 ' + got + '，旧名已失效。', 'ok');
-      renderBody();
-    } catch (e) { setError(friendlyError(e)); }
-    finally { setBusy(false); }
-  }
-
-  /* GitHub 令牌主通道：Supabase 用户名通道维护期间，这是唯一真可用通道，默认展开放主位 */
-  function renderGhPrimary(b) {
-    b.appendChild(el('div', 'td-acct-who', 'GitHub 令牌登录（当前可用）'));
-    var gt = field('GitHub 令牌', 'password', '粘贴 Personal Access Token', 'off');
-    b.appendChild(gt.box);
-    ui.ghToken = gt.input;
-    var gl = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 GitHub 令牌登录');
-    gl.type = 'button'; gl.setAttribute('data-busy', '1'); gl.onclick = doGhLogin;
-    b.appendChild(gl);
-    b.appendChild(el('p', 'td-acct-note',
-      '进度存进你自己的私有仓库 sat-math-data（首次同步会自动创建）。' +
-      '推荐用 Fine-grained 令牌、只勾选该仓库的 Contents 读写（github.com → Settings → Developer settings → Personal access tokens）。' +
-      '令牌保存在这台设备的浏览器里，换标签页、重开浏览器都不用重输；点「退出登录」即清掉。' +
-      '令牌是明文存在本机的，公用电脑上用完请退出；随时可在 GitHub 设置里吊销。'));
-  }
-
-  /* 用户名 + 密码通道需先注册：默认折叠，展开先给说明，旧表单原样保留（不禁用，已注册用户可直接用）。
-     不在此处禁用表单：万一已注册老用户要试，提交后 404「没有找到这个用户名」会与说明同屏，
-     不会再出现"点了没反应"的静默。 */
-  function renderSupaMaintenance(b) {
-    var box = el('div', 'td-supa-maintain');
-    var toggle = el('button', 'td-acct-toggle', '用户名 + 密码登录（需先注册）');
-    toggle.type = 'button';
-    toggle.setAttribute('aria-expanded', String(supaMaintainOpen));
-    var mBody = el('div');
-    mBody.hidden = !supaMaintainOpen;
-    toggle.onclick = function () { supaMaintainOpen = !supaMaintainOpen; setError(''); renderBody(); };
-    box.appendChild(toggle);
-    box.appendChild(mBody);
-    mBody.appendChild(el('p', 'td-acct-note td-acct-maintain-note',
-      '本站用户名账号只对已注册账号开放。如果你还没注册，或登录时看到「没有找到这个用户名」，' +
-      '请直接用上方 GitHub 令牌登录（做题进度照样自动保存）；也可以在这里就地注册。'));
-    if (emailMode === 'supaRegister') renderSupaRegister(mBody);
-    else if (emailMode === 'supaVerify') renderSupaVerify(mBody);
-    else if (emailMode === 'supaReset') renderSupaReset(mBody);
-    else renderSupaLogin(mBody);
-    b.appendChild(box);
-  }
-
-  /* GitHub 令牌备用通道（Supabase / WorkBuddy 之外） */
-  function renderAltLogin(b) {
-    // 备用通道：登录连不上时，可用 GitHub 令牌把进度存进自己的私有仓库。
-    var alt = el('div', 'td-gh-alt');
-    var altToggle = el('button', 'td-acct-toggle', '其他登录方式（GitHub 令牌）');
-    altToggle.type = 'button';
-    var altBox = el('div');
-    altBox.hidden = true;
-    altToggle.onclick = function () { altBox.hidden = !altBox.hidden; };
-    alt.appendChild(altToggle);
-    alt.appendChild(altBox);
-    var gt = field('GitHub 令牌', 'password', '粘贴 Personal Access Token', 'off');
-    altBox.appendChild(gt.box);
-    ui.ghToken = gt.input;
-    var gl = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 GitHub 令牌登录');
-    gl.type = 'button'; gl.setAttribute('data-busy', '1'); gl.onclick = doGhLogin;
-    altBox.appendChild(gl);
-    altBox.appendChild(el('p', 'td-acct-note',
-      '进度存进你自己的私有仓库 sat-math-data（首次同步会自动创建）。' +
-      '推荐用 Fine-grained 令牌、只勾选该仓库的 Contents 读写（github.com → Settings → Developer settings → Personal access tokens）。' +
-      '令牌保存在这台设备的浏览器里，换标签页、重开浏览器都不用重输；点「退出登录」即清掉。' +
-      '令牌是明文存在本机的，公用电脑上用完请退出；随时可在 GitHub 设置里吊销。'));
-    b.appendChild(alt);
-  }
-
   function renderAccountTab() {
     var b = ui.body;
-    ui.email = null; ui.pw = null; ui.otpCode = null; ui.otpSendBtn = null;
+    ui.email = null; ui.otpCode = null; ui.otpSendBtn = null;
     if (user) {
       var p = el('div', 'td-prof');
       var initial = (displayName().trim().charAt(0) || DEFAULT_NICK).toUpperCase();
@@ -1084,22 +686,6 @@
       b.appendChild(el('p', 'td-acct-note', '昵称只用于显示，不参与登录。'));
       ui.nameInput = f.input;
 
-      var unF = field('用户名（登录用）', 'text', '3–20 位小写字母/数字，可用 . _ -', 'username');
-      unF.input.value = (user && user.username) || '';
-      unF.input.maxLength = 20;
-      var unRow = el('div', 'td-nick-row');
-      unRow.appendChild(unF.box);
-      var unSave = el('button', 'td-acct-btn2 td-nick-save', '改用户名');
-      unSave.type = 'button'; unSave.setAttribute('data-busy', '1');
-      unSave.onclick = function () { doRenameUsername(unF.input); };
-      unF.input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') doRenameUsername(unF.input);
-      });
-      unRow.appendChild(unSave);
-      b.appendChild(unRow);
-      b.appendChild(el('p', 'td-acct-note',
-        '改完旧用户名立刻失效、新用户名立刻可登录，之前用它登录过的记录仍然认你这个账号。'));
-
       var acts = el('div', 'td-acct-actions');
       var out = el('button', 'td-acct-btn2', '退出登录');
       out.type = 'button'; out.setAttribute('data-neutral', '1'); out.setAttribute('data-busy', '1');
@@ -1110,83 +696,44 @@
       return;
     }
 
-    var hasSB = !!(SB && SB.available && SB.available());
-    if (hasSB) {
-      /* GitHub 令牌提为默认主位；用户名通道折叠进维护块，见 renderSupaMaintenance */
-      renderGhPrimary(b);
-      b.appendChild(el('div', 'td-acct-or', '或使用用户名 + 密码登录（需先注册）'));
-      renderSupaMaintenance(b);
-      b.appendChild(el('p', 'td-acct-note',
-        '登录后会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。'));
-      return;
-    }
-
-    var hasWB = !!(WB && WB.available());
-    var hasFB = !!(FB && FB.available());
-    if (!hasWB && !hasFB) {
+    if (!SB || !SB.available || !SB.available()) {
       setStatus('登录暂时不可用', 'warn');
       b.appendChild(el('p', 'td-acct-note', '账号模块未能加载，做题与进度照常保存，不受影响。'));
       return;
     }
 
-    if (hasWB) {
-      if (emailMode === 'register') renderWbRegister(b);
-      else if (emailMode === 'reset') renderWbReset(b);
-      else if (emailMode === 'otp') renderWbOtp(b);
-      else renderWbLogin(b);
-    } else if (hasFB) {
-      if (emailMode === 'register') b.appendChild(el('div', 'td-acct-who', '注册新账号（Firebase）'));
-      else if (emailMode === 'reset') b.appendChild(el('div', 'td-acct-who', '重置密码（Firebase）'));
-      else b.appendChild(el('div', 'td-acct-who', '邮箱密码登录（Firebase）'));
+    /* 唯一流程：填邮箱 → 获取验证码 → 填 6 位码 → 登录。 */
+    b.appendChild(el('div', 'td-acct-who', '邮箱验证码登录'));
+    var em = field('邮箱', 'email', 'you@example.com', 'email');
+    if (otpEmail) em.input.value = otpEmail;
+    b.appendChild(em.box); ui.email = em.input;
 
-      var em = field('邮箱', 'email', 'you@example.com', 'email');
-      b.appendChild(em.box); ui.email = em.input;
+    var row = el('div', 'td-otp-row');
+    row.appendChild(em.box);
+    var sendBtn = el('button', 'td-acct-btn2 td-otp-send',
+      otpCooldown > 0 ? ('重新发送 (' + otpCooldown + 's)') : (otpSent ? '重新发送' : '获取验证码'));
+    sendBtn.type = 'button';
+    sendBtn.setAttribute('data-busy', '1');
+    if (otpCooldown > 0) sendBtn.disabled = true;
+    sendBtn.onclick = doSendOtp;
+    ui.otpSendBtn = sendBtn;
+    row.appendChild(sendBtn);
+    b.appendChild(row);
 
-      if (emailMode !== 'reset') {
-        var pw = field('密码', 'password', emailMode === 'register' ? '至少 6 位' : '输入密码', 'current-password');
-        b.appendChild(pw.box); ui.pw = pw.input;
-      } else ui.pw = null;
-
-      var submit = el('button', 'td-acct-btn2 td-acct-btn--wide',
-        emailMode === 'register' ? '注册并登录' : emailMode === 'reset' ? '发送重置邮件' : '登录');
-      submit.type = 'button'; submit.setAttribute('data-busy', '1');
-      submit.onclick = doEmail;
-      b.appendChild(submit);
-
-      if (emailMode === 'register' || emailMode === 'reset') {
-        var back = el('button', 'td-acct-toggle', '已有账号？密码登录');
-        back.type = 'button';
-        back.onclick = function () { emailMode = 'login'; setError(''); renderBody(); };
-        b.appendChild(back);
-      } else {
-        var reg = el('button', 'td-acct-toggle', '没有账号？注册');
-        reg.type = 'button';
-        reg.onclick = function () { emailMode = 'register'; setError(''); renderBody(); };
-        b.appendChild(reg);
-        var reset = el('button', 'td-acct-toggle', '忘记密码？');
-        reset.type = 'button';
-        reset.onclick = function () { emailMode = 'reset'; setError(''); renderBody(); };
-        b.appendChild(reset);
-      }
-    }
-
-    if (hasFB && !hasWB) {
-      b.appendChild(el('div', 'td-acct-or', '或使用第三方账号（需境外网络）'));
-      var g = el('button', 'td-acct-btn2 td-acct-btn--wide', '使用 Google 账号继续');
-      g.type = 'button'; g.setAttribute('data-neutral', '1'); g.setAttribute('data-busy', '1');
-      g.onclick = doGoogle;
-      b.appendChild(g);
-
-      var a = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-apple', ' 使用 Apple 账号继续');
-      a.type = 'button'; a.setAttribute('data-busy', '1');
-      a.onclick = doApple;
-      b.appendChild(a);
+    if (otpSent) {
+      var cf = field('验证码', 'text', '输入邮箱收到的 6 位验证码', 'one-time-code');
+      cf.input.inputMode = 'numeric';
+      cf.input.maxLength = 6;
+      b.appendChild(cf.box);
+      ui.otpCode = cf.input;
+      cf.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doVerifyOtp(); });
+      wideBtn(b, '登录', doVerifyOtp);
+    } else {
+      em.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSendOtp(); });
     }
 
     b.appendChild(el('p', 'td-acct-note',
-      '登录后会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。'));
-
-    renderAltLogin(b);
+      '首次登录会自动为你建立独立的学习档案，之前做过的题会一并带上；换设备登录也能接着练。不登录同样可以使用全部功能。'));
   }
 
   function row(label, desc) {
@@ -1416,9 +963,7 @@
     var btn = buildUI();
     mountButton(btn);
     renderBody();
-    if (FB && typeof FB.onState === 'function') FB.onState(function (u) { onState(u, 'firebase'); });
-    if (WB && typeof WB.onState === 'function') WB.onState(function (u) { onState(u, 'workbuddy'); });
-    if (GH && typeof GH.onState === 'function') GH.onState(function (u) { onState(u, 'github'); });
+    if (SB && typeof SB.onState === 'function') SB.onState(function (u) { onState(u); });
     startAutoSave();
   }
 

@@ -169,7 +169,7 @@
   }
 
   /* ---------------- 云端账号会话层 ----------------
-     Firebase 登录与 WorkBuddy Cloud 会话是两套独立体系：进度/题库走 Firebase，
+     站点账号体系与图片识别 VLM 会话是两套独立体系：做题进度走站点账号，
      视觉模型调用走 Cloud SDK。这里单独保障 cloud 会话，根治无会话时 llm 调用
      返回 login_required（"该能力需要登录后使用"）导致识别从未真正可用的问题。 */
   var sessionPromise = null;
