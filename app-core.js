@@ -211,7 +211,7 @@
      even though the answers were safely on disk. */
   function secStateDisk(id) {
     id = resolveSec(id);
-    if (!CATALOG[id]) return;
+    if (!CATALOG[id]) return null;
     var D = diskState();
     return secIn(D, id, false);
   }
