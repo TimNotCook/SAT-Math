@@ -21,7 +21,7 @@
 
 | 项 | 值 | 怎么量的 |
 |---|---|---|
-| `origin/main` | `97613d0` | `git ls-remote origin refs/heads/main` |
+| `origin/main` | `568f03c`（2026-11-25 文档收尾后；抓取时曾为 `97613d0`） | `git ls-remote origin refs/heads/main` |
 | 线上页面 | `index` / `drill` / `exam` / `wrong` / `jiangyi` 全部 HTTP 200 | `curl -s -o /dev/null -w "%{http_code}" https://timnotcook.github.io/SAT-Math/<page>.html` |
 | 题库 | **1010** 题：easy 281 / medium 565 / hard 164；mcq 641 / grid 369 | `node -e` 起 `vm` 跑 `data/questions.js`，按 `level` 与 `type` 计数（注意字段名是 `level`，没有 `difficulty`） |
 | 单元分布 | 1–268 / 2–204 / 3–453 / 4–85 | 同上一条脚本，按 `unit` 计数 |
