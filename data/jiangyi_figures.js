@@ -200,17 +200,18 @@
       lines: [{ m: 1, b: 0, x0: -10.5, x1: 10.5, dash: true }, { m: 0, b: 4, x0: -10.5, x1: 10.5 }],
       shade: [{ m: 1, b: 0, side: 'below' }, { m: 0, b: 4, side: 'above' }] },
 
-    // p9 #5：四选图。答案页 p191 写 C，所以 C 是正确图：y 截距恰为 1、
-    // 斜率 -a/b 落在 (-1,0)、x 截距 = b/a = 2；A/B/D 是三个错图（斜率 -1、截距 1.5、斜率 -2）。
+    // p9 #5：四选图，四格都是 8×8 格（格距 0.5，每 2 格 1 个单位），原点居中，只标 1。
+    // 原页像素复核（400dpi 渲染逐格量）：A 斜率 -1 / y 截距 1 / x 截距 1（a=b，非法）；B 斜率 -1 /
+    // y 截距 -1；D 斜率 -2 / x 截距 0.5。C 是正确图：y 截距恰为 1、x 截距 2（a=b/2），答案页 p191 亦写 C。
     'JY1-005': { type: 'quad', cols: 2, panels: {
-      A: { w: 232, h: 232, x: { min: -3.2, max: 3.4, step: 0.5, labels: [1] },
-           y: { min: -2.2, max: 3.4, step: 0.5, labels: [1] }, lines: [{ m: -1, b: 1, x0: -3.2, x1: 3.4 }] },
-      B: { w: 250, h: 250, x: { min: -3.2, max: 4.2, step: 0.5, labels: [1] },
-           y: { min: -2.4, max: 4.2, step: 0.5, labels: [1] }, lines: [{ m: -1, b: 1.5, x0: -3.2, x1: 3.4 }] },
-      C: { w: 232, h: 232, x: { min: -3.2, max: 3.4, step: 0.5, labels: [1] },
-           y: { min: -2.2, max: 3.4, step: 0.5, labels: [1] }, lines: [{ m: -0.5, b: 1, x0: -3.2, x1: 3.4 }] },
-      D: { w: 232, h: 232, x: { min: -3.2, max: 3.4, step: 0.5, labels: [1] },
-           y: { min: -2.2, max: 3.4, step: 0.5, labels: [1] }, lines: [{ m: -2, b: 2, x0: -3.2, x1: 1.6 }] }
+      A: { w: 272, h: 252, x: { min: -2, max: 2, step: 0.5, labels: [1] },
+           y: { min: -2, max: 2, step: 0.5, labels: [1] }, lines: [{ m: -1, b: 1, x0: -2, x1: 2 }] },
+      B: { w: 272, h: 252, x: { min: -2, max: 2, step: 0.5, labels: [1] },
+           y: { min: -2, max: 2, step: 0.5, labels: [1] }, lines: [{ m: -1, b: -1, x0: -2, x1: 2 }] },
+      C: { w: 272, h: 252, x: { min: -2, max: 2, step: 0.5, labels: [1] },
+           y: { min: -2, max: 2, step: 0.5, labels: [1] }, lines: [{ m: -0.5, b: 1, x0: -2, x1: 2 }] },
+      D: { w: 272, h: 252, x: { min: -2, max: 2, step: 0.5, labels: [1] },
+           y: { min: -2, max: 2, step: 0.5, labels: [1] }, lines: [{ m: -2, b: 1, x0: -2, x1: 2 }] }
     } }
   };
 
