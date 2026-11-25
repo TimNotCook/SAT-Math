@@ -14,7 +14,7 @@ import { spawn } from 'child_process';
 import { mkdirSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
-import { checkBase } from './versions.mjs';
+import { checkBase, describeFetchError } from './versions.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -210,7 +210,12 @@ await send('Emulation.clearDeviceMetricsOverride');
 
 let versionReport;
 try { versionReport = await checkBase(BASE); }
-catch (e) { versionReport = { ok: false, detail: e.message, errors: [e.message] }; }
+catch (e) {
+  // 网络抖动/超时被重试仍失败时，必须指名「哪个 URL + 什么状态/错误码」，
+  // 而不是把 e.message（往往只是 "fetch failed"）当成 detail 糊弄过去。
+  const diag = describeFetchError(e);
+  versionReport = { ok: false, detail: diag, errors: [diag] };
+}
 check('资源版本/五页同值', '五页均至少 1 个 ?v=；每页唯一；跨页同值',
   versionReport.detail + (versionReport.errors.length ? ' · ' + versionReport.errors.join('；') : ''),
   versionReport.ok);

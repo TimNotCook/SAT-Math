@@ -49,14 +49,94 @@ export async function checkLocal(root) {
   return summarize(htmlByPage);
 }
 
-export async function checkBase(base) {
+/* 远程拉取的重试/诊断配置。
+ * 背景：线上偶发 fetch failed（单次尝试、12s 超时太紧、错误只剩一句 "fetch failed"），
+ * 一次 TCP 抖动/超时就被红牌。修法不是放松判定，而是「同一页给 3 次机会 + 把失败原因打印全」。 */
+export const FETCH_DEFAULTS = {
+  retries: 3,            // 总尝试次数（首次 + 2 次重试）
+  backoffMs: [2000, 4000], // 第 1/2 次重试前等待，指数退避
+  timeoutMs: 20000,      // 单次 fetch 超时（原 12s 对抖动连接偏紧）
+};
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* 把一次失败尝试压成一行诊断：URL · HTTP 状态 · 错误名 · cause.code · 细节消息 */
+export function describeAttempt(a) {
+  const parts = [];
+  if (a.url) parts.push(String(a.url));
+  if (a.status) parts.push(`HTTP ${a.status}`);
+  if (a.name) parts.push(a.name);
+  if (a.code) parts.push(a.code);
+  if (a.message) parts.push(a.message);
+  return parts.join(' · ');
+}
+
+/* 把 checkBase 抛出的错误展开成可诊断的原因（重试聚合错误 / 普通网络错误通用） */
+export function describeFetchError(e) {
+  if (!e) return '未知错误';
+  if (Array.isArray(e.attempts) && e.attempts.length) {
+    return `共 ${e.attempts.length} 次尝试：` + e.attempts.map(a => `#${a.attempt} ${describeAttempt(a)}`).join('；');
+  }
+  const parts = [];
+  if (e.url) parts.push(String(e.url));
+  if (e.status) parts.push(`HTTP ${e.status}`);
+  if (e.name) parts.push(e.name);
+  const code = e.cause && e.cause.code;
+  if (code) parts.push(code);
+  const msg = (e.cause && e.cause.message) || e.message;
+  if (msg) parts.push(msg);
+  return parts.join(' · ');
+}
+
+/* 单页带退避重试的 fetch：
+ * · 网络层错误（TypeError fetch failed / TimeoutError 超时）与 5xx → 重试；
+ * · 4xx（404/403 等永久错误）→ 不重试，立刻抛；
+ * · 重试仍失败 → 抛带 attempts 全记录的聚合错误，FAIL 语义不退让。 */
+async function fetchPageWithRetry(url, cfg) {
+  const attempts = [];
+  let last = null;
+  for (let attempt = 1; attempt <= cfg.retries; attempt++) {
+    const at = new Date().toISOString();
+    let res;
+    try {
+      res = await fetch(url, { headers: { 'cache-control': 'no-cache' }, signal: AbortSignal.timeout(cfg.timeoutMs) });
+    } catch (e) {
+      const entry = { attempt, at, phase: 'network', url: String(url), name: e.name,
+        code: e.cause && e.cause.code, message: (e.cause && e.cause.message) || e.message };
+      attempts.push(entry);
+      last = entry;
+      if (attempt < cfg.retries) await sleep(cfg.backoffMs[attempt - 1] ?? cfg.backoffMs[cfg.backoffMs.length - 1]);
+      continue;
+    }
+    if (!res.ok) {
+      const entry = { attempt, at, phase: 'http', url: String(url), status: res.status,
+        message: res.status >= 500 ? '服务端抖动，可重试' : '永久错误，重试无意义' };
+      attempts.push(entry);
+      last = entry;
+      if (res.status < 500) {
+        const err = new Error(`HTTP ${res.status}`);
+        err.url = String(url); err.status = res.status; err.attempts = attempts;
+        throw err;
+      }
+      if (attempt < cfg.retries) await sleep(cfg.backoffMs[attempt - 1] ?? cfg.backoffMs[cfg.backoffMs.length - 1]);
+      continue;
+    }
+    return await res.text();
+  }
+  const err = new Error(`拉取失败（${cfg.retries} 次尝试后仍失败）`);
+  err.url = String(url);
+  err.attempts = attempts;
+  if (last) { err.status = last.status; err.code = last.code; err.name = last.name; }
+  throw err;
+}
+
+export async function checkBase(base, opts = {}) {
+  const cfg = { ...FETCH_DEFAULTS, ...opts };
   const htmlByPage = {};
   for (const name of PAGES) {
     const url = new URL(name, String(base).replace(/\/+$/, '') + '/');
     url.searchParams.set('audit', String(Date.now()));
-    const res = await fetch(url, { headers: { 'cache-control': 'no-cache' }, signal: AbortSignal.timeout(12000) });
-    if (!res.ok) throw new Error(`${url} → HTTP ${res.status}`);
-    htmlByPage[name] = await res.text();
+    htmlByPage[name] = await fetchPageWithRetry(url, cfg);
   }
   return summarize(htmlByPage);
 }
@@ -66,15 +146,19 @@ if (invoked) {
   const args = process.argv.slice(2);
   const flag = name => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
   const base = flag('--base');
+  const opts = {};
+  if (flag('--retries')) opts.retries = Number(flag('--retries'));
+  if (flag('--timeout-ms')) opts.timeoutMs = Number(flag('--timeout-ms'));
+  if (flag('--backoff-ms')) opts.backoffMs = flag('--backoff-ms').split(',').map(Number);
   try {
-    const report = base ? await checkBase(base) : await checkLocal(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
+    const report = base ? await checkBase(base, opts) : await checkLocal(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
     console.log(`${report.ok ? 'PASS' : 'FAIL'} 五页资源版本同值`);
     console.log(`      期望 五页均至少 1 个 ?v=；每页唯一；跨页同值${base ? `；目标 ${base}` : ''}`);
     console.log(`      实测 ${report.detail}`);
     if (!report.ok) console.log(`      原因 ${report.errors.join('；')}`);
     process.exit(report.ok ? 0 : 1);
   } catch (e) {
-    console.log(`FAIL 版本检查无法完成\n      原因 ${e.message}`);
+    console.log(`FAIL 版本检查无法完成\n      原因 ${describeFetchError(e)}`);
     process.exit(1);
   }
 }
