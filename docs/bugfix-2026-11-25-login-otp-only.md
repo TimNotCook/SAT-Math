@@ -132,5 +132,8 @@ OTP 场景（邮箱格式、验证码无效 / 过期、频率上限、网络异�
 - 单测：`test/otp-login.test.js`（发码 / 收码请求形状、会话落盘、报错映射、本地恢复）
 
 ## 提交与版本
-- commit：（推送后回填）
-- 线上 `?v=`：（推送后回填）
+- 修复提交：`f5cacd1c081b19373c7cd7bde77725c43e0a0528`（main，rebase 自 `ea6482f`）
+- 线上 `?v=`：`1707098f338f`（五页同值）
+- 线上实测时刻：2026-11-25 19:50（HKT），`https://timnotcook.github.io/SAT-Math/drill.html`
+  实测：旧脚本 `github-auth.js` / `workbuddy-cloud.js` / `api.github.com` 0 命中；
+  线上 `cloud-account.js` 禁用词（GitHub 令牌 / 用户名 / Firebase / 密码）0 命中。
