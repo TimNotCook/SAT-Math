@@ -173,3 +173,152 @@
     if (!c && lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return '验证码服务暂时连不上，请检查网络后重试，或改用下方 Firebase / GitHub 令牌登录。';
     return m || '操作失败，请重试。';
   }
+
+  /* ---------- 档案归属 / 暂存 ---------- */
+  function loadProf() {
+    try {
+      var raw = localStorage.getItem(PROFILE_KEY);
+      if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') {
+        prof.owner = p.owner || '';
+        prof.lastSynced = p.lastSynced || '';
+      } }
+    } catch (e) { console.warn('读取档案归属失败', e); }
+  }
+  function saveProf() {
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(prof)); } catch (e) { console.warn('保存档案归属失败', e); }
+  }
+  function loadDraft() {
+    try { var raw = localStorage.getItem(DRAFT_KEY); return raw ? JSON.parse(raw) : null; }
+    catch (e) { return null; }
+  }
+  function saveDraft(uid, payload) {
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ uid: uid, payload: payload })); } catch (e) { console.warn('保存草稿失败', e); }
+  }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { console.warn('清除草稿失败', e); } }
+
+  // 用档案内容整体替换本机副本；本机外观偏好保持不变。
+  function applyPayload(payload) {
+    var keep = {}, k;
+    for (k in NO_SYNC) {
+      if (!Object.prototype.hasOwnProperty.call(NO_SYNC, k)) continue;
+      var v = null;
+      try { v = localStorage.getItem(k); } catch (e) { console.warn('读取本地存储失败', e); }
+      if (v != null) keep[k] = v;
+    }
+    var cur = snapshot();
+    Object.keys(cur).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) { console.warn('清除本地存储失败', e); } });
+    var clean = canon(payload || {});
+    Object.keys(clean).forEach(function (key) {
+      try { if (typeof clean[key] === 'string') localStorage.setItem(key, clean[key]); } catch (e) { console.warn('写入本地存储失败', e); }
+    });
+    Object.keys(keep).forEach(function (key) {
+      try { localStorage.setItem(key, keep[key]); } catch (e) { console.warn('写入本地存储失败', e); }
+    });
+  }
+
+  /* 对象级深合并：键取并集；带数字时间戳 ts 的叶子（答题记录 {v,correct,ts}、
+     最近题 {mode,ids,ts}、进度标记 {sec,qid,ts} 等）按"最后写入者赢"取较新的
+     那份，绝不因"本机优先"而让旧答案覆盖新答案；数组取并集去重，不再整段丢弃
+     云端；其余无时间戳的轻量 UI 状态（cursor / completed / marks 等，不涉及判分）
+     冲突时仍以本机为准。仅用于"首次登录、本机进度无归属"的场景。 */
+  function isPlainObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
+  function itemSig(x) {
+    if (isPlainObj(x)) {
+      if (typeof x.date === 'number') return 'd:' + x.date;
+      if (typeof x.ts === 'number') return 't:' + x.ts;
+      if (x.id != null) return 'i:' + x.id;
+      if (x.uid != null) return 'u:' + x.uid;
+    }
+    return 'j:' + JSON.stringify(x);
+  }
+  function mergeArrays(a, b) {
+    var out = (a || []).slice(), seen = {};
+    out.forEach(function (x) { seen[itemSig(x)] = 1; });
+    (b || []).forEach(function (x) {
+      var k = itemSig(x);
+      if (!seen[k]) { seen[k] = 1; out.push(x); }
+    });
+    return out;
+  }
+  function deepMerge(lo, co) {
+    if (lo === undefined) return co;
+    if (co === undefined) return lo;
+    // 版本化叶子：两边都带数字 ts → 较新的那份胜出（最后写入者赢）。
+    if (isPlainObj(lo) && isPlainObj(co) && typeof lo.ts === 'number' && typeof co.ts === 'number') {
+      return co.ts > lo.ts ? co : lo;
+    }
+    if (Array.isArray(lo) || Array.isArray(co)) {
+      if (Array.isArray(lo) && Array.isArray(co)) return mergeArrays(lo, co);
+      return Array.isArray(lo) ? lo : co;
+    }
+    if (isPlainObj(lo) && isPlainObj(co)) {
+      var out = {};
+      Object.keys(Object.assign({}, lo, co)).forEach(function (k) {
+        out[k] = deepMerge(lo[k], co[k]);
+      });
+      return out;
+    }
+    return lo;
+  }
+  /* 首次登录一个已有档案的账号时，把本机"无主"做题记录并入该档案，
+     保证一条都不丢；冲突以本机为准。切换账号（owner 是别的 uid）不走这里。 */
+  function mergeLocalWithCloud(cloudPayload) {
+    var local = snapshot();
+    var out = canon(cloudPayload);
+    Object.keys(local).forEach(function (k) {
+      if (!(k in out)) { out[k] = local[k]; return; }
+      if (out[k] === local[k]) return;
+      try {
+        var lo = JSON.parse(local[k]), co = JSON.parse(out[k]);
+        out[k] = JSON.stringify(deepMerge(lo, co));
+      } catch (e) { out[k] = local[k]; }
+    });
+    return out;
+  }
+
+  function reloadSoon(msg) {
+    setStatus(msg || '正在打开你的学习档案…', 'ok');
+    setTimeout(function () { location.reload(); }, 550);
+  }
+
+  /* ---------- 自动保存引擎（用户全程无感） ---------- */
+  async function silentPush() {
+    var A = auth();
+    if (!user || !A) return false;
+    if (saving) { pendingSave = true; return false; }
+    saving = true;
+    try {
+      var snap = snapshot();
+      var h = hashOf(snap);
+      await A.pushProgress(snap);
+      prof.owner = user.uid;
+      prof.lastSynced = h;
+      saveProf();
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      saving = false;
+      if (pendingSave) { pendingSave = false; schedulePush(); }
+    }
+  }
+  function schedulePush() {
+    if (!user || !auth()) return;
+    if (pushTimer) clearTimeout(pushTimer);
+    pushTimer = setTimeout(async function () {
+      pushTimer = null;
+      if (!user || localHash() === prof.lastSynced) return;
+      var ok = await silentPush();
+      setStatus(ok ? '进度已自动保存' : '暂时无法保存进度，联网后会自动重试', ok ? 'ok' : 'warn');
+    }, 1500);
+  }
+  function onLocalWrite(k) {
+    if (suppress || !user || !auth()) return;
+    if (typeof k !== 'string' || k.indexOf(SNAP_PREFIX) !== 0 || NO_SYNC[k]) return;
+    schedulePush();
+  }
+  // 云同步通知总线：各写入点在 localStorage.setItem 后显式调用 window.TDSync.notify(key)。
+  // 替代旧方案（改写 Storage.prototype 全局劫持所有本地写入）——不再有全局 API 劫持。
+  function exposeNotify() {
+    try { window.TDSync = { notify: onLocalWrite }; } catch (e) { console.warn('注册同步通知未生效', e); }
+  }
