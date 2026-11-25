@@ -3,6 +3,8 @@
  *
  * 零 npm 依赖，复用系统 Chrome 的 CDP 通道（与 verify_a11y.mjs 同款）。
  * 每项输出「检查项 → 期望 → 实测」，任一 FAIL 退出码为 1。
+ * 纪律：任何资源改动后必须跑本脚本；末尾「资源版本/五页同值」会硬校验
+ * index/exam/drill/wrong/jiangyi 的 ?v=，不再靠人记。
  *
  * 用法：
  *   node tools/verify_nav.mjs
@@ -12,6 +14,7 @@ import { spawn } from 'child_process';
 import { mkdirSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
+import { checkBase } from './versions.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -181,6 +184,13 @@ await sleep(400);
 await shot('jy4-textbook-390.png');
 await send('Emulation.clearDeviceMetricsOverride');
 await send('Emulation.clearDeviceMetricsOverride');
+
+let versionReport;
+try { versionReport = await checkBase(BASE); }
+catch (e) { versionReport = { ok: false, detail: e.message, errors: [e.message] }; }
+check('资源版本/五页同值', '五页均至少 1 个 ?v=；每页唯一；跨页同值',
+  versionReport.detail + (versionReport.errors.length ? ' · ' + versionReport.errors.join('；') : ''),
+  versionReport.ok);
 
 const failed = results.filter(r => !r.pass);
 console.log(`\n${results.length - failed.length}/${results.length} 通过，截图在 ${OUT}`);

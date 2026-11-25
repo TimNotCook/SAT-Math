@@ -6,10 +6,13 @@
 <script src="...?v=HASH">。幂等——哈希不变时文件不改动。
 
 用法：python3 bump_assets.py [项目根]
+      python3 bump_assets.py --check [项目根]   # 只校验五页版本，不写文件
 """
 import os, re, io, sys, hashlib
 
-ROOT = os.path.dirname(os.path.abspath(__file__)) if len(sys.argv) < 2 else os.path.abspath(sys.argv[1])
+CHECK = '--check' in sys.argv[1:]
+_ARGS = [a for a in sys.argv[1:] if not a.startswith('-')]
+ROOT = os.path.dirname(os.path.abspath(__file__)) if not _ARGS else os.path.abspath(_ARGS[0])
 
 # 参与哈希的文件（顺序固定）
 HASH_FILES = [
@@ -41,6 +44,42 @@ BUMP = [
     'data/aliases.js',
 ]
 HTML = ['index.html', 'exam.html', 'drill.html', 'wrong.html', 'jiangyi.html']
+TOKEN = re.compile(r'(?:src|href)="[^"]*?\?v=([^"]+)"')
+
+
+def page_versions():
+    """按 HTML 读取每页所有 ?v= 值；任何一页缺 token 或一页多值都算不合法。"""
+    out = {}
+    for name in HTML:
+        p = os.path.join(ROOT, name)
+        if not os.path.exists(p):
+            out[name] = []
+            continue
+        html = io.open(p, encoding='utf-8').read()
+        out[name] = TOKEN.findall(html)
+    return out
+
+
+def assert_versions_synced(expected=None):
+    """五页必须都至少带一个 ?v=，每页内部唯一，跨页也唯一。"""
+    per = page_versions()
+    shown = ' | '.join('%s=%s' % (n, ','.join(sorted(set(v))) if v else 'MISSING') for n, v in per.items())
+    bad = []
+    for n, vals in per.items():
+        if not vals:
+            bad.append('%s 没有 ?v=' % n)
+        elif len(set(vals)) != 1:
+            bad.append('%s 同页多值 %s' % (n, ','.join(sorted(set(vals)))))
+    allv = set(v for vals in per.values() for v in vals)
+    if len(allv) != 1:
+        bad.append('五页不同值 %s' % ','.join(sorted(allv)))
+    if expected is not None and allv != {expected}:
+        bad.append('版本未对齐内容哈希 %s ≠ %s' % (','.join(sorted(allv)), expected))
+    print('page versions :', shown)
+    if bad:
+        print('FAIL 五页资源版本不一致：' + '；'.join(bad))
+        raise SystemExit(1)
+    print('PASS 五页资源版本一致：' + sorted(allv)[0])
 
 
 def digest():
@@ -60,6 +99,10 @@ def digest():
 
 def main():
     v = digest()
+    if CHECK:
+        print('asset version:', v)
+        assert_versions_synced(v)
+        return v
     changed = []
     for name in HTML:
         p = os.path.join(ROOT, name)
@@ -77,6 +120,7 @@ def main():
             changed.append(name)
     print('asset version:', v)
     print('updated HTML :', changed if changed else 'none (already current)')
+    assert_versions_synced(v)
     return v
 
 
