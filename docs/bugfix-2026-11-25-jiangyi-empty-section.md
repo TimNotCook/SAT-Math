@@ -83,3 +83,23 @@
 - 同板有题行（2.1）：白卡/「开始」/手型光标保持原样，与禁用行形成对比。
 - U1 · 1.1：悬停 `hoverChanged=true`（高亮/浮起/投影照旧、`cursor:pointer`）；
   点击后 `#jyQuiz` 由 `none → block`，`#jyCurrent` = `U1 Algebra · 1.1`，题卡正常渲染。
+
+## 线上验收（push 后，base `https://timnotcook.github.io/SAT-Math`，`?v=feb82233b1b5`）
+
+- `node tools/verify_nav.mjs --base <线上>`：38/38 通过（五页同值 `feb82233b1b5`）。
+- `node tools/verify_a11y.mjs --base <线上>`：20/20 通过。
+- `node tools/verify_session.mjs --base <线上>`：22/22 通过。
+- `node tools/quiz_regress.mjs <线上>`：4/4 通过。
+- `node tools/narrow_check.mjs <线上> docs/ui-shots/bugfix-2026-11-25`：14 屏次，0 横滚、0 出框。
+
+线上三档（390/655/1280）CDP 复测（与本地同断言）：
+
+| 内容 | 路径 |
+|---|---|
+| U2 空题列表 · 线上 · 390/655/1280 | `docs/ui-shots/bugfix-2026-11-25/jiangyi-empty-live-{390,655,1280}.png` |
+| U1 有题正常态 · 线上 · 390/655/1280 | `docs/ui-shots/bugfix-2026-11-25/jiangyi-u1-live-{390,655,1280}.png` |
+| U1 进入做题页 · 线上 · 390/655/1280 | `docs/ui-shots/bugfix-2026-11-25/jiangyi-u1-quiz-live-{390,655,1280}.png` |
+| 线上点击断言 JSON | `docs/bugfix-2026-11-25/jiangyi-empty-click-live.json` |
+
+线上断言（三档一致）：U2 空题=6、有题=1，`hoverChanged=false`，点击 `#jyQuiz` 始终 `none`，
+toast 出现并自动消失，`enteredQuiz=false`；U1·1.1 `hoverChanged=true`，点击进入做题页。
