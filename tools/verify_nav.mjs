@@ -86,7 +86,6 @@ const hasEntry = (links, target) => links.some(l => {
 });
 
 const PAGES = [
-  { file: 'index.html', label: '首页' },
   { file: 'jiangyi.html', label: '讲义页' },
   { file: 'drill.html', label: '练习页' },
   { file: 'wrong.html', label: '错题页' }
@@ -110,6 +109,17 @@ for (const pg of PAGES) {
   await shot(`nav-${pg.file.replace(/\..*/, '')}-390.png`);
   await send('Emulation.clearDeviceMetricsOverride');
 }
+
+/* 站点根：空首页已删，根地址必须直接落到 drill */
+await goto(`${BASE}/`);
+await sleep(600);
+const rootPage = await ev('location.pathname');
+check('nav/root·跳转', '根地址跳到 drill.html', `实际 ${rootPage}`, /\/drill\.html$/.test(rootPage || ''));
+const rootEntries = (await ev(VISIBLE_LINKS)) || [];
+ENTRIES.forEach(href => {
+  check(`nav/root·${href}`, `跳转后可见入口 ${href}`, hasEntry(rootEntries, href) ? '有' : `缺失（共 ${rootEntries.length} 个可见链接）`,
+    hasEntry(rootEntries, href));
+});
 
 /* 讲义页返回导航 */
 await goto(`${BASE}/jiangyi.html`);

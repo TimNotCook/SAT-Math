@@ -9,10 +9,12 @@ const ROOT = path.join(__dirname, '..');
 const FOUR = ['drill.html', 'jiangyi.html', 'exam.html?mode=mock', 'wrong.html'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 
-test('首页 index.html 挂齐四个入口，且普通访问不再自动跳走', () => {
+test('空首页已删：站点根只剩一跳，所有访问（含 OAuth 回调）直接进真题练习', () => {
   const s = read('index.html');
-  FOUR.forEach(href => assert.ok(s.includes('href="' + href + '"'), 'index 缺少 ' + href));
-  assert.ok(s.includes("p.get('code')"), 'OAuth 回调转发必须保留');
+  assert.ok(s.includes("location.replace('drill.html' + location.search + location.hash)"),
+    '根地址必须无条件跳到 drill.html，并把查询串/hash 带过去');
+  assert.ok(!s.includes('home-hero'), '空首页 hero 文案已删除');
+  assert.ok(s.includes('href="drill.html"'), '无脚本时也要能手动进真题练习');
 });
 
 test('讲义页 jiangyi.html 有四个入口 + 返回真题练习', () => {
@@ -34,6 +36,7 @@ test('app-core 顶部导航含讲义复习，drill / wrong / exam 因此都能�
 
 test('验收脚本 tools/verify_nav.mjs 存在并覆盖四页', () => {
   const src = read('tools/verify_nav.mjs');
-  ['index.html', 'jiangyi.html', 'drill.html', 'wrong.html'].forEach(p => assert.ok(src.includes(p), 'verify_nav 未覆盖 ' + p));
+  ['jiangyi.html', 'drill.html', 'wrong.html'].forEach(p => assert.ok(src.includes(p), 'verify_nav 未覆盖 ' + p));
+  assert.ok(src.includes('nav/root·跳转'), 'verify_nav 未断言站点根跳转');
   FOUR.forEach(href => assert.ok(src.includes(href), 'verify_nav 未断言 ' + href));
 });
