@@ -331,6 +331,72 @@
    "reason": "旧 SP2 板块：题已全部 retire 并 alias 到 2.7.T18，入口不再出现"
   }
  ],
- "labels": [],
+ "labels": [
+  {
+   "id": "2.7",
+   "cn": "Unit 2 · 专项练习",
+   "sub": "03 Problem Solving and Data Analysis 册"
+  },
+  {
+   "id": "4.5",
+   "cn": "Unit 4 · 专项练习",
+   "sub": "04 Geometry 册"
+  },
+  {
+   "id": "2.7.T17",
+   "cn": "Topic 17 · 比率、比例与单位换算",
+   "sub": "Ratios, Proportions, and Unit Conversion"
+  },
+  {
+   "id": "2.7.T18",
+   "cn": "Topic 18 · 百分数",
+   "sub": "Percentages"
+  },
+  {
+   "id": "2.7.T19",
+   "cn": "Topic 19 · 分布与集中、离散度量",
+   "sub": "Distributions and Measurements of Center and Spread"
+  },
+  {
+   "id": "2.7.T20",
+   "cn": "Topic 20 · 模型与散点图",
+   "sub": "Models and Scatterplots"
+  },
+  {
+   "id": "2.7.T21",
+   "cn": "Topic 21 · 概率与条件概率",
+   "sub": "Probability and Conditional Probability"
+  },
+  {
+   "id": "2.7.T22",
+   "cn": "Topic 22 · 样本推断与误差范围",
+   "sub": "Inference from Sample Statistics and Margin Of Error"
+  },
+  {
+   "id": "2.7.T23",
+   "cn": "Topic 23 · 统计论断评估",
+   "sub": "Evaluating Statistical Claims"
+  },
+  {
+   "id": "4.5.T24",
+   "cn": "Topic 24 · 面积与体积",
+   "sub": "Area and Volume"
+  },
+  {
+   "id": "4.5.T25",
+   "cn": "Topic 25 · 几何综合",
+   "sub": "Geometry"
+  },
+  {
+   "id": "4.5.T26",
+   "cn": "Topic 26 · 直角三角形与三角函数",
+   "sub": "Right Triangles and Trigonometry"
+  },
+  {
+   "id": "4.5.T27",
+   "cn": "Topic 27 · 圆",
+   "sub": "Circles"
+  }
+ ],
  "variants": []
 }
