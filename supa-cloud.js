@@ -197,7 +197,16 @@
     try {
       var rows = await rest('/usernames?username=eq.' + encodeURIComponent(name) + '&select=username', { timeout: 12000 });
       return !!(rows && rows.length);
-    } catch (e) { return false; } // 查不到就交给数据库唯一索引兜底
+    } catch (e) {
+      // 显式降级，不静默假装「没重名」：
+      // 匿名端只被授权读 username / user_id 列（见 docs/account-model.md 第三节）；
+      // 请求 email 列或整表（select=*）会拿 42501 permission denied。本探测只 select=username，
+      // 授权已覆盖；一旦被拒（授权回退 / 网络失败），控制台告警，查重交给数据库唯一索引兜底
+      // （注册时由服务端 409 顶回），不在客户端猜「可用」。
+      console.warn('[TDSUPA] usernameTaken 查重失败，降级为唯一索引兜底：',
+        (e && e.status) || '', (e && e.message) || e);
+      return false;
+    }
   }
 
   async function loginEmail(username) {
