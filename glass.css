@@ -5,15 +5,15 @@
 
 :root{
   /* palette: 淡奶白（接近纯白）+ 深炭墨强调（变量名沿用 --blue，值改深炭墨，避免改所有引用） */
-  --ink:#1d1d1f; --ink-2:#3a3a3c; --sub:#6e6e73; --faint:#8e8e93;
-  --line:#f0efee; --line-soft:#f6f5f4; --line-strong:#e2e2e4;
+  --ink:#12233f; --ink-2:#28365a; --sub:#51648a; --faint:#8294b4;
+  --line:#d2e0f1; --line-soft:#eef3fb; --line-strong:#bcd0e8;
   --bg:#fcfcfc;
-  --paper:#ffffff; --wash:#f6f5f4;
-  --navy:#1d1d1f; --navy-2:#3a3a3c;
-  --blue:#1d1d1f;              /* 强调色：深炭墨（苹果风近黑） */
-  --blue-strong:#1d1d1f;
-  --blue-soft:#fcfcfc;         /* 淡奶白底 */
-  --blue-line:#e2e2e4;
+  --paper:#ffffff; --wash:#eef4fd;
+  --navy:#12233f; --navy-2:#1b3a66;
+  --blue:#2563eb;              /* 强调色：蓝图蓝 */
+  --blue-strong:#1d4ed8;
+  --blue-soft:#e8f0fe;         /* 淡蓝底 */
+  --blue-line:#c2d4ea;
   --ok:#3a3a3c; --ok-soft:#fcfcfc; --ok-line:#e2e2e4;
   --warn:#9a6b1f; --warn-soft:#faf3e2; --warn-line:#e6d3a7;
   --bad:#c0392b; --bad-soft:#fdecea; --bad-line:#f0bcb8;
@@ -38,16 +38,12 @@
 
 /* ---------- base / 淡奶白底（接近纯白，零暖意） ---------- */
 body,body.drill-page,body.exam-page{
-  background-color:#fcfcfc!important;
-  background-image:
-    radial-gradient(720px 400px at 86% -6%,rgba(210,210,215,.05),transparent 62%),
-    radial-gradient(600px 360px at 4% 4%,rgba(255,255,255,.40),transparent 60%),
-    linear-gradient(165deg,#fdfdfd 0%,#fcfcfc 50%,#f8f8f8 100%)!important;
-  background-size:auto,auto,auto!important;
-  background-attachment:fixed!important;
+  background-color:#fff!important;
+  background-image:none!important;
+  background-attachment:scroll!important;
   color:var(--ink)!important;
 }
-::selection{background:rgba(29,29,31,.18);color:#fff}
+::selection{background:var(--blue-line);color:var(--ink)}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 h1,h2,h3,h4{color:var(--ink)!important}
 /* intro 主标题：轻盈精致官网风（覆盖 bluebook 的笨重粗黑大字） */
@@ -124,23 +120,23 @@ a:hover{color:var(--blue)}
              border-color .22s var(--ease),background-color .22s var(--ease)!important;
 }
 
-/* ---------- hover lift ---------- */
+/* ---------- hover：仅换底色/描边，不悬浮抬升（极简动效收敛） ---------- */
 .drill-unit-button:hover,.drill-board-nav-item:hover,.unit-pick button:hover,
 .unit-stat:hover,.wrong-card:hover,.panel:hover,.card:hover,.exam-panel:hover{
-  transform:translateY(-5px)!important;
-  box-shadow:var(--lift),var(--glass-hi)!important;
-  border-color:rgba(29,29,31,.30)!important;
+  transform:none!important;
+  box-shadow:none!important;
+  border-color:var(--blue-line)!important;
 }
 .drill-unit-button.on,.drill-board-nav-item.on,.unit-pick button.on,.unit-stat.on{
-  border-color:rgba(29,29,31,.42)!important;
-  background:rgba(250,250,249,.70)!important;
-  box-shadow:0 6px 18px rgba(29,29,31,.10),var(--glass-hi)!important;
+  border-color:var(--blue-line)!important;
+  background:var(--blue-soft)!important;
+  box-shadow:none!important;
 }
-.drill-section-row{transition:background-color .18s var(--ease),box-shadow .18s var(--ease),transform .18s var(--ease)!important}
+.drill-section-row{transition:background-color .18s var(--ease),border-color .18s var(--ease)!important}
 .drill-section-row:hover{
-  background:rgba(29,29,31,.04)!important;
-  box-shadow:inset 2px 0 0 var(--blue)!important;
-  transform:translateY(-1px);
+  background:var(--wash)!important;
+  box-shadow:none;
+  transform:none;
 }
 .drill-section-row[data-result="1"] .drill-section-code{background:var(--ok-soft)!important;color:var(--ok)!important}
 
@@ -204,13 +200,13 @@ a:hover{color:var(--blue)}
   font-feature-settings:"tnum" 1;
 }
 /* 2. question marker — 做题页保持官方 Bluebook 样式，不覆盖 */
-/* 3. accuracy block — 深炭墨（结果页，非做题页） */
+/* 3. accuracy block — 浅白纸卡 + 细描边 + 深字（结果页，非做题页） */
 .drill-result-score{
-  background:linear-gradient(155deg,#2c2c2e,#1d1d1f)!important;color:#fff!important;
-  border-right:1px solid rgba(255,255,255,.16);
+  background:#fff!important;color:var(--ink)!important;
+  border:1px solid var(--line)!important;border-right:1px solid var(--line)!important;
 }
-.drill-result-score strong{color:#fff!important;font-weight:600!important;letter-spacing:-.01em}
-.drill-result-score-label,.drill-result-score-sub{color:rgba(255,255,255,.82)!important}
+.drill-result-score strong{color:var(--blue-strong)!important;font-weight:600!important;letter-spacing:-.01em}
+.drill-result-score-label,.drill-result-score-sub{color:var(--sub)!important}
 .drill-result-tallies dd{color:var(--ink)!important;font-weight:600!important;font-size:22px!important}
 .unit-stat b{color:var(--ink)!important;font-weight:600!important;font-size:24px!important}
 .unit-stat span{color:#8e8e93!important}
@@ -224,32 +220,32 @@ a:hover{color:var(--blue)}
   box-shadow:none!important;
 }
 .btn:hover{
-  border-color:rgba(29,29,31,.40)!important;background:rgba(250,250,249,.7)!important;
-  color:var(--blue-strong)!important;transform:translateY(-2px);box-shadow:var(--shadow-1)!important;
+  border-color:var(--blue-line)!important;background:var(--blue-soft)!important;
+  color:var(--blue-strong)!important;transform:none;box-shadow:none;
 }
+/* 主 CTA：蓝图蓝实心 + 白字，hover 加深一档；无渐变、无悬浮投影 */
 .btn.primary,.exam-submit-button{
-  background:linear-gradient(150deg,#2c2c2e,#1d1d1f)!important;
-  border-color:transparent!important;color:#fff!important;
-  box-shadow:0 4px 12px rgba(29,29,31,.22)!important;
+  background:var(--blue)!important;
+  border:1px solid var(--blue)!important;color:#fff!important;
+  box-shadow:none!important;
 }
 .btn.primary:hover,.exam-submit-button:hover{
-  background:linear-gradient(150deg,#1d1d1f,#000)!important;color:#fff!important;
-  transform:translateY(-2px);box-shadow:0 8px 20px rgba(29,29,31,.30)!important;
+  background:var(--blue-strong)!important;border-color:var(--blue-strong)!important;color:#fff!important;
+  transform:none;box-shadow:none;
 }
-/* exam 入口页「开始抽测」— 压过 bluebook.css 末尾宝蓝渐变+蓝投影(特异性0,3,0)，
-   glass.css 后加载同等特异性胜出，改奶白主题深炭墨扁平 */
+/* exam 入口页「开始抽测」— 同款蓝图蓝扁平主按钮 */
 .exam-start-actions .btn.primary,
 .exam-page .exam-start-actions .btn.primary{
-  background:linear-gradient(150deg,#2c2c2e,#1d1d1f)!important;
-  border:1px solid transparent!important;color:#fff!important;
+  background:var(--blue)!important;
+  border:1px solid var(--blue)!important;color:#fff!important;
   border-radius:var(--radius)!important;
-  box-shadow:0 4px 12px rgba(29,29,31,.22)!important;
+  box-shadow:none!important;
   font-weight:600!important;
 }
 .exam-start-actions .btn.primary:hover,
 .exam-page .exam-start-actions .btn.primary:hover{
-  background:linear-gradient(150deg,#1d1d1f,#000)!important;color:#fff!important;
-  transform:translateY(-2px);box-shadow:0 8px 20px rgba(29,29,31,.30)!important;
+  background:var(--blue-strong)!important;border-color:var(--blue-strong)!important;color:#fff!important;
+  transform:none;box-shadow:none;
 }
 /* ---------- 去掉鼠标点击时的浏览器默认 focus 黑边（非做题页元素） ----------
    bluebook.css 只处理了 :focus-visible，鼠标点击触发 :focus 时浏览器默认深灰
@@ -264,7 +260,7 @@ a:hover{color:var(--blue)}
 .drill-unit-button:focus-visible,.drill-board-nav-item:focus-visible,
 .unit-pick button:focus-visible,.drill-section-row:focus-visible,
 .btn:focus-visible,.exam-start-actions .btn.primary:focus-visible{
-  outline:2px solid rgba(29,29,31,.40)!important;outline-offset:2px;
+  outline:2px solid var(--blue-strong)!important;outline-offset:2px;
 }
 /* ---------- 做题页元素（翻页键/位置按钮/选项/题号弹层）保持官方 Bluebook，不覆盖 ---------- */
 

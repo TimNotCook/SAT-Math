@@ -43,13 +43,12 @@
   function renderBoards() {
     var list = J.allStats();
     els.jyBoardCards.innerHTML = list.map(function (st) {
+      /* 极简卡片：只留标题 + 中文名；已录/应有/完成度等内部口径不再展示，空板块保留「待录入」胶囊 */
       return '<button type="button" class="jy-board-card" data-board="' + st.board + '">' +
         '<b>U' + st.unit + ' ' + esc(st.en) + '</b>' +
         '<span>' + esc(st.cn) + '</span>' +
         (st.dataReady
-          ? '<small>已录 ' + st.total + ' 题 · ' + st.sections + ' 个小节</small>' +
-            '<small>完成 ' + st.answered + ' / ' + st.total + ' · ' + st.percent + '%</small>' +
-            '<span class="jy-bar"><i style="width:' + (st.percent || 0) + '%"></i></span>'
+          ? '<span class="jy-bar"><i style="width:' + (st.percent || 0) + '%"></i></span>'
           : '<small>待题库录入</small>') +
         '</button>';
     }).join('');
@@ -66,20 +65,15 @@
     var b = J.board(id), st = J.boardStats(id);
     els.jyCrumb.textContent = '讲义复习 › U' + b.unit;
     els.jyBoardTitle.textContent = 'U' + b.unit + ' ' + b.en;
-    els.jyBoardLead.textContent = b.cn + (st.dataReady
-      ? '：' + st.sections + ' 个小节，已录 ' + st.total + ' 题；完成 ' + st.answered + ' / ' + st.total + '。'
-      : '：题目尚未录入，等题库侧数据。') +
-      (g && g.total ? ' 另有教材原题 ' + g.total + ' 题（练习册 P200–207），单独成组，不计入官方小节。' : '');
+    els.jyBoardLead.textContent = st.dataReady ? b.cn : '题目尚未录入。';
     var secs = J.sectionsOf(id);
     var g = J.groupStats(id);
     if (g && g.total) {
       els.jyGroupList.hidden = false;
       els.jyGroupList.innerHTML = '<div class="jy-subgroup">' +
         '<button type="button" class="jy-subgroup-card" data-group="' + g.key + '">' +
-        '<span class="jy-subgroup-kicker">教材原题 · 单独成组</span>' +
-        '<span class="go">' + g.answered + ' / ' + g.total + ' 题 · 进入 ›</span>' +
+        '<span class="go">进入 ›</span>' +
         '<b>' + esc(g.label) + '</b>' +
-        '<small>来自练习册原页，来源标注「练习册 P… #…」；不计入 4.1 / 4.2 的官方题数</small>' +
         '</button></div>';
       els.jyGroupList.querySelector('[data-group]').addEventListener('click', function () {
         openSection(id, this.dataset.group);
@@ -94,16 +88,14 @@
         return '<div class="drill-section-row jy-empty-row" data-empty="1" aria-disabled="true">' +
           '<span class="drill-section-code">' + esc(s) + '</span>' +
           '<span class="drill-section-name">' + esc(x.cn || '未命名小节') + '</span>' +
-          '<span class="drill-section-meta">已录 0 / 应有 ' + x.expect + ' 题</span>' +
+          '<span class="drill-section-meta"></span>' +
           '<span class="drill-section-go"><span class="jy-empty-badge">待录入</span></span></div>';
       }
       var sub = J.submittedOf(s);
       return '<a class="drill-section-row" href="#" data-sec="' + esc(s) + '"' + (sub ? ' data-result="1"' : '') + '>' +
         '<span class="drill-section-code">' + esc(s) + '</span>' +
         '<span class="drill-section-name">' + esc(x.cn || '未命名小节') + '</span>' +
-        '<span class="drill-section-meta">已录 ' + x.total + ' / 应有 ' + x.expect +
-        ' · 作答 ' + x.answered + ' / ' + x.total + (x.complete ? ' · 已完成' : '') +
-        (x.reconciled ? '' : ' · 对账未平') + '</span>' +
+        '<span class="drill-section-meta">' + (x.answered ? '作答 ' + x.answered + ' / ' + x.total : '') + '</span>' +
         '<span class="drill-section-go">' + (sub ? '查看结果' : (x.answered ? '继续' : '开始')) + '</span></a>';
     }).join('') : '<p class="jy-empty">该板块暂无小节数据。</p>';
     els.jySectionList.querySelectorAll('[data-sec]').forEach(function (a) {

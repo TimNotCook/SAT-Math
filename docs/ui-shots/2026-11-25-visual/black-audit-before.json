@@ -1,0 +1,5206 @@
+{
+  "generatedAt": "2026-11-25T16:19:35.062Z",
+  "base": "http://127.0.0.1:8491",
+  "tag": "before",
+  "threshold": {
+    "backgroundAlpha": 0.5,
+    "relativeLuminance": 0.14,
+    "note": "近黑实心背景计数；半透明遮罩与 SVG 填充不计"
+  },
+  "viewports": [
+    1280,
+    655,
+    390
+  ],
+  "totalDarkFill": 402,
+  "totalDarkGradient": 168,
+  "results": [
+    {
+      "viewport": 1280,
+      "page": "drill",
+      "state": "default",
+      "hovered": null,
+      "count": 7,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "drill",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 7,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "drill",
+      "state": "focus",
+      "hovered": null,
+      "count": 7,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "question",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "question",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "question",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "panel",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "panel",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "panel",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "panel",
+      "state": "panel-open",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "result",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "result",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "result",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "wrong",
+      "state": "default",
+      "hovered": null,
+      "count": 5,
+      "flags": [
+        {
+          "tag": "a",
+          "id": "backPractice",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnImgImport",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "i",
+          "id": "imgimpBar",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "wrong",
+      "state": "hover",
+      "hovered": {
+        "x": 107.5,
+        "y": 376.4921875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 5,
+      "flags": [
+        {
+          "tag": "a",
+          "id": "backPractice",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnImgImport",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "i",
+          "id": "imgimpBar",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "wrong",
+      "state": "focus",
+      "hovered": null,
+      "count": 5,
+      "flags": [
+        {
+          "tag": "a",
+          "id": "backPractice",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnImgImport",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "i",
+          "id": "imgimpBar",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "jiangyi",
+      "state": "default",
+      "hovered": null,
+      "count": 9,
+      "flags": [
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "span",
+          "id": "jyNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "jyNext",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "jyResultBack",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "jiangyi",
+      "state": "hover",
+      "hovered": {
+        "x": 107.5,
+        "y": 376.140625,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 9,
+      "flags": [
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "span",
+          "id": "jyNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "jyNext",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "jyResultBack",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "jiangyi",
+      "state": "focus",
+      "hovered": null,
+      "count": 9,
+      "flags": [
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "span",
+          "id": "jyNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "jyNext",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "jyResultBack",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "quiz",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "quiz",
+      "state": "hover",
+      "hovered": {
+        "x": 107.5,
+        "y": 376.140625,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "quiz",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "mock",
+      "state": "default",
+      "hovered": null,
+      "count": 7,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "mock",
+      "state": "hover",
+      "hovered": {
+        "x": 107.5,
+        "y": 376.140625,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 7,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 1280,
+      "page": "mock",
+      "state": "focus",
+      "hovered": null,
+      "count": 7,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "drill",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "drill",
+      "state": "hover",
+      "hovered": {
+        "x": 560.9375,
+        "y": 29.4375,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "drill",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "question",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "question",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "question",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "panel",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "panel",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "panel",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "panel",
+      "state": "panel-open",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "result",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "result",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "result",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "wrong",
+      "state": "default",
+      "hovered": null,
+      "count": 5,
+      "flags": [
+        {
+          "tag": "a",
+          "id": "backPractice",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnImgImport",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "i",
+          "id": "imgimpBar",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "wrong",
+      "state": "hover",
+      "hovered": {
+        "x": 620,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 5,
+      "flags": [
+        {
+          "tag": "a",
+          "id": "backPractice",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnImgImport",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "i",
+          "id": "imgimpBar",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "wrong",
+      "state": "focus",
+      "hovered": null,
+      "count": 5,
+      "flags": [
+        {
+          "tag": "a",
+          "id": "backPractice",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnImgImport",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "i",
+          "id": "imgimpBar",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "jiangyi",
+      "state": "default",
+      "hovered": null,
+      "count": 9,
+      "flags": [
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "span",
+          "id": "jyNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "jyNext",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "jyResultBack",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "jiangyi",
+      "state": "hover",
+      "hovered": {
+        "x": 620,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 9,
+      "flags": [
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "span",
+          "id": "jyNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "jyNext",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "jyResultBack",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "jiangyi",
+      "state": "focus",
+      "hovered": null,
+      "count": 9,
+      "flags": [
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "span",
+          "id": "jyNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "jyNext",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "jyResultBack",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "quiz",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "quiz",
+      "state": "hover",
+      "hovered": {
+        "x": 620,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "quiz",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "mock",
+      "state": "default",
+      "hovered": null,
+      "count": 7,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "mock",
+      "state": "hover",
+      "hovered": {
+        "x": 620,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 7,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 655,
+      "page": "mock",
+      "state": "focus",
+      "hovered": null,
+      "count": 7,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "drill",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "drill",
+      "state": "hover",
+      "hovered": {
+        "x": 259,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "drill",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "question",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "question",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "question",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "panel",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "panel",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "panel",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "panel",
+      "state": "panel-open",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "result",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "result",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "result",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "btnFinish",
+          "cls": "drill-nav-finish",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "wrong",
+      "state": "default",
+      "hovered": null,
+      "count": 5,
+      "flags": [
+        {
+          "tag": "a",
+          "id": "backPractice",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnImgImport",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "i",
+          "id": "imgimpBar",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "wrong",
+      "state": "hover",
+      "hovered": {
+        "x": 355,
+        "y": 115.21875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 5,
+      "flags": [
+        {
+          "tag": "a",
+          "id": "backPractice",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnImgImport",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "i",
+          "id": "imgimpBar",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "wrong",
+      "state": "focus",
+      "hovered": null,
+      "count": 5,
+      "flags": [
+        {
+          "tag": "a",
+          "id": "backPractice",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnImgImport",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "i",
+          "id": "imgimpBar",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "a",
+          "id": "",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "jiangyi",
+      "state": "default",
+      "hovered": null,
+      "count": 9,
+      "flags": [
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "span",
+          "id": "jyNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "jyNext",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "jyResultBack",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "jiangyi",
+      "state": "hover",
+      "hovered": {
+        "x": 355,
+        "y": 115.21875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 9,
+      "flags": [
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "span",
+          "id": "jyNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "jyNext",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "jyResultBack",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "jiangyi",
+      "state": "focus",
+      "hovered": null,
+      "count": 9,
+      "flags": [
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "span",
+          "id": "jyNumber",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "jyNext",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "",
+          "cls": "drill-result-score",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(155deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "a",
+          "id": "jyResultBack",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "quiz",
+      "state": "default",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "quiz",
+      "state": "hover",
+      "hovered": {
+        "x": 355,
+        "y": 115.21875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 8,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "quiz",
+      "state": "focus",
+      "hovered": null,
+      "count": 8,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "mist-text mist-done",
+          "kind": "dark-fill",
+          "color": "rgb(31, 35, 40)",
+          "lum": 0.135
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "mock",
+      "state": "default",
+      "hovered": null,
+      "count": 7,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "mock",
+      "state": "hover",
+      "hovered": {
+        "x": 355,
+        "y": 115.21875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 7,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "page": "mock",
+      "state": "focus",
+      "hovered": null,
+      "count": 7,
+      "flags": [
+        {
+          "tag": "button",
+          "id": "btnStart",
+          "cls": "btn primary",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "span",
+          "id": "qNum",
+          "cls": "drill-qnumber",
+          "kind": "dark-fill",
+          "color": "rgb(0, 0, 0)",
+          "lum": 0
+        },
+        {
+          "tag": "button",
+          "id": "btnSubmit",
+          "cls": "exam-action-button exam-submit-button",
+          "kind": "dark-gradient",
+          "bgImage": "linear-gradient(150deg, rgb(44, 44, 46), rgb(29, 29, 31))"
+        },
+        {
+          "tag": "button",
+          "id": "btnQuestionNav",
+          "cls": "drill-position-button",
+          "kind": "dark-fill",
+          "color": "rgb(31, 32, 34)",
+          "lum": 0.125
+        },
+        {
+          "tag": "i",
+          "id": "",
+          "cls": "is-answered",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "div",
+          "id": "toast",
+          "cls": "",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        },
+        {
+          "tag": "button",
+          "id": "",
+          "cls": "td-acct-btn2 td-otp-send",
+          "kind": "dark-fill",
+          "color": "rgb(29, 29, 31)",
+          "lum": 0.114
+        }
+      ]
+    }
+  ]
+}

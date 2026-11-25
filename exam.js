@@ -569,10 +569,7 @@
       /* Show the TOTAL historical mistake count (same number the wrong
          notebook shows), not the "must draw" quota. When the quota is smaller
          explain it in a tooltip instead of adding a fourth span. */
-      const histTitle = t.mustWrong < t.wrongCount
-        ? ' title="本卷优先抽测其中 ' + t.mustWrong + ' 道"' : '';
-      $('introParams').innerHTML = '<span>' + t.total + ' 题</span><span>' + fmt(S.durationSec * 1000) +
-        '</span><span' + histTitle + '>历史错题 ' + t.wrongCount + ' 道</span>';
+      $('introParams').innerHTML = '<span>' + t.total + ' 题</span><span>' + fmt(S.durationSec * 1000) + '</span>';
     }
     renderSpecialOptions();
     $('clockText').textContent = fmt((official ? O.secondsPerModule : S.durationSec) * 1000);

@@ -1,0 +1,739 @@
+{
+  "generatedAt": "2026-11-25T16:35:06.066Z",
+  "base": "http://127.0.0.1:8492",
+  "tag": "after",
+  "threshold": {
+    "backgroundAlpha": 0.5,
+    "relativeLuminance": 0.14,
+    "note": "近黑实心背景计数；半透明遮罩与 SVG 填充不计"
+  },
+  "viewports": [
+    1280,
+    655,
+    390
+  ],
+  "totalDarkFill": 0,
+  "totalDarkGradient": 0,
+  "results": [
+    {
+      "viewport": 1280,
+      "page": "drill",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "drill",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "drill",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "question",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "question",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "question",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "panel",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "panel",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "panel",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "panel",
+      "state": "panel-open",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "result",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "result",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "result",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "wrong",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "wrong",
+      "state": "hover",
+      "hovered": {
+        "x": 107.5,
+        "y": 376.4921875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "wrong",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "jiangyi",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "jiangyi",
+      "state": "hover",
+      "hovered": {
+        "x": 107.5,
+        "y": 376.140625,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "jiangyi",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "quiz",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "quiz",
+      "state": "hover",
+      "hovered": {
+        "x": 107.5,
+        "y": 376.140625,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "quiz",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "mock",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "mock",
+      "state": "hover",
+      "hovered": {
+        "x": 107.5,
+        "y": 376.140625,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 1280,
+      "page": "mock",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "drill",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "drill",
+      "state": "hover",
+      "hovered": {
+        "x": 560.9375,
+        "y": 29.4375,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "drill",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "question",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "question",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "question",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "panel",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "panel",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "panel",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "panel",
+      "state": "panel-open",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "result",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "result",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "result",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "wrong",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "wrong",
+      "state": "hover",
+      "hovered": {
+        "x": 620,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "wrong",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "jiangyi",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "jiangyi",
+      "state": "hover",
+      "hovered": {
+        "x": 620,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "jiangyi",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "quiz",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "quiz",
+      "state": "hover",
+      "hovered": {
+        "x": 620,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "quiz",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "mock",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "mock",
+      "state": "hover",
+      "hovered": {
+        "x": 620,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 655,
+      "page": "mock",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "drill",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "drill",
+      "state": "hover",
+      "hovered": {
+        "x": 259,
+        "y": 72.328125,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "drill",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "question",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "question",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "question",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "panel",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "panel",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "a",
+        "cls": "btn primary"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "panel",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "panel",
+      "state": "panel-open",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "result",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "result",
+      "state": "hover",
+      "hovered": {
+        "x": 0,
+        "y": 0,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "result",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "wrong",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "wrong",
+      "state": "hover",
+      "hovered": {
+        "x": 355,
+        "y": 115.21875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "wrong",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "jiangyi",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "jiangyi",
+      "state": "hover",
+      "hovered": {
+        "x": 355,
+        "y": 115.21875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "jiangyi",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "quiz",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "quiz",
+      "state": "hover",
+      "hovered": {
+        "x": 355,
+        "y": 115.21875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "quiz",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "mock",
+      "state": "default",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "mock",
+      "state": "hover",
+      "hovered": {
+        "x": 355,
+        "y": 115.21875,
+        "tag": "button",
+        "cls": "td-acct-btn td-acct-icon-btn rail-settings"
+      },
+      "count": 0,
+      "flags": []
+    },
+    {
+      "viewport": 390,
+      "page": "mock",
+      "state": "focus",
+      "hovered": null,
+      "count": 0,
+      "flags": []
+    }
+  ]
+}

@@ -141,18 +141,16 @@
   }
   var activeBoard = 'unit';
   function boardNavItem(key, title, desc, st, topicMode) {
+    /* 极简卡片：只留标题 + 进入动作；副标题、题量/板块数等内部口径不再展示 */
     return '<button type="button" class="drill-board-nav-item' + (activeBoard === key ? ' on' : '') +
       '" data-board="' + key + '">' +
-      '<b>' + esc(title) + '</b><span>' + esc(desc) + '</span>' +
-      '<small>' + st.answered + ' / ' + st.total + ' 题 · ' + st.sections + ' 个' +
-      (topicMode ? ' Topic ' : '') + '板块</small></button>';
+      '<b>' + esc(title) + '</b></button>';
   }
   /* 第三组「讲义复习」：只放一个入口，不占 CATALOG / SECS，进度在
      jiangyi.html 与独立存储 tdsat_jiangyi_v1 里，和上面两组互不影响。 */
   function jiangyiNavItem() {
     return '<button type="button" class="drill-board-nav-item" data-board="jiangyi">' +
-      '<b>讲义复习</b><span>讲义题按小节顺序，题卡标注 p{页} #{题号}，与上面两组完全分开</span>' +
-      '<small>4 个子板块 · 独立进度</small></button>';
+      '<b>讲义复习</b></button>';
   }
   function groupedHtml(secs, units, topicMode) {
     var html = '';
@@ -269,7 +267,7 @@
     var pct = total ? Math.round(right / total * 100) : 0;
 
     els.resultTitle.textContent = A.sectionLabel(sec) + ' · 板块结果';
-    els.resultLead.textContent = '本板块已交卷。下面逐题公布作答与正确答案，答错的题已自动加入错题回顾。';
+    els.resultLead.textContent = '';
     els.resultAccuracy.textContent = pct + '%';
     els.resultFraction.textContent = '答对 ' + right + ' / ' + total + ' 题';
     els.resultRight.textContent = String(right);
@@ -278,7 +276,7 @@
     els.resultTotal.textContent = String(total);
     els.resultNotice.hidden = wrong === 0;
     els.resultNoticeText.textContent = wrong
-      ? '本板块 ' + wrong + ' 道错题已自动加入错题回顾，可在那里查看错因与重练入口。'
+      ? wrong + ' 道错题已加入错题回顾。'
       : '本板块没有错题。';
 
     els.resultList.innerHTML = rows.map(function (r) {
