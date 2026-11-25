@@ -1,9 +1,9 @@
 # Topic 19 · Distributions and Measurements of Center and Spread — 读题核对台账（R03-121…R03-151）
 
-> 题包：`docs/transcribe/03/fragments/T19.json`（31 题，#1–#31，section `2.7.T19`）。
+> 题包：三切片（VM 单次推送体量限制 + 无 git 凭证，沿用 T24-b1 批次先例）：`fragments/T19.json`（#1–#10）、`fragments/T19-b2.json`（#11–#20）、`fragments/T19-b3.json`（#21–#31），合计 31 题，section `2.7.T19`；布局与入库命令见 `T19-layout.md`。
 > 读图素材：`docs/transcribe/03/pages/p08.jpg … p13.jpg`（书页 116–126）。
 > 口径：只转录+复算，未写 `data/*.js`；答案全部独立复算，本册 PDF 无答案页（p20 右半为 04 扉页），无答案页可对照，复算过程见各题。
-> 自检：`python3 tools/merge_transcribe_fragment.py --fragment … --dry-run` 分别对 5/10/15/20/25/31 题切片跑 6 次，全部通过（无 FAIL/非法字段）；section `2.7.T19` 未声明的 advisory 属预期。
+> 自检：`python3 tools/merge_transcribe_fragment.py --fragment … --dry-run` 对三切片分别通过（无 FAIL/非法字段）；section `2.7.T19` 未声明的 advisory 属预期。
 
 ## 答案汇总
 
@@ -261,16 +261,15 @@
 
 ---
 
-## 自检记录（dry-run 切片）
+## 自检记录（dry-run）
 
-| 切片 | 题数 | dry-run 结果 |
-|---|---|---|
-| #1–#5 | 5 | 通过，将新增 R03-121…125 |
-| #1–#10 | 10 | 通过，将新增 R03-121…130 |
-| #1–#15 | 15 | 通过，将新增 R03-121…135 |
-| #1–#20 | 20 | 通过，将新增 R03-121…140 |
-| #1–#25 | 25 | 通过，将新增 R03-121…145 |
-| #1–#31 | 31 | 通过，将新增 R03-121…151（无 FAIL/非法字段；`2.7.T19` 未声明 advisory 预期忽略） |
+| 切片文件 | 题数 | id 范围 | dry-run 结果 |
+|---|---|---|---|
+| `fragments/T19.json` | 10 | R03-121…R03-130 | 通过，将新增 10 题，无 FAIL/非法字段 |
+| `fragments/T19-b2.json` | 10 | R03-131…R03-140 | 通过，将新增 10 题，无 FAIL/非法字段 |
+| `fragments/T19-b3.json` | 11 | R03-141…R03-151 | 通过，将新增 11 题，无 FAIL/非法字段 |
+
+本地整包（31 题）dry-run：将新增 R03-121…R03-151 共 31 题，无 FAIL；`2.7.T19` 未声明 advisory 预期忽略。
 
 ## 自查修掉的差异
 
@@ -279,3 +278,4 @@
 3. #4 直方图柱高为图上估读（合计校准 50），不影响 II-only 结论，ledger 已注明。
 4. #1/#2 箱线图五数为图上估读，脚本不校验内部几何；答案只依赖中位数/极差相对关系。
 5. 题包初版无 `range` 顶层字段，已补 `"range":"#1-#31"`。
+6. 推送阶段发现 VM 无 git 凭证且单次调用体量受限，31 题完整包拆为三切片（10/10/11），与本地权威题包逐字段比对 0 差异，布局见 `T19-layout.md`。
