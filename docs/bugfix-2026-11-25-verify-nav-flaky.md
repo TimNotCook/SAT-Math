@@ -158,3 +158,28 @@ heal ok = true version = 70f626f24ada fetch 调用次数 = 7
 20/20 通过、exit=0，本次改动无回归。
 
 完整原始输出见 `docs/bugfix-2026-11-25/verify-nav-5runs.txt`。
+
+## 终验补跑（2026-11-25 17:44–17:46 HKT，Mac 真机）
+
+修复上线且全站稳定后，`node tools/verify_nav.mjs --base https://timnotcook.github.io/SAT-Math`
+**连续 5 次全部 38/38、exit=0**，五次运行全程同一线上 `?v=feb82233b1b5`（五页同值）：
+
+| RUN | 开始时间 | 线上 ?v | 结果 |
+|---|---|---|---|
+| 1 | 17:44:41 | feb82233b1b5 | 38/38 |
+| 2 | 17:45:05 | feb82233b1b5 | 38/38 |
+| 3 | 17:45:27 | feb82233b1b5 | 38/38 |
+| 4 | 17:45:49 | feb82233b1b5 | 38/38 |
+| 5 | 17:46:12 | feb82233b1b5 | 38/38 |
+
+这说明本文档前半段那次 RUN 4（32/38，`nav/drill.html·落点`）是**发版/数据写入窗口内的瞬时抖动**，
+不是「资源版本/五页同值」的复发性缺陷；版本项的 per-page 重试与可诊断错误仍然保留，
+用于把这类瞬时网络问题挡在红牌之外（并给出 URL + attempts + cause.code）。
+
+完整原始输出见 `docs/bugfix-2026-11-25/verify-nav-5runs-final.txt`。
+
+### 环境备注（不影响验收，供换机复现）
+在云主机上复核时发现：该环境里 Node 的 `fetch`（undici / 核心 `https.get`）直连
+`timnotcook.github.io` 会 1s 内 `ETIMEDOUT`，而 `curl` 正常（curl 走环境代理、Node 默认不读
+`HTTP(S)_PROXY`）。因此**该检查请在 Mac 真机或能直连的网络上跑**；在受限网络里，
+版本项会被重试机制如实报成 FAIL（带 URL + ETIMEDOUT），不会被误判为版本不一致。
