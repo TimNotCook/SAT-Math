@@ -1,0 +1,111 @@
+{
+  "email": "timlink7184908455@euploading.com",
+  "steps": {
+    "filled": true,
+    "btnBefore": "发送登录邮件",
+    "statusAfterSend": "已发送到 timlink7184908455@euploading.com，点邮件里的登录按钮即可完成登录。链接只能用一次，请尽快点击（也可以在垃圾箱里找一下）。",
+    "btnAfterSend": "重新发送 (60s)",
+    "mailSubject": "Your sign-in link",
+    "mailFrom": {
+      "address": "noreply@mail.app.supabase.io",
+      "name": "Supabase Auth"
+    },
+    "magicLink": "https://ofsnrzfmjqyrmkvdwnbo.supabase.co/auth/v1/verify?token=c7ca2e8658b3019773a1fb4e79bb2bd21667525c5e6c25ff5fd88e26&type=magiclink&redirect_to=https://timnotcook.github.io/SAT-Math/",
+    "landed": {
+      "href": "https://timnotcook.github.io/SAT-Math/drill.html",
+      "path": "/SAT-Math/drill.html",
+      "hash": "",
+      "on": "1",
+      "prof": true,
+      "status": "已登录 · 进度自动保存",
+      "stored": true
+    },
+    "afterLogin": {
+      "on": "1",
+      "prof": true,
+      "status": "已登录 · 进度自动保存",
+      "stored": true,
+      "uid": "6eb83327-757d-4cf3-b107-67fd75d8e46b",
+      "email": "timlink7184908455@euploading.com",
+      "access": "eyJhbGciOiJFUzI1NiIsImtpZCI6ImRiZTIxMzA0LWVhNGItNDI2Ny1iOTk4LWQ5NjBmMjgwNzFiNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL29mc25yemZtanF5cm1rdmR3bmJvLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI2ZWI4MzMyNy03NTdkLTRjZjMtYjEwNy02N2ZkNzVkOGU0NmIiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzk1NjI3NTc3LCJpYXQiOjE3OTU2MjM5NzcsImVtYWlsIjoidGltbGluazcxODQ5MDg0NTVAZXVwbG9hZGluZy5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoidGltbGluazcxODQ5MDg0NTVAZXVwbG9hZGluZy5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI2ZWI4MzMyNy03NTdkLTRjZjMtYjEwNy02N2ZkNzVkOGU0NmIifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJvdHAiLCJ0aW1lc3RhbXAiOjE3OTU2MjM5Nzd9XSwic2Vzc2lvbl9pZCI6IjczZWM3NzEzLTUwYzEtNDU5My05NjRiLTFlYzhiN2RhMTE2MSIsImlzX2Fub255bW91cyI6ZmFsc2V9.1Jr4DwP6iFHgjZylCul2lSWV4BsB26oOR3MatT8tnGGRpOp2Qk1mhX7h0h-cxW40SnDXWIK9sGfLIzDqlFe_Aw"
+    },
+    "afterReload": {
+      "on": "1",
+      "prof": true,
+      "status": "进度已自动保存",
+      "stored": true,
+      "uid": "6eb83327-757d-4cf3-b107-67fd75d8e46b",
+      "email": "timlink7184908455@euploading.com",
+      "access": "eyJhbGciOiJFUzI1NiIsImtpZCI6ImRiZTIxMzA0LWVhNGItNDI2Ny1iOTk4LWQ5NjBmMjgwNzFiNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL29mc25yemZtanF5cm1rdmR3bmJvLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI2ZWI4MzMyNy03NTdkLTRjZjMtYjEwNy02N2ZkNzVkOGU0NmIiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzk1NjI3NTc3LCJpYXQiOjE3OTU2MjM5NzcsImVtYWlsIjoidGltbGluazcxODQ5MDg0NTVAZXVwbG9hZGluZy5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoidGltbGluazcxODQ5MDg0NTVAZXVwbG9hZGluZy5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI2ZWI4MzMyNy03NTdkLTRjZjMtYjEwNy02N2ZkNzVkOGU0NmIifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJvdHAiLCJ0aW1lc3RhbXAiOjE3OTU2MjM5Nzd9XSwic2Vzc2lvbl9pZCI6IjczZWM3NzEzLTUwYzEtNDU5My05NjRiLTFlYzhiN2RhMTE2MSIsImlzX2Fub255bW91cyI6ZmFsc2V9.1Jr4DwP6iFHgjZylCul2lSWV4BsB26oOR3MatT8tnGGRpOp2Qk1mhX7h0h-cxW40SnDXWIK9sGfLIzDqlFe_Aw"
+    },
+    "newTabWrong": {
+      "on": "1",
+      "prof": true,
+      "status": "已登录 · 进度自动保存",
+      "stored": true
+    },
+    "authUser": {
+      "status": 200,
+      "body": {
+        "id": "6eb83327-757d-4cf3-b107-67fd75d8e46b",
+        "aud": "authenticated",
+        "role": "authenticated",
+        "email": "timlink7184908455@euploading.com",
+        "email_confirmed_at": "2026-11-25T16:26:08.579323Z",
+        "phone": "",
+        "confirmed_at": "2026-11-25T16:26:08.579323Z",
+        "recovery_sent_at": "2026-11-25T16:26:08.596969Z",
+        "last_sign_in_at": "2026-11-25T16:26:17.14902Z",
+        "app_metadata": {
+          "provider": "email",
+          "providers": [
+            "email"
+          ]
+        },
+        "user_metadata": {
+          "display_name": "同学",
+          "email": "timlink7184908455@euploading.com",
+          "email_verified": true,
+          "phone_verified": false,
+          "sub": "6eb83327-757d-4cf3-b107-67fd75d8e46b"
+        },
+        "identities": [
+          {
+            "identity_id": "368e794b-6da9-4041-a7af-1f4561ef8874",
+            "id": "6eb83327-757d-4cf3-b107-67fd75d8e46b",
+            "user_id": "6eb83327-757d-4cf3-b107-67fd75d8e46b",
+            "identity_data": {
+              "email": "timlink7184908455@euploading.com",
+              "email_verified": false,
+              "phone_verified": false,
+              "sub": "6eb83327-757d-4cf3-b107-67fd75d8e46b"
+            },
+            "provider": "email",
+            "last_sign_in_at": "2026-11-25T16:26:08.575384Z",
+            "created_at": "2026-11-25T16:26:08.575437Z",
+            "updated_at": "2026-11-25T16:26:08.575437Z",
+            "email": "timlink7184908455@euploading.com"
+          }
+        ],
+        "created_at": "2026-11-25T16:26:08.562557Z",
+        "updated_at": "2026-11-25T16:26:20.407847Z",
+        "is_anonymous": false
+      }
+    },
+    "progressAnon": {
+      "status": 401,
+      "body": "{\"code\":\"42501\",\"details\":null,\"hint\":\"Grant the required privileges to the current role with: GRANT SELECT ON public.progress TO anon;\",\"message\":\"permission denied for table progress\"}"
+    },
+    "progressUser": {
+      "status": 200,
+      "body": [
+        {
+          "user_id": "6eb83327-757d-4cf3-b107-67fd75d8e46b",
+          "nickname": "同学",
+          "updated_at": "2026-11-25T16:26:21.18+00:00"
+        }
+      ]
+    }
+  },
+  "exceptions": []
+}

@@ -53,21 +53,50 @@
 启动 `boot()` 本地恢复 → `refresh_token` 续期 → `/auth/v1/user` 校正；`storage` 事件跨标签页
 同步；20 分钟兜底续期。刷新页面、关标签页再开、跨标签页不丢。
 
+### 5. `redirect_to` 改走 query string（本轮定位到的回跳根因，`supa-cloud.js`）
+- **现象**：浏览器发出的 `/auth/v1/otp` 请求体已带 `redirect_to=https://timnotcook.github.io/SAT-Math/`，
+  但收到的邮件链接仍回落站点根 `https://timnotcook.github.io/`，丢掉 `/SAT-Math/` 路径段；
+  而不带 Origin 的直连 curl 复测后端认 `redirect_to`。
+- **定位**：在页面 origin 内手动 `fetch`（绕过前端封装）复测，邮件链接同样回落根；再把
+  `redirect_to` 拼到 **URL query string**（`/auth/v1/otp?redirect_to=...`）后，邮件链接正确指向
+  SAT-Math。结论：**本项目 GoTrue 版本从 query string 读 `redirect_to`，JSON body 里的同名字段被忽略**；
+  body 字段保留以兼容其他版本，两处都带。
+- 实现：`sendOtp` 内 `SITE_URL` 存在时，`body.redirect_to` 与 query `?redirect_to=`（`encodeURIComponent`）
+  同时带上；单测断言两处形状。
+
 ## 验收证据
 
 ### ① 自动化验收（本地 CDP 无头 Chrome，工作副本快照）
-- `node --test test/*.test.js`：**142 通过 / 0 失败**（含本轮新增的 magic link hash 接住两条用例）。
-- `python3 bump_assets.py --check`：**PASS**，五页同值 `b85a0a3210c2`。
-- `verify_nav.mjs`：**38/38 通过**。
-- `verify_a11y.mjs`：**20/20 通过**。
-- `verify_session.mjs`：**22/22 通过**。
-- `verify_acct_entry.mjs`：**15/18 通过**。其中 2 条 `drill-result` 视图入口宽度为既有基线缺口
+- `node --test test/*.test.js`：**142 通过 / 0 失败**（含 magic link hash 接住、`redirect_to` 进 body 与 query 的形状用例）。
+- `python3 bump_assets.py --check`：**PASS**，五页同值 `4e757a6431a8`。
+- `verify_nav.mjs`：本地 **38/38**，线上 `https://timnotcook.github.io/SAT-Math` **38/38**。
+- `verify_a11y.mjs`：本地 **20/20**，线上 **20/20**。
+- `verify_session.mjs`：本地 **22/22**，线上 **22/22**。
+- `verify_acct_entry.mjs`：本地 **15/18 通过**。其中 2 条 `drill-result` 视图入口宽度为既有基线缺口
   （侧栏被冻结规则整块 `display:none`、该视图无 `.drill-context-right` 宿主），基线 `origin/main`
   同样存在；1 条 `jiangyi.html` 断言本轮按新需求预期变红（工具冻结未改，见下方阻塞说明）。
 
-### ② 真机端到端（mail.tm 一次性信箱 + CDP 线上站）
-> 本节在推送上线后补齐：发信留证、同上下文打开邮件链接落点、登录态持久（刷新 / 新标签页）、
-> 档案表只读查询返回体。
+### ② 真机端到端（mail.tm 一次性信箱 + CDP 线上站，2026-11-25 晚 HKT）
+- **测试信箱**：`timlink7184908455@euploading.com`（一次性，留 `progress` 残留行，见阻塞项 4）。
+- **发信**：线上 `drill.html` 填邮箱 → 点「发送登录邮件」；面板提示
+  「已发送到 timlink7184908455@euploading.com，点邮件里的登录按钮即可完成登录。链接只能用一次，请尽快点击（也可以在垃圾箱里找一下）。」
+  按钮冷却变「重新发送 (60s)」。
+- **邮件链接**：`/auth/v1/verify?token=c7ca2e86…&type=magiclink&redirect_to=https://timnotcook.github.io/SAT-Math/`
+  （回跳地址正确，未丢 `/SAT-Math/` 段）。邮件原文与原始 JSON 存证：
+  `email-link-body.txt`、`email-link-raw.json`。
+- **落点**：同上下文打开链接 → `https://timnotcook.github.io/SAT-Math/drill.html`，`location.hash` 已清空；
+  面板 `data-on=1`、档案卡在、`tdsat_auth_v1` 已落盘，状态「已登录 · 进度自动保存」。
+- **持久化**：刷新 `drill.html` 仍登录（同 `uid 6eb83327-757d-4cf3-b107-67fd75d8e46b` / 邮箱）；
+  新开标签 `wrong.html` 仍登录。
+- **档案表只读查询**：
+  - `/auth/v1/user`（会话 token）：**200**，返回该用户档案。
+  - `/rest/v1/progress`（anon key）：**401**，`code 42501 permission denied`（RLS 生效，匿名读不到）。
+  - `/rest/v1/progress`（会话 token）：**200**，返回一行
+    `user_id=6eb83327…, nickname=同学, updated_at=2026-11-25T16:26:21.18+00:00`。
+- **截图**：`link-loggedin-drill-1280.png`（登录态练习页）、`link-loggedin-wrong-1280.png`（新标签错题页）、
+  `e2e-jiangyi-settings-1280.png`（讲义页登录态设置面板）；三档宽度面板
+  `link-panel-drill-{1280,655,390}.png`、`link-panel-jiangyi-{1280,655,390}.png`。
+- 结构化结果：`e2e-link-result.json`；控制台无未捕获异常。
 
 ## Blocked-by-external（外部阻塞，不在前端糊过）
 1. **邮件模板门禁：6 位数字码版本当前无解**。Supabase Dashboard 明写
@@ -95,4 +124,8 @@
 - 单测：`test/otp-login.test.js`（发码请求形状、收码纯函数形状、hash 会话接住、报错映射、本地恢复）
 
 ## 提交与版本
-- （推送后回填：commit hash、线上 `?v=` 实测值与时刻）
+- 认证相关提交（main，祖先链）：
+  - `8ed6345` / `3991b28`：magic link 首版显式带 `redirect_to`（body 字段；后证实被该 GoTrue 版本忽略）。
+  - `aad8ce8`：**最终修复**——`redirect_to` 改走 query string，body 字段保留兼容；五页资源版本号随之重算。
+- 线上实测：`https://timnotcook.github.io/SAT-Math/`，五页 `?v=4e757a6431a8`，2026-11-25 晚 HKT 部署后复测一致。
+- 单测 142/0；线上 nav 38/38、a11y 20/20、session 22/22；真机 E2E 闭环见上节 ②。
