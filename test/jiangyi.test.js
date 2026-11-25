@@ -121,8 +121,8 @@ test('每题都有原页对照图 docs/jiangyi-proof/{id}.png', () => {
 
 test('图形只走矢量 spec：引用的 fig 必须存在，且不许出现讲义裁图', () => {
   BANK.forEach(q => {
-    if (!q.fig) return;
-    assert.ok(FG.JY_FIG.specs[q.fig], q.id + ' 引用的矢量 spec 不存在：' + q.fig);
+    if (!q.figure) return;
+    assert.ok(FG.JY_FIG.specs[q.figure], q.id + ' 引用的矢量 spec 不存在：' + q.figure);
     assert.ok(!q.image, q.id + ' 不许挂位图 image 字段');
   });
   const crops = fs.existsSync(path.join(ROOT, 'data/figure_crops.json'))

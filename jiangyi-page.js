@@ -124,13 +124,15 @@
     /* 教材原题在题卡上保留一枚来源胶囊（练习册原页），窄屏页脚会隐藏来源，靠它兜住 */
     var bookChip = q.group === 'textbook' ? '<span class="jy-book-chip">' + esc(J.sourceLabel(q)) + '</span>' : '';
     els.jyStem.innerHTML = bookChip + fmt(q.stem) + (q.table ? tableHtml(q.table) : '');
-    if (q.fig && window.JY_FIG && window.JY_FIG.render) {
+    /* 单一字段名 figure：值是 JY_FIG 的 spec 键就走矢量重画，是图片路径才当 <img> */
+    var fk = q.figure || null;
+    if (fk && window.JY_FIG && window.JY_FIG.specs && window.JY_FIG.specs[fk]) {
       els.jyFigure.hidden = false;
-      try { els.jyFigure.innerHTML = window.JY_FIG.render(q.fig); }
+      try { els.jyFigure.innerHTML = window.JY_FIG.render(fk); }
       catch (e) { els.jyFigure.innerHTML = '<span class="drill-choice-placeholder">图形暂缺</span>'; }
-    } else if (q.figure) {
+    } else if (fk) {
       els.jyFigure.hidden = false;
-      els.jyFigure.innerHTML = '<img src="' + esc(q.figure) + '" alt="题目配图（矢量重画）" loading="lazy" ' +
+      els.jyFigure.innerHTML = '<img src="' + esc(fk) + '" alt="题目配图（矢量重画）" loading="lazy" ' +
         'onerror="this.outerHTML=\'<span class=&quot;drill-choice-placeholder&quot;>图形暂缺</span>\'">';
     } else { els.jyFigure.hidden = true; els.jyFigure.innerHTML = ''; }
     var saved = J.answerOf(q.id), val = saved ? String(saved.v || '') : '';

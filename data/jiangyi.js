@@ -12,7 +12,7 @@
      type     mcq | grid
      stem / choices / answer / value
      table    可选，[["x","g (x)"],["2","-4"],...] 用真表格渲染，不用截图
-     fig      可选，矢量 spec 的键（见 data/jiangyi_figures.js）
+     figure   可选，矢量 spec 的键（见 data/jiangyi_figures.js）；也可填图片路径
 
    各节 declared 数 = 答案页该节最大题号；已录必须等于它，差一道不算完成。 */
 
@@ -44,10 +44,10 @@ window.JY_SECTIONS = [
 ];
 
 window.JY_BANK = [
-{"id":"JY1-001","unit":1,"section":"1.1","no":1,"page":7,"source":"讲义 p7 #1","type":"mcq","answer":"A","fig":"JY1-001",
+{"id":"JY1-001","unit":1,"section":"1.1","no":1,"page":7,"source":"讲义 p7 #1","type":"mcq","answer":"A","figure":"JY1-001",
  "stem":"The graph of the line in the xy-plane above shows the relationship between the quantities x and y. Which of the following equations represents x in terms of y?",
  "choices":["x = 12 - (3/2)y","x = 12 - (2/3)y","x = 8 - (3/2)y","x = 8 - (2/3)y"]},
-{"id":"JY1-002","unit":1,"section":"1.1","no":2,"page":7,"source":"讲义 p7 #2","type":"grid","answer":"14","value":14,"fig":"JY1-002",
+{"id":"JY1-002","unit":1,"section":"1.1","no":2,"page":7,"source":"讲义 p7 #2","type":"grid","answer":"14","value":14,"figure":"JY1-002",
  "stem":"The graph of the linear equation 6x + By = 42 is shown, where B is a constant. what is the value of B?"},
 {"id":"JY1-003","unit":1,"section":"1.1","no":3,"page":8,"source":"讲义 p8 #3","type":"mcq","answer":"B",
  "table":[["x","g(x)"],["2","-4"],["3","-2"],["4","0"],["5","2"]],
@@ -56,7 +56,7 @@ window.JY_BANK = [
 {"id":"JY1-004","unit":1,"section":"1.1","no":4,"page":8,"source":"讲义 p8 #4","type":"mcq","answer":"D",
  "stem":"The graph of 7x + 2y = -31 in the xy-plane has an x-intercept at (a, 0) and a y-intercept at (0, b), where a and b are constants. What is the value of b/a?",
  "choices":["- 7/2","- 2/7","2/7","7/2"]},
-{"id":"JY1-005","unit":1,"section":"1.1","no":5,"page":9,"source":"讲义 p9 #5","type":"mcq-graph","answer":"C","fig":"JY1-005","choices":["A","B","C","D"],
+{"id":"JY1-005","unit":1,"section":"1.1","no":5,"page":9,"source":"讲义 p9 #5","type":"mcq-graph","answer":"C","figure":"JY1-005","choices":["A","B","C","D"],
  "stem":"ax + by = b\nIn the equation above, a and b are constants and 0 < a < b. Which of the following could represent the graph of the equation in the xy-plane?"},
 {"id":"JY1-006","unit":1,"section":"1.1","no":6,"page":11,"source":"讲义 p11 #6","type":"mcq","answer":"C",
  "stem":"Line p is defined by 2y + 18x = 9. Line r is perpendicular to line p in the xy-plane. What is the slope of line r?",
@@ -67,7 +67,7 @@ window.JY_BANK = [
 {"id":"JY1-008","unit":1,"section":"1.1","no":8,"page":12,"source":"讲义 p12 #8","type":"mcq","answer":"D",
  "stem":"In the xy-plane, line k is defined by x + y = 0. Line j is perpendicular to line k, and the y-intercept of line j is (0, 3). Which of the following is an equation of line j?",
  "choices":["x + y = 3","x + y = -3","x - y = 3","x - y = -3"]},
-{"id":"JY1-009","unit":1,"section":"1.1","no":9,"page":12,"source":"讲义 p12 #9","type":"mcq","answer":"A","fig":"JY1-009",
+{"id":"JY1-009","unit":1,"section":"1.1","no":9,"page":12,"source":"讲义 p12 #9","type":"mcq","answer":"A","figure":"JY1-009",
  "stem":"Line k is shown in the xy-plane. Line j (not shown) is perpendicular to line k and passes through the point (-20, -19). Which equation defines line j?",
  "choices":["y = (2/5)x - 11","y = (2/5)x - 27","y = (5/2)x - 11","y = (5/2)x - 27"]},
 
@@ -99,7 +99,7 @@ window.JY_BANK = [
  "choices":["-1/2","0","1/2","3/2"]},
 {"id":"JY1-019","unit":1,"section":"1.2","no":10,"page":17,"source":"讲义 p17 #10","type":"grid","answer":"6","value":6,
  "stem":"(3/2)y - (1/4)x = (2/3) - (3/2)y\n(1/2)x + 3/2 = py + 9/2\nIn the given system of equations, p is a constant. If the system has no solution, what is the value of p?"},
-{"id":"JY1-020","unit":1,"section":"1.2","no":11,"page":18,"source":"讲义 p18 #11","type":"mcq-graph","answer":"A","fig":"JY1-011",
+{"id":"JY1-020","unit":1,"section":"1.2","no":11,"page":18,"source":"讲义 p18 #11","type":"mcq-graph","answer":"A","figure":"JY1-011",
  "stem":"If a new graph of three linear equations is created using the system of equations shown and the equation x + 4y = -16, how many solutions x, y will the resulting system of three equations have?",
  "choices":["Zero","Exactly one","Exactly two","Infinitely many"]},
 
@@ -158,9 +158,9 @@ window.JY_BANK = [
 {"id":"JY1-039","unit":1,"section":"1.4","no":11,"page":28,"source":"讲义 p28 #11","type":"mcq","answer":"A",
  "stem":"In a set of four consecutive odd integers, where the integers are ordered from least to greatest, the first integer is represented by x. The product of 16 and the fourth odd integer is at most 29 less than the sum of the first and third odd integers. Which inequality represents this situation?",
  "choices":["16(x+6) \u2264 x+(x+4)-29","16(x+6) \u2265 29-(x+(x+4))","16(x+4) \u2264 x+(x+3)-29","16(x+4) \u2265 29-(x+(x+3))"]},
-{"id":"JY1-040","unit":1,"section":"1.5","no":1,"page":30,"source":"讲义 p30 #1","type":"mcq-graph","answer":"A","fig":"JY1-040","choices":["A","B","C","D"],
+{"id":"JY1-040","unit":1,"section":"1.5","no":1,"page":30,"source":"讲义 p30 #1","type":"mcq-graph","answer":"A","figure":"JY1-040","choices":["A","B","C","D"],
  "stem":"5y + 3x \u2264 15\nThe solution set to the inequality above is represented by the line and shaded region of the graph in which of the following xy-planes?"},
-{"id":"JY1-041","unit":1,"section":"1.5","no":2,"page":31,"source":"讲义 p31 #2","type":"mcq-graph","answer":"D","fig":"JY1-041",
+{"id":"JY1-041","unit":1,"section":"1.5","no":2,"page":31,"source":"讲义 p31 #2","type":"mcq-graph","answer":"D","figure":"JY1-041",
  "stem":"The shaded region shown represents the solutions to which inequality?",
  "choices":["y < 1 + 4x","y < 1 - 4x","y > 1 + 4x","y > 1 - 4x"]},
 {"id":"JY1-042","unit":1,"section":"1.5","no":3,"page":32,"source":"讲义 p32 #3","type":"mcq","answer":"D",
@@ -174,10 +174,10 @@ window.JY_BANK = [
 {"id":"JY1-043","unit":1,"section":"1.5","no":4,"page":34,"source":"讲义 p34 #4","type":"mcq","answer":"D",
  "stem":"y \u2264 3x + 1\nx - y \u2265 1\nWhich of the following ordered pairs (x, y) satisfies the system of inequalities above?",
  "choices":["(-2, -1)","(-1, 3)","(1, 5)","(2, -1)"]},
-{"id":"JY1-044","unit":1,"section":"1.5","no":5,"page":34,"source":"讲义 p34 #5","type":"mcq-graph","answer":"C","fig":"JY1-044",
+{"id":"JY1-044","unit":1,"section":"1.5","no":5,"page":34,"source":"讲义 p34 #5","type":"mcq-graph","answer":"C","figure":"JY1-044",
  "stem":"If the system of inequalities y \u2265 2x + 1 and y > (1/2)x - 1 is graphed in the xy-plane above, which quadrant contains no solutions to the system?",
  "choices":["Quadrant II","Quadrant III","Quadrant IV","There are solutions in all four quadrants."]},
-{"id":"JY1-045","unit":1,"section":"1.5","no":6,"page":35,"source":"讲义 p35 #6","type":"mcq-graph","answer":"B","fig":"JY1-045",
+{"id":"JY1-045","unit":1,"section":"1.5","no":6,"page":35,"source":"讲义 p35 #6","type":"mcq-graph","answer":"B","figure":"JY1-045",
  "stem":"The shaded region shown above represents the solution to which of the following systems of inequalities?",
  "choices":["y < x\ny \u2264 4","y < x\ny \u2265 4","y > x\ny \u2264 4","y > x\ny \u2265 4"]}
 ];
