@@ -75,3 +75,51 @@ B new name  -> {"ok":1,"user":"qa.web4","uid":"58be7744-9358-4d25-8bd5-8e2082137
 - 伪邮箱是 Auth 的登录标识，改名不会改 `auth.users.email`（前端无 service role，红线内）。因此**知道旧伪邮箱 + 密码**仍能在 GoTrue 层直接换到 token；站点客户端只按用户名登录，旧名会以 410 拦住。要彻底废掉旧伪邮箱需 Edge Function + service role。
 - 无邮箱即无自助改密，`renderSupaReset` 明示“联系管理员”。
 - `auth.users` 仍剩 1 个遗留探针 `satmath-probe@qq.com`（无用户名、从未登录），要不要删等你一句话。
+
+## 七、验收实测序列（UI 级，2026-11-25 08:02–08:06 HKT）
+
+上一版验收是「浏览器内调 `TDSUPA` 方法 + curl 打接口」，Tim 要求改成**用户实际会点的路径**。
+于是写了两个脚本，全程只用真实浏览器：点「设置」→「账户」→ 填表 → 点按钮 → 看界面反馈，
+每条断言都从页面里读（`.td-acct-status` / `.td-acct-err` / 有无「退出登录」按钮 / 已答选项是否为
+`aria-pressed="true"`），不靠 SQL、不靠 curl。
+
+- 脚本：`docs/e2e/account-two-browser.mjs`、`docs/e2e/account-one-browser.mjs`、`docs/e2e/lib.mjs`（说明见 `docs/e2e/README.md`）
+- 被测构建：main `b57a94e`；线上 `cloud-account.js?v=728bf5a9d926`（drill / exam / wrong 三页同值）
+
+### 1) 两台机器（两个全新 Chrome profile，互不共享任何登录态）
+
+| # | 相对时刻 | 步骤 | 实测结果 |
+|---|---|---|---|
+| 1 | 13.2s | A 机注册 `qa.seq634927` | `loggedIn=true`，状态「已为你建立专属学习档案」 |
+| 2 | 20.5s | A 机答 1.1 第 1 题，等自动同步 | 云端档案 `{"n":3}` |
+| 3 | 23.8s | A 机登出 | 面板回到「登录（用户名 + 密码）」 |
+| 4 | 27.8s | B 机（全新 profile）打开账户 | 未登录，「进度保存在这台设备」 |
+| 5 | 31.9s | B 机用 `qa.seq634927` 登录 | `loggedIn=true`，云端档案 `{"n":3}`（与 A 机一致） |
+| 6 | 35.8s | B 机登出 | 回到登录表单 |
+| 7 | 42.2s | A 机重新登录 | `loggedIn=true` |
+| 8 | 43.9s | A 机改名 `qa.seq634927` → `qa.sq634927` | 状态「用户名已改为 qa.sq634927，旧名已失效。」，输入框自动变新名 |
+| 9 | 48.5s | B 机用旧名 `qa.seq634927` 登录 | 失败：`.td-acct-err` =「这个用户名已经改过名，请用新用户名登录。」 |
+| 10 | 51.4s | B 机用新名 `qa.sq634927` 登录 | `loggedIn=true`，云端档案 `{"n":3}` |
+| 11 | 51.8s | 三处快照对比 | A `{"n":3}` · B 改名前 `{"n":3}` · B 改名后 `{"n":3}` |
+| 12 | 53.7s | B 机打开同一题（`drill.html?unit=1&sec=1.1&i=1`） | 已答选项恢复：`aria-pressed="true"` 的是 **A** |
+
+截图：`docs/account-evidence/ui-A-register.png`（A 注册成功）、`ui-A-rename.png`（改名成功）、
+`ui-B-old-name-410.png`（B 旧名被拒）、`ui-B-snapshot-restored.png`（B 换机后旧答案恢复）。
+
+### 2) 同一台机器 / 同一浏览器（注册 → 登出 → 登录 → 改名 → 旧名失败 → 新名成功）
+
+| # | 时刻 | 步骤 | 实测结果 |
+|---|---|---|---|
+| S1 | 10.8s | 注册 `qa.one710870` | `loggedIn=true` |
+| S2 | 12.3s | 登出 | 面板回到「登录（用户名 + 密码）」 |
+| S3 | 15.1s | 用旧名重新登录 | `loggedIn=true`，状态「进度已自动保存」 |
+| S4 | 16.4s | 改名 → `qa.on710870` | 状态「用户名已改为 qa.on710870，旧名已失效。」 |
+| S5 | 18.9s | 用旧名登录 | 失败：「这个用户名已经改过名，请用新用户名登录。」 |
+| S6 | 21.1s | 用新名登录 | `loggedIn=true`，状态「进度已自动保存」 |
+
+截图：`/tmp/e2e-rename.png`、`/tmp/e2e-oldfail.png`、`/tmp/e2e-newok.png`（同机三连；仓库内未另存）。
+
+### 3) 这轮实测暴露并已修掉的一个真 bug
+同机跑 S2 时发现：**注册完登出，设置面板停在「注册（用户名 + 密码）」表单，不是登录表单**——
+`emailMode` 变量在注册后没复位。已修：`doSignOut()` 里 `emailMode = 'login'`，提交 `b57a94e`
+（`cloud-account.js?v=728bf5a9d926`）。修后重跑上面两套序列，全部按预期通过。
