@@ -48,4 +48,16 @@ Supabase Dashboard 执行，客户端 anon key 不可自助授权）。客户端
 - 线上态截图与 `?v=` 记录见本文件末尾「线上实测」。
 
 ## 线上实测
-（push 后补：`?v=`、面板实际表现）
+- HEAD：`51ba63d`（cloud-account.js 1385 行完整版落地；远端曾被分段推送留成截断坏态，本提交恢复）。
+- 资源版本：五页 `?v=3a31dbadc74c` 同值（index / drill / exam / wrong / jiangyi）。
+- 面板实际表现（线上 `https://timnotcook.github.io/SAT-Math`，headless Chrome 直打）：
+  - 入口 `.td-acct-btn` 点击后 `.td-acct-layer[data-open="1"]`，面板 1280 档 `430×618`、390 档 `350×656`，宽度 > 0 不出框。
+  - 默认主位为「GitHub 令牌登录（当前可用）」；「用户名 + 密码登录（通道维护中，暂不可用）」默认折叠，展开先出淡黄说明块，原表单保留不禁用。
+  - 维护块内提交 `bogus-zzz` + 任意密码 → 红条「没有找到这个用户名。」与淡黄说明同屏，不再静默。
+- 截图（10 张，三档视口）：`docs/ui-shots/bugfix-2026-11-25/`
+  `acct-default-drill-{1280,655,390}.png`、`acct-default-exam-1280.png`、
+  `acct-maintain-open-{1280,655,390}.png`、`acct-404-{1280,655,390}.png`。
+- 回归：`node tools/verify_acct_entry.mjs --base https://timnotcook.github.io/SAT-Math`
+  = 16/18。两条 FAIL 均为 `acct/drill-result·宽度`、`acct/drill-result·390 宽度`（0×0 parent=0
+  rail=0/none/0 ctx=0/none）：resultView 可见时 `.site-rail` 被 app.css 冻结规则 `display:none`、
+  该视图又无 `.drill-context-right` 可挂，属 main 既有宿主缺口基线，与本次改动无关。
