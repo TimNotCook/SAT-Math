@@ -58,7 +58,7 @@ const dup = [...groups.values()].filter(g => g.length > 1)
 
 /* Unit 4 的 9 道精编原题已从真题侧撤出，改挂讲义复习 JY4「教材原题」子组（练习册 P200–207）。
    它们与 TD 教材 4.1 / 4.2 是同一批原题，canonical 一律回 TD（教材板块才是正式家），
-   U4 副本标 dup、错题本归并。口径由 Tim 2026-11-25 定：8 道标 dup，U4-01 独占保留。
+   U4 副本标 dup、错题本归并。口径：8 道标 dup；U4-01 于 2026-11-26 一并归并（见文末 U4-01 行）。
    （实测 U4-01 与 TD-41-01 也是同题 P200 #1、答案同为 D，已在 docs/VERIFY-2026-11-25.md 挂待裁决。）*/
 const JY4_DUP = {
   'U4-02': 'TD-41-02', 'U4-03': 'TD-41-03', 'U4-04': 'TD-41-05', 'U4-05': 'TD-41-06',
@@ -67,6 +67,10 @@ const JY4_DUP = {
 
 const alias = {};
 for (const g of dup) for (const m of g.members.slice(1)) alias[m.id] = g.canonical;
+/* U4-01（练习册 P200 #1）：与 TD-41-01 同题、答案同为 D。2026-11-26 定案归并——
+   错题本只记一笔；JY4-047 仍留在 JY_BANK 供讲义「教材原题」展示原页对照。 */
+alias['JY4-047'] = 'TD-41-01';
+
 /* JY4 教材原题：显式覆盖自动判定（自动判定会把 TD 反向指到 U4） */
 for (const [from, to] of Object.entries(JY4_DUP)) {
   for (const k of Object.keys(alias)) if (alias[k] === from) delete alias[k];
@@ -119,12 +123,12 @@ if (process.argv.includes('--doc')) {
   L.push('\n## Unit 4 教材原题子组（JY4 · 练习册 P200–207）\n');
   L.push('口径（Tim 2026-11-25）：这 9 道已从真题侧的隐藏板块撤出，改挂「讲义复习 Unit4・教材原题」子组；');
   L.push('**不计入讲义官方 4.1–4.5 的 52 道**（4.1=2、4.2=14、4.3=8、4.4=12、4.5=16）。');
-  L.push('其中 8 道与 TD 教材 4.1 / 4.2 是同一批原题 → canonical 回 TD，U4 副本标 dup、错题本归并；U4-01 独占保留。\n');
+  L.push('其中 8 道与 TD 教材 4.1 / 4.2 是同一批原题 → canonical 回 TD，U4 副本标 dup、错题本归并；U4-01 于 2026-11-26 一并归并。\n');
   L.push('| U4 编号 | 原书位置 | 处理 | 归并到 | 备注 |');
   L.push('|---|---|---|---|---|');
   const u4items = items.filter(x => /^U4-0\d/.test(x.id));
   const u4only = u4items.find(x => x.id === 'U4-01');
-  L.push(`| U4-01 | ${u4only ? u4only.source : '练习册 P200 #1'} | 独占保留 | — | 按 2026-11-26 定案不标 dup（技术账见 docs/TASKS.md「已定案」第 2 条）；实测与 TD-41-01 同题（P200 #1，答案同为 D） |`);
+  L.push(`| U4-01 | ${u4only ? u4only.source : '练习册 P200 #1'} | 已归并 | JY4-047 → TD-41-01 | 2026-11-26 定案：与 TD-41-01 同题（P200 #1、答案 D），错题本只记一笔；讲义侧 JY4-047 仍展示原页对照 |`);
   for (const [from, to] of Object.entries(JY4_DUP)) {
     const it = items.find(x => x.id === from);
     const auto = dup.some(g => g.members.some(m => m.id === from));

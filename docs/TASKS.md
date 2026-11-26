@@ -25,7 +25,7 @@
 | 线上页面 | `index` / `drill` / `exam` / `wrong` / `jiangyi` 全部 HTTP 200 | `curl -s -o /dev/null -w "%{http_code}" https://timnotcook.github.io/SAT-Math/<page>.html` |
 | 题库 | **1292** 题（id 全唯一）：easy 281 / medium 565 / hard 164 + 2026-11-25/26 逐字录入包（R03/R04 等）；mcq / grid 比例随新包变动 | `node -e` 起 `vm` 跑 `data/questions.js`，`TD_BANK.questions.length` 与 `new Set(id)` 计数（字段名是 `level`，没有 `difficulty`） |
 | 单元分布 | 1–268 / 2–333 / 3–453 / 4–238 |
-| 讲义复习进度 | 官方 24 节 / 应有 **243** / 已录 **226** / 缺 **17** / 完成 **23 / 24 节**（缺 4.5 16、2.5 #10） | `python3 tools/gen_jiangyi_reconcile.py`（输出 `need=243 have=226`）与 `docs/jiangyi-backlog.md` | 同上一条脚本，按 `unit` 计数 |
+| 讲义复习进度 | 官方 24 节 / 应有 **243** / 已录 **243** / 缺 **0** / 完成 **24 / 24 节** | `python3 tools/gen_jiangyi_reconcile.py`（输出 `need=243 have=243`）与 `docs/jiangyi-backlog.md` | 同上一条脚本，按 `unit` 计数 |
 | 登录后端（线上实况） | **Supabase 邮箱 magic link 单通道**（`cloud-config.js` 的 `supabase.url` + `anonKey` + `siteUrl`；`/otp` 显式带 `redirect_to` 回跳 `/SAT-Math/`）；GitHub 令牌、用户名密码、Firebase、WorkBuddy 登录通道均已下线。WorkBuddy 的 `endpoint` / `publishableKey` **只服务图片识别 VLM**，不是登录 | `sed -n '1,30p' cloud-config.js`；`docs/bugfix-2026-11-25-login-otp-only.md`；`docs/account-model.md` |
 | Firebase 状态 | 模块已摘除：`firebase-cloud.js` 与 `vendor/firebase/` 均不存在，五页无引用，CSP 无 firebase 域名 | `ls firebase-cloud.js vendor/firebase`；`grep -c firebase-cloud *.html` |
 | Supabase 迁移分支 | `backup/supabase-auth-5a0c22b` 仍存在且**未合并**（`git merge-base --is-ancestor 5a0c22b origin/main` 退出码 1） | 同左命令 + `git ls-remote --heads origin` |
@@ -34,13 +34,14 @@
 
 | 人 | 任务 | 阻塞点（现状） | 验收 |
 |---|---|---|---|
-| 码农 α | 讲义录入：剩 4.5 圆 一节 + 2.5 #10 补录，**同一时间只许一个人写 `data/jiangyi.js`** | 已录 226 / 应有 243，**缺 17**：4.5 十六题 + 2.5 #10（选项图待 renderPanel 扩点图）；派工底稿 `docs/jiangyi-backlog.md`、开工材料 `docs/jiangyi-prep/4.5.md` | 每节「已录 = 应有」且 `npm test` 绿 |
+| 码农 α | 讲义录入已清零（4.5 十六 + 2.5 #10 于 `61002ef` 入库），转入待命：后续只接主会话派的新节或返工单 | 无阻塞；`data/jiangyi.js` 写入权已释放（243/243，`verify_jiangyi` 0 FAIL） | 新派单须带原页页码 + 答案页核对 |
 | 开发者 | ① 给阴影题补 `region`（P0-2），按原题 PDF 逐个核对阴影方向；② 批量修数学排版（P1-6）：`f (x)`→`f(x)`、`(2/3)` 去括号、问号前空格；③ 加校验：题干含 shaded 但 spec 无 `region` 就报错；④ 云主机清僵尸副本（仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本） | 阴影题口径已定案 **5 道**（见「已定案」第 1 条），按此验收；云主机疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对后再动 | 阴影题逐个截图与原题一致；校验脚本能拦住同类错误；题库仍 **1292** 且判分回归全过 |
 | 码农 β | 账号面板与云同步收尾（magic link 单通道下的档案读取、换设备进度、设置页回归） | 6 位数字码需自定义 SMTP + 模板改造后才能切回；当前只能 magic link | 真机 magic link 登录；换设备能看到进度 |
 | 主会话（我） | 验收与台账：维护本文件、复核各人结论、跑站点与题库回归；不碰业务代码 | — | 每人交付必须带 commit hash + 线上验证证据，缺一不签收 |
 
 ## 已完成（勿重复做）
 
+- **讲义 4.5 十六题 + 2.5 #10 入库**（`61002ef`，JY4-128…143、JY2-054 点图选项），官方 243/243、24/24 节清零。
 - **讲义 2.x 全部入库**（2.1 `6e7300a` / 2.2 `0235019` / 2.3 `ad1b592` / 2.4 `7cb7e7b` / 2.5 `4a2f313` / 2.6 `21bc683` / 2.7 `1017ddf`），剩 2.5 #10 一条挂在 α。
 - **讲义 3.x 全部入库**（3.1 `0f078f1` / 3.2 `bad4eb5` / 3.3 `00cf518` / 3.4 `657e0a9` / 3.5+3.6 `27e3efa`），68 / 68 全绿。
 - **讲义 4.1–4.4 入库**（4.1 `dde65b0` / 4.2 `234b58c` / 4.3 `f329e03` / 4.4 `fc10e43`），官方 U4 已录 36 / 52。
@@ -69,8 +70,8 @@
 ## 已定案（勿再问）
 
 1. **阴影题 = 5 道（6 条记录）**。判据：`data/questions.js` 里题干含 `shaded region(s)` 的记录 6 条 —— `U1-12`、`U1-13`、`TD-15-01`、`TD-15-02`、`TD-15-03`、`R04-104`；其中 `U1-13` 与 `TD-15-01` 是同一题（练习册 P53 #1，同一张图，别名已在 `data/aliases.js`），去重后 **5 道**：U1-12、TD-15-01、TD-15-02、TD-15-03、R04-104。「4 道」只数了 TD-15 那组，漏了 U1-12 与 R04-104；验收一律按 5 道。
-2. **`JY4-047` 与 `TD-41-01` 同题，但保留独立、不并组**。实测同题（练习册 P200 #1，答案同为 D）。不并的理由：讲义 4.1 的教材原题子组要独立展示原页对照；并组会让 alias 成链（`U4-09 → TD-42-10 → JY4-055`），破坏 `aliases.test.js` 的「无链 / 不倒挂」两条硬规则，代价远大于收益（错题本多记 1 笔统计）。2026-11-26 试过并组，`npm test` 直接 3 红，已回滚。
-3. **2.5 #10 缓录**。单题，缺的是选项点图（需 `renderPanel` 扩点图），改渲染管线换 1 题不值得；等 α 把 4.5 十六题推完再顺手补，不阻塞任何验收。
+2. **`JY4-047` 已归并到 `TD-41-01`**（`data/aliases.js` 里 `"JY4-047":"TD-41-01"`）。同题实测：练习册 P200 #1，答案同为 D。归并只影响错题本（`wrong-page.js` 是唯一读 `TD_ALIAS` 的模块），错题只记一笔；讲义侧 `JY_BANK` 里的 JY4-047 照旧展示原页对照。此前并不上是因为 alias 成链（`U4-09 → TD-42-10 → JY4-055`）与 rank 倒挂，`4fc8f22` 的 chain-flatten + JY4 rank=3 已修掉这两个拦路条件，现在 `npm test` 142 全绿。
+3. ~~2.5 #10 缓录~~ 已补（`61002ef`，`JY2-054` 点图选项），243/243 清零；此条作废。
 
 ## 签收规则
 
