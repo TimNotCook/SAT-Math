@@ -112,6 +112,7 @@
   /* ---------- 做题 ---------- */
   var qs = [];
   function openSection(id, sec, at) {
+    if (!J) { J = window.TD_JY; if (!J) { jyToast('讲义数据还在加载，稍等一下'); return; } }
     boardId = id; section = sec; qs = J.questionsOf(id, sec);
     var i = Math.min(Math.max(0, at || 0), Math.max(0, qs.length - 1));
     index = i;
@@ -225,6 +226,7 @@
   els.jyNext.addEventListener('click', function () { if (index < qs.length - 1) { index++; renderQ(); } });
   els.jyBackList.addEventListener('click', function (e) { e.preventDefault(); openBoard(boardId); });
   els.jySubmit.addEventListener('click', function () {
+    if (!J) { J = window.TD_JY; if (!J) { jyToast('讲义数据还在加载，稍等一下'); return; } }
     var rec = J.submitSection(boardId, section);
     if (rec) renderResult(rec); else openBoard(boardId);
   });
