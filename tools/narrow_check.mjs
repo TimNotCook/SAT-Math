@@ -14,7 +14,7 @@ const WIDTHS = (process.env.WIDTHS || '655,390').split(',').map(Number).filter(B
 const PORT = 9580 + Math.floor(Math.random() * 80);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-  `--remote-debugging-port=${PORT}`, `--user-data-dir=${tempProfile('narrow-')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+  `/remote-debugging-port=${PORT}`, `--user-data-dir=${tempProfile('narrow-')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 process.on('exit', () => { try { proc.kill('SIGKILL'); } catch (e) {} });
 
 async function cdp() {
@@ -30,7 +30,9 @@ async function cdp() {
 
 const PROBE = `(() => {
   const vw = window.innerWidth;
-  const docW = document.scrollingElement.scrollWidth;
+  /* scrollingElement 在页面未解析完时是 null，直接取值会抛异常 → 探针整体失败、
+     输出 docW=undefined，而判定只看 hscroll/over → 假绿（2026-11-26 复现）。加兜底。 */
+  const docW = (document.scrollingElement || document.documentElement).scrollWidth;
   const out = [];
   for (const el of document.querySelectorAll('body *')) {
     if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') continue;
@@ -57,7 +59,7 @@ const PROBE = `(() => {
       right: Math.round(r.right), w: Math.round(r.width), h: Math.round(r.height),
       scrollW: pill.scrollWidth, clientW: pill.clientWidth, ws: cs.whiteSpace, overflowX: cs.overflowX,
       heightOverflow: pill.scrollHeight > pill.clientHeight + 1, text: (pill.innerText||'').replace(/\\s+/g,' ').slice(0,60) }; })() : null;
-  return JSON.stringify({ vw, docW, hscroll: docW > vw + 1, over: out.slice(0, 25), overCount: out.length, pill: pillInfo,
+  return JSON.stringify({ vw, docW, rs: document.readyState, hscroll: docW > vw + 1, over: out.slice(0, 25), overCount: out.length, pill: pillInfo,
     stage: (document.querySelector('.stage:not([hidden])') || {}).id || '' });
 })()`;
 
@@ -75,12 +77,30 @@ const PAGES = [
 const c = await cdp();
 await c.send('Page.enable'); await c.send('Runtime.enable');
 fs.mkdirSync(OUT, { recursive: true });
+/* 固定 sleep 猜加载时间，猜短了探针就在半成品页面上跑 → 无意义数字甚至假绿。
+   改成轮询「页面已可渲染」（scrollingElement + body 有子元素），记 readyState 供诊断。 */
+async function waitReady(c, ms = 15000) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < ms) {
+    const r = await c.send('Runtime.evaluate', {
+      /* 判「能可靠测试」而不是「全部资源到齐」：线上 data/questions.js 好几 MB，
+         冷启动常把 readyState 卡在 interactive 远超 15s，但页面布局早已可测。 */
+      expression: `(!!document.scrollingElement && !!document.body && document.body.children.length > 0) ? 1 : 0`,
+      returnByValue: true,
+    });
+    if (r && r.result && r.result.value === 1) return true;
+    await sleep(200);
+  }
+  return false;
+}
+
 const rows = [];
 for (const wd of WIDTHS) {
   await c.send('Emulation.setDeviceMetricsOverride', { width: wd, height: 844, deviceScaleFactor: 2, mobile: wd <= 480 });
   for (const p of PAGES) {
     await c.send('Page.navigate', { url: BASE + p.url });
-    await sleep(3200);
+    const rendered = await waitReady(c);
+    await sleep(700); /* 再给布局/字体一点稳定时间 */
     // 模考再加一屏：进答题页（答题页最容易横向撑破）
     if (p.name === 'mock-intro') {
       await c.send('Runtime.evaluate', { expression: `document.getElementById('btnStart') && document.getElementById('btnStart').click()`, returnByValue: true });
@@ -91,16 +111,17 @@ for (const wd of WIDTHS) {
     const tag = `${p.name}-${wd}`;
     const shot = await c.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     if (shot && shot.data) fs.writeFileSync(path.join(OUT, 'narrow-' + tag + '.png'), Buffer.from(shot.data, 'base64'));
-    rows.push({ page: p.label, url: p.url, width: wd, file: 'narrow-' + tag + '.png', ...d });
-    console.log(`${wd}px ${p.label.padEnd(12)} docW=${d.docW} vw=${d.vw} 横滚=${d.hscroll ? 'YES' : 'no'} 出框=${d.overCount} stage=${d.stage}`);
+    rows.push({ page: p.label, url: p.url, width: wd, file: 'narrow-' + tag + '.png', rendered, ...d });
+    console.log(`${wd}px ${p.label.padEnd(12)} 就绪=${rendered} rs=${d.rs} docW=${d.docW} vw=${d.vw} 横滚=${d.hscroll ? 'YES' : 'no'} 出框=${d.overCount} stage=${d.stage}`);
     for (const o of (d.over || []).slice(0, 6)) console.log('    -', o.el, `right=${o.right} w=${o.w} sw=${o.scrollW}/${o.clientW} ws=${o.ws}`, JSON.stringify(o.text));
     if (d.pill) console.log('    pill', JSON.stringify(d.pill));
   }
 }
 fs.writeFileSync(path.join(OUT, 'narrow-check.json'), JSON.stringify({ base: BASE, time: new Date().toISOString(), rows }, null, 1));
-const bad = rows.filter(r => r.hscroll || (r.over || []).some(o => o.outside && o.text));
+const bad = rows.filter(r => r.rendered === false || r.docW == null || r.hscroll || (r.over || []).some(o => o.outside && o.text));
 console.log(`\n=== ${rows.length} 屏次 / 横向滚动或出框 ${bad.length} ===`);
-for (const b of bad) console.log(`  ${b.width}px ${b.page} 横滚=${b.hscroll} 出框文字=${(b.over || []).filter(o => o.outside && o.text).length}`);
+for (const b of bad) console.log(`  ${b.width}px ${b.page} 就绪=${b.rendered} 横滚=${b.hscroll} 出框文字=${(b.over || []).filter(o => o.outside && o.text).length}`);
 try { c.ws.close(); } catch (e) {}
 try { proc.kill('SIGKILL'); } catch (e) {}
 process.exit(bad.length ? 1 : 0);
+
