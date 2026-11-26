@@ -115,6 +115,11 @@
 
   function render() {
     var box = $('histList');
+    if (!box) return;   /* 极端时序下 DOM 还没就绪，别抛错让页面停在占位 */
+    var sig = String(localStorage.getItem(RESULTS) || '').length + '|' +
+              String(localStorage.getItem(ABANDONED) || '').length;
+    if (box.getAttribute('data-sig') === sig) return;   /* 数据没变就别重建，保住展开状态 */
+    box.setAttribute('data-sig', sig);
     /* 两组各自按时间倒序：存档存进去的顺序不一定是时间序，别用 reverse 赌 */
     var byDateDesc = function (a, b) { return (b.date || 0) - (a.date || 0); };
     var results = (load(RESULTS) || []).filter(function (r) { return r && !r.void; }).sort(byDateDesc);
@@ -134,8 +139,11 @@
       });
     });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
-  else render();
+  /* 三路启动：defer 执行时 DOM 通常已就绪，直接渲染；万一 readyState 判断
+     或时序意外，DOMContentLoaded / load 再各兜一次（render 自带指纹去重）。 */
+  render();
+  document.addEventListener('DOMContentLoaded', render);
+  window.addEventListener('load', render);
 
   /* 云账号模块（cloud-account.js）登录后会把云端档案合并写回 localStorage，
      但那发生在本次脚本之后；轮询比对数据长度，一旦落地就重渲染一次，
