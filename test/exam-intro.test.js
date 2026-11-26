@@ -44,3 +44,11 @@ test('模考页：刷新恢复时必须告知「计时未暂停、点 Start 继�
     '单元抽查刷新恢复也要给出中文提示');
   assert.ok(!/introNote = introNote/.test(js), '不得覆盖模块一超时已有的专属说明');
 });
+
+test('模考页：Start 在脚本绑好前必须禁用，绑好后与兜底 Reload 都要解禁', () => {
+  const html = read('exam.html');
+  const js = read('exam.js');
+  assert.match(html, /id="btnStart"[^>]*disabled/, '静态 Start 必须先禁用，避免第一下点空');
+  assert.match(js, /\$\('btnStart'\)\.disabled\s*=\s*false/, '绑定 click 后必须解禁');
+  assert.match(html, /btn\.textContent = 'Reload'; btn\.disabled = false/, '兜底变 Reload 时必须解禁');
+});

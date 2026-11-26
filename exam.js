@@ -1196,6 +1196,9 @@
 
   $('bankCount').textContent = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
   $('btnStart').addEventListener('click', startSession);
+  /* 页面先画出 Start、defer 脚本还在加载的那几百毫秒里，按钮可点但没监听器，
+     学生第一下会点空。绑好后统一解禁；脚本挂了则保留禁用，由兜底改 Reload。 */
+  $('btnStart').disabled = false;
   $('btnPrev').addEventListener('click', () => goTo(S.idx - 1));
   $('btnNext').addEventListener('click', () => goTo(S.idx + 1));
   $('btnQuestionNav').addEventListener('click', openNavigator);
