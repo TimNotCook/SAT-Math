@@ -360,10 +360,10 @@
     if (active === 'exam') active = mode === 'quiz' ? 'quiz' : 'mock';
     var items = [
       { id: 'drill', label: '真题练习', href: 'drill.html' },
-      { id: 'jiangyi', label: '讲义复习', href: 'jiangyi.html' },
       { id: 'quiz', label: '单元抽查', href: 'exam.html?mode=quiz&unit=1' },
       { id: 'wrong', label: '错题回顾', href: 'wrong.html' },
-      { id: 'mock', label: '模考', href: 'exam.html?mode=mock' }
+      { id: 'mock', label: '模考', href: 'exam.html?mode=mock' },
+      { id: 'history', label: '模考记录', href: 'history.html' }
     ];
     host.innerHTML = '<header class="appbar"><div class="appbar-inner">' +
       '<a class="brand" href="drill.html"><b>SAT Math Prep</b></a>' +
