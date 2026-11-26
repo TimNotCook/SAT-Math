@@ -137,7 +137,7 @@ for (const v of VIEWS) {
 }
 
 /* 首页与讲义页：首页已成根跳转桩（落在 drill），断言跳转后入口可见；
-   讲义页按设计不加载 cloud-account.js，断言「无入口也是预期」。 */
+   讲义页自 dee8483 起也挂了 cloud-account.js，按同标准四项校验。 */
 await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
 await goto(`${BASE}/index.html`);
 const idx = await ev(`(() => ({
@@ -152,15 +152,39 @@ check('acct/index.html·跳转后入口', '根/首页跳到 drill.html，且该�
 await shot('acct-index-redirect-1280.png');
 await send('Emulation.clearDeviceMetricsOverride');
 
+await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
 await goto(`${BASE}/jiangyi.html`);
-const jy = await ev(`(() => ({
-  path: location.pathname,
-  hasScript: Array.from(document.scripts).some(s => /cloud-account\\.js/.test(s.src)),
-  btns: document.querySelectorAll('.td-acct-btn').length
-}))()`) || {};
-check('acct/jiangyi.html·设计核对', '讲义页未加载 cloud-account.js ⇒ 无 .td-acct-btn（设置入口只挂真题三页）',
-  `script=${jy.hasScript} btns=${jy.btns} path=${jy.path}`,
-  jy.hasScript === false && jy.btns === 0);
+let jy = await probeWide();
+if (jy.n === 0) { await goto(`${BASE}/jiangyi.html`); jy = await probeWide(); }
+check('acct/jiangyi.html·存在', '至少 1 个 .td-acct-btn（该页已加载 cloud-account.js）',
+  jy.n > 0 ? `${jy.n} 个（${jy.cls} @ ${jy.host}）` : '0 个', jy.n > 0);
+check('acct/jiangyi.html·宽度', 'getBoundingClientRect().width > 0', `${jy.w}×${jy.h} rail=${jy.rail}`, jy.w > 0);
+const jo = await ev(CLICKS_OPEN) || { ok: false };
+check('acct/jiangyi.html·可点开', '点击后 data-open=1 且面板有尺寸', `open=${jo.open} panel=${jo.pw}×${jo.ph}`, !!jo.ok);
+await ev(`(() => { const l = document.querySelector('.td-acct-layer'); if (l) l.setAttribute('data-open','0'); })()`);
+await shot('acct-jiangyi-1280.png');
+await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+const jm = await probeWide();
+check('acct/jiangyi.html·390 宽度', '窄屏下 width > 0', `${jm.w}×${jm.h}`, jm.w > 0);
+await shot('acct-jiangyi-390.png');
+await send('Emulation.clearDeviceMetricsOverride');
+
+/* 模考各阶段：信息项（不计入通过数），已知缺口与 drill 结果视图同源。
+   手法：直接切 #stage-* 的 hidden，让 app.css:532-537 的 :has 规则真实生效。 */
+await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+await goto(`${BASE}/exam.html?mode=mock`);
+await probeWide();
+const examStages = [];
+for (const st of ['intro', 'answer', 'review', 'submit', 'result']) {
+  await ev(`(() => { ['intro','answer','review','submit','result'].forEach(s => {
+    const el = document.getElementById('stage-' + s); if (el) el.hidden = (s !== '${st}');
+  }); })()`);
+  await sleep(500);
+  const m = await ev(PROBE) || { w: 0 };
+  examStages.push(`${st}=${m.w}`);
+}
+console.log(`INFO  模考阶段入口宽度（不计入通过数）：${examStages.join(' / ')}`);
+await send('Emulation.clearDeviceMetricsOverride');
 
 const failed = results.filter(r => !r.pass);
 console.log(`\n${results.length - failed.length}/${results.length} 通过，截图在 ${OUT}`);
