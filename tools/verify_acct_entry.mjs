@@ -10,25 +10,48 @@
  *   node tools/verify_acct_entry.mjs --base https://timnotcook.github.io/SAT-Math --out /tmp/proof-acct
  */
 import { spawn } from 'child_process';
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve, join } from 'path';
+import { randomBytes } from 'crypto';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const argVal = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const HAS_BASE = args.includes('--base');
-const BASE = argVal('--base', 'http://127.0.0.1:8492').replace(/\/+$/, '');
 const OUT = resolve(argVal('--out', '/tmp/sat-acct-proof'));
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const PORT = 8492;
-const CDP = 9840 + Math.floor(Math.random() * 100);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+/* 端口必须自证是「本仓库」的服务器：固定端口曾被别的 worktree 的 http.server 占住，
+   测到的全是旧代码（2026-11-26 踩过）。所以随机端口 + 写标记文件 + 回读校验。 */
+const MARK = '.verify-acct-marker';
+const TOKEN = randomBytes(6).toString('hex');
+let PORT = 0;
+let BASE = argVal('--base', '');
+let server = null;
+if (!HAS_BASE) {
+  const fs = await import('fs');
+  for (let attempt = 0; attempt < 8 && !PORT; attempt++) {
+    const cand = 8300 + Math.floor(Math.random() * 600);
+    const srv = spawn('python3', ['-m', 'http.server', String(cand), '--directory', ROOT], { stdio: 'ignore' });
+    await sleep(600);
+    try {
+      fs.writeFileSync(join(ROOT, MARK), TOKEN);
+      const r = await fetch(`http://127.0.0.1:${cand}/${MARK}`, { cache: 'no-store' });
+      const t = r.ok ? await r.text() : '';
+      if (t.trim() === TOKEN) { PORT = cand; server = srv; }
+      else { try { srv.kill('SIGKILL'); } catch (e) {} }
+    } catch (e) { try { srv.kill('SIGKILL'); } catch (e2) {} }
+  }
+  try { unlinkSync(join(ROOT, MARK)); } catch (e) {}
+  if (!PORT) { console.error('无法在 8300-8899 起本仓库的静态服务器，请用 --base 指向本地/线上站点'); process.exit(2); }
+  BASE = `http://127.0.0.1:${PORT}`;
+}
+const CDP = 9800 + Math.floor(Math.random() * 150);
+
 mkdirSync(OUT, { recursive: true });
-const server = HAS_BASE ? null : spawn('python3', ['-m', 'http.server', String(PORT), '--directory', ROOT], { stdio: 'ignore' });
-if (server) await sleep(700);
 const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
   `--remote-debugging-port=${CDP}`, `--user-data-dir=/tmp/vae-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.kill('SIGKILL'); } catch (e) {} } };
@@ -169,8 +192,8 @@ check('acct/jiangyi.html·390 宽度', '窄屏下 width > 0', `${jm.w}×${jm.h}`
 await shot('acct-jiangyi-390.png');
 await send('Emulation.clearDeviceMetricsOverride');
 
-/* 模考各阶段：信息项（不计入通过数），已知缺口与 drill 结果视图同源。
-   手法：直接切 #stage-* 的 hidden，让 app.css:532-537 的 :has 规则真实生效。 */
+/* 模考各阶段：2026-11-26 已修（作答挂 .exam-toolbar-actions，检查/交卷/成绩走 fixed 兜底），
+   这里从信息项升级为断言项，防止回退。手法：直接切 #stage-* 的 hidden，让 app.css 的 :has 规则真实生效。 */
 await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
 await goto(`${BASE}/exam.html?mode=mock`);
 await probeWide();
@@ -179,11 +202,13 @@ for (const st of ['intro', 'answer', 'review', 'submit', 'result']) {
   await ev(`(() => { ['intro','answer','review','submit','result'].forEach(s => {
     const el = document.getElementById('stage-' + s); if (el) el.hidden = (s !== '${st}');
   }); })()`);
-  await sleep(500);
-  const m = await ev(PROBE) || { w: 0 };
+  await sleep(1300);
+  const m = await ev(PROBE) || { w: 0, cls: '' };
   examStages.push(`${st}=${m.w}`);
+  check(`acct/exam·${st}`, '该阶段 .td-acct-btn width > 0',
+    `${m.w}×${m.h} ${m.cls ? '[' + m.cls + ']' : ''}`, m.w > 0);
 }
-console.log(`INFO  模考阶段入口宽度（不计入通过数）：${examStages.join(' / ')}`);
+console.log(`INFO  模考阶段入口宽度：${examStages.join(' / ')}`);
 await send('Emulation.clearDeviceMetricsOverride');
 
 const failed = results.filter(r => !r.pass);

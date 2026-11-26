@@ -51,7 +51,7 @@
 - **P0-1 模考旧存档修复**：闭合于 `30dfb0a`（恢复前校验 `m1Size`/`paper`/`endsAt`，残缺存档按官方 22/22 重建或明示过期），边界补强在 `114b81a`（作废不静默清零、模块二刷新、超时刷新）。回归证据：`test/session.test.js`（缺 `m1Size` 补 22、`m1Size=30` → expired/m1、`m1Size=0` → `sessionRange` 返回 null）。
 - **P0-3 重复 Reference 已修**：同一笔 `30dfb0a`。核对：`exam.js:1122` 只渲染 `#btnReference` 一个入口，`app-ui.js:227` 的 `bindTools` 按配置单例绑定。
 - **P1-4 练习页顶栏改回真实板块名**：`30dfb0a`；导航文案统一在 `332bfc4`（去掉「（JY1–JY4）」后缀）。
-- **设置入口挂载**：`2a0d472`（侧栏 `site-rail`）+ `2269ce4`（做题视图整块隐藏侧栏时改挂顶部工具条右侧）。**已知缺口**：结果视图里 `site-rail` 与 `.drill-context-right` 同时不可见（`app.css:532-537` 的冻结规则），此时按钮 `width=0`——见 `tools/verify_acct_entry.mjs` 的两条红项，待编程者评估宿主。
+- **设置入口挂载**：`2a0d472`（侧栏 `site-rail`）+ `2269ce4`（做题视图整块隐藏侧栏时改挂顶部工具条右侧）+ **本轮修复**（`cloud-account.js`：结果页挂 `.drill-result-actions`、模考作答挂 `.exam-toolbar-actions`、检查/交卷/成绩走 fixed 右下角兜底，切回列表自动收回）。矩阵与坑见 `docs/settings-entry-coverage.md`；回归 `tools/verify_acct_entry.mjs` **26/26**。
 - **qa.\* 测试账号清理**：2026-11-25 11:00 前后由总监在 Dashboard SQL Editor 执行，四表归零（`users=1 / names=0 / alias=0 / prog=0`），核对清单见 `docs/sql/cleanup-qa-verify.md`。
 
 - **云主机归位（开发者④前半段）**：`~/SAT-Math-vm` 原在 `ca36aa8`，与 `54535f9` 逐字节相同（`git diff` 为空），已 `reset --hard origin/main`；现三份工作区一致。开发者只需做④剩下的「清僵尸副本」——**仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本**（云主机上疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对）。

@@ -822,6 +822,13 @@
       // 做题视图：侧栏被冻结规则整块 display:none，入口改挂顶部工具条右侧（Reference / 退出 那一排）。
       var ctx = document.querySelector('.drill-context-right');
       if (vis(ctx)) return { node: ctx, cls: 'ctx-settings', first: true };
+      // 模考作答：题号条右侧那一排（Directions / Reference / Calculator / Review / Submit）。
+      // 侧栏在 stage-answer 起就被 app.css 的 :has 规则藏掉，这里必须有自己的落点。
+      var examTools = document.querySelector('.exam-toolbar-actions');
+      if (vis(examTools)) return { node: examTools, cls: 'ctx-settings', first: true };
+      // 真题结果页：底部的「返回板块列表 / 继续练习 / 查看错题」那一排。
+      var resultActions = document.querySelector('.drill-result-actions');
+      if (vis(resultActions)) return { node: resultActions, cls: 'ctx-settings', first: false };
       return null;
     }
     function railTail(rail) {
@@ -857,11 +864,24 @@
         }
       }
     }
+    function park() {
+      // 最后一个兜底：既没有侧栏、也没有任何工具条时（如模考检查/交卷/成绩页），
+      // 按钮不许「存在但宽 0」——挂回 body 并固定在右下角，切回有宿主的视图时 place() 会自动收回。
+      if (btn.classList.contains('floating-settings')) return true;
+      btn.classList.remove('rail-settings', 'ctx-settings');
+      btn.classList.add('floating-settings');
+      btn.style.position = 'fixed'; btn.style.right = '14px'; btn.style.bottom = '14px';
+      btn.style.zIndex = '8999'; btn.style.background = 'var(--paper,#fff)';
+      btn.style.borderRadius = '8px'; btn.style.padding = '8px 10px';
+      btn.style.boxShadow = 'var(--shadow-3,0 8px 24px rgba(18,35,63,.16))';
+      if (btn.parentNode !== document.body) document.body.appendChild(btn);
+      return true;
+    }
     function place() {
       var h = host();
-      if (!h) return false;
-      if (btn.parentNode !== h.node) {
-        btn.classList.remove('rail-settings', 'ctx-settings');
+      if (!h) return park();
+      if (btn.parentNode !== h.node || btn.classList.contains('floating-settings')) {
+        btn.classList.remove('rail-settings', 'ctx-settings', 'floating-settings');
         btn.classList.add(h.cls);
         btn.removeAttribute('style');
       } else if (!btn.classList.contains(h.cls)) {
