@@ -130,6 +130,11 @@
     (o.dots || []).forEach(function (d) {
       g.push('<circle cx="' + d[0] + '" cy="' + d[1] + '" r="' + (o.dotR || 3) + '" fill="' + LINE + '"/>');
     });
+    // 直角符号：给两条边的单位方向 a / b，在顶点处画一个小方框（原书 p161 #12 的 ⊥ 标）
+    (o.rights || []).forEach(function (r) {
+      var L = r.len || 12, ax = r.a[0] * L, ay = r.a[1] * L, bx = r.b[0] * L, by = r.b[1] * L;
+      g.push('<polyline points="' + [r.x + ax, r.y + ay, r.x + ax + bx, r.y + ay + by, r.x + bx, r.y + by].map(function (v, k) { return k % 2 ? v.toFixed(1) : v.toFixed(1); }).join(' ').replace(/ /g, ' ') + '" fill="none" stroke="' + LAB + '" stroke-width="1.2"/>');
+    });
     (o.labels || []).forEach(function (t) {
       g.push('<text x="' + t.x + '" y="' + t.y + '" font-size="' + (t.size || 14) + '" fill="' + (t.fill || INK) + '"' +
         (t.italic ? ' font-style="italic"' : '') + ' text-anchor="' + (t.anchor || 'start') + '">' + esc(t.t) + '</text>');
@@ -658,7 +663,45 @@
     'JY3-104': { type: 'plane', w: 440, h: 330,
       x: { min: -10, max: 0, step: 1, labels: [-10, -8, -6, -4, -2] },
       y: { min: -10, max: 0, step: 1, labels: [0, -2, -4, -6, -8, -10] },
-      curves: [{ kind: 'rat', a: 6, h: -4, c: 0, x0: -10, x1: -4.06 }] }
+      curves: [{ kind: 'rat', a: 6, h: -4, c: 0, x0: -10, x1: -4.06 }] },
+    // p154 #1：A-E-D 共线底边，D–B 长斜线（C 在 DB 上），C–A，B–E 交底边于 E
+    'JY4-060': { type: 'geo', w: 430, h: 330, sw: 1.6,
+      segs: [[[50, 280], [370, 80]], [[50, 280], [330, 280]], [[194, 190], [330, 280]], [[370, 80], [225, 280]]],
+      labels: [
+        { t: 'A', x: 336, y: 296, italic: true, size: 15 },
+        { t: 'B', x: 376, y: 74, italic: true, size: 15 },
+        { t: 'C', x: 184, y: 184, italic: true, size: 15 },
+        { t: 'D', x: 38, y: 300, italic: true, size: 15 },
+        { t: 'E', x: 222, y: 300, italic: true, size: 15 },
+        { t: 'x\u00b0', x: 243, y: 262, size: 13 },
+        { t: '104\u00b0', x: 204, y: 222, size: 13 },
+        { t: '45\u00b0', x: 344, y: 116, size: 13 } ] },
+    // p158 #8：AE 与 BD 交于 C，AB 与 DE 各标 10（AAS：∠A = ∠E 即可）
+    'JY4-067': { type: 'geo', w: 400, h: 220, sw: 1.6,
+      segs: [[[70, 62], [300, 112]], [[112, 132], [232, 42]]],
+      labels: [
+        { t: 'A', x: 56, y: 56, italic: true, size: 15 },
+        { t: 'B', x: 100, y: 148, italic: true, size: 15 },
+        { t: 'C', x: 176, y: 104, italic: true, size: 15 },
+        { t: 'D', x: 236, y: 30, italic: true, size: 15 },
+        { t: 'E', x: 306, y: 118, italic: true, size: 15 },
+        { t: '10', x: 76, y: 110, size: 13 },
+        { t: '10', x: 274, y: 62, size: 13 } ] },
+    // p161 #12：△ABC 以 AC 为底、BD⊥AC，D 在 AC 上（直角符号两处）
+    'JY4-071': { type: 'geo', w: 430, h: 300, sw: 1.6,
+      segs: [[[60, 240], [210, 70]], [[210, 70], [340, 240]], [[60, 240], [340, 240]], [[210, 70], [210, 240]]],
+      rights: [
+        { x: 210, y: 240, a: [-1, 0], b: [0, -1], len: 14 },
+        { x: 210, y: 70, a: [-0.66, 0.75], b: [0.66, 0.75], len: 15 } ],
+      labels: [
+        { t: 'A', x: 44, y: 246, italic: true, size: 15 },
+        { t: 'B', x: 208, y: 52, italic: true, size: 15 },
+        { t: 'C', x: 346, y: 246, italic: true, size: 15 },
+        { t: 'D', x: 214, y: 262, italic: true, size: 15 } ] },
+    // p163 #13：正九边形，九个顶点连到中心，右下那个等腰三角形底角标 x°
+    'JY4-072': { type: 'geo', w: 430, h: 310, sw: 1.5,
+      segs: [[[210, 150], [175.8, 244]], [[210, 150], [123.4, 200]], [[210, 150], [111.5, 132.6]], [[210, 150], [145.7, 73.4]], [[210, 150], [210, 50]], [[210, 150], [274.3, 73.4]], [[210, 150], [308.5, 132.6]], [[210, 150], [296.6, 200]], [[210, 150], [244.2, 244]], [[175.8, 244], [123.4, 200]], [[123.4, 200], [111.5, 132.6]], [[111.5, 132.6], [145.7, 73.4]], [[145.7, 73.4], [210, 50]], [[210, 50], [274.3, 73.4]], [[274.3, 73.4], [308.5, 132.6]], [[308.5, 132.6], [296.6, 200]], [[296.6, 200], [244.2, 244]], [[244.2, 244], [175.8, 244]]],
+      labels: [{ t: 'x\u00b0', x: 263, y: 210, size: 13 }] }
   };
 
   window.JY_FIG = {
