@@ -6,7 +6,7 @@
 
 | 批次 | 内容 | 数量 | feat commit | bump commit | 测试 | 线上版本 |
 |---|---|---|---|---|---|---|
-| 批7 t031 图/表 | 缺图矢量重画 + 缺表补录 + 锚点记账 | 10 图 + 1 表 + 1 anchor | `d987b5e762ba77ef6255b136b161b80b707a124d` | `bba53e762724420148d0c6be894e4496a472c693` | 179 pass / 0 fail | `48800d33ac2a` |
+| 批7 t031 图/表 | 缺图矢量重画 + 缺表补录 + 锚点记账 | 10 图 + 1 表 + 1 anchor | `d987b5e762ba77ef6255b136b161b80b707a124d` | `bba53e762724420148d0c6be894e4496a472c693` | 179 pass / 0 fail | 落地时 `48800d33ac2a`（后随并发提交轮换，见 §六） |
 
 计数复核（codeload main + GitHub Pages 实抓，`Cache-Control: no-cache`）：本批落库时线上题库总数 **1307**（任务基线 1292，期间远端并发补录 4.5 板块 15 题）；`retired` **61**，`mergedInto` **1**，`hidden` **2**（section 级：2.6.T17 / 2.6.T18），`variant` **0**，分类计数与基线一致，本批未改动任何计数。
 
@@ -44,3 +44,9 @@
 - 校验产物：`docs/transcribe/figure-verify-t031.json`，12 条记录全部 `pass`（10 图 + 1 表 + 1 anchor）。
 - 本地管线：`python3 tools/rollup_declarations.py` 问题项 0；`node tools/verify_assets.mjs` PASS；`node --test` 179 pass / 0 fail。
 - 图/表 spec 落 `data/figures.js`；TD-25-06 图题前缀自 `data/questions.js` 题干移除并归入图区。
+
+## 六、后续订正与版本说明
+
+- 并发提交一度把 `Orbital period (days) ` 前缀带回 TD-25-06 题干；已二次订正：fix `d72fb77a1d752c63d798749e811c3795d3f4fa0d`，bump `d8f6f74fdd7911d2fbe3aa88e33ccae17fee52ce`（图区图题保留，题干不再重复）。
+- `?v=` 内容哈希随每次并发提交轮换；本批数据/spec 落库后，最新线上版本以 main 六页与 `sw.js` 实际值为准（验真时为 `1c97481fdbe4`，六页同值）。
+- 验真快照：codeload main 与 Pages 实抓 `data/figures.js`、`data/questions.js` md5 一致；11 条 spec 在位；计数 1307 / retired 61 / mergedInto 1 / hidden 2 / variant 0；`figure-verify-t031.json` 12 条全 pass。
