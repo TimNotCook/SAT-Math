@@ -1,0 +1,210 @@
+{
+  "base": "https://timnotcook.github.io/SAT-Math",
+  "time": "2026-11-24T12:49:48.992Z",
+  "widths": [
+    1280,
+    655,
+    515,
+    390
+  ],
+  "rows": [
+    {
+      "width": 1280,
+      "screen": "Intro 开考页",
+      "file": "mock-1280-01-intro.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-intro",
+      "text": "SAT Math Prep | Exit | SAT Math Prep | The digital SAT Math section has two modules. Each module has 22 questions and is timed separately. | 22 Questions | 35 minutes | Module 1 of 2 | Directions | The questions in this section address a number of important math skills. | Start"
+    },
+    {
+      "width": 1280,
+      "screen": "Answer 答题页",
+      "file": "mock-1280-02-answer.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-answer",
+      "text": "Section 2, Module 1: Math | 34:57 | Time Remaining | Hide | 1 | Directions | Mark for Review | Reference | Calculator | Review | Submit | Each of the following frequency tables represents a data set. Which data set has the greatest mean? | A | 10:4, 20:5, 30:6, 40:7 | B | 10:8, 20:5, 30:5, 40:8 | C | 10:6, 20:6, 30:6, 40:6 | D | 10:7, 20:6, 30:6, 40:7 | Section 2, Module 1 of 2 | Question 1 of 22 | Back | Next"
+    },
+    {
+      "width": 1280,
+      "screen": "Review 检查答案",
+      "file": "mock-1280-03-review.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-review",
+      "text": "SAT Math Prep | Exit | Check Answers | Select a question number to jump back to it, or edit answers directly in the table below. Answers are locked after you submit. | Question Menu | 0 | Answered | 22 | Not answered | 0 | Marked | Module 1 | Current range | Question | Topic / Source | Status | Your Answer | Go | Q1 | U2 | Not answered | A | B | C | D | Go | Q2 | U1 | Not answered | A | B | C | D | Go | Q3 | U1 | Not answered | A | B | C | D | Go | Q4 | U3 | Not answered | Go | Q5 | U1 | Not answered | A | B | C | D | Go | Q6 | U2 | Not answered | A | B | C | D | Go | Q7 | U1 | Not answered | A | B | C | D | Go | Q8 | U3 | Not answered | Go | Q9 | U3 | Not answered | A | B | C | D | Go | Q10 | U1 | Not answered | A | B | C | D | Go | Q11 | U3 | Not answered | A | B | C | D | Go | Q12 | U3 | Not answered | Go | Q13 | U2 | Not answered | A | B | C | D | Go | Q14 | U1 | Not answered | A | B | C | D | Go | Q15 | U4 | Not answered | A | B | C | D | Go | Q16 | U3 | Not answered | Go | Q17 | U1 | Not answered | A | B | C | D | Go | Q18 | U4 | Not answered | A | B | C | D | Go | Q19 | U1 | Not answered | A | B | C | D | Go | Q20 | U3 | Not answered | Go | Q21 | U3 | Not answered | A | B | C | D | Go | Q22 | U4 | Not answered | A | B | C | D | Go | Back to Test | Submit"
+    },
+    {
+      "width": 1280,
+      "screen": "Submit 确认交卷",
+      "file": "mock-1280-04-submit.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-submit",
+      "text": "SAT Math Prep | Exit | Finish Module 1? | 0 / 22 | Math · Module 1 of 2 | After you move on to Module 2, you will not be able to return to Module 1 or change its answers. | Keep Reviewing | Proceed to Module 2"
+    },
+    {
+      "width": 1280,
+      "screen": "Result 成绩报告",
+      "file": "mock-1280-05-result.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-result",
+      "text": "SAT Math Prep | Exit | Score Report | 11/24/2026, 7:48:26 PM · Submitted manually · Answers locked · Module 2 path: easier | Review Missed Questions | Take Another Test | Estimated SAT Math Score · 200–800 | 200 | / 800 | Raw score 0 / 44 · Adaptive path: easier | Correct / Total | 0 / 44 | Accuracy | 0% | Raw score (1 pt each) | 0 pts | Total time | 00:18 | Average per question | 00:00 | Longest question | 00:15 | Incorrect | 44 | Time limit / Used | 70:00 / 00:18 | Estimate converts raw points to the 200–800 scale. It is a practice estimate, not an official score. | Weakness Report | Units to Prioritize | Heart of Algebra | Wrong 15/15 | Advanced Math | Wrong 15/15 | Problem Solving & Data Analysis | Wrong 7/7 | Geometry & Trigonometry | Wrong 7/7 | Question-by-Question Results | All Questions | Incorrect Only | ✗ | Q1 | U2 · Multiple choice · 0 pt | Time 00:03 | Your answer | — | Correct answer | A | ✗ | Q2 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q3 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q4 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 12 | ✗ | Q5 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q6 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q7 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q8 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 8 | ✗ | Q9 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q10 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q11 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q12 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 22 | ✗ | Q13 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q14 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q15 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q16 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 290 | ✗ | Q17 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q18 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q19 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q20 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 9 | ✗ | Q21 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q22 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q23 | U3 · Multiple choice · 0 pt | Time 00:15 | Your answer | — | Correct answer | A | ✗ | Q24 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q25 | U"
+    },
+    {
+      "width": 655,
+      "screen": "Intro 开考页",
+      "file": "mock-655-01-intro.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-intro",
+      "text": "SAT Math Prep | Exit | SAT Math Prep | The digital SAT Math section has two modules. Each module has 22 questions and is timed separately. | 22 Questions | 35 minutes | Module 1 of 2 | Directions | The questions in this section address a number of important math skills. | Start"
+    },
+    {
+      "width": 655,
+      "screen": "Answer 答题页",
+      "file": "mock-655-02-answer.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-answer",
+      "text": "Section 2, Module 1: Math | 34:57 | Time Remaining | Hide | 1 | Directions | Mark for Review | Reference | Calculator | Review | Submit | In the figure, line k is parallel to line I. What is the value of z? | k | l | d | 66° | z | A | 24 | B | 66 | C | 106 | D | 114 | Question 1 of 22"
+    },
+    {
+      "width": 655,
+      "screen": "Review 检查答案",
+      "file": "mock-655-03-review.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-review",
+      "text": "SAT Math Prep | Exit | Check Answers | Select a question number to jump back to it, or edit answers directly in the table below. Answers are locked after you submit. | Question Menu | 0 | Answered | 22 | Not answered | 0 | Marked | Module 1 | Current range | Question | Topic / Source | Status | Your Answer | Go | Q1 | U4 | Not answered | A | B | C | D | Go | Q2 | U2 | Not answered | A | B | C | D | Go | Q3 | U1 | Not answered | A | B | C | D | Go | Q4 | U3 | Not answered | Go | Q5 | U2 | Not answered | A | B | C | D | Go | Q6 | U4 | Not answered | A | B | C | D | Go | Q7 | U1 | Not answered | A | B | C | D | Go | Q8 | U3 | Not answered | Go | Q9 | U2 | Not answered | A | B | C | D | Go | Q10 | U1 | Not answered | A | B | C | D | Go | Q11 | U1 | Not answered | A | B | C | D | Go | Q12 | U3 | Not answered | Go | Q13 | U1 | Not answered | A | B | C | D | Go | Q14 | U3 | Not answered | A | B | C | D | Go | Q15 | U3 | Not answered | A | B | C | D | Go | Q16 | U3 | Not answered | Go | Q17 | U4 | Not answered | A | B | C | D | Go | Q18 | U3 | Not answered | A | B | C | D | Go | Q19 | U1 | Not answered | A | B | C | D | Go | Q20 | U3 | Not answered | Go | Q21 | U1 | Not answered | A | B | C | D | Go | Q22 | U1 | Not answered | A | B | C | D | Go | Back to Test | Submit"
+    },
+    {
+      "width": 655,
+      "screen": "Submit 确认交卷",
+      "file": "mock-655-04-submit.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-submit",
+      "text": "SAT Math Prep | Exit | Finish Module 1? | 0 / 22 | Math · Module 1 of 2 | After you move on to Module 2, you will not be able to return to Module 1 or change its answers. | Keep Reviewing | Proceed to Module 2"
+    },
+    {
+      "width": 655,
+      "screen": "Result 成绩报告",
+      "file": "mock-655-05-result.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-result",
+      "text": "SAT Math Prep | Exit | Score Report | 11/24/2026, 7:48:53 PM · Submitted manually · Answers locked · Module 2 path: easier | Review Missed Questions | Take Another Test | Estimated SAT Math Score · 200–800 | 200 | / 800 | Raw score 0 / 44 · Adaptive path: easier | Correct / Total | 0 / 44 | Accuracy | 0% | Raw score (1 pt each) | 0 pts | Total time | 00:18 | Average per question | 00:00 | Longest question | 00:14 | Incorrect | 44 | Time limit / Used | 70:00 / 00:18 | Estimate converts raw points to the 200–800 scale. It is a practice estimate, not an official score. | Weakness Report | Units to Prioritize | Heart of Algebra | Wrong 15/15 | Advanced Math | Wrong 15/15 | Problem Solving & Data Analysis | Wrong 7/7 | Geometry & Trigonometry | Wrong 7/7 | Question-by-Question Results | All Questions | Incorrect Only | ✗ | Q1 | U4 · Multiple choice · 0 pt | Time 00:03 | Your answer | — | Correct answer | D | ✗ | Q2 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q3 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q4 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 12 | ✗ | Q5 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q6 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q7 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q8 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 24 | ✗ | Q9 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q10 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q11 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q12 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 22 | ✗ | Q13 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q14 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q15 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q16 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 1 | ✗ | Q17 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q18 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q19 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q20 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 12 | ✗ | Q21 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q22 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q23 | U4 · Multiple choice · 0 pt | Time 00:14 | Your answer | — | Correct answer | C | ✗ | Q24 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q25 | U"
+    },
+    {
+      "width": 515,
+      "screen": "Intro 开考页",
+      "file": "mock-515-01-intro.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-intro",
+      "text": "SAT Math Prep | Exit | SAT Math Prep | The digital SAT Math section has two modules. Each module has 22 questions and is timed separately. | 22 Questions | 35 minutes | Module 1 of 2 | Directions | The questions in this section address a number of important math skills. | Start"
+    },
+    {
+      "width": 515,
+      "screen": "Answer 答题页",
+      "file": "mock-515-02-answer.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-answer",
+      "text": "Section 2, Module 1: Math | 34:57 | Time Remaining | Hide | 1 | Directions | Mark for Review | Reference | Calculator | Review | Submit | A piece of string with a length of 48 inches is cut into two parts. One part has a length of x inches, and the other part has a length of y inches. The value of x is 8 more than 3 times the value of y. What is the value of x? | A | 13 | B | 19 | C | 28 | D | 38 | Question 1 of 22"
+    },
+    {
+      "width": 515,
+      "screen": "Review 检查答案",
+      "file": "mock-515-03-review.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-review",
+      "text": "SAT Math Prep | Exit | Check Answers | Select a question number to jump back to it, or edit answers directly in the table below. Answers are locked after you submit. | Question Menu | 0 | Answered | 22 | Not answered | 0 | Marked | Module 1 | Current range | Question | Topic / Source | Status | Your Answer | Go | Q1 | U1 | Not answered | A | B | C | D | Go | Q2 | U1 | Not answered | A | B | C | D | Go | Q3 | U1 | Not answered | A | B | C | D | Go | Q4 | U3 | Not answered | Go | Q5 | U4 | Not answered | A | B | C | D | Go | Q6 | U3 | Not answered | A | B | C | D | Go | Q7 | U2 | Not answered | A | B | C | D | Go | Q8 | U3 | Not answered | Go | Q9 | U2 | Not answered | A | B | C | D | Go | Q10 | U3 | Not answered | A | B | C | D | Go | Q11 | U2 | Not answered | A | B | C | D | Go | Q12 | U3 | Not answered | Go | Q13 | U1 | Not answered | A | B | C | D | Go | Q14 | U4 | Not answered | A | B | C | D | Go | Q15 | U1 | Not answered | A | B | C | D | Go | Q16 | U3 | Not answered | Go | Q17 | U4 | Not answered | A | B | C | D | Go | Q18 | U1 | Not answered | A | B | C | D | Go | Q19 | U1 | Not answered | A | B | C | D | Go | Q20 | U3 | Not answered | Go | Q21 | U1 | Not answered | A | B | C | D | Go | Q22 | U3 | Not answered | A | B | C | D | Go | Back to Test | Submit"
+    },
+    {
+      "width": 515,
+      "screen": "Submit 确认交卷",
+      "file": "mock-515-04-submit.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-submit",
+      "text": "SAT Math Prep | Exit | Finish Module 1? | 0 / 22 | Math · Module 1 of 2 | After you move on to Module 2, you will not be able to return to Module 1 or change its answers. | Keep Reviewing | Proceed to Module 2"
+    },
+    {
+      "width": 515,
+      "screen": "Result 成绩报告",
+      "file": "mock-515-05-result.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-result",
+      "text": "SAT Math Prep | Exit | Score Report | 11/24/2026, 7:49:19 PM · Submitted manually · Answers locked · Module 2 path: easier | Review Missed Questions | Take Another Test | Estimated SAT Math Score · 200–800 | 200 | / 800 | Raw score 0 / 44 · Adaptive path: easier | Correct / Total | 0 / 44 | Accuracy | 0% | Raw score (1 pt each) | 0 pts | Total time | 00:17 | Average per question | 00:00 | Longest question | 00:13 | Incorrect | 44 | Time limit / Used | 70:00 / 00:17 | Estimate converts raw points to the 200–800 scale. It is a practice estimate, not an official score. | Weakness Report | Units to Prioritize | Heart of Algebra | Wrong 15/15 | Advanced Math | Wrong 15/15 | Problem Solving & Data Analysis | Wrong 7/7 | Geometry & Trigonometry | Wrong 7/7 | Question-by-Question Results | All Questions | Incorrect Only | ✗ | Q1 | U1 · Multiple choice · 0 pt | Time 00:03 | Your answer | — | Correct answer | D | ✗ | Q2 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q3 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q4 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | -384 | ✗ | Q5 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q6 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q7 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q8 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | -121 | ✗ | Q9 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q10 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q11 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q12 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 61 | ✗ | Q13 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q14 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q15 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q16 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | -3 | ✗ | Q17 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q18 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q19 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q20 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 12 | ✗ | Q21 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q22 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q23 | U1 · Multiple choice · 0 pt | Time 00:13 | Your answer | — | Correct answer | C | ✗ | Q24 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q2"
+    },
+    {
+      "width": 390,
+      "screen": "Intro 开考页",
+      "file": "mock-390-01-intro.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-intro",
+      "text": "SAT Math Prep | Exit | SAT Math Prep | The digital SAT Math section has two modules. Each module has 22 questions and is timed separately. | 22 Questions | 35 minutes | Module 1 of 2 | Directions | The questions in this section address a number of important math skills. | Start"
+    },
+    {
+      "width": 390,
+      "screen": "Answer 答题页",
+      "file": "mock-390-02-answer.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-answer",
+      "text": "Section 2, Module 1: Math | 34:57 | Time Remaining | Hide | 1 | Directions | Mark for Review | Reference | Calculator | Review | Submit | f(x) = 50x + 8 The given function f estimates the distance a train has traveled, in kilometers, from a station in a certain city x hours after crossing the city border. What is the best interpretation of 8 in this context? | A | Between the station and the city border, the train traveled an estimated total distance of 8 kilometers. | B | Between the station and the city border, the train traveled at an estimated speed of 8 kilometers per hour | C | After crossing the city border, the train traveled at an estimated speed of 8 kilometers per hour. | D | After crossing the city border, the train traveled an estimated total distance of 8 kilometers. | Question 1 of 22"
+    },
+    {
+      "width": 390,
+      "screen": "Review 检查答案",
+      "file": "mock-390-03-review.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-review",
+      "text": "SAT Math Prep | Exit | Check Answers | Select a question number to jump back to it, or edit answers directly in the table below. Answers are locked after you submit. | Question Menu | 0 | Answered | 22 | Not answered | 0 | Marked | Module 1 | Current range | Question | Topic / Source | Status | Your Answer | Go | Q1 | U1 | Not answered | A | B | C | D | Go | Q2 | U2 | Not answered | A | B | C | D | Go | Q3 | U2 | Not answered | A | B | C | D | Go | Q4 | U3 | Not answered | Go | Q5 | U1 | Not answered | A | B | C | D | Go | Q6 | U2 | Not answered | A | B | C | D | Go | Q7 | U1 | Not answered | A | B | C | D | Go | Q8 | U3 | Not answered | Go | Q9 | U4 | Not answered | A | B | C | D | Go | Q10 | U1 | Not answered | A | B | C | D | Go | Q11 | U3 | Not answered | A | B | C | D | Go | Q12 | U3 | Not answered | Go | Q13 | U3 | Not answered | A | B | C | D | Go | Q14 | U1 | Not answered | A | B | C | D | Go | Q15 | U4 | Not answered | A | B | C | D | Go | Q16 | U3 | Not answered | Go | Q17 | U1 | Not answered | A | B | C | D | Go | Q18 | U4 | Not answered | A | B | C | D | Go | Q19 | U1 | Not answered | A | B | C | D | Go | Q20 | U3 | Not answered | Go | Q21 | U3 | Not answered | A | B | C | D | Go | Q22 | U1 | Not answered | A | B | C | D | Go | Back to Test | Submit"
+    },
+    {
+      "width": 390,
+      "screen": "Submit 确认交卷",
+      "file": "mock-390-04-submit.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-submit",
+      "text": "SAT Math Prep | Exit | Finish Module 1? | 0 / 22 | Math · Module 1 of 2 | After you move on to Module 2, you will not be able to return to Module 1 or change its answers. | Keep Reviewing | Proceed to Module 2"
+    },
+    {
+      "width": 390,
+      "screen": "Result 成绩报告",
+      "file": "mock-390-05-result.png",
+      "chars": 0,
+      "words": [],
+      "stage": "stage-result",
+      "text": "SAT Math Prep | Exit | Score Report | 11/24/2026, 7:49:45 PM · Submitted manually · Answers locked · Module 2 path: easier | Review Missed Questions | Take Another Test | Estimated SAT Math Score · 200–800 | 200 | / 800 | Raw score 0 / 44 · Adaptive path: easier | Correct / Total | 0 / 44 | Accuracy | 0% | Raw score (1 pt each) | 0 pts | Total time | 00:16 | Average per question | 00:00 | Longest question | 00:13 | Incorrect | 44 | Time limit / Used | 70:00 / 00:16 | Estimate converts raw points to the 200–800 scale. It is a practice estimate, not an official score. | Weakness Report | Units to Prioritize | Heart of Algebra | Wrong 15/15 | Advanced Math | Wrong 15/15 | Problem Solving & Data Analysis | Wrong 7/7 | Geometry & Trigonometry | Wrong 7/7 | Question-by-Question Results | All Questions | Incorrect Only | ✗ | Q1 | U1 · Multiple choice · 0 pt | Time 00:03 | Your answer | — | Correct answer | A | ✗ | Q2 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q3 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q4 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 4 | ✗ | Q5 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q6 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q7 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q8 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 12 | ✗ | Q9 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q10 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q11 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q12 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 12 | ✗ | Q13 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q14 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q15 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | C | ✗ | Q16 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | -384 | ✗ | Q17 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q18 | U4 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q19 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q20 | U3 · Grid-in · 0 pt | Time 00:00 | Your answer | — | Correct answer | 290 | ✗ | Q21 | U3 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | B | ✗ | Q22 | U1 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | A | ✗ | Q23 | U4 · Multiple choice · 0 pt | Time 00:13 | Your answer | — | Correct answer | A | ✗ | Q24 | U2 · Multiple choice · 0 pt | Time 00:00 | Your answer | — | Correct answer | D | ✗ | Q25 "
+    }
+  ],
+  "errors": [
+    {
+      "width": 1280,
+      "errors": []
+    },
+    {
+      "width": 655,
+      "errors": []
+    },
+    {
+      "width": 515,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "errors": []
+    }
+  ]
+}
