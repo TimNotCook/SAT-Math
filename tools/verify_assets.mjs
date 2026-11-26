@@ -54,6 +54,18 @@ else {
   else notes.push(`sw.js VERSION = ${ver}`);
   for (const f of [...sw.matchAll(/["']\.\/([^"']+)["']/g)].map((x) => x[1]).filter((x) => !x.endsWith('/')))
     if (!fs.existsSync(path.join(ROOT, f))) fail(`sw.js 预缓存文件不存在：${f}`);
+  /* 语法级守卫：sw.js 一旦混进 git 冲突标记，浏览器注册直接 evaluation failed，
+     整站离线缓存与旧缓存清理全哑——线上 2026-11-26 真发生过（提交 9bcf1bd 带进标记）。 */
+  if (/^<<<<<<< /m.test(sw) || /^>>>>>>> /m.test(sw)) fail('sw.js 里有 git 冲突标记');
+  else {
+    try { new Function(sw); } catch (e) { fail(`sw.js 语法错误：${e.message}`); }
+  }
+}
+
+/* ---------- 3b. 全站不许有 git 冲突标记 ---------- */
+for (const f of fs.readdirSync(ROOT).filter((f) => /^\.(html|js|css)$/.test(path.extname(f) ? f : '') || /\.(html|js|css)$/.test(f))) {
+  const src = fs.readFileSync(path.join(ROOT, f), 'utf8');
+  if (/^<<<<<<< /m.test(src) && /^>>>>>>> /m.test(src)) fail(`${f} 里有 git 冲突标记`);
 }
 
 /* ---------- 4/5. 题库 ↔ 文本层 ---------- */

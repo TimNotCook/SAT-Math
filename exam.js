@@ -665,9 +665,11 @@
   function renderQuestion() {
     const inst = cur(), q = curQ(), a = curA(), [lo, hi] = range();
     const pos = S.idx - lo + 1, total = hi - lo + 1;   // 合法会话的区间由 sessionRange 保证非空
-    const T = (window.TD_TEXT || {})[q.id] || {};
-    const CH = T.choices || {};
-    $('qStem').innerHTML = window.TD_FIG ? window.TD_FIG.fmtMath((T.stem || q.stem || '题干文字暂缺。').trim() || '题干文字暂缺。') : esc((T.stem || q.stem || '题干文字暂缺。').trim() || '题干文字暂缺。');
+    /* 注意：这里不能叫 T —— 模块级 T(zh,en) 是文案选择器，同名会把 776 行的
+       T(...) 调用变成「对象不可调用」，模考里凡是带 line-answer 开关的题直接崩。 */
+    const TXT = (window.TD_TEXT || {})[q.id] || {};
+    const CH = TXT.choices || {};
+    $('qStem').innerHTML = window.TD_FIG ? window.TD_FIG.fmtMath((TXT.stem || q.stem || '题干文字暂缺。').trim() || '题干文字暂缺。') : esc((TXT.stem || q.stem || '题干文字暂缺。').trim() || '题干文字暂缺。');
     // geometry figure block — inserted as a sibling before #answerArea.
     // renderQuestion runs on every choice click, so clear any prior figure first.
     (function () {
@@ -690,11 +692,11 @@
     const locked = isLocked(inst.uid), area = $('answerArea');
     area.innerHTML = '';
     if (q.type === 'mcq') {
-      const figList = T.figure || [];
+      const figList = TXT.figure || [];
       const resolver = window.TD_CHOICE_FIGURES;
       const opt = L => {
         const raw = (CH[L] || '').trim();
-        let hit = resolver ? resolver.resolve(q, L, { text: T }) : null;
+        let hit = resolver ? resolver.resolve(q, L, { text: TXT }) : null;
         if (hit && hit.source === 'legacy' && raw) hit = null; /* 旧通路保持「有文字先用文字」 */
         const isFig = figList.indexOf(L) >= 0;
         const visual = !!(hit && (hit.kind === 'image' || hit.kind === 'vector'));

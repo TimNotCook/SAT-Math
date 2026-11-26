@@ -77,7 +77,12 @@ ws.addEventListener('message', (evm) => {
     add('exception', `${d.text || ''} ${d.exception ? (d.exception.description || d.exception.value) : ''}`.trim().slice(0, 400));
   } else if (m.method === 'Log.entryAdded') {
     const e = m.params.entry || {};
-    if (e.level === 'error') add('console', `${e.source || ''}: ${e.text}`.slice(0, 400));
+    if (e.level === 'error') {
+      /* 同上：headless 自己把连接掐了，Log 里会以 console 形式再报一遍“Failed to load resource”。
+         只有连接级 reset/not-connected 才算噪声；404/500 真错会走 http 桶，不会被吞。 */
+      if (/Failed to load resource: net::ERR_(SOCKET_NOT_CONNECTED|CONNECTION_RESET)/i.test(e.text)) add('noise', e.text.slice(0, 200));
+      else add('console', `${e.source || ''}: ${e.text}`.slice(0, 400));
+    }
   } else if (m.method === 'Runtime.consoleAPICalled') {
     const a = (m.params.args || []).map((x) => x.value ?? x.description ?? '').join(' ');
     if (m.params.type === 'error') add('console', a.slice(0, 400));
@@ -86,7 +91,10 @@ ws.addEventListener('message', (evm) => {
     if (r.status >= 400) add('http', `${r.status} ${r.url}`.slice(0, 400));
   } else if (m.method === 'Network.loadingFailed') {
     const u = (m.params.errorText || '') + ' ' + (m.params.blockedReason || '');
-    add('netfail', u.slice(0, 200));
+    /* headless 在 location.replace 期间会主动断 socket，报 ERR_SOCKET_NOT_CONNECTED /
+       ERR_CONNECTION_RESET 且没有 URL；这类噪声单独记 INFO，不算站点缺陷。 */
+    if (/^net::ERR_(SOCKET_NOT_CONNECTED|CONNECTION_RESET)\s*$/i.test(u.trim())) add('noise', u.trim());
+    else add('netfail', u.slice(0, 200));
   }
   events.set(current, bucket);
 });
@@ -109,25 +117,72 @@ const summary = [];
 for (const p of PAGES) {
   current = p;
   events.set(current, []);
-  await goto(`${BASE}/${p}`);
-  /* drill：顺手进第一套练习，让做题/结果链路也跑一遍 */
+  /* exam.html 无 mode 参数会 replace 到 drill.html，必须带 mode 才有 intro 阶段 */
+  await goto(p === 'exam.html' ? `${BASE}/exam.html?mode=mock` : `${BASE}/${p}`);
+  /* drill：进第一套练习 → 答一题 → 连点下一题 → 交卷 → 结果页 */
   if (p === 'drill.html') {
-    const clicked = await ev(`(function(){
-      var c = document.querySelector('.drill-card, .unit-card, .drill-start, [data-action="start"]');
-      if (c) { c.click(); return true; } return false; })()`);
-    await sleep(1600);
-    const q = await ev(`(function(){
-      var b = document.querySelector('.drill-choices button, .drill-option, [data-choice]');
-      if (b) { b.click(); return true; } return false; })()`);
-    await sleep(900);
-    summary.push(`drill 交互：卡片=${clicked} 选项=${q}`);
-  }
-  if (p === 'exam.html') {
-    const b = await ev(`(function(){ var x=document.querySelector('[data-action="start"], .exam-start'); if(x){x.click();return true;} return false; })()`);
+    const started = await ev(`(function(){
+      var r = document.querySelector('.drill-section-row');
+      if (!r) return 'no-row';
+      r.click(); return 'ok'; })()`);
     await sleep(1500);
-    summary.push(`exam 交互：开始=${b}`);
+    const answered = await ev(`(function(){
+      var b = document.querySelector('#answerArea .drill-choice');
+      if (!b) return 'no-choice';
+      b.click(); return 'ok'; })()`);
+    await sleep(600);
+    let steps = 0;
+    for (let k = 0; k < 2; k++) {
+      const n = await ev(`(function(){ var b=document.getElementById('btnNext'); if(!b||b.disabled) return false; b.click(); return true; })()`);
+      if (!n) break;
+      steps++; await sleep(700);
+      const a2 = await ev(`(function(){ var b=document.querySelector('#answerArea .drill-choice'); if(!b) return false; b.click(); return true; })()`);
+      await sleep(400);
+    }
+    const fin = await ev(`(function(){ var b=document.getElementById('btnFinish'); if(!b) return false; b.click(); return true; })()`);
+    await sleep(1600);
+    const view = await ev(`(function(){
+      var rv=document.getElementById('resultView'), qv=document.getElementById('questionView');
+      return { result: !!(rv && !rv.hidden), question: !!(qv && !qv.hidden) }; })()`);
+    summary.push(`drill 交互：起练=${started} 答题=${answered} 翻页=${steps} 交卷=${fin} 结果视图=${view && view.result}`);
   }
-  const bucket = events.get(current) || [];
+  /* exam：开始 → 答题 → 连点 next；若这份卷子里有 line-answer 题（linear-graph），
+     从题号面板跳过去点开开关 —— 这条专治 exam.js 里 T 被同名遮蔽导致 renderQuestion 抛 TypeError。 */
+  if (p === 'exam.html') {
+    const started = await ev(`(function(){ var b=document.getElementById('btnStart'); if(!b) return false; b.click(); return true; })()`);
+    await sleep(1700);
+    let answered = 0, nexts = 0;
+    for (let k = 0; k < 4; k++) {
+      const a = await ev(`(function(){ var b=document.querySelector('#answerArea .drill-choice:not(:disabled)'); if(!b) return false; b.click(); return true; })()`);
+      if (a) answered++;
+      await sleep(350);
+      const n = await ev(`(function(){ var b=document.getElementById('btnNext'); if(!b||b.disabled) return false; b.click(); return true; })()`);
+      if (n) nexts++;
+      await sleep(500);
+    }
+    const stage = await ev(`(function(){ var t=document.getElementById('tbStage'); return t ? t.textContent.trim() : ''; })()`);
+    const plan = await ev(`(function(){
+      var S=JSON.parse(localStorage.getItem('tdsat_exam_suite_session_v1')||'{}');
+      var m=S.mock||S.quiz||S, arr=(m&&m.paper||[]).map(function(x){return x.id;});
+      var line=[];(window.TD_BANK?TD_BANK.questions:[]).forEach(function(q){ if(window.TD_FIG&&TD_FIG.hasLine(q)) line.push(q.id); });
+      var idx=arr.findIndex(function(id){ return line.indexOf(id)>=0; });
+      return { paperLen: arr.length, idx: idx }; })()`);
+    let jumped = 'skipped', opened = false;
+    if (plan && plan.idx >= 0) {
+      await ev(`(function(){ var b=document.getElementById('btnQuestionNav'); if(b) b.click(); })()`);
+      await sleep(450);
+      jumped = await ev(`(function(){ var bs=document.querySelectorAll('#questionGrid button'); var b=bs[${plan.idx}]; if(!b) return 'no-btn'; b.click(); return 'ok'; })()`);
+      await sleep(900);
+      const has = await ev(`!!document.querySelector('.td-line-toggle')`);
+      if (has) opened = await ev(`(function(){ var b=document.querySelector('.td-line-toggle'); b.click(); var box=document.querySelector('.td-lineanswer'); return !!(box && box.innerHTML.trim()); })()`);
+      jumped = jumped + '/' + (has ? 'toggle-ok' : 'toggle-missing');
+    }
+    summary.push(`exam 交互：开始=${started} 答题=${answered} 下一个=${nexts} 阶段=${stage} 卷内 line 题位=${plan ? plan.idx : '?'} 跳转=${jumped} 点开=${opened}`);
+  }
+
+  const bucket = (events.get(current) || []).filter((it) => it.kind !== 'noise');
+  const noise = (events.get(current) || []).filter((it) => it.kind === 'noise');
+  if (noise.length) summary.push(`${p}: 断连噪声 ${noise.length} 条（headless location.replace，已忽略）`);
   const seen = new Set(); const list = [];
   for (const it of bucket) {
     if (IGNORE_URL.test(it.text)) continue;

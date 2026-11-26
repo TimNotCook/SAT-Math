@@ -297,7 +297,16 @@
     if (!q) return null;
     return mutateSection(id, function (st, D) {
       if (v == null || String(v).trim() === '') delete st.answers[qid];
-      else st.answers[qid] = { v: String(v), correct: isCorrect(q, v), ts: Date.now() };
+      else {
+        var correctNow = isCorrect(q, v);
+        /* 错题台账：答错的那一刻落到 st.wrongLog（只增不删），
+           之后订正/清空作答都不会把「曾经错过」抹掉，错题回顾据此保留已订正记录。 */
+        if (!correctNow) {
+          st.wrongLog = st.wrongLog || {};
+          st.wrongLog[qid] = { v: String(v), ts: Date.now() };
+        }
+        st.answers[qid] = { v: String(v), correct: correctNow, ts: Date.now() };
+      }
       st.completed = computeStats(id, D).completed;
       D.last = { sec: id, qid: qid, ts: Date.now() };
       return st.answers[qid] || null;
