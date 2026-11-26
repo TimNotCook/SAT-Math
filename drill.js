@@ -11,6 +11,7 @@
       ['selectView', 'unitView', 'specialView', 'questionView', 'resultView'].forEach(function (id) {
         var e = document.getElementById(id); if (e) e.hidden = true;
       });
+      var ld = document.getElementById('drillLoading'); if (ld) ld.hidden = true;
       var b = document.createElement('div');
       b.setAttribute('style', 'max-width:640px;margin:56px auto 0;padding:18px 22px;border:1px solid #e2e2e4;' +
         'border-radius:12px;font:14px/1.8 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#1d1d1f;background:#fff');
@@ -75,6 +76,8 @@
     if (href) b.href = href;
   }
   function showView(which) {
+    var load = document.getElementById('drillLoading');
+    if (load) { load.hidden = true; load.parentNode && load.parentNode.removeChild(load); }
     els.selectView.hidden = which !== 'select';
     els.unitView.hidden = which !== 'unit';
     els.specialView.hidden = which !== 'special';
