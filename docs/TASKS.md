@@ -21,7 +21,7 @@
 
 | 项 | 值 | 怎么量的 |
 |---|---|---|
-| `origin/main` | `ff93c74`（2026-11-26 收尾抓取；此前 `df0c995` 为设置入口修复、`c8d2266` 为 drill 直链 `?board=jiangyi` 路由修复） | `git -c http.version=HTTP/1.1 ls-remote origin refs/heads/main`（同时 `git log --oneline -5 origin/main` 对链） |
+| `origin/main` | `bb3ef46`（2026-11-26 深夜本轮推送后实测；链上 `3671861` drill ∑ 徽章字形、`6090e45` 清六页冲突标记、`34a6cb2` history 补云账号模块） | `git -c http.version=HTTP/1.1 ls-remote origin refs/heads/main`（同时 `git log --oneline -5 origin/main` 对链） |
 | 线上页面 | `index` / `drill` / `exam` / `wrong` / `jiangyi` / `history` 全部 HTTP 200 | `curl -s -o /dev/null -w "%{http_code}" https://timnotcook.github.io/SAT-Math/<page>.html` |
 | 题库 | **1292** 题（id 全唯一）：easy 355 / medium 736 / hard 201；mcq 768 / grid 524 | `node -e` 起 `vm` 跑 `data/questions.js`，`TD_BANK.questions.length` 与 `new Set(id)` 计数（字段名是 `level`，没有 `difficulty`） |
 | 单元分布 | 1–268 / 2–333 / 3–453 / 4–238（合计 1292） |
@@ -62,6 +62,10 @@
   - 2026-11-19 逐题列式验算 22 题，未发现答案键错误（线上 `questions.js` 与本地一致）。
   - 2026-11-20 用户指认 SP1-046 题干识别有误：`data/text.js` 原显示 `2x + wy = 47`，按该式解得 w=33 与答案键 `value=11` 冲突；已订正为 `2x - wy = 47`（正确解 x=128、w=11），全量比对 `TD_BANK` 与 `TD_TEXT` 无其他实质差异。commit `3621497`，线上 `text.js` 令牌 `7206b62faa5a` 生效。
   - 复核：`node -e` 统计 `"section":"1.7.T2"` 共 22 条（grid 18 / mcq 4）；`grep -c '2x - wy = 47' data/text.js` 为 1。此前台账确实漏记该板块。
+
+- **模考带图形开关的题整段渲染崩溃（T 遮蔽）**：`exam.js` `renderQuestion` 里 `const T = TD_TEXT[q.id]` 顶掉模块级 `T(zh,en)`，27 道 line 题任一中签即 `TypeError: T is not a function`。改名 `TXT`，静态守卫 `test/exam-copy-helper.test.js`。线上 `ff4f10007c7a` 起实测 exam 卷内 line 题位=1 跳转 ok。
+- **订正后错题记录蒸发**：`app-core.js` `setAnswer` 落 `st.wrongLog`（只增不删），`wrong-page.js` `collect()` 对「已答对但曾答错」补记并标 `corrected`。`tools/verify_grading_ui.mjs` 6/6（本地 + 线上）。
+- **线上 `sw.js` 混入 git 冲突标记**（`9bcf1bd` rebase 带进；`6090e45` 只清六页 html）：service worker 注册 `evaluation failed`，离线缓存与旧缓存清理全哑。已清理并保留构建令牌；`verify_assets.mjs` 新增 `new Function(sw.js)` 语法解析 + 根目录冲突标记扫描（负向测试确认会红）。
 
 ## 冲突与待澄清（开工前先看）
 
