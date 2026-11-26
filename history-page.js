@@ -115,8 +115,10 @@
 
   function render() {
     var box = $('histList');
-    var results = (load(RESULTS) || []).filter(function (r) { return r && !r.void; }).reverse();
-    var abandoned = (load(ABANDONED) || []).filter(function (r) { return r && r.finished === false; }).reverse();
+    /* 两组各自按时间倒序：存档存进去的顺序不一定是时间序，别用 reverse 赌 */
+    var byDateDesc = function (a, b) { return (b.date || 0) - (a.date || 0); };
+    var results = (load(RESULTS) || []).filter(function (r) { return r && !r.void; }).sort(byDateDesc);
+    var abandoned = (load(ABANDONED) || []).filter(function (r) { return r && r.finished === false; }).sort(byDateDesc);
     if (!results.length && !abandoned.length) {
       box.innerHTML = '<div class="hist-empty">还没有模考或抽查记录。去<a href="exam.html?mode=mock" style="color:var(--blue-strong)">做一次模考</a>，交卷后这里会出现成绩、错题与补强报告。</div>';
       return;

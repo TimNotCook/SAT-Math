@@ -69,6 +69,7 @@ const PAGES = [
   { name: 'wrong', url: '/wrong.html', label: '错题回顾' },
   { name: 'jiangyi-list', url: '/jiangyi.html', label: '讲义复习 列表' },
   { name: 'jiangyi-sec', url: '/jiangyi.html?b=JY1&s=1.1&i=1', label: '讲义复习 做题' },
+  { name: 'history', url: '/history.html', label: '模考记录' },
 ];
 
 const c = await cdp();

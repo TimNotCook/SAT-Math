@@ -607,6 +607,8 @@ body.shell-drill .drill-board-panel{display:block!important}
   .drill-unit-bar-head{grid-template-columns:minmax(0,1fr) auto 22px;gap:10px;padding:14px 14px 12px}
   .drill-unit-bar-meta{display:none}
   .drill-unit-bar-body{padding:2px 12px 12px}
-  .hist-bar-head{grid-template-columns:14px minmax(0,1fr) auto 22px;padding:13px 14px 11px}
-  .hist-score{display:none}
+  .hist-bar-head{grid-template-columns:14px minmax(0,1fr) auto 22px;gap:10px;padding:12px 13px 10px}
+  /* 分数是这页的主信息，窄屏不能藏；日期换行到标题下，避免「2026/11/26 13…」被切半 */
+  .hist-score{display:block;font-size:13px;letter-spacing:-.01em}
+  .hist-title small{display:block;margin:3px 0 0;font-size:11.5px}
 }

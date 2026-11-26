@@ -8,10 +8,10 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.supabase.in; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>SAT Math Prep · 讲义复习</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=eb17c3b33330">
-  <link rel="stylesheet" href="bluebook.css?v=eb17c3b33330">
-  <link rel="stylesheet" href="glass.css?v=eb17c3b33330">
-  <script src="theme.js?v=eb17c3b33330"></script>
+  <link rel="stylesheet" href="app.css?v=a0659e2f8fcc">
+  <link rel="stylesheet" href="bluebook.css?v=a0659e2f8fcc">
+  <link rel="stylesheet" href="glass.css?v=a0659e2f8fcc">
+  <script src="theme.js?v=a0659e2f8fcc"></script>
   <style>
     .jy-board-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0 8px}
     .jy-board-card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);text-align:left;cursor:pointer;transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
@@ -29,11 +29,6 @@
     .drill-choice .jy-table{font-size:inherit}
     .jy-grid{display:flex;gap:10px;align-items:center;max-width:320px}
     .jy-grid input{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit}
-    /* 双空 grid-in（官方两空题）：两个独立输入框，各带“第一空/第二空”标签 */
-    .jy-grid-multi{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 10px;align-items:center;max-width:420px}
-    .jy-grid-multi .jy-grid-label{font-size:13px;font-weight:700;color:var(--sub);white-space:nowrap;text-align:right}
-    .jy-grid-multi input{width:100%;box-sizing:border-box}
-    .jy-grid-multi #jyGridSet{grid-column:1/-1;justify-self:start}
     .jy-book-chip{display:block;width:max-content;max-width:100%;margin:0 0 12px;padding:3px 9px;border:1px solid var(--blue-line,#c7d9f7);border-radius:99px;background:#f3f7ff;color:#1d4ed8;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em}
     .jy-subgroup{display:flex;flex-direction:column;gap:6px;margin:0 0 18px}
     .jy-subgroup-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;align-items:center;padding:16px 18px;border:1px solid var(--blue-line,#c7d9f7);border-radius:var(--radius);background:#f7faff;text-decoration:none;color:var(--navy)}
@@ -165,15 +160,15 @@
   <!-- 讲义页与真题题库隔离：不加载 data/questions.js（560K），只给 app-core 一个空题库，
        这样导航栏仍由 app-core 单一来源渲染，讲义进度也不会碰到教材 CATALOG。 -->
   <script>window.TD_BANK = window.TD_BANK || { units: [], questions: [] };</script>
-  <script src="grade-core.js?v=eb17c3b33330" defer></script>
-  <script src="app-core.js?v=eb17c3b33330" defer></script>
-  <script src="data/jiangyi.js?v=eb17c3b33330" defer></script>
-  <script src="data/jiangyi_figures.js?v=eb17c3b33330" defer></script>
-  <script src="choice-figures.js?v=eb17c3b33330" defer></script>
-  <script src="jiangyi-core.js?v=eb17c3b33330" defer></script>
-  <script src="jiangyi-page.js?v=eb17c3b33330" defer></script>
+  <script src="grade-core.js?v=a0659e2f8fcc" defer></script>
+  <script src="app-core.js?v=a0659e2f8fcc" defer></script>
+  <script src="data/jiangyi.js?v=a0659e2f8fcc" defer></script>
+  <script src="data/jiangyi_figures.js?v=a0659e2f8fcc" defer></script>
+  <script src="choice-figures.js?v=a0659e2f8fcc" defer></script>
+  <script src="jiangyi-core.js?v=a0659e2f8fcc" defer></script>
+  <script src="jiangyi-page.js?v=a0659e2f8fcc" defer></script>
   <!-- 账户面板：与 drill.html 同一套 Supabase 通道（配置 → 会话 → 面板），顺序不可乱。 -->
-  <script src="cloud-config.js?v=eb17c3b33330" defer></script><script src="supa-cloud.js?v=eb17c3b33330" defer></script>
-  <script src="cloud-account.js?v=eb17c3b33330" defer></script>
+  <script src="cloud-config.js?v=a0659e2f8fcc" defer></script><script src="supa-cloud.js?v=a0659e2f8fcc" defer></script>
+  <script src="cloud-account.js?v=a0659e2f8fcc" defer></script>
 </body>
 </html>
