@@ -16,6 +16,16 @@
   var BANK = (window.TD_BANK && window.TD_BANK.questions) || [];
   function byId(id) { return BANK.find(function (q) { return q.id === id; }) || null; }
 
+  /* 数据指纹：只比长度会漏掉「同条数但内容被云端覆盖」的情况（长度一样、分数变了）。
+     整串滚 hash，O(n) 但返回定长，几 KB 的档案每 1.5s 算一次毫无压力。 */
+  function fp() {
+    var raw = String(localStorage.getItem(RESULTS) || '') + '\u0001' +
+              String(localStorage.getItem(ABANDONED) || '');
+    var h = 0;
+    for (var i = 0; i < raw.length; i++) h = (h * 31 + raw.charCodeAt(i)) | 0;
+    return raw.length + ':' + h;
+  }
+
   function load(k) { try { return JSON.parse(localStorage.getItem(k)) || []; } catch (e) { return []; } }
   function readSession() { try { return JSON.parse(localStorage.getItem(SESSION)) || null; } catch (e) { return null; } }
   function fmtDate(t) { return new Date(t).toLocaleString('zh-CN', { hour12: false }); }
@@ -118,8 +128,7 @@
   function render() {
     var box = $('histList');
     if (!box) return;   /* 极端时序下 DOM 还没就绪，别抛错让页面停在占位 */
-    var sig = String(localStorage.getItem(RESULTS) || '').length + '|' +
-              String(localStorage.getItem(ABANDONED) || '').length;
+    var sig = fp();
     if (box.getAttribute('data-sig') === sig) return;   /* 数据没变就别重建，保住展开状态 */
     box.setAttribute('data-sig', sig);
     /* 两组各自按时间倒序：存档存进去的顺序不一定是时间序，别用 reverse 赌 */
@@ -155,8 +164,7 @@
     var tries = 0;
     var timer = setInterval(function () {
       tries++;
-      var now = String((localStorage.getItem(RESULTS) || '').length) + '|' +
-                String((localStorage.getItem(ABANDONED) || '').length);
+      var now = fp();
       if (now !== last) { last = now; render(); }
       if (tries >= 40) clearInterval(timer);
     }, 1500);
