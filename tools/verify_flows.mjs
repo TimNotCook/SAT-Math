@@ -83,6 +83,17 @@ async function goto(url) {
 await send('Runtime.enable');
 await send('Page.enable');
 
+/* 页面就绪判据不能赌固定 sleep：drill 的选项块由 drill.js 渲染，题库越大越慢。
+   轮询到条件成立再断言，超时才判红——否则会把「还没画完」误报成「功能坏了」。 */
+async function waitFor(expr, ms = 6000) {
+  const until = Date.now() + ms;
+  while (Date.now() < until) {
+    if (await ev(expr)) return true;
+    await sleep(150);
+  }
+  return false;
+}
+
 const results = [];
 const check = (name, ok, detail = '') => results.push({ name, ok: !!ok, detail: String(detail) });
 const cap = async (slug) => {
@@ -93,7 +104,8 @@ const cap = async (slug) => {
 /* ---------- 1. drill：作答 → 存档 → 刷新恢复 ---------- */
 const DRILL = `${BASE}/drill.html?sec=1.1`;
 await goto(DRILL);
-check('drill 起练进入做题视图且有选项', await ev(`(function(){var q=document.getElementById('questionView');return !!(q&&!q.hidden&&document.querySelector('#answerArea .drill-choice'));})()`));
+const ready = await waitFor(`(function(){var q=document.getElementById('questionView');return !!(q&&!q.hidden&&document.querySelector('#answerArea .drill-choice'));})()`);
+check('drill 起练进入做题视图且有选项', ready);
 await cap('drill-1-question');
 
 const pick = await ev(`(function(){var b=document.querySelector('#answerArea .drill-choice');if(!b)return null;var l=b.dataset.choice;b.click();return l;})()`);

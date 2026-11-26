@@ -202,6 +202,14 @@
     introNote = '';
     const expiredNotice = $('introNotice');
     if (expiredNotice) expiredNotice.hidden = true;
+    /* 已交卷的会话不能再被 Start 拉回答题视图：答题区是锁定态，进去只会看到
+       「题都在、全灰、不能答」的残影，而成绩页才是唯一正确落点。 */
+    if (S && S.finished && S.result) {
+      resumeStage = null;
+      S.stage = 'result';
+      setStage('result'); renderResult(); window.scrollTo(0, 0);
+      return;
+    }
     if (resumeStage) {
       /* 开始页停着的这段时间里计时也在走（ticker 不起）。点 Start 前再判一次，
          避免「刚点开始就被判进模块二 / 直接出分」的黑箱。 */
@@ -415,6 +423,9 @@
          进模块二或直接出分（那是「看起来正常」的假象）。 */
       const timeout = C.sessionTimeout(S, Date.now());
       if (timeout === 'total') {
+        /* 已出分：resumeStage 必须先改成 result，否则落点仍写着 answer，
+           任何一次 Start（含回退/自动化点击）都会把锁定态答题区翻出来。 */
+        resumeStage = 'result';
         finalize(true, 'time');
         toast(OFFICIAL ? 'Time is up. Your answers have been scored.' : '计时已结束，已按已作答内容出分');
         return true;

@@ -28,6 +28,9 @@
 | 8 | **Bluebook 外壳把「作答自动保存」指示器整格删掉**：`bluebook-shell.js` 里 `right.innerHTML = ''` 清空 `.drill-context-right`，`#saveStatus`（drill.js 启动时就缓存了引用的节点）随之离开 DOM | 练题页（官方外壳样式）上看不到任何存档反馈；`aria-live` 节点一起消失，读屏用户也收不到「已保存」。drill.js 仍往已脱离 DOM 的节点写文本，所以不会报错，属于**静默失效** | 清空前先摘下 `#saveStatus`，重排工具簇后再挂回去（同一节点，引用不断）；`tools/verify_flows.mjs` 加断言「存档状态条存在且非空」 |
 
 
+| 9 | **计时到点后，已交卷的会话还能被重新拉回「作答视图」**：`restoreOrIntro()` 在时间到点时先按旧 `stage='answer'` 设了 `resumeStage`，再 `finalize()` 出分；`resumeStage` 仍是 `answer`，任何一次 `startSession()` 都会把落点写成答题页——而答题区已锁定，进去只能看到「题都在、全灰、不能答」的残影 | 计时归零（或跨天后回来）本该只看成绩页；一旦落到残影页，用户以为还有题没答、点哪里都没反应 | `restoreOrIntro()` 在 `timeout==='total'` 分支先把 `resumeStage='result'` 再 `finalize`；`startSession()` 开头加硬门「已 finished 且有 result → 直接回成绩页」，不再依赖按钮是否可见 |
+
+
 
 ## 阴影题实测（P0-2 验收口径）
 
@@ -79,6 +82,30 @@ node tools/verify_shaded_figures.mjs  # 阴影题矢量图渲染（6 条记录�
 ```
 
 `verify_runtime.mjs` 这一轮的结果：六页 0 个 JS 异常、0 个 4xx；`index.html` 有一条 `ERR_CONNECTION_RESET`（根跳转桩里对 Supabase 的探测请求被网络侧 reset，非站点缺陷，已标注忽略）。
+
+## 计时到点路径（新增 `tools/verify_exam_timeout.mjs`）
+
+35 分钟的计时没人愿意坐着等，所以「到点会发生什么」长期只能靠读代码相信。这个脚本不 mock 任何东西，只把会话里的比对字段改到过去，用真实页面走完整条路：
+
+```bash
+node tools/verify_exam_timeout.mjs                                  # 本地
+node tools/verify_exam_timeout.mjs --base https://timnotcook.github.io/SAT-Math
+CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
+```
+
+8 条断言：① 起卷进答题视图、卷面 22 题 Module 1；② Module 1 到点 + 重载 → 开始页明示「已进入 Module 2」→ 点 Start 后卷面补齐 44 题；③ 总时间到点 + 重载 → 点 Start 直接停在成绩页，会话 `finished/auto/endReason='time'`，成绩记录只多一条且 `total=44`（重复进入不会重复写），结果页文案含 `Auto-submitted` 与模块二路径。
+
+第 9 条缺陷就是这条新脚本第一次跑出来的：它断言「停在成绩页」，实测是 `stage-answer`——成绩记录都对，只是落点错。
+
+一个跑批环境的事实，写进脚本注释里：本地 `python3 -m http.server` 冷启动时并发拉十几个 defer 脚本，偶尔会 reset 掉一个（`exam-core.js` 掉线 → `exam.js` 第 6 行 `C` 未定义 → 整页点不动）。脚本对这种情况整页重载（最多 3 次）并打印 `WARN`，线上 CDN 不复现。这一轮排查时顺带发现机器磁盘只剩 442MB，清理 `/tmp` 下历史浏览器 profile 与截图目录后回到 11GB——reset 与「写到 `/tmp/runtime-proof` 报 ENOENT」都发生在磁盘打满之后，属同一原因。
+
+## 阴影题坐标不再写死（`verify_shaded_figures`）
+
+原来 `CASES` 里写的是 `{id:'U1-12', sec:'L1', i:12}` 这种手填坐标，题库一重排（或前面插一道题）脚本仍会照旧打印 PASS，但看的已经是别的题——静默错位。现在只写题 id，题位在页面里用 `TD_APP.CATALOG` 反查（口径与 `app-core.js` 一致：`legacy → L<unit>`、按 `no` 再按 `id` 排序），反查不到直接 FAIL 并说明原因。输出同时带板块总题数，例如 `U1-12 (L1#12/15)`、`R04-104 (4.5.T26#4/37)`。
+
+## 脚本可移植性守卫（`test/tools-portability.test.js`）
+
+三条静态断言：除 `tools/lib/chrome.mjs` 外任何脚本不许出现 macOS Chrome 绝对路径；凡带 `remote-debugging-port` 的脚本必须 `import { CHROME } from '…/lib/chrome.mjs'`；`chrome.mjs` 必须导出 `CHROME`、支持 `CHROME_BIN`、候选表同时覆盖 macOS 与 Linux。用「往工具脚本尾部插一行 `/Applications/Google Chrome…`」的负向测试确认会红，插回去即绿。
 
 ## 还没动的
 
