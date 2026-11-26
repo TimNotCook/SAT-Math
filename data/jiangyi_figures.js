@@ -118,6 +118,25 @@
     return { w: W, h: H, body: body };
   }
 
+  // 纯几何图（4.1 起用）：坐标直接用画布像素，只画线段、起点圆点、文字标注。
+  // 平行线截角、三角形、圆这类图没有 x-y 轴，套 plane 会白送一堆无关网格；
+  // 线段取 [x1,y1],[x2,y2]，第三个元素给 'dash' 就画虚线。
+  // labels 里 x/y 是文字的锚点，anchor 默认 start，t 里的 ° 原样吃。
+  function geo(o) {
+    var W = o.w, H = o.h, g = [];
+    (o.segs || []).forEach(function (s) {
+      g.push('<line x1="' + s[0][0] + '" y1="' + s[0][1] + '" x2="' + s[1][0] + '" y2="' + s[1][1] + '" stroke="' + LINE + '" stroke-width="' + (o.sw || 1.8) + '"' + (s[2] === 'dash' ? ' stroke-dasharray="7 5"' : '') + '/>');
+    });
+    (o.dots || []).forEach(function (d) {
+      g.push('<circle cx="' + d[0] + '" cy="' + d[1] + '" r="' + (o.dotR || 3) + '" fill="' + LINE + '"/>');
+    });
+    (o.labels || []).forEach(function (t) {
+      g.push('<text x="' + t.x + '" y="' + t.y + '" font-size="' + (t.size || 14) + '" fill="' + (t.fill || INK) + '"' +
+        (t.italic ? ' font-style="italic"' : '') + ' text-anchor="' + (t.anchor || 'start') + '">' + esc(t.t) + '</text>');
+    });
+    return { w: W, h: H, body: g.join('') };
+  }
+
   // 只画十字轴 + 四个象限标号（原书 p34 #5 的图就是这样）
   function quadrants(o) {
     var W = o.w, H = o.h, cx = W / 2, cy = H / 2, m = 26;
@@ -616,6 +635,25 @@
         curves: [{ kind: 'rat', a: 1, h: 0, c: 1 }] },
       D: { w: 240, h: 170, noGrid: true, x: { min: -3.6, max: 3.6, step: 1 }, y: { min: -5, max: 6, step: 1 },
         curves: [{ kind: 'rat', a: 1, h: 0, c: 0 }] } } },
+    // ---- 4.1 直线与角（p151/p152）----
+    // #1：m∥n，截线 t；x 在 m 上方右侧、y 在 m 下方左侧（对顶），z 在 n 上方左侧（同旁内角）
+    'JY4-056': { type: 'geo', w: 430, h: 300, sw: 1.8,
+      segs: [[[40, 110], [380, 110]], [[40, 240], [380, 240]], [[110, 15], [300, 285]]],
+      labels: [
+        { t: 't', x: 92, y: 14, italic: true, size: 15 },
+        { t: 'm', x: 392, y: 116, italic: true, size: 15 },
+        { t: 'n', x: 392, y: 246, italic: true, size: 15 },
+        { t: 'x\u00b0', x: 196, y: 100, size: 13 },
+        { t: 'y\u00b0', x: 162, y: 136, size: 13 },
+        { t: 'z\u00b0', x: 248, y: 232, size: 13 } ] },
+    // #2：q∥r，截线 s；77° 在 q 上方右侧，y° 在 r 上方左侧（同旁内角 → 103°）
+    'JY4-057': { type: 'geo', w: 430, h: 300, sw: 1.8,
+      segs: [[[50, 90], [360, 90]], [[30, 190], [360, 190]], [[100, 250], [280, 20]]],
+      labels: [
+        { t: 'q', x: 375, y: 96, italic: true, size: 15 },
+        { t: 'r', x: 375, y: 196, italic: true, size: 15 },
+        { t: '77\u00b0', x: 232, y: 80, size: 13 },
+        { t: 'y\u00b0', x: 152, y: 180, size: 13 } ] },
     // p143 #22：只画左半支，竖直渐近线 x = -4（原页标题写 f(x)=a/(x+b)，由图得 6/(x+4)）
     'JY3-104': { type: 'plane', w: 440, h: 330,
       x: { min: -10, max: 0, step: 1, labels: [-10, -8, -6, -4, -2] },
@@ -629,6 +667,7 @@
       var s = specs[id];
       if (!s) return '';
       if (s.type === 'quadrants') return wrap(quadrants(s));
+      if (s.type === 'geo') return wrap(geo(s));
       if (s.type === 'scatter') return wrap(scatter(s));
       if (s.type === 'hist') return wrap(hist(s));
       if (s.type === 'dotplot') return wrap(dotplot(s));
