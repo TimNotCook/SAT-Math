@@ -105,6 +105,21 @@ describe('acceptedValues：标准答案多解解析', () => {
   test('无效答案被过滤，不留 null', () => {
     assert.deepEqual(Array.from(G.acceptedValues({ value: '', answer: 'abc; 1/0' })), []);
   });
+  /* 回归：value 里写成等价形式串（题库真实形态）时，整串 parseNum 会失败，
+     结果这道题任何输入都判错。value 必须按 [,;|] / or 拆开逐个解析。 */
+  test('value 内的等价形式串（| 分隔）全部纳入', () => {
+    assert.deepEqual(Array.from(G.acceptedValues({ value: '59/9 | 6.555 | 6.556', answer: null })),
+      [59 / 9, 6.555, 6.556]);
+  });
+  test('value 内的 or 备选全部纳入', () => {
+    assert.deepEqual(Array.from(G.acceptedValues({ value: '-192 or -204', answer: null })), [-192, -204]);
+  });
+  test('value 多解时，任一形式都能判对', () => {
+    const q = { type: 'grid', value: '1/16 or .0625', answer: null };
+    assert.equal(G.isCorrect(q, '1/16'), true);
+    assert.equal(G.isCorrect(q, '.0625'), true);
+    assert.equal(G.isCorrect(q, '.06'), false);
+  });
 });
 
 /* ---------------- sameExact ---------------- */

@@ -36,13 +36,15 @@
   }
 
   /* Leniency for the ANSWER KEY only: it may list equivalent forms
-     (".0625, 1/16") or alternatives ("2 or 8"); the value field is numeric. */
+     (".0625, 1/16") or alternatives ("2 or 8"); the value field is numeric.
+     value 也可能是一串等价形式（"59/9 | 6.555 | 6.556"、"-192 or -204"），
+     必须逐个解析，否则整串 parseNum 失败会让这道题任何输入都判错。 */
   function acceptedValues(q) {
     var out = [];
     function add(v) { if (v != null && isFinite(v) && out.indexOf(v) < 0) out.push(v); }
-    var pv = parseNum(q.value);
-    if (pv != null) add(pv);
-    String(q.answer == null ? '' : q.answer).split(/[,;]|\bor\b/i)
+    String(q.value == null ? '' : q.value).split(/[,;|]|\bor\b/i)
+      .forEach(function (p) { add(parseNum(String(p).trim())); });
+    String(q.answer == null ? '' : q.answer).split(/[,;|]|\bor\b/i)
       .forEach(function (p) { add(parseNum(String(p).trim())); });
     return out;
   }
