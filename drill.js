@@ -209,7 +209,7 @@
   }
   /* 讲义长条：JY1–JY4 每条展开 = 讲义小节列表；数据未加载时降级为直达链接 */
   function jiangyiAccordionHtml() {
-    var J = window.TD_JIANGYI;
+    var J = window.TD_JY;
     if (!J || !J.boards || !J.boardStats) {
       return jiangyiFallbackHtml();
     }
