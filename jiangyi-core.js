@@ -82,10 +82,19 @@
     var choices = Array.isArray(raw.choices) ? raw.choices.map(strip) : [];
     var type = choices.length >= 2 ? 'mcq' : 'grid';
     var answer = strip(raw.answer);
+    /* grid 的数值键：优先 raw.value；answer 是纯数字时兜底。
+       answer 若是中文说明（如双空「第一空 250，第二空 123.5」），Number() 会得到
+       NaN，旧写法会让这类题永远判错——所以必须显式回退，不能直接 Number(answer)。 */
+    var keyNum = Number(raw.value);
+    if (!isFinite(keyNum)) keyNum = Number(answer);
+    /* 官方双空题：一空一键，values 必须原样带过来，否则渲染层拿不到第二空。 */
+    var vals = Array.isArray(raw.values)
+      ? raw.values.map(Number).filter(function (v) { return isFinite(v); }) : null;
     return {
       id: id, unit: unit, section: section, page: page, no: no, source: source,
       stem: raw.stem, text: stem, choices: choices, type: type,
-      answer: answer, value: type === 'grid' ? Number(answer) : undefined,
+      answer: answer, value: type === 'grid' && isFinite(keyNum) ? keyNum : undefined,
+      values: type === 'grid' && vals && vals.length > 1 ? vals : undefined,
       figure: raw.figure || null, figures: raw.figure ? [raw.figure] : [],
       choiceFigures: raw.choiceFigures || null,
       fig: raw.fig || null, table: Array.isArray(raw.table) ? raw.table : null,

@@ -207,3 +207,23 @@ test('JY2-014 双空：数据 values 与渲染/判分/样式三处配套都在',
   const grade = fs.readFileSync(path.join(ROOT, 'grade-core.js'), 'utf8');
   assert.ok(grade.includes('dualCorrect'), 'grade-core.js 缺 dualCorrect');
 });
+
+/* 归一化层的白名单最容易吞字段：core.normalize() 是逐字段重建对象，不显式搬运就丢。
+   这条钉住 values 与数值键，防止「数据里有、渲染层拿不到」这类静默退化。 */
+test('normalize 保留双空 values 与 grid 数值键', () => {
+  const win = {};
+  ['data/jiangyi.js', 'grade-core.js', 'jiangyi-core.js'].forEach(rel => {
+    new Function('window', fs.readFileSync(path.join(ROOT, rel), 'utf8'))(win);
+  });
+  const q = win.TD_JY.BY_ID['JY2-014'];
+  assert.ok(q, 'core 里缺 JY2-014');
+  assert.strictEqual(q.type, 'grid');
+  assert.deepStrictEqual(q.values, [250, 123.5], 'normalize 丢了 values');
+  assert.strictEqual(q.value, 250, 'normalize 的 value 应为有限数值');
+  assert.strictEqual(win.TDGrade.isCorrect(q, '250, 123.5'), true, '归一化后双空判对应为对');
+  assert.strictEqual(win.TDGrade.isCorrect(q, '250'), false, '只填一空应为错');
+
+  const single = win.TD_JY.ALL.find(x => x.type === 'grid' && !x.values && /^\d+$/.test(x.answer));
+  assert.ok(single, '缺可抽查的单空 grid');
+  assert.ok(isFinite(single.value), '单空 grid 的数值键被弄丢了：' + single.id);
+});
