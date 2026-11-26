@@ -188,6 +188,24 @@ if (pickInfo && !pickInfo.err) {
 }
 check('Module 2 里能点错一个选项', picked && picked.qid && picked.given && picked.given !== picked.right, JSON.stringify(picked));
 
+/* ---------- ②c 刷新页面不能吃掉 Module 2 的作答 ----------
+   考试中途刷新（换窗口、浏览器崩了重开）是真实高频动作。会话在 localStorage，
+   作答必须还在，页面上也必须还是选中的那个。 */
+await goto(`${BASE}/exam.html?mode=mock`, 'Module2 刷新恢复');
+/* 刷新后落在开始页（设计如此：明确告诉学生「计时没停，点 Start 继续」），
+   点 Start 才回到答题视图；不点就断言选中态等于测了个没渲染的页面。 */
+const stageReload = await startExam();
+const afterReload = await ev(`(function(){
+  var s = JSON.parse(localStorage.getItem('${KEY_SESSION}') || 'null');
+  if (!s) return { err: 'no session' };
+  var hits = [];
+  Object.keys(s.answers || {}).forEach(function (u) { var a = s.answers[u]; if (a && a.v === '${picked && picked.given}' && ${JSON.stringify(picked && picked.qid)}) hits.push(u); });
+  var sel = document.querySelectorAll('#answerArea .drill-choice.is-selected').length;
+  var cur = s.paper[s.idx] ? s.paper[s.idx].id : null;
+  return { stored: hits.length, selected: sel, module: s.module, cur: cur, stage: '${stageReload}' };
+})()`);
+check('刷新后 Module 2 作答仍在（存档 + 点 Start 后选中态）', afterReload && afterReload.stored >= 1 && afterReload.selected === 1, JSON.stringify(afterReload));
+
 /* ---------- ③ 总时间到点 → 自动交卷 ---------- */
 const before = await ev(`(function(){var r=JSON.parse(localStorage.getItem('${KEY_RESULTS}')||'[]');return Array.isArray(r)?r.length:-1;})()`);
 /* 不刷新页面，让真实倒计时自己走到零：这条路径才是用户遇到的自动交卷。
@@ -261,9 +279,13 @@ const wrongCards = await ev(`(function(){
   var list = document.getElementById('wrongList');
   var cards = document.querySelectorAll('#wrongList > *').length;
   var txt = list ? list.innerText : '';
+  /* 卷面里的 id 可能是别名（如 TD-15-01 → U1-12），错题本按 canonical 展示，
+     标签要跟着 canonical 走，否则会误判「没进错题本」。 */
   var want = '${wantQid}';
-  var q = null, cat = (window.TD_APP || {}).CATALOG || {};
-  Object.keys(cat).forEach(function (k) { (cat[k] || []).forEach(function (x) { if (x.id === want) q = x; }); });
+  var alias = window.TD_ALIAS || {};
+  var canon = alias[want] || want;
+  var B = window.TD_BANK || {}, all = B.all || B.questions || [];
+  var q = all.filter(function (x) { return x.id === canon; })[0] || all.filter(function (x) { return x.id === want; })[0];
   var label = q ? (q.section + ' · 第 ' + q.no + ' 题') : '';
   return { cards: cards, label: label, hasLabel: label ? txt.indexOf(label) >= 0 : false, text: txt.replace(/\s+/g, ' ').slice(0, 140) };
 })()`);
