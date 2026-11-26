@@ -46,6 +46,8 @@
   function titleOf(rec) {
     if (rec.mode === 'jiangyi') return '讲义复习' + (rec.board ? ' · ' + rec.board : '') + (rec.section ? ' · ' + rec.section : '');
     if (rec.mode === 'quiz') return '单元抽查' + (rec.unit ? ' · U' + rec.unit : '');
+    /* 未交卷的模考只发到第一模块（22 题），写「全卷 22 题」会误导成整卷只有 22 题。 */
+    if (rec.finished === false) return '官方模考 · 未交卷';
     return '官方模考 · 全卷 ' + (rec.total || 44) + ' 题';
   }
 

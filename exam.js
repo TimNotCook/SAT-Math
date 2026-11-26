@@ -577,14 +577,16 @@
     $('introDesc').hidden = !official;
     if (!official) $('introDesc').textContent = '';
     else $('introDesc').textContent =
-      'The digital SAT Math section has two modules. Each module has 22 questions and is timed separately.';
+      'The digital SAT Math section has two modules. Each module has ' + O.questionsPerModule +
+      ' questions and is timed separately.';
     $('btnStart').textContent = resumeStage === 'result'
       ? (official ? 'View Score Report' : '查看成绩报告')
       : (official ? 'Start' : '开始抽测');
 
     if (official) {
       $('introUnitPick').innerHTML = '';
-      $('introParams').innerHTML = '<span>22 Questions</span><span>35 minutes</span><span>Module ' + introMod + ' of 2</span>';
+      $('introParams').innerHTML = '<span>' + O.questionsPerModule + ' Questions</span><span>' +
+        (O.secondsPerModule / 60) + ' minutes</span><span>Module ' + introMod + ' of 2</span>';
       /* Start screen stays short; the verbatim DIRECTIONS live in the
          top-left Directions button of every question screen, as in Bluebook. */
       $('introDirections').innerHTML = '<div class="exam-start-directions">' +
