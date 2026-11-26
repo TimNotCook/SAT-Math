@@ -438,6 +438,13 @@
           ? 'Module 1 time is up. You are now in Module 2 (' + left + ' remaining).'
           : 'Module 1 时间已到，已自动进入 Module 2（本模块剩余 ' + left + '）。';
       }
+      /* 刷新/重进时静默恢复，学生会以为进度丢了或计时重置；明确告诉他
+         计时一直在走、点 Start 就接着上次继续。模块一超时已自带说明，不覆盖。 */
+      if (!introNote && s.startedAt && !s.finished) {
+        introNote = OFFICIAL
+          ? 'Your saved test was restored. The clock kept running while you were away — tap Start to resume where you left off.'
+          : '已恢复上次进度。计时没有暂停，点「开始抽测」接着做。';
+      }
       showStage('intro');           // also hides the timer group
       renderIntro();
       /* Do not write the stored remaining time while on the start page:

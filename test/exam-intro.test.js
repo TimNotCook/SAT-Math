@@ -35,3 +35,12 @@ test('模考页：核心脚本没加载完时要有可见兜底，而不是死�
   assert.ok(html.includes('This page could not finish loading'), '必须给出可见提示');
   assert.ok(html.includes("btn.textContent = 'Reload'"), '按钮必须变成 Reload');
 });
+
+test('模考页：刷新恢复时必须告知「计时未暂停、点 Start 继续」', () => {
+  const js = read('exam.js');
+  assert.ok(/The clock kept running while you were away/.test(js),
+    '官方模考刷新恢复要给出英文提示，避免学生误判为计时重置');
+  assert.ok(/已恢复上次进度。计时没有暂停/.test(js),
+    '单元抽查刷新恢复也要给出中文提示');
+  assert.ok(!/introNote = introNote/.test(js), '不得覆盖模块一超时已有的专属说明');
+});
