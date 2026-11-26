@@ -11,7 +11,7 @@ import path from 'path';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 global.window = {};
-for (const f of ['questions.js', 'data/jiangyi.js']) {
+for (const f of ['data/questions.js', 'data/jiangyi.js']) {
   const p = path.join(ROOT, f);
   if (fs.existsSync(p)) eval(fs.readFileSync(p, 'utf8'));
 }
@@ -28,6 +28,10 @@ function norm(s) {
 }
 function rank(id) {
   const p = String(id).slice(0, 2);
+  /* R03-/R04- 与 U 同级（同组并列时 id 字典序使 R 胜出）：册内逐字重录优先于旧 U 卷 / 旧 SP2 录。 */
+  if (/^R\d\d-/.test(id)) return 0;
+  /* JY4＝Unit 4 教材原题子组：同一批原题的正式家在 TD 教材侧，JY4 只能当副本 */
+  if (/^JY4-/.test(id)) return 3;
   if (/^JY/.test(id)) return 1;
   if (/^U\d/.test(id)) return 0;
   if (/^TD/.test(id)) return 2;
@@ -68,6 +72,14 @@ for (const [from, to] of Object.entries(JY4_DUP)) {
   for (const k of Object.keys(alias)) if (alias[k] === from) delete alias[k];
   alias[from] = to;
 }
+/* TD-4[12]-xx 的正式家是教材侧：不许被反向指到 JY4-* 副本 */
+for (const k of Object.keys(alias)) if (/^TD-4[12]-/.test(k) && /^JY4-/.test(alias[k])) delete alias[k];
+/* alias 不许成链：多跳一律压平成最终 canonical */
+for (const k of Object.keys(alias)) {
+  let t = alias[k], guard = 0;
+  while (alias[t] && guard++ < 6) t = alias[t];
+  alias[k] = t;
+}
 
 const stats = {
   questions: items.length,
@@ -92,7 +104,7 @@ if (process.argv.includes('--doc')) {
   L.push(`| 题数（题库 + 讲义） | 重复组 | 多余副本 | 两两对数 | 组大小分布 |`);
   L.push('|---|---|---|---|---|');
   L.push(`| ${stats.questions} | ${stats.groups} | ${stats.extraCopies} | ${stats.pairs} | ${Object.entries(stats.sizeDist).map(([k, v]) => k + ' 题组 ×' + v).join('、')} |\n`);
-  L.push('> 与 Tim 口述的「60 组」对账：60 是 2026-11-25 时点的**两两对数**，入库增长后现为 ' + stats.pairs + '；「组数」按定义是 ' + stats.groups + '。两个数字不是一回事，别再混用。\n');
+  L.push('> 与 Tim 口述的「60 组」对账：60 与上表**两两对数**一致（并入讲义 45 题后）。「组数」按定义是 ' + stats.groups + '，两个数字不是一回事，别再混用。\n');
   L.push('## 重复组清单\n');
   L.push('| # | canonical（显示保留） | 同组 alias（标 alias / 错题归并到此） |');
   L.push('|---|---|---|');
