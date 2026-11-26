@@ -12,7 +12,7 @@
    导航请求 network-first 失败时（弱网/VPN 抖动）会整站回退到旧版页面。
    升版触发 activate 全量清缓存，旧构建自愈。 */
 <<<<<<< HEAD
-var VERSION = 'satmath-c10b23898d1a';
+var VERSION = 'satmath-0cc37aa24449';
 =======
 var VERSION = 'satmath-6efb4c25ff45';
 >>>>>>> 9bcf1bd (fix(history): 记录页漏装云账号模块——新设备打开看不到云端记录)

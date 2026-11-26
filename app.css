@@ -548,8 +548,8 @@ body.site-shell:has(#resultView:not([hidden])) #appnav{display:block!important}
 
 /* ---- 真题练习 landing 长条（accordion）+ 数学标题徽章（2026-11-26） ---- */
 .drill-select-hero{display:flex;align-items:center;gap:14px;margin:4px 0 20px}
-.drill-select-badge{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:44px;height:44px;border-radius:10px;background:var(--blue)}
-.drill-select-sigma{color:#fff;font:400 26px/1 'Times New Roman','STIX Two Math','Nimbus Roman',Times,serif;transform:translateY(.5px)}
+.drill-select-badge{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:46px;height:46px;border-radius:11px;background:var(--blue);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.drill-select-sigma{color:#fff;font:700 43px/1 Arial,'Helvetica Neue',Helvetica,'Segoe UI',sans-serif;transform:translate(-2px,2.5px)}
 .drill-select-hero h1{margin:0;font-size:30px;letter-spacing:-.02em;color:var(--ink)}
 body.shell-drill .drill-board-panel{display:block!important}
 .drill-unit-bar{border:1px solid var(--line);border-radius:var(--radius-lg,var(--radius));background:var(--paper);overflow:hidden;transition:border-color .15s var(--ease)}
