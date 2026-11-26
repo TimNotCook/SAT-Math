@@ -78,9 +78,10 @@ async function goto(url) {
 await send('Runtime.enable');
 await send('Page.enable');
 
-/* 页面就绪判据不能赌固定 sleep：drill 的选项块由 drill.js 渲染，题库越大越慢。
+/* 页面就绪判据不能賭固定 sleep：drill 的选项块由 drill.js 渲染，题库越大越慢。
    轮询到条件成立再断言，超时才判红——否则会把「还没画完」误报成「功能坏了」。 */
-async function waitFor(expr, ms = 6000) {
+/* 默认 6s 对 data/questions.js（1300+ 题）偏紧，慢机器/首次加载会假失败，放宽到 12s */
+async function waitFor(expr, ms = 12000) {
   const until = Date.now() + ms;
   while (Date.now() < until) {
     if (await ev(expr)) return true;
@@ -97,7 +98,8 @@ const cap = async (slug) => {
 };
 
 /* ---------- 1. drill：作答 → 存档 → 刷新恢复 ---------- */
-const DRILL = `${BASE}/drill.html?sec=1.1`;
+/* 重构后只给 sec 会停在长条列表，不进口做题视图；必须带 i 才落到题目页 */
+const DRILL = `${BASE}/drill.html?sec=1.1&i=1`;
 await goto(DRILL);
 const ready = await waitFor(`(function(){var q=document.getElementById('questionView');return !!(q&&!q.hidden&&document.querySelector('#answerArea .drill-choice'));})()`);
 check('drill 起练进入做题视图且有选项', ready);

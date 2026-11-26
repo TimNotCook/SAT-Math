@@ -79,7 +79,10 @@ let pass = 0; const fails = [];
 /* 先开一次页面，把 app-core 的 CATALOG 拿进浏览器，再按 id 反查题位。 */
 await send('Page.navigate', { url: `${BASE}/drill.html` });
 for (let i = 0; i < 80; i++) { await sleep(120); if ((await ev('document.readyState')) === 'complete') break; }
-for (let i = 0; i < 40 && !(await ev('!!(window.TD_APP && window.TD_APP.CATALOG)')); i++) await sleep(150);
+/* 只等 CATALOG 会在 data/questions.js（1300+ 题、几 MB）还没解析完时放行，
+   此时 TD_BANK.questions 为空 → 6 条反查全 null（假失败，2026-11-26 复现）。
+   所以必须同时等到题库数组有内容。 */
+for (let i = 0; i < 100 && !(await ev('!!(window.TD_APP && window.TD_APP.CATALOG) && Array.isArray((window.TD_BANK || {}).questions) && window.TD_BANK.questions.length > 0')); i++) await sleep(150);
 for (const c of CASES) {
   const coord = await ev(`(function(id){
     var C = (window.TD_APP||{}).CATALOG || {}, Q = (window.TD_BANK||{}).questions || [];
@@ -98,7 +101,7 @@ for (const c of CASES) {
   const sec = coord.sec, pos = coord.pos, total = coord.n;
   await send('Page.navigate', { url: `${BASE}/drill.html?sec=${encodeURIComponent(sec)}&i=${pos}` });
   for (let i = 0; i < 80; i++) { await sleep(120); if ((await ev('document.readyState')) === 'complete') break; }
-  /* 别用固定 sleep 赌渲染完成：drill.html 里 #qNumber 初值是「1」，
+  /* 别用固定 sleep 賭渲染完成：drill.html 里 #qNumber 初值是「1」，
      渲染没跟上时读到的就是 1，会把「题位没跳过去」误判成「图没了」。
      轮询到题号等于期望值再取图，最多等 6 秒。 */
   for (let i = 0; i < 40; i++) {
