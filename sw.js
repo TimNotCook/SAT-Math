@@ -11,7 +11,11 @@
    v1→v2（2026-11-23）：v1 从未升过版，历史旧构建资源在缓存里永久滞留；
    导航请求 network-first 失败时（弱网/VPN 抖动）会整站回退到旧版页面。
    升版触发 activate 全量清缓存，旧构建自愈。 */
-var VERSION = 'satmath-880e221cd4cd';
+<<<<<<< HEAD
+var VERSION = 'satmath-9057522e814a';
+=======
+var VERSION = 'satmath-6efb4c25ff45';
+>>>>>>> 9bcf1bd (fix(history): 记录页漏装云账号模块——新设备打开看不到云端记录)
 
 /* 从本 SW 自身路径推导站点基路径（兼容 GitHub Pages 子路径，如 /SAT-Math/） */
 var BASE = self.location.pathname.replace(/\/sw\.js$/, '/');

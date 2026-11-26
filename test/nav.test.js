@@ -62,3 +62,12 @@ test('验收脚本 tools/verify_nav.mjs 存在并覆盖四页', () => {
   assert.ok(src.includes('nav/root·跳转'), 'verify_nav 未断言站点根跳转');
   FIVE.forEach(href => assert.ok(src.includes(href), 'verify_nav 未断言 ' + href));
 });
+
+test('云账号模块在全站所有数据页装载（记录页漏装会导致跨设备看不到记录）', () => {
+  ['drill.html', 'exam.html', 'wrong.html', 'jiangyi.html', 'history.html'].forEach(f => {
+    const s = read(f);
+    ['cloud-config.js', 'supa-cloud.js', 'cloud-account.js'].forEach(m => {
+      assert.ok(s.includes(m), f + ' 未加载 ' + m + '：登录/档案合并不会启动');
+    });
+  });
+});

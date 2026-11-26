@@ -26,8 +26,8 @@
 ## 没覆盖到的
 
 - **真实交卷链路**没验：本机只灌种子数据，没有登录做一次模考再交卷。写入 `tdsat_exam_suite_results_v1` 的字段（`estimate.scaled`、`report.priority`、`detail`）是按 `history-page.js` 读取侧反推的；若 exam.js 实际写的字段不同，页面会显示「—」而不是崩。这条需要一次真机模考才能签收。
-- 云同步：本页只读 `localStorage`（两个 key），不读 Supabase 档案；换设备看不到历史记录，属产品口径问题，未改。
+- **云同步（原先判断错了，已纠正并修）**：一开始以为「记录页只读 localStorage、不读云端」，实测 `cloud-account.js` 的快照按 `tdsat_` 前缀整包上传（只排除 `tdsat_prefs_v1`），`tdsat_exam_suite_results_v1` / `tdsat_exam_suite_abandoned_v1` **本来就在云档案里**，登录后 `afterSignIn()` 会把云端 payload 并回本机。真正的坑是 **`history.html` 没装云模块**：新设备直接打开记录页，脚本不启动，页面只看到本机空记录（要先打开 drill/exam 之类的页才会触发合并）。已给 history 补上 `cloud-config.js` / `supa-cloud.js` / `cloud-account.js`，并在 `test/nav.test.js` 加了守门断言：五张数据页缺任一云脚本就红。记录页右上角现在也有「设置」入口（登录/档案）。
 
 ## 回归
 
-`npm test` 142 pass / 0 fail；`node tools/verify_nav.mjs` 38/38；`tools/narrow_check.mjs` 的页面清单已补 `history.html`，后续窄屏走查自动覆盖。
+`npm test` 151 pass / 0 fail；`node tools/verify_nav.mjs` 38/38；记录页装云脚本后 TDSync 存在、账号按钮挂载、三档仍 0 溢出；`tools/narrow_check.mjs` 的页面清单已补 `history.html`，后续窄屏走查自动覆盖。
