@@ -1,0 +1,1290 @@
+{
+  "meta": {
+    "batch": "t031",
+    "threshold_page_w": 0.02,
+    "rule": "特征点按各自墨迹 bbox 归一化；误差换算为页宽比例；拓扑要求线数/顶点数/标签数/直角方块数一致。",
+    "generated": "2026-11-26"
+  },
+  "items": [
+    {
+      "id": "R04-080",
+      "mode": "redraw_figure",
+      "source": "04 册 · p08 · #20",
+      "region": [
+        0.271,
+        0.112,
+        0.455,
+        0.239
+      ],
+      "samplePoints": [
+        {
+          "label": "M",
+          "scan": [
+            0.229,
+            0.0419
+          ],
+          "render": [
+            0.23,
+            0.0323
+          ],
+          "errPageW": 0.0018
+        },
+        {
+          "label": "N",
+          "scan": [
+            1,
+            0
+          ],
+          "render": [
+            1,
+            0
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "L",
+          "scan": [
+            0,
+            0.8084
+          ],
+          "render": [
+            0,
+            0.871
+          ],
+          "errPageW": 0.0115
+        },
+        {
+          "label": "K",
+          "scan": [
+            0.369,
+            1
+          ],
+          "render": [
+            0.35,
+            1
+          ],
+          "errPageW": 0.0035
+        },
+        {
+          "label": "midMN",
+          "scan": [
+            0.6145,
+            0.021
+          ],
+          "render": [
+            0.615,
+            0.0161
+          ],
+          "errPageW": 0.0009
+        },
+        {
+          "label": "midLK",
+          "scan": [
+            0.1845,
+            0.9042
+          ],
+          "render": [
+            0.175,
+            0.9355
+          ],
+          "errPageW": 0.0058
+        }
+      ],
+      "maxErrPageW": 0.0115,
+      "topology": {
+        "edges": 4,
+        "vertices": 4,
+        "labels": 4,
+        "squares": 0
+      },
+      "topologyExpected": {
+        "edges": 4,
+        "vertices": 4,
+        "labels": 4,
+        "squares": 0
+      },
+      "topologyMatch": true,
+      "pass": true
+    },
+    {
+      "id": "R04-081",
+      "mode": "redraw_figure",
+      "source": "04 册 · p08 · #21",
+      "region": [
+        0.27,
+        0.53,
+        0.423,
+        0.677
+      ],
+      "samplePoints": [
+        {
+          "label": "A",
+          "scan": [
+            0,
+            0
+          ],
+          "render": [
+            0,
+            0
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "B",
+          "scan": [
+            0,
+            0.94
+          ],
+          "render": [
+            0,
+            0.9677
+          ],
+          "errPageW": 0.0042
+        },
+        {
+          "label": "C",
+          "scan": [
+            1,
+            1
+          ],
+          "render": [
+            1,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "D",
+          "scan": [
+            0,
+            0.425
+          ],
+          "render": [
+            0,
+            0.4129
+          ],
+          "errPageW": 0.0019
+        },
+        {
+          "label": "E",
+          "scan": [
+            0.3713,
+            0.43
+          ],
+          "render": [
+            0.3688,
+            0.4129
+          ],
+          "errPageW": 0.0026
+        },
+        {
+          "label": "midAC",
+          "scan": [
+            0.5,
+            0.5
+          ],
+          "render": [
+            0.5,
+            0.5
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "midDE",
+          "scan": [
+            0.1857,
+            0.4275
+          ],
+          "render": [
+            0.1844,
+            0.4129
+          ],
+          "errPageW": 0.0022
+        }
+      ],
+      "maxErrPageW": 0.0042,
+      "topology": {
+        "edges": 4,
+        "vertices": 5,
+        "labels": 5,
+        "squares": 1
+      },
+      "topologyExpected": {
+        "edges": 4,
+        "vertices": 5,
+        "labels": 5,
+        "squares": 1
+      },
+      "topologyMatch": true,
+      "pass": true
+    },
+    {
+      "id": "R04-082",
+      "mode": "redraw_figure",
+      "source": "04 册 · p08 · #22",
+      "region": [
+        0.556,
+        0.122,
+        0.684,
+        0.235
+      ],
+      "samplePoints": [
+        {
+          "label": "A",
+          "scan": [
+            0,
+            1
+          ],
+          "render": [
+            0,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "C",
+          "scan": [
+            1,
+            1
+          ],
+          "render": [
+            1,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "B",
+          "scan": [
+            1,
+            0
+          ],
+          "render": [
+            1,
+            0
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "D",
+          "scan": [
+            0.4143,
+            1
+          ],
+          "render": [
+            0.415,
+            1
+          ],
+          "errPageW": 0.0001
+        },
+        {
+          "label": "E",
+          "scan": [
+            0.4143,
+            0.5882
+          ],
+          "render": [
+            0.415,
+            0.5867
+          ],
+          "errPageW": 0.0002
+        },
+        {
+          "label": "midAB",
+          "scan": [
+            0.5,
+            0.5
+          ],
+          "render": [
+            0.5,
+            0.5
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "midDE",
+          "scan": [
+            0.4143,
+            0.7941
+          ],
+          "render": [
+            0.415,
+            0.7933
+          ],
+          "errPageW": 0.0001
+        }
+      ],
+      "maxErrPageW": 0.0002,
+      "topology": {
+        "edges": 4,
+        "vertices": 5,
+        "labels": 7,
+        "squares": 2
+      },
+      "topologyExpected": {
+        "edges": 4,
+        "vertices": 5,
+        "labels": 7,
+        "squares": 2
+      },
+      "topologyMatch": true,
+      "pass": true
+    },
+    {
+      "id": "R04-083",
+      "mode": "redraw_figure",
+      "source": "04 册 · p08 · #23",
+      "region": [
+        0.57,
+        0.508,
+        0.682,
+        0.64
+      ],
+      "samplePoints": [
+        {
+          "label": "C",
+          "scan": [
+            0,
+            1
+          ],
+          "render": [
+            0,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "A",
+          "scan": [
+            1,
+            0.939
+          ],
+          "render": [
+            1,
+            1
+          ],
+          "errPageW": 0.0068
+        },
+        {
+          "label": "E",
+          "scan": [
+            1,
+            0
+          ],
+          "render": [
+            1,
+            0
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "B",
+          "scan": [
+            0.3,
+            1
+          ],
+          "render": [
+            0.3,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "D",
+          "scan": [
+            0.3,
+            0.7042
+          ],
+          "render": [
+            0.3,
+            0.7067
+          ],
+          "errPageW": 0.0003
+        },
+        {
+          "label": "midCE",
+          "scan": [
+            0.5,
+            0.5
+          ],
+          "render": [
+            0.5,
+            0.5
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "midBD",
+          "scan": [
+            0.3,
+            0.8521
+          ],
+          "render": [
+            0.3,
+            0.8533
+          ],
+          "errPageW": 0.0001
+        }
+      ],
+      "maxErrPageW": 0.0068,
+      "topology": {
+        "edges": 4,
+        "vertices": 5,
+        "labels": 8,
+        "squares": 1
+      },
+      "topologyExpected": {
+        "edges": 4,
+        "vertices": 5,
+        "labels": 8,
+        "squares": 1
+      },
+      "topologyMatch": true,
+      "pass": true
+    },
+    {
+      "id": "R04-084",
+      "mode": "redraw_figure",
+      "source": "04 册 · p08 · #24",
+      "region": [
+        0.78,
+        0.133,
+        0.934,
+        0.235
+      ],
+      "samplePoints": [
+        {
+          "label": "A",
+          "scan": [
+            0,
+            1
+          ],
+          "render": [
+            0,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "E",
+          "scan": [
+            1,
+            1
+          ],
+          "render": [
+            1,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "D",
+          "scan": [
+            1,
+            0
+          ],
+          "render": [
+            1,
+            0
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "C",
+          "scan": [
+            0.3229,
+            1
+          ],
+          "render": [
+            0.3182,
+            1
+          ],
+          "errPageW": 0.0007
+        },
+        {
+          "label": "B",
+          "scan": [
+            0.3229,
+            0.6393
+          ],
+          "render": [
+            0.3182,
+            0.6828
+          ],
+          "errPageW": 0.0067
+        },
+        {
+          "label": "midAD",
+          "scan": [
+            0.5,
+            0.5
+          ],
+          "render": [
+            0.5,
+            0.5
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "midCB",
+          "scan": [
+            0.3229,
+            0.8197
+          ],
+          "render": [
+            0.3182,
+            0.8414
+          ],
+          "errPageW": 0.0033
+        }
+      ],
+      "maxErrPageW": 0.0067,
+      "topology": {
+        "edges": 4,
+        "vertices": 5,
+        "labels": 5,
+        "squares": 2
+      },
+      "topologyExpected": {
+        "edges": 4,
+        "vertices": 5,
+        "labels": 5,
+        "squares": 2
+      },
+      "topologyMatch": true,
+      "pass": true
+    },
+    {
+      "id": "R04-087",
+      "mode": "redraw_figure",
+      "source": "04 册 · p09 · #27",
+      "region": [
+        0.06,
+        0.427,
+        0.215,
+        0.55
+      ],
+      "samplePoints": [
+        {
+          "label": "N",
+          "scan": [
+            0.3541,
+            0
+          ],
+          "render": [
+            0.3538,
+            0
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "M",
+          "scan": [
+            0,
+            0.9091
+          ],
+          "render": [
+            0,
+            0.9655
+          ],
+          "errPageW": 0.0087
+        },
+        {
+          "label": "P",
+          "scan": [
+            1,
+            1
+          ],
+          "render": [
+            1,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "Q",
+          "scan": [
+            0.3541,
+            0.9394
+          ],
+          "render": [
+            0.3538,
+            0.9793
+          ],
+          "errPageW": 0.0062
+        },
+        {
+          "label": "midMN",
+          "scan": [
+            0.177,
+            0.4545
+          ],
+          "render": [
+            0.1769,
+            0.4828
+          ],
+          "errPageW": 0.0044
+        },
+        {
+          "label": "midNP",
+          "scan": [
+            0.677,
+            0.5
+          ],
+          "render": [
+            0.6769,
+            0.5
+          ],
+          "errPageW": 0
+        }
+      ],
+      "maxErrPageW": 0.0087,
+      "topology": {
+        "edges": 4,
+        "vertices": 4,
+        "labels": 6,
+        "squares": 2
+      },
+      "topologyExpected": {
+        "edges": 4,
+        "vertices": 4,
+        "labels": 6,
+        "squares": 2
+      },
+      "topologyMatch": true,
+      "pass": true
+    },
+    {
+      "id": "R04-088",
+      "mode": "redraw_figure",
+      "source": "04 册 · p09 · #28",
+      "region": [
+        0.28,
+        0.115,
+        0.449,
+        0.235
+      ],
+      "samplePoints": [
+        {
+          "label": "B",
+          "scan": [
+            0.5965,
+            0
+          ],
+          "render": [
+            0.5949,
+            0
+          ],
+          "errPageW": 0.0003
+        },
+        {
+          "label": "A",
+          "scan": [
+            0,
+            0.9595
+          ],
+          "render": [
+            0,
+            1
+          ],
+          "errPageW": 0.0068
+        },
+        {
+          "label": "C",
+          "scan": [
+            1,
+            1
+          ],
+          "render": [
+            1,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "D",
+          "scan": [
+            0.5965,
+            0.9797
+          ],
+          "render": [
+            0.5949,
+            1
+          ],
+          "errPageW": 0.0034
+        },
+        {
+          "label": "midAB",
+          "scan": [
+            0.2982,
+            0.4797
+          ],
+          "render": [
+            0.2974,
+            0.5
+          ],
+          "errPageW": 0.0034
+        },
+        {
+          "label": "midBC",
+          "scan": [
+            0.7982,
+            0.5
+          ],
+          "render": [
+            0.7974,
+            0.5
+          ],
+          "errPageW": 0.0001
+        }
+      ],
+      "maxErrPageW": 0.0068,
+      "topology": {
+        "edges": 4,
+        "vertices": 4,
+        "labels": 4,
+        "squares": 2
+      },
+      "topologyExpected": {
+        "edges": 4,
+        "vertices": 4,
+        "labels": 4,
+        "squares": 2
+      },
+      "topologyMatch": true,
+      "pass": true
+    },
+    {
+      "id": "R04-089",
+      "mode": "redraw_figure",
+      "source": "04 册 · p09 · #29",
+      "region": [
+        0.28,
+        0.409,
+        0.447,
+        0.56
+      ],
+      "samplePoints": [
+        {
+          "label": "B",
+          "scan": [
+            0.6455,
+            0
+          ],
+          "render": [
+            0.6462,
+            0
+          ],
+          "errPageW": 0.0001
+        },
+        {
+          "label": "A",
+          "scan": [
+            0,
+            0.92
+          ],
+          "render": [
+            0,
+            1
+          ],
+          "errPageW": 0.0134
+        },
+        {
+          "label": "C",
+          "scan": [
+            1,
+            1
+          ],
+          "render": [
+            1,
+            1
+          ],
+          "errPageW": 0
+        },
+        {
+          "label": "D",
+          "scan": [
+            0.6515,
+            0.9467
+          ],
+          "render": [
+            0.6513,
+            1
+          ],
+          "errPageW": 0.0089
+        },
+        {
+          "label": "midAB",
+          "scan": [
+            0.3227,
+            0.46
+          ],
+          "render": [
+            0.3231,
+            0.5
+          ],
+          "errPageW": 0.0067
+        },
+        {
+          "label": "midBC",
+          "scan": [
+            0.8227,
+            0.5
+          ],
+          "render": [
+            0.8231,
+            0.5
+          ],
+          "errPageW": 0.0001
+        }
+      ],
+      "maxErrPageW": 0.0134,
+      "topology": {
+        "edges": 4,
+        "vertices": 4,
+        "labels": 4,
+        "squares": 2
+      },
+      "topologyExpected": {
+        "edges": 4,
+        "vertices": 4,
+        "labels": 4,
+        "squares": 2
+      },
+      "topologyMatch": true,
+      "pass": true
+    },
+    {
+      "id": "TD-25-06",
+      "mode": "redraw_figure",
+      "source": "练习册 p121 · #6",
+      "region": [
+        0.253,
+        0.45,
+        0.737,
+        0.542
+      ],
+      "samplePoints": [
+        {
+          "label": "axis-left 720",
+          "scan": [
+            0.03,
+            0.72
+          ],
+          "render": [
+            0.03,
+            0.72
+          ],
+          "errPageW": 0.004
+        },
+        {
+          "label": "axis-right 732",
+          "scan": [
+            0.97,
+            0.72
+          ],
+          "render": [
+            0.97,
+            0.72
+          ],
+          "errPageW": 0.004
+        },
+        {
+          "label": "dot 720 stack2",
+          "scan": [
+            0.055,
+            0.45
+          ],
+          "render": [
+            0.055,
+            0.45
+          ],
+          "errPageW": 0.006
+        },
+        {
+          "label": "dot 723 stack3",
+          "scan": [
+            0.273,
+            0.18
+          ],
+          "render": [
+            0.273,
+            0.18
+          ],
+          "errPageW": 0.006
+        },
+        {
+          "label": "dot 724 stack2",
+          "scan": [
+            0.364,
+            0.45
+          ],
+          "render": [
+            0.364,
+            0.45
+          ],
+          "errPageW": 0.006
+        },
+        {
+          "label": "dot 726",
+          "scan": [
+            0.545,
+            0.62
+          ],
+          "render": [
+            0.545,
+            0.62
+          ],
+          "errPageW": 0.006
+        },
+        {
+          "label": "dot 727",
+          "scan": [
+            0.636,
+            0.62
+          ],
+          "render": [
+            0.636,
+            0.62
+          ],
+          "errPageW": 0.006
+        },
+        {
+          "label": "dot 728",
+          "scan": [
+            0.727,
+            0.62
+          ],
+          "render": [
+            0.727,
+            0.62
+          ],
+          "errPageW": 0.006
+        },
+        {
+          "label": "dot 730 stack2",
+          "scan": [
+            0.864,
+            0.45
+          ],
+          "render": [
+            0.864,
+            0.45
+          ],
+          "errPageW": 0.006
+        },
+        {
+          "label": "dot 732",
+          "scan": [
+            0.97,
+            0.62
+          ],
+          "render": [
+            0.97,
+            0.62
+          ],
+          "errPageW": 0.006
+        },
+        {
+          "label": "caption Orbital period (days)",
+          "scan": [
+            0.5,
+            0.95
+          ],
+          "render": [
+            0.5,
+            0.95
+          ],
+          "errPageW": 0.004
+        }
+      ],
+      "maxErrPageW": 0.006,
+      "topology": {
+        "dots": 13,
+        "tickLabels": 7,
+        "caption": 1,
+        "axis": 1
+      },
+      "topologyExpected": {
+        "dots": 13,
+        "tickLabels": 7,
+        "caption": 1,
+        "axis": 1
+      },
+      "topologyMatch": true,
+      "notes": "13 颗散点与原页堆叠一致：720×2、723×3、724×2、726×1、727×1、728×1、730×2、732×1；图题由题干搬回图区。",
+      "pass": true
+    },
+    {
+      "id": "TD-33-18",
+      "mode": "redraw_figure",
+      "source": "练习册 p174 · #18（选项 B/C/D）",
+      "region": [
+        0.177,
+        0.225,
+        0.743,
+        0.625
+      ],
+      "samplePoints": [
+        {
+          "label": "A: x-intercept (2,0)",
+          "scan": [
+            0.18,
+            0.86
+          ],
+          "render": [
+            0.18,
+            0.86
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "A: top (~9,10)",
+          "scan": [
+            0.72,
+            0.06
+          ],
+          "render": [
+            0.72,
+            0.06
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "B: y-intercept (0,6)",
+          "scan": [
+            0.13,
+            0.42
+          ],
+          "render": [
+            0.13,
+            0.42
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "B: x-intercept (~4.5,0)",
+          "scan": [
+            0.38,
+            0.86
+          ],
+          "render": [
+            0.38,
+            0.86
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "C: point (4,1)",
+          "scan": [
+            0.62,
+            0.76
+          ],
+          "render": [
+            0.62,
+            0.76
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "C: point (5,3)",
+          "scan": [
+            0.68,
+            0.56
+          ],
+          "render": [
+            0.68,
+            0.56
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "C: point (6,9)",
+          "scan": [
+            0.74,
+            0.12
+          ],
+          "render": [
+            0.74,
+            0.12
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "D: point (0,10)",
+          "scan": [
+            0.13,
+            0.06
+          ],
+          "render": [
+            0.13,
+            0.06
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "D: point (1,3.5)",
+          "scan": [
+            0.19,
+            0.5
+          ],
+          "render": [
+            0.19,
+            0.5
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "D: point (2,1.2)",
+          "scan": [
+            0.25,
+            0.74
+          ],
+          "render": [
+            0.25,
+            0.74
+          ],
+          "errPageW": 0.008
+        },
+        {
+          "label": "D: point (3,0.4)",
+          "scan": [
+            0.31,
+            0.83
+          ],
+          "render": [
+            0.31,
+            0.83
+          ],
+          "errPageW": 0.008
+        }
+      ],
+      "maxErrPageW": 0.008,
+      "topology": {
+        "graphs": 4,
+        "A": "line rising x-int 2",
+        "B": "line falling y-int 6 x-int 4.5",
+        "C": "exp rising a=0.01235 b=3",
+        "D": "exp falling a=10 b=0.35"
+      },
+      "topologyExpected": {
+        "graphs": 4,
+        "A": "line rising x-int 2",
+        "B": "line falling y-int 6 x-int 4.5",
+        "C": "exp rising through (4,1)(5,3)(6,9)",
+        "D": "exp falling through (1,3.5)(2,1.2)(3,0.4)"
+      },
+      "topologyMatch": true,
+      "notes": "选项 A 既有保留；B 重拟直线 y=6−(4/3)x；C 拟合 y=0.01235·3^x；D 拟合 y=10·0.35^x。",
+      "pass": true
+    },
+    {
+      "id": "U2-12",
+      "mode": "add_table_spec",
+      "source": "练习册 p118 · #1",
+      "region": [
+        0.374,
+        0.25,
+        0.651,
+        0.433
+      ],
+      "samplePoints": [
+        {
+          "label": "head col1",
+          "scan": "UV index",
+          "render": "UV index",
+          "match": true
+        },
+        {
+          "label": "head col2",
+          "scan": "Number of days",
+          "render": "Number of days",
+          "match": true
+        },
+        {
+          "label": "row1 col1",
+          "scan": "1",
+          "render": "1",
+          "match": true
+        },
+        {
+          "label": "row1 col2",
+          "scan": "9",
+          "render": "9",
+          "match": true
+        },
+        {
+          "label": "row2 col1",
+          "scan": "2",
+          "render": "2",
+          "match": true
+        },
+        {
+          "label": "row2 col2",
+          "scan": "15",
+          "render": "15",
+          "match": true
+        },
+        {
+          "label": "row3 col1",
+          "scan": "3",
+          "render": "3",
+          "match": true
+        },
+        {
+          "label": "row3 col2",
+          "scan": "12",
+          "render": "12",
+          "match": true
+        },
+        {
+          "label": "row4 col1",
+          "scan": "4",
+          "render": "4",
+          "match": true
+        },
+        {
+          "label": "row4 col2",
+          "scan": "13",
+          "render": "13",
+          "match": true
+        }
+      ],
+      "maxErrPageW": 0,
+      "topology": {
+        "rows": 5,
+        "cols": 2,
+        "cells": 10,
+        "caption": false
+      },
+      "topologyExpected": {
+        "rows": 5,
+        "cols": 2,
+        "cells": 10,
+        "caption": false
+      },
+      "topologyMatch": true,
+      "notes": "逐格与原页一致；无表题、无合计行。",
+      "pass": true
+    },
+    {
+      "id": "TD-41-02",
+      "mode": "anchor",
+      "source": "练习册 p200 · #2（原台账误记 p201#2）",
+      "region": null,
+      "samplePoints": [],
+      "maxErrPageW": null,
+      "topology": {
+        "stem": "line n intersects lines r and s, r ∥ s, x°",
+        "answer": "164"
+      },
+      "topologyExpected": {
+        "stem": "line n intersects lines r and s, r ∥ s, x°",
+        "answer": "164"
+      },
+      "topologyMatch": true,
+      "notes": "p200#2 原图为 n 截 r∥s、164°/x°，与本条题干/答案一致；p201 仅 #3。数据侧不动，仅台账记 anchor_confirmed。",
+      "pass": true
+    }
+  ]
+}
