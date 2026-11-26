@@ -1185,6 +1185,10 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px;mar
 .crossout-toggle.is-on{border-color:#aab2bd!important;background:#e9edf2!important;color:#4b5563!important}
 .crossout-toggle:disabled{opacity:.55;cursor:default}
 .crossout-toggle svg{display:block;pointer-events:none}
+/* 24px 的圆点视觉不变，但手指落点扩到 44px：手机上 A/B/C/D 的划掉键原本只有
+   24×24，实测经常点不中（尤其 390 宽、选项行高 52px 时）。伪元素只扩大命中
+   区域，不参与布局、不改视觉。 */
+.crossout-toggle::after{content:'';position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);border-radius:50%}
 .drill-choice.is-crossed .drill-choice-text{
   color:#7c8590!important;text-decoration:line-through!important;
   text-decoration-color:#9aa3ae!important;text-decoration-thickness:2px;
