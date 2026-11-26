@@ -253,8 +253,15 @@
 
   /* ---------- 启动：URL 恢复 ---------- */
   function boot() {
-    if (!J) return;
-    /* 侧栏已在 HTML 里静态渲染，四入口 + 返回导航不依赖 JS */
+    /* 冷启动兜底：数据/核心脚本偶发晚到（首屏见过 TD_JY 尚未挂载就执行本脚本），
+       这时早期 return 会让整页停在“正在载入…”。轮询等它上线再渲染，最多约 10 秒。 */
+    if (!window.TD_JY) {
+      boot._wait = (boot._wait || 0) + 1;
+      if (boot._wait <= 40) { setTimeout(boot, 250); return; }
+      els.jyBoardCards.innerHTML = '<p class="jy-empty">讲义题目没有加载成功，刷新页面再试。</p>';
+      return;
+    }
+    J = window.TD_JY; A = A || window.TD_APP;
     var p = new URLSearchParams(location.search);
     var wantBoard = p.get('b'), wantSec = p.get('s'), wantI = parseInt(p.get('i'), 10);
     if (wantBoard && J.board(wantBoard)) {
