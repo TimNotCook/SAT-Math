@@ -227,9 +227,9 @@ class TextLayer:
             ostart = cm.end() - 1
             _, oend = brace_span(line, ostart)
             body = line[ostart + 1:oend - 1]
-            prefix = "" if body.strip() == "" else ", "
             new_seg = '"%s":"%s"' % (key, encode(new_value))
-            self.lines[idx] = line[:ostart + 1] + prefix + new_seg + line[oend - 1:]
+            new_inner = new_seg if body.strip() == "" else body.rstrip() + ", " + new_seg
+            self.lines[idx] = line[:ostart + 1] + new_inner + line[oend - 1:]
             self.changed += 1
             log.append("ADD   %s | choice:%s | → %r" % (qid, key, new_value))
 
