@@ -41,7 +41,7 @@
 
 ## 已完成（勿重复做）
 
-- **第 10 条：两空 grid-in 的页面能力补齐**（`4c13ccf`）：`drill.js` / `exam.js` 在 `q.values.length>1` 时画两个框、答案拼 `"a, b"` 交给既有 `dualCorrect`，`bluebook.css` 加 `.drill-grid-multi`；`test/grid-dual-ui.test.js` 三条静态守卫（负向：把分支改 `if(false)` 会红）。口径：题库当前 0 道双空题，故无端到端用例，验的是 dualCorrect 5 条单测 + 静态守卫 + 单框路径回归（grading 6/6、runtime 六页 0 异常）。
+- **第 10 条：两空 grid-in 的页面能力补齐**（`4c13ccf`）：`drill.js` / `exam.js` 在 `q.values.length>1` 时画两个框、答案拼 `"a, b"` 交给既有 `dualCorrect`，`bluebook.css` 加 `.drill-grid-multi`；`test/grid-dual-ui.test.js` 三条静态守卫（负向：把分支改 `if(false)` 会红）。端到端：`verify_grading_ui` 启动时注入合成双空题 `ZZ-DUAL`，真渲染两个框跑「都填对 → right=1」与「顺序颠倒 → wrong=1」，脚本 6→8 条，8/8 通过（本地+线上）。
 - **第 9 条：到点交卷后不许被 Start 拉回锁定答题页**（`6375302`）：`restoreOrIntro` 在 `timeout==='total'` 先把 `resumeStage='result'` 再 `finalize`；`startSession` 开头加硬门「已 finished 且有 result → 回成绩页」。回归 `tools/verify_exam_timeout.mjs`（8 条，只改会话时间字段跑真实页面：22 题起卷 → Module1 到点明示进 Module2 → 44 题 → 自动交卷出分），本地 8/8、线上（`?v=dd791ffc3352`）8/8。同笔把阴影题坐标改为 `TD_APP.CATALOG` 反查、drill 就绪改轮询、加 `test/tools-portability.test.js`。
 - **讲义 4.5 十六题 + 2.5 #10 入库**（`61002ef`，JY4-128…143、JY2-054 点图选项），官方 243/243、24/24 节清零。
 - **讲义 2.x 全部入库**（2.1 `6e7300a` / 2.2 `0235019` / 2.3 `ad1b592` / 2.4 `7cb7e7b` / 2.5 `4a2f313` / 2.6 `21bc683` / 2.7 `1017ddf`），剩 2.5 #10 一条挂在 α。
@@ -88,3 +88,5 @@
 1. 回帖必须带：commit hash、改动文件清单、线上验证结果（截图或 HTTP/控制台证据）。
 2. 只说「已推送」不算完成，要报 Pages 生效后的实测。
 3. 两人动同一文件前先在群里报备，按 `AGENTS.md` 的分工边界避让。
+
+- **回归脚手架：profile 泄漏 + python http.server reset**（本轮）：13 个 CDP 脚本的 `/tmp/<prefix>-时间戳` profile 从不清理，累积 913 目录 / ~19G，磁盘见底后 http.server 冷启动 reset 连接 → 回归随机 12/16。修法：`lib/chrome.mjs` 加 `tempProfile()`/`sweepStaleProfiles()`，13 个脚本全改；新增 `lib/serve.mjs`（node:http + 随机端口 + marker 自证）替换 9 个脚本里的 python server。守卫 3 条（负向验过）。实测 `verify_flows` 连跑 4 次全 16/16。

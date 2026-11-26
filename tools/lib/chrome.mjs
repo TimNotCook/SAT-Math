@@ -36,3 +36,43 @@ if (!hit) {
 
 export const CHROME = hit;
 export const HEADLESS_ARGS = ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'];
+
+/* ---------- 临时浏览器 profile：必须自清理 ----------
+ *
+ * 事故：11 个回归脚本各自 `--user-data-dir=/tmp/<prefix>-${Date.now()}`，
+ * 跑完没人删。长期累积到 /tmp 里 900+ 个目录、~19G，磁盘只剩 6G，
+ * python http.server 在高并发冷启动时就 reset 连接，回归随机变红——
+ * 看起来像"功能坏了"，实际是工具自己在漏垃圾。
+ * 所以 profile 统一从这里拿：退出时删，启动时顺手收掉 1 小时前的同前缀残留
+ * （被 kill -9 的跑法也能被后一次运行收尸）。
+ */
+import { mkdtempSync, readdirSync, rmSync, statSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+
+const HOUR = 3600 * 1000;
+
+export function sweepStaleProfiles(prefix, olderMs = HOUR) {
+  try {
+    const root = tmpdir();
+    for (const name of readdirSync(root)) {
+      if (!name.startsWith(prefix)) continue;
+      const p = join(root, name);
+      try {
+        if (Date.now() - statSync(p).mtimeMs < olderMs) continue;
+        rmSync(p, { recursive: true, force: true });
+      } catch { /* 删不动就算了，不影响当前跑 */ }
+    }
+  } catch { /* tmpdir 读不了也不该把回归拖死 */ }
+}
+
+export function tempProfile(prefix = 'sat-') {
+  sweepStaleProfiles(prefix);
+  const dir = mkdtempSync(join(tmpdir(), prefix));
+  const clean = () => { try { rmSync(dir, { recursive: true, force: true }); } catch {} };
+  process.once('exit', clean);
+  for (const sig of ['SIGINT', 'SIGTERM']) {
+    process.once(sig, () => { clean(); process.exit(1); });
+  }
+  return dir;
+}

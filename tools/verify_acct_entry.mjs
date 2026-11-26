@@ -14,7 +14,8 @@ import { mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve, join } from 'path';
 import { randomBytes } from 'crypto';
-import { CHROME } from './lib/chrome.mjs';
+import { startStaticServer } from './lib/serve.mjs';
+import { CHROME, tempProfile } from './lib/chrome.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -26,35 +27,28 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /* 端口必须自证是「本仓库」的服务器：固定端口曾被别的 worktree 的 http.server 占住，
    测到的全是旧代码（2026-11-26 踩过）。所以随机端口 + 写标记文件 + 回读校验。 */
-const MARK = '.verify-acct-marker';
-const TOKEN = randomBytes(6).toString('hex');
 let PORT = 0;
 let BASE = argVal('--base', '');
 let server = null;
 if (!HAS_BASE) {
-  const fs = await import('fs');
-  for (let attempt = 0; attempt < 8 && !PORT; attempt++) {
-    const cand = 8300 + Math.floor(Math.random() * 600);
-    const srv = spawn('python3', ['-m', 'http.server', String(cand), '--directory', ROOT], { stdio: 'ignore' });
-    await sleep(600);
-    try {
-      fs.writeFileSync(join(ROOT, MARK), TOKEN);
-      const r = await fetch(`http://127.0.0.1:${cand}/${MARK}`, { cache: 'no-store' });
-      const t = r.ok ? await r.text() : '';
-      if (t.trim() === TOKEN) { PORT = cand; server = srv; }
-      else { try { srv.kill('SIGKILL'); } catch (e) {} }
-    } catch (e) { try { srv.kill('SIGKILL'); } catch (e2) {} }
+  /* 端口必须自证是「本仓库」：固定端口曾被别的 worktree 的 http.server 占住，
+     测到的全是旧代码（2026-11-26 踩过）。node 静态服务器随机端口 + marker 回读，
+     顺便干掉 python 并发 reset 的毛病。 */
+  try {
+    server = await startStaticServer(ROOT, { mark: '.verify-acct-marker' });
+    PORT = server.port;
+    BASE = server.base;
+  } catch (e) {
+    console.error('无法起本仓库的静态服务器，请用 --base 指向本地/线上站点：' + e.message);
+    process.exit(2);
   }
-  try { unlinkSync(join(ROOT, MARK)); } catch (e) {}
-  if (!PORT) { console.error('无法在 8300-8899 起本仓库的静态服务器，请用 --base 指向本地/线上站点'); process.exit(2); }
-  BASE = `http://127.0.0.1:${PORT}`;
 }
 const CDP = 9800 + Math.floor(Math.random() * 150);
 
 mkdirSync(OUT, { recursive: true });
 const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-  `--remote-debugging-port=${CDP}`, `--user-data-dir=/tmp/vae-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
-const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.kill('SIGKILL'); } catch (e) {} } };
+  `--remote-debugging-port=${CDP}`, `--user-data-dir=${tempProfile('vae-')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.stop(); } catch (e) {} } };
 process.on('exit', cleanup);
 process.on('SIGINT', () => { cleanup(); process.exit(130); });
 

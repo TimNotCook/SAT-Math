@@ -61,3 +61,46 @@ test('lib/chrome.mjs 导出 CHROME 且覆盖 macOS / Linux', () => {
   assert.match(src, /Applications\/Google Chrome/, '缺 macOS 候选');
   assert.match(src, /chromium/, '缺 Linux 候选');
 });
+
+test('CDP 脚本的临时 profile 必须自清理（禁止写死 /tmp/<prefix>-时间戳）', () => {
+  const files = readdirSync('tools').filter((f) => f.endsWith('.mjs'));
+  const bad = [];
+  for (const f of files) {
+    const src = readFileSync(join('tools', f), 'utf8');
+    if (!src.includes('remote-debugging-port')) continue;
+    /* 写死 /tmp 的 profile 会随每次运行累积：实测 900+ 目录 / ~19G，
+       磁盘见底后 http.server 冷启动 reset，回归随机变红。 */
+    /* 例外：固定名 + finally 里 rmSync 的（如按场景名建目录、跑完就删），不会累积 */
+    const cleansUp = /rmSync\(profile/.test(src);
+    if (!cleansUp && /--user-data-dir=\/tmp\//.test(src)) bad.push(`${f}: 写死 /tmp profile`);
+    if (!cleansUp && !src.includes('tempProfile(')) bad.push(`${f}: 没用 tempProfile()`);
+  }
+  assert.deepEqual(bad, []);
+});
+
+test('tempProfile 会在进程退出时删目录，并顺手收尸 1 小时前的同前缀残留', () => {
+  const src = readFileSync('tools/lib/chrome.mjs', 'utf8');
+  assert.match(src, /export function tempProfile/);
+  assert.match(src, /process\.once\('exit'/);
+  assert.match(src, /export function sweepStaleProfiles/);
+});
+
+test('回归脚本不许再用 python3 -m http.server（并发拉脚本会被 reset）', () => {
+  const files = readdirSync('tools').filter((f) => f.endsWith('.mjs'));
+  const bad = [];
+  for (const f of files) {
+    const src = readFileSync(join('tools', f), 'utf8');
+    /* spawn('python3', [... 'http.server' ...]) 单线程模型在冷启动并发下会 RST，
+       一次能 reset 掉整批 defer 脚本 → 页面全白。统一走 lib/serve.mjs。 */
+    const spawnsPythonServer = /['"]python3['"]\s*,\s*\[[^\]]*['"]http\.server['"]/.test(src);
+    if (spawnsPythonServer) bad.push(f);
+  }
+  assert.deepEqual(bad, []);
+});
+
+test('lib/serve.mjs 用 node:http、随机端口并回读 marker 自证', () => {
+  const src = readFileSync('tools/lib/serve.mjs', 'utf8');
+  assert.match(src, /from 'node:http'/);
+  assert.match(src, /server\.listen\(0,/);
+  assert.match(src, /export async function startStaticServer/);
+});

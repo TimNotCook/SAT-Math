@@ -8,14 +8,14 @@
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { CHROME } from './lib/chrome.mjs';
+import { CHROME, tempProfile } from './lib/chrome.mjs';
 
 const BASE = process.argv[2] || 'https://timnotcook.github.io/SAT-Math';
 const OUT = process.argv[3] || 'docs/ui-shots';
 const PORT = 9500 + Math.floor(Math.random() * 80);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-  `--remote-debugging-port=${PORT}`, `--user-data-dir=/tmp/mock-cjk-${Date.now()}`, '--no-first-run',
+  `--remote-debugging-port=${PORT}`, `--user-data-dir=${tempProfile('mock-')}`, '--no-first-run',
   '--window-size=1280,900', 'about:blank'], { stdio: 'ignore' });
 process.on('exit', () => { try { proc.kill('SIGKILL'); } catch (e) {} });
 

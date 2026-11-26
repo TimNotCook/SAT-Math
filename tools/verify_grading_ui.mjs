@@ -13,7 +13,8 @@ import { mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve, join } from 'path';
 import { randomBytes } from 'crypto';
-import { CHROME } from './lib/chrome.mjs';
+import { CHROME, tempProfile } from './lib/chrome.mjs';
+import { startStaticServer } from './lib/serve.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -26,27 +27,21 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let BASE = argVal('--base', '');
 let server = null;
 if (!HAS_BASE) {
-  const MARK = '.verify-grading-marker';
-  const TOKEN = randomBytes(6).toString('hex');
-  for (let k = 0; k < 8 && !BASE; k++) {
-    const cand = 8300 + Math.floor(Math.random() * 600);
-    const srv = spawn('python3', ['-m', 'http.server', String(cand), '--directory', ROOT], { stdio: 'ignore' });
-    await sleep(600);
-    try {
-      writeFileSync(join(ROOT, MARK), TOKEN);
-      const r = await fetch(`http://127.0.0.1:${cand}/${MARK}`, { cache: 'no-store' });
-      if (r.ok && (await r.text()).trim() === TOKEN) { server = srv; BASE = `http://127.0.0.1:${cand}`; }
-      else srv.kill('SIGKILL');
-    } catch (e) { try { srv.kill('SIGKILL'); } catch (e2) {} }
-  }
-  try { unlinkSync(join(ROOT, MARK)); } catch (e) {}
-  if (!BASE) { console.error('无法起本仓库静态服务器，请用 --base'); process.exit(2); }
+  let srvLocal = null;
+try {
+  srvLocal = await startStaticServer(ROOT, { mark: '.verify-grading-marker' });
+  BASE = srvLocal.base;
+  server = srvLocal;
+} catch (e) {
+  console.error('无法起本仓库静态服务器，请用 --base：' + e.message);
+  process.exit(2);
+}
 }
 const CDP = 9800 + Math.floor(Math.random() * 150);
 mkdirSync(OUT, { recursive: true });
 const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-  `--remote-debugging-port=${CDP}`, `--user-data-dir=/tmp/vgr-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
-const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.kill('SIGKILL'); } catch (e) {} } };
+  `--remote-debugging-port=${CDP}`, `--user-data-dir=${tempProfile('vgr-')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.stop(); } catch (e) {} } };
 process.on('exit', cleanup);
 process.on('SIGINT', () => { cleanup(); process.exit(130); });
 for (let i = 0; i < 60; i++) {
@@ -66,6 +61,33 @@ const ev = async (expr) => (await send('Runtime.evaluate', { expression: expr, r
 await send('Page.enable');
 await send('Runtime.enable');
 
+/* 等页面真的画出答案区再动手：固定 sleep 在大题库 + 并发加载时会把「还没渲染」
+   读成「没有选项」（本轮真踩到一次：mcq 答对报 操作=missing）。 */
+async function waitFor(expr, ms = 7000) {
+  const until = Date.now() + ms;
+  while (Date.now() < until) { if (await ev(expr)) return true; await sleep(150); }
+  return false;
+}
+
+/* 题库现在没有两空 grid-in（values.length>1 命中 0），双空输入框就永远没机会被真跑。
+   这里在「TD_APP 被 app-core 赋值」的瞬间往 CATALOG['1.1'] 尾部挂一道合成题，
+   drill.js 随后按 CATALOG 建题单，就真的会渲染两个框——不是 mock 渲染函数，
+   走的是与用户同一条路径（输入 → 落盘 → 交卷 → 判分）。 */
+await send('Page.addScriptToEvaluateOnNewDocument', { source: `(function(){
+  var real = null;
+  Object.defineProperty(window, 'TD_APP', { configurable: true,
+    get: function(){ return real; },
+    set: function(v){
+      real = v;
+      try {
+        var fake = { id:'ZZ-DUAL', type:'grid', values:[250,123.5], value:250, section:'1.1', unit:1,
+                     origin:'official', no:99999, stem:'Two blanks', topic:'Linear', level:'easy', source:'synthetic' };
+        var arr = v.CATALOG && v.CATALOG['1.1'];
+        if (arr && !arr.some(function(q){ return q.id === 'ZZ-DUAL'; })) arr.push(fake);
+      } catch (e) {}
+    } });
+})();` });
+
 /* 用例：题位 / 作答方式 / 期望 */
 const CASES = [
   { name: 'mcq 答对', sec: 'L1', i: 12, act: 'choice:D', expect: { right: 1, wrong: 0 } },
@@ -76,6 +98,9 @@ const CASES = [
   { name: '错题进错题本', sec: 'L1', i: 12, act: 'choice:A', expect: { wrongbook: true } },
   /* 跨页契约：同一题订正后，错题卡必须标「已在练习中订正」 */
   { name: '订正后错题本标记', sec: 'L1', i: 12, act: 'choice:D', expect: { corrected: true }, seedWrong: true },
+  /* 两空 grid-in（合成题，见上方注入）：两个框都填对 → 判对；顺序颠倒 → 判错 */
+  { name: 'grid 两空都填对', sec: '1.1', synth: 'ZZ-DUAL', act: 'dual:250|123.5', expect: { right: 1, wrong: 0 } },
+  { name: 'grid 两空顺序颠倒', sec: '1.1', synth: 'ZZ-DUAL', act: 'dual:123.5|250', expect: { right: 0, wrong: 1 } },
 ];
 
 let pass = 0; const fails = [];
@@ -83,9 +108,20 @@ for (const c of CASES) {
   await send('Page.navigate', { url: `${BASE}/drill.html` });
   await sleep(900);
   await ev('localStorage.clear()');
-  await send('Page.navigate', { url: `${BASE}/drill.html?sec=${encodeURIComponent(c.sec)}&i=${c.i}` });
+  let pos = c.i;
+  if (c.synth) {
+    /* 合成题的题位由数据决定，别手填 */
+    for (let k = 0; k < 40; k++) {
+      pos = await ev(`(function(){ var c2=(window.TD_APP||{}).CATALOG; var arr=c2&&c2['${c.sec}']; if(!arr) return null;
+        for (var i=0;i<arr.length;i++) if(arr[i].id==='${c.synth}') return i+1; return null; })()`);
+      if (typeof pos === 'number' && pos > 0) break;
+      await sleep(300);
+    }
+    if (!pos) { fails.push(`${c.name} 合成题没进 CATALOG（注入失败）`); console.log('FAIL ' + fails[fails.length-1]); continue; }
+  }
+  await send('Page.navigate', { url: `${BASE}/drill.html?sec=${encodeURIComponent(c.sec)}&i=${pos}` });
   for (let k = 0; k < 80; k++) { await sleep(120); if ((await ev('document.readyState')) === 'complete') break; }
-  await sleep(1300);
+  await waitFor(`(function(){ return !!document.querySelector('#answerArea .drill-choice, #answerArea .drill-grid-multi input, #answerArea #gridAnswer'); })()`);
 
   if (c.seedWrong) {
     /* 先故意答错一次并交卷，制造「已入错题本」的前提 */
@@ -98,7 +134,15 @@ for (const c of CASES) {
     await send('Page.navigate', { url: `${BASE}/drill.html?sec=${encodeURIComponent(c.sec)}&i=${c.i}` });
     await sleep(1400);
   }
-  const act = c.act.startsWith('choice:')
+  const act = c.act.startsWith('dual:')
+    ? await ev(`(function(){
+        var parts = '${c.act.slice(5)}'.split('|');
+        var boxes = document.querySelectorAll('.drill-grid-multi input');
+        if (boxes.length !== 2) return 'boxes=' + boxes.length;
+        boxes[0].value = parts[0]; boxes[0].dispatchEvent(new Event('input',{bubbles:true}));
+        boxes[1].value = parts[1]; boxes[1].dispatchEvent(new Event('input',{bubbles:true}));
+        return 'ok'; })()`)
+    : c.act.startsWith('choice:')
     ? await ev(`(function(){ var l='${c.act.slice(7)}'; var b=document.querySelector('#answerArea .drill-choice[data-choice="'+l+'"]'); if(!b) return 'missing'; b.click(); return 'ok'; })()`)
     : await ev(`(function(){
         var v='${c.act.slice(5)}'; var inp=document.getElementById('gridAnswer');
@@ -129,7 +173,7 @@ for (const c of CASES) {
   } else {
     ok = got && got.right === c.expect.right && got.wrong === c.expect.wrong;
   }
-  const line = `${c.name} [${c.sec}#${c.i}] 操作=${act} 交卷=${fin} → right=${got?.right} wrong=${got?.wrong} blank=${got?.blank}${extra}`;
+  const line = `${c.name} [${c.sec}#${pos}] 操作=${act} 交卷=${fin} → right=${got?.right} wrong=${got?.wrong} blank=${got?.blank}${extra}`;
   if (ok) pass++; else fails.push(line + `（期望 right=${c.expect.right} wrong=${c.expect.wrong}）`);
   console.log((ok ? 'PASS ' : 'FAIL ') + line);
   const shot = await send('Page.captureScreenshot', { format: 'png' });

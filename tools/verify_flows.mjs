@@ -18,7 +18,8 @@ import { mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve, join } from 'path';
 import { randomBytes } from 'crypto';
-import { CHROME, HEADLESS_ARGS } from './lib/chrome.mjs';
+import { CHROME, HEADLESS_ARGS, tempProfile } from './lib/chrome.mjs';
+import { startStaticServer } from './lib/serve.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -31,27 +32,21 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let BASE = argVal('--base', '');
 let server = null;
 if (!HAS_BASE) {
-  const MARK = '.verify-flows-marker';
-  const TOKEN = randomBytes(6).toString('hex');
-  for (let i = 0; i < 8 && !BASE; i++) {
-    const cand = 8400 + Math.floor(Math.random() * 600);
-    const srv = spawn('python3', ['-m', 'http.server', String(cand), '--directory', ROOT], { stdio: 'ignore' });
-    await sleep(600);
-    try {
-      writeFileSync(join(ROOT, MARK), TOKEN);
-      const r = await fetch(`http://127.0.0.1:${cand}/${MARK}`, { cache: 'no-store' });
-      if (r.ok && (await r.text()).trim() === TOKEN) { server = srv; BASE = `http://127.0.0.1:${cand}`; }
-      else srv.kill('SIGKILL');
-    } catch (e) { try { srv.kill('SIGKILL'); } catch (e2) {} }
-  }
-  try { unlinkSync(join(ROOT, MARK)); } catch (e) {}
-  if (!BASE) { console.error('无法起本仓库静态服务器，请用 --base'); process.exit(2); }
+  let srvLocal = null;
+try {
+  srvLocal = await startStaticServer(ROOT, { mark: '.verify-flows-marker' });
+  BASE = srvLocal.base;
+  server = srvLocal;
+} catch (e) {
+  console.error('无法起本仓库静态服务器，请用 --base：' + e.message);
+  process.exit(2);
+}
 }
 
 const CDP = 9900 + Math.floor(Math.random() * 90);
 mkdirSync(OUT, { recursive: true });
-const proc = spawn(CHROME, [...HEADLESS_ARGS, `--remote-debugging-port=${CDP}`, `--user-data-dir=/tmp/vfl-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
-const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.kill('SIGKILL'); } catch (e) {} } };
+const proc = spawn(CHROME, [...HEADLESS_ARGS, `--remote-debugging-port=${CDP}`, `--user-data-dir=${tempProfile('vfl-')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.stop(); } catch (e) {} } };
 process.on('exit', cleanup);
 process.on('SIGINT', () => { cleanup(); process.exit(130); });
 for (let i = 0; i < 80; i++) {

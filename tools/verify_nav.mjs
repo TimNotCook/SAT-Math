@@ -15,14 +15,15 @@ import { mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
 import { checkBase, describeFetchError } from './versions.mjs';
-import { CHROME } from './lib/chrome.mjs';
+import { startStaticServer } from './lib/serve.mjs';
+import { CHROME, tempProfile } from './lib/chrome.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const argVal = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const HAS_BASE = args.includes('--base');
-const BASE = argVal('--base', 'http://127.0.0.1:8491').replace(/\/+$/, '');
+let BASE = argVal('--base', 'http://127.0.0.1:8491').replace(/\/+$/, '');
 const OUT = resolve(argVal('--out', '/tmp/sat-nav-proof'));
 const PORT = 8491;
 const CDP = 9720 + Math.floor(Math.random() * 120);
@@ -32,33 +33,21 @@ mkdirSync(OUT, { recursive: true });
 /* 原来只 sleep(700) 就开跑：python3 -m http.server 起得慢时全程 ECONNREFUSED，
    表现为「37/38 通过」这种假失败（2026-11-26 实测遇到）。固定 8491 还有串到别的
    worktree 的风险。改为：起服务 → 写标记 → 回读确认是本仓库 → 才继续；起不来就明确报错。 */
-const MARK = `.vn-marker-${Date.now().toString(36)}`;
-const TOKEN = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 let server = null;
 if (!HAS_BASE) {
-  for (let attempt = 0; attempt < 8 && !server; attempt++) {
-    const srv = spawn('python3', ['-m', 'http.server', String(PORT), '--directory', ROOT], { stdio: 'ignore' });
-    for (let i = 0; i < 30; i++) {
-      await sleep(250);
-      try {
-        writeFileSync(join(ROOT, MARK), TOKEN);
-        const r = await fetch(`http://127.0.0.1:${PORT}/${MARK}`, { cache: 'no-store' });
-        if (r.ok && (await r.text()).trim() === TOKEN) { server = srv; break; }
-      } catch (e) { /* 服务还没就绪，继续等 */ }
-      if (srv.exitCode !== null) break;
-    }
-    if (!server) { try { srv.kill('SIGKILL'); } catch (e) {} }
-  }
-  try { unlinkSync(join(ROOT, MARK)); } catch (e) {}
-  if (!server) {
-    console.error(`起不了本地服务：端口 ${PORT} 可能被别的 worktree 的 http.server 占着（会测到旧代码）。`
-      + `\n请换端口或先关掉占用进程，也可用 --base 指定站点。`);
+  /* 端口必须自证是本仓库：node 静态服务器随机端口 + marker 回读。
+     （原来 Python 固定 8491 会串到别的 worktree，并发拉脚本还会 reset） */
+  try {
+    server = await startStaticServer(ROOT, { mark: '.verify-nav-marker' });
+    BASE = server.base;
+  } catch (e) {
+    console.error('起不了本仓库静态服务器，请用 --base 指定站点：' + e.message);
     process.exit(2);
   }
 }
 const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-  `--remote-debugging-port=${CDP}`, `--user-data-dir=/tmp/vn-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
-const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.kill('SIGKILL'); } catch (e) {} } };
+  `--remote-debugging-port=${CDP}`, `--user-data-dir=${tempProfile('vn-')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.stop(); } catch (e) {} } };
 process.on('exit', cleanup);
 process.on('SIGINT', () => { cleanup(); process.exit(130); });
 

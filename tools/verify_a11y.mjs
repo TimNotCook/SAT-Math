@@ -20,14 +20,15 @@ import { spawn } from 'child_process';
 import { mkdirSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
-import { CHROME } from './lib/chrome.mjs';
+import { startStaticServer } from './lib/serve.mjs';
+import { CHROME, tempProfile } from './lib/chrome.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const argVal = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const HAS_BASE = args.includes('--base');
-const BASE = argVal('--base', 'http://127.0.0.1:8481').replace(/\/+$/, '');
+let BASE = argVal('--base', 'http://127.0.0.1:8481').replace(/\/+$/, '');
 const OUT = resolve(argVal('--out', '/tmp/sat-a11y-proof'));
 const PORT = 8481;
 const CDP = 9600 + Math.floor(Math.random() * 120);
@@ -35,11 +36,14 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const CJK = /[\u3000-\u303f\u3400-\u4dbf\u4e00-\u9fff\uff00-\uffef]/;
 
 mkdirSync(OUT, { recursive: true });
-const server = HAS_BASE ? null : spawn('python3', ['-m', 'http.server', String(PORT), '--directory', ROOT], { stdio: 'ignore' });
-if (server) await sleep(700);
+let server = null;
+if (!HAS_BASE) {
+  try { server = await startStaticServer(ROOT, { mark: '.verify-a11y-marker' }); BASE = server.base; }
+  catch (e) { console.error('起不了本仓库静态服务器，请用 --base：' + e.message); process.exit(2); }
+}
 const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-  `--remote-debugging-port=${CDP}`, `--user-data-dir=/tmp/va-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
-const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.kill('SIGKILL'); } catch (e) {} } };
+  `--remote-debugging-port=${CDP}`, `--user-data-dir=${tempProfile('va-')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.stop(); } catch (e) {} } };
 process.on('exit', cleanup);
 
 for (let i = 0; i < 60; i++) {

@@ -110,9 +110,20 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 
 三条静态断言：除 `tools/lib/chrome.mjs` 外任何脚本不许出现 macOS Chrome 绝对路径；凡带 `remote-debugging-port` 的脚本必须 `import { CHROME } from '…/lib/chrome.mjs'`；`chrome.mjs` 必须导出 `CHROME`、支持 `CHROME_BIN`、候选表同时覆盖 macOS 与 Linux。用「往工具脚本尾部插一行 `/Applications/Google Chrome…`」的负向测试确认会红，插回去即绿。
 
-> 第 10 条怎么验（诚实口径）：题库里没有双空题，所以拿不到真实端到端用例。已验证的是三条——① `test/grading.test.js` 的 `dualCorrect` 5 条（两空都对 / 容差内 / 只填一空不给部分分 / 顺序颠倒错 / 与键不符错）；② `test/grid-dual-ui.test.js` 静态守卫（两个页面都有多空分支、答案拼 `a, b`、样式在位），并做过「删掉分支」负向确认会红；③ 单框路径无回归：`verify_grading_ui` 6/6、`verify_runtime` 六页 0 异常。真出双空题时的第一步验收就是做一道题、两空都填、看结果页算对。
+> 第 10 条怎么验：题库里没有双空题，`verify_grading_ui` 在页面启动时往 `TD_APP.CATALOG['1.1']` 尾部注入一道合成题（`ZZ-DUAL`，两空 250 / 123.5），走的是与用户同一条路径（真的渲染两个框 → 输入 → 落盘 → 交卷 → 判分），不是 mock 渲染函数。新增两条用例：**两空都填对 → right=1 / wrong=0**、**两空顺序颠倒 → right=0 / wrong=1**（证明 dualCorrect 的两空语义真的生效，不是只要填了就给分）。加上 ① `test/grading.test.js` 的 `dualCorrect` 5 条单测、② `test/grid-dual-ui.test.js` 三条静态守卫（负向：把分支改 `if(false)` 会红），这条缺口算闭合。脚本总数因此从 6 条涨到 8 条。
 
 ## 还没动的
 
 - `images/fig/` 下仍有历史位图（约 179 个引用）供未被矢量覆盖的题兜底；新录题一律矢量，不再新增位图（`test/jiangyi.test.js` 已守）。
 - `questions.js` 旧脚本（`fold_patches.py` / `merge_transcribe_fragment.py` / `patch_answers.py`）仍在按路径写根目录那份，迁移属于另一单活，本轮只做标注，不改脚本。
+
+## 回归脚手架自己的两个 bug（2026-11-26，都已修）
+
+一直有个"随机变红"在现场晃：同一份线上代码，`verify_flows` 有时 16/16、有时 12/16，红的是"drill 起练进入做题视图且有选项"，连带 3 条依赖作答的用例一起红。查下来不是产品坏了，是测试脚手架自己：
+
+1. **临时 profile 从不清**。13 个 CDP 脚本各自 `--user-data-dir=/tmp/<prefix>-${Date.now()}`，跑完没人删。攒到 **913 个目录 / ~19G**，磁盘只剩 6G，python http.server 在高并发冷启动时就开始 reset 连接。修法：`tools/lib/chrome.mjs` 新增 `tempProfile()`（退出/SIGINT/SIGTERM 自动删）+ `sweepStaleProfiles()`（启动时收掉 1 小时前同前缀残留，被 kill -9 的也能被下一次收尸）；13 个脚本全部改用它。
+2. **`python3 -m http.server` 并发拉 defer 脚本会直接 RST**。CDP 里实测到 `Network.loadingFailed: net::ERR_CONNECTION_RESET` 一次 reset 掉整批脚本，`TD_APP`/`TD_UI` 全 undefined、整页空白——看起来像"drill 起不来"，其实是服务器把请求打死了。修法：新增 `tools/lib/serve.mjs`（node:http，并发安全、随机端口、写 marker 再回读自证"这端口确实是本仓库"），`verify_flows / grading_ui / runtime / shaded / timeout / acct / nav / a11y / session` 全部切过去，`--base` 模式不受影响。
+
+修完实测：`verify_flows` 连跑 **4 次全 16/16**（之前四次里两次 12/16）；`verify_nav` 38/38、`verify_a11y` 20/20、`verify_acct_entry` 26/26、`verify_session` 22/22、`verify_grading_ui` 8/8、`verify_shaded_figures` 6/6、`verify_exam_timeout` 8/8、`test/*.test.js` 190/0。守卫：`test/tools-portability.test.js` 新增 3 条（写死 `/tmp` profile 要红、没用 `tempProfile()` 要红、`spawn('python3', [... 'http.server' ...])` 要红），负向验过——把 `verify_flows` 改回 `/tmp/vfl-${Date.now()}` 立刻红。
+
+> 教训：回归红之前先怀疑脚手架。判据不是"多跑一次就绿了"，而是"连跑 4 次都不红"。
