@@ -1,0 +1,2622 @@
+{
+  "generated_from": [
+    "audit-legacy-a.jsonl",
+    "audit-legacy-b.jsonl",
+    "audit-legacy-jiangyi.jsonl"
+  ],
+  "total": 89,
+  "field_patch_count": 129,
+  "counts": {
+    "by_kind": {
+      "figure": 16,
+      "text": 72,
+      "table": 1
+    },
+    "by_book": {
+      "legacy-a": 37,
+      "legacy-b": 50,
+      "jiangyi": 2
+    },
+    "by_mode": {
+      "remove_spec": 16,
+      "rewrite_field:stem": 33,
+      "rewrite_field:choice": 51,
+      "substring": 21,
+      "noop": 3,
+      "add_table_spec": 1,
+      "redraw_figure": 2,
+      "anchor": 1,
+      "type_fix": 1
+    }
+  },
+  "patch_null": [
+    {
+      "id": "TD-11-24",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-16-04",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-16-05",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-21-18",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-21-19",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-21-26",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-21-27",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-21-31",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-21-32",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-23-13",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-24-03",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "U2-09",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-24-04",
+      "field": "stem",
+      "mode": "noop"
+    },
+    {
+      "id": "TD-24-07",
+      "field": "stem",
+      "mode": "noop"
+    },
+    {
+      "id": "U2-10",
+      "field": "stem",
+      "mode": "noop"
+    },
+    {
+      "id": "TD-24-09",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-24-10",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "U2-12",
+      "field": "figure.missing",
+      "mode": "add_table_spec"
+    },
+    {
+      "id": "TD-25-06",
+      "field": "figure.missing",
+      "mode": "redraw_figure"
+    },
+    {
+      "id": "TD-33-08",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-33-18",
+      "field": "figure.missing",
+      "mode": "redraw_figure"
+    },
+    {
+      "id": "TD-34-03",
+      "field": "figure.spec",
+      "mode": "remove_spec"
+    },
+    {
+      "id": "TD-41-02",
+      "field": "anchor",
+      "mode": "anchor"
+    }
+  ],
+  "duplicate_items": [
+    {
+      "id": "TD-24-03",
+      "duplicate_of": "U2-09",
+      "canonical": false
+    },
+    {
+      "id": "U2-09",
+      "duplicate_of": "TD-24-03",
+      "canonical": true
+    },
+    {
+      "id": "TD-24-07",
+      "duplicate_of": "U2-10",
+      "canonical": true
+    },
+    {
+      "id": "U2-10",
+      "duplicate_of": "TD-24-07",
+      "canonical": false
+    },
+    {
+      "id": "U3-10",
+      "duplicate_of": "TD-32-27",
+      "canonical": true
+    },
+    {
+      "id": "TD-32-27",
+      "duplicate_of": "U3-10",
+      "canonical": false
+    },
+    {
+      "id": "U3-15",
+      "duplicate_of": "TD-32-32",
+      "canonical": true
+    },
+    {
+      "id": "TD-32-32",
+      "duplicate_of": "U3-15",
+      "canonical": false
+    },
+    {
+      "id": "U4-09",
+      "duplicate_of": "TD-42-10",
+      "canonical": false
+    },
+    {
+      "id": "TD-42-10",
+      "duplicate_of": "U4-09",
+      "canonical": true
+    }
+  ],
+  "recheck_items": [
+    "TD-16-05",
+    "TD-23-25",
+    "TD-24-04",
+    "TD-24-07",
+    "U2-10",
+    "TD-25-18",
+    "TD-32-08",
+    "TD-41-02"
+  ],
+  "items": [
+    {
+      "id": "TD-11-24",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p015 · #24",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-11-24",
+      "type": "mcq",
+      "section": "1.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页第24题为纯文字题，无坐标图/表格",
+          "current": "spec: type,x,y,series,marks",
+          "patch": null,
+          "note": "数据侧多出原页不存在的直线 chart spec（series [[0,17]…[12,-7]]，marks (7,3)），题面文字与选项一致；删除该矢量 spec。"
+        }
+      ]
+    },
+    {
+      "id": "TD-12-14",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p019 · #14",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-12-14",
+      "type": "grid",
+      "section": "1.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：(x-2)-8(y+3)=123；(x-2)+8(y+3)=432",
+          "current": "The solution to the given system of equations is (x, y). What is the value of 10(x-2)?",
+          "patch": "(x-2)-8(y+3)=123\n(x-2)+8(y+3)=432\nThe solution to the given system of equations is (x, y). What is the value of 10(x-2)?",
+          "note": "原页两行方程未入库，补到题干上方。"
+        }
+      ]
+    },
+    {
+      "id": "TD-12-15",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p020 · #15",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-12-15",
+      "type": "mcq",
+      "section": "1.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：y=3x+9；3y=8x-6",
+          "current": "The solution to the given system of equations is (x, y). What is the value of x-y?",
+          "patch": "y=3x+9\n3y=8x-6\nThe solution to the given system of equations is (x, y). What is the value of x-y?",
+          "note": "原页两行方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-12-16",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p020 · #16",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-12-16",
+      "type": "mcq",
+      "section": "1.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：7/2 x+5y=32；3/2 x+5y=28",
+          "current": "The solution to the given system of equations is (x, y). What is the value of 13/2x + 15y?",
+          "patch": "7/2 x + 5y = 32\n3/2 x + 5y = 28\nThe solution to the given system of equations is (x, y). What is the value of 13/2x + 15y?",
+          "note": "同页 U1-06 保留了方程组，本条副本丢失。"
+        }
+      ]
+    },
+    {
+      "id": "TD-12-17",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p021 · #17",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-12-17",
+      "type": "mcq",
+      "section": "1.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：8y=9x+15；-8y=7x-19",
+          "current": "The solution to the given system of equations is (x, y). What is the value of 64x?",
+          "patch": "8y = 9x + 15\n-8y = 7x - 19\nThe solution to the given system of equations is (x, y). What is the value of 64x?",
+          "note": "原页两行方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-12-18",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p021 · #18",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-12-18",
+      "type": "mcq",
+      "section": "1.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：4x-16y=16y+9；hy=6+4x",
+          "current": "In the given system of equations, h is a constant. If the system has no solution. What is the value of h?",
+          "patch": "4x - 16y = 16y + 9\nhy = 6 + 4x\nIn the given system of equations, h is a constant. If the system has no solution. What is the value of h?",
+          "note": "原页两行方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-12-20",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p022 · #20",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-12-20",
+      "type": "mcq",
+      "section": "1.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：5x+7y=8；30x+42y=48",
+          "current": "For each real number r, which of the following points lies on the graph of each equation in the xy-plane for the given system?",
+          "patch": "5x + 7y = 8\n30x + 42y = 48\nFor each real number r, which of the following points lies on the graph of each equation in the xy-plane for the given system?",
+          "note": "原页两行方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-12-21",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p023 · #21",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-12-21",
+      "type": "mcq",
+      "section": "1.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：y=5x；y=2x+2",
+          "current": "How many solutions does the given system of equations have?",
+          "patch": "y = 5x\ny = 2x + 2\nHow many solutions does the given system of equations have?",
+          "note": "原页两行方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-12-24",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p024 · #24",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-12-24",
+      "type": "mcq",
+      "section": "1.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "首条方程：7x - 56y = 14",
+          "current": "One of the two equations in a system of linear equations is given. The system has no solution. Which equation could be the second equation in this system?",
+          "patch": "7x - 56y = 14\nOne of the two equations in a system of linear equations is given. The system has no solution. Which equation could be the second equation in this system?",
+          "note": "原页给定方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "U1-08",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p028 · #2",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:U1-08",
+      "type": "mcq",
+      "section": "1.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程：T(x) = 61 - 8x",
+          "current": "The function T estimates the temperature, in degrees Fahrenheit (°F), in a certain city one day in January, where x is the number of hours after 10 a.m. and 1 ≤ x ≤ 7. Which statement is the best interpretation of T(5) = 21 in this context?",
+          "patch": "T(x) = 61 - 8x\nThe function T estimates the temperature, in degrees Fahrenheit (°F), in a certain city one day in January, where x is the number of hours after 10 a.m. and 1 ≤ x ≤ 7. Which statement is the best interpretation of T(5) = 21 in this context?",
+          "note": "同页 TD-13-02 保留了方程，本条副本丢失。"
+        }
+      ]
+    },
+    {
+      "id": "TD-13-10",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p032 · #10",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-13-10",
+      "type": "mcq",
+      "section": "1.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程：w=3,150+450l",
+          "current": "A marine biologist uses the given equation to estimate the weight, w, of a mature great white shark, in pounds, in terms of the shark's fork length, l, in feet. Based on the equation, what is the estimated weight increase, in pounds, for each foot of growth in fork length in a great white shark?",
+          "patch": "w = 3,150 + 450l\nA marine biologist uses the given equation to estimate the weight, w, of a mature great white shark, in pounds, in terms of the shark's fork length, l, in feet. Based on the equation, what is the estimated weight increase, in pounds, for each foot of growth in fork length in a great white shark?",
+          "note": "原页给定方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-14-26",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p048 · #26",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-14-26",
+      "type": "mcq",
+      "section": "1.4",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "D) t+c=28；0.35t+0.15c=21",
+          "current": "(+c=28 0.35t + 0.15c = 21",
+          "patch": "t+c=28; 0.35t+0.15c=21",
+          "note": "选项 D 第一式字母 t 脱漏，现值首式为 (+c=28。"
+        }
+      ]
+    },
+    {
+      "id": "TD-14-31",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p050 · #31",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-14-31",
+      "type": "mcq",
+      "section": "1.4",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:D",
+          "mode": "substring",
+          "original": "D) 72≤14+x≤77（x 小写）",
+          "current": "72≤14+X≤77",
+          "patch": "72≤14+x≤77",
+          "note": "变量 x 大小写不一致。",
+          "find": "72≤14+X≤77",
+          "replace": "72≤14+x≤77"
+        }
+      ]
+    },
+    {
+      "id": "TD-15-05",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p055 · #5",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-15-05",
+      "type": "mcq",
+      "section": "1.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "不等式组：y≤x+2；y≥-5x-3",
+          "current": "Which point (x, y) is a solution to the given system of inequalities in the xy-plane?",
+          "patch": "y ≤ x + 2\ny ≥ -5x - 3\nWhich point (x, y) is a solution to the given system of inequalities in the xy-plane?",
+          "note": "原页不等式组未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-16-04",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p058 · #4",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-16-04",
+      "type": "mcq",
+      "section": "1.6",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页为纯文字题，无独立配图（-144/5 仅为选项 A）",
+          "current": "crop: \"images/fig/TD-16-04.png\"",
+          "patch": null,
+          "note": "误挂选项 A 分数裁剪图 images/fig/TD-16-04.png；删除该裁剪图注册。"
+        }
+      ]
+    },
+    {
+      "id": "TD-16-05",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p058 · #5",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-16-05",
+      "type": "grid",
+      "section": "1.6",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": true,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "|x-8| = -|x-8| + 20（右侧无系数 4）",
+          "current": "|x - 8| = -4|x - 8| + 20\nWhat is the sum of the solutions to the given equation?",
+          "patch": "|x - 8| = -|x - 8| + 20\nWhat is the sum of the solutions to the given equation?",
+          "note": "题干方程多出系数 4；系数 4 存疑，答案不参与本路判定，落库前回看原页。",
+          "find": "-4|x - 8|",
+          "replace": "-|x - 8|"
+        },
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页为纯文字题，无独立配图",
+          "current": "crop: \"images/fig/TD-16-05.png\"",
+          "patch": null,
+          "note": "误挂手写草稿裁剪图 images/fig/TD-16-05.png（2|x-8|=20 / |x-8|=10），非印刷内容；删除。"
+        }
+      ]
+    },
+    {
+      "id": "TD-21-18",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p067 · #18",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-21-18",
+      "type": "mcq",
+      "section": "2.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页无独立配图，仅题干 kilometers 带下划线强调",
+          "current": "crop: \"images/fig/TD-21-18.png\"",
+          "patch": null,
+          "note": "下划线片段裁剪图 images/fig/TD-21-18.png（kilometers per hour? (Use 1 mile =1.6 kilometers.)），非独立图形；删除注册。"
+        }
+      ]
+    },
+    {
+      "id": "TD-21-19",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p067 · #19",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-21-19",
+      "type": "mcq",
+      "section": "2.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页无独立配图，仅 square yards 带下划线强调",
+          "current": "crop: \"images/fig/TD-21-19.png\"",
+          "patch": null,
+          "note": "下划线片段裁剪图 images/fig/TD-21-19.png；删除注册。"
+        }
+      ]
+    },
+    {
+      "id": "TD-21-26",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p069 · #26",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-21-26",
+      "type": "grid",
+      "section": "2.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页无独立配图，仅 centimeters 带下划线强调",
+          "current": "crop: \"images/fig/TD-21-26.png\"",
+          "patch": null,
+          "note": "下划线片段裁剪图 images/fig/TD-21-26.png；题干与选项文字本身一致；删除注册。"
+        }
+      ]
+    },
+    {
+      "id": "TD-21-27",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p069 · #27",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-21-27",
+      "type": "mcq",
+      "section": "2.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页无独立配图，仅 square meters per minute 带下划线强调",
+          "current": "crop: \"images/fig/TD-21-27.png\"",
+          "patch": null,
+          "note": "下划线片段裁剪图 images/fig/TD-21-27.png；删除注册。"
+        }
+      ]
+    },
+    {
+      "id": "TD-21-31",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p071 · #31",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-21-31",
+      "type": "mcq",
+      "section": "2.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页无独立配图，仅 in miles per minute squared 带下划线强调",
+          "current": "crop: \"images/fig/TD-21-31.png\"",
+          "patch": null,
+          "note": "下划线片段裁剪图 images/fig/TD-21-31.png；删除注册。"
+        }
+      ]
+    },
+    {
+      "id": "TD-21-32",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p071 · #32",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-21-32",
+      "type": "mcq",
+      "section": "2.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页无独立配图，仅 kilometers 带下划线强调",
+          "current": "crop: \"images/fig/TD-21-32.png\"",
+          "patch": null,
+          "note": "下划线片段裁剪图 images/fig/TD-21-32.png；删除注册。"
+        }
+      ]
+    },
+    {
+      "id": "TD-22-15",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p090 · #15",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-22-15",
+      "type": "mcq",
+      "section": "2.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "The scatterplot shows the relationship between two variables, x and y. A line of best fit is also shown.",
+          "current": "The scatterplot shows the relationship between two variables, x and y. A line of best fit is also shown. 5 67 8 9 10x Which of the following best represents the line of best fit shown?",
+          "patch": "The scatterplot shows the relationship between two variables, x and y. A line of best fit is also shown. Which of the following best represents the line of best fit shown?",
+          "note": "题干混入坐标轴数字串 \"5 67 8 9 10x\"（OCR 残留），原页题干无此串；散点图 spec 保留。",
+          "find": " 5 67 8 9 10x",
+          "replace": ""
+        }
+      ]
+    },
+    {
+      "id": "TD-22-17",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p092 · #17",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-22-17",
+      "type": "mcq",
+      "section": "2.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "substring",
+          "original": "A) 0",
+          "current": "O",
+          "patch": "0",
+          "note": "选项 A 数字 0 被写成字母 O；图形曲线与原页一致。",
+          "find": "O",
+          "replace": "0"
+        }
+      ]
+    },
+    {
+      "id": "TD-23-13",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p099 · #13",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-23-13",
+      "type": "mcq",
+      "section": "2.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页为纯文字题，无独立配图（公式 P=C(2)^{rt} 在题干内）",
+          "current": "crop: \"images/fig/TD-23-13.png\"",
+          "patch": null,
+          "note": "误挂选项 A 分数 1/10,000 裁剪图 images/fig/TD-23-13.png；题干与选项文字一致；删除注册。"
+        }
+      ]
+    },
+    {
+      "id": "TD-23-18",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p101 · #18",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-23-18",
+      "type": "mcq",
+      "section": "2.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "P(t) = 260(1.03)^{(3/2)t}",
+          "current": "P(t) = 260(1.03) (2) The function P models the population, in thousands, of a certain city t years after 2009. According to the model, the population is predicted to increase by n% every 8 months. What is the value of n?",
+          "patch": "P(t) = 260(1.03)^{(3/2)t} The function P models the population, in thousands, of a certain city t years after 2009. According to the model, the population is predicted to increase by n% every 8 months. What is the value of n?",
+          "note": "指数 (3/2)t 被 OCR 拍平成 \"(2)\"；其余题干与选项一致。",
+          "find": "P(t) = 260(1.03) (2)",
+          "replace": "P(t) = 260(1.03)^{(3/2)t}"
+        }
+      ]
+    },
+    {
+      "id": "TD-23-23",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p104 · #23",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-23-23",
+      "type": "mcq",
+      "section": "2.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "A)…16% greater than it was the previous hour.",
+          "current": "Each hour, the number of bacteria in the population is 16% greater than it was the",
+          "patch": "Each hour, the number of bacteria in the population is 16% greater than it was the previous hour.",
+          "note": "选项第二行 \"previous hour.\" 丢失。"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "B)…1,600 greater than it was the previous hour.",
+          "current": "Each hour, the number of bacteria in the population is 1,600 greater than it was the",
+          "patch": "Each hour, the number of bacteria in the population is 1,600 greater than it was the previous hour.",
+          "note": "选项第二行 \"previous hour.\" 丢失。"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field:choice",
+          "original": "C)…1,600 less than it was the previous hour.",
+          "current": "Each hour, the number of bacteria in the population is 1,600 less than it was the",
+          "patch": "Each hour, the number of bacteria in the population is 1,600 less than it was the previous hour.",
+          "note": "选项第二行 \"previous hour.\" 丢失。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "D)…16% less than it was the previous hour.",
+          "current": "Each hour, the number of bacteria in the population is 16% less than it was the",
+          "patch": "Each hour, the number of bacteria in the population is 16% less than it was the previous hour.",
+          "note": "选项第二行 \"previous hour.\" 丢失。"
+        }
+      ]
+    },
+    {
+      "id": "TD-23-24",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p104 · #24",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-23-24",
+      "type": "mcq",
+      "section": "2.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "…increase of x by 1/4?",
+          "current": "f(x) = k(1.83)^{x}\nThe function f is defined by the given equation, where k is a constant. The value of f(x) increases by p% for every increase of x by 1. For which of the following functions, where k is a constant, does the value of g(x) increase by p% for every increase of x by 1?",
+          "patch": "f(x) = k(1.83)^{x}\nThe function f is defined by the given equation, where k is a constant. The value of f(x) increases by p% for every increase of x by 1/4. For which of the following functions, where k is a constant, does the value of g(x) increase by p% for every increase of x by 1?",
+          "note": "题干末尾分数 1/4 拍平丢失。",
+          "find": "increase of x by 1.",
+          "replace": "increase of x by 1/4."
+        },
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "A) k(1.83^x)^{1/4}",
+          "current": "g(x) = k(1.83)^{x}",
+          "patch": "g(x) = k(1.83^x)^{1/4}",
+          "note": "四个选项与原页全部不一致。"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "B) k(1.83^x)^4",
+          "current": "g(x) = k(1.83)^{x+1}",
+          "patch": "g(x) = k(1.83^x)^4",
+          "note": "选项与原页不符。"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field:choice",
+          "original": "C) k(1.83)^{x+1/4}",
+          "current": "g(x) = k(1.83)^{x+4}",
+          "patch": "g(x) = k(1.83)^{x+1/4}",
+          "note": "选项与原页不符。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "D) k(1.83)^{x-1/4}",
+          "current": "g(x) = k(1.83)^{4x}",
+          "patch": "g(x) = k(1.83)^{x-1/4}",
+          "note": "选项与原页不符。"
+        }
+      ]
+    },
+    {
+      "id": "TD-23-25",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p105 · #25",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-23-25",
+      "type": "mcq",
+      "section": "2.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": true,
+      "patches": [
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "B) 1",
+          "current": "1.155",
+          "patch": "1",
+          "note": "选项 B、D 数值与原页不符、选项顺序错位；现值 B=1.155、C=15.5、D=115.5，落库前回看原页核对排列。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "D) 15.5",
+          "current": "115.5",
+          "patch": "15.5",
+          "note": "见上；B→1、D→15.5，顺序需以原页为准。"
+        }
+      ]
+    },
+    {
+      "id": "TD-24-03",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p106 · #3",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-24-03",
+      "type": "mcq",
+      "section": "2.4",
+      "canonical": false,
+      "duplicate": true,
+      "duplicate_of": "U2-09",
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页纯文字概率题，无独立配图",
+          "current": "crop: \"images/fig/TD-24-03.png\"",
+          "patch": null,
+          "note": "误挂选项分数裁剪图 images/fig/TD-24-03.png（12/48、36/48、48/48）；与 U2-09 同页同号双副本，活跃条目 U2-09，本条不重复落地。"
+        }
+      ]
+    },
+    {
+      "id": "U2-09",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p106 · #3",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:U2-09",
+      "type": "mcq",
+      "section": "2.4",
+      "canonical": true,
+      "duplicate": true,
+      "duplicate_of": "TD-24-03",
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页纯文字概率题，无独立配图",
+          "current": "crop: \"images/fig/U2-09.png\"",
+          "patch": null,
+          "note": "误挂选项 D 分数 48/48 裁剪图 images/fig/U2-09.png；同页同号双副本活跃条目，删除注册只落一次。"
+        }
+      ]
+    },
+    {
+      "id": "TD-24-04",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p107 · #4",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-24-04",
+      "type": "mcq",
+      "section": "2.4",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": true,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "noop",
+          "original": "probability of selecting is participant from group A",
+          "current": "The table summarizes the distribution of age and assigned group for 120 participants in a study. One of these participants will be selected at random. What is the probability of selecting a participant from group A, given that the participant is at least 10 years of age?",
+          "patch": null,
+          "note": "原页疑错印 \"is participant\"，数据写作 \"a participant\"；不改题面迁就，落库前回看原页确认是错印还是转写错误。表格裁图与原页一致。"
+        }
+      ]
+    },
+    {
+      "id": "TD-24-07",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p110 · #7",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-24-07",
+      "type": "mcq",
+      "section": "2.4",
+      "canonical": true,
+      "duplicate": true,
+      "duplicate_of": "U2-10",
+      "recheck": true,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "noop",
+          "original": "whether they live north south of Center St.",
+          "current": "The table summarizes members of a local organization by age and whether they live north or south of Center St. If a member of the organization is selected at random, what is the probability that the selected member is at least 45 years old?",
+          "patch": null,
+          "note": "原页漏印连词 or，数据已补回 \"north or south\"；无需改动，落库前回看原页确认漏印。表格与选项一致。"
+        }
+      ]
+    },
+    {
+      "id": "U2-10",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p110 · #7",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:U2-10",
+      "type": "mcq",
+      "section": "2.4",
+      "canonical": false,
+      "duplicate": true,
+      "duplicate_of": "TD-24-07",
+      "recheck": true,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "noop",
+          "original": "whether they live north south of Center St.",
+          "current": "The table summarizes members of a local organization by age and whether they live north or south of Center St. If a member of the organization is selected at random, what is the probability that the selected member is at least 45 years old?",
+          "patch": null,
+          "note": "与 TD-24-07 同页同号双副本；原页漏印 or，数据已补回；本条不重复落地。"
+        }
+      ]
+    },
+    {
+      "id": "TD-24-09",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p112 · #9",
+      "kind": "text",
+      "source_ledger": "audit-legacy-a.jsonl:TD-24-09",
+      "type": "mcq",
+      "section": "2.4",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "A) 1/5,100",
+          "current": "5,100",
+          "patch": "1/5,100",
+          "note": "分数分子 1 丢失，仅剩分母 5,100。"
+        },
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页纯文字题，无独立配图",
+          "current": "crop: \"images/fig/TD-24-09.png\"",
+          "patch": null,
+          "note": "误挂选项 C/D 分数 51/100、51/10 裁剪图 images/fig/TD-24-09.png；删除注册。"
+        }
+      ]
+    },
+    {
+      "id": "TD-24-10",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p112 · #10",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-a.jsonl:TD-24-10",
+      "type": "mcq",
+      "section": "2.4",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页纯文字题，无独立配图",
+          "current": "crop: \"images/fig/TD-24-10.png\"",
+          "patch": null,
+          "note": "误挂选项 B/C/D 分数 2/12、10/12、11/12 裁剪图 images/fig/TD-24-10.png；选项文字本身一致；删除注册。"
+        }
+      ]
+    },
+    {
+      "id": "U2-12",
+      "book": "legacy-a",
+      "page_ref": "legacy-a · p118 · #1",
+      "kind": "table",
+      "source_ledger": "audit-legacy-a.jsonl:U2-12",
+      "type": "mcq",
+      "section": "2.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "add_table_spec",
+          "original": "原页有 UV index 频数表（1→9, 2→15, 3→12, 4→13）",
+          "current": null,
+          "patch": null,
+          "note": "原页有表而数据侧表未入库（text.figure=[]，无 spec/裁剪）；表体：UV index 1→9 天、2→15 天、3→12 天、4→13 天，合计 49 天；题干与选项文字一致。"
+        }
+      ]
+    },
+    {
+      "id": "TD-25-06",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p121 · #6",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-b.jsonl:TD-25-06",
+      "type": "mcq",
+      "section": "2.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "点状图横轴 720/722/724/726/728/730/732，图题 \"Orbital period (days)\"",
+          "current": null,
+          "patch": null,
+          "note": "原页点状图未入库；按原页重画：横轴 720–732（步长 2），13 颗木星卫星轨道周期散点，图题 Orbital period (days)。"
+        },
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "A data set of the orbital periods, rounded to the nearest whole number of Earth days, for 13 of Jupiter's moons is represented in the dot plot.",
+          "current": "Orbital period (days) A data set of the orbital periods, rounded to the nearest whole number of Earth days, for 13 of Jupiter's moons is represented in the dot plot. An additional moon with an orbital period of 632 days is added to the original data set to create a new data set of 14 orbital periods. Which statement best compares the mean and median of the new data set to the mean and median of the original data set?",
+          "patch": "A data set of the orbital periods, rounded to the nearest whole number of Earth days, for 13 of Jupiter's moons is represented in the dot plot. An additional moon with an orbital period of 632 days is added to the original data set to create a new data set of 14 orbital periods. Which statement best compares the mean and median of the new data set to the mean and median of the original data set?",
+          "note": "图题被并入题干，移回配图标题。",
+          "find": "Orbital period (days) ",
+          "replace": ""
+        }
+      ]
+    },
+    {
+      "id": "TD-25-07",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p122 · #7",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-25-07",
+      "type": "mcq",
+      "section": "2.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "The dot plot shows the distribution of capacity for a set of capacitors, set A …（图轴标题 Capacity (µF) 属配图）",
+          "current": "Capacity (UF) The dot plot shows the distribution of capacity for a set of capacitors, set A, which a researcher used for a certain experiment. For another experiment, the researcher used a different set of capacitors, set B. Set B has the same number of capacitors as set A but the capacity of each capacitor of set B is 14 microfarads (uF) greater than the capacity of each respective capacitor in set A. Which of the following is true about the capacities of the capacitors in set B?",
+          "patch": "The dot plot shows the distribution of capacity for a set of capacitors, set A, which a researcher used for a certain experiment. For another experiment, the researcher used a different set of capacitors, set B. Set B has the same number of capacitors as set A but the capacity of each capacitor of set B is 14 microfarads (uF) greater than the capacity of each respective capacitor in set A. Which of the following is true about the capacities of the capacitors in set B?",
+          "note": "图轴标题并入题干，移回配图；单位应为 µF（现值 UF），配图 yAxis 标签同步改 µF。",
+          "find": "Capacity (UF) ",
+          "replace": ""
+        }
+      ]
+    },
+    {
+      "id": "TD-25-12",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p124 · #12",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-25-12",
+      "type": "grid",
+      "section": "2.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "数据集：128, 118, 116, 132, 119, 129, 127, 109, 124, 121, 112",
+          "current": "What is the maximum value of the data set shown?",
+          "patch": "Data set: 128, 118, 116, 132, 119, 129, 127, 109, 124, 121, 112\nWhat is the maximum value of the data set shown?",
+          "note": "原页题干内嵌的 11 个数值在数据侧缺失。"
+        }
+      ]
+    },
+    {
+      "id": "TD-25-15",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p127 · #15",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-25-15",
+      "type": "mcq",
+      "section": "2.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "The bar graph shows … What is the maximum number of trees planted on one of these 4 plots of land?（柱图类别 Plot 1–Plot 4、纵轴 Trees planted 属配图）",
+          "current": "The bar graph shows the number of trees planted for 4 separate plots of land on a tree farm. Trees planted Plot 1 Plot 2 Plot 4 plot 3 What is the maximum number of trees planted on one of these 4 plots of land?",
+          "patch": "The bar graph shows the number of trees planted for 4 separate plots of land on a tree farm. What is the maximum number of trees planted on one of these 4 plots of land?",
+          "note": "配图轴标题/类别标签混入题干；类别顺序与大小写被打乱（Plot 4 plot 3），纵轴 Trees planted、类别 Plot 1–Plot 4 归配图。"
+        }
+      ]
+    },
+    {
+      "id": "TD-25-16",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p128 · #16",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-25-16",
+      "type": "mcq",
+      "section": "2.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "The bar graph shows … For which two types of flowers … exactly 2/5 of the florist's stock?（配图纵轴 Number of flowers、横轴 Type of flower 及类别属配图）",
+          "current": "The bar graph shows the distribution of flower type for the 700 flowers that a florist has in stock. Number of flowers orchid tulip suntlower Type of flower For which two types of flowers is the total number of flowers of the two types exactly 2/5 of the florist's stock?",
+          "patch": "The bar graph shows the distribution of flower type for the 700 flowers that a florist has in stock. For which two types of flowers is the total number of flowers of the two types exactly 2/5 of the florist's stock?",
+          "note": "配图轴标题/类别混入题干；sunflower 误拼为 suntlower，配图类别标签需同步纠正。"
+        }
+      ]
+    },
+    {
+      "id": "TD-25-17",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p129 · #17",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-25-17",
+      "type": "mcq",
+      "section": "2.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "There is no value of k such that the standard deviation of data set B will be less than the standard deviation of data set A.",
+          "current": "There is no value of k such that the standard deviation of data set B will be less",
+          "patch": "There is no value of k such that the standard deviation of data set B will be less than the standard deviation of data set A.",
+          "note": "选项 D 尾部被截断。"
+        }
+      ]
+    },
+    {
+      "id": "TD-25-18",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p129 · #18",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-25-18",
+      "type": "mcq",
+      "section": "2.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": true,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "I. 23　II. 28　III. 29（题干与选项之间列出三个 h 的候选值）",
+          "current": "Data set A: 8, 11, 12, 15, 21, 27\nData set B: 9, 12, 13, 16, 22, h\nData sets A and B each consist of 6 values as shown, where h is a constant. If the standard deviation of data set A is greater than the standard deviation of data set B, which of the following could be the value of h?",
+          "patch": "Data set A: 8, 11, 12, 15, 21, 27\nData set B: 9, 12, 13, 16, 22, h\nData sets A and B each consist of 6 values as shown, where h is a constant. If the standard deviation of data set A is greater than the standard deviation of data set B, which of the following could be the value of h?\nI. 23　II. 28　III. 29",
+          "note": "选项所依据的三个取值 23、28、29 未入库；候选值列表在题干与选项之间，落库前回看原页确认排版位置。"
+        }
+      ]
+    },
+    {
+      "id": "TD-25-20",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p130 · #20",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-25-20",
+      "type": "grid",
+      "section": "2.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "数据集：12, 12, 18, 24, 29",
+          "current": "What is the median of the data set shown?",
+          "patch": "Data set: 12, 12, 18, 24, 29\nWhat is the median of the data set shown?",
+          "note": "原页题干内嵌 5 个数值在数据侧缺失。"
+        }
+      ]
+    },
+    {
+      "id": "TD-31-04",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p137 · #4",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-31-04",
+      "type": "mcq",
+      "section": "3.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "ak = (b/11)(14 + m)",
+          "current": "ak/11 = b/(14 + m)\nThe given equation relates the positive variables a, b, k, and m. Which equation correctly expresses m in terms of a, b, and k?",
+          "patch": "ak = (b/11)(14 + m)\nThe given equation relates the positive variables a, b, k, and m. Which equation correctly expresses m in terms of a, b, and k?",
+          "note": "给定方程结构不同：现值写成 ak/11 = b/(14+m)。",
+          "find": "ak/11 = b/(14 + m)",
+          "replace": "ak = (b/11)(14 + m)"
+        }
+      ]
+    },
+    {
+      "id": "TD-31-09",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p139 · #9",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-31-09",
+      "type": "mcq",
+      "section": "3.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "12x²y + 5y",
+          "current": "12x^{3}y + 5y",
+          "patch": "12x²y + 5y",
+          "note": "x 指数：原页 x²y，现值 x³y。"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field:choice",
+          "original": "12x²y + 30xy",
+          "current": "12x^{2}y + 30xy^{2}",
+          "patch": "12x²y + 30xy",
+          "note": "y 指数：原页 30xy（y 一次），现值 30xy²。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-05",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p155 · #5",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-05",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：y=(x-6)(x+9)；y=4x-24",
+          "current": "solution to the given system of equations is (x, y) = (a, b). Which of the following could be the value of a?",
+          "patch": "y=(x-6)(x+9)\ny=4x-24\nThe solution to the given system of equations is (x, y) = (a, b). Which of the following could be the value of a?",
+          "note": "给定方程组两条方程未入库；句首冠词 The 亦缺失。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-06",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p155 · #6",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-06",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：x+33=y；(x+33)²=y",
+          "current": "solution to the given system of equations is (x, y). What is a possible value of x?",
+          "patch": "x + 33 = y\n(x + 33)² = y\nThe solution to the given system of equations is (x, y). What is a possible value of x?",
+          "note": "给定方程组两条方程未入库；句首冠词 The 亦缺失。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-07",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p156 · #7",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-07",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：x+5=11；y=3x²+3",
+          "current": "At what point (x, y) do the graphs of the equations in the given system intersect?",
+          "patch": "x + 5 = 11\ny = 3x² + 3\nAt what point (x, y) do the graphs of the equations in the given system intersect?",
+          "note": "给定方程组两条方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-08",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p156 · #8",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-08",
+      "type": "grid",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": true,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "(x+1)/(5x²)=k/x；方程的解为 1/224",
+          "current": "In the given system of equations, k is a constant. The solution to given equation is: 224° what is the value of k?",
+          "patch": "(x+1)/(5x²) = k/x\nIn the given system of equations, k is a constant. The solution to the given equation is 1/224. What is the value of k?",
+          "note": "给定分式方程未入库；解 1/224 被误转为 \"224°\"；问句措辞以原页为准，落库前回看。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-09",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p156 · #9",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-09",
+      "type": "grid",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "二次方程：33x²+(33s+r)x+rs=0",
+          "current": "In the given equation, r and s are positive constants. The product of the solutions to the given equation is krs, where k is a constant. What is the value of k?",
+          "patch": "33x² + (33s + r)x + rs = 0\nIn the given equation, r and s are positive constants. The product of the solutions to the given equation is krs, where k is a constant. What is the value of k?",
+          "note": "给定二次方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-13",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p158 · #13",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-13",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "x² = 2,601",
+          "current": "x= 2,601 How many distinct real solutions does the given equation have?",
+          "patch": "x² = 2,601\n How many distinct real solutions does the given equation have?",
+          "note": "x 的平方上标 ² 丢失，方程被写成一次式。",
+          "find": "x= 2,601",
+          "replace": "x² = 2,601\n"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-14",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p158 · #14",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-14",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "(x + 81)² = -256",
+          "current": "(x + 8)^{2} = -256\nHow many distinct real solutions does the given equation have?",
+          "patch": "(x + 81)^{2} = -256\nHow many distinct real solutions does the given equation have?",
+          "note": "括号内常数项 81 被误作 8。",
+          "find": "(x + 8)^{2} = -256",
+          "replace": "(x + 81)^{2} = -256"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-16",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p159 · #16",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-16",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：y = (x-7)(3x+4)；x = 3y-1",
+          "current": "At how many points do the graphs of the given equations intersect in the xy-plane?",
+          "patch": "y = (x-7)(3x+4)\nx = 3y - 1\nAt how many points do the graphs of the given equations intersect in the xy-plane?",
+          "note": "给定方程组两条方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-17",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p159 · #17",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-17",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：y = 10；y = -4(x-10)² + 6",
+          "current": "If the given equations are graphed in the xy-plane, at how many points do the graphs of the equations intersect?",
+          "patch": "y = 10\ny = -4(x-10)² + 6\nIf the given equations are graphed in the xy-plane, at how many points do the graphs of the equations intersect?",
+          "note": "给定方程组两条方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-22",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p161 · #22",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-22",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "二次方程：-3x² - 7x + 9 = 0",
+          "current": "What is the greatest solution to the given equation?",
+          "patch": "-3x² - 7x + 9 = 0\nWhat is the greatest solution to the given equation?",
+          "note": "给定二次方程未入库；选项根式与原页一致。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-25",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p162 · #25",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-25",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "x² - 22 = 0",
+          "current": "x-22=0",
+          "patch": "x² - 22 = 0",
+          "note": "x² 平方上标丢失，写成 x。"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "x² - 11x = 0",
+          "current": "x-11x=0",
+          "patch": "x² - 11x = 0",
+          "note": "x² 平方上标丢失，写成 x。"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field:choice",
+          "original": "x² - 11x + 121 = 0",
+          "current": "x- 11x + 121=0",
+          "patch": "x² - 11x + 121 = 0",
+          "note": "x² 平方上标丢失，写成 x。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "x² - 22x + 121 = 0",
+          "current": "x - 22x + 121 = 0",
+          "patch": "x² - 22x + 121 = 0",
+          "note": "x² 平方上标丢失，写成 x。"
+        }
+      ]
+    },
+    {
+      "id": "U3-10",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p163 · #27",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:U3-10",
+      "type": "grid",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": true,
+      "duplicate_of": "TD-32-27",
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：y = -0.5；y = x² + 10x + a",
+          "current": "In the given system of equations, a is a positive integer constant. The system has no real solutions. What is the least possible value of a?",
+          "patch": "y = -0.5\ny = x² + 10x + a\nIn the given system of equations, a is a positive integer constant. The system has no real solutions. What is the least possible value of a?",
+          "note": "给定方程组两条方程未入库；与 TD-32-27 同页同号双副本，本条为活跃条目。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-27",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p163 · #27",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-27",
+      "type": "grid",
+      "section": "3.2",
+      "canonical": false,
+      "duplicate": true,
+      "duplicate_of": "U3-10",
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：y = -0.5；y = x² + 10x + a",
+          "current": "-0.5y = x + 10x + a\nIn the given system of equations, a is a positive integer constant. The system has no real solutions. What is the least possible value of a?",
+          "patch": "y = -0.5\ny = x² + 10x + a\nIn the given system of equations, a is a positive integer constant. The system has no real solutions. What is the least possible value of a?",
+          "note": "方程组被错写成一条方程（-0.5y = x + 10x + a）：x² 上标丢失、-0.5 误挂到 y 上、x 重复；双副本不重复落地，以 U3-10 为准。"
+        }
+      ]
+    },
+    {
+      "id": "U3-11",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p163 · #28",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:U3-11",
+      "type": "grid",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "二次方程：-4x² + bx - 25 = 0",
+          "current": "In the given equation, b is a positive integer. The equation has no real solution. What is the largest possible value of b?",
+          "patch": "-4x² + bx - 25 = 0\nIn the given equation, b is a positive integer. The equation has no real solution. What is the largest possible value of b?",
+          "note": "给定二次方程未入库。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-31",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p164 · #31",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-31",
+      "type": "grid",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "If x = 3√5 and 5x = √5y, what is the value of y?",
+          "current": "If x = 3V5 and 5x = v5y, what is the value ofy?",
+          "patch": "If x = 3√5 and 5x = √5y, what is the value of y?",
+          "note": "根号 √ 被误转成 V/v；\"of y\" 缺空格写成 ofy。"
+        }
+      ]
+    },
+    {
+      "id": "U3-15",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p165 · #32",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:U3-15",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": true,
+      "duplicate_of": "TD-32-32",
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：y = -4x² - 47；y = qx - 43",
+          "current": "In the given system of equations, q is a positive constant. The graphs of the equations in the given system intersect at exactly one point, (x, y), in the xy-plane, What is the value of x?",
+          "patch": "y = -4x² - 47\ny = qx - 43\nIn the given system of equations, q is a positive constant. The graphs of the equations in the given system intersect at exactly one point, (x, y), in the xy-plane, What is the value of x?",
+          "note": "给定方程组两条方程未入库；选项与原页一致；双副本活跃条目。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-32",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p165 · #32",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-32",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": false,
+      "duplicate": true,
+      "duplicate_of": "U3-15",
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：y = -4x² - 47；y = qx - 43",
+          "current": "In the given system of equations, q is a positive constant. The graphs of the equations in the given system intersect at exactly one point, (x, y), in the xy-plane, What is the value of x?",
+          "patch": "y = -4x² - 47\ny = qx - 43\nIn the given system of equations, q is a positive constant. The graphs of the equations in the given system intersect at exactly one point, (x, y), in the xy-plane, What is the value of x?",
+          "note": "双副本不重复落地，以 U3-15 为准。"
+        }
+      ]
+    },
+    {
+      "id": "TD-32-33",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p165 · #33",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-32-33",
+      "type": "mcq",
+      "section": "3.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:C",
+          "mode": "substring",
+          "original": "13",
+          "current": "13 8F",
+          "patch": "13",
+          "note": "选项 C 尾部残留 OCR 乱码 \"8F\"。",
+          "find": "13 8F",
+          "replace": "13"
+        }
+      ]
+    },
+    {
+      "id": "TD-33-08",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p169 · #8",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-b.jsonl:TD-33-08",
+      "type": "grid",
+      "section": "3.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页仅 f(x)=3(x-2)(x-6)(x-9) 文字，无坐标系图像",
+          "current": "spec: type,x,y,grid,origin,series,marks",
+          "patch": null,
+          "note": "误挂第 9 题三次函数网格图（零点 x=-3、1，标记 (0,-4)）；题面函数与原页一致，删除该不属于本题的 spec。"
+        }
+      ]
+    },
+    {
+      "id": "TD-33-10",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p170 · #10",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-33-10",
+      "type": "mcq",
+      "section": "3.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "For how many value of x does f(x)=0?",
+          "current": "The complete graph of y=f(x) is shown. For how many value of x does f(x)-0?",
+          "patch": "The complete graph of y=f(x) is shown. For how many value of x does f(x)=0?",
+          "note": "等号 = 被写成连字符 -；网格曲线与原页一致。",
+          "find": "f(x)-0",
+          "replace": "f(x)=0"
+        }
+      ]
+    },
+    {
+      "id": "TD-33-11",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p170 · #11",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-33-11",
+      "type": "mcq",
+      "section": "3.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "y=-100x²+800x+8,400",
+          "current": "An auditorium has seats for 1,400 people. Tickets to attend a show at the auditorium currently cost $6.00. For each $1.00 increase to the ticket price, 100 fewer tickets will be sold. This situation can be modeled by the equation y=-100x +800x+8,400, where x represents the increase in ticket price, in dollars, and y represents the revenue, in dollars, from ticket sales. If this equation is graphed in the xy-plane, at what value of x is the maximum of the graph?",
+          "patch": "An auditorium has seats for 1,400 people. Tickets to attend a show at the auditorium currently cost $6.00. For each $1.00 increase to the ticket price, 100 fewer tickets will be sold. This situation can be modeled by the equation y=-100x²+800x+8,400, where x represents the increase in ticket price, in dollars, and y represents the revenue, in dollars, from ticket sales. If this equation is graphed in the xy-plane, at what value of x is the maximum of the graph?",
+          "note": "首项 x² 平方上标丢失，写成 -100x；选项与原页一致。",
+          "find": "y=-100x +800x+8,400",
+          "replace": "y=-100x²+800x+8,400"
+        }
+      ]
+    },
+    {
+      "id": "TD-33-13",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p171 · #13",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-33-13",
+      "type": "mcq",
+      "section": "3.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "x: -1, 0, 1；q(x): 1/7, 21, 63",
+          "current": "x: -1, 0, 1; q(x): 63, 21, 7",
+          "patch": "x: -1, 0, 1; q(x): 1/7, 21, 63",
+          "note": "表内三个数值与原页不符。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "x: -1, 0, 1；q(x): -63, 3, 63",
+          "current": "x: -1, 0, 1; q(x): 63, 3, 1/7",
+          "patch": "x: -1, 0, 1; q(x): -63, 3, 63",
+          "note": "表内三个数值与原页不符；A、C 两表与原页一致。"
+        }
+      ]
+    },
+    {
+      "id": "TD-33-18",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p174 · #18",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-b.jsonl:TD-33-18",
+      "type": "mcq",
+      "section": "3.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "四个选项图：A 递增直线、B 递减直线、C 递增指数曲线、D 递减指数曲线",
+          "current": "fig: [\"A\",\"B\",\"C\",\"D\"]",
+          "patch": null,
+          "note": "裁剪图仅含 A、C；B（递减直线）、D（递减指数曲线）未入库，按原页补画选项图。"
+        }
+      ]
+    },
+    {
+      "id": "TD-33-20",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p176 · #20",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-33-20",
+      "type": "mcq",
+      "section": "3.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "y = (x+4)/(x+5) + k",
+          "current": "The graph of y = x+4 + k, where k is a constant, is shown in the xy-plane. What is the value of k?",
+          "patch": "The graph of y = (x+4)/(x+5) + k, where k is a constant, is shown in the xy-plane. What is the value of k?",
+          "note": "分式分母 x+5 丢失，分数被压成线性式；曲线与原页一致。",
+          "find": "y = x+4 + k",
+          "replace": "y = (x+4)/(x+5) + k"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "4/5",
+          "current": "⅖",
+          "patch": "4/5",
+          "note": "选项 B 分数分子分母不符（现值 ⅖）。"
+        }
+      ]
+    },
+    {
+      "id": "U3-20",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p178 · #26",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:U3-20",
+      "type": "grid",
+      "section": "3.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "Function f is a quadratic function.",
+          "current": "Function fis a quadratic function. The graph of y=f(x) in the xy-plane has a vertex at (-5, -8), contains the point (-6, -10), and has a y-intercept at (0, a). The graph of y = 6 • f(x) has a y-intercept at (0, b). what is the positive difference between a and b?",
+          "patch": "Function f is a quadratic function. The graph of y=f(x) in the xy-plane has a vertex at (-5, -8), contains the point (-6, -10), and has a y-intercept at (0, a). The graph of y = 6 • f(x) has a y-intercept at (0, b). what is the positive difference between a and b?",
+          "note": "f 与 is 粘连成 fis；其余条件与原页一致。",
+          "find": "Function fis",
+          "replace": "Function f is"
+        }
+      ]
+    },
+    {
+      "id": "TD-33-28",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p179 · #28",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-33-28",
+      "type": "mcq",
+      "section": "3.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "What is the value of f(-2)-f(0)?",
+          "current": "The function f is a quadratic function. In the xy-plane, the graph of y = f(x) has a vertex at (1, 6) and passes through the points (2, 34) and (-1, 118). What is the value off(-2)-f(O)?",
+          "patch": "The function f is a quadratic function. In the xy-plane, the graph of y = f(x) has a vertex at (1, 6) and passes through the points (2, 34) and (-1, 118). What is the value of f(-2)-f(0)?",
+          "note": "of f 粘连成 off；f(0) 的数字 0 误作字母 O。",
+          "find": "value off(-2)-f(O)",
+          "replace": "value of f(-2)-f(0)"
+        }
+      ]
+    },
+    {
+      "id": "TD-34-03",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p181 · #3",
+      "kind": "figure",
+      "source_ledger": "audit-legacy-b.jsonl:TD-34-03",
+      "type": "grid",
+      "section": "3.4",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "原页 f(x)=x³+14，无函数裁剪图",
+          "current": "crop: \"images/fig/TD-34-03.png\"",
+          "patch": null,
+          "note": "误挂第 2 题裁剪图 g(x)=√(8x+1)；题干文字 f(x)=x³+14 与原页一致，删除错误裁剪。"
+        }
+      ]
+    },
+    {
+      "id": "TD-35-01",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p188 · #1",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-35-01",
+      "type": "mcq",
+      "section": "3.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "5 years after … its predicted annual revenue is approximately 648,650 dollars.",
+          "current": "5 years after the company started selling clothes online, its predicted annual revenue is approxim",
+          "patch": "5 years after the company started selling clothes online, its predicted annual revenue is approximately 648,650 dollars.",
+          "note": "选项尾部截断，缺失 ately 648,650 dollars。"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "…its predicted annual revenue will have increased by a total of approximately 648,650 dollars.",
+          "current": "5 years after the company started selling clothes online, its predicted annual revenue will have increased by",
+          "patch": "5 years after the company started selling clothes online, its predicted annual revenue will have increased by a total of approximately 648,650 dollars.",
+          "note": "选项尾部文字截断。"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field:choice",
+          "original": "…it is 5 times the predicted annual revenue for the previous year",
+          "current": "When the company's predicted annual revenue is approximately 648,650 dollars, it",
+          "patch": "When the company's predicted annual revenue is approximately 648,650 dollars, it is 5 times the predicted annual revenue for the previous year.",
+          "note": "选项尾部文字截断。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "…it is 5% greater than the predicted annual revenue for the previous year.",
+          "current": "When the company's predicted annual revenue is approximately 648,650 dollars, it",
+          "patch": "When the company's predicted annual revenue is approximately 648,650 dollars, it is 5% greater than the predicted annual revenue for the previous year.",
+          "note": "选项尾部文字截断。"
+        }
+      ]
+    },
+    {
+      "id": "TD-35-04",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p189 · #4",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-35-04",
+      "type": "mcq",
+      "section": "3.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "The company's estimated stock price increased $73 every day after the company went public.",
+          "current": "The company's estimated stock price increased $73 every day after the company",
+          "patch": "The company's estimated stock price increased $73 every day after the company went public.",
+          "note": "选项尾部 went public. 截断。"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "The company's estimated stock price increased $1 every 73 days after the company went public.",
+          "current": "The company's estimated stock price increased $1 every 73 days after the company",
+          "patch": "The company's estimated stock price increased $1 every 73 days after the company went public.",
+          "note": "选项尾部 went public. 截断。"
+        }
+      ]
+    },
+    {
+      "id": "TD-35-12",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p194 · #12",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-35-12",
+      "type": "mcq",
+      "section": "3.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "The estimated number of online newsletter subscribers at the end of the first six-month period was 750.",
+          "current": "The estimated number of online newsletter subscribers at the end of the first",
+          "patch": "The estimated number of online newsletter subscribers at the end of the first six-month period was 750.",
+          "note": "选项尾部截断。"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "The estimated number of online newsletter subscribers increased every six months by 750 subscribers.",
+          "current": "The estimated number of online newsletter subscribers increased every six months",
+          "patch": "The estimated number of online newsletter subscribers increased every six months by 750 subscribers.",
+          "note": "选项尾部截断。"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field:choice",
+          "original": "The estimated number of online newsletter subscribers at the end of January 1993 was 750.",
+          "current": "The estimated number of online newsletter subscribers at the end of January 1993",
+          "patch": "The estimated number of online newsletter subscribers at the end of January 1993 was 750.",
+          "note": "选项尾部截断。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "The estimated number of online newsletter subscribers increased by 750 at the end of July 1993.",
+          "current": "The estimated number of online newsletter subscribers increased by 750 at the end",
+          "patch": "The estimated number of online newsletter subscribers increased by 750 at the end of July 1993.",
+          "note": "选项尾部截断；曲线图与原页一致。"
+        }
+      ]
+    },
+    {
+      "id": "TD-35-13",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p195 · #13",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-35-13",
+      "type": "mcq",
+      "section": "3.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程：y = 400(2)^{2x}",
+          "current": "The equation gives the estimated number of online newsletter subscribers at the end of every six-month period, x, starting from the end of January 1993, where 0 ≤x ≤4. Which statement is the best interpretation of the y-intercept of the graph of this equation in the xy-plane?",
+          "patch": "y = 400(2)^{2x}\nThe equation gives the estimated number of online newsletter subscribers at the end of every six-month period, x, starting from the end of January 1993, where 0 ≤x ≤4. Which statement is the best interpretation of the y-intercept of the graph of this equation in the xy-plane?",
+          "note": "给定指数方程未入库。"
+        },
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "…at the end of the first six-month period was 400.",
+          "current": "The estimated number of online newsletter subscribers at the end of the first",
+          "patch": "The estimated number of online newsletter subscribers at the end of the first six-month period was 400.",
+          "note": "选项尾部截断。"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "…at the end of January 1993 was 400.",
+          "current": "The estimated number of online newsletter subscribers at the end of January 1993",
+          "patch": "The estimated number of online newsletter subscribers at the end of January 1993 was 400.",
+          "note": "选项尾部截断。"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field:choice",
+          "original": "…at the end of January 1994 was 800.",
+          "current": "The estimated number of online newsletter subscribers at the end of January 1994",
+          "patch": "The estimated number of online newsletter subscribers at the end of January 1994 was 800.",
+          "note": "选项尾部截断。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "…at the end of January 1993 was 800.",
+          "current": "The estimated number of online newsletter subscribers at the end of January 1993",
+          "patch": "The estimated number of online newsletter subscribers at the end of January 1993 was 800.",
+          "note": "选项尾部截断。"
+        }
+      ]
+    },
+    {
+      "id": "TD-35-15",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p196 · #15",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-35-15",
+      "type": "mcq",
+      "section": "3.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "The population of the town is estimated to be approximately 5 greater in 1956 than in 1951.",
+          "current": "The population of the town is estimated to be approximately 5 greater in 1956 than",
+          "patch": "The population of the town is estimated to be approximately 5 greater in 1956 than in 1951.",
+          "note": "选项尾部 in 1951. 截断。"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field:choice",
+          "original": "The population of the town is estimated to be approximately 5 times greater in 1956 than in 1951.",
+          "current": "The population of the town is estimated to be approximately 5 times greater in",
+          "patch": "The population of the town is estimated to be approximately 5 times greater in 1956 than in 1951.",
+          "note": "选项尾部截断。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "The population of the town is estimated to increase by approximately 563 every 5 years between 1951 and 1966.",
+          "current": "The population of the town is estimated to increase by approximately 563 every 5",
+          "patch": "The population of the town is estimated to increase by approximately 563 every 5 years between 1951 and 1966.",
+          "note": "选项尾部截断。"
+        }
+      ]
+    },
+    {
+      "id": "TD-35-16",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p197 · #16",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-35-16",
+      "type": "mcq",
+      "section": "3.5",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "2 minutes after the seal dives into the water, its estimated depth is 170 meters below sea level.",
+          "current": "2 minutes after the seal dives into the water, its estimated depth is 170 meters",
+          "patch": "2 minutes after the seal dives into the water, its estimated depth is 170 meters below sea level.",
+          "note": "选项尾部 below sea level. 缺失。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "170 minutes after the seal dives into the water, its estimated depth is 2 meters below sea level.",
+          "current": "170 minutes after the seal dives into the water, its estimated depth is 2 meters",
+          "patch": "170 minutes after the seal dives into the water, its estimated depth is 2 meters below sea level.",
+          "note": "选项尾部 below sea level. 缺失。"
+        }
+      ]
+    },
+    {
+      "id": "TD-41-01",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p200 · #1",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-41-01",
+      "type": "mcq",
+      "section": "4.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "line k is parallel to line l",
+          "current": "In the figure, line k is parallel to line I. What is the value of z?",
+          "patch": "In the figure, line k is parallel to line l. What is the value of z?",
+          "note": "小写 l 被误作大写 I；图形与选项与原页一致。",
+          "find": "line I",
+          "replace": "line l"
+        }
+      ]
+    },
+    {
+      "id": "TD-41-02",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p201 · #2",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-41-02",
+      "type": "grid",
+      "section": "4.1",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": true,
+      "patches": [
+        {
+          "field": "anchor",
+          "mode": "anchor",
+          "original": "该题（n 截 r∥s，164°/x°）在 p200 第 2 题",
+          "current": "p201#2",
+          "patch": null,
+          "note": "锚点页码错位：原页 p201 无第 2 题，本条应归属 p200#2；题干与裁剪图与 p200#2 一致。"
+        }
+      ]
+    },
+    {
+      "id": "U4-09",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p207 · #10",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:U4-09",
+      "type": "mcq",
+      "section": "4.2",
+      "canonical": false,
+      "duplicate": true,
+      "duplicate_of": "TD-42-10",
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "what is the value of x?",
+          "current": "Note: Figure not drawn to scale. In the triangle shown, what is the value ofx?",
+          "patch": "Note: Figure not drawn to scale. In the triangle shown, what is the value of x?",
+          "note": "of 与 x 粘连成 ofx。",
+          "find": "ofx",
+          "replace": "of x"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "13√2",
+          "current": "13V2",
+          "patch": "13√2",
+          "note": "根号 √ 被误转成大写 V。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "26√2",
+          "current": "26v2",
+          "patch": "26√2",
+          "note": "根号 √ 被误转成小写 v。"
+        }
+      ]
+    },
+    {
+      "id": "TD-42-10",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p207 · #10",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-42-10",
+      "type": "grid",
+      "section": "4.2",
+      "canonical": true,
+      "duplicate": true,
+      "duplicate_of": "U4-09",
+      "recheck": false,
+      "patches": [
+        {
+          "field": "type",
+          "mode": "type_fix",
+          "original": "原页为 mcq，四选项 A) 13　B) 13√2　C) 26　D) 26√2",
+          "current": "grid",
+          "patch": "mcq",
+          "note": "题型与选项条数不符：现值记为 grid 无选项；改回 mcq 并补四选项 13 / 13√2 / 26 / 26√2；三角形图形与原页一致。"
+        },
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field:choice",
+          "original": "A) 13",
+          "current": null,
+          "patch": "13",
+          "note": "补录选项 A。"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "B) 13√2",
+          "current": null,
+          "patch": "13√2",
+          "note": "补录选项 B。"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field:choice",
+          "original": "C) 26",
+          "current": null,
+          "patch": "26",
+          "note": "补录选项 C。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "D) 26√2",
+          "current": null,
+          "patch": "26√2",
+          "note": "补录选项 D。"
+        }
+      ]
+    },
+    {
+      "id": "TD-42-23",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p213 · #23",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-42-23",
+      "type": "mcq",
+      "section": "4.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "18 + 18√2",
+          "current": "The perimeter of an isosceles right triangle is 18 + 18V2 inches. What is the length, in inches, of the hypotenuse of this triangle?",
+          "patch": "The perimeter of an isosceles right triangle is 18 + 18√2 inches. What is the length, in inches, of the hypotenuse of this triangle?",
+          "note": "根号 √ 被误转成 V。",
+          "find": "18 + 18V2",
+          "replace": "18 + 18√2"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "9√2",
+          "current": "9V2",
+          "patch": "9√2",
+          "note": "根号 √ 被误转成 V。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "18√2",
+          "current": "18V2",
+          "patch": "18√2",
+          "note": "根号 √ 被误转成 V。"
+        }
+      ]
+    },
+    {
+      "id": "TD-43-14",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p220 · #14",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-43-14",
+      "type": "mcq",
+      "section": "4.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "volume of 80π cm³",
+          "current": "A certain cone has a height of 15 centimeters (cm) and a volume of 80pi cm^3. What is the diameter, in cm, of this cone?",
+          "patch": "A certain cone has a height of 15 centimeters (cm) and a volume of 80π cm³. What is the diameter, in cm, of this cone?",
+          "note": "π 被写成字母 pi；立方单位 cm³ 转写为 cm^3；选项与原页一致。",
+          "find": "80pi cm^3",
+          "replace": "80π cm³"
+        }
+      ]
+    },
+    {
+      "id": "TD-44-17",
+      "book": "legacy-b",
+      "page_ref": "legacy-b · p232 · #17",
+      "kind": "text",
+      "source_ledger": "audit-legacy-b.jsonl:TD-44-17",
+      "type": "mcq",
+      "section": "4.4",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field:choice",
+          "original": "14/sin 58°",
+          "current": "sin 58°",
+          "patch": "14/sin 58°",
+          "note": "分子 14 缺失。"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field:choice",
+          "original": "14/cos 58°",
+          "current": "cos 58°",
+          "patch": "14/cos 58°",
+          "note": "分子 14 缺失；图形与选项 A、C 与原页一致。"
+        }
+      ]
+    },
+    {
+      "id": "U1-05",
+      "book": "jiangyi",
+      "page_ref": "jiangyi · p13 · #3",
+      "kind": "text",
+      "source_ledger": "audit-legacy-jiangyi.jsonl:U1-05",
+      "type": "mcq",
+      "section": "1.2",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程组：x + 3 = -2y + 5；x - 3 = 2y + 7",
+          "current": "The solution to the given system of equations is x, y. What is the value of 2x?",
+          "patch": "x + 3 = -2y + 5\nx - 3 = 2y + 7\nThe solution to the given system of equations is x, y. What is the value of 2x?",
+          "note": "前置方程组缺失；选项 A -2 / B 6 / C 12 / D 24 与原页一致。"
+        }
+      ]
+    },
+    {
+      "id": "U2-06",
+      "book": "jiangyi",
+      "page_ref": "jiangyi · p62 · #16",
+      "kind": "text",
+      "source_ledger": "audit-legacy-jiangyi.jsonl:U2-06",
+      "type": "mcq",
+      "section": "2.3",
+      "canonical": true,
+      "duplicate": false,
+      "duplicate_of": null,
+      "recheck": false,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field:stem",
+          "original": "方程：M = 1,800(1.02)^t",
+          "current": "The equation above models the number of members, M, of a gym t years after the gym opens. Of the following, which equation models the number of members of the gym q quarter years after the gym opens?",
+          "patch": "M = 1,800(1.02)^t\nThe equation above models the number of members, M, of a gym t years after the gym opens. Of the following, which equation models the number of members of the gym q quarter years after the gym opens?",
+          "note": "前置方程整条未入库；选项 M=1,800(1.02)^{q/4} / ^{4q} / 1.005^{4q} / 1.082^q 与原页一致。"
+        }
+      ]
+    }
+  ]
+}

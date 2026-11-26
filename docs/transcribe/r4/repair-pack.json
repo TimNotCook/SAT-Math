@@ -1,0 +1,2877 @@
+{
+  "generated_from": [
+    "audit-01.jsonl",
+    "audit-02.jsonl",
+    "audit-03a.jsonl",
+    "audit-03b.jsonl",
+    "audit-04.jsonl",
+    "table-captions-03.json",
+    "table-captions-0102.json"
+  ],
+  "total": 55,
+  "field_patch_count": 69,
+  "counts": {
+    "by_kind": {
+      "text": 22,
+      "table": 17,
+      "figure": 16
+    },
+    "by_book": {
+      "01": 15,
+      "03": 16,
+      "02": 16,
+      "04": 8
+    },
+    "by_mode": {
+      "substring": 12,
+      "rewrite_field": 21,
+      "table_cell": 7,
+      "noop": 1,
+      "spec_edit": 6,
+      "remove_spec": 4,
+      "set_caption": 10,
+      "redraw_figure": 8
+    }
+  },
+  "patch_null": [
+    "R03-144:stem",
+    "SR-067:figure.spec",
+    "SR-085:figure.spec",
+    "SR-086:figure.spec",
+    "SR-164:figure.spec",
+    "R04-080:figure.missing",
+    "R04-081:figure.missing",
+    "R04-082:figure.missing",
+    "R04-083:figure.missing",
+    "R04-084:figure.missing",
+    "R04-087:figure.missing",
+    "R04-088:figure.missing",
+    "R04-089:figure.missing"
+  ],
+  "duplicate_items": [
+    "R03-001",
+    "SR-126",
+    "SR-176"
+  ],
+  "recheck_items": [
+    "SP1-073",
+    "SP1-081",
+    "R03-144",
+    "SR-267"
+  ],
+  "items": [
+    {
+      "id": "SP1-019",
+      "book": "01",
+      "page_ref": "01 册 · p06 · #19",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-019",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "In the given system of equations, g and k are constants.",
+          "patch": "In the given system of equations, g and k are constants.",
+          "find": "In the given equations, g and k are constants.",
+          "replace": "In the given system of equations, g and k are constants.",
+          "note": "题干第三句漏录 system of，其余两行方程与问句一致。",
+          "current": "2/5x + 7/5y = 2/7\ngx + ky = 5/2\nIn the given equations, g and k are constants. The system has infinitely many solutions. What is the value of g/k?"
+        }
+      ]
+    },
+    {
+      "id": "SP1-029",
+      "book": "01",
+      "page_ref": "01 册 · p07 · #4",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-029",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "(x+6)/3 = (x+6)/13",
+          "patch": "If (x+6)/3 = (x+6)/13, the value of x + 6 is between which of the following pairs of values?",
+          "find": "(x − 5)/3",
+          "replace": "(x+6)/3",
+          "note": "左分式分子原页 x+6，数据误作 x−5；右分式与问句一致。",
+          "current": "If (x − 5)/3 = (x + 6)/13, the value of x + 6 is between which of the following pairs of values?"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field",
+          "original": "8 and 13",
+          "patch": "8 and 13",
+          "note": "选项 D 原页 8 and 13，数据误作 13 and 18。",
+          "current": "13 and 18"
+        }
+      ]
+    },
+    {
+      "id": "SP1-031",
+      "book": "01",
+      "page_ref": "01 册 · p08 · #6",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-031",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field",
+          "original": "x − 3 = −75",
+          "patch": "x − 3 = −75",
+          "note": "负号丢失，原页 −75。",
+          "current": "x - 3 = 75"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field",
+          "original": "3 − x = −75",
+          "patch": "3 − x = −75",
+          "note": "负号丢失，原页 −75。",
+          "current": "3 - x = 75"
+        }
+      ]
+    },
+    {
+      "id": "SP1-050",
+      "book": "01",
+      "page_ref": "01 册 · p09 · #3",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-050",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "g(x) = −mx + b",
+          "patch": "g(x) = −mx + b",
+          "find": "g(x) = mx + b",
+          "replace": "g(x) = −mx + b",
+          "note": "mx 前负号丢失；表格数值与问句一致。",
+          "current": "For the linear function g, the table shows four values of x and their corresponding values of g(x). The function g can be written as g(x) = mx + b, where m and b are constants. What is the value of b?"
+        }
+      ]
+    },
+    {
+      "id": "SP1-059",
+      "book": "01",
+      "page_ref": "01 册 · p11 · #1",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-059",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field",
+          "original": "(−8r/7 + 9/7, r)",
+          "patch": "(−8r/7 + 9/7, r)",
+          "note": "x 项符号：原页 −8r/7，数据 8r/7。",
+          "current": "(8r/7 + 9/7, r)"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field",
+          "original": "(−8r/7 + 9, 8r/7 + 27)",
+          "patch": "(−8r/7 + 9, 8r/7 + 27)",
+          "note": "系数/分母/常数均不符，需按原页整选项重录。",
+          "current": "(8r/3 + 9/3, 8r/3 + 27/3)"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field",
+          "original": "(r/3 + 9, −r/3 + 27)",
+          "patch": "(r/3 + 9, −r/3 + 27)",
+          "note": "分式写法与 y 项符号不符，需整选项重录。",
+          "current": "(r + 9/3, r + 27/3)"
+        }
+      ]
+    },
+    {
+      "id": "SP1-060",
+      "book": "01",
+      "page_ref": "01 册 · p11 · #2",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-060",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field",
+          "original": "(r/5 + 7, −r/5 + 35)",
+          "patch": "(r/5 + 7, −r/5 + 35)",
+          "note": "x 常数：原页 +7，数据 −7/2；需整选项重录。",
+          "current": "(r/5 - 7/2, -r/5 + 35)"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field",
+          "original": "(−3r/2 + 7/2, r)",
+          "patch": "(−3r/2 + 7/2, r)",
+          "note": "常数符号：原页 +7/2，数据 −7/2。",
+          "current": "(-3r/2 - 7/2, r)"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field",
+          "original": "(r, −2r/3 + 7/2)",
+          "patch": "(r, −2r/3 + 7/2)",
+          "note": "y 常数分母：原页 7/2，数据 7/3。",
+          "current": "(r, -2r/3 + 7/3)"
+        }
+      ]
+    },
+    {
+      "id": "SP1-061",
+      "book": "01",
+      "page_ref": "01 册 · p11 · #3",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-061",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field",
+          "original": "(r, −6r/7 + 5/7)",
+          "patch": "(r, −6r/7 + 5/7)",
+          "note": "常数符号：原页 +5/7，数据 −5/7。",
+          "current": "(r, -6r/7 - 5/7)"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field",
+          "original": "(r/4 + 5, −r/4 + 20)",
+          "patch": "(r/4 + 5, −r/4 + 20)",
+          "note": "y 项符号：原页 −r/4，数据 r/4。",
+          "current": "(r/4 + 5, r/4 + 20)"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field",
+          "original": "(−6r/7 + 5/7, r)",
+          "patch": "(−6r/7 + 5/7, r)",
+          "note": "x 项与 y 项符号均不符，需整选项重录。",
+          "current": "(6r/7 + 5/7, -r)"
+        }
+      ]
+    },
+    {
+      "id": "SP1-062",
+      "book": "01",
+      "page_ref": "01 册 · p11 · #4",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-062",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "For each real number t, which of the following points…",
+          "patch": "For each real number t, which of the following points lies on the graph of each equation in the xy-plane for this system?",
+          "find": "For each real number r,",
+          "replace": "For each real number t,",
+          "note": "参数符号：原页 t，数据 stem 误作 r；两行方程中的 k 保持不动。",
+          "current": "(1/k)y = (2/k)x - (3/k)\nky = 2kx - 3k\nIn the given system of equations, k is a positive constant. For each real number r, which of the following points lies on the graph of each equation in the xy-plane for this system?"
+        },
+        {
+          "field": "choice:A",
+          "mode": "rewrite_field",
+          "original": "(t, 2t−3)",
+          "patch": "(t, 2t − 3)",
+          "note": "选项参数：原页 t，数据 k。",
+          "current": "(k, 2k - 3)"
+        },
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field",
+          "original": "(2t−3, t)",
+          "patch": "(2t − 3, t)",
+          "note": "选项参数：原页 t，数据 k。",
+          "current": "(2k - 3, k)"
+        },
+        {
+          "field": "choice:C",
+          "mode": "rewrite_field",
+          "original": "(−t, 2t+3)",
+          "patch": "(−t, 2t + 3)",
+          "note": "选项参数：原页 t，数据 k。",
+          "current": "(-k, 2k + 3)"
+        },
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field",
+          "original": "(2t+3, −t)",
+          "patch": "(2t + 3, −t)",
+          "note": "选项参数：原页 t，数据 k。",
+          "current": "(2k + 3, -k)"
+        }
+      ]
+    },
+    {
+      "id": "SP1-068",
+      "book": "01",
+      "page_ref": "01 册 · p12 · #10",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-068",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field",
+          "original": "y = 3x + 26",
+          "patch": "y = 3x + 26",
+          "note": "x 系数：原页 3，数据 5。",
+          "current": "y = 5x + 26"
+        }
+      ]
+    },
+    {
+      "id": "SP1-073",
+      "book": "01",
+      "page_ref": "01 册 · p12 · #15",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-073",
+      "type": "grid",
+      "recheck": true,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field",
+          "original": "3x/7 = −5y/9 + 21（等价 3x/7 + 5y/9 = 21）",
+          "patch": "What is the y-coordinate of the y-intercept of the graph of 3x/7 = −5y/9 + 21 in the xy-plane?",
+          "note": "移项后 5y/9 符号相反：原页等价 3x/7 + 5y/9 = 21，数据为 3x/7 − 5y/9 = 21。台账未录整句题干，落库前需回看原页整段文字。",
+          "current": "What is the y-coordinate of the y-intercept of the graph of (3x/7) - (5y/9) = 21 in the xy-plane?"
+        }
+      ]
+    },
+    {
+      "id": "SP1-081",
+      "book": "01",
+      "page_ref": "01 册 · p13 · #23",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-081",
+      "type": "mcq",
+      "recheck": true,
+      "patches": [
+        {
+          "field": "choice:B",
+          "mode": "rewrite_field",
+          "original": "−1/2",
+          "patch": "−1/2",
+          "note": "选项 B 符号：原页 −1/2，数据 1/2；选项字母与数值需回看扫描件复核。",
+          "current": "1/2"
+        }
+      ]
+    },
+    {
+      "id": "SP1-084",
+      "book": "01",
+      "page_ref": "01 册 · p13 · #26",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-084",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "Line j is perpendicular to line k…equation of line j?",
+          "patch": "In the xy-plane, line k is defined by x + y = 0. Line j is perpendicular to line k, and the y-intercept of line j is (0, 3). Which of the following is an equation of line j?",
+          "find": "Line ℓ",
+          "replace": "Line j",
+          "note": "直线标签：原页 j，数据 ℓ；四个选项方程与原页一致，不动。",
+          "current": "In the xy-plane, line k is defined by x + y = 0. Line ℓ is perpendicular to line k, and the y-intercept of line ℓ is (0, 3). Which of the following is an equation of line ℓ?"
+        }
+      ]
+    },
+    {
+      "id": "SP1-085",
+      "book": "01",
+      "page_ref": "01 册 · p13 · #27",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-085",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "Line j (not shown) is perpendicular to line k. What is the slope of line j?",
+          "patch": "Line k is shown in the xy-plane. Line j (not shown) is perpendicular to line k. What is the slope of line j?",
+          "find": "Line ℓ",
+          "replace": "Line j",
+          "note": "直线标签：原页 j，数据 ℓ；配图 spec 标记 (−6,0)、(0,−5) 与原页一致。",
+          "current": "Line k is shown in the xy-plane. Line ℓ (not shown) is perpendicular to line k. What is the slope of line ℓ?"
+        }
+      ]
+    },
+    {
+      "id": "SP1-103",
+      "book": "01",
+      "page_ref": "01 册 · p15 · #45",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-103",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "choice:D",
+          "mode": "rewrite_field",
+          "original": "(126d + 26, 0)",
+          "patch": "(126d + 26, 0)",
+          "note": "常数项：原页 26，数据 36。",
+          "current": "(126d + 36, 0)"
+        }
+      ]
+    },
+    {
+      "id": "SP1-112",
+      "book": "01",
+      "page_ref": "01 册 · p17 · #9",
+      "kind": "text",
+      "source_ledger": "audit-01.jsonl:SP1-112",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "Which of the following is the best interpretation of 14y in this context?",
+          "patch": "Which of the following is the best interpretation of 14y in this context?",
+          "find": "best interpretation of 11x",
+          "replace": "best interpretation of 14y",
+          "note": "题干询问对象：原页 14y，数据 11x；不等式 11x+14y≤115 与四个选项表述一致，不动。",
+          "current": "11x + 14y ≤ 115\n\nAnthony will spend at most $115 to purchase x small cheese pizzas and y large cheese pizzas for a team dinner. The given inequality represents this situation. Which of the following is the best interpretation of 11x in this context?"
+        }
+      ]
+    },
+    {
+      "id": "R03-001",
+      "book": "03",
+      "page_ref": "03 册 · 03-p02 · #1",
+      "kind": "table",
+      "source_ledger": "audit-02.jsonl:R03-001",
+      "type": "mcq",
+      "overlap": "table-captions-03.json#R03-001/body",
+      "duplicate": true,
+      "patches": [
+        {
+          "field": "table.head[1]",
+          "mode": "table_cell",
+          "original": "Growthfactor",
+          "patch": "Growthfactor",
+          "note": "表头第 2 列原页连写 Growthfactor；8 行表值一致。补丁以表体分区 B1 为准。",
+          "current": "Growth factor"
+        }
+      ]
+    },
+    {
+      "id": "R03-142",
+      "book": "03",
+      "page_ref": "03 册 · 03-p12 · #22",
+      "kind": "text",
+      "source_ledger": "audit-02.jsonl:R03-142",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "Data set A: 4, 4, 5, 5, 6, 14, 6, 7, 7, 8, 8",
+          "patch": "Data set A: 4, 4, 5, 5, 6, 14, 6, 7, 7, 8, 8",
+          "find": "6, 7, 7, 8\n",
+          "replace": "6, 7, 7, 8, 8\n",
+          "note": "原页 11 个数，末尾 7, 8, 8；数据题干漏录最后一个 8。题干其余部分与选项一致。",
+          "current": "Data set A represents the total number of people who signed up to volunteer at a school each day during a period of 11 days.\nData set A: 4, 4, 5, 5, 6, 14, 6, 7, 7, 8\nThe data value 14 is removed from data set A to create data set B, which consists of the remaining 10 data values. Which statement best compares the median of data set A and the median of data set B?"
+        }
+      ]
+    },
+    {
+      "id": "R03-144",
+      "book": "03",
+      "page_ref": "03 册 · 03-p12 · #24",
+      "kind": "text",
+      "source_ledger": "audit-02.jsonl:R03-144",
+      "type": "mcq",
+      "recheck": true,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "noop",
+          "original": "uF",
+          "patch": null,
+          "find": "µF",
+          "note": "台账判定：原页单位作 uF，数据题干/选项记 µF，属同一单位的字形标准化，不强制回改 uF。落库前回看原页确认印刷符号；若原页确为 uF 再行订正，否则保持 µF。",
+          "current": "8, 12, 12, 24, 24\nA researcher used a set of capacitors for an experiment. Each value in the data set shown represents the maximum capacity, in microfarads (µF), of a capacitor in the set before the start of the experiment. During the experiment, the researcher was able to increase the maximum capacity of each capacitor by 2 µF. Which of the following is true about this set of capacitors after the experiment?"
+        }
+      ]
+    },
+    {
+      "id": "R03-302",
+      "book": "03",
+      "page_ref": "03 册 · 03-p18 · #2",
+      "kind": "text",
+      "source_ledger": "audit-02.jsonl:R03-302",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "The average eighth-grade class size in the state is 26. If the students in Mr. Camp's class are representative…",
+          "patch": "The average eighth-grade class size in the state is 26. If the students in Mr. Camp's class are representative…",
+          "find": "The average eighth-grade class size in the state is 26. The students in",
+          "replace": "The average eighth-grade class size in the state is 26. If the students in",
+          "note": "条件连词 If 被漏录；题干其余数字（26、34.6 percent、1,800 classes）与选项一致。",
+          "current": "In State X, Mr. Camp's eighth-grade class consisting of 26 students was surveyed and 34.6 percent of the students reported that they had at least two siblings. The average eighth-grade class size in the state is 26. The students in Mr. Camp's class are representative of students in the state's eighth-grade classes and there are 1,800 eighth-grade classes in the state, which of the following best estimates the number of eighth-grade students in the state who have fewer than two siblings?"
+        }
+      ]
+    },
+    {
+      "id": "R03-309",
+      "book": "03",
+      "page_ref": "03 册 · 03-p19 · #9",
+      "kind": "text",
+      "source_ledger": "audit-02.jsonl:R03-309",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "Assuming the margins of error were calculated the same way",
+          "patch": "Assuming the margins of error were calculated the same way",
+          "find": "Assuming the margin of error",
+          "replace": "Assuming the margins of error",
+          "note": "复数 margins 被记成单数 margin；样本均值 14.2/14.4、误差 1/2.3 与选项均一致。",
+          "current": "A research manager selected 2 random samples of ovens of a certain type to estimate the average amount of time this type of oven takes to preheat to 325 degrees Fahrenheit (°F). The research manager recorded the amount of time, in minutes, each oven takes to preheat to 325°F. Based on the first sample, the research manager estimated that this type of oven takes an average of 14.2 minutes to preheat to 325°F, with an associated margin of error of 1 minute. Based on the second sample, the research manager estimated that this type of oven takes an average of 14.4 minutes to preheat to 325°F, with an associated margin of error of 2.3 minutes. Assuming the margin of error were calculated the same way, which of the following best explains why the first sample obtained a smaller margin of error than the second sample?"
+        }
+      ]
+    },
+    {
+      "id": "SR-059",
+      "book": "02",
+      "page_ref": "02 册 · p44 · #12",
+      "kind": "figure",
+      "source_ledger": "audit-03a.jsonl:SR-059",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "spec_edit",
+          "original": "x 轴 0–9（步长 1，刻度 0…9），y 轴 0–12（步长 2，刻度 0,2,…12），原点 O",
+          "patch": {
+            "x": {
+              "min": 0,
+              "max": 9,
+              "step": 1,
+              "label": "x"
+            },
+            "y": {
+              "min": 0,
+              "max": 12,
+              "step": 2,
+              "label": "y"
+            }
+          },
+          "note": "坐标轴范围与刻度步长按原页订正；曲线顶点 (4,10)、过 (0,2) 与题干公式一致，不动。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": -2,
+              "max": 10,
+              "step": 2,
+              "label": "x"
+            },
+            "y": {
+              "min": -2,
+              "max": 12,
+              "step": 2,
+              "label": "y"
+            },
+            "series": [
+              {
+                "kind": "line",
+                "points": [
+                  [
+                    -2,
+                    -8
+                  ],
+                  [
+                    -1.8,
+                    -6.82
+                  ],
+                  [
+                    -1.6,
+                    -5.68
+                  ],
+                  [
+                    -1.4,
+                    -4.58
+                  ],
+                  [
+                    -1.2,
+                    -3.52
+                  ],
+                  [
+                    -1,
+                    -2.5
+                  ],
+                  [
+                    -0.8,
+                    -1.52
+                  ],
+                  [
+                    -0.6,
+                    -0.58
+                  ],
+                  [
+                    -0.4,
+                    0.32
+                  ],
+                  [
+                    -0.2,
+                    1.18
+                  ],
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    0.2,
+                    2.78
+                  ],
+                  [
+                    0.4,
+                    3.52
+                  ],
+                  [
+                    0.6,
+                    4.22
+                  ],
+                  [
+                    0.8,
+                    4.88
+                  ],
+                  [
+                    1,
+                    5.5
+                  ],
+                  [
+                    1.2,
+                    6.08
+                  ],
+                  [
+                    1.4,
+                    6.62
+                  ],
+                  [
+                    1.6,
+                    7.12
+                  ],
+                  [
+                    1.8,
+                    7.58
+                  ],
+                  [
+                    2,
+                    8
+                  ],
+                  [
+                    2.2,
+                    8.38
+                  ],
+                  [
+                    2.4,
+                    8.72
+                  ],
+                  [
+                    2.6,
+                    9.02
+                  ],
+                  [
+                    2.8,
+                    9.28
+                  ],
+                  [
+                    3,
+                    9.5
+                  ],
+                  [
+                    3.2,
+                    9.68
+                  ],
+                  [
+                    3.4,
+                    9.82
+                  ],
+                  [
+                    3.6,
+                    9.92
+                  ],
+                  [
+                    3.8,
+                    9.98
+                  ],
+                  [
+                    4,
+                    10
+                  ],
+                  [
+                    4.2,
+                    9.98
+                  ],
+                  [
+                    4.4,
+                    9.92
+                  ],
+                  [
+                    4.6,
+                    9.82
+                  ],
+                  [
+                    4.8,
+                    9.68
+                  ],
+                  [
+                    5,
+                    9.5
+                  ],
+                  [
+                    5.2,
+                    9.28
+                  ],
+                  [
+                    5.4,
+                    9.02
+                  ],
+                  [
+                    5.6,
+                    8.72
+                  ],
+                  [
+                    5.8,
+                    8.38
+                  ],
+                  [
+                    6,
+                    8
+                  ],
+                  [
+                    6.2,
+                    7.58
+                  ],
+                  [
+                    6.4,
+                    7.12
+                  ],
+                  [
+                    6.6,
+                    6.62
+                  ],
+                  [
+                    6.8,
+                    6.08
+                  ],
+                  [
+                    7,
+                    5.5
+                  ],
+                  [
+                    7.2,
+                    4.88
+                  ],
+                  [
+                    7.4,
+                    4.22
+                  ],
+                  [
+                    7.6,
+                    3.52
+                  ],
+                  [
+                    7.8,
+                    2.78
+                  ],
+                  [
+                    8,
+                    2
+                  ],
+                  [
+                    8.2,
+                    1.18
+                  ],
+                  [
+                    8.4,
+                    0.32
+                  ],
+                  [
+                    8.6,
+                    -0.58
+                  ],
+                  [
+                    8.8,
+                    -1.52
+                  ],
+                  [
+                    9,
+                    -2.5
+                  ],
+                  [
+                    9.2,
+                    -3.52
+                  ],
+                  [
+                    9.4,
+                    -4.58
+                  ],
+                  [
+                    9.6,
+                    -5.68
+                  ],
+                  [
+                    9.8,
+                    -6.82
+                  ],
+                  [
+                    10,
+                    -8
+                  ]
+                ]
+              }
+            ],
+            "marks": [
+              {
+                "x": 4,
+                "y": 10,
+                "label": "vertex",
+                "dx": 8,
+                "dy": -8
+              }
+            ]
+          }
+        },
+        {
+          "field": "figure.spec",
+          "mode": "spec_edit",
+          "original": "曲线旁有引线标注 “y = f(x)”，引线指向曲线 ≈(6.3, 8.2)。",
+          "patch": {
+            "addMark": {
+              "x": 6.3,
+              "y": 8.2,
+              "label": "y = f(x)",
+              "leader": true
+            }
+          },
+          "note": "原页 “y = f(x)” 曲线标注未入库，需补引线标注。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": -2,
+              "max": 10,
+              "step": 2,
+              "label": "x"
+            },
+            "y": {
+              "min": -2,
+              "max": 12,
+              "step": 2,
+              "label": "y"
+            },
+            "series": [
+              {
+                "kind": "line",
+                "points": [
+                  [
+                    -2,
+                    -8
+                  ],
+                  [
+                    -1.8,
+                    -6.82
+                  ],
+                  [
+                    -1.6,
+                    -5.68
+                  ],
+                  [
+                    -1.4,
+                    -4.58
+                  ],
+                  [
+                    -1.2,
+                    -3.52
+                  ],
+                  [
+                    -1,
+                    -2.5
+                  ],
+                  [
+                    -0.8,
+                    -1.52
+                  ],
+                  [
+                    -0.6,
+                    -0.58
+                  ],
+                  [
+                    -0.4,
+                    0.32
+                  ],
+                  [
+                    -0.2,
+                    1.18
+                  ],
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    0.2,
+                    2.78
+                  ],
+                  [
+                    0.4,
+                    3.52
+                  ],
+                  [
+                    0.6,
+                    4.22
+                  ],
+                  [
+                    0.8,
+                    4.88
+                  ],
+                  [
+                    1,
+                    5.5
+                  ],
+                  [
+                    1.2,
+                    6.08
+                  ],
+                  [
+                    1.4,
+                    6.62
+                  ],
+                  [
+                    1.6,
+                    7.12
+                  ],
+                  [
+                    1.8,
+                    7.58
+                  ],
+                  [
+                    2,
+                    8
+                  ],
+                  [
+                    2.2,
+                    8.38
+                  ],
+                  [
+                    2.4,
+                    8.72
+                  ],
+                  [
+                    2.6,
+                    9.02
+                  ],
+                  [
+                    2.8,
+                    9.28
+                  ],
+                  [
+                    3,
+                    9.5
+                  ],
+                  [
+                    3.2,
+                    9.68
+                  ],
+                  [
+                    3.4,
+                    9.82
+                  ],
+                  [
+                    3.6,
+                    9.92
+                  ],
+                  [
+                    3.8,
+                    9.98
+                  ],
+                  [
+                    4,
+                    10
+                  ],
+                  [
+                    4.2,
+                    9.98
+                  ],
+                  [
+                    4.4,
+                    9.92
+                  ],
+                  [
+                    4.6,
+                    9.82
+                  ],
+                  [
+                    4.8,
+                    9.68
+                  ],
+                  [
+                    5,
+                    9.5
+                  ],
+                  [
+                    5.2,
+                    9.28
+                  ],
+                  [
+                    5.4,
+                    9.02
+                  ],
+                  [
+                    5.6,
+                    8.72
+                  ],
+                  [
+                    5.8,
+                    8.38
+                  ],
+                  [
+                    6,
+                    8
+                  ],
+                  [
+                    6.2,
+                    7.58
+                  ],
+                  [
+                    6.4,
+                    7.12
+                  ],
+                  [
+                    6.6,
+                    6.62
+                  ],
+                  [
+                    6.8,
+                    6.08
+                  ],
+                  [
+                    7,
+                    5.5
+                  ],
+                  [
+                    7.2,
+                    4.88
+                  ],
+                  [
+                    7.4,
+                    4.22
+                  ],
+                  [
+                    7.6,
+                    3.52
+                  ],
+                  [
+                    7.8,
+                    2.78
+                  ],
+                  [
+                    8,
+                    2
+                  ],
+                  [
+                    8.2,
+                    1.18
+                  ],
+                  [
+                    8.4,
+                    0.32
+                  ],
+                  [
+                    8.6,
+                    -0.58
+                  ],
+                  [
+                    8.8,
+                    -1.52
+                  ],
+                  [
+                    9,
+                    -2.5
+                  ],
+                  [
+                    9.2,
+                    -3.52
+                  ],
+                  [
+                    9.4,
+                    -4.58
+                  ],
+                  [
+                    9.6,
+                    -5.68
+                  ],
+                  [
+                    9.8,
+                    -6.82
+                  ],
+                  [
+                    10,
+                    -8
+                  ]
+                ]
+              }
+            ],
+            "marks": [
+              {
+                "x": 4,
+                "y": 10,
+                "label": "vertex",
+                "dx": 8,
+                "dy": -8
+              }
+            ]
+          }
+        },
+        {
+          "field": "figure.spec",
+          "mode": "spec_edit",
+          "original": "顶点 (4,10) 处无圆点圈注、无文字标签。",
+          "patch": {
+            "removeMark": {
+              "x": 4,
+              "y": 10,
+              "label": "vertex"
+            }
+          },
+          "note": "spec 多出原页未印的 vertex 圈注与文字，需移除。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": -2,
+              "max": 10,
+              "step": 2,
+              "label": "x"
+            },
+            "y": {
+              "min": -2,
+              "max": 12,
+              "step": 2,
+              "label": "y"
+            },
+            "series": [
+              {
+                "kind": "line",
+                "points": [
+                  [
+                    -2,
+                    -8
+                  ],
+                  [
+                    -1.8,
+                    -6.82
+                  ],
+                  [
+                    -1.6,
+                    -5.68
+                  ],
+                  [
+                    -1.4,
+                    -4.58
+                  ],
+                  [
+                    -1.2,
+                    -3.52
+                  ],
+                  [
+                    -1,
+                    -2.5
+                  ],
+                  [
+                    -0.8,
+                    -1.52
+                  ],
+                  [
+                    -0.6,
+                    -0.58
+                  ],
+                  [
+                    -0.4,
+                    0.32
+                  ],
+                  [
+                    -0.2,
+                    1.18
+                  ],
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    0.2,
+                    2.78
+                  ],
+                  [
+                    0.4,
+                    3.52
+                  ],
+                  [
+                    0.6,
+                    4.22
+                  ],
+                  [
+                    0.8,
+                    4.88
+                  ],
+                  [
+                    1,
+                    5.5
+                  ],
+                  [
+                    1.2,
+                    6.08
+                  ],
+                  [
+                    1.4,
+                    6.62
+                  ],
+                  [
+                    1.6,
+                    7.12
+                  ],
+                  [
+                    1.8,
+                    7.58
+                  ],
+                  [
+                    2,
+                    8
+                  ],
+                  [
+                    2.2,
+                    8.38
+                  ],
+                  [
+                    2.4,
+                    8.72
+                  ],
+                  [
+                    2.6,
+                    9.02
+                  ],
+                  [
+                    2.8,
+                    9.28
+                  ],
+                  [
+                    3,
+                    9.5
+                  ],
+                  [
+                    3.2,
+                    9.68
+                  ],
+                  [
+                    3.4,
+                    9.82
+                  ],
+                  [
+                    3.6,
+                    9.92
+                  ],
+                  [
+                    3.8,
+                    9.98
+                  ],
+                  [
+                    4,
+                    10
+                  ],
+                  [
+                    4.2,
+                    9.98
+                  ],
+                  [
+                    4.4,
+                    9.92
+                  ],
+                  [
+                    4.6,
+                    9.82
+                  ],
+                  [
+                    4.8,
+                    9.68
+                  ],
+                  [
+                    5,
+                    9.5
+                  ],
+                  [
+                    5.2,
+                    9.28
+                  ],
+                  [
+                    5.4,
+                    9.02
+                  ],
+                  [
+                    5.6,
+                    8.72
+                  ],
+                  [
+                    5.8,
+                    8.38
+                  ],
+                  [
+                    6,
+                    8
+                  ],
+                  [
+                    6.2,
+                    7.58
+                  ],
+                  [
+                    6.4,
+                    7.12
+                  ],
+                  [
+                    6.6,
+                    6.62
+                  ],
+                  [
+                    6.8,
+                    6.08
+                  ],
+                  [
+                    7,
+                    5.5
+                  ],
+                  [
+                    7.2,
+                    4.88
+                  ],
+                  [
+                    7.4,
+                    4.22
+                  ],
+                  [
+                    7.6,
+                    3.52
+                  ],
+                  [
+                    7.8,
+                    2.78
+                  ],
+                  [
+                    8,
+                    2
+                  ],
+                  [
+                    8.2,
+                    1.18
+                  ],
+                  [
+                    8.4,
+                    0.32
+                  ],
+                  [
+                    8.6,
+                    -0.58
+                  ],
+                  [
+                    8.8,
+                    -1.52
+                  ],
+                  [
+                    9,
+                    -2.5
+                  ],
+                  [
+                    9.2,
+                    -3.52
+                  ],
+                  [
+                    9.4,
+                    -4.58
+                  ],
+                  [
+                    9.6,
+                    -5.68
+                  ],
+                  [
+                    9.8,
+                    -6.82
+                  ],
+                  [
+                    10,
+                    -8
+                  ]
+                ]
+              }
+            ],
+            "marks": [
+              {
+                "x": 4,
+                "y": 10,
+                "label": "vertex",
+                "dx": 8,
+                "dy": -8
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "SR-067",
+      "book": "02",
+      "page_ref": "02 册 · p46 · #2",
+      "kind": "figure",
+      "source_ledger": "audit-03a.jsonl:SR-067",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "纯文字题：顶点 (−3, 6)，一截距 (−17/4, 0)，未印任何坐标系或抛物线。",
+          "patch": null,
+          "note": "原页无图，数据侧多余矢量 spec 及 x-int/vertex 圈注；题干与 A–D 选项本身一致。落库：删除该题 figSpec。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": -6,
+              "max": 2,
+              "step": 2,
+              "label": "x"
+            },
+            "y": {
+              "min": -2,
+              "max": 8,
+              "step": 2,
+              "label": "y"
+            },
+            "series": [
+              {
+                "kind": "line",
+                "points": [
+                  [
+                    -6,
+                    -28.56
+                  ],
+                  [
+                    -5.867,
+                    -25.556
+                  ],
+                  [
+                    -5.733,
+                    -22.689
+                  ],
+                  [
+                    -5.6,
+                    -19.958
+                  ],
+                  [
+                    -5.467,
+                    -17.364
+                  ],
+                  [
+                    -5.333,
+                    -14.907
+                  ],
+                  [
+                    -5.2,
+                    -12.586
+                  ],
+                  [
+                    -5.067,
+                    -10.401
+                  ],
+                  [
+                    -4.933,
+                    -8.353
+                  ],
+                  [
+                    -4.8,
+                    -6.442
+                  ],
+                  [
+                    -4.667,
+                    -4.667
+                  ],
+                  [
+                    -4.533,
+                    -3.028
+                  ],
+                  [
+                    -4.4,
+                    -1.526
+                  ],
+                  [
+                    -4.267,
+                    -0.161
+                  ],
+                  [
+                    -4.133,
+                    1.068
+                  ],
+                  [
+                    -4,
+                    2.16
+                  ],
+                  [
+                    -3.867,
+                    3.116
+                  ],
+                  [
+                    -3.733,
+                    3.935
+                  ],
+                  [
+                    -3.6,
+                    4.618
+                  ],
+                  [
+                    -3.467,
+                    5.164
+                  ],
+                  [
+                    -3.333,
+                    5.573
+                  ],
+                  [
+                    -3.2,
+                    5.846
+                  ],
+                  [
+                    -3.067,
+                    5.983
+                  ],
+                  [
+                    -2.933,
+                    5.983
+                  ],
+                  [
+                    -2.8,
+                    5.846
+                  ],
+                  [
+                    -2.667,
+                    5.573
+                  ],
+                  [
+                    -2.533,
+                    5.164
+                  ],
+                  [
+                    -2.4,
+                    4.618
+                  ],
+                  [
+                    -2.267,
+                    3.935
+                  ],
+                  [
+                    -2.133,
+                    3.116
+                  ],
+                  [
+                    -2,
+                    2.16
+                  ],
+                  [
+                    -1.867,
+                    1.068
+                  ],
+                  [
+                    -1.733,
+                    -0.161
+                  ],
+                  [
+                    -1.6,
+                    -1.526
+                  ],
+                  [
+                    -1.467,
+                    -3.028
+                  ],
+                  [
+                    -1.333,
+                    -4.667
+                  ],
+                  [
+                    -1.2,
+                    -6.442
+                  ],
+                  [
+                    -1.067,
+                    -8.353
+                  ],
+                  [
+                    -0.933,
+                    -10.401
+                  ],
+                  [
+                    -0.8,
+                    -12.586
+                  ],
+                  [
+                    -0.667,
+                    -14.907
+                  ],
+                  [
+                    -0.533,
+                    -17.364
+                  ],
+                  [
+                    -0.4,
+                    -19.958
+                  ],
+                  [
+                    -0.267,
+                    -22.689
+                  ],
+                  [
+                    -0.133,
+                    -25.556
+                  ],
+                  [
+                    0,
+                    -28.56
+                  ],
+                  [
+                    0.133,
+                    -31.7
+                  ],
+                  [
+                    0.267,
+                    -34.977
+                  ],
+                  [
+                    0.4,
+                    -38.39
+                  ],
+                  [
+                    0.533,
+                    -41.94
+                  ],
+                  [
+                    0.667,
+                    -45.627
+                  ],
+                  [
+                    0.8,
+                    -49.45
+                  ],
+                  [
+                    0.933,
+                    -53.409
+                  ],
+                  [
+                    1.067,
+                    -57.505
+                  ],
+                  [
+                    1.2,
+                    -61.738
+                  ],
+                  [
+                    1.333,
+                    -66.107
+                  ],
+                  [
+                    1.467,
+                    -70.612
+                  ],
+                  [
+                    1.6,
+                    -75.254
+                  ],
+                  [
+                    1.733,
+                    -80.033
+                  ],
+                  [
+                    1.867,
+                    -84.948
+                  ],
+                  [
+                    2,
+                    -90
+                  ]
+                ]
+              }
+            ],
+            "marks": [
+              {
+                "x": -4.25,
+                "y": 0,
+                "label": "x-int",
+                "dx": -30,
+                "dy": 14
+              },
+              {
+                "x": -1.75,
+                "y": 0,
+                "label": "x-int",
+                "dx": 6,
+                "dy": 14
+              },
+              {
+                "x": -3,
+                "y": 6,
+                "label": "vertex",
+                "dx": -6,
+                "dy": -8
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "SR-085",
+      "book": "02",
+      "page_ref": "02 册 · p50 · #1",
+      "kind": "figure",
+      "source_ledger": "audit-03a.jsonl:SR-085",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "纯文字题（f(x)=9,000(0.66)^x，0≤x≤5），未印坐标系或曲线。",
+          "patch": null,
+          "note": "原页无图，数据侧多余 exp chart 与 y-int 圈注；题干与 A–D 选项本身一致。落库：删除该题 figSpec。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": 0,
+              "max": 6,
+              "step": 1,
+              "label": "x"
+            },
+            "y": {
+              "min": 0,
+              "max": 10000,
+              "step": 2000,
+              "label": "y"
+            },
+            "series": [
+              {
+                "kind": "exp",
+                "a": 9000,
+                "b": 0.66
+              }
+            ],
+            "marks": [
+              {
+                "x": 0,
+                "y": 9000,
+                "label": "y-int",
+                "dx": 8,
+                "dy": -6
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "SR-086",
+      "book": "02",
+      "page_ref": "02 册 · p50 · #2",
+      "kind": "figure",
+      "source_ledger": "audit-03a.jsonl:SR-086",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "纯文字题（f(t)=8,000(0.65)^t，0≤t≤5），未印坐标系或曲线。",
+          "patch": null,
+          "note": "原页无图，数据侧多余 exp chart 与 y-int 圈注；题干与 A–D 选项本身一致。落库：删除该题 figSpec。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": 0,
+              "max": 6,
+              "step": 1,
+              "label": "t"
+            },
+            "y": {
+              "min": 0,
+              "max": 10000,
+              "step": 2000,
+              "label": "y"
+            },
+            "series": [
+              {
+                "kind": "exp",
+                "a": 8000,
+                "b": 0.65
+              }
+            ],
+            "marks": [
+              {
+                "x": 0,
+                "y": 8000,
+                "label": "y-int",
+                "dx": 8,
+                "dy": -6
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "SR-126",
+      "book": "02",
+      "page_ref": "02 册 · p62 · #42",
+      "kind": "table",
+      "source_ledger": "audit-03a.jsonl:SR-126",
+      "type": "mcq",
+      "overlap": "table-captions-0102.json#SR-126",
+      "duplicate": true,
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Growth of a Culture of Bacteria",
+          "patch": "Growth of a Culture of Bacteria",
+          "note": "原页表题未入库；表头与三行数值与原表一致。补丁以表题分区 C6 为准。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "SR-129",
+      "book": "02",
+      "page_ref": "02 册 · p63 · #45",
+      "kind": "figure",
+      "source_ledger": "audit-03a.jsonl:SR-129",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "spec_edit",
+          "original": "曲线上未印 20/30 水平点标记。",
+          "patch": {
+            "removeMarks": [
+              {
+                "x": 34,
+                "y": 20,
+                "label": "20"
+              },
+              {
+                "x": 49,
+                "y": 30,
+                "label": "30"
+              }
+            ]
+          },
+          "note": "spec 多出原页未印的两个点圈注及 20/30 文字；轴标签、范围与曲线走势与原页一致。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": 0,
+              "max": 80,
+              "step": 10,
+              "label": "Time (minutes)"
+            },
+            "y": {
+              "min": 0,
+              "max": 80,
+              "step": 10,
+              "label": "Concentration of bacteria (millions of cells per mL)"
+            },
+            "grid": true,
+            "series": [
+              {
+                "kind": "exp",
+                "a": 8,
+                "b": 1.0275
+              }
+            ],
+            "marks": [
+              {
+                "x": 34,
+                "y": 20,
+                "label": "20",
+                "dy": -9
+              },
+              {
+                "x": 49,
+                "y": 30,
+                "label": "30",
+                "dy": 10
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "SR-164",
+      "book": "02",
+      "page_ref": "02 册 · p72 · #25",
+      "kind": "figure",
+      "source_ledger": "audit-03a.jsonl:SR-164",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "remove_spec",
+          "original": "纯文字题：多项式 g 过 (6,0)、(7,0)、(0,13)，判断 I/II/III，未印坐标系或曲线。",
+          "patch": null,
+          "note": "原页无图，数据侧多余抛物线 spec 及 y-int/x-int 圈注；题干与 A–D 选项本身一致。落库：删除该题 figSpec。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": -1,
+              "max": 9,
+              "step": 2,
+              "label": "x"
+            },
+            "y": {
+              "min": -4,
+              "max": 20,
+              "step": 4,
+              "label": "y"
+            },
+            "series": [
+              {
+                "kind": "line",
+                "points": [
+                  [
+                    -1,
+                    17.333
+                  ],
+                  [
+                    -0.833,
+                    16.568
+                  ],
+                  [
+                    -0.667,
+                    15.82
+                  ],
+                  [
+                    -0.5,
+                    15.089
+                  ],
+                  [
+                    -0.333,
+                    14.376
+                  ],
+                  [
+                    -0.167,
+                    13.679
+                  ],
+                  [
+                    0,
+                    13
+                  ],
+                  [
+                    0.167,
+                    12.338
+                  ],
+                  [
+                    0.333,
+                    11.693
+                  ],
+                  [
+                    0.5,
+                    11.065
+                  ],
+                  [
+                    0.667,
+                    10.455
+                  ],
+                  [
+                    0.833,
+                    9.862
+                  ],
+                  [
+                    1,
+                    9.286
+                  ],
+                  [
+                    1.167,
+                    8.727
+                  ],
+                  [
+                    1.333,
+                    8.185
+                  ],
+                  [
+                    1.5,
+                    7.661
+                  ],
+                  [
+                    1.667,
+                    7.153
+                  ],
+                  [
+                    1.833,
+                    6.663
+                  ],
+                  [
+                    2,
+                    6.19
+                  ],
+                  [
+                    2.167,
+                    5.735
+                  ],
+                  [
+                    2.333,
+                    5.296
+                  ],
+                  [
+                    2.5,
+                    4.875
+                  ],
+                  [
+                    2.667,
+                    4.471
+                  ],
+                  [
+                    2.833,
+                    4.084
+                  ],
+                  [
+                    3,
+                    3.714
+                  ],
+                  [
+                    3.167,
+                    3.362
+                  ],
+                  [
+                    3.333,
+                    3.026
+                  ],
+                  [
+                    3.5,
+                    2.708
+                  ],
+                  [
+                    3.667,
+                    2.407
+                  ],
+                  [
+                    3.833,
+                    2.124
+                  ],
+                  [
+                    4,
+                    1.857
+                  ],
+                  [
+                    4.167,
+                    1.608
+                  ],
+                  [
+                    4.333,
+                    1.376
+                  ],
+                  [
+                    4.5,
+                    1.161
+                  ],
+                  [
+                    4.667,
+                    0.963
+                  ],
+                  [
+                    4.833,
+                    0.782
+                  ],
+                  [
+                    5,
+                    0.619
+                  ],
+                  [
+                    5.167,
+                    0.473
+                  ],
+                  [
+                    5.333,
+                    0.344
+                  ],
+                  [
+                    5.5,
+                    0.232
+                  ],
+                  [
+                    5.667,
+                    0.138
+                  ],
+                  [
+                    5.833,
+                    0.06
+                  ],
+                  [
+                    6,
+                    0
+                  ],
+                  [
+                    6.167,
+                    -0.043
+                  ],
+                  [
+                    6.333,
+                    -0.069
+                  ],
+                  [
+                    6.5,
+                    -0.077
+                  ],
+                  [
+                    6.667,
+                    -0.069
+                  ],
+                  [
+                    6.833,
+                    -0.043
+                  ],
+                  [
+                    7,
+                    0
+                  ],
+                  [
+                    7.167,
+                    0.06
+                  ],
+                  [
+                    7.333,
+                    0.138
+                  ],
+                  [
+                    7.5,
+                    0.232
+                  ],
+                  [
+                    7.667,
+                    0.344
+                  ],
+                  [
+                    7.833,
+                    0.473
+                  ],
+                  [
+                    8,
+                    0.619
+                  ],
+                  [
+                    8.167,
+                    0.782
+                  ],
+                  [
+                    8.333,
+                    0.963
+                  ],
+                  [
+                    8.5,
+                    1.161
+                  ],
+                  [
+                    8.667,
+                    1.376
+                  ],
+                  [
+                    8.833,
+                    1.608
+                  ],
+                  [
+                    9,
+                    1.857
+                  ]
+                ]
+              }
+            ],
+            "marks": [
+              {
+                "x": 0,
+                "y": 13,
+                "label": "y-int",
+                "dx": 8,
+                "dy": -6
+              },
+              {
+                "x": 6,
+                "y": 0,
+                "label": "x-int",
+                "dx": 4,
+                "dy": 14
+              },
+              {
+                "x": 7,
+                "y": 0,
+                "label": "x-int",
+                "dx": 4,
+                "dy": 14
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "SR-176",
+      "book": "02",
+      "page_ref": "02 册 · p75 · #11",
+      "kind": "table",
+      "source_ledger": "audit-03a.jsonl:SR-176",
+      "type": "mcq",
+      "overlap": "table-captions-0102.json#SR-176",
+      "duplicate": true,
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Energy per Gram of Typical Macronutrients",
+          "patch": "Energy per Gram of Typical Macronutrients",
+          "note": "原页表题未入库；表头与三行数值与原表一致；题干与 A–D 选项与原页一致。补丁以表题分区 C7 为准。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "SR-185",
+      "book": "02",
+      "page_ref": "02 册 · p78 · #20",
+      "kind": "figure",
+      "source_ledger": "audit-03a.jsonl:SR-185",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "spec_edit",
+          "original": "y 轴 Number of hours at job B 0–10，刻度 0/5/10",
+          "patch": {
+            "y": {
+              "min": 0,
+              "max": 10,
+              "step": 5,
+              "label": "Number of hours at job B"
+            }
+          },
+          "note": "y 轴范围 0–12、步长 4 与原页 0–10、步长 5 不符；x 轴、截距 (0,8)/(16,0) 与端点标记一致。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": 0,
+              "max": 20,
+              "step": 5,
+              "label": "Number of hours at job A"
+            },
+            "y": {
+              "min": 0,
+              "max": 12,
+              "step": 4,
+              "label": "Number of hours at job B"
+            },
+            "grid": true,
+            "series": [
+              {
+                "kind": "line",
+                "points": [
+                  [
+                    16,
+                    0
+                  ],
+                  [
+                    0,
+                    8
+                  ]
+                ]
+              }
+            ],
+            "marks": [
+              {
+                "x": 16,
+                "y": 0
+              },
+              {
+                "x": 0,
+                "y": 8
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "SR-186",
+      "book": "02",
+      "page_ref": "02 册 · p78 · #21",
+      "kind": "text",
+      "source_ledger": "audit-03a.jsonl:SR-186",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "题干人名三处均印 “Odalys”",
+          "patch": "Odalys",
+          "find": "Odaliys",
+          "replace": "Odalys",
+          "replaceAll": true,
+          "note": "人名拼写三处不符（Odaliys→Odalys）；方程 20.5x + 28.75y = 394 与数量关系和原页一致。",
+          "current": "20.5x + 28.75y = 394\nOdaliys ordered mulch and river rock, which cost a total of $394, for her home. The given equation represents the relationship between the number of cubic yards of mulch, x, and the number of tons of river rock, y, Odaliys ordered. How much more, in dollars, did a ton of river rock cost Odaliys than a cubic yard of mulch?"
+        }
+      ]
+    },
+    {
+      "id": "SR-187",
+      "book": "02",
+      "page_ref": "02 册 · p78 · #22",
+      "kind": "figure",
+      "source_ledger": "audit-03a.jsonl:SR-187",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "figure.spec",
+          "mode": "spec_edit",
+          "original": "x 轴题 “Company A”、y 轴题 “Company B”",
+          "patch": {
+            "x": {
+              "label": "Company A"
+            },
+            "y": {
+              "label": "Company B"
+            }
+          },
+          "note": "轴题被写成 “Shares of Company A/B”，比原页多 “Shares of”；截距与坐标范围一致。",
+          "current": {
+            "type": "chart",
+            "x": {
+              "min": 0,
+              "max": 100,
+              "step": 10,
+              "label": "Shares of Company A"
+            },
+            "y": {
+              "min": 0,
+              "max": 50,
+              "step": 10,
+              "label": "Shares of Company B"
+            },
+            "series": [
+              {
+                "kind": "line",
+                "points": [
+                  [
+                    0,
+                    35
+                  ],
+                  [
+                    90,
+                    0
+                  ]
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "SR-224",
+      "book": "02",
+      "page_ref": "02 册 · p88 · #59",
+      "kind": "text",
+      "source_ledger": "audit-03b.jsonl:SR-224",
+      "type": "mcq",
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "substring",
+          "original": "a number, x,",
+          "patch": "The function f gives the product of a number, x, and a number that is 91 more than x. Which equation defines f?",
+          "find": "a number x,",
+          "replace": "a number, x,",
+          "note": "仅缺 x 前一处同位语逗号；题干其余文字与四个选项均与原页一致。",
+          "current": "The function f gives the product of a number x, and a number that is 91 more than x. Which equation defines f?"
+        }
+      ]
+    },
+    {
+      "id": "SR-267",
+      "book": "02",
+      "page_ref": "02 册 · p99 · #17",
+      "kind": "text",
+      "source_ledger": "audit-03b.jsonl:SR-267",
+      "type": "mcq",
+      "recheck": true,
+      "patches": [
+        {
+          "field": "stem",
+          "mode": "rewrite_field",
+          "original": "繁分数主分子 x^{-2}y^{1/2}，主分母为 x^{1/3} y^{-1}，x>1, y>1",
+          "patch": "The expression (x^{-2}y^{1/2})/(x^{1/3} y^{-1}), where x > 1 and y > 1, is equivalent to which of the following?",
+          "note": "主分母被写成 1/(x^{3} y^{-1})：x 的 1/3 指数被误转成嵌套分数（分子 1、分母 x³）。四个选项文字与顺序与原页一致；指数排版落库前回看原页确认。",
+          "current": "The expression (x^{-2}y^{1/2})/(1/(x^{3}y^{-1})), where x > 1 and y > 1, is\nequivalent to which of the following?"
+        }
+      ]
+    },
+    {
+      "id": "R04-080",
+      "book": "04",
+      "page_ref": "04 册 · p08 · #20",
+      "kind": "figure",
+      "source_ledger": "audit-04.jsonl:R04-080",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "四边形 KLMN：L 居左、K 居下、M 居左上、N 居右上；题干标注 KL=5, LM=5, KN=21, MN=21；对角线 KM、LN 未画出，交于 G（GK=1, GM=1）。",
+          "patch": null,
+          "note": "原页有图而数据侧无矢量 spec 也无裁剪图，图形未入库；需按原页结构重画（见原页结构描述），补入 figSpec 与裁剪图。",
+          "current": {
+            "spec": null,
+            "textFigure": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "R04-081",
+      "book": "04",
+      "page_ref": "04 册 · p08 · #21",
+      "kind": "figure",
+      "source_ledger": "audit-04.jsonl:R04-081",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "直角三角形 ABC：B 为直角（左下），A 左上，C 右下；D 在 AB 上，E 在 BC 上，DE 水平且 ∥BC。",
+          "patch": null,
+          "note": "原页有图而数据侧无矢量 spec 也无裁剪图，图形未入库；需按原页结构重画（见原页结构描述），补入 figSpec 与裁剪图。",
+          "current": {
+            "spec": null,
+            "textFigure": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "R04-082",
+      "book": "04",
+      "page_ref": "04 册 · p08 · #22",
+      "kind": "figure",
+      "source_ledger": "audit-04.jsonl:R04-082",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "直角三角形 ABC：C 为直角（右下），A 左下，B 顶端；水平底边被分为 5、7 两段，竖直边标 y，三角形内部标 x。",
+          "patch": null,
+          "note": "原页有图而数据侧无矢量 spec 也无裁剪图，图形未入库；需按原页结构重画（见原页结构描述），补入 figSpec 与裁剪图。",
+          "current": {
+            "spec": null,
+            "textFigure": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "R04-083",
+      "book": "04",
+      "page_ref": "04 册 · p08 · #23",
+      "kind": "figure",
+      "source_ledger": "audit-04.jsonl:R04-083",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "直角三角形 CAE：A 为直角（右下），C 左下，E 顶端；B 在 CA 上，D 在 CE 上，DB 水平；标 CB=8, DB=6, AE=18。",
+          "patch": null,
+          "note": "原页有图而数据侧无矢量 spec 也无裁剪图，图形未入库；需按原页结构重画（见原页结构描述），补入 figSpec 与裁剪图。",
+          "current": {
+            "spec": null,
+            "textFigure": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "R04-084",
+      "book": "04",
+      "page_ref": "04 册 · p08 · #24",
+      "kind": "figure",
+      "source_ledger": "audit-04.jsonl:R04-084",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "直角三角形 ADE：E 为直角（右下），A 左下，D 顶端；C 在 AE 上，B 在 AD 上；标 AC=7, CE=14。",
+          "patch": null,
+          "note": "原页有图而数据侧无矢量 spec 也无裁剪图，图形未入库；需按原页结构重画（见原页结构描述），补入 figSpec 与裁剪图。",
+          "current": {
+            "spec": null,
+            "textFigure": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "R04-087",
+      "book": "04",
+      "page_ref": "04 册 · p09 · #27",
+      "kind": "figure",
+      "source_ledger": "audit-04.jsonl:R04-087",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "三角形 MNP：N 顶端，M 左，P 右；NQ 为 MP 上的高，Q 为垂足（直角标记）；标 NM=3, NP=4。",
+          "patch": null,
+          "note": "原页有图而数据侧无矢量 spec 也无裁剪图，图形未入库；需按原页结构重画（见原页结构描述），补入 figSpec 与裁剪图。",
+          "current": {
+            "spec": null,
+            "textFigure": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "R04-088",
+      "book": "04",
+      "page_ref": "04 册 · p09 · #28",
+      "kind": "figure",
+      "source_ledger": "audit-04.jsonl:R04-088",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "三角形 ABC：B 顶端，A 左，C 右；BD 为 AC 上的高，D 垂足（直角标记）；标 BD=6, AD=8。",
+          "patch": null,
+          "note": "原页有图而数据侧无矢量 spec 也无裁剪图，图形未入库；需按原页结构重画（见原页结构描述），补入 figSpec 与裁剪图。",
+          "current": {
+            "spec": null,
+            "textFigure": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "R04-089",
+      "book": "04",
+      "page_ref": "04 册 · p09 · #29",
+      "kind": "figure",
+      "source_ledger": "audit-04.jsonl:R04-089",
+      "type": "grid",
+      "patches": [
+        {
+          "field": "figure.missing",
+          "mode": "redraw_figure",
+          "original": "三角形 ABC：B 顶端，A 左，C 右；BD 为 AC 上的高，D 垂足（直角标记）；标 AD=121/3, AB=11√130/3。",
+          "patch": null,
+          "note": "原页有图而数据侧无矢量 spec 也无裁剪图，图形未入库；需按原页结构重画（见原页结构描述），补入 figSpec 与裁剪图。",
+          "current": {
+            "spec": null,
+            "textFigure": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "R03-062",
+      "book": "03",
+      "page_ref": "03 册 · 03-p04",
+      "kind": "table",
+      "section": "caption",
+      "source_ledger": "table-captions-03.json:R03-062",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Climate Preferences",
+          "patch": "Climate Preferences",
+          "note": "原页表上方印表题；运行时 spec 无 caption 字段，需补入逐字表题。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "R03-135",
+      "book": "03",
+      "page_ref": "03 册 · 03-p11",
+      "kind": "table",
+      "section": "caption",
+      "source_ledger": "table-captions-03.json:R03-135",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Percent of Residents Who Earned a Bachelor's Degree or Higher",
+          "patch": "Percent of Residents Who Earned a Bachelor's Degree or Higher",
+          "note": "原页表上方印表题；运行时 spec 无 caption 字段，需补入逐字表题。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "R03-301",
+      "book": "03",
+      "page_ref": "03 册 · 03-p18",
+      "kind": "table",
+      "section": "caption",
+      "source_ledger": "table-captions-03.json:R03-301",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Views on Nuclear Energy Use",
+          "patch": "Views on Nuclear Energy Use",
+          "note": "原页表上方印表题；运行时 spec 无 caption 字段，需补入逐字表题。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "R03-303",
+      "book": "03",
+      "page_ref": "03 册 · 03-p18",
+      "kind": "table",
+      "section": "caption",
+      "source_ledger": "table-captions-03.json:R03-303",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Poll Results",
+          "patch": "Poll Results",
+          "note": "原页表上方印表题；运行时 spec 无 caption 字段，需补入逐字表题。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "SP2-025",
+      "book": "03",
+      "page_ref": "03 册 · 03-p04",
+      "kind": "table",
+      "section": "caption",
+      "source_ledger": "table-captions-03.json:SP2-025",
+      "canonical": "R03-062",
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Climate Preferences",
+          "patch": "Climate Preferences",
+          "note": "旧录 SP2 已按裁定退休，别名指向 R03-062；表题补丁随活跃记录 R03-062 落地。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "SR-126",
+      "book": "02",
+      "page_ref": "02 册 · p62",
+      "kind": "table",
+      "section": "caption",
+      "source_ledger": "table-captions-0102.json:SR-126",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Growth of a Culture of Bacteria",
+          "patch": "Growth of a Culture of Bacteria",
+          "note": "原页表上方印表题；运行时 spec 无 caption 字段，需补入逐字表题。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "SR-176",
+      "book": "02",
+      "page_ref": "02 册 · p75",
+      "kind": "table",
+      "section": "caption",
+      "source_ledger": "table-captions-0102.json:SR-176",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Energy per Gram of Typical Macronutrients",
+          "patch": "Energy per Gram of Typical Macronutrients",
+          "note": "原页表上方印表题；运行时 spec 无 caption 字段，需补入逐字表题。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "SR-215",
+      "book": "02",
+      "page_ref": "02 册 · p85",
+      "kind": "table",
+      "section": "caption",
+      "source_ledger": "table-captions-0102.json:SR-215",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.caption",
+          "mode": "set_caption",
+          "original": "Townsend Realty Group Investments",
+          "patch": "Townsend Realty Group Investments",
+          "note": "原页表上方印表题；运行时 spec 无 caption 字段，需补入逐字表题。",
+          "current": null
+        }
+      ]
+    },
+    {
+      "id": "R03-001",
+      "book": "03",
+      "page_ref": "03 册 · 03-p02",
+      "kind": "table",
+      "section": "body",
+      "source_ledger": "table-captions-03.json:R03-001/body",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.head[1]",
+          "mode": "table_cell",
+          "original": "Growthfactor",
+          "current": "Growth factor",
+          "patch": "Growthfactor",
+          "note": "首列表头原页留空，数据 spec 填了文字（台账记现值：Growth factor）；其余列与行数值一致。"
+        }
+      ]
+    },
+    {
+      "id": "SP2-001",
+      "book": "03",
+      "page_ref": "03 册 · 03-p02",
+      "kind": "table",
+      "section": "body",
+      "source_ledger": "table-captions-03.json:SP2-001/body",
+      "canonical": "R03-001",
+      "patches": [
+        {
+          "field": "table.head[1]",
+          "mode": "table_cell",
+          "original": "Growthfactor",
+          "current": "Growth factor",
+          "patch": "Growthfactor",
+          "note": "旧录 SP2 已退休，别名指向 R03-001；表体补丁随活跃记录 R03-001 落地。台账记数据现值：Growth factor。"
+        }
+      ]
+    },
+    {
+      "id": "R03-002",
+      "book": "03",
+      "page_ref": "03 册 · 03-p02",
+      "kind": "table",
+      "section": "body",
+      "source_ledger": "table-captions-03.json:R03-002/body",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.headGroups",
+          "mode": "table_cell",
+          "original": "分组标题 Power capacity，跨 Low/Medium/High/Total 四列",
+          "current": null,
+          "patch": {
+            "title": "Power capacity",
+            "columns": [
+              "Low",
+              "Medium",
+              "High",
+              "Total"
+            ]
+          },
+          "note": "跨列分组标题缺失（台账记：spec 无 headGroups）；表值各行与原表一致。"
+        }
+      ]
+    },
+    {
+      "id": "R03-136",
+      "book": "03",
+      "page_ref": "03 册 · 03-p11",
+      "kind": "table",
+      "section": "body",
+      "source_ledger": "table-captions-03.json:R03-136/body",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.headGroups",
+          "mode": "table_cell",
+          "original": "分组标题 Score Frequencies，跨 Group A/Group B 两列",
+          "current": null,
+          "patch": {
+            "title": "Score Frequencies",
+            "columns": [
+              "Group A",
+              "Group B"
+            ]
+          },
+          "note": "跨列分组标题缺失（台账记：spec 无 headGroups）；表值各行与原表一致。"
+        }
+      ]
+    },
+    {
+      "id": "R03-361",
+      "book": "03",
+      "page_ref": "03 册 · 03-p19",
+      "kind": "table",
+      "section": "body",
+      "source_ledger": "table-captions-03.json:R03-361/body",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.headGroups",
+          "mode": "table_cell",
+          "original": "分组标题 Number of points per round，跨 6 to 13 points / 14 or more points / Total 三列",
+          "current": null,
+          "patch": {
+            "title": "Number of points per round",
+            "columns": [
+              "6 to 13 points",
+              "14 or more points",
+              "Total"
+            ]
+          },
+          "note": "跨列分组标题缺失（台账记：spec 无 headGroups）；表值各行与原表一致。"
+        }
+      ]
+    },
+    {
+      "id": "R03-062",
+      "book": "03",
+      "page_ref": "03 册 · 03-p04",
+      "kind": "table",
+      "section": "body",
+      "source_ledger": "table-captions-03.json:R03-062/body",
+      "canonical": null,
+      "patches": [
+        {
+          "field": "table.head[0]",
+          "mode": "table_cell",
+          "original": "首格空白",
+          "current": "Age group",
+          "patch": "",
+          "note": "首列表头原页留空，数据 spec 填了文字（台账记现值：Age group）；其余列与行数值一致。"
+        }
+      ]
+    }
+  ]
+}

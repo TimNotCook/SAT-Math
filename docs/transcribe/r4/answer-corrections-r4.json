@@ -1,0 +1,10 @@
+{
+ "$comment": "裁定 2（2026-11-26）：5 条 ANSWER_DIFF 按题目来源书自带答案订正；TD-42-10 同时修题型 grid->mcq。旧值保留在 prev_* 供回溯。",
+ "corrections": [
+  {"id":"TD-11-16","book":"练习册","page":11,"no":16,"key_page":"p241","prev_answer":"7","answer":"42/5","value":8.4,"status":"VERIFIED_after_fix"},
+  {"id":"TD-11-18","book":"练习册","page":12,"no":18,"key_page":"p241","prev_answer":"-5/9","answer":"44/3","value":14.67,"status":"VERIFIED_after_fix"},
+  {"id":"TD-13-17","book":"练习册","page":35,"no":17,"key_page":"p241","prev_answer":"4","answer":"17/4","value":4.25,"status":"VERIFIED_after_fix"},
+  {"id":"TD-21-33","book":"练习册","page":72,"no":33,"key_page":"p242","prev_answer":"108","answer":"54/5","value":10.8,"status":"VERIFIED_after_fix"},
+  {"id":"TD-42-10","book":"练习册","page":207,"no":10,"key_page":"p245","prev_answer":"13","prev_type":"grid","answer":"A","type":"mcq","status":"VERIFIED_after_fix","note":"原题为 mcq，选项 A=13；库内误存 grid 数值 13"}
+ ]
+}
