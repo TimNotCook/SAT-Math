@@ -637,6 +637,9 @@ body.scratch-on #answerArea{position:relative;z-index:65}
   .score-hero, .res-grid{grid-template-columns:1fr}
   .exam-stage-head{flex-direction:column}
   .exam-toolbar-actions .drill-question-tools button span{display:none}
+  /* 390 窄屏实测：Reference/Calculator/Review/Submit 一行排不下，Submit 被裁到屏幕外
+     （scrollWidth 405 > 390）。工具组允许换行并右对齐，宁可排两行也不横溢。 */
+  .exam-questionbar .exam-toolbar-actions{flex-wrap:wrap;justify-content:flex-end;row-gap:6px;max-width:100%}
   body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar{height:auto!important;min-height:52px}
   body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar .drill-questionbar-inner{flex-wrap:wrap;height:auto!important;min-height:52px;row-gap:6px;padding-top:8px!important;padding-bottom:8px!important}
   .exam-page .drill-footer-inner{grid-template-columns:auto 1fr auto}
