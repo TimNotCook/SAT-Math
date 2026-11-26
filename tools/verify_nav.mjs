@@ -86,6 +86,26 @@ async function goto(url) {
   }
   await sleep(700);
 }
+/* load 事件只保证资源都回来了，不代表 app-core 已经建好 CATALOG（1300+ 题要跑一会儿）。
+   凡是断言要读 TD_APP / TD_JY 的地方，都先等它们真的可用，否则偶发「读不到 TD_APP」。 */
+async function waitApp(ms = 12000) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < ms) {
+    const ok = await ev(`!!((window.TD_APP && window.TD_APP.CATALOG && Object.keys(window.TD_APP.CATALOG).length > 0) || (window.TD_JY && window.TD_JY.TB_GROUP))`);
+    if (ok) return true;
+    await sleep(150);
+  }
+  return false;
+}
+/* 通用轮询：断言要读的 DOM 先等出来。选项按钮由 drill.js 渲染，和 CATALOG 建好是两个时刻。 */
+async function waitFor(expr, ms = 12000) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < ms) {
+    if (await ev(expr)) return true;
+    await sleep(150);
+  }
+  return false;
+}
 async function shot(name) {
   const r = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   if (r.data) writeFileSync(join(OUT, name), Buffer.from(r.data, 'base64'));
@@ -171,6 +191,8 @@ check('nav/jiangyi·返回导航', '返回真题练习链接可见', back ? `${b
    TD-22-14 曾报「四个空按钮」，现在应渲染 4 个矢量图选项而不是空壳。 */
 await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
 await goto(`${BASE}/drill.html?sec=2.2&i=14`);
+await waitApp();
+await waitFor('document.querySelectorAll(".drill-choice").length > 0');
 const gate = await ev(`(() => {
   const Q = window.TD_BANK.questions, T = window.TD_TEXT || {}, C = window.TD_CHOICE_CROPS || {}, G = window.TD_CHOICE_GRAPHS || {};
   const missing = Q.filter(q => q.type === 'mcq').filter(q => {
@@ -192,6 +214,7 @@ await shot('gate-2.2-14-1280.png');
 
 /* 真题侧：L4 不再注册，Unit 4 精编九题整体不可见 */
 await goto(`${BASE}/drill.html?sec=4.1&i=1`);
+await waitApp();
 const l4 = await ev(`(() => {
   const A = window.TD_APP; if (!A) return null;
   const legacyU4 = Object.keys(A.CATALOG).reduce((n, k) => n + A.CATALOG[k].filter(q => q.origin === 'legacy' && q.unit === 4).length, 0);
@@ -207,6 +230,8 @@ await ev(`(() => { const a = document.querySelector('a[href^="jiangyi.html"]'); 
 await sleep(1200);
 /* 讲义入口已并入 landing 长条（点击直达某小节）；板块列表仍从 jiangyi.html 走 */
 await goto(`${BASE}/jiangyi.html`);
+await waitApp();
+await waitFor('!!document.querySelector(\'[data-board="JY4"]\')');
 await sleep(1200);
 const boardU4 = await ev(`(() => { const b = document.querySelector('[data-board="JY4"]'); if (!b) return false; b.click(); return true; })()`);
 await sleep(600);
