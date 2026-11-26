@@ -1,1 +1,1 @@
-window.TD_FIG_CROPS = {"U4-01":"images/fig/U4-01.png","U4-02":"images/fig/U4-02.png","U4-03":"images/fig/U4-03.png","U4-04":"images/fig/U4-04.png","U4-05":"images/fig/U4-05.png","U4-07":"images/fig/U4-07.png","U4-08":"images/fig/U4-08.png","U4-09":"images/fig/U4-09.png"};
+window.TD_FIG_CROPS = {};

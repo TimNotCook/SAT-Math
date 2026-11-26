@@ -392,6 +392,14 @@
     return '<svg viewBox="0 0 ' + body.w + ' ' + body.h + '" width="100%" preserveAspectRatio="xMidYMid meet" role="img" style="max-width:' + body.w + 'px">' + body.body + '</svg>';
   }
 
+  // 自写整段 SVG 的 spec：直接解析 viewBox 宽高，套统一外框（宽度自适应 100%）。
+  function rawWrap(svg) {
+    var str = String(svg || ''), m = /viewBox=['"]0 0 (\d+) (\d+)['"]/.exec(str);
+    if (!m) return str;
+    var body = str.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+    return wrap({ w: Number(m[1]), h: Number(m[2]), body: body });
+  }
+
   function quad(o) {
     var keys = o.order || ['A', 'B', 'C', 'D'], cols = o.cols || 2, gaps = 26, labH = 18;
     var pw = o.panels.A.w, ph = o.panels.A.h;
@@ -825,6 +833,103 @@
       } }
   };
 
+
+  /* 练习册 Unit 4 的 8 张教材原题图（原先是扫描裁图，2026-11-26 按原页重画为矢量） */
+  specs['JY4-047'] = { type: 'rawSvg', svg: `<svg viewBox='0 0 460 320' xmlns='http://www.w3.org/2000/svg'>
+  <line x1='60' y1='120' x2='410' y2='120' stroke='#162c46' stroke-width='2'/>
+  <line x1='40' y1='250' x2='410' y2='250' stroke='#162c46' stroke-width='2'/>
+  <line x1='250' y1='35' x2='150' y2='305' stroke='#162c46' stroke-width='2'/>
+  <text x='422' y='126' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='start'>k</text>
+  <text x='422' y='256' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='start'>l</text>
+  <text x='258' y='30' font-family='Times New Roman,Georgia,serif' font-style="italic" font-size='17' fill='#162c46' text-anchor='start'>d</text>
+  <text x='196' y='146' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>66°</text>
+  <text x='196' y='280' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>z°</text>
+</svg>` };
+  specs['JY4-048'] = { type: 'rawSvg', svg: `<svg viewBox='0 0 460 320' xmlns='http://www.w3.org/2000/svg'>
+  <line x1='105' y1='110' x2='410' y2='110' stroke='#162c46' stroke-width='2'/>
+  <line x1='105' y1='235' x2='410' y2='235' stroke='#162c46' stroke-width='2'/>
+  <line x1='150' y1='300' x2='370' y2='25' stroke='#162c46' stroke-width='2'/>
+  <text x='422' y='116' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='start'>r</text>
+  <text x='422' y='241' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='start'>s</text>
+  <text x='258' y='92' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>164°</text>
+  <text x='180' y='222' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>x°</text>
+</svg>` };
+  specs['JY4-049'] = { type: 'rawSvg', svg: `<svg viewBox='0 0 460 320' xmlns='http://www.w3.org/2000/svg'>
+  <line x1='60' y1='105' x2='415' y2='105' stroke='#162c46' stroke-width='2'/>
+  <line x1='60' y1='225' x2='415' y2='225' stroke='#162c46' stroke-width='2'/>
+  <line x1='130' y1='60' x2='305' y2='265' stroke='#162c46' stroke-width='2'/>
+  <text x='427' y='111' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='start'>p</text>
+  <text x='427' y='231' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='start'>q</text>
+  <text x='125' y='50' font-family='Times New Roman,Georgia,serif' font-style="italic" font-size='17' fill='#162c46' text-anchor='start'>t</text>
+  <text x='215' y='210' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>x°</text>
+  <text x='310' y='205' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>142°</text>
+</svg>` };
+  specs['JY4-050'] = { type: 'rawSvg', svg: `<svg viewBox='0 0 460 300' xmlns='http://www.w3.org/2000/svg'>
+  <line x1='55' y1='15' x2='420' y2='235' stroke='#162c46' stroke-width='2'/>
+  <line x1='30' y1='225' x2='425' y2='20' stroke='#162c46' stroke-width='2'/>
+  <text x='252' y='85' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>w°</text>
+  <text x='252' y='165' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>z°</text>
+</svg>` };
+  specs['JY4-051'] = { type: 'rawSvg', svg: `<svg viewBox='0 0 460 340' xmlns='http://www.w3.org/2000/svg'>
+  <line x1='215' y1='110' x2='215' y2='320' stroke='#162c46' stroke-width='2'/>
+  <line x1='310' y1='110' x2='310' y2='320' stroke='#162c46' stroke-width='2'/>
+  <line x1='80' y1='320' x2='400' y2='105' stroke='#162c46' stroke-width='2'/>
+  <text x='200' y='96' font-family='Times New Roman,Georgia,serif' font-style="italic" font-size='17' fill='#162c46' text-anchor='middle'>r</text>
+  <text x='310' y='96' font-family='Times New Roman,Georgia,serif' font-style="italic" font-size='17' fill='#162c46' text-anchor='middle'>s</text>
+  <text x='408' y='98' font-family='Times New Roman,Georgia,serif' font-style="italic" font-size='17' fill='#162c46' text-anchor='start'>t</text>
+  <text x='186' y='272' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>x°</text>
+  <text x='280' y='158' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>y°</text>
+</svg>` };
+  specs['JY4-053'] = { type: 'rawSvg', svg: `<svg viewBox='0 0 470 320' xmlns='http://www.w3.org/2000/svg'>
+  <line x1='65' y1='258' x2='425' y2='258' stroke='#162c46' stroke-width='2'/>
+  <line x1='65' y1='258' x2='435' y2='35' stroke='#162c46' stroke-width='2'/>
+  <line x1='425' y1='258' x2='215' y2='166' stroke='#162c46' stroke-width='2'/>
+  <line x1='215' y1='166' x2='330' y2='258' stroke='#162c46' stroke-width='2'/>
+  <line x1='435' y1='35' x2='330' y2='258' stroke='#162c46' stroke-width='2'/>
+  <circle cx='65' cy='258' r='3' fill='#0f2a47'/>
+  <circle cx='425' cy='258' r='3' fill='#0f2a47'/>
+  <circle cx='435' cy='35' r='3' fill='#0f2a47'/>
+  <circle cx='215' cy='166' r='3' fill='#0f2a47'/>
+  <circle cx='330' cy='258' r='3' fill='#0f2a47'/>
+  <text x='52' y='276' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>D</text>
+  <text x='428' y='276' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>A</text>
+  <text x='448' y='30' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>B</text>
+  <text x='206' y='152' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>C</text>
+  <text x='320' y='278' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>E</text>
+  <text x='356' y='240' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>x°</text>
+</svg>` };
+  specs['JY4-054'] = { type: 'rawSvg', svg: `<svg viewBox='0 0 470 320' xmlns='http://www.w3.org/2000/svg'>
+  <line x1='65' y1='80' x2='215' y2='80' stroke='#162c46' stroke-width='2'/>
+  <line x1='65' y1='80' x2='140' y2='215' stroke='#162c46' stroke-width='2'/>
+  <line x1='215' y1='80' x2='140' y2='215' stroke='#162c46' stroke-width='2'/>
+  <line x1='275' y1='35' x2='455' y2='50' stroke='#162c46' stroke-width='2'/>
+  <line x1='275' y1='35' x2='380' y2='270' stroke='#162c46' stroke-width='2'/>
+  <line x1='455' y1='50' x2='380' y2='270' stroke='#162c46' stroke-width='2'/>
+  <circle cx='65' cy='80' r='3' fill='#0f2a47'/>
+  <circle cx='215' cy='80' r='3' fill='#0f2a47'/>
+  <circle cx='140' cy='215' r='3' fill='#0f2a47'/>
+  <circle cx='275' cy='35' r='3' fill='#0f2a47'/>
+  <circle cx='455' cy='50' r='3' fill='#0f2a47'/>
+  <circle cx='380' cy='270' r='3' fill='#0f2a47'/>
+  <text x='50' y='74' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>A</text>
+  <text x='224' y='74' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>B</text>
+  <text x='138' y='236' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>C</text>
+  <text x='262' y='30' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>X</text>
+  <text x='462' y='46' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>Y</text>
+  <text x='380' y='292' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>Z</text>
+  <text x='100' y='106' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>60°</text>
+  <text x='84' y='152' font-family='Times New Roman,Georgia,serif' font-style="italic" font-size='15' fill='#162c46' text-anchor='middle'>d</text>
+</svg>` };
+  specs['JY4-055'] = { type: 'rawSvg', svg: `<svg viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'>
+  <line x1='60' y1='55' x2='60' y2='230' stroke='#162c46' stroke-width='2'/>
+  <line x1='60' y1='230' x2='320' y2='230' stroke='#162c46' stroke-width='2'/>
+  <line x1='60' y1='55' x2='320' y2='230' stroke='#162c46' stroke-width='2'/>
+  <polyline points='60,212 78,212 78,230' fill='none' stroke='#162c46' stroke-width='1.5'/>
+  <text x='40' y='150' font-family='Times New Roman,Georgia,serif' font-style="italic" font-size='16' fill='#162c46' text-anchor='middle'>x</text>
+  <text x='212' y='130' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>13√2</text>
+  <text x='286' y='214' font-family='Times New Roman,Georgia,serif' font-size='15' fill='#c2410c' text-anchor='middle'>45°</text>
+</svg>` };
+
   window.JY_FIG = {
     specs: specs,
     render: function (id) {
@@ -832,6 +937,7 @@
       if (!s) return '';
       if (s.type === 'quadrants') return wrap(quadrants(s));
       if (s.type === 'geo') return wrap(geo(s));
+      if (s.type === 'rawSvg') return rawWrap(s.svg);
       if (s.type === 'scatter') return wrap(scatter(s));
       if (s.type === 'hist') return wrap(hist(s));
       if (s.type === 'dotplot') return wrap(dotplot(s));
@@ -851,6 +957,7 @@
       if (p.type === 'hist') return wrap(hist(p));
       if (p.type === 'boxplot') return wrap(boxplot(p));
       if (p.type === 'geo') return wrap(geo(p));
+      if (p.type === 'rawSvg') return rawWrap(p.svg);
       return wrap(plane(p));
     }
   };

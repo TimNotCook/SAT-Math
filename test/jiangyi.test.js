@@ -168,12 +168,15 @@ test('每题都有原页对照图 docs/jiangyi-proof/{id}.png', () => {
 test('图形只走矢量 spec：引用的 fig 必须存在，且不许出现讲义裁图', () => {
   BANK.forEach(q => {
     if (!q.figure) return;
-    /* 教材原题例外：figure 值是练习册原页题目图（images/fig/U4-0x.png），
-       矢量重画排进图形线（码农 α），数据侧先保证「有图可看、文件存在」。 */
+    /* 教材原题（练习册 4.4 #4/#51/#48/#46/#52/#1/#2/#3）也必须是矢量：
+       2026-11-26 起 figure 存 spec id，原页扫描裁图已全删（不许再挂 PNG）。 */
     if (isBook(q)) {
-      assert.match(q.figure, /^images\/fig\/\S+\.png$/, q.id + ' 的 figure 不是图片路径：' + q.figure);
-      assert.ok(fs.existsSync(path.join(ROOT, q.figure)), q.id + ' 引用的图片不存在：' + q.figure);
-      assert.ok(!FG.JY_FIG.specs[q.figure], q.id + ' 教材原题不该直接引用讲义 spec');
+      assert.match(q.figure, /^JY4-\d+$/, q.id + ' 的 figure 应是 spec id：' + q.figure);
+      const sp = FG.JY_FIG.specs[q.figure];
+      assert.ok(sp, q.id + ' 引用的矢量 spec 不存在：' + q.figure);
+      assert.strictEqual(sp.type, 'rawSvg', q.id + ' 教材原题的 spec 应是 rawSvg');
+      assert.ok(/^<svg /.test(sp.svg) && /<\/svg>$/.test(sp.svg.trim()), q.id + ' spec 的 svg 不完整');
+      assert.ok(!/\.png|\.jpg/.test(sp.svg), q.id + ' 不许在 svg 里塞位图');
       return;
     }
     assert.ok(FG.JY_FIG.specs[q.figure], q.id + ' 引用的矢量 spec 不存在：' + q.figure);
