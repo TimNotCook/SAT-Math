@@ -1145,7 +1145,7 @@
         ${crossed.length ? `<div class="sub crossout-note">${OFFICIAL ? 'Crossed out: ' : '已划掉：'}${crossed.join(', ')}</div>` : ''}
         ${!d.correct && d.hint && !OFFICIAL ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(d.hint)}</div>` : ''}
         ${causeHtml}
-      </div>`;
+      </div></div>`;
     }).join('') || `<div class="small muted">${OFFICIAL ? 'No incorrect answers' : '无错题'}</div>`;
   }
 
@@ -1196,9 +1196,6 @@
 
   $('bankCount').textContent = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
   $('btnStart').addEventListener('click', startSession);
-  /* 页面先画出 Start、defer 脚本还在加载的那几百毫秒里，按钮可点但没监听器，
-     学生第一下会点空。绑好后统一解禁；脚本挂了则保留禁用，由兜底改 Reload。 */
-  $('btnStart').disabled = false;
   $('btnPrev').addEventListener('click', () => goTo(S.idx - 1));
   $('btnNext').addEventListener('click', () => goTo(S.idx + 1));
   $('btnQuestionNav').addEventListener('click', openNavigator);
@@ -1346,6 +1343,10 @@
   installProtection();
   restoreOrIntro();
   // expose a tiny read-only probe for automated verification
+  /* 初始化的最后一步才解禁：click 绑好、工具行 bindTools 完成、会话已建好，
+     这时点 Start 不会落在半初始化状态。脚本中途挂了就保持禁用，由兜底改 Reload。 */
+  $('btnStart').disabled = false;
+
   window.__TD_EXAM__ = {
     get state() { return S; }, core: C, finalize, enterModule2,
     get remaining() { return S && S.endsAt ? S.endsAt - Date.now() : 0; }
