@@ -1,6 +1,6 @@
 # TASKS.md — 任务单与验收台账
 
-> 最后更新：2026-11-25（HK）｜维护：主会话「当前工作进度」
+> 最后更新：2026-11-26（HK）｜维护：主会话「当前工作进度」
 >
 > 口径修正：题库规模与 Firebase 状态以**实测**为准（见「基线快照」）；旧版 1009 与「清 Firebase 死代码」待办两条已作废，别再照着排期。
 
@@ -17,15 +17,16 @@
 - 推送走 `safe_push.sh`，禁止 `git push --force`。
 - `TimNotCook/SAT-Math-Prep` 是**另一个线上仓库**，不是本项目目标库；本项目唯一写入目标是 `SAT-Math`。对它的 404 属于“无权限看到”，不等于已删除，不要据此推断。
 
-## 基线快照（2026-11-25 实测，附量法）
+## 基线快照（2026-11-26 实测，附量法）
 
 | 项 | 值 | 怎么量的 |
 |---|---|---|
-| `origin/main` | `568f03c`（2026-11-25 文档收尾后；抓取时曾为 `97613d0`） | `git ls-remote origin refs/heads/main` |
+| `origin/main` | `f329e03`（2026-11-26 抓取时） | `git ls-remote origin refs/heads/main` |
 | 线上页面 | `index` / `drill` / `exam` / `wrong` / `jiangyi` 全部 HTTP 200 | `curl -s -o /dev/null -w "%{http_code}" https://timnotcook.github.io/SAT-Math/<page>.html` |
-| 题库 | **1010** 题：easy 281 / medium 565 / hard 164；mcq 641 / grid 369 | `node -e` 起 `vm` 跑 `data/questions.js`，按 `level` 与 `type` 计数（注意字段名是 `level`，没有 `difficulty`） |
-| 单元分布 | 1–268 / 2–204 / 3–453 / 4–85 | 同上一条脚本，按 `unit` 计数 |
-| 登录后端（线上实况） | **Supabase 已启用**（用户名即身份：`usernames` / `username_alias` / `resolve_login`；`cloud-config.js` 里 `url` + `anonKey` + `emailDomain: 'satmath.local'`）；WorkBuddy `endpoint` + `publishableKey` 仍在；GitHub 令牌通道在 | `sed -n '1,30p' cloud-config.js`；`git show origin/main:supa-cloud.js` |
+| 题库 | **1292** 题（id 全唯一）：easy 281 / medium 565 / hard 164 + 2026-11-25/26 逐字录入包（R03/R04 等）；mcq / grid 比例随新包变动 | `node -e` 起 `vm` 跑 `data/questions.js`，`TD_BANK.questions.length` 与 `new Set(id)` 计数（字段名是 `level`，没有 `difficulty`） |
+| 单元分布 | 1–268 / 2–333 / 3–453 / 4–238 |
+| 讲义复习进度 | 官方 24 节 / 应有 **243** / 已录 **226** / 缺 **17** / 完成 **23 / 24 节**（缺 4.5 16、2.5 #10） | `python3 tools/gen_jiangyi_reconcile.py`（输出 `need=243 have=226`）与 `docs/jiangyi-backlog.md` | 同上一条脚本，按 `unit` 计数 |
+| 登录后端（线上实况） | **Supabase 邮箱 magic link 单通道**（`cloud-config.js` 的 `supabase.url` + `anonKey` + `siteUrl`；`/otp` 显式带 `redirect_to` 回跳 `/SAT-Math/`）；GitHub 令牌、用户名密码、Firebase、WorkBuddy 登录通道均已下线。WorkBuddy 的 `endpoint` / `publishableKey` **只服务图片识别 VLM**，不是登录 | `sed -n '1,30p' cloud-config.js`；`docs/bugfix-2026-11-25-login-otp-only.md`；`docs/account-model.md` |
 | Firebase 状态 | 模块已摘除：`firebase-cloud.js` 与 `vendor/firebase/` 均不存在，五页无引用，CSP 无 firebase 域名 | `ls firebase-cloud.js vendor/firebase`；`grep -c firebase-cloud *.html` |
 | Supabase 迁移分支 | `backup/supabase-auth-5a0c22b` 仍存在且**未合并**（`git merge-base --is-ancestor 5a0c22b origin/main` 退出码 1） | 同左命令 + `git ls-remote --heads origin` |
 
@@ -33,13 +34,17 @@
 
 | 人 | 任务 | 阻塞点（现状） | 验收 |
 |---|---|---|---|
-| 码农 α | 讲义录入：1.6 已收口，接着 2.1 往后推，**同一时间只许一个人写 `data/jiangyi.js`** | 讲义 243 道仅录 49，**缺口 194 道是当前最大一笔**（2.x 74 + 3.x 68 + 4.x 52）；派工底稿 `docs/jiangyi-backlog.md`，开工材料 `docs/jiangyi-prep/`（3.1–4.5 共 120 道已备齐） | 每节「已录 = 应有」且 `npm test` 绿 |
-| 开发者 | ① 给阴影题补 `region`（P0-2），按原题 PDF 逐个核对阴影方向；② 批量修数学排版（P1-6）：`f (x)`→`f(x)`、`(2/3)` 去括号、问号前空格；③ 加校验：题干含 shaded 但 spec 无 `region` 就报错；④ 云主机清僵尸副本（仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本） | 阴影题「4 道 / 5 道」口径待 Tim 给准数；云主机疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对后再动 | 阴影题逐个截图与原题一致；校验脚本能拦住同类错误；题库仍 **1010** 且判分回归全过 |
-| 码农 β | 登录三条通道收尾（用户名映射已落地，补档案/云同步回归 + 设置面板账户页） | 等 Supabase / WorkBuddy 后端定稿；Firebase 已摘，不再受其牵制 | 真机三通道登录；换设备能看到进度 |
+| 码农 α | 讲义录入：剩 4.5 圆 一节 + 2.5 #10 补录，**同一时间只许一个人写 `data/jiangyi.js`** | 已录 226 / 应有 243，**缺 17**：4.5 十六题 + 2.5 #10（选项图待 renderPanel 扩点图）；派工底稿 `docs/jiangyi-backlog.md`、开工材料 `docs/jiangyi-prep/4.5.md` | 每节「已录 = 应有」且 `npm test` 绿 |
+| 开发者 | ① 给阴影题补 `region`（P0-2），按原题 PDF 逐个核对阴影方向；② 批量修数学排版（P1-6）：`f (x)`→`f(x)`、`(2/3)` 去括号、问号前空格；③ 加校验：题干含 shaded 但 spec 无 `region` 就报错；④ 云主机清僵尸副本（仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本） | 阴影题「4 道 / 5 道」口径待 Tim 给准数；云主机疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对后再动 | 阴影题逐个截图与原题一致；校验脚本能拦住同类错误；题库仍 **1292** 且判分回归全过 |
+| 码农 β | 账号面板与云同步收尾（magic link 单通道下的档案读取、换设备进度、设置页回归） | 6 位数字码需自定义 SMTP + 模板改造后才能切回；当前只能 magic link | 真机 magic link 登录；换设备能看到进度 |
 | 主会话（我） | 验收与台账：维护本文件、复核各人结论、跑站点与题库回归；不碰业务代码 | — | 每人交付必须带 commit hash + 线上验证证据，缺一不签收 |
 
 ## 已完成（勿重复做）
 
+- **讲义 2.x 全部入库**（2.1 `6e7300a` / 2.2 `0235019` / 2.3 `ad1b592` / 2.4 `7cb7e7b` / 2.5 `4a2f313` / 2.6 `21bc683` / 2.7 `1017ddf`），剩 2.5 #10 一条挂在 α。
+- **讲义 3.x 全部入库**（3.1 `0f078f1` / 3.2 `bad4eb5` / 3.3 `00cf518` / 3.4 `657e0a9` / 3.5+3.6 `27e3efa`），68 / 68 全绿。
+- **讲义 4.1–4.4 入库**（4.1 `dde65b0` / 4.2 `234b58c` / 4.3 `f329e03` / 4.4 `fc10e43`），官方 U4 已录 36 / 52。
+- **JY1-005 / JY1-040 选项图接线**（`523506c` + `6cc86cd`）：两题选项按钮各 4 张矢量图，2026-11-26 线上实测 `n=4 / svg=4`；缺口表状态由「待修」改「已修复」。
 - **登录用户名映射**：`docs/sql/account-model.sql` 落地 `usernames` / `username_alias` / 三个 SECURITY DEFINER 函数；本库无 `profiles` 表，档案落 `public.progress`。设置入口回归脚本 `tools/verify_acct_entry.mjs`。**不要再按「无用户名映射」派活。**
 - **文案 / 导航 / 窄屏（β 原 ①②）**：五项导航统一、品牌直指 `drill.html`、统一「错题回顾」、390 窄屏模考 `Section` 不再截断；三档 21 屏次 0 溢出，证据 `docs/VERIFY-2026-11-25.md` §7、截图 `docs/ui-shots/narrow-2026-11-25/`。
 - **P0-1 模考旧存档修复**：闭合于 `30dfb0a`（恢复前校验 `m1Size`/`paper`/`endsAt`，残缺存档按官方 22/22 重建或明示过期），边界补强在 `114b81a`（作废不静默清零、模块二刷新、超时刷新）。回归证据：`test/session.test.js`（缺 `m1Size` 补 22、`m1Size=30` → expired/m1、`m1Size=0` → `sessionRange` 返回 null）。
@@ -58,7 +63,7 @@
 ## 冲突与待澄清（开工前先看）
 
 1. **阴影题数量对不上**：开发者①写「4 道」，验收写「5 道」。需要老板给准数，否则验收无法判定。
-2. 「题库 1009」是 2026-11-24 前的旧口径：删掉的是页面上的旧数字文案，不是题目。现按 `data/questions.js` 实计 **1010**（`questions.json` 旧导出仍 1009）；开发者验收以 1010 为准。
+2. 题库口径：`data/questions.js` 实计 **1292**（2026-11-26）；`data/questions.json` 是**不维护的历史快照**（1009，见 `docs/transcribe-spec.md` §1），任何「题库 1009/1010」的旧说法都过期，一律以 js 实计为准。
 3. **`SAT-Math-Prep` 边界（全员遵守，此前“可清理”结论作废）**：它是另一个线上仓库，不是本项目目标库。任何交付物、任务单、素材都**不许往里放**，也不许拿它当备份或第二信源；本机 `~/Work/SAT-Math-Prep` 副本**原样保留**——不删除、不改动、不往里提交（用户 2026-11-24 明确指示）。用本机凭据访问同样是 `Repository not found`，属于“无权限看到”，不等于已删除。
 
 ## 签收规则

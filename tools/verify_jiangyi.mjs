@@ -110,8 +110,11 @@ for (const [i, q] of qs.entries()) {
     else if (ans.toUpperCase().charCodeAt(0) - 65 >= choices.length) bad('answer-range', `${where} answer=${ans} 超出 ${choices.length} 个选项`);
     if (choices.some(c => !String(c == null ? '' : c).trim())) bad('choice-empty', `${where} 有空选项`);
   } else {
-    if (ans === '' || !Number.isFinite(Number(ans.replace(/^[-−]/, '-').replace(/,/g, '')))) {
-      bad('answer-grid', `${where} 填空题 answer 必须是数字：${ans || '(空)'}`);
+    /* 填空题：answer 可以照抄答案页的备选写法（`.5 or 1/2`、`第一空 250，第二空 123.5`），
+       判分只认数值字段 value；value 缺失才退回 answer 是否可解析为数字。 */
+    const ansNum = Number(String(ans).replace(/^[-−]/, '-').replace(/,/g, ''));
+    if (!Number.isFinite(q.value) && !Number.isFinite(ansNum)) {
+      bad('answer-grid', `${where} 填空题缺数值 value，answer 也不可解析：${ans || '(空)'}`);
     }
   }
 
@@ -135,14 +138,17 @@ for (const [k, n] of counts.entries()) {
   if (!declared.has(k)) warn.push(`${k}：录了 ${n} 题，但 units[].sections 未声明该节`);
 }
 
-/* 顺序：strict 小节号 → 页码 → 页内题号 */
+/* 顺序：官方 24 节与教材原题子组各自独立排（strict 小节号 → 页码 → 页内题号）。
+   教材原题来自练习册 P200–207、section 仍写 4.1/4.2 但单独成组，不能和讲义页混排。 */
 const secKey = s => (+String(s).split('.')[0] || 0) * 100 + (+String(s).split('.')[1] || 0);
-for (let i = 1; i < qs.length; i++) {
-  const a = qs[i - 1], b = qs[i];
-  if (!a || !b) continue;
-  if (secKey(a.section) > secKey(b.section) || (a.section === b.section && (a.page > b.page || (a.page === b.page && a.no > b.no)))) {
-    bad('order', `${a.id} / ${b.id} 顺序不符合「小节号 → 页码 → 页内题号」`);
-    break;
+for (const [label, list] of [['官方小节', qs.filter(q => q.group !== 'textbook')], ['教材原题', qs.filter(q => q.group === 'textbook')]]) {
+  for (let i = 1; i < list.length; i++) {
+    const a = list[i - 1], b = list[i];
+    if (!a || !b) continue;
+    if (secKey(a.section) > secKey(b.section) || (a.section === b.section && (a.page > b.page || (a.page === b.page && a.no > b.no)))) {
+      bad('order', `${label}：${a.id} / ${b.id} 顺序不符合「小节号 → 页码 → 页内题号」`);
+      break;
+    }
   }
 }
 

@@ -610,7 +610,7 @@
   function renderRows() {
     var host = $('imgimpRows'); if (!host) return;
     host.innerHTML = pages.length ? pages.map(rowHtml).join('') :
-      '<div class="imgimp-empty">粘贴或拖入题目截图后，系统会自动识别文字与公式、自动匹配题库并写入错题本，无需任何额外操作。</div>';
+      '<div class="imgimp-empty">粘贴或拖入题目截图后，系统会自动识别文字与公式、自动匹配题库并写入错题回顾，无需任何额外操作。</div>';
   }
   function rowHtml(p) {
     var cand = p.cands || [];
@@ -751,7 +751,7 @@
       var added = res && res.added ? res.added : 0;
       var skipped = res && res.skipped ? res.skipped : 0;
       var unmatched = pages.filter(function (p) { return p.ocr && !p.error && !p.qid; }).length;
-      var msg = '已自动识别并写入错题本：' + added + ' 道';
+      var msg = '已自动识别并写入错题回顾：' + added + ' 道';
       if (unmatched) msg += '；' + unmatched + ' 道未能确认，为免导错已跳过（可重试）';
       if (fail) msg += '；' + fail + ' 张识别失败（可点「重试失败项」）';
       if (skipped) msg += '；' + skipped + ' 道因已有作答被跳过';

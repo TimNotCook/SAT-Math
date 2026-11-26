@@ -15,9 +15,9 @@
       "layer": "讲义复习",
       "loc": "1.5 线性不等式与图像 · 讲义 p30 #1",
       "kind": "选项内容缺",
-      "detail": "四个选项是四张坐标图，choices 只有 A–D，页面只印出四个字母。数据侧本轮已重做：照 p30 四张嵌入图（A=xref3463 / B=3466 / C=3467 / D=3470）重校 JY_FIG 的 quad spec——四条线同为 y 截距 3、|斜率|0.60、格距 1，A 降影在下（正确图 y ≤ 3 − 0.6x）、B 同线影在上、C 升影在下、D 升影在上；并给出单格渲染入口 JY_FIG.renderPanel('JY1-040', 'A'..'D')。页面侧仍缺「选项里放图」的那一步，等编程者定字段名后接线，故状态仍记待修。",
-      "evidence": "本地渲染对照：docs/jiangyi-proof 与临时对照图（原页四图逐格对齐，格距方正）；JY_FIG.renderPanel('JY1-040','A'..'D') 四个面板各出 SVG（3584–3686 字节，无空图）。线上 ?b=JY1&s=1.5&i=1 目前仍是四个字母。",
-      "status": "待修"
+      "detail": "四个选项是四张坐标图，choices 只有 A–D，原页只印四个字母。现已由 choiceFigures 统一把四张矢量图放进选项按钮：JY1-040 四面板照 p30 原页（A=xref3463 / B=3466 / C=3467 / D=3470）——四条线同为 y 截距 3、|斜率|0.60、格距 1，A 降影在下（正确图 y ≤ 3 − 0.6x）、B 同线影在上、C 升影在下、D 升影在上。字段与渲染统一见 commit 6cc86cd。",
+      "evidence": "修复 commit 6cc86cd（统一 choiceFigures 字段，JY1-040 四图进入选项按钮）。2026-11-26 无头 Chrome 实测：线上 jiangyi.html?b=JY1&s=1.5&i=1 四个 .drill-choice 各含 1 个 svg（n=4 / svg=4），选项内不再是裸字母。",
+      "status": "已修复"
     },
     {
       "id": "JY1-042",
@@ -51,9 +51,9 @@
       "layer": "讲义复习",
       "loc": "1.1 线性方程与函数图像 · 讲义 p9 #5",
       "kind": "选项内容缺",
-      "detail": "与 JY1-040 同类：四个选项是四张坐标图（a x + b y = b，0 < a < b），choices 只有 A–D。data/jiangyi_figures.js 里早有 quad spec（C 为答案图：y 截距 1、斜率 −0.5、x 截距 2），本轮把四格格距按原页改成 0.5（原来画成 1，比原书稀一半）；选项里同样还只是字母。",
-      "evidence": "data/jiangyi_figures.js 'JY1-005' 四面板渲染 11228 字节、格距 0.5；线上 ?b=JY1&s=1.1&i=5 仍是四个字母。",
-      "status": "待修"
+      "detail": "与 JY1-040 同类：四个选项是四张坐标图（a x + b y = b，0 < a < b），choices 只有 A–D。data/jiangyi_figures.js 里早有 quad spec（C 为答案图：y 截距 1、斜率 −0.5、x 截距 2），四格格距按原页为 0.5；现已接入 choiceFigures，选项内直接渲染矢量图。",
+      "evidence": "修复 commit 523506c（JY1-005 四张选项图接入 choiceFigures，spec 按 p9 原页重校）。2026-11-26 无头 Chrome 实测：线上 jiangyi.html?b=JY1&s=1.1&i=5 四个 .drill-choice 各含 1 个 svg（n=4 / svg=4）。",
+      "status": "已修复"
     }
   ]
 }

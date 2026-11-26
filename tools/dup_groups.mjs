@@ -92,7 +92,7 @@ if (process.argv.includes('--doc')) {
   L.push(`| 题数（题库 + 讲义） | 重复组 | 多余副本 | 两两对数 | 组大小分布 |`);
   L.push('|---|---|---|---|---|');
   L.push(`| ${stats.questions} | ${stats.groups} | ${stats.extraCopies} | ${stats.pairs} | ${Object.entries(stats.sizeDist).map(([k, v]) => k + ' 题组 ×' + v).join('、')} |\n`);
-  L.push('> 与 Tim 口述的「60 组」对账：60 与上表**两两对数**一致（并入讲义 45 题后）。「组数」按定义是 ' + stats.groups + '，两个数字不是一回事，别再混用。\n');
+  L.push('> 与 Tim 口述的「60 组」对账：60 是 2026-11-25 时点的**两两对数**，入库增长后现为 ' + stats.pairs + '；「组数」按定义是 ' + stats.groups + '。两个数字不是一回事，别再混用。\n');
   L.push('## 重复组清单\n');
   L.push('| # | canonical（显示保留） | 同组 alias（标 alias / 错题归并到此） |');
   L.push('|---|---|---|');
