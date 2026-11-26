@@ -62,7 +62,7 @@ def main():
                 vm = re.search(r'"value":(null|[^,}\s]+)', lines[i])
                 if vm:
                     newv = "null" if p["value"] is None else json.dumps(p["value"])
-                    lines[i] = lines[:vm.start(1)] if False else lines[i][:vm.start(1)] + newv + lines[i][vm.end(1):]
+                    lines[i] = lines[i][:vm.start(1)] + newv + lines[i][vm.end(1):]
             break
         if not hit:
             missing.append(qid)
