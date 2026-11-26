@@ -9,6 +9,7 @@
   4. unit.total = 该单元所有叶子节 count 之和（群组节点不重复计入）。
   5. 题库里出现、但 units 里没有声明的 section（例如 2.6 / 2.7）：脚本只报告，绝不自动新增节点。
   6. 声明了但一题没有的叶子节：报告为 0，不删除节点。
+  7. 带 retired / mergedInto 的题不计入任何计数（裁定见 docs/transcribe/bank-rulings.json）。
 
 用法：
   python3 tools/rollup_declarations.py            # 只出对账表，不改文件
@@ -34,7 +35,9 @@ def load():
 
 
 def compute(bank):
-    actual = Counter(q.get('section') for q in bank['questions'])
+    # 口径 7：retired / mergedInto 的题不进任何板块题量与 unit.total（裁定源 = docs/transcribe/bank-rulings.json）。
+    actual = Counter(q.get('section') for q in bank['questions']
+                     if not q.get('retired') and not q.get('mergedInto'))
     declared = set()
     groups = {}
     leaf_per_unit = {}
