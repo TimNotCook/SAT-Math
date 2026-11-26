@@ -146,6 +146,16 @@
       var sweep = a.a1 >= a.a0 ? 0 : 1;
       g.push('<path d="M ' + x0.toFixed(1) + ' ' + y0.toFixed(1) + ' A ' + r + ' ' + r + ' 0 ' + large + ' ' + sweep + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1) + '" fill="none" stroke="' + LINE + '" stroke-width="' + (a.sw || o.sw || 1.6) + '"' + (a.dash ? ' stroke-dasharray="7 5"' : '') + '/>');
     });
+    // 弧与弦围成的「月牙」：先沿线画弧再回原点的闭合路径，用来给 4.5 #6 那块阴影上色
+    (o.arcFills || []).forEach(function (a) {
+      var cx = a.cx, cy = a.cy, r = a.r;
+      var t0 = a.a0 * Math.PI / 180, t1 = a.a1 * Math.PI / 180;
+      var x0 = (cx + r * Math.cos(t0)).toFixed(1), y0 = (cy - r * Math.sin(t0)).toFixed(1);
+      var x1 = (cx + r * Math.cos(t1)).toFixed(1), y1 = (cy - r * Math.sin(t1)).toFixed(1);
+      var large = Math.abs(a.a1 - a.a0) > 180 ? 1 : 0;
+      var sweep = a.a1 >= a.a0 ? 0 : 1;
+      g.push('<path d="M ' + x0 + ' ' + y0 + ' A ' + r + ' ' + r + ' 0 ' + large + ' ' + sweep + ' ' + x1 + ' ' + y1 + ' Z" fill="' + (a.fill || '#C9D2DC') + '" fill-opacity="0.45" stroke="' + LINE + '" stroke-width="' + (a.sw || 1.2) + '"/>');
+    });
     (o.labels || []).forEach(function (t) {
       g.push('<text x="' + t.x + '" y="' + t.y + '" font-size="' + (t.size || 14) + '" fill="' + (t.fill || INK) + '"' +
         (t.italic ? ' font-style="italic"' : '') + ' text-anchor="' + (t.anchor || 'start') + '">' + esc(t.t) + '</text>');
@@ -743,7 +753,76 @@
         { t: '(0, 1)', x: 214, y: 52, size: 12 },
         { t: 'y', x: 218, y: 30, italic: true, size: 13 },
         { t: 'x', x: 378, y: 166, italic: true, size: 13 },
-        { t: '\u03b8', x: 244, y: 152, italic: true, size: 14 } ] }
+        { t: '\u03b8', x: 244, y: 152, italic: true, size: 14 } ] },
+    // p181 #2：圆上 A/B/C 三点，B 处内接角 55°（弧 AC = 110°）
+    'JY4-129': { type: 'geo', w: 430, h: 330, sw: 1.5,
+      segs: [[[200, 80], [100.1, 217.4]], [[200, 80], [297.4, 224.3]]],
+      arcs: [{ cx: 200, cy: 185, r: 105, a0: 0, a1: 180 }, { cx: 200, cy: 185, r: 105, a0: 180, a1: 360 }],
+      labels: [
+        { t: 'B', x: 194, y: 68, italic: true, size: 15 },
+        { t: 'A', x: 84, y: 232, italic: true, size: 15 },
+        { t: 'C', x: 300, y: 240, italic: true, size: 15 },
+        { t: '55\u00b0', x: 196, y: 108, size: 13 } ] },
+    // p182 #3：圆心 P，A 在左侧，B/C 在右侧，B、C 处各 20°，P 处 x°（弧 BC = 280° → x = 80）
+    'JY4-130': { type: 'geo', w: 430, h: 330, sw: 1.5,
+      segs: [[[100, 180], [276.6, 115.7]], [[100, 180], [276.6, 244.3]], [[276.6, 115.7], [276.6, 244.3]],
+             [[200, 180], [276.6, 115.7]], [[200, 180], [276.6, 244.3]]],
+      arcs: [{ cx: 200, cy: 180, r: 100, a0: 0, a1: 180 }, { cx: 200, cy: 180, r: 100, a0: 180, a1: 360 }],
+      dots: [[200, 180]],
+      labels: [
+        { t: 'A', x: 82, y: 178, italic: true, size: 15 },
+        { t: 'B', x: 280, y: 108, italic: true, size: 15 },
+        { t: 'C', x: 280, y: 258, italic: true, size: 15 },
+        { t: 'P', x: 204, y: 174, italic: true, size: 15 },
+        { t: '20\u00b0', x: 228, y: 122, size: 13 },
+        { t: '20\u00b0', x: 228, y: 232, size: 13 },
+        { t: 'x\u00b0', x: 248, y: 188, size: 13 } ] },
+    // p184 #4：圆心 O，C 顶、D 右、A 右下、B 左下；弧 ADC 对应圆心角 x = 100°
+    'JY4-131': { type: 'geo', w: 430, h: 340, sw: 1.5,
+      segs: [[[200, 180], [200, 80]], [[200, 180], [298.5, 197.4]]],
+      arcs: [{ cx: 200, cy: 180, r: 100, a0: 0, a1: 180 }, { cx: 200, cy: 180, r: 100, a0: 180, a1: 360 }],
+      dots: [[200, 180], [286.6, 130], [106, 214.2]],
+      labels: [
+        { t: 'C', x: 194, y: 66, italic: true, size: 15 },
+        { t: 'D', x: 294, y: 126, italic: true, size: 15 },
+        { t: 'A', x: 306, y: 208, italic: true, size: 15 },
+        { t: 'B', x: 88, y: 226, italic: true, size: 15 },
+        { t: 'O', x: 180, y: 200, italic: true, size: 15 },
+        { t: 'x\u00b0', x: 224, y: 138, size: 13 } ] },
+    // p184 #5：半圆，OA/OB 为半径，圆心 O 在底边中点，x° 在 O 处
+    'JY4-132': { type: 'geo', w: 430, h: 340, sw: 1.5,
+      segs: [[[90, 245], [310, 245]], [[200, 245], [100.3, 198.5]], [[200, 245], [209.6, 135.4]]],
+      arcs: [{ cx: 200, cy: 245, r: 110, a0: 0, a1: 180 }],
+      dots: [[200, 245]],
+      labels: [
+        { t: 'A', x: 88, y: 196, italic: true, size: 15 },
+        { t: 'B', x: 214, y: 126, italic: true, size: 15 },
+        { t: 'O', x: 190, y: 268, italic: true, size: 15 },
+        { t: 'x\u00b0', x: 208, y: 226, size: 13 } ] },
+    // p185 #6：OB⊥BC（切于 B），A 在 OC 上，OB = AC = 6；阴影 = 弦 AB 与弧 AB 之间那块
+    'JY4-133': { type: 'geo', w: 430, h: 330, sw: 1.6,
+      segs: [[[150, 195], [167.4, 96.5]], [[167.4, 96.5], [337.9, 126.6]], [[150, 195], [337.9, 126.6]], [[167.4, 96.5], [244.0, 160.8]]],
+      arcs: [{ cx: 150, cy: 195, r: 100, a0: 0, a1: 180 }, { cx: 150, cy: 195, r: 100, a0: 180, a1: 360 }],
+      arcFills: [{ cx: 150, cy: 195, r: 100, a0: 20, a1: 80 }],
+      rights: [{ x: 167.4, y: 96.5, a: [0.9397, -0.342], b: [0.342, 0.9397], len: 13 }],
+      dots: [[150, 195]],
+      labels: [
+        { t: 'O', x: 124, y: 218, italic: true, size: 15 },
+        { t: 'B', x: 160, y: 82, italic: true, size: 15 },
+        { t: 'A', x: 246, y: 176, italic: true, size: 15 },
+        { t: 'C', x: 344, y: 132, italic: true, size: 15 } ] },
+    // p79 #10：四个选项各是一张点图（标准差最大那个）。每格走 dotplot 面板，靠 renderPanel 单选渲染
+    'JY2-054': { type: 'dotplot', w: 400, h: 130, x: { min: 0, max: 9 }, ticks: [], rows: [],
+      panels: {
+        A: { type: 'dotplot', w: 400, h: 130, x: { min: 0, max: 9 }, ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], rowH: 96,
+             rows: [{ dots: [{ x: 4, n: 1 }, { x: 5, n: 1 }, { x: 6, n: 2 }, { x: 7, n: 2 }, { x: 8, n: 3 }] }] },
+        B: { type: 'dotplot', w: 400, h: 130, x: { min: 0, max: 9 }, ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], rowH: 96,
+             rows: [{ dots: [{ x: 3, n: 1 }, { x: 4, n: 4 }, { x: 5, n: 4 }] }] },
+        C: { type: 'dotplot', w: 400, h: 130, x: { min: 0, max: 9 }, ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], rowH: 96,
+             rows: [{ dots: [{ x: 2, n: 2 }, { x: 3, n: 2 }, { x: 4, n: 2 }, { x: 5, n: 3 }] }] },
+        D: { type: 'dotplot', w: 400, h: 130, x: { min: 0, max: 9 }, ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], rowH: 96,
+             rows: [{ dots: [{ x: 1, n: 2 }, { x: 3, n: 2 }, { x: 4, n: 1 }, { x: 5, n: 2 }, { x: 8, n: 2 }] }] }
+      } }
   };
 
   window.JY_FIG = {
@@ -759,13 +838,20 @@
       if (s.type === 'boxplot') return wrap(boxplot(s));
       return wrap(s.type === 'quad' ? quad(s) : plane(s));
     },
-    // 单格渲染：把 quad spec 里的某一个选项面板单独画出来（renderPanel('JY1-040','A')）。
+    // 单格渲染：把 spec 里的某一个面板单独画出来（renderPanel('JY1-040','A')）。
     // 选项图要「一个选项一张图」时走这里——不用另造字段，也不用再往 specs 里塞第二套 id；
-    // 非 quad spec 或该面板不存在时返回空串，调用方据此回退成纯文字选项。
+    // 面板按自己的 type 分派（quad 面板历来不带 type，沿用 plane），点图/散点/直方图都能单独出；
+    // 面板不存在时返回空串，调用方据此回退成纯文字选项。
     renderPanel: function (id, letter) {
       var s = specs[id];
-      if (!s || s.type !== 'quad' || !s.panels || !s.panels[letter]) return '';
-      return wrap(plane(s.panels[letter]));
+      if (!s || !s.panels || !s.panels[letter]) return '';
+      var p = s.panels[letter];
+      if (p.type === 'dotplot') return wrap(dotplot(p));
+      if (p.type === 'scatter') return wrap(scatter(p));
+      if (p.type === 'hist') return wrap(hist(p));
+      if (p.type === 'boxplot') return wrap(boxplot(p));
+      if (p.type === 'geo') return wrap(geo(p));
+      return wrap(plane(p));
     }
   };
 })();
