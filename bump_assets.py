@@ -16,7 +16,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__)) if not _ARGS else os.path.absp
 
 # 参与哈希的文件（顺序固定）
 HASH_FILES = [
-    'data/questions.js', 'data/text.js', 'data/figures.js',
+    'data/questions.js', 'data/bank-active.js', 'data/text.js', 'data/figures.js',
     'data/figure_crops.js', 'data/choice_crops.js',
     'grade-core.js', 'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
     'exam.js', 'drill.js', 'choice-figures.js', 'crossout.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
@@ -34,7 +34,7 @@ HASH_FILES = [
 ]
 # 需要加版本号的脚本（CSS 也一起，避免样式缓存）
 BUMP = [
-    'data/questions.js', 'data/text.js', 'data/figures.js',
+    'data/questions.js', 'data/bank-active.js', 'data/text.js', 'data/figures.js',
     'data/figure_crops.js', 'data/choice_crops.js',
     'grade-core.js', 'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
     'exam.js', 'drill.js', 'choice-figures.js', 'crossout.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
@@ -44,7 +44,7 @@ BUMP = [
     'data/aliases.js',
 ]
 HTML = ['index.html', 'exam.html', 'drill.html', 'wrong.html', 'jiangyi.html']
-TOKEN = re.compile(r'(?:src|href)="[^"]*?\?v=([^"]+)"')
+TOKEN = re.compile(r'(?:src|href)"[^"]*?\?v=([^"]+)"')
 
 
 def page_versions():
