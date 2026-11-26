@@ -120,10 +120,11 @@
       b.addEventListener('click', function () { onPick(+b.dataset.unit); });
     });
   }
-  function sectionRow(s, label, meta, go, href, done) {
+  function sectionRow(s, label, meta, go, href, done, sub) {
     return '<a class="drill-section-row" href="' + href + '"' + (done ? ' data-result="1"' : '') + '>' +
       '<span class="drill-section-code">' + esc(s) + '</span>' +
-      '<span class="drill-section-name">' + esc(label) + '</span>' +
+      '<span class="drill-section-name">' + esc(label) +
+      (sub ? '<em class="drill-section-sub">' + esc(sub) + '</em>' : '') + '</span>' +
       '<span class="drill-section-meta">' + esc(meta) + '</span>' +
       '<span class="drill-section-go">' + esc(go) + '</span></a>';
   }
@@ -136,7 +137,7 @@
       var go = done ? '查看结果' : (st.answered ? '继续' : '开始');
       return sectionRow(s, A.SECTION_CN[s] || s,
         st.answered + ' / ' + st.total + ' 题' + (done ? ' · 已公布结果' : (st.completed ? ' · 已完成' : '')),
-        go, href, done);
+        go, href, done, A.SECTION_SUB ? A.SECTION_SUB[s] : '');
     }).join('');
   }
   var activeBoard = 'unit';
@@ -190,15 +191,23 @@
       '<div class="drill-unit-bar-body">' + body + '</div>' +
     '</section>';
   }
-  function accordionHtml(secs, units) {
+  function accordionHtml(secs, units, topicMode) {
     var html = '', first = true;
     units.forEach(function (u) {
       var members = secs.filter(function (s) {
         return A.UNIT_OF(s) === u && !A.isLegacy(s);
       });
       if (!members.length) return;
-      html += unitBar('Unit ' + u + ' · ' + (A.unit(u).cn || ''), groupStats(members),
-        rowsHtml(members), first);
+      var head = 'Unit ' + u + ' · ' + (A.unit(u).cn || ''), sub = '';
+      if (topicMode) {
+        /* 专项训练按册分组：主标题「Unit N · 专项练习」，副标题「XX 册」（取自群组节点 cn/sub） */
+        var gn = A.specialGroupNode ? A.specialGroupNode(u) : null;
+        head = gn && /^Unit\s*\d/.test(gn.cn || '') ? gn.cn
+          : ('Unit ' + u + ' · ' + ((gn && gn.cn) || '专项练习'));
+        sub = (gn && gn.sub) ? '<p class="drill-group-sub">' + esc(gn.sub) + '</p>' : '';
+      }
+      html += unitBar(head, groupStats(members),
+        sub + rowsHtml(members), first);
       first = false;
     });
     var legacy = secs.filter(function (s) { return A.isLegacy(s); });
@@ -256,7 +265,7 @@
       boardNavItem('special', '专项训练', '按 Topic 分组的专项板块', sg, true) +
       jiangyiNavItem();
     var panelHtml;
-    if (activeBoard === 'special') panelHtml = accordionHtml(sp, specialUnits());
+    if (activeBoard === 'special') panelHtml = accordionHtml(sp, specialUnits(), true);
     else if (activeBoard === 'jiangyi') panelHtml = jiangyiAccordionHtml();
     else panelHtml = accordionHtml(reg, A.UNITS.map(function (u) { return u.id; }));
     els.boardPanel.innerHTML = panelHtml || emptyNotice('题库暂未加载板块列表，请刷新页面重试。');
