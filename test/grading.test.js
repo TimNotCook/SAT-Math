@@ -195,6 +195,21 @@ describe('isCorrect：从原始输入到判分结论', () => {
   test('空答案 → 错', () => assert.equal(G.isCorrect(key100, '   '), false));
 });
 
+/* ---------------- 双空 grid-in（官方两空题，如 JY2-014 p45 #1） ----------------
+   原页两个下划线，答案串以 “第一空, 第二空” 存；两空都对才算对，不给部分分。 */
+describe('双空 grid-in（values 数组）', () => {
+  const dual = { type: 'grid', values: [250, 123.5], value: 250, answer: '第一空 250，第二空 123.5' };
+
+  test('两空都对 → 对', () => assert.equal(G.isCorrect(dual, '250, 123.5'), true));
+  test('容差内（第一空 248.5=线值）→ 对', () => assert.equal(G.isCorrect(dual, '248.5, 123.5'), true));
+  test('只填一空 → 错（不给部分分）', () => assert.equal(G.isCorrect(dual, '250'), false));
+  test('两空顺序颠倒 → 错', () => assert.equal(G.isCorrect(dual, '123.5, 250'), false));
+  test('第二空超容差（123.5 的 1% 外）→ 错', () => assert.equal(G.isCorrect(dual, '250, 130'), false));
+  test('空串 → 错', () => assert.equal(G.isCorrect(dual, ' '), false));
+  test('非法输入（字母）→ 错', () => assert.equal(G.isCorrect(dual, 'abc, 123.5'), false));
+  test('分号分隔也认', () => assert.equal(G.isCorrect(dual, '250;123.5'), true));
+});
+
 /* ---------------- 完整装配冒烟 ---------------- */
 describe('app-core.js 完整装配冒烟（vm 假 DOM 沙箱）', () => {
   const APP = loadFullApp();

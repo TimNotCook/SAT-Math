@@ -65,9 +65,26 @@
     return diff <= Math.abs(a) * 0.01 + 1e-9;
   }
 
+  /* Multi-box grid-in (official SAT two-blank items). `values` holds one key per
+     box; the student's entry travels as "第一空, 第二空" in the single v field.
+     Both boxes must be right — College Board awards no partial credit here. */
+  function dualCorrect(q, v) {
+    var parts = String(v).split(/[,;]/).map(function (p) { return p.trim(); });
+    if (parts.length !== q.values.length) return false;
+    return q.values.every(function (key, i) {
+      var entry = gridEntry(parts[i]);
+      if (entry == null) return false;
+      var x = parseNum(entry);
+      if (x == null) return false;
+      var c = acceptedValues({ value: key });
+      return c.some(function (a) { return sameExact(a, x) || sameTol(a, x); });
+    });
+  }
+
   function isCorrect(q, v) {
     if (v == null || String(v).trim() === '') return false;
     if (q.type === 'mcq') return String(v).trim().toUpperCase() === String(q.answer).trim().toUpperCase();
+    if (q.values && q.values.length > 1) return dualCorrect(q, v);
     var entry = gridEntry(v);
     if (entry == null) return false;
     var x = parseNum(entry);
@@ -79,6 +96,6 @@
 
   window.TDGrade = {
     gridEntry: gridEntry, parseNum: parseNum, acceptedValues: acceptedValues,
-    sameExact: sameExact, sameTol: sameTol, isCorrect: isCorrect
+    sameExact: sameExact, sameTol: sameTol, isCorrect: isCorrect, dualCorrect: dualCorrect
   };
 })();

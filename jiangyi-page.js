@@ -175,6 +175,25 @@
           renderQ();
         });
       });
+    } else if (q.values && q.values.length > 1) {
+      /* 官方两空 grid-in：原页就是两处下划线，必须两个框，答案串存成“第一空, 第二空” */
+      var parts = String(val).split(/[,;]/).map(function (p) { return p.trim(); });
+      els.jyAnswerArea.innerHTML = '<div class="jy-grid jy-grid-multi">' +
+        q.values.map(function (_, i) {
+          var lbl = i === 0 ? '第一空' : (i === 1 ? '第二空' : '第' + (i + 1) + '空');
+          return '<span class="jy-grid-label">' + lbl + '</span>' +
+            '<input class="jyGridInput" data-box="' + i + '" type="text" inputmode="decimal" ' +
+            'aria-label="' + lbl + '" placeholder="填写答案" value="' + esc(parts[i] || '') + '">';
+        }).join('') + '<button class="btn primary" type="button" id="jyGridSet">确定</button></div>';
+      var boxes = els.jyAnswerArea.querySelectorAll('.jyGridInput');
+      function commitMulti() {
+        var v = [].slice.call(boxes).map(function (n) { return n.value.trim(); }).join(', ');
+        J.answerQ(q, v); J.setCursor(boardId, section, index);
+      }
+      document.getElementById('jyGridSet').addEventListener('click', function () { commitMulti(); renderQ(); });
+      boxes.forEach(function (n) {
+        n.addEventListener('keydown', function (e) { if (e.key === 'Enter') { commitMulti(); renderQ(); } });
+      });
     } else {
       els.jyAnswerArea.innerHTML = '<div class="jy-grid"><input id="jyGridInput" type="text" inputmode="decimal" ' +
         'aria-label="填写答案" placeholder="填写答案" value="' + esc(val) + '">' +

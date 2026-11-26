@@ -234,7 +234,7 @@ window.JY_BANK = [
  "choices":["25 meters per second", "32 meters per second", "250 meters per second", "324 meters per second"]},
 {"id": "JY2-013", "unit": 2, "section": "2.1", "no": 13, "page": 44, "source": "讲义 p44 #13", "type": "mcq", "answer": "A",
  "stem":"The area of a rectangular region is increasing at a rate of 20 square feet per hour. Which of the following is closest to this rate in square meters per minute? (Use 1 meter = 3.28 feet.)",
- "choices":["0.03", "0.10", "1.09", "2.03"]},{"id": "JY2-014", "unit": 2, "section": "2.2", "no": 1, "page": 45, "source": "讲义 p45 #1", "type": "grid", "figure": "JY2-014", "answer": "第一空 250，第二空 123.5", "value": 250, 
+ "choices":["0.03", "0.10", "1.09", "2.03"]},{"id": "JY2-014", "unit": 2, "section": "2.2", "no": 1, "page": 45, "source": "讲义 p45 #1", "type": "grid", "figure": "JY2-014", "answer": "第一空 250，第二空 123.5", "value": 250, "values": [250, 123.5], 
  "stem":"The scatterplot above shows the relative housing cost and the population density for several large US cities in the year 2005. The equation of the line of best fit is y = 0.0125x + 61. According to the graph, the predicted relative housing cost for a population density of 15,000 people per square mile land area is approximately ____ of the national average cost. According to the equation of the line of best fit, the predicted relative housing cost for a population density of 5,000 people per square mile land area is ____ of the national average cost.",
  "note":"原题两个空：第一空 250（读图），第二空 123.5（代入 y = 0.0125x + 61）。现有 grid 单值模型只承载第一空，value 取 250；note 仅内部记录，不进学生端渲染。"
 },{"id": "JY2-015", "unit": 2, "section": "2.2", "no": 2, "page": 46, "source": "讲义 p46 #2", "type": "mcq", "figure": "JY2-015", "answer": "C", 
