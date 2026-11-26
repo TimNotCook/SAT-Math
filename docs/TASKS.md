@@ -21,7 +21,7 @@
 
 | 项 | 值 | 怎么量的 |
 |---|---|---|
-| `origin/main` | `df0c995`（2026-11-26 收尾时抓取） | `git ls-remote origin refs/heads/main`（完整 40 位：`df0c995165a2bbd7a8d8f8a6a553ba704cb9ebba`） |
+| `origin/main` | `ff93c74`（2026-11-26 收尾抓取；此前 `df0c995` 为设置入口修复、`c8d2266` 为 drill 直链 `?board=jiangyi` 路由修复） | `git -c http.version=HTTP/1.1 ls-remote origin refs/heads/main`（同时 `git log --oneline -5 origin/main` 对链） |
 | 线上页面 | `index` / `drill` / `exam` / `wrong` / `jiangyi` / `history` 全部 HTTP 200 | `curl -s -o /dev/null -w "%{http_code}" https://timnotcook.github.io/SAT-Math/<page>.html` |
 | 题库 | **1292** 题（id 全唯一）：easy 355 / medium 736 / hard 201；mcq 768 / grid 524 | `node -e` 起 `vm` 跑 `data/questions.js`，`TD_BANK.questions.length` 与 `new Set(id)` 计数（字段名是 `level`，没有 `difficulty`） |
 | 单元分布 | 1–268 / 2–333 / 3–453 / 4–238（合计 1292） |
