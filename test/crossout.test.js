@@ -92,3 +92,13 @@ describe('cross-out：按钮与快捷键契约', () => {
     assert.equal(C.isEditableTarget({ tagName: 'DIV' }), false);
   });
 });
+
+/* 2026-11-26：390 宽模考页 #question 仅 326px，right:-28px 的 ✕ 把正文撑到 405，
+   整页可横向滚 15px。窄屏必须把按钮收回行内，否则每次答题都能左右晃。 */
+test('窄屏下划掉按钮不得溢出选项行', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'bluebook.css'), 'utf8');
+  assert.match(css, /@media \(max-width:640px\)[\s\S]*?\.crossout-toggle\{right:6px\}/,
+    '640 以下必须把 .crossout-toggle 的 right 从 -28px 收回行内');
+});

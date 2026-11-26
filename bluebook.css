@@ -1194,3 +1194,11 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px;mar
   filter:grayscale(.9);opacity:.6;
 }
 .crossout-note{margin-top:6px;color:#6b7280!important}
+
+/* 2026-11-26 390 实测：.crossout-toggle 原本 right:-28px，在练习页够宽没事，
+   但模考页 390 下 #question 只有 326px，按钮被挤出视口（正文 scrollWidth 405 > 390），
+   整页能横向滚 15px。窄屏改为贴在内侧，并给选项文字留出 46px 尾部空间。 */
+@media (max-width:640px){
+  .crossout-toggle{right:6px}
+  .drill-choice{padding-right:46px!important}
+}
