@@ -15,6 +15,7 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
 import { checkBase, describeFetchError } from './versions.mjs';
+import { CHROME } from './lib/chrome.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -23,7 +24,6 @@ const argVal = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 
 const HAS_BASE = args.includes('--base');
 const BASE = argVal('--base', 'http://127.0.0.1:8491').replace(/\/+$/, '');
 const OUT = resolve(argVal('--out', '/tmp/sat-nav-proof'));
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = 8491;
 const CDP = 9720 + Math.floor(Math.random() * 120);
 const sleep = ms => new Promise(r => setTimeout(r, ms));

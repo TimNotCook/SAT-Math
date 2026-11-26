@@ -81,9 +81,14 @@
         tools.appendChild(oldRef);
       }
       tools.appendChild(exitBtn);
+      /* 保存状态条（#saveStatus）是 drill.js 开跑时就缓存了引用的节点，
+         这里把整格清空会把它一起丢掉：用户再也看不到「作答自动保存」，
+         aria-live 的播报也一起消失（2026-11-26 抽查发现）。先摘下来再挂回去。 */
+      var saveNode = $('saveStatus');
       right.className = 'drill-context-right bb-tools';
       right.innerHTML = '';
       right.appendChild(tools);
+      if (saveNode) right.appendChild(saveNode);
       // 退出 = back to the section list (no site nav in test mode)
       exitBtn.addEventListener('click', function () {
         var p = new URLSearchParams(location.search);

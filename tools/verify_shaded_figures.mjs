@@ -14,6 +14,7 @@ import { mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve, join } from 'path';
 import { randomBytes } from 'crypto';
+import { CHROME } from './lib/chrome.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -21,7 +22,6 @@ const args = process.argv.slice(2);
 const argVal = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const HAS_BASE = args.includes('--base');
 const OUT = resolve(argVal('--out', '/tmp/shaded-proof'));
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* id -> drill 题位（sec / i，i 为 1 基） */
@@ -82,7 +82,15 @@ let pass = 0; const fails = [];
 for (const c of CASES) {
   await send('Page.navigate', { url: `${BASE}/drill.html?sec=${encodeURIComponent(c.sec)}&i=${c.i}` });
   for (let i = 0; i < 80; i++) { await sleep(120); if ((await ev('document.readyState')) === 'complete') break; }
-  await sleep(1200);
+  /* 别用固定 sleep 赌渲染完成：drill.html 里 #qNumber 初值是「1」，
+     渲染没跟上时读到的就是 1，会把「题位没跳过去」误判成「图没了」。
+     轮询到题号等于期望值再取图，最多等 6 秒。 */
+  for (let i = 0; i < 40; i++) {
+    const got = parseInt(await ev(`(document.getElementById('qNumber')||{}).textContent || ''`), 10);
+    if (got === c.i) break;
+    await sleep(150);
+  }
+  await sleep(400);
   const info = await ev(`(function(){
     var q = document.getElementById('qNumber');
     var f = document.querySelector('.td-figure');

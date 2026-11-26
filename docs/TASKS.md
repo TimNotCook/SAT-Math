@@ -67,6 +67,8 @@
 - **订正后错题记录蒸发**：`app-core.js` `setAnswer` 落 `st.wrongLog`（只增不删），`wrong-page.js` `collect()` 对「已答对但曾答错」补记并标 `corrected`。`tools/verify_grading_ui.mjs` 6/6（本地 + 线上）。
 - **线上 `sw.js` 混入 git 冲突标记**（`9bcf1bd` rebase 带进；`6090e45` 只清六页 html）：service worker 注册 `evaluation failed`，离线缓存与旧缓存清理全哑。已清理并保留构建令牌；`verify_assets.mjs` 新增 `new Function(sw.js)` 语法解析 + 根目录冲突标记扫描（负向测试确认会红）。
 
+- **练题页「作答自动保存」指示器被外壳删除**：`bluebook-shell.js` 清空 `.drill-context-right` 时把 `#saveStatus` 一起丢掉，drill.js 往脱离 DOM 的节点写文本、静默失效。已改为先摘下再挂回；`tools/verify_flows.mjs` 守这条。同轮把 11 个 CDP 脚本的 Chrome 路径收进 `tools/lib/chrome.mjs`（`CHROME_BIN` 优先），Linux/CI 可跑。
+
 ## 冲突与待澄清（开工前先看）
 
 1. ~~阴影题数量对不上~~ 已定案，见下节「已定案（勿再问）」第 1 条，按 **5 道** 验收。

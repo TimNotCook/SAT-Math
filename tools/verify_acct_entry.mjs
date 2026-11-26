@@ -14,6 +14,7 @@ import { mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve, join } from 'path';
 import { randomBytes } from 'crypto';
+import { CHROME } from './lib/chrome.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -21,7 +22,6 @@ const args = process.argv.slice(2);
 const argVal = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const HAS_BASE = args.includes('--base');
 const OUT = resolve(argVal('--out', '/tmp/sat-acct-proof'));
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /* 端口必须自证是「本仓库」的服务器：固定端口曾被别的 worktree 的 http.server 占住，

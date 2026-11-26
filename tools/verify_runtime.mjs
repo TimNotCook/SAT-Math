@@ -17,6 +17,7 @@ import { mkdirSync, writeFileSync, unlinkSync, existsSync, readFileSync } from '
 import { fileURLToPath } from 'url';
 import { dirname, resolve, join } from 'path';
 import { randomBytes } from 'crypto';
+import { CHROME } from './lib/chrome.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -24,7 +25,6 @@ const args = process.argv.slice(2);
 const argVal = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const HAS_BASE = args.includes('--base');
 const OUT = resolve(argVal('--out', '/tmp/runtime-proof'));
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const PAGES = ['index.html', 'drill.html', 'exam.html', 'wrong.html', 'jiangyi.html', 'history.html'];
@@ -161,12 +161,30 @@ for (const p of PAGES) {
       await sleep(500);
     }
     const stage = await ev(`(function(){ var t=document.getElementById('tbStage'); return t ? t.textContent.trim() : ''; })()`);
-    const plan = await ev(`(function(){
+    /* 卷面随机抽题，line 题只占 27/1292，单卷命中概率约三成。
+       为了不靠运气，最多重开 5 卷直到命中（清 session 再重开，等于用户点「重新开始」）。 */
+    let plan = await ev(`(function(){
       var S=JSON.parse(localStorage.getItem('tdsat_exam_suite_session_v1')||'{}');
       var m=S.mock||S.quiz||S, arr=(m&&m.paper||[]).map(function(x){return x.id;});
       var line=[];(window.TD_BANK?TD_BANK.questions:[]).forEach(function(q){ if(window.TD_FIG&&TD_FIG.hasLine(q)) line.push(q.id); });
       var idx=arr.findIndex(function(id){ return line.indexOf(id)>=0; });
       return { paperLen: arr.length, idx: idx }; })()`);
+    let tries = 0;
+    /* 自测：EXAM_FORCE_RETRY=1 时假装首卷没有 line 题，用来验证“重开直到命中”的循环真能跑。 */
+    if (process.env.EXAM_FORCE_RETRY === '1' && plan) plan = { paperLen: plan.paperLen, idx: -1 };
+    while (plan && plan.idx < 0 && tries < 5) {
+      tries++;
+      await ev(`localStorage.removeItem('tdsat_exam_suite_session_v1')`);
+      await goto(`${BASE}/exam.html?mode=mock`);
+      await ev(`(function(){ var b=document.getElementById('btnStart'); if(b) b.click(); })()`);
+      await sleep(1500);
+      plan = await ev(`(function(){
+        var S=JSON.parse(localStorage.getItem('tdsat_exam_suite_session_v1')||'{}');
+        var m=S.mock||S.quiz||S, arr=(m&&m.paper||[]).map(function(x){return x.id;});
+        var line=[];(window.TD_BANK?TD_BANK.questions:[]).forEach(function(q){ if(window.TD_FIG&&TD_FIG.hasLine(q)) line.push(q.id); });
+        var idx=arr.findIndex(function(id){ return line.indexOf(id)>=0; });
+        return { paperLen: arr.length, idx: idx }; })()`);
+    }
     let jumped = 'skipped', opened = false;
     if (plan && plan.idx >= 0) {
       await ev(`(function(){ var b=document.getElementById('btnQuestionNav'); if(b) b.click(); })()`);
@@ -177,7 +195,7 @@ for (const p of PAGES) {
       if (has) opened = await ev(`(function(){ var b=document.querySelector('.td-line-toggle'); b.click(); var box=document.querySelector('.td-lineanswer'); return !!(box && box.innerHTML.trim()); })()`);
       jumped = jumped + '/' + (has ? 'toggle-ok' : 'toggle-missing');
     }
-    summary.push(`exam 交互：开始=${started} 答题=${answered} 下一个=${nexts} 阶段=${stage} 卷内 line 题位=${plan ? plan.idx : '?'} 跳转=${jumped} 点开=${opened}`);
+    summary.push(`exam 交互：开始=${started} 答题=${answered} 下一个=${nexts} 阶段=${stage} 卷内 line 题位=${plan ? plan.idx : '?'} 重开=${tries} 跳转=${jumped} 点开=${opened}`);
   }
 
   const bucket = (events.get(current) || []).filter((it) => it.kind !== 'noise');
