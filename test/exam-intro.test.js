@@ -30,7 +30,8 @@ test('记录页：未交卷模考不得标成「全卷 22 题」', () => {
 
 test('模考页：核心脚本没加载完时要有可见兜底，而不是死页', () => {
   const html = read('exam.html');
-  assert.ok(html.includes("if (window.__TD_EXAM__) return;"), 'load 后必须检查核心脚本是否就绪');
+  assert.ok(html.includes('tdsat_boot_retry_v1'), 'load 后必须检查核心脚本是否就绪，并只自动重载一次');
+  assert.ok(html.includes('The grader did not load'), '判分脚本缺失时也要给出可见提示');
   assert.ok(html.includes('This page could not finish loading'), '必须给出可见提示');
   assert.ok(html.includes("btn.textContent = 'Reload'"), '按钮必须变成 Reload');
 });

@@ -78,13 +78,16 @@
          are fine as-is. If more than one answer works, enter any one. */
   /* ---------- grading：唯一实现在 grade-core.js（window.TDGrade），本 core 与 app-core.js 共用 ----------
      历史上这里是手工同步的拷贝（"Keep in sync"），容差分母基准曾分叉（2026-11 合一）。 */
-  var gridEntry = window.TDGrade.gridEntry,
-      parseNum = window.TDGrade.parseNum,
-      acceptedValues = window.TDGrade.acceptedValues,
-      sameExact = window.TDGrade.sameExact,
-      sameTol = window.TDGrade.sameTol;
+  /* 2026-11-26：这里原本在解析期就取 window.TDGrade.gridEntry 等五个函数。
+     只要 grade-core.js 因网络抖动没跑起来，本文件立刻抛 TypeError，
+     exam.js 拿不到 TD_EXAM_CORE 也跟着挂，整页变成「Start 点不动」的死页。
+     改成调用时再取：延迟到达的 grade-core 仍能用，判分前 TDGrade 缺席则明确抛错。 */
   function grade(q, given) {
-    return window.TDGrade.isCorrect(q, given);
+    var G = window.TDGrade;
+    if (!G || typeof G.isCorrect !== 'function') {
+      throw new Error('grade-core.js 未加载完成，无法判分');
+    }
+    return G.isCorrect(q, given);
   }
 
   function shuffle(a, rnd) {
@@ -909,7 +912,8 @@
   }
 
   return {
-    OFFICIAL, SCALE, QUIZ_TIERS, scaledScore, parseNum, grade, shuffle, byId, unitName,
+    OFFICIAL, SCALE, QUIZ_TIERS, scaledScore, grade, shuffle, byId, unitName,
+    parseNum: function (s) { return window.TDGrade ? window.TDGrade.parseNum(s) : null; },
     parseSession, sessionRange, sessionTimeout,
     distributeTypes, buildModule, interleave, routeModule2, buildFullPaper,
     buildPracticePool, practiceDurationSec,
