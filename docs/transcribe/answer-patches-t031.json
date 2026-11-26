@@ -1,0 +1,461 @@
+{
+ "note": "t031 answer fix（76 条：SR-163 D→A、SP1-019→2/7 复核覆盖、SP1 空答案 75 条回填）；SP1-104/R04-072/R04-077 已在 live 一致，NOOP 未入本文件。",
+ "patches": [
+  {
+   "id": "SP1-019",
+   "answer": "2/7",
+   "value": null,
+   "note": "t031 复核覆盖：原始补丁 3/2 系邻题 SP1-018 错位；题干 gx+ky=5/2 与 (2/5)x+(7/5)y=2/7 无穷多解 ⇒ g/k=(2/5)/(7/5)=2/7，按 2/7 落库，待原页复核。"
+  },
+  {
+   "id": "SR-163",
+   "answer": "A",
+   "value": null,
+   "note": "t031 订正 D→A：常数项 18b=(2b)·9 ⇒ 另一因子 3x+9；选项系数疑漏录「6b+」前缀，待 02 册 p71 原页复核（答案按键落 A）。"
+  },
+  {
+   "id": "SP1-004",
+   "answer": ".9411, .9412, 16/17",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-005",
+   "answer": "-.9333, -14/15",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-006",
+   "answer": "403",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-007",
+   "answer": "1/7",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-009",
+   "answer": "2",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-010",
+   "answer": "8",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-011",
+   "answer": "6",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-012",
+   "answer": "3.5",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-013",
+   "answer": "10",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-014",
+   "answer": "-34",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-015",
+   "answer": "-28",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-016",
+   "answer": "18",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-018",
+   "answer": "3/2",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-026",
+   "answer": "-22",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-027",
+   "answer": "-.3267, -.3266, -.326, -.327",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-028",
+   "answer": "144",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-032",
+   "answer": "11",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-033",
+   "answer": "20",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-034",
+   "answer": "-113",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-035",
+   "answer": "14",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-036",
+   "answer": "-26",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-037",
+   "answer": "3/2",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-038",
+   "answer": "80",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-039",
+   "answer": "-5",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-040",
+   "answer": "35",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-041",
+   "answer": "20",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-042",
+   "answer": "1.8, 9/5",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-043",
+   "answer": "3",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-044",
+   "answer": "1677",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-045",
+   "answer": "71",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-046",
+   "answer": "11",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-048",
+   "answer": "192",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-050",
+   "answer": "62",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-051",
+   "answer": "45/8",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-053",
+   "answer": "65/4",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-054",
+   "answer": "172/7",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-055",
+   "answer": "-2",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-056",
+   "answer": "74",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-057",
+   "answer": "24/7",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-063",
+   "answer": "16.38",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-064",
+   "answer": "515",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-065",
+   "answer": "35",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-066",
+   "answer": "0.04",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-070",
+   "answer": "12.8",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-071",
+   "answer": "1.25",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-072",
+   "answer": "-100",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-073",
+   "answer": "189/5",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-074",
+   "answer": ".5, 1/2",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-075",
+   "answer": "35",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-076",
+   "answer": ".25, 1/4",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-077",
+   "answer": "5/7",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-078",
+   "answer": "-10",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-079",
+   "answer": "24",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-082",
+   "answer": "3/4",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-085",
+   "answer": "6/5",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-087",
+   "answer": "-4",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-088",
+   "answer": "2/43",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-089",
+   "answer": "33",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-091",
+   "answer": "30",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-092",
+   "answer": "19/4",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-093",
+   "answer": "7/2",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-094",
+   "answer": "-12",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-095",
+   "answer": "2/7",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-096",
+   "answer": "-192 or -204",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-097",
+   "answer": "168",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-098",
+   "answer": "34",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-113",
+   "answer": "26",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-115",
+   "answer": "28",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-117",
+   "answer": "22",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-119",
+   "answer": "-14",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-120",
+   "answer": "-25",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-121",
+   "answer": "33",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-122",
+   "answer": "20",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  },
+  {
+   "id": "SP1-123",
+   "answer": "182",
+   "value": null,
+   "note": "t031 SP1 空答案回填（答案键页 answers2 对位）。"
+  }
+ ]
+}
