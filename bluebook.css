@@ -522,6 +522,16 @@ body:has(#questionView:not([hidden])) .drill-question, body.exam-page:has(#stage
 .drill-choice-letter{width:28px!important;height:28px!important;flex:0 0 30px;display:grid;place-items:center;border:1px solid #9aa3b2!important;border-radius:50%!important;background:#fff!important;color:#39424f!important;font-size:13px;font-weight:700;transition:border-color .15s var(--ease),background-color .15s var(--ease),color .15s var(--ease);flex-basis:28px!important;font:700 13px var(--bb-official-ui)!important}
 .drill-choice[aria-pressed="true"] .drill-choice-letter, .drill-choice[aria-checked="true"] .drill-choice-letter, .drill-choice.is-selected .drill-choice-letter{border-color:#0057b8!important;background:#0057b8!important;color:#fff!important}
 .drill-choice-text{flex:1;min-width:0;word-break:break-word;font-family:var(--bb-official-ui)!important;font-size:15px!important}
+/* 选项里的小表格（原书的 x｜y 表）：矢量 HTML 表，不打任何截图 */
+.drill-choice-text .td-choice-table{border-collapse:collapse!important;margin:2px 0;font:400 14px/1.35 var(--bb-official-ui)!important;font-variant-numeric:tabular-nums}
+.drill-choice-text .td-choice-table th,.drill-choice-text .td-choice-table td{border:1px solid #b6c0cc!important;padding:2px 12px;text-align:center;min-width:56px;background:transparent!important}
+.drill-choice-text .td-choice-table th{font-weight:600!important;border-bottom:1.5px solid #6d7787!important}
+/* 选项里的联立方程组（原书带大括号）：用字面大括号 + 两行方程，不用图片 */
+.drill-choice-text .td-choice-system{display:inline-flex;align-items:center;gap:6px}
+.drill-choice-text .td-choice-brace{display:inline-block;font:400 26px/1 Georgia,'Times New Roman',serif;transform:scaleX(.72);transform-origin:left center}
+.drill-choice-text .td-choice-brace::before{content:"{"}
+.drill-choice-text .td-choice-system-lines{display:inline-flex;flex-direction:column;gap:2px}
+.drill-choice-text .td-choice-eq{white-space:nowrap}
 body:has(#questionView:not([hidden])) .drill-footer, body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{height:70px!important;background:#fff!important;border-top:1px solid #d7dde6!important;box-shadow:0 -3px 12px rgba(0,0,0,.04)!important}
 body:has(#questionView:not([hidden])) .drill-footer-inner, body.exam-page:has(#stage-answer:not([hidden])) .drill-footer-inner{height:70px!important;max-width:1180px!important;padding:0 26px!important}
 .drill-footer-section{overflow:hidden;color:#6b7686!important;font-size:12px!important;text-overflow:ellipsis;white-space:nowrap;font-family:var(--bb-official-ui)!important}

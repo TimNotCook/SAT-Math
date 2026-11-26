@@ -517,7 +517,7 @@
       var letter = it.letter, selected = current === letter;
       var inner, cls;
       if (it.txt && !(it.hit && it.hit.source === 'field')) {
-        inner = window.TD_FIG ? window.TD_FIG.fmtMath(it.txt) : esc(it.txt);
+        inner = window.TD_FIG ? (window.TD_FIG.fmtChoice || window.TD_FIG.fmtMath)(it.txt) : esc(it.txt);
         cls = '';
       } else if (it.hit && it.visual) {
         inner = it.hit.html;

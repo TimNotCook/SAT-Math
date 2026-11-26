@@ -732,7 +732,7 @@
         const it = opt(L), selected = a.v === L;
         let disp, cls;
         if (it.raw && !(it.hit && it.hit.source === 'field')) {
-          disp = window.TD_FIG ? window.TD_FIG.fmtMath(it.raw) : esc(it.raw);
+          disp = window.TD_FIG ? (window.TD_FIG.fmtChoice || window.TD_FIG.fmtMath)(it.raw) : esc(it.raw);
           cls = '';
         } else if (it.hit && it.visual) {
           disp = it.hit.html;

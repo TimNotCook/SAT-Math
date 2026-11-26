@@ -967,5 +967,63 @@
     return '<div class="td-choicegraph">' + out.join('') + '</div>';
   }
 
-  window.TD_FIG = { showFigure: showFigure, lineAnswer: lineAnswer, hasLine: hasLine, fmtMath: fmtMath, choiceGraph: choiceGraph };
+  /* 选择题里的「小表格 / 联立方程组」选项：
+     原书这几个选项是排成表格（表头 x｜y 或 x｜q(x)）或带大括号的方程组，
+     题库里只能存成一行串（"x: 0, 5, 10; y: 14, 21, 28"、"x=3,y=21; x=5,y=47; ..."、
+     "c = 3m; c + m = 28"）。直接印成一行既不像原题，也不好读。这里按串的形状
+     还原成真正的表格 / 联立式，做不到就原样退回 fmtMath。 */
+  function fmtChoice(raw) {
+    var s = String(raw == null ? '' : raw).trim();
+    if (!s) return fmtMath(raw);
+    var t = s.replace(/\s*(?:→|->)\s*/g, '; ');
+    var parts = t.split(';').map(function (x) { return x.trim(); }).filter(Boolean);
+    if (parts.length < 2) return fmtMath(raw);
+
+    /* 形状 1：成对的 "x=3,y=21" / "3, 21" 三段式 */
+    var pairRe = /^([A-Za-z][A-Za-z0-9()\^\{\}\s]*?)\s*=\s*([^,;]+?)\s*,\s*([A-Za-z][A-Za-z0-9()\^\{\}\s]*?)\s*=\s*([^,;]+)$/;
+    if (parts.every(function (p) { return pairRe.test(p); })) {
+      var h1 = '', h2 = '', rowsB = [], okB = true;
+      parts.forEach(function (p) {
+        var m = pairRe.exec(p);
+        if (!h1) { h1 = m[1].trim(); h2 = m[3].trim(); }
+        if (m[1].trim() !== h1 || m[3].trim() !== h2) okB = false;
+        rowsB.push([m[2].trim(), m[4].trim()]);
+      });
+      if (okB) return tableHtml(h1, h2, rowsB);
+    }
+
+    /* 形状 2：两段 "x: 0, 5, 10" / "y: 14, 21, 28" */
+    var labRe = /^([A-Za-z][A-Za-z0-9()\^\{\}\s]*?)\s*[:：]\s*(.+)$/;
+    if (parts.length === 2 && labRe.test(parts[0]) && labRe.test(parts[1])) {
+      var m1 = labRe.exec(parts[0]), m2 = labRe.exec(parts[1]);
+      var xs = m1[2].split(',').map(function (v) { return v.trim(); });
+      var ys = m2[2].split(',').map(function (v) { return v.trim(); });
+      if (xs.length === ys.length && xs.length >= 2) {
+        var rowsA = xs.map(function (v, i) { return [v, ys[i]]; });
+        return tableHtml(m1[1].trim(), m2[1].trim(), rowsA);
+      }
+    }
+
+    /* 形状 3：两段方程（原书带大括号的联立式） */
+    var eqRe = /^[^=]+=[^=]+$/;
+    if (parts.length === 2 && parts.every(function (p) { return eqRe.test(p); })) {
+      return '<span class="td-choice-system"><span class="td-choice-brace" aria-hidden="true"></span>' +
+        '<span class="td-choice-system-lines">' +
+        '<span class="td-choice-eq">' + fmtMath(parts[0]) + '</span>' +
+        '<span class="td-choice-eq">' + fmtMath(parts[1]) + '</span>' +
+        '</span></span>';
+    }
+    return fmtMath(raw);
+  }
+
+  function tableHtml(h1, h2, rows) {
+    var html = '<table class="td-choice-table"><thead><tr><th>' + fmtMath(h1) + '</th><th>' + fmtMath(h2) +
+      '</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      html += '<tr><td>' + fmtMath(r[0]) + '</td><td>' + fmtMath(r[1]) + '</td></tr>';
+    });
+    return html + '</tbody></table>';
+  }
+
+  window.TD_FIG = { showFigure: showFigure, lineAnswer: lineAnswer, hasLine: hasLine, fmtMath: fmtMath, fmtChoice: fmtChoice, choiceGraph: choiceGraph };
 })();
