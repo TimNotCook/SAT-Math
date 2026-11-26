@@ -418,7 +418,7 @@ window.TD_FIG_SPECS = {
   'SR-185': {type:"chart",x:{min:0,max:20,step:2,label:"Hours at job A"},y:{min:0,max:10,step:2,label:"Hours at job B"},series:[{kind:"line",points:[[0,8],[16,0]]}]},
   'SR-187': {type:"chart",x:{min:0,max:100,step:10,label:"Shares of Company A"},y:{min:0,max:50,step:10,label:"Shares of Company B"},series:[{kind:"line",points:[[0,35],[90,0]]}]},
   /* ===== 表格题图表补全（题干引用 table above 但 OCR 把表格压进文字）===== */
-  'SR-126': {type:"table",head:["Day","Number of bacteria per milliliter at end of day"],rows:[["1","2.5 × 10^5"],["2","5.0 × 10^5"],["3","1.0 × 10^6"]]},
+  'SR-126': {type:"table",caption:"Growth of a Culture of Bacteria",head:["Day","Number of bacteria per milliliter at end of day"],rows:[["1","2.5 × 10^5"],["2","5.0 × 10^5"],["3","1.0 × 10^6"]]},
   'SR-137': {type:"table",head:["x","f(x)"],rows:[["1","a"],["2","a^5"],["3","a^9"]]},
   'SR-155': {type:"table",head:["x","p(x)"],rows:[["-2","5"],["-1","0"],["0","-3"],["1","-1"],["2","0"]]},
   'SP1-049': {type:"table",head:["x","f(x)"],rows:[["-11","21"],["-10","18"],["-9","15"],["-8","12"]]},
@@ -662,11 +662,11 @@ Object.assign(window.TD_FIG_SPECS, {
   "TD-22-17": {"type":"chart","x":{"min":0,"max":6,"step":1,"label":"x"},"y":{"min":0,"max":13,"step":1,"label":"y"},"grid":true,"series":[{"kind":"line","points":[[0,7],[1,8.8],[2,10],[3,10.6],[4,11],[5,10.7],[6,10]]}]},
   "TD-25-15": {"type":"chart","x":{"min":0,"max":5,"step":1,"cats":[["Plot 1",1.4],["Plot 2",2.4],["Plot 3",3.4],["Plot 4",4.4]]},"y":{"min":0,"max":90,"step":10,"label":"Trees planted","showZero":true},"grid":true,"series":[{"kind":"bar","bars":[{"x0":1,"x1":1.8,"h":65},{"x0":2,"x1":2.8,"h":75},{"x0":3,"x1":3.8,"h":80},{"x0":4,"x1":4.8,"h":59}]}]},
   "SP1-025": {"type":"chart","x":{"min":-10,"max":10,"step":2,"label":"x"},"y":{"min":-10,"max":10,"step":2,"label":"y"},"grid":true,"series":[{"kind":"line","points":[[-10,6],[10,1.5]]},{"kind":"line","points":[[-10,2],[10,2]]}],"marks":[{"x":-5,"y":5},{"x":8,"y":2}]},
-  "SR-176": {"type":"table","head":["Macronutrient","Food calories","Kilojoules"],"rows":[["Protein","4.0","16.7"],["Fat","9.0","37.7"],["Carbohydrate","4.0","16.7"]]},
+  "SR-176": {"type":"table",caption:"Energy per Gram of Typical Macronutrients","head":["Macronutrient","Food calories","Kilojoules"],"rows":[["Protein","4.0","16.7"],["Fat","9.0","37.7"],["Carbohydrate","4.0","16.7"]]},
   "SR-185": {"type":"chart","x":{"min":0,"max":20,"step":5,"label":"Number of hours at job A"},"y":{"min":0,"max":12,"step":4,"label":"Number of hours at job B"},"grid":true,"series":[{"kind":"line","points":[[16,0],[0,8]]}],"marks":[{"x":16,"y":0},{"x":0,"y":8}]},
-  "SR-126": {"type":"table","head":["Day","Number of bacteria per milliliter at end of day"],"rows":[["1","2.5 \u00d7 10\u2075"],["2","5.0 \u00d7 10\u2075"],["3","1.0 \u00d7 10\u2076"]]},
+  "SR-126": {"type":"table",caption:"Growth of a Culture of Bacteria","head":["Day","Number of bacteria per milliliter at end of day"],"rows":[["1","2.5 \u00d7 10\u2075"],["2","5.0 \u00d7 10\u2075"],["3","1.0 \u00d7 10\u2076"]]},
   "SR-137": {"type":"table","head":["x","f(x)"],"rows":[["1","a"],["2","a\u2075"],["3","a\u2079"]]},
-  "SR-215": {"type":"table","head":["Property address","Purchase price (dollars)","Monthly rental price (dollars)"],"rows":[["Clearwater Lane","128,000","950"],["Driftwood Drive","176,000","1,310"],["Edgemont Street","70,000","515"],["Glenview Street","140,000","1,040"],["Hamilton Circle","450,000","3,365"]]},
+  "SR-215": {"type":"table",caption:"Townsend Realty Group Investments","head":["Property address","Purchase price (dollars)","Monthly rental price (dollars)"],"rows":[["Clearwater Lane","128,000","950"],["Driftwood Drive","176,000","1,310"],["Edgemont Street","70,000","515"],["Glenview Street","140,000","1,040"],["Hamilton Circle","450,000","3,365"]]},
   "SR-156": {"type":"table","head":["x","y"],"rows":[["-5","0"],["8","0"],["9","0"]]},
   "SP1-048": {"type":"table","head":["x","f(x)"],"rows":[["1","-64"],["2","0"],["3","64"]]},
   "SP1-050": {"type":"table","head":["x","g(x)"],"rows":[["1","58"],["2","54"],["3","50"],["4","46"]]},
@@ -704,7 +704,7 @@ Object.assign(window.TD_FIG_SPECS, {
 
 /* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
 Object.assign(window.TD_FIG_SPECS, {
-  "R03-062": {"type":"table","head":["Age group","Warm","Cool","NO preference","Total"],"rows":[["18-35 years old","295","168","45","508"],["36-50 years old","246","123","41","410"],["51-65 years old","238","117","48","403"],["Greater than 65 years old","137","78","64","279"],["Total","916","486","198","1,600"]]},
+  "R03-062": {"type":"table",caption:"Climate Preferences","head":["","Warm","Cool","NO preference","Total"],"rows":[["18-35 years old","295","168","45","508"],["36-50 years old","246","123","41","410"],["51-65 years old","238","117","48","403"],["Greater than 65 years old","137","78","64","279"],["Total","916","486","198","1,600"]]},
   "R03-063": {"type":"table","head":["Year","Subscriptions sold"],"rows":[["2012","5,600"],["2013","5,880"]]},
   "R03-064": {"type":"chart","x":{"min":2003,"max":2015,"step":2,"label":"Year"},"y":{"min":0,"max":60,"step":10,"label":"Annual snowfall (inches)"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[2003,40],[2007,10]]}]},
 });
@@ -714,8 +714,8 @@ Object.assign(window.TD_FIG_SPECS, {
   "R03-131": {"type":"table","head":["Value","Frequency"],"rows":[["16","10"],["25","1"],["34","10"],["43","4"]]},
   "R03-132": {"type":"table","head":["Weight (pounds)","Number of colonies"],"rows":[["13","12"],["14","8"],["15","5"],["16","7"],["17","9"],["18","10"],["19","13"],["20","7"]]},
   "R03-133": {"type":"table","head":["Number of queen ants","Number of colonies"],"rows":[["1","12"],["2","11"],["3","1"],["4","7"],["5","6"]]},
-  "R03-135": {"type":"table","head":["State","Percent of residents"],"rows":[["State A","21.9%"],["State B","27.9%"],["State C","25.9%"],["State D","19.5%"],["State E","30.1%"],["State F","36.4%"],["State G","35.5%"]]},
-  "R03-136": {"type":"table","head":["Score","Group A","Group B"],"rows":[["2","1","0"],["3","1","0"],["4","2","0"],["5","1","4"],["6","3","2"],["7","0","0"],["8","0","2"],["9","1","1"],["10","0","2"],["Total","9","11"]]},
+  "R03-135": {"type":"table",caption:"Percent of Residents Who Earned a Bachelor's Degree or Higher","head":["State","Percent of residents"],"rows":[["State A","21.9%"],["State B","27.9%"],["State C","25.9%"],["State D","19.5%"],["State E","30.1%"],["State F","36.4%"],["State G","35.5%"]]},
+  "R03-136": {"type":"table","head":["Score","Group A","Group B"],headGroups:[{"label": "Score Frequencies", "span": 2}],"rows":[["2","1","0"],["3","1","0"],["4","2","0"],["5","1","4"],["6","3","2"],["7","0","0"],["8","0","2"],["9","1","1"],["10","0","2"],["Total","9","11"]]},
   "R03-137": {"type":"table","head":["Data set X","15","15","16","17","17","18","18","19","19"],"rows":[["Data set Y","1","1","2","3","3","4","4","5","5"]]},
 });
 
@@ -801,21 +801,21 @@ Object.assign(window.TD_FIG_SPECS, {
 
 /* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
 Object.assign(window.TD_FIG_SPECS, {
-  "R03-001": {"type":"table","head":["Species of tree","Growth factor"],"rows":[["Red maple","4.5"],["River birch","3.5"],["Cottonwood","2.0"],["Black walnut","4.5"],["White birch","5.0"],["American elm","4.0"],["Pin oak","3.0"],["Shagbark hickory","7.5"]]},
-  "R03-002": {"type":"table","head":["State","Low","Medium","High","Total"],"rows":[["Texas","4","2","3","9"],["California","1","0","1","2"],["Oregon","1","0","1","2"],["Indiana","0","2","0","2"],["Colorado","1","1","0","2"],["Iowa","2","0","0","2"],["Oklahoma","1","0","0","1"],["Total","10","5","5","20"]]},
+  "R03-001": {"type":"table","head":["Species of tree","Growthfactor"],"rows":[["Red maple","4.5"],["River birch","3.5"],["Cottonwood","2.0"],["Black walnut","4.5"],["White birch","5.0"],["American elm","4.0"],["Pin oak","3.0"],["Shagbark hickory","7.5"]]},
+  "R03-002": {"type":"table","head":["State","Low","Medium","High","Total"],headGroups:[{"label": "Power capacity", "span": 4}],"rows":[["Texas","4","2","3","9"],["California","1","0","1","2"],["Oregon","1","0","1","2"],["Indiana","0","2","0","2"],["Colorado","1","1","0","2"],["Iowa","2","0","0","2"],["Oklahoma","1","0","0","1"],["Total","10","5","5","20"]]},
 });
 
 /* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
 Object.assign(window.TD_FIG_SPECS, {
-  "R03-301": {"type":"table","head":["Response","Frequency"],"rows":[["Strongly favor","56"],["Somewhat favor","214"],["Somewhat oppose","104"],["Strongly oppose","37"]]},
-  "R03-303": {"type":"table","head":["Candidate","Votes"],"rows":[["Angel Cruz","483"],["Terry Smith","320"]]},
+  "R03-301": {"type":"table",caption:"Views on Nuclear Energy Use","head":["Response","Frequency"],"rows":[["Strongly favor","56"],["Somewhat favor","214"],["Somewhat oppose","104"],["Strongly oppose","37"]]},
+  "R03-303": {"type":"table",caption:"Poll Results","head":["Candidate","Votes"],"rows":[["Angel Cruz","483"],["Terry Smith","320"]]},
   "R03-304": {"type":"table","head":["Sample","Percent in favor","Margin of error"],"rows":[["A","52%","4.2%"],["B","48%","1.6%"]]},
   "R03-306": {"type":"table","head":["Texting behavior","Talks on cell phone daily","Does not talk on cell phone daily","Total"],"rows":[["Light","110","146","256"],["Medium","139","164","303"],["Heavy","166","74","240"],["Total","415","384","799"]]},
 });
 
 /* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
 Object.assign(window.TD_FIG_SPECS, {
-  "R03-361": {"type":"table","head":["Hours practiced","6 to 13 points","14 or more points","Total"],"rows":[["3 to 5 hours","6","4","10"],["More than 5 hours","4","26","30"],["Total","10","30","40"]]},
+  "R03-361": {"type":"table","head":["Hours practiced","6 to 13 points","14 or more points","Total"],headGroups:[{"label": "Number of points per round", "span": 3}],"rows":[["3 to 5 hours","6","4","10"],["More than 5 hours","4","26","30"],["Total","10","30","40"]]},
 });
 
 /* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */

@@ -24,6 +24,8 @@
 口径：
   - patch=null 的 noop / anchor / redraw_figure / add_table_spec 一律不动数据，只进待办台账。
   - duplicate_of 标注的非活跃副本只落一次（落 canonical 活跃条目）。
+  - figures.js 同一 id 可能在基础对象与后续 Object.assign 块重复注册（后写覆盖先写），
+    补丁对所有出现处都落一遍，保证运行时生效的那条携带补丁。
   - 幂等：目标值已等于补丁则记 NOOP，不重复写；重跑不会叠加。
   - 子串命中 0 次、或 >1 次且未标 replaceAll → FAIL 退出（1），不硬凑。
 
@@ -202,8 +204,7 @@ class TextLayer:
 
     @staticmethod
     def _extract(line, key):
-        m = re.search(r'"%s":%s' % (re.escape(key), QSTR), line)
-        return m
+        return re.search(r'"%s":%s' % (re.escape(key), QSTR), line)
 
     def set_field(self, qid, key, new_value, old_value, log):
         idx = self.record_line(qid)
@@ -296,15 +297,14 @@ class BankLayer:
             log.append("ANS   %s | answer | %r → %r" % (qid, old_ans, answer))
         else:
             log.append("NOOP  %s | answer | 已一致" % qid)
-        if value is not None or True:
-            vm = re.search(r'"value":(null|[^,}\s]+)', line)
-            if vm:
-                newv = "null" if value is None else json.dumps(value)
-                if vm.group(1) != newv:
-                    self.lines[idx] = line[:vm.start(1)] + newv + line[vm.end(1):]
-                    line = self.lines[idx]
-                    self.changed += 1
-                    log.append("VAL   %s | value | %s → %s" % (qid, vm.group(1), newv))
+        vm = re.search(r'"value":(null|[^,}\s]+)', line)
+        if vm:
+            newv = "null" if value is None else json.dumps(value)
+            if vm.group(1) != newv:
+                self.lines[idx] = line[:vm.start(1)] + newv + line[vm.end(1):]
+                line = self.lines[idx]
+                self.changed += 1
+                log.append("VAL   %s | value | %s → %s" % (qid, vm.group(1), newv))
         if type_ is not None:
             tm = re.search(r'"type":"(.*?)"', line)
             if tm and tm.group(1) != type_:
@@ -320,6 +320,7 @@ class BankLayer:
 
 # ---------------------------------------------------------------------------
 # data/figures.js 操作（条目花括号配对，局部外科手术，不重排其余字节）
+# 同一 id 可能在基础对象与后续 Object.assign 块重复注册，补丁对所有出现处落一遍。
 # ---------------------------------------------------------------------------
 
 class FigureLayer:
@@ -330,73 +331,78 @@ class FigureLayer:
         self.ccrop = io.open(CCROP, encoding="utf-8").read()
         self.changed = 0
 
-    def entry_span(self, qid):
-        m = re.search(r"(^  ['\"]" + re.escape(qid) + r"['\"]:\s*)", self.src, re.M)
-        if not m:
-            return None
-        body_start = m.end()
-        if self.src[body_start] != "{":
-            fail("%s 条目不是对象开头" % qid)
-        _, body_end = brace_span(self.src, body_start)
-        return m.start(), body_start, body_end
+    def entry_spans(self, qid):
+        spans = []
+        for m in re.finditer(r"(^  ['\"]" + re.escape(qid) + r"['\"]:\s*)", self.src, re.M):
+            bs = m.end()
+            if self.src[bs] != "{":
+                continue
+            _, be = brace_span(self.src, bs)
+            spans.append((m.start(), bs, be))
+        return spans
 
-    def _replace_entry(self, span, new_body):
-        start, body_start, body_end = span
-        head = self.src[start:body_start]
-        self.src = self.src[:start] + head + new_body + self.src[body_end:]
+    def _splice(self, span, new_body):
+        _, bs, be = span
+        self.src = self.src[:bs] + new_body + self.src[be:]
         self.changed += 1
+
+    def _apply_each(self, qid, mutator, log, fmt):
+        spans = self.entry_spans(qid)
+        if not spans:
+            fail("figures.js 找不到条目：%s" % qid)
+        any_change = False
+        old = None
+        for span in reversed(spans):  # 从右往左改，左侧偏移保持有效
+            body = self.src[span[1]:span[2]]
+            new_body, changed, old = mutator(body)
+            if changed:
+                self._splice(span, new_body)
+                any_change = True
+        if any_change:
+            log.append(fmt(qid, old))
+        else:
+            log.append("NOOP  %s | 已一致" % qid)
+        return any_change
 
     # ---- table.caption ----
     def set_caption(self, qid, caption, log):
-        span = self.entry_span(qid)
-        if not span:
-            fail("figures.js 找不到条目：%s" % qid)
-        start, bs, be = span
-        body = self.src[bs:be]
-        cm = re.search(r'["\']?caption["\']?:%s' % QSTR, body)
-        if cm:
-            cur = decode(cm.group(1))
-            if cur == caption:
-                log.append("NOOP  %s | table.caption | 已一致" % qid)
-                return
-            new_body = body[:cm.start(1)] + encode(caption) + body[cm.end(1):]
-            self._replace_entry(span, new_body)
-            log.append("CAP   %s | table.caption | %r → %r" % (qid, cur, caption))
-        else:
+        def mut(body):
+            cm = re.search(r'["\']?caption["\']?:%s' % QSTR, body)
+            if cm:
+                cur = decode(cm.group(1))
+                if cur == caption:
+                    return body, False, cur
+                return body[:cm.start(1)] + encode(caption) + body[cm.end(1):], True, cur
             tm = re.search(r'["\']?type["\']?\s*:\s*["\']table["\']', body)
             if not tm:
                 fail("%s 条目非 table，无法插 caption" % qid)
             ins = tm.end()
-            new_body = body[:ins] + ',caption:"%s"' % encode(caption) + body[ins:]
-            self._replace_entry(span, new_body)
-            log.append("CAP+  %s | table.caption | → %r" % (qid, caption))
+            return body[:ins] + ',caption:"%s"' % encode(caption) + body[ins:], True, None
+        self._apply_each(qid, mut, log,
+                         lambda q, o: "CAP   %s | table.caption | %r → %r" % (q, o, caption))
 
     # ---- table.head[N] ----
     def head_cell(self, qid, idx, value, log):
-        span = self.entry_span(qid)
-        if not span:
-            fail("figures.js 找不到条目：%s" % qid)
-        start, bs, be = span
-        body = self.src[bs:be]
-        hm = re.search(r'["\']?head["\']?\s*:\s*', body)
-        if not hm:
-            fail("%s 条目无 head 数组" % qid)
-        arr_start = body.index("[", hm.end())
-        _, arr_end = bracket_span(body, arr_start)
-        arr_body = body[arr_start + 1:arr_end - 1]
-        elems = self._head_elements(arr_body)
-        if idx >= len(elems):
-            fail("%s head 第 %d 列越界（共 %d 列）" % (qid, idx, len(elems)))
-        old_raw, old_span = elems[idx]
-        old = decode(old_raw)
-        if old == value:
-            log.append("NOOP  %s | table.head[%d] | 已一致" % (qid, idx))
-            return
-        new_arr = (arr_body[:old_span[0]] + '"%s"' % encode(value)
-                   + arr_body[old_span[1]:])
-        new_body = body[:arr_start] + "[" + new_arr + "]" + body[arr_end:]
-        self._replace_entry(span, new_body)
-        log.append("CELL  %s | table.head[%d] | %r → %r" % (qid, idx, old, value))
+        def mut(body):
+            hm = re.search(r'["\']?head["\']?\s*:\s*', body)
+            if not hm:
+                fail("%s 条目无 head 数组" % qid)
+            arr_start = body.index("[", hm.end())
+            _, arr_end = bracket_span(body, arr_start)
+            arr_body = body[arr_start + 1:arr_end - 1]
+            elems = self._head_elements(arr_body)
+            if idx >= len(elems):
+                fail("%s head 第 %d 列越界（共 %d 列）" % (qid, idx, len(elems)))
+            old_raw, old_span = elems[idx]
+            old = decode(old_raw)
+            if old == value:
+                return body, False, old
+            new_arr = (arr_body[:old_span[0]] + '"%s"' % encode(value)
+                       + arr_body[old_span[1]:])
+            new_body = body[:arr_start] + "[" + new_arr + "]" + body[arr_end:]
+            return new_body, True, old
+        self._apply_each(qid, mut, log,
+                         lambda q, o: "CELL  %s | table.head[%d] | %r → %r" % (q, idx, o, value))
 
     @staticmethod
     def _head_elements(arr_body):
@@ -425,54 +431,46 @@ class FigureLayer:
 
     # ---- table.headGroups ----
     def head_groups(self, qid, title, columns, log):
-        span = self.entry_span(qid)
-        if not span:
-            fail("figures.js 找不到条目：%s" % qid)
-        start, bs, be = span
-        body = self.src[bs:be]
         groups = [{"label": title, "span": len(columns)}]
         new_block = "headGroups:" + json.dumps(groups, ensure_ascii=True)
-        if re.search(r'["\']?headGroups["\']?\s*:', body):
-            gm = re.search(r'["\']?headGroups["\']?\s*:\s*\[.*?\]', body)
-            if not gm:
-                fail("%s headGroups 块解析失败" % qid)
-            cur = body[gm.start():gm.end()]
-            if cur == new_block:
-                log.append("NOOP  %s | table.headGroups | 已一致" % qid)
-                return
-            new_body = body[:gm.start()] + new_block + body[gm.end():]
-            self._replace_entry(span, new_body)
-            log.append("GRP   %s | table.headGroups | → %r" % (qid, groups))
-        else:
+
+        def mut(body):
+            if re.search(r'["\']?headGroups["\']?\s*:', body):
+                gm = re.search(r'["\']?headGroups["\']?\s*:\s*\[.*?\]', body)
+                if not gm:
+                    fail("%s headGroups 块解析失败" % qid)
+                if body[gm.start():gm.end()] == new_block:
+                    return body, False, None
+                return body[:gm.start()] + new_block + body[gm.end():], True, None
             hm = re.search(r'["\']?head["\']?\s*:\s*\[.*?\]', body)
             if not hm:
                 fail("%s 条目无 head 数组可挂 headGroups" % qid)
             ins = hm.end()
-            new_body = body[:ins] + "," + new_block + body[ins:]
-            self._replace_entry(span, new_body)
-            log.append("GRP+  %s | table.headGroups | → %r" % (qid, groups))
+            return body[:ins] + "," + new_block + body[ins:], True, None
+        self._apply_each(qid, mut, log,
+                         lambda q, o: "GRP+  %s | table.headGroups | → %r" % (q, groups))
 
     # ---- spec_edit：x/y 子对象深合并 ----
     def spec_merge(self, qid, patch, log):
-        span = self.entry_span(qid)
-        if not span:
-            fail("figures.js 找不到 spec：%s" % qid)
-        start, bs, be = span
-        body = self.src[bs:be]
-        for axis in ("x", "y"):
-            if axis not in patch:
-                continue
-            am = re.search(r'["\']?%s["\']?\s*:\s*\{' % axis, body)
-            if not am:
-                fail("%s spec 无 %s 子对象" % (qid, axis))
-            ostart = body.index("{", am.end() - 1)
-            _, oend = brace_span(body, ostart)
-            sub = body[ostart:oend]
-            for k, v in patch[axis].items():
-                sub = self._set_leaf(sub, k, v)
-            body = body[:ostart] + sub + body[oend:]
-        self._replace_entry(span, body)
-        log.append("MERGE %s | figure.spec | %r" % (qid, patch))
+        def mut(body):
+            changed = False
+            for axis in ("x", "y"):
+                if axis not in patch:
+                    continue
+                am = re.search(r'["\']?%s["\']?\s*:\s*\{' % axis, body)
+                if not am:
+                    fail("%s spec 无 %s 子对象" % (qid, axis))
+                ostart = body.index("{", am.end() - 1)
+                _, oend = brace_span(body, ostart)
+                sub = body[ostart:oend]
+                new_sub = sub
+                for k, v in patch[axis].items():
+                    new_sub, leaf_changed = self._set_leaf(new_sub, k, v)
+                    changed = changed or leaf_changed
+                body = body[:ostart] + new_sub + body[oend:]
+            return body, changed, patch
+        self._apply_each(qid, mut, log,
+                         lambda q, o: "MERGE %s | figure.spec | %r" % (q, patch))
 
     @staticmethod
     def _set_leaf(sub, key, value):
@@ -480,46 +478,41 @@ class FigureLayer:
         enc_v = json.dumps(value, ensure_ascii=True)
         if vm:
             if vm.group(1).strip() == enc_v:
-                return sub
-            return sub[:vm.start(1)] + enc_v + sub[vm.end(1):]
+                return sub, False
+            return sub[:vm.start(1)] + enc_v + sub[vm.end(1):], True
         # 叶子缺失：补到对象末尾 '}' 前
-        return sub[:-1].rstrip() + ("," if sub[sub.rfind("{") + 1:].strip() else "") + "%s:%s}" % (
-            json.dumps(key, ensure_ascii=True), enc_v)
+        inner = sub[sub.rfind("{") + 1:].strip()
+        sep = "," if inner else ""
+        return sub[:-1].rstrip() + sep + "%s:%s}" % (
+            json.dumps(key, ensure_ascii=True), enc_v), True
 
     # ---- spec_edit：marks 增删 ----
     def spec_mark(self, qid, op, payload, log):
-        span = self.entry_span(qid)
-        if not span:
-            fail("figures.js 找不到 spec：%s" % qid)
-        start, bs, be = span
-        body = self.src[bs:be]
-        mm = re.search(r'["\']?marks["\']?\s*:\s*\[', body)
-        if not mm:
+        def mut(body):
+            mm = re.search(r'["\']?marks["\']?\s*:\s*\[', body)
+            if not mm:
+                if op == "addMark":
+                    ins = body.rfind("}")
+                    mark = self._mark_text(payload)
+                    return body[:ins] + ",marks:[" + mark + "]" + body[ins:], True, payload
+                fail("%s spec 无 marks 数组，无法 %s" % (qid, op))
+            arr_start = body.index("[", mm.end() - 1)
+            _, arr_end = bracket_span(body, arr_start)
+            arr_body = body[arr_start + 1:arr_end - 1]
+            marks = self._parse_marks(arr_body)
             if op == "addMark":
-                ins = body.rfind("}")
-                mark = self._mark_text(payload)
-                body = body[:ins] + ",marks:[" + mark + "]" + body[ins:]
-                self._replace_entry(span, body)
-                log.append("MARK+ %s | addMark | %r" % (qid, payload))
-                return
-            fail("%s spec 无 marks 数组，无法 %s" % (qid, op))
-        arr_start = body.index("[", mm.end() - 1)
-        _, arr_end = bracket_span(body, arr_start)
-        arr_body = body[arr_start + 1:arr_end - 1]
-        marks = self._parse_marks(arr_body)  # 现有 mark 保留原始片段文本
-        if op == "addMark":
-            marks.append(self._mark_text(payload))
-            log.append("MARK+ %s | addMark | %r" % (qid, payload))
-        elif op == "removeMark":
-            marks = [m for m in marks if not self._match(m, payload)]
-            log.append("MARK- %s | removeMark | %r" % (qid, payload))
-        elif op == "removeMarks":
-            for pl in payload:
-                marks = [m for m in marks if not self._match(m, pl)]
-            log.append("MARK- %s | removeMarks | %r" % (qid, payload))
-        new_arr = ",".join(marks)
-        new_body = body[:arr_start] + "[" + new_arr + "]" + body[arr_end:]
-        self._replace_entry(span, new_body)
+                marks.append(self._mark_text(payload))
+            elif op == "removeMark":
+                marks = [m for m in marks if not self._match(m, payload)]
+            elif op == "removeMarks":
+                for pl in payload:
+                    marks = [m for m in marks if not self._match(m, pl)]
+            new_arr = ",".join(marks)
+            new_body = body[:arr_start] + "[" + new_arr + "]" + body[arr_end:]
+            return new_body, True, payload
+        tag = {"addMark": "MARK+", "removeMark": "MARK-", "removeMarks": "MARK-"}[op]
+        self._apply_each(qid, mut, log,
+                         lambda q, o: "%s %s | %s | %r" % (tag, q, op, payload))
 
     @staticmethod
     def _parse_marks(arr_body):
@@ -527,8 +520,7 @@ class FigureLayer:
         while i < len(arr_body):
             if arr_body[i] == "{":
                 _, j = brace_span(arr_body, i)
-                seg = arr_body[i:j]
-                marks.append(seg)
+                marks.append(arr_body[i:j])
                 i = j
             else:
                 i += 1
@@ -558,11 +550,10 @@ class FigureLayer:
     # ---- remove_spec：扫三个注册表删条目 ----
     def remove_spec(self, qid, log):
         hit = False
-        # 1) figures.js TD_FIG_SPECS
-        span = self.entry_span(qid)
-        if span:
-            start, bs, be = span
-            # 连同尾逗号与多余空行一起删
+        # 1) figures.js TD_FIG_SPECS（删所有重复注册）
+        spans = self.entry_spans(qid)
+        for span in reversed(spans):
+            start, _, be = span
             end = be
             if end < len(self.src) and self.src[end] == ",":
                 end += 1
@@ -571,7 +562,8 @@ class FigureLayer:
             self.src = self.src[:start] + self.src[end:]
             self.changed += 1
             hit = True
-            log.append("RM-spec %s | figures.js 删除 spec 条目" % qid)
+        if spans:
+            log.append("RM-spec %s | figures.js 删除 %d 处 spec 条目" % (qid, len(spans)))
         # 2) figure_crops.js 扁平字典
         fm = re.search(r'"%s"\s*:\s*"[^"]*",?' % re.escape(qid), self.fcrop)
         if fm:
@@ -610,7 +602,6 @@ def apply_batch(batch, dry_run):
     canon = canonical_map(packs)
     redirect = redirect_map(packs)
     log, skipped = [], []
-    n_change = 0
 
     text = TextLayer(TEXT)
     bank = BankLayer(BANK)
