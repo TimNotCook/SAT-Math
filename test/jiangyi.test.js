@@ -186,3 +186,24 @@ test('已录数 ≤ 应有数，且已录的题号连续不重（缺一道就不
     });
   });
 });
+
+/* 双空 grid-in 的三处配套必须同时在位：数据 values、页面双框分支、样式表规则。
+   任何一方被人整页覆盖（本项目发生过 html 被整体替换）都会在这里红。 */
+test('JY2-014 双空：数据 values 与渲染/判分/样式三处配套都在', () => {
+  const q = BANK.find(x => x.id === 'JY2-014');
+  assert.ok(q, '缺 JY2-014');
+  assert.strictEqual(q.type, 'grid');
+  assert.deepStrictEqual(q.values, [250, 123.5], 'values 应为一空一值');
+  assert.strictEqual(q.value, 250, 'value 保留第一空，兼容单值读取路径');
+
+  const page = fs.readFileSync(path.join(ROOT, 'jiangyi-page.js'), 'utf8');
+  assert.ok(page.includes('q.values && q.values.length > 1'), 'jiangyi-page.js 缺双空分支');
+  assert.ok(page.includes('jy-grid-multi'), 'jiangyi-page.js 缺双空容器类名');
+
+  const html = fs.readFileSync(path.join(ROOT, 'jiangyi.html'), 'utf8');
+  assert.ok(html.includes('.jy-grid-multi{'), 'jiangyi.html 缺 .jy-grid-multi 样式规则');
+  assert.ok(html.includes('.jy-grid-label'), 'jiangyi.html 缺标签样式');
+
+  const grade = fs.readFileSync(path.join(ROOT, 'grade-core.js'), 'utf8');
+  assert.ok(grade.includes('dualCorrect'), 'grade-core.js 缺 dualCorrect');
+});
