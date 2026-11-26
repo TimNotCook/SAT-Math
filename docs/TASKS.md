@@ -41,6 +41,7 @@
 
 ## 已完成（勿重复做）
 
+- **第 10 条：两空 grid-in 的页面能力补齐**（`4c13ccf`）：`drill.js` / `exam.js` 在 `q.values.length>1` 时画两个框、答案拼 `"a, b"` 交给既有 `dualCorrect`，`bluebook.css` 加 `.drill-grid-multi`；`test/grid-dual-ui.test.js` 三条静态守卫（负向：把分支改 `if(false)` 会红）。口径：题库当前 0 道双空题，故无端到端用例，验的是 dualCorrect 5 条单测 + 静态守卫 + 单框路径回归（grading 6/6、runtime 六页 0 异常）。
 - **第 9 条：到点交卷后不许被 Start 拉回锁定答题页**（`6375302`）：`restoreOrIntro` 在 `timeout==='total'` 先把 `resumeStage='result'` 再 `finalize`；`startSession` 开头加硬门「已 finished 且有 result → 回成绩页」。回归 `tools/verify_exam_timeout.mjs`（8 条，只改会话时间字段跑真实页面：22 题起卷 → Module1 到点明示进 Module2 → 44 题 → 自动交卷出分），本地 8/8、线上（`?v=dd791ffc3352`）8/8。同笔把阴影题坐标改为 `TD_APP.CATALOG` 反查、drill 就绪改轮询、加 `test/tools-portability.test.js`。
 - **讲义 4.5 十六题 + 2.5 #10 入库**（`61002ef`，JY4-128…143、JY2-054 点图选项），官方 243/243、24/24 节清零。
 - **讲义 2.x 全部入库**（2.1 `6e7300a` / 2.2 `0235019` / 2.3 `ad1b592` / 2.4 `7cb7e7b` / 2.5 `4a2f313` / 2.6 `21bc683` / 2.7 `1017ddf`），剩 2.5 #10 一条挂在 α。
