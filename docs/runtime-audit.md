@@ -31,6 +31,9 @@
 | 9 | **计时到点后，已交卷的会话还能被重新拉回「作答视图」**：`restoreOrIntro()` 在时间到点时先按旧 `stage='answer'` 设了 `resumeStage`，再 `finalize()` 出分；`resumeStage` 仍是 `answer`，任何一次 `startSession()` 都会把落点写成答题页——而答题区已锁定，进去只能看到「题都在、全灰、不能答」的残影 | 计时归零（或跨天后回来）本该只看成绩页；一旦落到残影页，用户以为还有题没答、点哪里都没反应 | `restoreOrIntro()` 在 `timeout==='total'` 分支先把 `resumeStage='result'` 再 `finalize`；`startSession()` 开头加硬门「已 finished 且有 result → 直接回成绩页」，不再依赖按钮是否可见 |
 
 
+| 10 | **判分支持两空 grid-in，练习/模考页面却只有单框**：`grade-core.dualCorrect` 按「第一空, 第二空」判，讲义页 `jiangyi-page.js` 也有双框，但 `drill.js` / `exam.js` 的 grid 分支只画一个 `#gridAnswer` | 题库当前 0 道双空题，所以线上没爆；一旦加进两空题，学生在练习/模考里第二空无处可填，必判错且无任何提示——属于「数据一来就爆」的缺口 | `drill.js` / `exam.js` 各加 `q.values.length > 1` 分支：两个框（第一空/第二空），每框独立 5 字符限制，存成 `"a, b"` 交给既有的 `dualCorrect`；`bluebook.css` 加 `.drill-grid-multi` 竖排样式；`test/grid-dual-ui.test.js` 三条静态守卫防止重构退回单框 |
+
+
 
 ## 阴影题实测（P0-2 验收口径）
 
@@ -106,6 +109,8 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 ## 脚本可移植性守卫（`test/tools-portability.test.js`）
 
 三条静态断言：除 `tools/lib/chrome.mjs` 外任何脚本不许出现 macOS Chrome 绝对路径；凡带 `remote-debugging-port` 的脚本必须 `import { CHROME } from '…/lib/chrome.mjs'`；`chrome.mjs` 必须导出 `CHROME`、支持 `CHROME_BIN`、候选表同时覆盖 macOS 与 Linux。用「往工具脚本尾部插一行 `/Applications/Google Chrome…`」的负向测试确认会红，插回去即绿。
+
+> 第 10 条怎么验（诚实口径）：题库里没有双空题，所以拿不到真实端到端用例。已验证的是三条——① `test/grading.test.js` 的 `dualCorrect` 5 条（两空都对 / 容差内 / 只填一空不给部分分 / 顺序颠倒错 / 与键不符错）；② `test/grid-dual-ui.test.js` 静态守卫（两个页面都有多空分支、答案拼 `a, b`、样式在位），并做过「删掉分支」负向确认会红；③ 单框路径无回归：`verify_grading_ui` 6/6、`verify_runtime` 六页 0 异常。真出双空题时的第一步验收就是做一道题、两空都填、看结果页算对。
 
 ## 还没动的
 

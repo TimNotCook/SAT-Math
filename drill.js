@@ -667,6 +667,45 @@
       appendLineToggle(els.answers, q);
       return;
     }
+    /* 官方两空 grid-in：原页就是两处下划线。判分层（grade-core 的 dualCorrect）
+       早就按「第一空, 第二空」解析，但练习页原来只画一个框——题库真有双空题时
+       学生根本填不全，必判错且无提示。这里补成两个框，存的就是 "a, b"。 */
+    if (q.values && q.values.length > 1) {
+      var parts0 = String(current).split(/[,;]/);
+      els.answers.innerHTML = '<div class="drill-gridin drill-grid-multi">' +
+        q.values.map(function (_, i) {
+          var lbl = i === 0 ? '第一空' : (i === 1 ? '第二空' : '第 ' + (i + 1) + ' 空');
+          return '<label for="gridAnswer' + i + '">' + lbl + '</label>' +
+            '<input id="gridAnswer' + i + '" data-box="' + i + '" type="text" value="' + esc((parts0[i] || '').trim()) + '"' +
+            ' autocomplete="off" spellcheck="false" inputmode="decimal" maxlength="6">';
+        }).join('') + '<p class="drill-input-warn" id="gridWarn" hidden></p></div>';
+      var multi = Array.prototype.slice.call(els.answers.querySelectorAll('.drill-grid-multi input'));
+      var warnM = $('gridWarn');
+      var capBox = function (v) {
+        var neg = v.charAt(0) === '-' ? '-' : '';
+        var body = neg ? v.slice(1) : v;
+        return neg + body.replace(/[^0-9./]/g, '').slice(0, 5);
+      };
+      var commitMulti = function () {
+        var v = multi.map(function (n) { return n.value.trim(); })
+          .filter(function (x) { return x !== ''; }).join(', ');
+        A.setAnswer(section, q.id, v);
+        var bad = multi.some(function (n) { var s = n.value.trim(); return s && !/^-?(?:\d+(?:\.\d+)?|\.\d+|\d+\/\d+)$/.test(s); });
+        warnM.hidden = !bad;
+        warnM.textContent = bad ? '每一空只能写数字、小数点、斜杠和负号，不要带 %、$、逗号、字母或单位' : '';
+        multi.forEach(function (n) { n.classList.toggle('is-invalid', bad && !!n.value.trim()); });
+        setSaved();
+      };
+      multi.forEach(function (n) {
+        n.addEventListener('input', function (event) {
+          var v = capBox(event.target.value);
+          if (v !== event.target.value) event.target.value = v;
+          commitMulti();
+        });
+      });
+      appendLineToggle(els.answers, q);
+      return;
+    }
     els.answers.innerHTML = '<div class="drill-gridin"><label for="gridAnswer">输入答案</label>' +
       '<input id="gridAnswer" type="text" value="' + esc(current) + '" autocomplete="off" spellcheck="false" inputmode="decimal" maxlength="6">' +
       '<p class="drill-input-warn" id="gridWarn" hidden></p></div>';

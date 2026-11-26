@@ -55,6 +55,9 @@ body.drill-page, body.exam-page{background:var(--bg);color:var(--bb-ink);font:15
 .drill-gridin label{display:block;margin:0 0 10px;color:var(--bb-sub);font-size:14px;font-weight:600}
 .drill-gridin input{width:100%;height:54px;padding:0 14px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper);color:var(--bb-ink);font:inherit;font-size:17px;box-shadow:var(--shadow-1)}
 .drill-gridin input:hover{border-color:var(--bb-faint)}
+/* 两空 grid-in（练习/模考同款）：两个框竖排，间距与单框一致 */
+.drill-gridin.drill-grid-multi input{margin-bottom:12px;max-width:260px}
+.drill-gridin.drill-grid-multi input:last-of-type{margin-bottom:0}
 .drill-gridin input:focus{border-color:var(--bb-accent);outline:2px solid var(--bb-accent-soft);outline-offset:0}
 .drill-gridin .drill-input-note{margin:8px 0 0;color:var(--bb-faint);font-size:12.5px}
 .drill-gridin input.is-invalid{border-color:var(--bad);outline:2px solid var(--bad-soft);outline-offset:0}

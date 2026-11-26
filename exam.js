@@ -751,6 +751,44 @@
         persist(); renderQuestion(); renderNavigator();
       }));
       if (window.TD_CROSSOUT) window.TD_CROSSOUT.bind(area, q.id, locked);
+    } else if (q.values && q.values.length > 1) {
+      /* 两空 grid-in：判分（TDGrade.dualCorrect）按 "第一空, 第二空" 解析，
+         模考页原来只画一个框，一旦卷面出现双空题就永远填不全。这里与讲义页对齐。 */
+      const parts0 = String(a.v || '').split(/[,;]/);
+      area.innerHTML = '<div class="drill-gridin drill-grid-multi">' + q.values.map((_, i) => {
+        const lbl = OFFICIAL ? (i === 0 ? 'First answer' : i === 1 ? 'Second answer' : 'Answer ' + (i + 1))
+                             : (i === 0 ? '第一空' : i === 1 ? '第二空' : '第 ' + (i + 1) + ' 空');
+        return `<label for="gridAnswer${i}">${lbl}</label>` +
+          `<input id="gridAnswer${i}" data-box="${i}" class="editable" type="text" value="${esc((parts0[i] || '').trim())}"` +
+          ` autocomplete="off" spellcheck="false" inputmode="decimal" maxlength="6" ${locked ? 'disabled' : ''}>`;
+      }).join('') +
+        (OFFICIAL
+          ? '<p class="drill-input-note"><button type="button" class="exam-spr-link">Student-produced response directions</button></p>'
+          : '<p class="drill-input-note">每空可输入整数、小数或分数，例如 12、4.5 或 3/4。</p>') +
+        '<p class="drill-input-warn" id="gridWarn" hidden></p></div>';
+      const boxes = Array.from(area.querySelectorAll('.drill-grid-multi input'));
+      const gridWarnM = $('gridWarn');
+      const capBox = v => {
+        const neg = v.charAt(0) === '-' ? '-' : '';
+        const body = (neg ? v.slice(1) : v).replace(/[^0-9./]/g, '').slice(0, 5);
+        return neg + body;
+      };
+      const commitMulti = () => {
+        const v = boxes.map(n => n.value.trim()).filter(x => x !== '').join(', ');
+        curA().v = v; persist(); renderNavigator();
+        const bad = boxes.some(n => { const t = n.value.trim(); return t && !/^-?(?:\d+(?:\.\d+)?|\.\d+|\d+\/\d+)$/.test(t); });
+        gridWarnM.hidden = !bad;
+        gridWarnM.textContent = bad
+          ? (OFFICIAL ? 'Each box accepts digits, a decimal point, a slash, or a minus sign only.' : '每一空只能写数字、小数点、斜杠和负号，不要带 %、$、逗号、字母或单位')
+          : '';
+        boxes.forEach(n => n.classList.toggle('is-invalid', bad && !!n.value.trim()));
+      };
+      boxes.forEach(n => n.addEventListener('input', event => {
+        if (isLocked(cur().uid)) return;
+        const v = capBox(event.target.value);
+        if (v !== event.target.value) event.target.value = v;
+        commitMulti();
+      }));
     } else {
       area.innerHTML = '<div class="drill-gridin"><label for="gridAnswer">' +
         (OFFICIAL ? 'Answer' : '输入答案') + '</label>' +
