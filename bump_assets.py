@@ -44,7 +44,7 @@ BUMP = [
     'data/aliases.js',
 ]
 HTML = ['index.html', 'exam.html', 'drill.html', 'wrong.html', 'jiangyi.html']
-TOKEN = re.compile(r'(?:src|href)"[^"]*?\?v=([^"]+)"')
+TOKEN = re.compile(r'(?:src|href)="[^"]*?\?v=([^"]+)"')
 
 
 def page_versions():
