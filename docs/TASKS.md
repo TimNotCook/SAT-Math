@@ -35,7 +35,7 @@
 | 人 | 任务 | 阻塞点（现状） | 验收 |
 |---|---|---|---|
 | 码农 α | 讲义录入已清零（4.5 十六 + 2.5 #10 于 `61002ef` 入库），转入待命：后续只接主会话派的新节或返工单 | 无阻塞；`data/jiangyi.js` 写入权已释放（243/243，`verify_jiangyi` 0 FAIL） | 新派单须带原页页码 + 答案页核对 |
-| 开发者 | ① 给阴影题补 `region`（P0-2），按原题 PDF 逐个核对阴影方向；② 批量修数学排版（P1-6）：`f (x)`→`f(x)`、`(2/3)` 去括号、问号前空格；③ 加校验：题干含 shaded 但 spec 无 `region` 就报错；④ 云主机清僵尸副本（仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本） | 阴影题口径已定案 **5 道**（见「已定案」第 1 条），按此验收；云主机疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对后再动 | 阴影题逐个截图与原题一致；校验脚本能拦住同类错误；题库仍 **1292** 且判分回归全过 |
+| 开发者 | ① ~~给阴影题补 `region`（P0-2）~~ 已实测 6/6 通过（见「已完成」）；② 批量修数学排版（P1-6）：`f (x)`→`f(x)`、`(2/3)` 去括号、问号前空格；③ ~~加校验~~ 已落地：`tools/verify_assets.mjs` + `tools/verify_shaded_figures.mjs`；④ 云主机清僵尸副本（仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本） | 阴影题口径已定案 **5 道**（见「已定案」第 1 条），按此验收；云主机疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对后再动 | 阴影题逐个截图与原题一致；校验脚本能拦住同类错误；题库仍 **1292** 且判分回归全过 |
 | 码农 β | 账号面板与云同步收尾（magic link 单通道下的档案读取、换设备进度、设置页回归） | 6 位数字码需自定义 SMTP + 模板改造后才能切回；当前只能 magic link | 真机 magic link 登录；换设备能看到进度 |
 | 主会话（我） | 验收与台账：维护本文件、复核各人结论、跑站点与题库回归；不碰业务代码 | — | 每人交付必须带 commit hash + 线上验证证据，缺一不签收 |
 
@@ -52,6 +52,8 @@
 - **P0-3 重复 Reference 已修**：同一笔 `30dfb0a`。核对：`exam.js:1122` 只渲染 `#btnReference` 一个入口，`app-ui.js:227` 的 `bindTools` 按配置单例绑定。
 - **P1-4 练习页顶栏改回真实板块名**：`30dfb0a`；导航文案统一在 `332bfc4`（去掉「（JY1–JY4）」后缀）。
 - **设置入口挂载**：`2a0d472`（侧栏 `site-rail`）+ `2269ce4`（做题视图整块隐藏侧栏时改挂顶部工具条右侧）+ **本轮修复**（`cloud-account.js`：结果页挂 `.drill-result-actions`、模考作答挂 `.exam-toolbar-actions`、检查/交卷/成绩走 fixed 右下角兜底，切回列表自动收回）。矩阵与坑见 `docs/settings-entry-coverage.md`；回归 `tools/verify_acct_entry.mjs` **26/26**。
+- **阴影题（P0-2）**：渲染面实测 6/6 通过（`node tools/verify_shaded_figures.mjs`，矢量 SVG、无 `td-figure--missing`、无位图）；数据里 5 道题残留的 10 处 `images/fig/*.png` 死指针（线上 404）已删，矢量 spec 未动。校验脚本 `tools/verify_assets.mjs` 已进 `test/assets.test.js`，见 `docs/runtime-audit.md`。
+- **Service Worker 版本跟构建走**：`bump_assets.py` 现在把 `sw.js` 的 `VERSION` 写成 `satmath-<令牌>`（此前自 2026-11-23 停在 `satmath-v2`），`--check` 会校验一致。
 - **qa.\* 测试账号清理**：2026-11-25 11:00 前后由总监在 Dashboard SQL Editor 执行，四表归零（`users=1 / names=0 / alias=0 / prog=0`）。2026-11-26 收尾再量：`usernames` 已漂移为 **1 行真人**（`username=timnotcook`，非 `qa.` 前缀，`content-range: 0-0/1`），qa 旧名仍 0；核对清单见 `docs/sql/cleanup-qa-verify.md`。查法：`curl -sD- '…/rest/v1/usernames?select=username,user_id&limit=200' -H 'apikey: sb_publishable_…' -H 'Prefer: count=exact'`。
 
 - **云主机归位（开发者④前半段）**：`~/SAT-Math-vm` 原在 `ca36aa8`，与 `54535f9` 逐字节相同（`git diff` 为空），已 `reset --hard origin/main`；现三份工作区一致。开发者只需做④剩下的「清僵尸副本」——**仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本**（云主机上疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对）。

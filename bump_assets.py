@@ -31,6 +31,8 @@ HASH_FILES = [
     'data/aliases.js',
     # HTML 原始内容参与摘要：文案改动也能刷新缓存（先读原文再替换，幂等不破坏自引用）
     'index.html', 'exam.html', 'drill.html', 'wrong.html', 'jiangyi.html', 'history.html',
+    # Service Worker 自身：逻辑改动也要换版本号（VERSION 行在摘要里被抹掉，避免自指）
+    'sw.js',
 ]
 # 需要加版本号的脚本（CSS 也一起，避免样式缓存）
 BUMP = [
@@ -93,8 +95,31 @@ def digest():
             # HTML 参与摘要时先去掉已写入的 ?v= 令牌，否则每次重跑哈希都会变（非幂等）
             if f in html_names:
                 data = re.sub(rb'(\?v=)[0-9a-f]+', rb'\1', data)
+            if f == 'sw.js':
+                data = re.sub(rb"(var VERSION = ')[^']*(';)", rb'\1\2', data)
             h.update(data)
     return h.hexdigest()[:12]
+
+
+def stamp_sw(v):
+    """把 sw.js 的缓存桶名跟构建令牌绑死：每次部署换桶，旧缓存自愈。"""
+    p = os.path.join(ROOT, 'sw.js')
+    if not os.path.exists(p):
+        return False
+    s = io.open(p, encoding='utf-8').read()
+    new = re.sub(r"(var VERSION = ')[^']*(';)", lambda m: m.group(1) + 'satmath-' + v + m.group(2), s, count=1)
+    if new != s:
+        io.open(p, 'w', encoding='utf-8').write(new)
+        return True
+    return False
+
+
+def sw_version():
+    p = os.path.join(ROOT, 'sw.js')
+    if not os.path.exists(p):
+        return None
+    m = re.search(r"var VERSION = '([^']*)';", io.open(p, encoding='utf-8').read())
+    return m.group(1) if m else None
 
 
 def main():
@@ -118,9 +143,15 @@ def main():
         if s != orig:
             io.open(p, 'w', encoding='utf-8').write(s)
             changed.append(name)
+    if stamp_sw(v):
+        changed.append('sw.js')
     print('asset version:', v)
-    print('updated HTML :', changed if changed else 'none (already current)')
+    print('updated files :', changed if changed else 'none (already current)')
+    print('sw cache       :', sw_version())
     assert_versions_synced(v)
+    if sw_version() != 'satmath-' + v:
+        print('FAIL sw.js VERSION 未跟随构建令牌：%s ≠ satmath-%s' % (sw_version(), v))
+        raise SystemExit(1)
     return v
 
 
