@@ -59,6 +59,12 @@
       return s;
     }
 
+    // 0) \overline{AB}：SAT 题干用上划线表示线段（如「\overline{FG} is a diameter」）。
+    //    题库里已有 4 处；不转换就会把反斜杠命令原样印给考生。
+    s = s.replace(/\\overline\{([^{}]*)\}/g, function (m, body) {
+      return keep('<span class="td-overline">' + body + '</span>');
+    });
+
     // 1) superscripts ^{...}
     s = s.replace(/\^\{([^{}]*)\}/g, function (m, body) { return keep('<sup>' + body + '</sup>'); });
 
