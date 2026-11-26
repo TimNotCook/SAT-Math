@@ -135,6 +135,17 @@
       var L = r.len || 12, ax = r.a[0] * L, ay = r.a[1] * L, bx = r.b[0] * L, by = r.b[1] * L;
       g.push('<polyline points="' + [r.x + ax, r.y + ay, r.x + ax + bx, r.y + ay + by, r.x + bx, r.y + by].map(function (v, k) { return k % 2 ? v.toFixed(1) : v.toFixed(1); }).join(' ').replace(/ /g, ' ') + '" fill="none" stroke="' + LAB + '" stroke-width="1.2"/>');
     });
+    // 圆弧：单位圆这种图只有线画不了。角度按数学约定（0° 指 +x，逆时针为正），
+    // 屏幕 y 向下所以 sin 取负号。a0/a1 给度数，dash 可选。
+    (o.arcs || []).forEach(function (a) {
+      var cx = a.cx, cy = a.cy, r = a.r;
+      var t0 = a.a0 * Math.PI / 180, t1 = a.a1 * Math.PI / 180;
+      var x0 = cx + r * Math.cos(t0), y0 = cy - r * Math.sin(t0);
+      var x1 = cx + r * Math.cos(t1), y1 = cy - r * Math.sin(t1);
+      var large = Math.abs(a.a1 - a.a0) > 180 ? 1 : 0;
+      var sweep = a.a1 >= a.a0 ? 0 : 1;
+      g.push('<path d="M ' + x0.toFixed(1) + ' ' + y0.toFixed(1) + ' A ' + r + ' ' + r + ' 0 ' + large + ' ' + sweep + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1) + '" fill="none" stroke="' + LINE + '" stroke-width="' + (a.sw || o.sw || 1.6) + '"' + (a.dash ? ' stroke-dasharray="7 5"' : '') + '/>');
+    });
     (o.labels || []).forEach(function (t) {
       g.push('<text x="' + t.x + '" y="' + t.y + '" font-size="' + (t.size || 14) + '" fill="' + (t.fill || INK) + '"' +
         (t.italic ? ' font-style="italic"' : '') + ' text-anchor="' + (t.anchor || 'start') + '">' + esc(t.t) + '</text>');
@@ -701,7 +712,38 @@
     // p163 #13：正九边形，九个顶点连到中心，右下那个等腰三角形底角标 x°
     'JY4-072': { type: 'geo', w: 430, h: 310, sw: 1.5,
       segs: [[[210, 150], [175.8, 244]], [[210, 150], [123.4, 200]], [[210, 150], [111.5, 132.6]], [[210, 150], [145.7, 73.4]], [[210, 150], [210, 50]], [[210, 150], [274.3, 73.4]], [[210, 150], [308.5, 132.6]], [[210, 150], [296.6, 200]], [[210, 150], [244.2, 244]], [[175.8, 244], [123.4, 200]], [[123.4, 200], [111.5, 132.6]], [[111.5, 132.6], [145.7, 73.4]], [[145.7, 73.4], [210, 50]], [[210, 50], [274.3, 73.4]], [[274.3, 73.4], [308.5, 132.6]], [[308.5, 132.6], [296.6, 200]], [[296.6, 200], [244.2, 244]], [[244.2, 244], [175.8, 244]]],
-      labels: [{ t: 'x\u00b0', x: 263, y: 210, size: 13 }] }
+      labels: [{ t: 'x\u00b0', x: 263, y: 210, size: 13 }] },
+    // p172 #4：直角三角形，直角在 C，斜边 AB 标 26
+    'JY4-107': { type: 'geo', w: 430, h: 300, sw: 1.6,
+      segs: [[[90, 260], [300, 260]], [[300, 260], [300, 70]], [[90, 260], [300, 70]]],
+      rights: [{ x: 300, y: 260, a: [-1, 0], b: [0, -1], len: 13 }],
+      labels: [
+        { t: 'A', x: 76, y: 276, italic: true, size: 15 },
+        { t: 'B', x: 306, y: 58, italic: true, size: 15 },
+        { t: 'C', x: 306, y: 276, italic: true, size: 15 },
+        { t: '26', x: 178, y: 152, size: 13 } ] },
+    // p176 #9：△ABC，B 到 AC 的垂足带直角符号（题干靠 sin A = cos C，图只描形）
+    'JY4-112': { type: 'geo', w: 430, h: 300, sw: 1.6,
+      segs: [[[60, 240], [200, 55]], [[200, 55], [340, 240]], [[60, 240], [340, 240]], [[200, 55], [200, 240]]],
+      rights: [{ x: 200, y: 240, a: [-1, 0], b: [0, -1], len: 13 }],
+      labels: [
+        { t: 'A', x: 44, y: 246, italic: true, size: 15 },
+        { t: 'B', x: 196, y: 44, italic: true, size: 15 },
+        { t: 'C', x: 346, y: 246, italic: true, size: 15 } ] },
+    // p178 #11：单位圆，θ 从 +x 轴逆时针转到第二象限的动点（图中只有形，不给点坐标值）
+    'JY4-114': { type: 'geo', w: 430, h: 340, sw: 1.5,
+      segs: [[[40, 170], [380, 170]], [[210, 25], [210, 315]], [[210, 170], [160, 83.4]]],
+      arcs: [{ cx: 210, cy: 170, r: 100, a0: 0, a1: 180 },
+             { cx: 210, cy: 170, r: 100, a0: 180, a1: 360 },
+             { cx: 210, cy: 170, r: 34, a0: 0, a1: 120, sw: 1.2 }],
+      dots: [[210, 170]],
+      labels: [
+        { t: 'O', x: 192, y: 192, italic: true, size: 14 },
+        { t: '(1, 0)', x: 216, y: 166, size: 12 },
+        { t: '(0, 1)', x: 214, y: 52, size: 12 },
+        { t: 'y', x: 218, y: 30, italic: true, size: 13 },
+        { t: 'x', x: 378, y: 166, italic: true, size: 13 },
+        { t: '\u03b8', x: 244, y: 152, italic: true, size: 14 } ] }
   };
 
   window.JY_FIG = {
