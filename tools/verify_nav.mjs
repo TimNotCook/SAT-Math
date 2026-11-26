@@ -59,19 +59,32 @@ const tabs = await (await fetch(`http://127.0.0.1:${CDP}/json/list`)).json();
 const ws = new WebSocket(tabs.find(t => t.type === 'page').webSocketDebuggerUrl);
 await new Promise(r => ws.addEventListener('open', r));
 let mid = 0; const pending = new Map();
+let loadEvents = 0; /* 每次文档 load 计数，用来区分「本次导航的加载」与「上一页残留状态」 */
 ws.addEventListener('message', ev => {
   const m = JSON.parse(ev.data);
-  if (m.id && pending.has(m.id)) { pending.get(m.id)(m.result); pending.delete(m.id); }
+  if (m.id && pending.has(m.id)) { pending.get(m.id)(m.result); pending.delete(m.id); return; }
+  if (m.method === 'Page.loadEventFired') loadEvents++;
 });
 const send = (method, params = {}) => new Promise(r => {
   const i = ++mid; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params }));
   setTimeout(() => { if (pending.has(i)) { pending.delete(i); r({}); } }, 25000);
 });
 const ev = async expr => (await send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true })).result?.value;
+await send('Page.enable');
+await send('Runtime.enable');
 async function goto(url) {
+  const base = loadEvents;
   await send('Page.navigate', { url });
-  for (let i = 0; i < 80; i++) { await sleep(120); if ((await ev('document.readyState')) === 'complete') break; }
-  await sleep(1000);
+  /* Page.navigate 之后第一次读 readyState，拿到的可能还是上一页的 'complete'：
+     旧实现当场 break、只补 sleep(1000) 就断言，脚本还没初始化就报「读不到 TD_APP」/「读不到数据」
+     （2026-11-26 实测：同一份线上代码连跑两次 38/38 与 33/38 交替）。
+     改成等本次导航自己的 load 事件，再等到 body 有内容。 */
+  for (let i = 0; i < 200 && loadEvents === base; i++) await sleep(100);
+  for (let i = 0; i < 100; i++) {
+    if ((await ev(`(document.readyState === 'complete' && !!document.body && document.body.children.length > 0) ? 1 : 0`)) === 1) break;
+    await sleep(100);
+  }
+  await sleep(700);
 }
 async function shot(name) {
   const r = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
