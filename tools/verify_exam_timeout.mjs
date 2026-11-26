@@ -138,12 +138,68 @@ const s2 = await ev(`(function(){var s=JSON.parse(localStorage.getItem('${KEY_SE
 check('点 Start 后进答题视图且卷面补齐 44 题（Module 2）', stage2 === 'stage-answer' && s2 && s2.paper === 44 && s2.module === 2, JSON.stringify({ stage2, s2 }));
 await cap('timeout-2-module2');
 
+/* ---------- ②b 在 Module 2 里故意答错一题：自动交卷后必须进错题本 ----------
+   计时到点这条路径以前没人验过「错的那道到底有没有记下来」：最终成绩页有了、
+   记录有了，但错题本可能是空的。这里真点错一个选项，交卷后两边都对。 */
+/* 选一道「在 CATALOG 里真的存在」的 MCQ（卷面里可能混着不在生效池的题），
+   再用 Next 跳到它，最后点一个与正确答案不同的选项。 */
+const pickInfo = await ev(`(function(){
+  var s = JSON.parse(localStorage.getItem('${KEY_SESSION}') || 'null');
+  if (!s || !s.paper || !s.paper.length) return { err: 'no paper' };
+  /* 模考页不加载 app-core.js，window.TD_APP.CATALOG 是空的（实测 catKeys=0），
+     题库真相在 TD_BANK.all 里，按 id 直接查。 */
+  var B = window.TD_BANK || {};
+  var all = B.all || B.questions || [], map = {};
+  all.forEach(function (x) { if (x && x.id && !map[x.id]) map[x.id] = x; });
+  /* 进 Module 2 后页面停在 s.idx（= m1Size），从当前位置往后找，避免"算的是第 0 题、
+     点的却是当前这题"的错位。 */
+  for (var i = (s.idx || 0); i < s.paper.length; i++) {
+    var q = map[s.paper[i].id];
+    /* 错题本会跳过 dup（与教材同题干的精编重题）与 retired/merged，这里同样跳过，
+       否则会出现"结果记录里有错题、错题本里被去重掉"的假红。 */
+    if (q && q.type === 'mcq' && /^[A-D]$/.test(String(q.answer)) && !q.dup && !q.retired && !q.mergedInto) {
+      return { idx: i, qid: q.id, right: String(q.answer), pos: s.idx, steps: i - (s.idx || 0) };
+    }
+  }
+  return { err: 'no resolvable mcq in paper', bankSize: all.length, sampleIds: s.paper.slice(0, 5).map(function (x) { return x.id; }) };
+})()`);
+check('卷面里能找到一道可定位的 MCQ', pickInfo && !pickInfo.err, JSON.stringify(pickInfo));
+
+let picked = pickInfo;
+if (pickInfo && !pickInfo.err) {
+  for (let k = 0; k < pickInfo.steps; k++) {
+    await ev(`(function(){var b=document.getElementById('btnNext');if(b)b.click();})()`);
+    await sleep(120);
+  }
+  picked = await ev(`(function(){
+    var right = '${pickInfo && pickInfo.right}';
+    var rows = document.querySelectorAll('#answerArea .drill-choice-row');
+    if (!rows.length) return { err: 'no rows at target question', qid: '${pickInfo && pickInfo.qid}' };
+    var wrongLetter = null;
+    rows.forEach(function (r) { if (!wrongLetter && r.dataset.choice !== right) wrongLetter = r.dataset.choice; });
+    var btn = document.querySelector('#answerArea .drill-choice-row[data-choice="' + wrongLetter + '"] .drill-choice');
+    if (!btn) return { err: 'option missing: ' + wrongLetter, qid: '${pickInfo && pickInfo.qid}' };
+    btn.click();
+    var after = JSON.parse(localStorage.getItem('${KEY_SESSION}') || 'null');
+    var sv = null;
+    if (after) Object.keys(after.answers).forEach(function (u) { if (after.answers[u] && after.answers[u].v === wrongLetter) sv = after.answers[u].v; });
+    return { qid: '${pickInfo && pickInfo.qid}', given: wrongLetter, right: right, stored: sv, pos: '${pickInfo && pickInfo.idx}' };
+  })()`);
+}
+check('Module 2 里能点错一个选项', picked && picked.qid && picked.given && picked.given !== picked.right, JSON.stringify(picked));
+
 /* ---------- ③ 总时间到点 → 自动交卷 ---------- */
 const before = await ev(`(function(){var r=JSON.parse(localStorage.getItem('${KEY_RESULTS}')||'[]');return Array.isArray(r)?r.length:-1;})()`);
-await ev(`(function(){var k='${KEY_SESSION}';var s=JSON.parse(localStorage.getItem(k));var now=Date.now();
-  s.moduleEndsAt=now-1000; s.endsAt=now-500; localStorage.setItem(k,JSON.stringify(s)); })()`);
-await goto(`${BASE}/exam.html?mode=mock`, '总时间到点');
-const stage3 = await startExam();
+/* 不刷新页面，让真实倒计时自己走到零：这条路径才是用户遇到的自动交卷。
+   （刷新再改 endsAt 会把 Module 2 的作答一起丢掉，那是另一条待验的路径。） */
+const stage3 = await (async () => {
+  for (let i = 0; i < 80; i++) {
+    const st = await ev(`(function(){var s=document.querySelector('.stage.active');return s?s.id:'none';})()`);
+    if (st === 'stage-result') return st;
+    await sleep(250);
+  }
+  return 'timeout';
+})();
 for (let i = 0; i < 20; i++) {
   const st = await ev(`(function(){var s=document.querySelector('.stage.active');return s?s.id:'none';})()`);
   if (st === 'stage-result') break;
@@ -166,6 +222,53 @@ check('计时归零后停在成绩页', fin && fin.stage === 'stage-result', JSO
 check('会话标记 finished / auto / endReason=time', fin && fin.finished === true && fin.auto === true && fin.endReason === 'time', JSON.stringify(fin && { f: fin.finished, a: fin.auto, r: fin.endReason }));
 check('自动交卷落一条 44 题成绩记录（不重复写）', fin && fin.rec && fin.rec.total === 44 && fin.rec.auto === true && fin.rec.reason === 'time' && fin.nAfter === fin.nBefore + 1, JSON.stringify(fin && { rec: fin.rec, before: fin.nBefore, after: fin.nAfter }));
 check('成绩页文案标明 Auto-submitted 与模块二路径', fin && /Auto-submitted/i.test(fin.text) && /Module 2 path/i.test(fin.text), fin && fin.text);
+
+/* ---------- ③b 自动交卷的错题必须进错题本（错题回顾页真出现卡片） ---------- */
+const wantQid = picked && picked.qid;
+const wantGiven = picked && picked.given;
+const wrongDetail = await ev(`(function(){
+  var all = JSON.parse(localStorage.getItem('${KEY_RESULTS}') || '[]');
+  var last = all.length ? all[all.length - 1] : null;
+  if (!last) return { err: 'no result' };
+  var hits = (last.detail || []).filter(function (d) { return d.id === ${JSON.stringify(wantQid)}; });
+  /* 同一道题可能在卷面里出现两次（Module 1 / Module 2 各一次），
+     取「真答过的那一份」——没答的那份 given 是空串。 */
+  var hit = hits.filter(function (d) { return d.given !== ''; })[0] || hits[0];
+  return hit ? { id: hit.id, given: hit.given, correct: hit.correct, copies: hits.length } : { missing: ${JSON.stringify(wantQid)} };
+})()`);
+check('成绩记录里那道错题被标为 incorrect 且记下了原答案', wrongDetail && wrongDetail.correct === false && wrongDetail.given === wantGiven, JSON.stringify(wrongDetail));
+
+await ev(`location.href = '${BASE}/wrong.html'`);
+for (let i = 0; i < 60; i++) {
+  await sleep(150);
+  const ready = await ev(`(function(){return !!(window.TD_APP && document.getElementById('wrongList'));})()`);
+  if (ready) break;
+}
+/* 错题页默认只展示一个单元，先按题目所属 unit 切筛选，否则会误判"没进错题本" */
+const wantUnit = await ev(`(function(){
+  var want = ${JSON.stringify(wantQid)};
+  var B = window.TD_BANK || {}, all = B.all || B.questions || [];
+  var q = all.filter(function (x) { return x.id === want; })[0];
+  return q ? q.unit : 0;
+})()`);
+await ev(`(function(){
+  var u = ${JSON.stringify(wantUnit)};
+  var b = document.querySelector('#unitFilter .filter-btn[data-unit="' + u + '"]');
+  if (b) b.click();
+})()`);
+await sleep(300);
+const wrongCards = await ev(`(function(){
+  var list = document.getElementById('wrongList');
+  var cards = document.querySelectorAll('#wrongList > *').length;
+  var txt = list ? list.innerText : '';
+  var want = '${wantQid}';
+  var q = null, cat = (window.TD_APP || {}).CATALOG || {};
+  Object.keys(cat).forEach(function (k) { (cat[k] || []).forEach(function (x) { if (x.id === want) q = x; }); });
+  var label = q ? (q.section + ' · 第 ' + q.no + ' 题') : '';
+  return { cards: cards, label: label, hasLabel: label ? txt.indexOf(label) >= 0 : false, text: txt.replace(/\s+/g, ' ').slice(0, 140) };
+})()`);
+check('错题回顾页出现这道题（按 板块 · 第 N 题 定位）', wrongCards && wrongCards.cards >= 1 && wrongCards.hasLabel, JSON.stringify(wrongCards));
+await cap('timeout-4-wrongbook');
 
 const pass = results.filter((r) => r.ok).length;
 console.log(`\n${pass}/${results.length} 通过，截图在 ${OUT}`);

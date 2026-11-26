@@ -127,3 +127,7 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 修完实测：`verify_flows` 连跑 **4 次全 16/16**（之前四次里两次 12/16）；`verify_nav` 38/38、`verify_a11y` 20/20、`verify_acct_entry` 26/26、`verify_session` 22/22、`verify_grading_ui` 8/8、`verify_shaded_figures` 6/6、`verify_exam_timeout` 8/8、`test/*.test.js` 190/0。守卫：`test/tools-portability.test.js` 新增 3 条（写死 `/tmp` profile 要红、没用 `tempProfile()` 要红、`spawn('python3', [... 'http.server' ...])` 要红），负向验过——把 `verify_flows` 改回 `/tmp/vfl-${Date.now()}` 立刻红。
 
 > 教训：回归红之前先怀疑脚手架。判据不是"多跑一次就绿了"，而是"连跑 4 次都不红"。
+
+## 计时到点自动交卷：错题到底进没进错题本（2026-11-26 补验）
+
+`verify_exam_timeout` 原来的 8 条只验到「成绩页出来了、记录落了一条」，没验「错的那道有没有进错题本」——这条路径最容易静默漏。补了三步：Module 2 里找一道**在题库里真存在、且不是 dup/retired** 的 MCQ → 跳过去点一个错选项 → 让真实倒计时走到零（不刷新页面，刷新会丢 Module 2 作答，那是另一条待验路径）。结果：成绩记录 `detail` 里那道 `correct:false`、`given` 就是点的那个字母；错题回顾页切到对应 UNIT 后按「板块 · 第 N 题」能定位到卡片。脚本 8→12 条，连跑 2 次 12/12。
