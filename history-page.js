@@ -157,7 +157,7 @@
   window.addEventListener('load', render);
 
   /* 云账号模块（cloud-account.js）登录后会把云端档案合并写回 localStorage，
-     但那发生在本次脚本之后；轮询比对数据长度，一旦落地就重渲染一次，
+     但那发生在本次脚本之后；轮询比对数据指纹（整串 hash，不是长度），一旦落地就重渲染一次，
      否则新设备打开本页会一直显示空白。60s 后停表，不长期占资源。 */
   (function watchCloudMerge() {
     var last = '';

@@ -1,5 +1,8 @@
+/* ⚠️ 历史脚本（用户名模型时期）：d410776 起登录收敛为邮件 magic link，
+   本脚本的注册/登录步骤不再成立，仅作后端验收序列的复现留档。
+   当前登录链路的自动验收见 tools/verify_cloud_branches.mjs。 */
 import fs from 'node:fs';
-import {boot,sleep,goto,openAcc,state,setInput,waitFor,BASE,OUT_BTN,ARCH} from './seq_lib.mjs';
+import {boot,sleep,goto,openAcc,state,setInput,waitFor,BASE,OUT_BTN,ARCH} from './lib.mjs';
 const TS=Date.now().toString().slice(-6);
 const U1='qa.one'+TS, U2='qa.on'+TS, PW='one-pass-'+TS;
 const t0=Date.now(), out=[];
