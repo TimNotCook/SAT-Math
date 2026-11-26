@@ -501,6 +501,8 @@ class FigureLayer:
             arr_body = body[arr_start + 1:arr_end - 1]
             marks = self._parse_marks(arr_body)
             if op == "addMark":
+                if any(self._match(m, payload) for m in marks):
+                    return body, False, payload
                 marks.append(self._mark_text(payload))
             elif op == "removeMark":
                 marks = [m for m in marks if not self._match(m, payload)]
