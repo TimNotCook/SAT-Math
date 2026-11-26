@@ -21,12 +21,12 @@
 
 | 项 | 值 | 怎么量的 |
 |---|---|---|
-| `origin/main` | `f329e03`（2026-11-26 抓取时） | `git ls-remote origin refs/heads/main` |
-| 线上页面 | `index` / `drill` / `exam` / `wrong` / `jiangyi` 全部 HTTP 200 | `curl -s -o /dev/null -w "%{http_code}" https://timnotcook.github.io/SAT-Math/<page>.html` |
-| 题库 | **1292** 题（id 全唯一）：easy 281 / medium 565 / hard 164 + 2026-11-25/26 逐字录入包（R03/R04 等）；mcq / grid 比例随新包变动 | `node -e` 起 `vm` 跑 `data/questions.js`，`TD_BANK.questions.length` 与 `new Set(id)` 计数（字段名是 `level`，没有 `difficulty`） |
-| 单元分布 | 1–268 / 2–333 / 3–453 / 4–238 |
-| 讲义复习进度 | 官方 24 节 / 应有 **243** / 已录 **243** / 缺 **0** / 完成 **24 / 24 节** | `python3 tools/gen_jiangyi_reconcile.py`（输出 `need=243 have=243`）与 `docs/jiangyi-backlog.md` | 同上一条脚本，按 `unit` 计数 |
-| 登录后端（线上实况） | **Supabase 邮箱 magic link 单通道**（`cloud-config.js` 的 `supabase.url` + `anonKey` + `siteUrl`；`/otp` 显式带 `redirect_to` 回跳 `/SAT-Math/`）；GitHub 令牌、用户名密码、Firebase、WorkBuddy 登录通道均已下线。WorkBuddy 的 `endpoint` / `publishableKey` **只服务图片识别 VLM**，不是登录 | `sed -n '1,30p' cloud-config.js`；`docs/bugfix-2026-11-25-login-otp-only.md`；`docs/account-model.md` |
+| `origin/main` | `df0c995`（2026-11-26 收尾时抓取） | `git ls-remote origin refs/heads/main`（完整 40 位：`df0c995165a2bbd7a8d8f8a6a553ba704cb9ebba`） |
+| 线上页面 | `index` / `drill` / `exam` / `wrong` / `jiangyi` / `history` 全部 HTTP 200 | `curl -s -o /dev/null -w "%{http_code}" https://timnotcook.github.io/SAT-Math/<page>.html` |
+| 题库 | **1292** 题（id 全唯一）：easy 355 / medium 736 / hard 201；mcq 768 / grid 524 | `node -e` 起 `vm` 跑 `data/questions.js`，`TD_BANK.questions.length` 与 `new Set(id)` 计数（字段名是 `level`，没有 `difficulty`） |
+| 单元分布 | 1–268 / 2–333 / 3–453 / 4–238（合计 1292） |
+| 讲义复习进度 | 官方 24 节 / 应有 **243** / 已录 **243** / 缺 **0** / 完成 **24 / 24 节** | `python3 tools/gen_jiangyi_reconcile.py`（输出 `need=243 have=243`）与 `docs/jiangyi-backlog.md` |
+| 登录后端（线上实况） | **Supabase 邮箱 magic link 单通道**：`cloud-config.js` 里 `supabase.url` = `https://ofsnrzfmjqyrmkvdwnbo.supabase.co`、`anonKey` = `sb_publishable_…`、`siteUrl` = `https://timnotcook.github.io/SAT-Math/`；**客户端代码内无 `signInWithPassword` / 无用户名登录**，线上运行的是邮件链接。服务端另有 `usernames` / `username_alias` + `resolve_login` / `is_retired_username` / `rename_username`（`docs/sql/account-model.sql`，已建、客户端尚未接）；Firebase、GitHub 令牌、WorkBuddy 登录均不在代码里。WorkBuddy 的 `endpoint` / `publishableKey` **只服务图片识别 VLM** | `sed -n '1,20p' cloud-config.js`；`grep -n "signInWith" *.js`（仅 `signInWithOtp` 相关，无密码通道）；`grep -rn "resolve_login\|usernames" --include=*.js .`（客户端 0 命中，说明尚未接线） |
 | Firebase 状态 | 模块已摘除：`firebase-cloud.js` 与 `vendor/firebase/` 均不存在，五页无引用，CSP 无 firebase 域名 | `ls firebase-cloud.js vendor/firebase`；`grep -c firebase-cloud *.html` |
 | Supabase 迁移分支 | `backup/supabase-auth-5a0c22b` 仍存在且**未合并**（`git merge-base --is-ancestor 5a0c22b origin/main` 退出码 1） | 同左命令 + `git ls-remote --heads origin` |
 
@@ -52,7 +52,7 @@
 - **P0-3 重复 Reference 已修**：同一笔 `30dfb0a`。核对：`exam.js:1122` 只渲染 `#btnReference` 一个入口，`app-ui.js:227` 的 `bindTools` 按配置单例绑定。
 - **P1-4 练习页顶栏改回真实板块名**：`30dfb0a`；导航文案统一在 `332bfc4`（去掉「（JY1–JY4）」后缀）。
 - **设置入口挂载**：`2a0d472`（侧栏 `site-rail`）+ `2269ce4`（做题视图整块隐藏侧栏时改挂顶部工具条右侧）+ **本轮修复**（`cloud-account.js`：结果页挂 `.drill-result-actions`、模考作答挂 `.exam-toolbar-actions`、检查/交卷/成绩走 fixed 右下角兜底，切回列表自动收回）。矩阵与坑见 `docs/settings-entry-coverage.md`；回归 `tools/verify_acct_entry.mjs` **26/26**。
-- **qa.\* 测试账号清理**：2026-11-25 11:00 前后由总监在 Dashboard SQL Editor 执行，四表归零（`users=1 / names=0 / alias=0 / prog=0`），核对清单见 `docs/sql/cleanup-qa-verify.md`。
+- **qa.\* 测试账号清理**：2026-11-25 11:00 前后由总监在 Dashboard SQL Editor 执行，四表归零（`users=1 / names=0 / alias=0 / prog=0`）。2026-11-26 收尾再量：`usernames` 已漂移为 **1 行真人**（`username=timnotcook`，非 `qa.` 前缀，`content-range: 0-0/1`），qa 旧名仍 0；核对清单见 `docs/sql/cleanup-qa-verify.md`。查法：`curl -sD- '…/rest/v1/usernames?select=username,user_id&limit=200' -H 'apikey: sb_publishable_…' -H 'Prefer: count=exact'`。
 
 - **云主机归位（开发者④前半段）**：`~/SAT-Math-vm` 原在 `ca36aa8`，与 `54535f9` 逐字节相同（`git diff` 为空），已 `reset --hard origin/main`；现三份工作区一致。开发者只需做④剩下的「清僵尸副本」——**仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本**（云主机上疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对）。
 - 任务台账 `docs/TASKS.md` 入库（`8f6e46c`、`ead8277`）。
