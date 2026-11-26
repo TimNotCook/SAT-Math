@@ -5,6 +5,7 @@ on:
     paths:
       - 'docs/transcribe/**'
       - 'tools/patch_answers.py'
+      - 'tools/apply_bank_rulings.py'
       - '.github/workflows/ingest-transcribe-fragments.yml'
   workflow_dispatch:
 permissions:
@@ -36,8 +37,12 @@ jobs:
                   if len(parts)!=3 or not parts[2].startswith('T'): continue
                   needs[(int(u),sec)]=parts[2][1:]
           text=open(P,encoding='utf-8').read()
-          GROUP={'2.7':'Unit 2 · 03 Problem Solving 专项练习','4.5':'Unit 4 · 04 Geometry 专项练习'}
-          TOPIC={(4,'24'):'Area and Volume',(4,'25'):'Geometry',(4,'26'):'Right Triangles and Trigonometry',(4,'27'):'Circles',(2,'17'):'比率、比例与单位换算',(2,'18'):'百分数',(2,'19'):'图表与数据',(2,'22'):'增减与比例应用',(2,'23'):'综合应用'}
+          GROUP={'2.7':'Unit 2 · 专项练习','4.5':'Unit 4 · 专项练习'}
+          TOPIC={(4,'24'):'Area and Volume · 面积与体积',(4,'25'):'Geometry · 几何',(4,'26'):'Right Triangles and Trigonometry · 直角三角形与三角函数',(4,'27'):'Circles · 圆',
+                 (2,'17'):'Ratios, Proportions, and Unit Conversion · 比率、比例与单位换算',(2,'18'):'Percentages · 百分数',
+                 (2,'19'):'Distributions and Measurements of Center and Spread · 分布与集中、离散度量',(2,'20'):'Models and Scatterplots · 模型与散点图',
+                 (2,'21'):'Probability and Conditional Probability · 概率与条件概率',(2,'22'):'Inference from Sample Statistics and Margin Of Error · 样本推断与误差范围',
+                 (2,'23'):'Evaluating Statistical Claims · 统计论断评估'}
           added=[]
           for (u,sec),t in sorted(needs.items()):
               if '"id":"%s"'%sec in text: continue
@@ -72,6 +77,10 @@ jobs:
             echo "== $f"
             python3 tools/merge_transcribe_fragment.py --fragment "$f" | tail -3 || exit 1
           done
+      - name: Apply bank rulings
+        run: |
+          set -e
+          python3 tools/apply_bank_rulings.py
       - name: Apply answer patches
         run: |
           set -e
