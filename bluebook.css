@@ -634,7 +634,8 @@ body.scratch-on #answerArea{position:relative;z-index:65}
   .exam-context-left{width:100%;justify-content:space-between}
   .exam-clock-group{align-self:flex-end}
   .exam-stage-main{width:calc(100% - 24px);padding-top:28px}
-  .score-hero, .res-grid{grid-template-columns:1fr}
+  .score-hero, .res-grid{grid-template-columns:minmax(0,1fr)}
+  .res-grid>.exam-panel{min-width:0}
   .exam-stage-head{flex-direction:column}
   .exam-toolbar-actions .drill-question-tools button span{display:none}
   /* 390 窄屏实测：Reference/Calculator/Review/Submit 一行排不下，Submit 被裁到屏幕外
