@@ -544,6 +544,16 @@ window.TD_FIG_SPECS = {
   'SP1-092': { type: 'table', head: ['x', 'y'], rows: [['0', 'n'], ['4', 'n + 19'], ['8', 'n + 38']] },
   'SP1-099': { type: 'table', head: ['x', 'g(x)'], rows: [['\u221227', '3'], ['\u22129', '0'], ['21', '5']] },
   'SP1-101': { type: 'table', head: ['x', 'y'], rows: [['\u22122s', '24'], ['\u2212s', '21'], ['s', '15']] },
+  'TD-45-15': { type: 'rawSvg', svg: `<svg viewBox='0 0 440 320' xmlns='http://www.w3.org/2000/svg'>
+  <circle cx='220' cy='170' r='104' fill='none' stroke='#162c46' stroke-width='2'/>
+  <line x1='116' y1='170' x2='324' y2='170' stroke='#162c46' stroke-width='2'/>
+  <line x1='168' y1='80' x2='220' y2='170' stroke='#162c46' stroke-width='2'/>
+  <circle cx='220' cy='170' r='3' fill='#0f2a47'/>
+  <text x='166' y='70' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>X</text>
+  <text x='104' y='176' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>F</text>
+  <text x='336' y='176' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>G</text>
+  <text x='220' y='196' font-family='Times New Roman,Georgia,serif' font-size='17' fill='#162c46' text-anchor='middle'>O</text>
+</svg>` },
 
 };
 
