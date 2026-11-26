@@ -71,13 +71,16 @@ for (const f of fs.readdirSync(ROOT).filter((f) => /^\.(html|js|css)$/.test(path
 /* ---------- 4/5. 题库 ↔ 文本层 ---------- */
 const ctx = { window: {}, console };
 vm.createContext(ctx);
-for (const f of ['data/questions.js', 'data/text.js', 'data/choice_crops.js']) {
+for (const f of ['data/questions.js', 'data/text.js', 'data/choice_crops.js', 'data/figures.js']) {
   if (!fs.existsSync(path.join(ROOT, f))) { fail(`${f} 不存在`); continue; }
   try { vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx); } catch (e) { fail(`${f} 执行报错：${e.message}`); }
 }
 const bank = ctx.window.TD_BANK;
 const TEXT = ctx.window.TD_TEXT || {};
 const CROPS = ctx.window.TD_CHOICE_CROPS || {};
+/* 选项图已全面矢量化：TD_CHOICE_GRAPHS[id][letter] 存在即视为该选项有图，不再要求裁图。 */
+const CHOICE_GRAPHS = ctx.window.TD_CHOICE_GRAPHS || {};
+const hasChoiceVector = (id, l) => !!(CHOICE_GRAPHS[id] && CHOICE_GRAPHS[id][l]);
 if (!bank || !Array.isArray(bank.questions)) fail('data/questions.js 没产出 window.TD_BANK.questions');
 else {
   const q = bank.questions;
@@ -116,7 +119,7 @@ else {
         const idx = 'ABCD'.indexOf(String(it.answer).trim().charAt(0).toUpperCase());
         if (!(idx >= 0 && idx < filled.length)) { ansBad++; if (ansBad <= 5) fail(`mcq 答案越界：${it.id} answer=${it.answer} 有效选项=${filled.length}`); }
       }
-      for (const l of figList) if (!crops[l] && !hasImg) figNoCrop.push(`${it.id}:${l}`);
+      for (const l of figList) if (!crops[l] && !hasImg && !hasChoiceVector(it.id, l)) figNoCrop.push(`${it.id}:${l}`);
     } else if (it.type === 'grid') {
       /* grid-in 的标准答案可以是 answer（字母无关）或 value（分数/小数/备选，见 grade-core.js acceptedValues） */
       const key = [it.answer, it.value].some((x) => x !== null && x !== undefined && String(x).trim() !== '');

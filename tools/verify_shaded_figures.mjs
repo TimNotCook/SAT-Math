@@ -43,7 +43,9 @@ if (!HAS_BASE) {
   const TOKEN = randomBytes(6).toString('hex');
   for (let k = 0; k < 8 && !BASE; k++) {
     const cand = 8300 + Math.floor(Math.random() * 600);
-    const srv = spawn('python3', ['-m', 'http.server', String(cand), '--directory', ROOT], { stdio: 'ignore' });
+    /* python http.server 是单线程，Chrome 并发拉资源会被 reset（实测 app-core.js
+       偶发 404/reset → CATALOG 空 → 全部反查失败）。改用支持并发的 node 静态服务。 */
+    const srv = spawn(process.execPath, [join(__dirname, 'lib/static_server.mjs'), String(cand), ROOT], { stdio: 'ignore' });
     await sleep(600);
     try {
       writeFileSync(join(ROOT, MARK), TOKEN);
