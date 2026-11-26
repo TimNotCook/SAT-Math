@@ -6,6 +6,14 @@
   var BANK = window.TD_BANK;
   var KEY = 'tdsat_app_v1';
   var URL = new URLSearchParams(location.search);
+  /* 同名记录归并表（data/aliases.js）：retired / mergedInto 的题的旧 id 指向 canonical。
+     旧板块 URL 与旧保存进度都靠它解析（裁定见 docs/transcribe/bank-rulings.json）。 */
+  var ALIAS = window.TD_ALIAS || {};
+  /* 生效池（BANK.questions）已由 data/bank-active.js 摘掉 retired / mergedInto；
+     别名与旧节反推必须看全量 BANK.all，否则推不出旧板块 → 新板块的映射。 */
+  var ALLQ = BANK.all || BANK.questions;
+  var BY_ID = {};
+  ALLQ.forEach(function (q) { BY_ID[q.id] = q; });
 
   /* ---------- catalog: EVERY question is filed into exactly one independent group.
      Textbook 474 questions -> 20 groups 1.1 ... 4.4 (one section = one independent set).
@@ -13,6 +21,8 @@
      Unit 4 那 9 道已迁入讲义复习 JY4「教材原题」子组（练习册 P200–207）。 ---------- */
   var CATALOG = {};
   BANK.questions.forEach(function (q) {
+    /* retired / mergedInto：已被裁定去重（旧录副本 / 书内重复印），不进任何板块 */
+    if (q.retired || q.mergedInto) return;
     /* Unit 4 的 9 道精编原题已移交讲义复习 JY4「教材原题」子组（练习册 P200–207），
        真题练习侧不再注册 L4，也不并进 4.1 / 4.2 的官方题数。其余 L1–L3 保留。 */
     if (q.origin === 'legacy' && q.unit === 4) return;
@@ -42,11 +52,40 @@
     if (p[2]) return base + (parseInt(String(p[2]).replace(/\D/g, ''), 10) || 0) / 100;
     return base;
   }
-  var SECS = Object.keys(CATALOG).sort(function (a, b) { return secKey(a) - secKey(b); });
+  /* 声明层里标了 hidden 的节（旧 SP2 板块）：数据保留、入口隐藏，链接仍可由别名解析。 */
+  var HIDDEN = {};
+  BANK.units.forEach(function (u) {
+    (u.sections || []).forEach(function (x) { if (x.hidden) HIDDEN[x.id] = true; });
+  });
+  /* 旧节 → 新节：由 retired 题的 alias 反推，仅当该旧节全部题都归到同一个新节时成立。 */
+  var SECTION_ALIAS = {};
+  ALLQ.forEach(function (q) {
+    if (!q.retired || !q.alias || !q.section) return;
+    var t = BY_ID[q.alias];
+    if (!t || !t.section) return;
+    if (SECTION_ALIAS[q.section] && SECTION_ALIAS[q.section] !== t.section) { SECTION_ALIAS[q.section] = null; return; }
+    SECTION_ALIAS[q.section] = t.section;
+  });
+  Object.keys(SECTION_ALIAS).forEach(function (k) {
+    if (!SECTION_ALIAS[k] || SECTION_ALIAS[k] === k) delete SECTION_ALIAS[k];
+  });
+  function resolveSec(id) {
+    var t = SECTION_ALIAS[id];
+    return (t && CATALOG[t]) ? t : id;
+  }
+  var SECS = Object.keys(CATALOG).sort(function (a, b) { return secKey(a) - secKey(b); })
+    .filter(function (s) { return !HIDDEN[s]; });
+  /* 老 URL（drill.html?sec=2.6.T17）仍能进门：给旧节挂同一份题目数组，但不进 SECS/板块列表。 */
+  Object.keys(SECTION_ALIAS).forEach(function (old) {
+    if (CATALOG[old]) return;
+    var to = SECTION_ALIAS[old];
+    if (CATALOG[to]) CATALOG[old] = CATALOG[to];
+  });
   var UNIT_OF = function (s) { return isLegacy(s) ? parseInt(s.slice(1), 10) : parseInt(s, 10); };
   var SECTION_CN = {};
+  var SECTION_SUB = {};
   BANK.units.forEach(function (u) {
-    (u.sections || []).forEach(function (x) { SECTION_CN[x.id] = x.cn; });
+    (u.sections || []).forEach(function (x) { SECTION_CN[x.id] = x.cn; if (x.sub) SECTION_SUB[x.id] = x.sub; });
     SECTION_CN['L' + u.id] = '单元精编原题组 · 讲义 / 自测卷';
   });
   SECS.forEach(function (s) {
@@ -62,6 +101,21 @@
   }
   function topicSections() { return SECS.filter(isTopicSection); }
   function specialSections() { return SECS.filter(isSpecialSection); }
+  /* 专项训练某单元的群组节点（1.7 / 2.7 / 4.5）：只用来取板块主标题与副标题，不参与计数。 */
+  function specialGroupNode(u) {
+    var secs = specialSections().filter(function (s) { return UNIT_OF(s) === u; });
+    if (!secs.length) return null;
+    var helper = {};
+    secs.forEach(function (s) { helper[s] = true; });
+    var uu = unit(u) || {};
+    var found = null;
+    (uu.sections || []).forEach(function (x) {
+      if (found || !x.isGroup) return;
+      var has = (uu.sections || []).some(function (y) { return y.parent === x.id && helper[y.id]; });
+      if (has) found = x;
+    });
+    return found;
+  }
   function specialGroup() {
     var list = specialSections(), t = 0, a = 0, c = 0, done = 0;
     list.forEach(function (s) {
@@ -95,6 +149,29 @@
     if (!st || typeof st !== 'object' || Array.isArray(st)) st = {};
     if (!st.sections || typeof st.sections !== 'object') st.sections = {};
     if (!('last' in st)) st.last = null;
+    /* 旧板块进度迁移：旧节（2.6.T17/2.6.T18/2.6/2.7）的作答按别名并进新节，
+       参数（cursor/marks）只搬一份，绝不覆盖新节已有的作答。一次迁完即删旧键。 */
+    Object.keys(SECTION_ALIAS).forEach(function (old) {
+      var to = SECTION_ALIAS[old], src = st.sections[old];
+      if (!src || !CATALOG[to]) return;
+      var dst = st.sections[to];
+      if (!dst) dst = st.sections[to] = { answers: {}, cursor: 0, completed: false, marks: {} };
+      if (!dst.answers) dst.answers = {};
+      if (!dst.marks) dst.marks = {};
+      Object.keys(src.answers || {}).forEach(function (qid) {
+        var nid = ALIAS[qid] || qid;
+        if (src.answers[qid] && !dst.answers[nid]) dst.answers[nid] = src.answers[qid];
+      });
+      Object.keys(src.marks || {}).forEach(function (qid) {
+        var nid = ALIAS[qid] || qid;
+        if (src.marks[qid] && !dst.marks[nid]) dst.marks[nid] = src.marks[qid];
+      });
+      if ((src.cursor || 0) > (dst.cursor || 0)) dst.cursor = src.cursor;
+      delete st.sections[old];
+    });
+    if (st.last && st.last.sec && SECTION_ALIAS[st.last.sec]) {
+      st.last = { sec: SECTION_ALIAS[st.last.sec], qid: ALIAS[st.last.qid] || st.last.qid, ts: st.last.ts };
+    }
     return st;
   }
   function diskState() { return normalize(load()); }
@@ -123,6 +200,7 @@
     return s;
   }
   function secState(id, create) {
+    id = resolveSec(id);
     if (!CATALOG[id]) return null;
     return secIn(S, id, create);
   }
@@ -132,6 +210,7 @@
      make a fully-answered board appear "all unanswered" on the result page
      even though the answers were safely on disk. */
   function secStateDisk(id) {
+    id = resolveSec(id);
     if (!CATALOG[id]) return null;
     var D = diskState();
     return secIn(D, id, false);
@@ -141,6 +220,7 @@
      writes that fresh object back. Sections another tab added meanwhile
      survive; the callback runs on the disk object, not a stale snapshot. */
   function mutateSection(id, fn) {
+    id = resolveSec(id);
     if (!CATALOG[id]) return null;
     var D = diskState();
     var st = secIn(D, id);
@@ -192,6 +272,7 @@
     return !isCorrect(q, g);
   }
   function computeStats(id, src) {
+    id = resolveSec(id);
     var qs = CATALOG[id] || [], st = secIn(src, id, false) || { answers: {}, cursor: 0 };
     var answered = 0, correct = 0;
     qs.forEach(function (q) {
@@ -279,15 +360,15 @@
     if (active === 'exam') active = mode === 'quiz' ? 'quiz' : 'mock';
     var items = [
       { id: 'drill', label: '真题练习', href: 'drill.html' },
+      { id: 'jiangyi', label: '讲义复习', href: 'jiangyi.html' },
       { id: 'quiz', label: '单元抽查', href: 'exam.html?mode=quiz&unit=1' },
       { id: 'wrong', label: '错题回顾', href: 'wrong.html' },
-      { id: 'mock', label: '模考', href: 'exam.html?mode=mock' },
-      { id: 'history', label: '模考记录', href: 'history.html' }
+      { id: 'mock', label: '模考', href: 'exam.html?mode=mock' }
     ];
     host.innerHTML = '<header class="appbar"><div class="appbar-inner">' +
       '<a class="brand" href="drill.html"><b>SAT Math Prep</b></a>' +
       '<nav class="mainnav" aria-label="主要功能">' + items.map(function (n) {
-        return '<a href="' + n.href + '" class="' + (n.id === active ? 'on' : '') + '"' +
+        return '<a href="' + n.href + '" class="' + (n.id === active ? 'on' : '') + '>' +
           (n.id === active ? ' aria-current="page"' : '') + '>' + n.label + '</a>';
       }).join('') +       '</nav>' +
       '<a class="appbar-exit" id="btnAppExit" href="drill.html" title="退出本模块，返回上一个页面">退出</a>' +
@@ -322,7 +403,7 @@
   }
 
   window.TD_APP = {
-    BANK: BANK, CATALOG: CATALOG, SECS: SECS, UNITS: UNITS, SECTION_CN: SECTION_CN,
+    BANK: BANK, CATALOG: CATALOG, SECS: SECS, UNITS: UNITS, SECTION_CN: SECTION_CN, SECTION_SUB: SECTION_SUB,
     UNIT_OF: UNIT_OF, URL: URL, state: S, save: save, secState: secState, stats: stats,
     setAnswer: setAnswer, setCursor: setCursor, toggleMark: toggleMark, isCorrect: isCorrect,
     stillWrong: stillWrong, refreshVerdict: refreshVerdict,
@@ -332,6 +413,8 @@
     unitSections: unitSections, groupTag: groupTag, secHref: secHref, unitHref: unitHref,
     isTopicSection: isTopicSection, topicSections: topicSections, topicGroup: topicGroup,
     isSpecialSection: isSpecialSection, specialSections: specialSections, specialGroup: specialGroup,
+    specialGroupNode: specialGroupNode,
+    resolveSec: resolveSec, sectionAliases: SECTION_ALIAS, aliasMap: ALIAS,
     secStateDisk: secStateDisk
   };
 })();
