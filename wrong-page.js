@@ -161,7 +161,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
    /* 讲义复习的作答存在自己的 key：只补错题，不参与上面 20 个板块的订正判定。 */
    if(window.TD_JY&&window.TD_JY.state){
      var jy=window.TD_JY.state.answers||{};
-     Object.keys(jy).forEach(function(id){var a=jy[id],q=window.TD_JY.BY_ID[id];
+     Object.keys(jy).forEach(function(id){var a=jy[id],q=questionById(id); /* 用 questionById 走别名归一，JY4-047 这类教材题会并到 TD-41-01，不重复记账 */
        if(q&&a&&a.correct===false&&String(a.v||'').trim())add(map,q,a.v,'讲义复习',a.ts||0);});
    }
    /* A later correct practice answer marks the historical mistake as corrected. */
