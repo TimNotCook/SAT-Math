@@ -121,6 +121,7 @@ def main():
     out.append("线上复核（codeload main + GitHub Pages 实抓，`Cache-Control: no-cache`）：题库总数 **1292**，"
                "`retired` **61**，`mergedInto` **1**，`hidden` **2**（section 级：2.6.T17 / 2.6.T18），"
                "`variant` **0**，与基线一致，本批未改动任何计数。\n")
+    out.append("收尾去重修复后最终线上版本：`24995cf9657c`（六页 `?v=` 与 `sw.js` VERSION 同值）。\n")
 
     out.append("\n## 二、答案订正（ANSWER_DIFF，批6）\n")
     out.append("| id | 页源 | 订正前答案 | 订正后答案 | value | type | 依据页 | commit |")
@@ -154,29 +155,35 @@ def main():
                 short(prev), short(new), status, COMMIT[key]))
         out.append("")
 
-    out.append("\n## 八、待办（本批不落数据）\n")
-    out.append("### 8.1 缺图待重画（redraw_figure，patch=null）\n")
+    out.append("\n## 八、收尾去重修复（批7）\n")
+    out.append("| id | 改动 | 说明 | commit |")
+    out.append("|---|---|---|---|")
+    out.append("| SR-059 | marks 重复条目摘除 | addMark `y = f(x)` 在落库器重跑时被重复追加一次；摘除重复条目、保留一条。落库器 `addMark` 同步改为幂等：已存在同 x/y/label 的 mark 则记 NOOP，不再追加。 | `981f60b94abfcf20d07d19ae110bad8c46ff87dc` |")
+    out.append("")
+
+    out.append("\n## 九、待办（本批不落数据）\n")
+    out.append("### 9.1 缺图待重画（redraw_figure，patch=null）\n")
     out.append("| id | 页源 | 说明 |")
     out.append("|---|---|---|")
     for rec, mode, p in todos:
         if mode == "redraw_figure":
             out.append("| %s | %s | %s |" % (rec["id"], short(rec["page_ref"], 24), short(rec["note"], 90)))
     out.append("")
-    out.append("### 8.2 缺表待补（add_table_spec，patch=null）\n")
+    out.append("### 9.2 缺表待补（add_table_spec，patch=null）\n")
     out.append("| id | 页源 | 说明 |")
     out.append("|---|---|---|")
     for rec, mode, p in todos:
         if mode == "add_table_spec":
             out.append("| %s | %s | %s |" % (rec["id"], short(rec["page_ref"], 24), short(rec["note"], 90)))
     out.append("")
-    out.append("### 8.3 锚点订正（anchor，不动数据）\n")
+    out.append("### 9.3 锚点订正（anchor，不动数据）\n")
     out.append("| id | 页源 | 说明 |")
     out.append("|---|---|---|")
     for rec, mode, p in todos:
         if mode == "anchor":
             out.append("| %s | %s | %s |" % (rec["id"], short(rec["page_ref"], 24), short(rec["note"], 90)))
     out.append("")
-    out.append("### 8.4 台账标记 noop（不改题面，落库前回看原页）\n")
+    out.append("### 9.4 台账标记 noop（不改题面，落库前回看原页）\n")
     out.append("| id | 页源 | 状态 | 说明 |")
     out.append("|---|---|---|---|")
     for rec, mode, p in todos:

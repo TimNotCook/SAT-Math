@@ -18,6 +18,8 @@
 
 线上复核（codeload main + GitHub Pages 实抓，`Cache-Control: no-cache`）：题库总数 **1292**，`retired` **61**，`mergedInto` **1**，`hidden` **2**（section 级：2.6.T17 / 2.6.T18），`variant` **0**，与基线一致，本批未改动任何计数。
 
+收尾去重修复后最终线上版本：`24995cf9657c`（六页 `?v=` 与 `sw.js` VERSION 同值）。
+
 
 ## 二、答案订正（ANSWER_DIFF，批6）
 
@@ -232,9 +234,16 @@
 | TD-34-03 | legacy-b · p181 · #3 | figure.spec | 误挂 spec/裁图注册 | 已摘除注册条目 | 已落库 | `6567e31f40de0e9d00fc42b2df459e130e69d943` |
 
 
-## 八、待办（本批不落数据）
+## 八、收尾去重修复（批7）
 
-### 8.1 缺图待重画（redraw_figure，patch=null）
+| id | 改动 | 说明 | commit |
+|---|---|---|---|
+| SR-059 | marks 重复条目摘除 | addMark `y = f(x)` 在落库器重跑时被重复追加一次；摘除重复条目、保留一条。落库器 `addMark` 同步改为幂等：已存在同 x/y/label 的 mark 则记 NOOP，不再追加。 | `981f60b94abfcf20d07d19ae110bad8c46ff87dc` |
+
+
+## 九、待办（本批不落数据）
+
+### 9.1 缺图待重画（redraw_figure，patch=null）
 
 | id | 页源 | 说明 |
 |---|---|---|
@@ -249,19 +258,19 @@
 | TD-25-06 | legacy-b · p121 · #6 | 原页点状图未入库；按原页重画：横轴 720–732（步长 2），13 颗木星卫星轨道周期散点，图题 Orbital period (days)。 |
 | TD-33-18 | legacy-b · p174 · #18 | 裁剪图仅含 A、C；B（递减直线）、D（递减指数曲线）未入库，按原页补画选项图。 |
 
-### 8.2 缺表待补（add_table_spec，patch=null）
+### 9.2 缺表待补（add_table_spec，patch=null）
 
 | id | 页源 | 说明 |
 |---|---|---|
 | U2-12 | legacy-a · p118 · #1 | 原页有表而数据侧表未入库（text.figure=[]，无 spec/裁剪）；表体：UV index 1→9 天、2→15 天、3→12 天、4→13 天，合计 49 天；题干与… |
 
-### 8.3 锚点订正（anchor，不动数据）
+### 9.3 锚点订正（anchor，不动数据）
 
 | id | 页源 | 说明 |
 |---|---|---|
 | TD-41-02 | legacy-b · p201 · #2 | 锚点页码错位：原页 p201 无第 2 题，本条应归属 p200#2；题干与裁剪图与 p200#2 一致。 |
 
-### 8.4 台账标记 noop（不改题面，落库前回看原页）
+### 9.4 台账标记 noop（不改题面，落库前回看原页）
 
 | id | 页源 | 状态 | 说明 |
 |---|---|---|---|
