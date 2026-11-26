@@ -530,7 +530,7 @@ class FigureLayer:
     def _match(seg, payload):
         def val(key):
             m = re.search(r"\b%s:\s*([^,}]+)" % key, seg)
-            return m.group(1).strip().strip('"') if m else None
+            return m.group(1).strip().strip("'\"") if m else None
         return (val("x") == str(payload["x"]) and val("y") == str(payload["y"])
                 and val("label") == str(payload.get("label", "")))
 
