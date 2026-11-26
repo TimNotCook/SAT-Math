@@ -11,7 +11,7 @@
    v1→v2（2026-11-23）：v1 从未升过版，历史旧构建资源在缓存里永久滞留；
    导航请求 network-first 失败时（弱网/VPN 抖动）会整站回退到旧版页面。
    升版触发 activate 全量清缓存，旧构建自愈。 */
-var VERSION = 'satmath-625feb3a0a62';
+var VERSION = 'satmath-f4f3541d5dd0';
 
 /* 从本 SW 自身路径推导站点基路径（兼容 GitHub Pages 子路径，如 /SAT-Math/） */
 var BASE = self.location.pathname.replace(/\/sw\.js$/, '/');
@@ -47,9 +47,15 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  /* 同源导航：network-first，离线回退 */
+  /* 同源导航：network-first，离线回退。
+     只回退到「用户点开的那个页面」；没缓存过的页（如首次打开讲义 / 记录）
+     不要偷偷塞一个 drill.html 冒充，给一张明确的离线说明页。 */
   if (req.mode === 'navigate') {
-    e.respondWith(networkFirst(req, BASE + 'drill.html'));
+    var page = url.pathname.split('/').pop() || 'index.html';
+    var fallback = (page === 'index.html' || page === 'drill.html' || page === 'exam.html' || page === 'wrong.html')
+      ? BASE + (page === 'index.html' ? 'drill.html' : page)
+      : null;
+    e.respondWith(networkFirst(req, fallback));
     return;
   }
 
@@ -76,9 +82,24 @@ function networkFirst(req, fallback) {
     return res;
   }).catch(function () {
     return caches.match(req).then(function (m) {
-      return m || (fallback ? caches.match(fallback) : Promise.reject(new Error('offline')));
+      return m || (fallback ? caches.match(fallback) : null);
+    }).then(function (m) {
+      return m || offlineNotice();
     });
   });
+}
+
+/* 离线且这页从未缓存过：说清楚，不拿别的页面顶包。 */
+function offlineNotice() {
+  var html = '<!doctype html><html lang="zh-CN"><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<title>离线 · SAT Math Prep</title>' +
+    '<body style="margin:0;padding:56px 24px;font:16px/1.7 -apple-system,BlinkMacSystemFont,\'PingFang SC\',sans-serif;color:#0f2744;background:#fff">' +
+    '<h1 style="font-size:20px;margin:0 0 10px">这个页面还没有离线副本</h1>' +
+    '<p style="margin:0 0 18px;color:#5b6573">当前网络不可用，而这一页此前没有在本机打开过。连上网络刷新一次，之后就能离线使用。</p>' +
+    '<p style="margin:0"><a href="' + BASE + 'drill.html" style="color:#1d4ed8;font-weight:600">先去练习页（已离线可用）</a></p>' +
+    '</body></html>';
+  return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }
 
 function cacheFirst(req) {
