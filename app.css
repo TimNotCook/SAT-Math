@@ -455,6 +455,10 @@ body.shell-drill .drill-board-nav-item.on{border-color:var(--blue-line)!importan
 body.shell-drill .drill-board-panel{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px!important;align-items:start}
 body.shell-drill .drill-board-panel .drill-group-h{grid-column:1/-1;margin:12px 0 0!important;font-size:12.5px!important;font-weight:800!important;color:var(--sub)!important;letter-spacing:.06em!important;text-transform:none}
 body.shell-drill .drill-board-panel .drill-group-h:first-child{margin-top:0!important}
+body.shell-drill .drill-board-panel .drill-group-sub{grid-column:1/-1;margin:-6px 0 4px!important;font-size:11.5px;font-weight:600;color:var(--sub);opacity:.72;letter-spacing:.02em}
+/* 板块行副标题：英文原名，弱化显示，不抢中文主名 */
+.drill-section-name { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.drill-section-sub { font-style: normal; font-size: 11px; opacity: .62; letter-spacing: .01em; }
 
 /* 板块卡片：来源/编号徽标 + 名称 + 进度，hover 左边 3px 蓝条。 */
 body.shell-drill .drill-section-list,
