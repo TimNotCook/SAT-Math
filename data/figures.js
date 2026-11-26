@@ -769,7 +769,7 @@ Object.assign(window.TD_FIG_SPECS, {
 
 /* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
 Object.assign(window.TD_FIG_SPECS, {
-  "R04-004": {"type":"chart","w":430,"h":380,"x":{"min":-8,"max":8,"step":2,"label":"x"},"y":{"min":0,"max":16,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[-5,3],[5,9]]},{"kind":"points","points":[[-5,3],[5,9]]}]},
+  "R04-004": {"type":"chart","w":430,"h":380,"x":{"min":-8,"max":8,"step":2,"label":"x"},"y":{"min":0,"max":16,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"line","points":[[-5,3],[4,9]]},{"kind":"points","points":[[-5,3],[4,9]]}]},
   "R04-005": {"type":"chart","w":400,"h":380,"x":{"min":-5,"max":7,"step":1,"label":"x"},"y":{"min":-5,"max":10,"step":1,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"points","points":[[-3,4],[5,3],[5,-3]]}]},
   "R04-006": {"type":"chart","w":420,"h":380,"x":{"min":0,"max":14,"step":2,"label":"x"},"y":{"min":0,"max":14,"step":2,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"points","points":[[7,12],[4,9],[7,6]]}]},
 });
