@@ -21,7 +21,7 @@
 
 | 项 | 值 | 怎么量的 |
 |---|---|---|
-| `origin/main` | `bb3ef46`（2026-11-26 深夜本轮推送后实测；链上 `3671861` drill ∑ 徽章字形、`6090e45` 清六页冲突标记、`34a6cb2` history 补云账号模块） | `git -c http.version=HTTP/1.1 ls-remote origin refs/heads/main`（同时 `git log --oneline -5 origin/main` 对链） |
+| `origin/main` | `a8ab62f`（2026-11-26 深夜实测；链上 `6375302` 第 9 条到点落点修复 + 脚本可移植性守卫、`451c230` 判分实测文档、`2c79807` 清冲突标记、`9768b29` exam-core 开机兜底） | `git -c http.version=HTTP/1.1 ls-remote origin refs/heads/main`（同时 `git log --oneline -5 origin/main` 对链） |
 | 线上页面 | `index` / `drill` / `exam` / `wrong` / `jiangyi` / `history` 全部 HTTP 200 | `curl -s -o /dev/null -w "%{http_code}" https://timnotcook.github.io/SAT-Math/<page>.html` |
 | 题库 | **1292** 题（id 全唯一）：easy 355 / medium 736 / hard 201；mcq 768 / grid 524 | `node -e` 起 `vm` 跑 `data/questions.js`，`TD_BANK.questions.length` 与 `new Set(id)` 计数（字段名是 `level`，没有 `difficulty`） |
 | 单元分布 | 1–268 / 2–333 / 3–453 / 4–238（合计 1292） |
@@ -41,6 +41,7 @@
 
 ## 已完成（勿重复做）
 
+- **第 9 条：到点交卷后不许被 Start 拉回锁定答题页**（`6375302`）：`restoreOrIntro` 在 `timeout==='total'` 先把 `resumeStage='result'` 再 `finalize`；`startSession` 开头加硬门「已 finished 且有 result → 回成绩页」。回归 `tools/verify_exam_timeout.mjs`（8 条，只改会话时间字段跑真实页面：22 题起卷 → Module1 到点明示进 Module2 → 44 题 → 自动交卷出分），本地 8/8、线上（`?v=dd791ffc3352`）8/8。同笔把阴影题坐标改为 `TD_APP.CATALOG` 反查、drill 就绪改轮询、加 `test/tools-portability.test.js`。
 - **讲义 4.5 十六题 + 2.5 #10 入库**（`61002ef`，JY4-128…143、JY2-054 点图选项），官方 243/243、24/24 节清零。
 - **讲义 2.x 全部入库**（2.1 `6e7300a` / 2.2 `0235019` / 2.3 `ad1b592` / 2.4 `7cb7e7b` / 2.5 `4a2f313` / 2.6 `21bc683` / 2.7 `1017ddf`），剩 2.5 #10 一条挂在 α。
 - **讲义 3.x 全部入库**（3.1 `0f078f1` / 3.2 `bad4eb5` / 3.3 `00cf518` / 3.4 `657e0a9` / 3.5+3.6 `27e3efa`），68 / 68 全绿。
