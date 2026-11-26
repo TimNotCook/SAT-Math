@@ -136,4 +136,19 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
+
+  /* 云账号模块（cloud-account.js）登录后会把云端档案合并写回 localStorage，
+     但那发生在本次脚本之后；轮询比对数据长度，一旦落地就重渲染一次，
+     否则新设备打开本页会一直显示空白。60s 后停表，不长期占资源。 */
+  (function watchCloudMerge() {
+    var last = '';
+    var tries = 0;
+    var timer = setInterval(function () {
+      tries++;
+      var now = String((localStorage.getItem(RESULTS) || '').length) + '|' +
+                String((localStorage.getItem(ABANDONED) || '').length);
+      if (now !== last) { last = now; render(); }
+      if (tries >= 40) clearInterval(timer);
+    }, 1500);
+  })();
 })();
