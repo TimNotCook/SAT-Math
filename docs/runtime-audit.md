@@ -136,3 +136,12 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 
 - **中途刷新不丢答题**：答完一题后整页重载，会话与选中态都还在（重载后先落在开始页、点 Start 才回答题视图，这是设计，不是丢失）。
 - **别名题的错题本归属**：卷面 id 可能是别名（`TD-15-01` → `U1-12`），错题本按 canonical 展示，所以断言必须按 canonical 的「板块 · 第 N 题」定位。先用 `TD_ALIAS` 映射再比对，之前不看别名会误判成"错题没进本子"。
+
+## 错题台账漏迁别名（第 11 条，2026-11-26）
+
+`app-core.js` 的 `normalize()` 一直只把 `answers` / `marks` 按 `TD_ALIAS` 重映射，**`wrongLog` 没管**。两个静默后果：
+
+1. 旧板块键被 `delete` 掉时，`wrongLog` 不在 `answers/marks` 里，跟着一起消失 → 以前错过的题“从没输过”（错题蒸发，和第 6 条修过的现象同源但换了入口）。
+2. 同一板块内也可能存着别名 id 的 `wrongLog`（`SP2-001` vs `R03-001`）：键不重映射，`wrong-page` 按 canonical `q.id` 查不到 → “已订正”永远显示不出来。
+
+修法：`normalize()` 里旧板块迁移补搬 `src.wrongLog`（按 `ALIAS` 重映射、已存在则不覆盖）；新增一遍全量 `wrongLog` 键重映射（canonical 优先，保留最初的答错时间）。新增 `test/wronglog-migrate.test.js` 3 条（vm 里跑真实 `app-core` + `data/aliases.js`，触发 `setAnswer` 走真实写盘路径）。负向验过：把重映射段删掉 → 3 条全红，恢复 → 3 pass。全量 `node --test` 197/0，runtime 六页 0 异常、flows 16/16、grading 8/8。

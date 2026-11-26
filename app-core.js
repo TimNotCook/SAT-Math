@@ -166,12 +166,31 @@
         var nid = ALIAS[qid] || qid;
         if (src.marks[qid] && !dst.marks[nid]) dst.marks[nid] = src.marks[qid];
       });
+      /* wrongLog 必须跟答案一起搬：旧板块键删掉时它不在 answers/marks 里，
+         不搬就等于「以前错过的题从没输过」——错题蒸发。 */
+      Object.keys(src.wrongLog || {}).forEach(function (qid) {
+        var nid = ALIAS[qid] || qid;
+        dst.wrongLog = dst.wrongLog || {};
+        if (!dst.wrongLog[nid]) dst.wrongLog[nid] = src.wrongLog[qid];
+      });
       if ((src.cursor || 0) > (dst.cursor || 0)) dst.cursor = src.cursor;
       delete st.sections[old];
     });
     if (st.last && st.last.sec && SECTION_ALIAS[st.last.sec]) {
       st.last = { sec: SECTION_ALIAS[st.last.sec], qid: ALIAS[st.last.qid] || st.last.qid, ts: st.last.ts };
     }
+    /* 同一板块内也可能存着别名 id 的 wrongLog（如 TD-15-01 vs U1-12）：
+       键不重映射，wrong-page 按 canonical q.id 查就永远查不到「已订正」。 */
+    Object.keys(st.sections).forEach(function (sec) {
+      var wl = st.sections[sec] && st.sections[sec].wrongLog;
+      if (!wl) return;
+      var out = {};
+      Object.keys(wl).forEach(function (qid) {
+        var nid = ALIAS[qid] || qid;
+        if (!out[nid]) out[nid] = wl[qid];
+      });
+      st.sections[sec].wrongLog = out;
+    });
     return st;
   }
   function diskState() { return normalize(load()); }
