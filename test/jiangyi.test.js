@@ -110,6 +110,14 @@ test('answer 逐字等于答案页的键（不自己算）', () => {
       return;
     }
     const k = KEY[q.section];
+    /* 答案页笔误的显式例外：data/jiangyi_answers.json 的 answerFix 记录订正理由，
+       有订正的题按订正值校验（仍不允许「自己算」式随手改）。 */
+    const fix = (k.answerFix || {})[String(q.no)];
+    if (fix) {
+      assert.strictEqual(q.answer, fix.answer,
+        q.id + ' 与 answerFix 记录的订正值不符');
+      return;
+    }
     assert.strictEqual(q.answer, k.answers[String(q.no)],
       q.id + ' 答案与答案页 ' + q.section + ' 第 ' + q.no + ' 题不符（答案页写的是 ' + k.answers[String(q.no)] + '）');
   });
