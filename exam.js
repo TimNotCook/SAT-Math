@@ -20,6 +20,7 @@
   // Bluebook-style MM:SS clock — minutes are never wrapped into hours (70 min => "70:00").
   const fmt = ms => { const s = Math.max(0, Math.round(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
   const KEY_SESSION = 'tdsat_exam_suite_session_v1', KEY_RESULTS = 'tdsat_exam_suite_results_v1', KEY_OLD = 'tdsat_state_v1';
+  const KEY_ABANDONED = 'tdsat_exam_suite_abandoned_v1';
   /* Per-unit opt-in for the 专项练习 / 专项复习 blocks, and the previous
      paper's ids so a fresh sitting never repeats the same questions. */
   const KEY_SPECIAL = 'tdsat_exam_special_v1';
@@ -361,6 +362,43 @@
     adopt(newSession()); renderIntro(); setStage('intro');
   }
 
+  /* ------------------------------------------------------------------
+     UNFINISHED ARCHIVE — 模考 / 抽查中途退出时自动留档。
+     只写 tdsat_exam_suite_abandoned_v1，不动答题视图与判分：
+     pagehide 时若已开考且未交卷，upsert 一条未做完记录（按 startedAt
+     对齐）；交卷或恢复正常会话时清除对应记录，模考记录页据此显示
+     「未做完」灰条与「继续这卷」入口。
+     ------------------------------------------------------------------ */
+  function answeredCount() {
+    let n = 0;
+    for (const k in S.answers) { const a = S.answers[k]; if (a && a.v != null && String(a.v).trim() !== '') n++; }
+    return n;
+  }
+  function archiveAbandoned() {
+    if (!S || S.finished) return;
+    if (!S.startedAt || S.stage === 'intro') return;   // 没开考不算未做完
+    try {
+      const all = load(KEY_ABANDONED) || [];
+      const rec = {
+        date: Date.now(), startedAt: S.startedAt, mode: MODE, finished: false,
+        module: S.module || 1, answered: answeredCount(), total: S.paper ? S.paper.length : 0,
+      };
+      const i = all.findIndex(x => x && x.startedAt === rec.startedAt && x.mode === rec.mode);
+      if (i >= 0) all[i] = rec;
+      else { all.push(rec); if (all.length > 40) all.shift(); }
+      save(KEY_ABANDONED, all);
+    } catch (e) { console.warn('未做完存档失败', e); }
+  }
+  function clearAbandoned(startedAt) {
+    if (startedAt == null) return;
+    try {
+      const all = load(KEY_ABANDONED) || [];
+      const next = all.filter(x => !(x && x.startedAt === startedAt && x.mode === MODE));
+      if (next.length !== all.length) save(KEY_ABANDONED, next);
+    } catch (e) {}
+  }
+  window.addEventListener('pagehide', () => { try { archiveAbandoned(); } catch (e) {} });
+
   function restoreOrIntro() {
     const saved = load(KEY_SESSION);
     const fixed = repairSaved(saved);
@@ -369,6 +407,7 @@
       /* 补齐后的字段写回磁盘，下一次刷新不用再修一遍 */
       save(KEY_SESSION, s);
       adopt(s);
+      clearAbandoned(s.startedAt);
       lastQTs = Date.now();
       resumeStage = s.finished && s.result ? 'result'
         : (s.stage && s.stage !== 'intro' ? s.stage : 'answer');
@@ -934,6 +973,7 @@
       rest.forEach(x => { S.answers[x.uid] = { v: '', marked: false, spent: 0, locked: true, notOpened: true }; });
     }
     S.finished = true; S.locked = true; S.auto = !!auto; S.endReason = reason || 'manual';
+    clearAbandoned(S.startedAt);
     const detail = S.paper.map((inst, i) => {
       const q = byId(inst.id), a = S.answers[inst.uid], given = a.v == null ? '' : String(a.v);
       const ok = C.grade(q, given);

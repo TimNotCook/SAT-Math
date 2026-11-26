@@ -91,7 +91,7 @@ const PAGES = [
   { file: 'drill.html', label: '练习页' },
   { file: 'wrong.html', label: '错题页' }
 ];
-const ENTRIES = ['drill.html', 'jiangyi.html', 'exam.html?mode=quiz&unit=1', 'wrong.html', 'exam.html?mode=mock'];
+const ENTRIES = ['drill.html', 'exam.html?mode=quiz&unit=1', 'wrong.html', 'exam.html?mode=mock', 'history.html'];
 
 for (const pg of PAGES) {
   await goto(`${BASE}/${pg.file}`);
@@ -174,9 +174,12 @@ check('l4/真题侧移除', 'L4 不存在；legacy U4 = 0；4.1 仍可见',
   l4 ? `L4=${l4.L4} legacyU4=${l4.legacyU4} 4.1=${l4.s41} unit4=${l4.unit4Has41}` : '读不到 TD_APP',
   !!l4 && !l4.L4 && l4.legacyU4 === 0 && l4.unit4Has41);
 
-/* 真·用户路径：首页 → 讲义复习 → Unit 4 板块 → 教材原子组 → 9 题 */
+/* 真·用户路径：首页 → 讲义复习（landing 长条第三 tab 直达 jiangyi） → Unit 4 板块 → 教材原子组 → 9 题 */
 await goto(`${BASE}/index.html`);
-await ev(`(() => { const a = document.querySelector('a[href="jiangyi.html"]'); if (a) a.click(); })()`);
+await ev(`(() => { const a = document.querySelector('a[href^="jiangyi.html"]'); if (a) a.click(); })()`);
+await sleep(1200);
+/* 讲义入口已并入 landing 长条（点击直达某小节）；板块列表仍从 jiangyi.html 走 */
+await goto(`${BASE}/jiangyi.html`);
 await sleep(1200);
 const boardU4 = await ev(`(() => { const b = document.querySelector('[data-board="JY4"]'); if (!b) return false; b.click(); return true; })()`);
 await sleep(600);

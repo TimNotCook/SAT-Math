@@ -146,11 +146,17 @@
       '" data-board="' + key + '">' +
       '<b>' + esc(title) + '</b></button>';
   }
-  /* 第三组「讲义复习」：只放一个入口，不占 CATALOG / SECS，进度在
-     jiangyi.html 与独立存储 tdsat_jiangyi_v1 里，和上面两组互不影响。 */
+  /* 第三组「讲义复习」：进度在 jiangyi.html 与独立存储 tdsat_jiangyi_v1 里，
+     和上面两组互不影响；讲义 core 加载失败时降级为 4 条直达链接。 */
   function jiangyiNavItem() {
     return '<button type="button" class="drill-board-nav-item" data-board="jiangyi">' +
       '<b>讲义复习</b></button>';
+  }
+  function jiangyiFallbackHtml() {
+    return [1, 2, 3, 4].map(function (n) {
+      return sectionRow('JY' + n, '讲义 JY' + n, '', '进入',
+        'jiangyi.html?b=JY' + n + '&i=1', false);
+    }).join('');
   }
   function groupedHtml(secs, units, topicMode) {
     var html = '';
@@ -168,6 +174,79 @@
     }
     return html;
   }
+  /* ---- landing 长条（accordion）：一条 = 一个单元，展开 = 该单元板块列表 ---- */
+  function pctOf(st) { return st.total ? Math.round(st.answered / st.total * 100) : 0; }
+  function unitBar(title, st, body, open) {
+    var pct = pctOf(st);
+    return '<section class="drill-unit-bar' + (open ? ' open' : '') + '">' +
+      '<button type="button" class="drill-unit-bar-head" aria-expanded="' + (open ? 'true' : 'false') + '">' +
+        '<span class="drill-unit-bar-title">' + esc(title) + '</span>' +
+        '<span class="drill-unit-bar-meta">' + st.answered + ' / ' + st.total + ' 题 · ' +
+          st.completedSections + ' / ' + st.sections + ' 板块完成</span>' +
+        '<span class="drill-unit-bar-pct">' + pct + '%</span>' +
+        '<svg class="drill-unit-bar-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>' +
+        '<span class="drill-unit-bar-track"><i style="width:' + pct + '%"></i></span>' +
+      '</button>' +
+      '<div class="drill-unit-bar-body">' + body + '</div>' +
+    '</section>';
+  }
+  function accordionHtml(secs, units) {
+    var html = '', first = true;
+    units.forEach(function (u) {
+      var members = secs.filter(function (s) {
+        return A.UNIT_OF(s) === u && !A.isLegacy(s);
+      });
+      if (!members.length) return;
+      html += unitBar('Unit ' + u + ' · ' + (A.unit(u).cn || ''), groupStats(members),
+        rowsHtml(members), first);
+      first = false;
+    });
+    var legacy = secs.filter(function (s) { return A.isLegacy(s); });
+    if (legacy.length) {
+      html += unitBar('精编原题组', groupStats(legacy), rowsHtml(legacy), first);
+    }
+    return html;
+  }
+  /* 讲义长条：JY1–JY4 每条展开 = 讲义小节列表；数据未加载时降级为直达链接 */
+  function jiangyiAccordionHtml() {
+    var J = window.TD_JIANGYI;
+    if (!J || !J.boards || !J.boardStats) {
+      return jiangyiFallbackHtml();
+    }
+    var html = '';
+    J.boards().forEach(function (b, i) {
+      var st = J.boardStats(b.id);
+      if (!st || !st.dataReady) return;
+      var rows = J.sectionsOf(b.id).map(function (sec) {
+        var ss = J.stats(b.id, sec);
+        var cur = (J.state.last && J.state.last.board === b.id && J.state.last.section === sec)
+          ? (J.state.last.i + 1) : 1;
+        return sectionRow(sec, ss.cn || sec,
+          ss.answered + ' / ' + ss.total + ' 题' + (ss.complete ? ' · 已完成' : ''),
+          ss.answered ? '继续' : '开始',
+          'jiangyi.html?b=' + b.id + '&s=' + encodeURIComponent(sec) + '&i=' + cur, false);
+      }).join('');
+      var g = J.groupStats(b.id);
+      if (g && g.total) {
+        rows += sectionRow('TB', g.label,
+          g.answered + ' / ' + g.total + ' 题', g.answered ? '继续' : '开始',
+          'jiangyi.html?b=' + b.id + '&s=' + encodeURIComponent(g.key) + '&i=1', false);
+      }
+      html += unitBar(b.id + ' · ' + (b.cn || b.en),
+        { answered: st.answered, total: st.total, completedSections: st.completeSections, sections: st.sections },
+        rows, i === 0);
+    });
+    return html;
+  }
+  function bindAccordion(root) {
+    root.querySelectorAll('.drill-unit-bar-head').forEach(function (head) {
+      head.addEventListener('click', function () {
+        var bar = head.parentElement;
+        var open = bar.classList.toggle('open');
+        head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
+  }
   function renderLanding(active) {
     activeBoard = active || 'unit';
     var reg = allRegularSections(), sp = allSpecialSections();
@@ -176,13 +255,14 @@
       boardNavItem('unit', '单元练习', '教材常规板块，按单元分组', rg, false) +
       boardNavItem('special', '专项训练', '按 Topic 分组的专项板块', sg, true) +
       jiangyiNavItem();
-    var panelHtml = activeBoard === 'special'
-      ? groupedHtml(sp, specialUnits(), true)
-      : groupedHtml(reg, A.UNITS.map(function (u) { return u.id; }), false);
+    var panelHtml;
+    if (activeBoard === 'special') panelHtml = accordionHtml(sp, specialUnits());
+    else if (activeBoard === 'jiangyi') panelHtml = jiangyiAccordionHtml();
+    else panelHtml = accordionHtml(reg, A.UNITS.map(function (u) { return u.id; }));
     els.boardPanel.innerHTML = panelHtml || emptyNotice('题库暂未加载板块列表，请刷新页面重试。');
+    bindAccordion(els.boardPanel);
     els.boardNav.querySelectorAll('[data-board]').forEach(function (b) {
       b.addEventListener('click', function () {
-        if (b.dataset.board === 'jiangyi') { location.href = 'jiangyi.html'; return; }
         activeBoard = b.dataset.board;
         var url = new URL(location.href);
         url.searchParams.set('board', activeBoard);
@@ -193,7 +273,7 @@
     renderResume();
     setExit(null, false);
     /* 标题要跟着当前分组走：停在「单元练习」就写单元练习，不再永远是真题练习。 */
-    document.title = PAGE_TITLE + (activeBoard === 'special' ? ' · 专项训练' : ' · 单元练习');
+    document.title = PAGE_TITLE + (activeBoard === 'special' ? ' · 专项训练' : activeBoard === 'jiangyi' ? ' · 讲义复习' : ' · 单元练习');
     showView('select');
   }
   function renderUnitView() {

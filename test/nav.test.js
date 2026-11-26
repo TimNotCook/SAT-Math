@@ -1,5 +1,6 @@
-/* 全站导航回归：五项（真题练习 / 讲义复习 / 单元抽查 / 错题回顾 / 模考）
+/* 全站导航回归：五项（真题练习 / 单元抽查 / 错题回顾 / 模考 / 模考记录）
    必须在讲义页、练习页、错题页、抽查页都能点到，且侧栏与顶部导航同字面、同顺序。
+   讲义复习不再有独立导航入口（并入真题练习 landing 第三 tab），jiangyi.html 仍可达。
    首页已删，品牌与入口一律直指 drill，不许再拿 index.html 当落地页。 */
 const test = require('node:test');
 const assert = require('node:assert');
@@ -7,8 +8,8 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const FIVE = ['drill.html', 'jiangyi.html', 'exam.html?mode=quiz&unit=1', 'wrong.html', 'exam.html?mode=mock'];
-const LABELS = ['真题练习', '讲义复习', '单元抽查', '错题回顾', '模考'];
+const FIVE = ['drill.html', 'exam.html?mode=quiz&unit=1', 'wrong.html', 'exam.html?mode=mock', 'history.html'];
+const LABELS = ['真题练习', '单元抽查', '错题回顾', '模考', '模考记录'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 
 test('空首页已删：站点根只剩一跳，所有访问（含 OAuth 回调）直接进真题练习', () => {
@@ -19,7 +20,7 @@ test('空首页已删：站点根只剩一跳，所有访问（含 OAuth 回调�
   assert.ok(s.includes('href="drill.html"'), '无脚本时也要能手动进真题练习');
 });
 
-test('讲义页 jiangyi.html 有五个入口 + 返回真题练习', () => {
+test('讲义页 jiangyi.html 有五项导航 + 返回真题练习（讲义入口并入 landing，不再单列）', () => {
   const s = read('jiangyi.html');
   FIVE.forEach(href => assert.ok(s.includes('href="' + href + '"'), 'jiangyi 缺少 ' + href));
   LABELS.forEach(l => assert.ok(s.includes('>' + l + '</a>'), 'jiangyi 缺少导航项 ' + l));
