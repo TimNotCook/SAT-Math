@@ -854,7 +854,7 @@
   function routeFromUrl() {
     var p = new URLSearchParams(location.search);
     if (p.get('result') === '1' && A.CATALOG[p.get('sec')]) { renderResult(p.get('sec')); return; }
-    if (p.get('board') === 'special') { renderLanding('special'); return; }
+    if (p.get('board') === 'special' || p.get('board') === 'jiangyi') { renderLanding(p.get('board')); return; }
     if (p.get('topic') === '1' || p.get('special') === '1') {
       selectedUnit = parseInt(p.get('unit'), 10) ||
         (p.get('topic') === '1' ? 3 : (p.get('special') === '1' ? 1 : 0));
