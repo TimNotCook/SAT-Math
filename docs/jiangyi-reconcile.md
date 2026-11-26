@@ -79,7 +79,7 @@
 | U4-08 | 标 dup | **TD-42-09** |
 | U4-09 | 标 dup | **TD-42-10** |
 
-8 道 dup 在 `data/aliases.js` 里映射到 TD 教材侧同一题（canonical 回 TD，教材板块才是正式家），错题本按 alias 归并成一条。实测 U4-01 与 TD-41-01 也是同一题（练习册 P200 #1、答案同为 D），按现口径不标 dup，差异挂在 docs/VERIFY-2026-11-25.md 待裁决。
+8 道 dup 在 `data/aliases.js` 里映射到 TD 教材侧同一题（canonical 回 TD，教材板块才是正式家），错题本按 alias 归并成一条。实测 U4-01 与 TD-41-01 也是同一题（练习册 P200 #1、答案同为 D），按 2026-11-26 定案不标 dup（并组会让 alias 成链、`npm test` 3 红，见 `docs/TASKS.md`「已定案」第 2 条）。
 
 
 ## 内容缺口（视觉层，与上面数字对账表并列）

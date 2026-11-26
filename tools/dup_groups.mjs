@@ -124,7 +124,7 @@ if (process.argv.includes('--doc')) {
   L.push('|---|---|---|---|---|');
   const u4items = items.filter(x => /^U4-0\d/.test(x.id));
   const u4only = u4items.find(x => x.id === 'U4-01');
-  L.push(`| U4-01 | ${u4only ? u4only.source : '练习册 P200 #1'} | 独占保留 | — | 按口径不标 dup；实测与 TD-41-01 同题（P200 #1，答案同为 D），见 docs/VERIFY-2026-11-25.md 待裁决 |`);
+  L.push(`| U4-01 | ${u4only ? u4only.source : '练习册 P200 #1'} | 独占保留 | — | 按 2026-11-26 定案不标 dup（技术账见 docs/TASKS.md「已定案」第 2 条）；实测与 TD-41-01 同题（P200 #1，答案同为 D） |`);
   for (const [from, to] of Object.entries(JY4_DUP)) {
     const it = items.find(x => x.id === from);
     const auto = dup.some(g => g.members.some(m => m.id === from));
