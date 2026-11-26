@@ -14,7 +14,7 @@ const WIDTHS = (process.env.WIDTHS || '655,390').split(',').map(Number).filter(B
 const PORT = 9580 + Math.floor(Math.random() * 80);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-  `/remote-debugging-port=${PORT}`, `--user-data-dir=${tempProfile('narrow-')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+  `--remote-debugging-port=${PORT}`, `--user-data-dir=${tempProfile('narrow-')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 process.on('exit', () => { try { proc.kill('SIGKILL'); } catch (e) {} });
 
 async function cdp() {
@@ -124,4 +124,3 @@ for (const b of bad) console.log(`  ${b.width}px ${b.page} 就绪=${b.rendered} 
 try { c.ws.close(); } catch (e) {}
 try { proc.kill('SIGKILL'); } catch (e) {}
 process.exit(bad.length ? 1 : 0);
-
