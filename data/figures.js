@@ -117,7 +117,8 @@ window.TD_FIG_SPECS = {
   // hypotenuse 13√2, unknown x on the left leg.
   'U4-09': {
     type: 'triangle',
-    labels: ['A', 'B', 'C'],
+    // 原书 p207 图上没有顶点字母，题干也不引用顶点
+    labels: ['', '', ''],
     angles: { 0: '90°', 1: '45°', 2: '' },
     sides: { 1: '13√2', 2: 'x' },
     right: [0],
@@ -126,7 +127,7 @@ window.TD_FIG_SPECS = {
 
   'TD-42-10': {
     type: 'triangle',
-    labels: ['A', 'B', 'C'],
+    labels: ['', '', ''],
     angles: { 0: '90°', 1: '45°', 2: '' },
     sides: { 1: '13√2', 2: 'x' },
     right: [0],
@@ -136,7 +137,7 @@ window.TD_FIG_SPECS = {
   // Right triangle: right angle bottom-left, 36° at top, unknown a° at bottom-right.
   'TD-42-11': {
     type: 'triangle',
-    labels: ['A', 'B', 'C'],
+    labels: ['', '', ''],
     angles: { 0: '90°', 1: 'a°', 2: '36°' },
     sides: {},
     right: [0],
@@ -146,7 +147,8 @@ window.TD_FIG_SPECS = {
   // Right triangle: right angle bottom-left, x° at top; legs 13 (left, adj to x) and 22 (hypotenuse).
   'TD-44-01': {
     type: 'triangle',
-    labels: ['A', 'B', 'C'],
+    // 原书 p225 #1 无顶点字母
+    labels: ['', '', ''],
     angles: { 0: '90°', 1: '', 2: 'x°' },
     sides: { 1: '22', 2: '13' },
     right: [0],
@@ -171,7 +173,7 @@ window.TD_FIG_SPECS = {
     pts: [[70, 200], [290, 200], [290, 50]],
     labels: ['T', 'S', 'R'],
     angles: { 1: '90°' },
-    sides: { 1: '√157', 2: '79' },
+    sides: { 2: '79' },   // 原书只在斜边印 79；RS=√157由题干给出
     right: [1],
     note: true
   },
@@ -192,7 +194,8 @@ window.TD_FIG_SPECS = {
     // 63 (base) / 73 (hypotenuse) => x at vertex 2 is ~60°, so give the
     // triangle a real 60° apex instead of the 45° default.
     pts: [[70, 200], [278, 200], [70, 80]],
-    labels: ['A', 'B', 'C'],
+    // 原书 p227 #5 无顶点字母
+    labels: ['', '', ''],
     angles: { 0: '90°', 1: '', 2: 'x°' },
     sides: { 0: '63', 1: '73' },
     right: [0],
@@ -803,10 +806,10 @@ Object.assign(window.TD_FIG_SPECS, {
 /* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
 Object.assign(window.TD_FIG_SPECS, {
   "R04-104": {"type":"rawSvg","svg":"<svg viewBox='0 0 360 200' xmlns='http://www.w3.org/2000/svg'>\n  <g stroke='#162c46' stroke-width='2' fill='none' stroke-linejoin='round'>\n    <polygon points='40,160 100,60 220,60 280,160'/>\n    <line x1='100' y1='60' x2='160' y2='160'/>\n    <line x1='220' y1='60' x2='160' y2='160'/>\n  </g>\n  <polygon points='40,160 100,60 160,160' fill='rgba(22,44,70,0.22)' stroke='none'/>\n  <polygon points='160,160 220,60 280,160' fill='rgba(22,44,70,0.22)' stroke='none'/>\n</svg>","series":[{"kind":"region","points":[[40,0],[100,100],[160,0]]},{"kind":"region","points":[[160,0],[220,100],[280,0]]}]},
-  "R04-116": {"type":"triangle","pts":[[70,200],[270,90],[270,200]],"labels":["R","S","T"],"angles":{"1":"90\u00b0"},"sides":{"0":"12","1":"5"},"right":[1],"note":true},
+  "R04-116": {"type":"triangle","pts":[[80,205],[241,104],[295,190]],"labels":["R","S","T"],"sides":{"0":"12","1":"5"},"right":[1],"note":true},
   "R04-117": {"type":"triangle","pts":[[70,200],[270,70],[270,200]],"labels":["A","B","C"],"angles":{"2":"90\u00b0"},"sides":{"0":"26"},"right":[2],"note":true},
   "R04-118": {"type":"triangle","pts":[[70,60],[70,200],[270,200]],"labels":["","",""],"angles":{"0":"x\u00b0"},"sides":{"1":"16","2":"23"},"right":[1],"note":true},
-  "R04-119": {"type":"triangle","pts":[[80,60],[80,200],[280,200]],"labels":["A","B","C"],"angles":{"1":"90\u00b0","2":"30\u00b0"},"sides":{"2":"108"},"right":[1],"note":true},
+  "R04-119": {"type":"triangle","pts":[[80,60],[80,200],[280,200]],"labels":["A","B","C"],"angles":{"1":"90\u00b0","2":"30\u00b0"},"sides":{},"right":[1],"note":true},
 });
 
 /* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */

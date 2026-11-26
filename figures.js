@@ -360,11 +360,16 @@
     for (var i = 0; i < 3; i++) {
       var a = pts[i], b = pts[(i + 1) % 3];
       out.push(line(a[0], a[1], b[0], b[1], 2.2));
-      // side label at midpoint, nudged outward
+      // side label at midpoint, nudged OUTWARD (away from the centroid) so it
+      // never sits on top of the hypotenuse stroke — the printed books always
+      // put the length just outside the triangle.
       var mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
       var nx = -(b[1] - a[1]), ny = (b[0] - a[0]);
       var nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
-      out.push(txt(mx + nx * 16, my + ny * 16, sides[i] || '', { size: 13 }));
+      var gx = (pts[0][0] + pts[1][0] + pts[2][0]) / 3;
+      var gy = (pts[0][1] + pts[1][1] + pts[2][1]) / 3;
+      if ((mx - gx) * nx + (my - gy) * ny < 0) { nx = -nx; ny = -ny; }
+      out.push(txt(mx + nx * 27, my + ny * 27, sides[i] || '', { size: 13 }));
     }
     // vertices
     for (var v = 0; v < 3; v++) {
@@ -374,8 +379,10 @@
       var c = [180, 120];
       var dx = p[0] - c[0], dy = p[1] - c[1], dl = Math.hypot(dx, dy) || 1;
       out.push(txt(p[0] + dx / dl * 18, p[1] + dy / dl * 18, labels[v] || '', { size: 14 }));
-      // angle arc
-      if (ang[v]) {
+      // angle arc. 直角顶点只画方框标记，原书不会同时再印一个 "90°"（早前 12 个
+      // 三角形 spec 都同时给了 angles[i]="90°" 和 right:[i]，会画出方框+"90°"两套）。
+      var isRight = !!(right && right.indexOf(v) >= 0);
+      if (ang[v] && !isRight) {
         var prev = pts[(v + 2) % 3], next = pts[(v + 1) % 3];
         var a0 = Math.atan2(prev[1] - p[1], prev[0] - p[0]) * 180 / Math.PI;
         var a1 = Math.atan2(next[1] - p[1], next[0] - p[0]) * 180 / Math.PI;
