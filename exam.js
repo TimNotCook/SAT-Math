@@ -1187,15 +1187,21 @@
        或 total/correct 不是数字时，整页不能因为一个字段就白屏。能算的从 detail
        现算，算不出的显示「—」。 */
     const detail0 = asArr(r.detail).filter(isRec);
-    const total = Number.isFinite(Number(r.total)) && Number(r.total) > 0 ? Number(r.total) : detail0.length;
-    const correct = Number.isFinite(Number(r.correct)) ? Number(r.correct) : detail0.filter(d => isRightFlag(d.correct)).length;
-    const elapsed = Number.isFinite(Number(r.elapsed)) && Number(r.elapsed) > 0 ? Number(r.elapsed) : 0;
-    const durationSec = Number.isFinite(Number(r.durationSec)) && Number(r.durationSec) > 0 ? Number(r.durationSec) : 0;
+    /* total/correct/elapsed 是布尔时 Number(true) 会变成 1：旧记录会显示
+       假的 100% / 1 分钟。safeNum 已排除布尔，这里统一走它。 */
+    const rTotal = safeNum(r.total);
+    const total = rTotal != null && rTotal > 0 ? rTotal : detail0.length;
+    const rCorrect = safeNum(r.correct);
+    const correct = rCorrect != null ? Math.max(0, Math.min(total, rCorrect)) : detail0.filter(d => isRightFlag(d.correct)).length;
+    const rElapsed = safeNum(r.elapsed);
+    const elapsed = rElapsed != null && rElapsed > 0 ? rElapsed : 0;
+    const rDuration = safeNum(r.durationSec);
+    const durationSec = rDuration != null && rDuration > 0 ? rDuration : 0;
     const est = asObj(r.estimate), rep = asObj(r.report);
     const units = asArr(rep.units).filter(isRec);
     const topics = asArr(rep.topics).filter(isRec);
     const priority = asArr(rep.priority).filter(isRec);
-    const scaled = Number.isFinite(Number(est.scaled)) ? Number(est.scaled) : null;
+    const scaled = safeNum(est.scaled);
     const pct = total ? Math.round(correct / total * 100) : 0;
     const modeTxt = MODE_NAME[safeText(r.mode)] || safeText(r.mode) || '模考';
     /* 云端/旧版可能把 Date.now() 存成字符串；new Date('1700...') 是 Invalid，
@@ -1218,8 +1224,8 @@
            (MODE === 'mock' ? ' · Module 2 路径：' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : '未进入') : '')));
     /* 只有模考换算 200–800 分；单元抽测只展示正确率，不出分、不折成 44 题。 */
     const isMock = MODE === 'mock';
-    const rawTxt = (Number.isFinite(Number(est.raw)) ? est.raw : '—') + ' / ' +
-      (Number.isFinite(Number(est.rawMax)) ? est.rawMax : '—');
+    const rawVal = safeNum(est.raw), rawMaxVal = safeNum(est.rawMax);
+    const rawTxt = (rawVal == null ? '—' : rawVal) + ' / ' + (rawMaxVal == null ? '—' : rawMaxVal);
     applyQuizCopy();
     $('resScoreLabel').textContent = isMock ? T('预估 SAT 数学分数 · 200–800', 'Estimated SAT Math Score · 200–800') : '本次练习正确率';
     $('resScore').innerHTML = isMock

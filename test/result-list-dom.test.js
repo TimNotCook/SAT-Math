@@ -83,3 +83,12 @@ test('成绩页：date 为 null/0 时不显示 1970 年假时间', () => {
 test('成绩页 safeNum 不把布尔当数字（true 不能变 1 秒/1 分）', () => {
   assert.match(js, /const safeNum = v => \(.*typeof v === 'boolean'/, 'safeNum 缺少布尔排除');
 });
+
+
+test('成绩页 total/correct/elapsed 不再把布尔 Number 成 1', () => {
+  const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
+  assert.match(seg, /const rTotal = safeNum\(r\.total\)/);
+  assert.match(seg, /const rCorrect = safeNum\(r\.correct\)/);
+  assert.match(seg, /const rElapsed = safeNum\(r\.elapsed\)/);
+  assert.ok(!/Number\.isFinite\(Number\(r\.total\)\)/.test(seg), '总题数还在裸 Number，布尔会变 1');
+});
