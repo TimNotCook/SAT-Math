@@ -1,0 +1,47 @@
+/* test/theme-dark-contrast.test.js — 暗黑主题可读性守门
+ * 这些组合都曾在真机/截图里出现过「浅底浅字 / 黑底深字」：
+ * 1) 设置面板分段控件选中态：--blue 在 dark 变成浅银，白字直接消失；
+ * 2) 移动端 site-rail 顶栏/桌面左栏：app.css 写死白底 + navy 字，暗黑下留一条白栏；
+ * 3) 做题页题内表格：--bb-figure-tint 在 :root 就被展开成暗色，只改 --wash 救不回来；
+ * 4) 模考 Submit：dark 的浅银反色带到始终白纸的 exam 页，官方黑底被冲掉。
+ * 这是一组静态 CSS 断言，防止后续改主题时又把这些行删掉。
+ */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const css = readFileSync(resolve(ROOT, 'glass.css'), 'utf8');
+const acct = readFileSync(resolve(ROOT, 'cloud-account.js'), 'utf8');
+
+test('dark 分段控件选中字跟随 --paper，而不是写死 #fff', () => {
+  assert.match(acct, /\.td-set-seg button\[data-active="1"\]\{background:var\(--blue,#2563eb\);color:var\(--paper,#fff\)\}/);
+  assert.match(acct, /\[data-theme="dark"\] \.td-set-switch\[data-on="1"\]::after\{background:#1c1c1e\}/);
+});
+
+test('dark 下 site-rail 顶栏/左栏有深色覆盖', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.site-rail\{/);
+  assert.match(css, /background:#141416!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.site-rail a\[aria-current\]/);
+});
+
+test('dark 做题页把题内表格 tint 锁回浅色（含 :root 展开值）', () => {
+  assert.match(css, /--bb-figure-tint:#f5f7fa; --bb-border:#e4eaf2;/);
+  assert.match(css, /html\[data-theme="dark"\] body:has\(#questionView:not\(\[hidden\]\)\)/);
+  assert.match(css, /html\[data-theme="dark"\] body.exam-page:has\(#stage-answer:not\(\[hidden\]\)\)/);
+});
+
+test('dark 模考 answer 页保持 Bluebook 白纸与官方按钮', () => {
+  assert.match(css, /html\[data-theme="dark"\] body\.exam-page\{color-scheme:light\}/);
+  assert.match(css, /html\[data-theme="dark"\] body\.exam-page \.exam-submit-button,/);
+  assert.match(css, /background:#111!important;border-color:#111!important;color:#fff!important/);
+});
+
+test('dark 讲义页题卡白纸锁浅、上下工具条深底浅字', () => {
+  assert.match(css, /html\[data-theme="dark"\] body\.jy-page \.drill-question\{/);
+  assert.match(css, /html\[data-theme="dark"\] body\.jy-page \.drill-question \.drill-choice\{/);
+  assert.match(css, /html\[data-theme="dark"\] body\.jy-page \.drill-footer\{\s*background:#141416!important/);
+  assert.match(css, /html\[data-theme="dark"\] body\.jy-page \.drill-footer \.btn\.primary\{/);
+});

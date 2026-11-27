@@ -335,6 +335,7 @@ a:hover{color:var(--blue)}
    [data-theme="dark"] 覆盖奶白 token。切换由 theme.js 控制 + localStorage 持久化。
    苹果暗黑风：近黑底 + 浅银强调 + 深色玻璃卡 + 冷光色块。 */
 [data-theme="dark"]{
+  color-scheme:dark;
   --ink:#e8e8ea; --ink-2:#c8c8cc; --sub:#8e8e93; --faint:#6e6e73;
   --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06); --line-strong:rgba(255,255,255,.16);
   --bg:#0a0a0c; --paper:#1c1c1e; --wash:#131316;
@@ -380,6 +381,20 @@ a:hover{color:var(--blue)}
 }
 [data-theme="dark"] .bb-modal .bb-modal-head h2{color:var(--ink)!important}
 [data-theme="dark"] .bb-modal .bb-modal-close{color:var(--ink)!important;border-color:rgba(255,255,255,.16)!important}
+/* 模考/抽查页始终按 Bluebook 白纸呈现（不跟随暗黑反色），按钮不能被上面
+   的浅银反色带走：Submit 保持黑底白字，Start / Review 主按钮保持蓝图蓝。 */
+html[data-theme="dark"] body.exam-page{color-scheme:light}
+html[data-theme="dark"] body.exam-page .exam-submit-button,
+html[data-theme="dark"] body.exam-page .exam-submit-button:hover{
+  background:#111!important;border-color:#111!important;color:#fff!important;
+}
+html[data-theme="dark"] body.exam-page .btn.primary,
+html[data-theme="dark"] body.exam-page .exam-start-actions .btn.primary,
+html[data-theme="dark"] body.exam-page .btn.primary:hover,
+html[data-theme="dark"] body.exam-page .exam-start-actions .btn.primary:hover{
+  background:#1d4ed8!important;border-color:#1d4ed8!important;color:#fff!important;
+}
+
 /* 暗黑下：结果页正确率/通用主按钮反转成浅银底 + 深字（做题页元素不覆盖，保持官方） */
 [data-theme="dark"] .btn.primary,
 [data-theme="dark"] .exam-submit-button,
@@ -416,6 +431,21 @@ a:hover{color:var(--blue)}
 [data-theme="dark"] .exam-start-actions .btn.primary:focus-visible{
   outline:2px solid rgba(232,232,234,.55)!important;outline-offset:2px;
 }
+
+/* site-rail（移动端顶栏 / 桌面左栏）在 dark 下补深色：app.css 里
+   background:#fff 与文字 --navy 都是写死浅色，不补会在黑底上留一整条白栏。 */
+html[data-theme="dark"] .site-rail{
+  background:#141416!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+html[data-theme="dark"] .site-rail .rail-brand,
+html[data-theme="dark"] .site-rail a{color:#d8d8dc!important}
+html[data-theme="dark"] .site-rail a:hover{background:rgba(255,255,255,.08)!important;color:#fff!important}
+html[data-theme="dark"] .site-rail a[aria-current]{background:rgba(255,255,255,.14)!important;color:#fff!important}
+html[data-theme="dark"] .site-rail .rail-sep{background:rgba(255,255,255,.12)!important}
+html[data-theme="dark"] .site-rail .rail-back{color:#fff!important}
+html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings{color:#b8b8bd!important}
+html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings:hover{background:rgba(255,255,255,.08)!important;color:#fff!important}
 
 /* ==================== dark 顶栏配套修复 ====================
    顶栏背景已在源头变量化（bluebook.css → --appbar-bg），light/dark 各自正确。
@@ -475,7 +505,14 @@ html[data-theme="dark"] body:has(#stage-answer:not([hidden])),
 html[data-theme="dark"] body.exam-page:has(#stage-answer:not([hidden])){
   --bb-ink:#1a1a1a; --bb-sub:#39424f; --bb-faint:#6b7686;
   --bb-muted:#39424f; --bb-fg:#1a1a1a;
-  --ink:#1a1a1a; --ink-2:#39424f; --sub:#39424f; --faint:#6b7686;
+  --ink:#1a1a1a; --ink-2:#39424f; --sub:#39424f; --faint:#6b7686;  /* 卷面是白纸，但 --paper/--line/--blue 还留在暗黑 token 上：题内表格等
+     用 var(--paper) 画底的图形会变成黑底深字。这里把整套表面 token 锁回浅色。 */
+  --paper:#fff; --bg:#fff; --wash:#f5f7fa;
+  --line:#dfe6ef; --line-soft:#eef2f7; --line-strong:#c7d2e0; --navy:#0f2744;
+  --blue:#1d4ed8; --blue-strong:#1e40af; --blue-soft:#eef4ff; --blue-line:#c7dbff;
+  /* --bb-figure-tint / --bb-border 在 :root 里就被 var() 展开成暗色值，
+     只覆盖 --wash 救不回来；这里直接重设，题内表格才是浅色底。 */
+  --bb-figure-tint:#f5f7fa; --bb-border:#e4eaf2;
 }
 
 /* ==================== 暗黑主题：选中单元卡片 = 深底浅字（与暗黑主题统一） ====================
@@ -548,4 +585,75 @@ html[data-theme="light"] .exam-page .appbar,
 html[data-theme="light"] .drill-page .mainnav a.on,
 html[data-theme="light"] .exam-page .mainnav a.on{
   border-bottom-color:rgba(122,138,160,.20)!important;
+}
+
+/* ==================== 讲义阅读页 .jy-page：白纸题卡 + 暗色外壳 ====================
+   讲义复用 .drill-question/.drill-choice/.drill-footer，但页面没有 #questionView，
+   上一组做题页 token 作用域覆盖不到：
+   - article.drill-question 是白底，文字继承 dark 的 --ink=#e8e8ea → 题干/选项浅字白底；
+   - 选项 .drill-choice 半透明白底 + 浅字 → 几乎看不见；
+   - 上下工具条 background:#fff!important，配浅字；disabled 按钮白字浅灰底。
+   题卡本身保持 Bluebook 白纸（阅读/图形题不能反色），只把卡内 token 锁浅；
+   外壳的进度条与底部操作条改成深底浅字，和整站暗色一致。 */
+html[data-theme="dark"] body.jy-page .drill-question{
+  --ink:#1a1a1a;
+  --ink-2:#39424f;
+  --sub:#39424f;
+  --faint:#6b7686;
+  --bb-ink:#1a1a1a;
+  --bb-sub:#39424f;
+  --bb-faint:#6b7686;
+  --paper:#fff;
+  --bg:#fff;
+  --wash:#f5f7fa;
+  --line:#dfe6ef;
+  --line-soft:#eef2f7;
+  --line-strong:#c7d2e0;
+  --blue:#1d4ed8;
+  --blue-strong:#1e40af;
+  --blue-soft:#eef4ff;
+  --blue-line:#c7dbff;
+  --bb-border:#e4eaf2;
+  --bb-figure-tint:#f5f7fa;
+  color:#1a1a1a!important;
+}
+html[data-theme="dark"] body.jy-page .drill-question .drill-choice{
+  background:#fff!important;
+  border-color:#d7dde6!important;
+  color:#1a1a1a!important;
+}
+html[data-theme="dark"] body.jy-page .drill-question .drill-choice:hover{
+  background:#f5f7fa!important;
+  border-color:#b9c6d8!important;
+}
+html[data-theme="dark"] body.jy-page .drill-questionbar{
+  background:#141416!important;
+  border-bottom-color:rgba(255,255,255,.10)!important;
+}
+html[data-theme="dark"] body.jy-page .drill-qnumber{
+  background:#1c1c1e!important;
+  border-color:rgba(255,255,255,.18)!important;
+  color:#f5f5f7!important;
+}
+html[data-theme="dark"] body.jy-page .jy-position{color:#b8b8bd!important}
+html[data-theme="dark"] body.jy-page .drill-footer{
+  background:#141416!important;
+  border-top-color:rgba(255,255,255,.10)!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] body.jy-page .drill-footer-section{color:#b8b8bd!important}
+html[data-theme="dark"] body.jy-page .drill-footer .btn{
+  background:rgba(255,255,255,.08)!important;
+  border-color:rgba(255,255,255,.16)!important;
+  color:#e8e8ea!important;
+}
+html[data-theme="dark"] body.jy-page .drill-footer .btn:disabled{
+  background:rgba(255,255,255,.04)!important;
+  border-color:rgba(255,255,255,.10)!important;
+  color:#9a9aa0!important;
+}
+html[data-theme="dark"] body.jy-page .drill-footer .btn.primary{
+  background:#1d4ed8!important;
+  border-color:#1d4ed8!important;
+  color:#fff!important;
 }
