@@ -44,6 +44,7 @@
     var msg = o.msg || o.message || o.error_description || o.error || ('HTTP ' + status);
     var e = new Error(msg);
     e.status = status;
+    e.__http = status > 0;   // 真 HTTP 错误：catch 里不许再改写成 status 0
     e.raw = o;
     var low = String(msg).toLowerCase();
     if (low.indexOf('invalid login credentials') >= 0) e.code = 'auth/invalid-credential';
@@ -66,6 +67,7 @@
         return body;
       });
     }).catch(function (e) {
+      if (e && e.__http) throw e;     // 401 / 400 这类要原样带上状态码，上层靠它判断是「失效」还是「断网」
       throw errOf(0, { msg: (e && e.message) || '网络异常，请检查连接后重试。' });
     }), opts.timeout || 20000, '网络较慢：连不上登录服务，请检查网络后重试。');
   }
@@ -106,6 +108,7 @@
   }
   function saveSession(s) {
     session = s;
+    if (s) refreshDead = false;   // 重新拿到会话就把「失效」标记复位，否则再登录也进不去
     try {
       if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
       else localStorage.removeItem(SESSION_KEY);
@@ -159,27 +162,57 @@
     if (stateCb) stateCb(currentUser);
   }
 
-  async function refreshIfNeeded() {
-    if (!session) return null;
-    if (session.expiresAt && Date.now() < session.expiresAt) return session;
-    if (!session.refresh) return null;
-    try {
-      var r = await raw('/auth/v1/token?grant_type=refresh_token', {
-        method: 'POST',
-        headers: authHeaders(null),
-        body: JSON.stringify({ refresh_token: session.refresh }),
-        timeout: 15000
-      });
-      var s = packSession(r) || session;
-      s.user = r.user || session.user;
-      saveSession(s);
-      return s;
-    } catch (e) {
-      console.warn('登录状态续期失败，需要重新登录', e);
-      saveSession(null);
-      return null;
-    }
+  /* 续期：单飞。两个标签页 + 定时器同时打 refresh，Supabase 会轮换 refresh_token，
+     后到的那次必然 invalid_grant；之前这里一失败就把本地会话删了，刷新一次就退登录。 */
+  var refreshing = null;
+  var refreshDead = false;   // 服务端明确说 refresh_token 不能用了
+
+  function needsRefresh() { return !!(session && session.expiresAt && Date.now() >= session.expiresAt); }
+
+  var retryTimer = 0;
+  function scheduleRetry() {
+    if (retryTimer) return;
+    retryTimer = setTimeout(function () { retryTimer = 0; ensureFresh(true); }, 30000);
+    if (retryTimer && retryTimer.unref) retryTimer.unref();   // 别拖住进程/测试退出
   }
+
+  async function ensureFresh(force) {
+    if (!session) return null;
+    if (refreshDead) return null;
+    if (!force && !needsRefresh()) return session;
+    if (!session.refresh) return session;      // 没 refresh_token 也别把人踢下线
+    if (refreshing) return refreshing;
+    refreshing = (async function () {
+      try {
+        var r = await raw('/auth/v1/token?grant_type=refresh_token', {
+          method: 'POST',
+          headers: authHeaders(null),
+          body: JSON.stringify({ refresh_token: session.refresh }),
+          timeout: 15000
+        });
+        var s = packSession(r);
+        if (!s) throw errOf(400, { msg: '续期没有拿到新会话' });
+        s.user = r.user || session.user;
+        saveSession(s);
+        return s;
+      } catch (e) {
+        /* 只有服务端明确拒绝（400/401）才算真的失效；断网、超时、5xx 一律保留会话 */
+        if (e && (e.status === 400 || e.status === 401)) {
+          console.warn('登录已失效，需要重新登录', e);
+          refreshDead = true;
+          saveSession(null);
+          return null;
+        }
+        console.warn('续期暂时失败，保留登录状态稍后重试', e);
+        scheduleRetry();
+        return session;
+      } finally { refreshing = null; }
+    })();
+    return refreshing;
+  }
+
+  /* 兼容旧名字 */
+  async function refreshIfNeeded() { return ensureFresh(false); }
 
   var booted = null;
   function boot() {
@@ -188,14 +221,28 @@
       consumeHashSession();
       session = loadSession();
       if (!session) { emit(); return; }
-      session = await refreshIfNeeded();
+      session = await ensureFresh(false);
       if (!session) { emit(); return; }
+      var u = null;
       try {
-        var u = await raw('/auth/v1/user', { headers: authHeaders(session.access), timeout: 15000 });
-        if (u && u.id) { session.user = u; saveSession(session); }
+        u = await raw('/auth/v1/user', { headers: authHeaders(session.access), timeout: 15000 });
       } catch (e) {
-        if (e.code === 'auth/invalid-credential' || e.status === 401) saveSession(null);
+        if (e && e.status === 401 && !refreshDead) {
+          /* access 过期：换一次新票再试。只有真的换到新票、且新票仍被拒，才算失效；
+             断网时 ensureFresh 返回的是旧票，这时保持登录态，等联网再补 */
+          var prevAccess = session.access;
+          var s2 = await ensureFresh(true);
+          if (!s2) { emit(); return; }
+          if (!s2.access || s2.access === prevAccess) { scheduleRetry(); }
+          else {
+            try { u = await raw('/auth/v1/user', { headers: authHeaders(s2.access), timeout: 15000 }); }
+            catch (e2) { if (e2 && e2.status === 401) { saveSession(null); emit(); return; } }
+          }
+        } else if (e && e.status !== 401) {
+          scheduleRetry();   // 断网 / 超时：保持登录态，联网后自动补
+        }
       }
+      if (u && u.id) { session.user = u; saveSession(session); }
       emit();
     })();
     return booted;
@@ -203,7 +250,7 @@
 
   async function token() {
     await boot();
-    session = await refreshIfNeeded();
+    session = await ensureFresh(needsRefresh());
     if (!session) throw errOf(401, { msg: '登录状态已失效，请重新登录。' });
     return session.access;
   }
@@ -358,6 +405,8 @@
       return clean;
     }
   };
+
+  window.addEventListener('online', function () { ensureFresh(true); });
 
   // 后台每 20 分钟续期一次，避免长时间刷题后被踢下线
   setInterval(function () { if (session) refreshIfNeeded(); }, 20 * 60 * 1000);

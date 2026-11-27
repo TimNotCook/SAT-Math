@@ -26,7 +26,9 @@
     return null;
   }
   var SNAP_PREFIX = 'tdsat_';
-  var NO_SYNC = { 'tdsat_prefs_v1': 1 };
+  // 不同步到云端的本机键：外观偏好，以及登录会话（access/refresh token 绝不能进档案，
+  // 否则既泄露到云端，又会在 applyPayload 清空 tdsat_* 时把刚登录的会话一起删掉 → 刷新退登录）。
+  var NO_SYNC = { 'tdsat_prefs_v1': 1, 'tdsat_auth_v1': 1 };
   var PROFILE_KEY = 'tdprofile_v1';
   var DRAFT_KEY = 'tdprofile_draft_v1';
   var DEFAULT_NICK = '同学';
