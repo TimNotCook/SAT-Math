@@ -528,17 +528,14 @@ body.shell-wrong .wrong-toolbar .unit-filter{display:flex;flex-wrap:wrap;gap:8px
    ===================================================================== */
 body.site-shell:has(#questionView:not([hidden])),
 body.site-shell:has(#resultView:not([hidden])),
-body.exam-page:has(#stage-answer:not([hidden])),
-body.exam-page:has(#stage-review:not([hidden])),
-body.exam-page:has(#stage-submit:not([hidden])),
-body.exam-page:has(#stage-result:not([hidden])){padding-left:0!important}
+/* 侧栏在答题/回顾/成绩阶段也留着——Tim 说藏起来没必要 */
 
 body.site-shell:has(#questionView:not([hidden])) .site-rail,
 body.site-shell:has(#resultView:not([hidden])) .site-rail,
 body.exam-page:has(#stage-answer:not([hidden])) .site-rail,
 body.exam-page:has(#stage-review:not([hidden])) .site-rail,
 body.exam-page:has(#stage-submit:not([hidden])) .site-rail,
-body.exam-page:has(#stage-result:not([hidden])) .site-rail{display:none!important}
+body.exam-page:has(#stage-result:not([hidden])) .site-rail{display:flex}
 
 /* 成绩页沿用模板自带的顶部导航（做题页本身没有这条）。 */
 body.site-shell:has(#resultView:not([hidden])) #appnav{display:block!important}
@@ -923,4 +920,158 @@ body.shell-history .hist-empty{padding:44px 24px;border:1px solid #e6ebf3;border
 }
 @media(max-width:520px){
   .entry-tile-grid{grid-template-columns:1fr}
+}
+
+/* ============================================================
+   答题台：一条白工具条 + 一张题目卡 + 一条底栏（2026-11-27）
+   ============================================================ */
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-context{border-bottom:1px solid #e9edf4;background:#fff!important}
+html body.exam-page:not(.is-mock):has(#stage-answer:not([hidden])) .exam-context::after{content:none!important;display:none!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-context-inner{max-width:992px;margin:0 auto;padding:0;min-height:60px}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-context-title{font-size:13px!important;font-weight:700;color:#12233f}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-context-meta{font-size:12.5px;color:#7b8798}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-clock b{font-size:21px;font-weight:800;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-clock small{font-size:11px;color:#94a3b8;letter-spacing:.02em}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-hide-timer{height:30px;padding:0 12px;border:1px solid #e4e9f1;border-radius:8px;background:#fff;color:#64748b;font-size:12px;font-weight:600}
+
+/* 工具条 */
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-questionbar{background:#fff!important;border-bottom:1px solid #e9edf4!important;height:60px!important;min-height:60px!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-questionbar-inner{max-width:992px!important;margin:0 auto!important;padding:0!important;height:60px!important;align-items:center!important;display:flex!important;justify-content:space-between!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-qnumber{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;
+  border:1px solid #e4e9f1;background:#fff;color:#12233f;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-mark-button{height:34px;padding:0 12px;border:1px solid #e4e9f1;border-radius:8px;background:#fff;
+  color:#5b6678;font-size:12.5px;font-weight:600;gap:6px}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-mark-button:hover{border-color:#c3d8fb;background:#f6f9ff;color:#1d4ed8}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-mark-button[aria-pressed="true"]{border-color:#f0d5a8;background:#fffaf0;color:#a16207}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-mark-button svg{width:16px;height:16px}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-tool-link{min-height:34px;padding:0 10px;border:0;border-radius:8px;background:transparent;
+  color:#5b6678;font-size:12.5px;font-weight:600;text-decoration:none}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-tool-link:hover{background:#f4f7fc;color:#1d4ed8}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-action-button{height:38px;padding:0 16px;border:1px solid #e4e9f1;border-radius:9px;
+  background:#fff;color:#1f2937;font-size:13px;font-weight:600;box-shadow:none}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-action-button:hover{border-color:#c3d8fb;background:#f6f9ff}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-submit-button{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-submit-button:hover{background:#1d4ed8!important;border-color:#1d4ed8!important}
+
+/* 题目卡 */
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-main{width:100%!important;max-width:992px!important;margin:0 auto!important;padding:20px 0 132px!important;background:transparent!important;min-height:calc(100vh - 124px)!important;box-sizing:border-box!important}
+html body.exam-page:has(#stage-answer:not([hidden])) #question{background:#fff!important;border:1px solid #e6ebf3!important;border-radius:16px!important;
+  padding:30px 32px 34px!important;box-shadow:0 1px 2px rgba(15,23,42,.04)!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-stem{font-size:16.5px!important;line-height:1.72!important;color:#12233f!important;margin:0 0 26px!important}
+
+/* 选项 */
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-choice{min-height:54px!important;padding:11px 18px!important;border:1px solid #e6ebf3!important;border-radius:12px!important;
+  background:#fff!important;box-shadow:none!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-choice:hover{border-color:#bcd3f7!important;background:#fbfcff!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-choice-letter{width:26px;height:26px;border-radius:50%;border:1px solid #dbe3ef!important;
+  background:#fff!important;color:#64748b!important;font-size:12.5px;font-weight:700;display:inline-grid;place-items:center;flex:0 0 auto}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-choice.is-selected{border-color:#2563eb!important;background:#f5f9ff!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-choice.is-selected .drill-choice-letter{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-choice-text{font-size:15px!important;color:#1f2937!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-choices{gap:10px!important;max-width:100%!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .crossout-toggle{opacity:0;border:0!important;background:transparent!important;color:#b0b9c6!important;transition:opacity .12s}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-choice-row:hover .crossout-toggle,
+html body.exam-page:has(#stage-answer:not([hidden])) .crossout-toggle.is-on,
+html body.exam-page:has(#stage-answer:not([hidden])) .crossout-toggle:focus-visible{opacity:1}
+html body.exam-page:has(#stage-answer:not([hidden])) .crossout-toggle:hover{color:#64748b!important}
+
+/* 底栏 */
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{height:64px!important;border-top:1px solid #e9edf4!important;background:#fff!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-footer-inner{max-width:992px!important;margin:0 auto!important;padding:0!important;height:64px!important;align-items:center!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-footer-section{font-size:12.5px;color:#94a3b8}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-position-button{height:40px;padding:0 18px;border:1px solid #e4e9f1;border-radius:99px;
+  background:#fff;color:#12233f;font-size:13px;font-weight:600;box-shadow:none}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-position-button:hover{border-color:#c3d8fb;background:#f6f9ff}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button{height:40px;min-width:96px;border-radius:9px;font-size:13px;font-weight:600;
+  border:1px solid #e4e9f1!important;background:#fff!important;color:#5b6678!important;box-shadow:none!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button:hover{border-color:#c3d8fb!important;background:#f6f9ff!important;color:#1d4ed8!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-next-button{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-next-button:hover{background:#1d4ed8!important;border-color:#1d4ed8!important;color:#fff!important}
+
+/* 抽查页顶部：中文单元号 + 中文标题，别中英各半 */
+html body.exam-page:not(.is-mock):has(#stage-answer:not([hidden])) .drill-context-title{color:#12233f;font-weight:700}
+html body.exam-page:not(.is-mock):has(#stage-answer:not([hidden])) #tbSection{color:#7b8798;font-weight:600}
+
+/* 成绩报告：同一块灰底、同一套卡片，别让左右两栏一高一矮 */
+html body.exam-page #stage-result .exam-stage-main{max-width:992px!important;margin:0 auto!important;padding:26px 0 120px!important}
+html body.exam-page #stage-result .exam-section-title{font-size:17px!important;font-weight:700!important;border-bottom:0!important;
+  padding-bottom:0!important;margin:30px 0 12px!important;color:#12233f!important}
+html body.exam-page #stage-result .res-grid{align-items:start!important}
+html body.exam-page #stage-result .exam-panel{background:#fff!important;border:1px solid #e6ebf3!important;border-radius:14px!important;
+  padding:22px 24px!important;box-shadow:0 1px 2px rgba(15,23,42,.04)!important}
+html body.exam-page #stage-result .exam-panel h3{font-size:13px!important;font-weight:700!important;color:#7b8798!important;letter-spacing:.02em}
+html body.exam-page #stage-result .score-hero{grid-template-columns:248px minmax(0,1fr)!important;gap:28px!important}
+html body.exam-page #stage-result .score-num{font-size:52px!important;line-height:1!important;font-weight:800!important;letter-spacing:-.03em}
+html body.exam-page #stage-result .kv{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 28px!important}
+html body.exam-page #stage-result .kv>div{display:flex!important;align-items:baseline!important;justify-content:flex-start!important;gap:10px!important;
+  padding:9px 0!important;border-bottom:1px solid #f0f4f9!important}
+html body.exam-page #stage-result .kv>div:nth-last-child(-n+2){border-bottom:0!important}
+html body.exam-page #stage-result .kv span{font-size:12.5px!important;color:#7b8798!important}
+html body.exam-page #stage-result .kv b{font-size:14px!important;font-weight:700!important;color:#12233f!important;font-variant-numeric:tabular-nums}
+html body.exam-page #stage-result .exam-tabs{display:inline-flex!important;gap:4px!important;padding:4px!important;background:#eceff6!important;
+  border:1px solid #e4e9f1!important;border-radius:11px!important;margin:0 0 14px!important}
+html body.exam-page #stage-result .exam-tabs .tab{min-height:34px!important;padding:0 14px!important;border:0!important;border-radius:8px!important;
+  color:#64748b!important;font-size:12.5px!important;font-weight:700!important;background:transparent!important}
+html body.exam-page #stage-result .exam-tabs .tab.on{background:#fff!important;color:#1d4ed8!important;box-shadow:0 1px 3px rgba(15,23,42,.10)!important}
+
+/* 检查答题：一条摘要 + 一张表，别再摆四块大数字 */
+html body.exam-page #stage-review .exam-stage-main{max-width:992px!important;margin:0 auto!important;padding:26px 0 100px!important}
+html body.exam-page #stage-review .exam-stage-head h1{font-size:26px!important;letter-spacing:-.01em}
+html body.exam-page #stage-review .exam-eyebrow{font-size:11px!important;letter-spacing:.16em!important;color:#9aa6b8!important}
+html body.exam-page #stage-review .exam-stage-head p{margin-top:6px!important;font-size:13px!important;color:#7b8798!important;max-width:620px;line-height:1.6}
+html body.exam-page #stage-review .rev-meta{display:flex!important;align-items:center!important;gap:16px!important;background:#fff!important;width:100%!important;box-sizing:border-box!important;
+  border:1px solid #e6ebf3!important;border-radius:12px!important;padding:13px 20px!important;margin:20px 0 16px!important;
+  font-size:12.5px!important;color:#7b8798!important;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+html body.exam-page #stage-review .rev-meta span{white-space:nowrap!important}
+html body.exam-page #stage-review .rev-meta b{margin-left:5px;font-size:14px!important;font-weight:800!important;color:#12233f!important}
+html body.exam-page #stage-review .rev-meta i{display:block;width:1px!important;height:14px!important;background:#e6ebf3!important}
+html body.exam-page #stage-review .exam-table-wrap{background:#fff!important;border:1px solid #e6ebf3!important;border-radius:14px!important;
+  overflow:hidden!important;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+html body.exam-page #stage-review .rev-table{width:100%!important;border-collapse:collapse!important;background:#fff!important}
+html body.exam-page #stage-review .rev-table th{font-size:11.5px!important;font-weight:700!important;color:#9aa6b8!important;
+  letter-spacing:.08em!important;padding:12px 14px!important;border-bottom:1px solid #eef2f7!important;text-align:left!important;background:#fff!important}
+html body.exam-page #stage-review .rev-table td{padding:11px 14px!important;border-bottom:1px solid #f4f7fb!important;vertical-align:middle!important}
+html body.exam-page #stage-review .rev-table tr:last-child td{border-bottom:0!important}
+html body.exam-page #stage-review .rev-table td>b{font-size:13px!important;font-weight:800!important;color:#12233f!important}
+html body.exam-page #stage-review .miniopts{display:flex!important;gap:6px!important}
+html body.exam-page #stage-review .miniopts button{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;
+  border-radius:50%!important;border:1px solid #dbe3ef!important;background:#fff!important;color:#55637a!important;
+  font-size:12px!important;font-weight:700!important;line-height:1!important}
+html body.exam-page #stage-review .miniopts button:hover{border-color:#2563eb!important;color:#1d4ed8!important}
+html body.exam-page #stage-review .miniopts button.on{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
+html body.exam-page #stage-review .pill.no{background:#f3f5f9!important;color:#7b8798!important;border:0!important}
+html body.exam-page #stage-review .pill.wait{background:#eaf1ff!important;color:#1d4ed8!important;border:0!important}
+html body.exam-page #stage-review .btn.slim{height:32px!important;padding:0 14px!important;border-radius:9px!important;font-size:12.5px!important}
+html body.exam-page #stage-review .rev-summary{display:block!important;width:100%!important;max-width:100%!important;background:transparent!important;border:0!important;padding:0!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar .drill-questionbar-inner{border-bottom:0!important;max-width:992px!important;height:60px!important;padding:0!important}
+
+/* 交卷确认：一张干净的白卡，动作按钮统一蓝 */
+html body.exam-page #stage-submit .exam-eyebrow{font-size:11px!important;letter-spacing:.16em!important;color:#9aa6b8!important}
+html body.exam-page #stage-submit .exam-submit-main{margin:9vh auto 0!important;max-width:596px!important;background:#fff!important;
+  border:1px solid #e6ebf3!important;border-radius:16px!important;padding:30px 34px 32px!important;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+html body.exam-page #stage-submit .exam-submit-count{font-size:40px!important;font-weight:800!important;color:#1d4ed8!important;letter-spacing:-.02em;margin:8px 0 4px}
+html body.exam-page #stage-submit #subDesc{font-size:12.5px!important;color:#7b8798!important}
+html body.exam-page #stage-submit .exam-notice{margin:18px 0 22px!important;background:#f7f9fc!important;border:1px solid #edf1f7!important;border-radius:10px!important;
+  padding:12px 14px!important;font-size:12.5px!important;color:#64748b!important;line-height:1.6}
+html body.exam-page #stage-submit .btn{height:42px!important;padding:0 20px!important;border-radius:10px!important;font-size:13px!important}
+html body.exam-page #stage-submit .btn.danger{background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important}
+html body.exam-page #stage-submit .exam-submit-actions{display:flex!important;gap:10px!important;justify-content:flex-end!important}
+
+/* ≤700：答题台两侧留白、题号不贴边、底栏三段对齐 */
+@media (max-width:700px){
+  html body.exam-page:has(#stage-answer:not([hidden])) .exam-main{padding-left:16px!important;padding-right:16px!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) #question{margin:14px 0 0!important;padding:22px 20px 26px!important;border-radius:14px!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar .drill-questionbar-inner{padding:0 16px!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .drill-qnumber{width:28px!important;height:28px!important;min-width:28px!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .drill-footer-inner{padding:0 16px!important;display:grid!important;
+    grid-template-columns:1fr auto 1fr!important;align-items:center!important;column-gap:8px}
+  html body.exam-page:has(#stage-answer:not([hidden])) .drill-footer-section{display:none!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .drill-position-button{grid-column:2!important;justify-self:center!important;
+    height:38px!important;padding:0 16px!important;font-size:12.5px!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .drill-footer-actions{grid-column:3!important;justify-self:end!important;gap:8px!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .drill-nav-label{display:none}
+  html body.exam-page:has(#stage-answer:not([hidden])) .drill-page-button{width:40px!important;min-width:40px!important;padding:0!important}
+  html body.exam-page #stage-review .exam-table-wrap{overflow-x:auto!important}
+  html body.exam-page #stage-submit .exam-submit-main{margin:24px 16px 0!important;padding:24px 20px 26px!important}
+  html body.exam-page #stage-result .exam-stage-main{padding:20px 16px 80px!important}
 }

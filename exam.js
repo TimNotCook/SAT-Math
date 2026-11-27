@@ -33,6 +33,40 @@
 
   const MODE_NAME = { mock: 'SAT 数学全真模考', quiz: '单元抽查' };
   const OFFICIAL = MODE === 'mock';               // only the official mock may use Desmos
+
+  /* 抽查层一律中文：成绩页/交卷页的静态英文按钮就地换掉，模考层保持英文 */
+  const QUIZ_COPY = {
+    'Review Missed Questions': '查看错题',
+    'Take Another Test': '再测一次',
+    'Weakness Report': '薄弱点报告',
+    'Question-by-Question Results': '逐题结果',
+    'Units to Prioritize': '优先补强',
+    'All Questions': '全部题目',
+    'Incorrect Only': '只看错题',
+    'SCORE REPORT': '成绩报告',
+    'Keep Reviewing': '返回继续答题',
+    'Submit and Lock Answers': '交卷并锁定答案',
+    'Directions': '考试说明',
+    'Check Answers': '检查答题',
+    'CHECK YOUR WORK': '检查答题',
+    'Select a question number to jump back to it, or edit answers directly in the table below. Answers are locked after you submit.':
+      '点题号可直接跳回修改；也可以在下表里直接改答案。交卷后答案锁定。',
+    'Question Menu': '题目导航',
+    'Question': '题号',
+    'Topic / Source': '题目 / 出处',
+    'Status': '状态',
+    'Your Answer': '你的答案',
+    'Go': '跳转',
+    'Back to Test': '返回答题'
+  };
+  function applyQuizCopy() {
+    if (OFFICIAL) return;
+    document.querySelectorAll('#stage-result *, #stage-submit *, #stage-review *').forEach(function (el) {
+      if (el.children.length) return;
+      const t = (el.textContent || '').trim();
+      if (QUIZ_COPY[t]) el.textContent = QUIZ_COPY[t];
+    });
+  }
   const T = (zh, en) => (OFFICIAL ? en : zh);     // 模考层纯英文：docs/UI-COPY.md v1.1
   const UNIT_EN = { 1: 'Heart of Algebra', 2: 'Problem Solving & Data Analysis', 3: 'Advanced Math', 4: 'Geometry & Trigonometry' };
   document.querySelectorAll('.exam-modules a').forEach(a => {
@@ -430,7 +464,7 @@
       // Bluebook counts down the current module, not the whole section.
       main.textContent = document.body.classList.contains('clock-hidden') && modLeft > 5 * 60 * 1000
         ? '••:••' : fmt(MODE === 'mock' ? modLeft : left);
-      $('clockLabel').textContent = 'Time Remaining';
+      $('clockLabel').textContent = T('剩余时间', 'Time Remaining');
       $('clockBox').classList.toggle('warn', modLeft <= 5 * 60 * 1000);
       $('tbTotal').textContent = MODE === 'mock'
         ? 'Section 2 of 2 · Math · Module ' + S.module + ' of 2'
@@ -473,11 +507,12 @@
     var narrowTop = !!(window.matchMedia && window.matchMedia('(max-width:520px)').matches);
     $('tbSection').textContent = MODE === 'mock'
       ? (narrowTop ? 'Sec 2 · M' + S.module + ': Math' : 'Section 2, Module ' + S.module + ': Math')
-      : 'Unit ' + QUIZ_UNIT + ' · 单元抽查';
+      : '第 ' + QUIZ_UNIT + ' 单元';
   }
   function setStage(name) {
     S.stage = name;
     showStage(name);
+    applyQuizCopy();
     persist();
   }
 
@@ -574,7 +609,7 @@
     }
     renderSpecialOptions();
     $('clockText').textContent = fmt((official ? O.secondsPerModule : S.durationSec) * 1000);
-    $('clockLabel').textContent = 'Time Remaining';
+    $('clockLabel').textContent = T('剩余时间', 'Time Remaining');
     $('tbTotal').textContent = official ? 'Section 2 of 2 · Math' : 'Unit ' + QUIZ_UNIT;
     $('bankCount').textContent = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
   }
@@ -648,7 +683,7 @@
       }
     })();
     $('qNum').textContent = String(pos);
-    $('footerSection').textContent = MODE === 'mock' ? 'Section 2, Module ' + S.module + ' of 2' : MODE_NAME[MODE] + ' · Unit ' + QUIZ_UNIT;
+    $('footerSection').textContent = MODE === 'mock' ? 'Section 2, Module ' + S.module + ' of 2' : MODE_NAME[MODE] + ' · 第 ' + QUIZ_UNIT + ' 单元';
     $('questionPosition').textContent = OFFICIAL ? 'Question ' + pos + ' of ' + total : '第 ' + pos + ' / ' + total + ' 题';
 
     const locked = isLocked(inst.uid), area = $('answerArea');
@@ -909,8 +944,7 @@
     const answered = rows.length && Array.from({ length: hi - lo + 1 }, (_, k) => S.answers[S.paper[lo + k].uid].v).filter(Boolean).length;
     const marked = Array.from({ length: hi - lo + 1 }, (_, k) => S.answers[S.paper[lo + k].uid].marked).filter(Boolean).length;
     const RS = OFFICIAL ? ['Answered', 'Not answered', 'Marked', 'Current range'] : ['已作答', '未作答', '已标记', '当前范围'];
-    $('revSummary').innerHTML = `<div class="s"><b>${answered}</b><span>${RS[0]}</span></div><div class="s"><b>${hi - lo + 1 - answered}</b><span>${RS[1]}</span></div>
-      <div class="s"><b>${marked}</b><span>${RS[2]}</span></div><div class="s"><b>${MODE === 'mock' ? 'Module ' + S.module : MODE_NAME[MODE]}</b><span>${RS[3]}</span></div>`;
+    $('revSummary').innerHTML = `<div class="rev-meta"><span>${RS[0]} <b>${answered}</b></span><i></i><span>${RS[1]} <b>${hi - lo + 1 - answered}</b></span><i></i><span>${RS[2]} <b>${marked}</b></span><i></i><span>${RS[3]} <b>${MODE === 'mock' ? 'Module ' + S.module : MODE_NAME[MODE]}</b></span></div>`;
     $('revBody').querySelectorAll('.miniopts button').forEach(b => b.addEventListener('click', () => {
       S.answers[b.dataset.uid].v = b.dataset.l || b.getAttribute('data-l'); persist(); renderReview();
     }));
@@ -935,7 +969,7 @@
       : (OFFICIAL ? 'Submit your answers?' : '确认交卷？');
     $('subDesc').textContent = m1
       ? 'Math · Module 1 of 2'
-      : (MODE === 'mock' ? 'Math · Module 2 of 2' : MODE_NAME[MODE]);
+      : (MODE === 'mock' ? 'Math · Module 2 of 2' : '单元抽查 · 第 ' + QUIZ_UNIT + ' 单元 · ' + (hi - lo + 1) + ' 题');
     $('btnSubConfirm').textContent = m1
       ? (OFFICIAL ? 'Proceed to Module 2' : '进入 Module 2')
       : (OFFICIAL ? 'Submit' : '确认交卷并锁定答案');
@@ -1049,6 +1083,7 @@
     const isMock = MODE === 'mock';
     const rawTxt = (Number.isFinite(Number(est.raw)) ? est.raw : '—') + ' / ' +
       (Number.isFinite(Number(est.rawMax)) ? est.rawMax : '—');
+    applyQuizCopy();
     $('resScoreLabel').textContent = isMock ? T('预估 SAT 数学分数 · 200–800', 'Estimated SAT Math Score · 200–800') : '本次练习正确率';
     $('resScore').innerHTML = isMock
       ? (scaled == null ? '—' : scaled) + '<small> / 800</small>'
@@ -1220,6 +1255,9 @@
   });
   /* Directions 仅官方模考可见；计算器在抽查与模考都可用。 */
   if (!OFFICIAL) {
+    $('btnCalculator').textContent = '计算器';
+    $('btnHideTimer').textContent = '隐藏';
+    $('clockLabel').textContent = '剩余时间';
     $('btnDirections').hidden = true;
     $('btnReference').textContent = '公式参考';
     $('navLegend').innerHTML = OFFICIAL
