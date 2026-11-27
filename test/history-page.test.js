@@ -47,3 +47,9 @@ test('记录页 txt 不把布尔写成 true/false 文案', () => {
   const s = read('history-page.js');
   assert.match(s, /typeof v === 'boolean' \? '' : String\(v\)/, 'txt 缺少布尔排除');
 });
+
+
+test('记录页日期是数组/对象时不显示 1970', () => {
+  const s = read('history-page.js');
+  assert.match(s, /typeof t === 'object' && !\(t instanceof Date\)/, 'fmtDate 缺少非 Date 对象排除');
+});

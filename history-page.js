@@ -69,6 +69,9 @@
     /* null / 0 / false 会被 new Date() 当成 1970-01-01，记录页就会出现
        「1970 年交卷」的假时间；缺时间一律显示「—」。 */
     if (t == null || t === '' || t === false || t === true) return '—';
+    /* 数组的 toString 是空串，new Date([]) 会变成 1970-01-01；云端合并/旧版
+       把日期写成 []/对象时，记录页会出现「1970 年交卷」的假时间。 */
+    if (typeof t === 'object' && !(t instanceof Date)) return '—';
     var n = num(t);
     if (n != null) return n > 0 ? new Date(n).toLocaleString('zh-CN', { hour12: false }) : '—';
     var d = new Date(t);
