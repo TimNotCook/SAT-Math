@@ -1509,3 +1509,31 @@ html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-score-sub{col
 html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-tallies div{background:transparent!important}
 html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-tallies dd{color:#20242b!important;font-size:22px!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-tallies dt{color:#a8acb4!important;font-size:10px!important;letter-spacing:.1em!important}
+
+/* ==== empty-state-theme：模考记录 / 错题回顾的页头与空态（一张安静的白纸，不抢戏） ==== */
+
+/* 页头 */
+html:not([data-theme="dark"]) body.shell-history .drill-select-hero h1,
+html:not([data-theme="dark"]) body.shell-wrong .drill-select-hero h1,
+html:not([data-theme="dark"]) body.shell-history h1,
+html:not([data-theme="dark"]) body.shell-wrong h1{font-size:26px!important;font-weight:600!important;letter-spacing:-.01em!important;color:#20242b!important;margin:0!important;line-height:1.3!important}
+html:not([data-theme="dark"]) body.shell-history h1::before{content:"TEST HISTORY";display:block;font-size:10px;letter-spacing:.16em;color:#a8acb4;font-weight:600;margin-bottom:10px}
+html:not([data-theme="dark"]) body.shell-wrong h1::before{content:"MISSED QUESTIONS";display:block;font-size:10px;letter-spacing:.16em;color:#a8acb4;font-weight:600;margin-bottom:10px}
+html:not([data-theme="dark"]) body.shell-history .drill-select-hero,
+html:not([data-theme="dark"]) body.shell-wrong .drill-select-hero{margin:6px 0 26px!important}
+
+/* 空态卡片 */
+html:not([data-theme="dark"]) body.shell-history .hist-empty,
+html:not([data-theme="dark"]) body.shell-wrong .empty-panel{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important;padding:52px 24px 46px!important;text-align:center!important}
+html:not([data-theme="dark"]) body.shell-history .empty-art,
+html:not([data-theme="dark"]) body.shell-wrong .empty-art{filter:grayscale(1) contrast(.92) opacity(.42)!important;margin:0 auto 6px!important;display:block!important}
+html:not([data-theme="dark"]) body.shell-history .he-t,
+html:not([data-theme="dark"]) body.shell-wrong .he-t{font-size:16px!important;font-weight:600!important;color:#20242b!important;letter-spacing:-.005em!important;margin:14px 0 0!important}
+html:not([data-theme="dark"]) body.shell-history .he-d,
+html:not([data-theme="dark"]) body.shell-wrong .he-d{font-size:12.5px!important;line-height:1.7!important;color:#8d9199!important;max-width:44ch!important;margin:8px auto 0!important}
+html:not([data-theme="dark"]) body.shell-history .hist-empty .btn,
+html:not([data-theme="dark"]) body.shell-wrong .empty-panel .btn{height:36px!important;min-height:0!important;padding:0 16px!important;border-radius:8px!important;font-size:12.5px!important;font-weight:600!important;margin-top:22px!important;box-shadow:none!important;display:inline-flex!important;align-items:center!important}
+
+/* 记录列表（有数据时）：行当表格，不是卡片堆 */
+html:not([data-theme="dark"]) body.shell-history .hist-list{background:transparent!important}
+html:not([data-theme="dark"]) body.shell-history .hist-note{font-size:11.5px!important;color:#a8acb4!important;margin:0 0 10px!important}
