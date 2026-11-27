@@ -1,0 +1,47 @@
+name: hotfix2-date-spent
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/hotfix2-date-spent.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply date and spent fix
+        run: |
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('exam.js')
+          s = p.read_text(encoding='utf-8')
+          a = "seconds: Math.round((a.spent || 0) / 1000)"
+          b = "seconds: Math.round((safeNum(a.spent) || 0) / 1000)"
+          assert a in s, 'spent pattern missing'
+          s = s.replace(a, b, 1)
+          c = "const dateNum = typeof r.date === 'boolean' ? NaN : Number(r.date);"
+          d = "const dateNum = typeof r.date === 'boolean' || (typeof r.date === 'object' && !(r.date instanceof Date)) ? NaN : Number(r.date);"
+          assert c in s, 'date pattern missing'
+          s = s.replace(c, d, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Bump and test
+        run: |
+          set -e
+          python3 bump_assets.py | tail -2
+          node --test test/*.test.js | tail -6
+      - name: Commit and remove workflow
+        run: |
+          set -e
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/hotfix2-date-spent.yml
+          git add -A
+          git commit -m 'fix(score): 日期数组不再显示 1970，逐题用时只收有限数字'
+          git push
