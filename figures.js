@@ -572,7 +572,8 @@
       if (o.origin === 'O' && Math.abs(gx2) < 1e-9) continue;   // "O" is drawn below, left of the origin
       labOut.push(txt(PX(gx2), PY(axYv) + 17, tk(gx2), { size: 11, fill: FAINT }));
     }
-    if (o.origin === 'O' && zx == null) labOut.push(txt(PX(0), PY(axYv) + 17, 'O', { size: 11, fill: FAINT }));
+    /* x=0 不在范围内时不要画 O —— 那会跑到画框外面去（R03-182/R03-184）。 */
+    if (o.origin === 'O' && zx == null && x.min <= 0 && x.max >= 0) labOut.push(txt(PX(0), PY(axYv) + 17, 'O', { size: 11, fill: FAINT }));
     if (o.origin === 'O' && zx != null) labOut.push(txt(PX(0) - yLabPad, PY(axYv) + 4, 'O', { anchor: 'end', size: 11, fill: FAINT, halo: o.axesAt === 'zero' }));
     (x.cats || []).forEach(function (c) {
       labOut.push(txt(PX(c[1]), PY(axYv) + (x.rot ? 12 : 17), c[0], { size: 11, fill: FAINT, rot: x.rot }));
