@@ -1088,7 +1088,7 @@ html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chips{ga
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip:hover{color:#5c6169!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip:has(input:checked){color:#20242b!important;font-weight:600!important;box-shadow:inset 0 -1px 0 #20242b!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-head{font-size:10px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#a8acb4!important;margin-bottom:10px!important}
-html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip>span::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#dcd7cb;margin-right:8px;vertical-align:2px}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip>span::before{content:""!important;display:inline-block;width:5px;height:5px;border-radius:50%;background:#dcd7cb;margin-right:8px;vertical-align:2px}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip:has(input:checked)>span::before{background:#20242b}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab .qt-name{color:#5c6169!important;font-weight:500!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab.on .qt-name{color:#20242b!important;font-weight:600!important}
@@ -1101,6 +1101,7 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a[aria-cur
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a[href*="mode=quiz"]{box-shadow:inset 2px 0 0 #20242b!important;color:#20242b!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail .rail-sep{background:#efebe2!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail .rail-back{color:#8d9199!important;font-weight:500!important}
+/* sync trigger 2026-11-27b */
 
 /* ==== question-theme v2：答题页纸感与整行选项 ==== */
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .drill-stem{font-size:16.5px!important;line-height:1.75!important;color:#20242b!important;max-width:66ch}
@@ -1165,6 +1166,7 @@ html:not([data-theme="dark"]) body.exam-page #stage-result .prio-lv{background:t
 
 /* ==== catalog-theme：真题练习首页纸面化 ==== */
 html:not([data-theme="dark"]){background:#f7f6f2}
+html:not([data-theme="dark"]) body.site-shell{min-height:100vh!important}
 html:not([data-theme="dark"]) body.drill-page{background:#f7f6f2!important;min-height:100vh!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail{background:#fffdfa!important;border-right:1px solid #e7e3da!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail .rail-brand{font-size:14px!important;font-weight:600!important;color:#20242b!important;letter-spacing:.01em!important;padding:4px 12px 18px!important}
