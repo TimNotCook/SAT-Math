@@ -57,10 +57,6 @@ html[data-theme="dark"] body.exam-page.shell-exam:has(#stage-intro:not([hidden])
   border-top:1px solid var(--line)!important;border-bottom:1px solid var(--line)!important;
   padding:30px 0 34px!important;margin:0 0 26px!important;
 }
-[data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro .mock-main-card{
-  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
-  min-height:0!important;padding:0!important;
-}
 [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro .mock-card-copy{padding:0!important;min-width:0!important}
 [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro .exam-card-kicker{
   display:block!important;font-size:11px!important;font-weight:600!important;letter-spacing:.14em!important;color:var(--faint)!important;
@@ -77,11 +73,6 @@ html[data-theme="dark"] body.exam-page.shell-exam:has(#stage-intro:not([hidden])
   letter-spacing:-.02em!important;line-height:1.15!important;font-variant-numeric:tabular-nums!important;margin:0 0 5px!important;
 }
 [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro .unit-art{display:none!important}
-[data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro #btnStart{
-  height:40px!important;min-height:0!important;padding:0 22px!important;margin-top:28px!important;border-radius:8px!important;
-  font-size:13px!important;font-weight:600!important;box-shadow:none!important;
-  background:#e8e8ea!important;border:1px solid #e8e8ea!important;color:#111114!important;
-}
 [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro .quiz-scope-h{
   display:block!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:var(--faint)!important;margin:2px 0 12px!important;
 }
@@ -105,11 +96,22 @@ html[data-theme="dark"] body.exam-page.shell-exam:has(#stage-intro:not([hidden])
   margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;
   accent-color:#e8e8ea!important;position:static!important;
 }
+[data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro #btnStart{
+  height:40px!important;min-height:0!important;padding:0 22px!important;margin-top:28px!important;border-radius:8px!important;
+  font-size:13px!important;font-weight:600!important;box-shadow:none!important;
+  background:#e8e8ea!important;border:1px solid #e8e8ea!important;color:#111114!important;
+}
+
+/* 5b) app.css 用 #introStartCard#introStartCard（双 id 提权）把卡内边距、分栅、考点栏锁死，
+     这里同样双 id 提权重写，否则拆不掉。 */
+[data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro #introStartCard#introStartCard{
+  padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:0!important;
+}
 @media (min-width:901px){
-  [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro .mock-main-card{
+  [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro #introStartCard#introStartCard{
     display:grid!important;grid-template-columns:minmax(0,1fr) 320px!important;align-items:start!important;column-gap:0!important;
   }
-  [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro #quizScope{
+  [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro #introStartCard#introStartCard > #quizScope{
     background:transparent!important;border:0!important;border-left:1px solid var(--line)!important;
     border-radius:0!important;box-shadow:none!important;padding:0 0 0 40px!important;margin:0!important;
   }
