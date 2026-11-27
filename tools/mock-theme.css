@@ -2,19 +2,19 @@
 html:has(body.exam-page){background:#f7f6f2!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!important}
 
-/* 开场层里那些“看不见的白底容器”：一律透明 */
+/* 开场层里那些“看不见的容器”：底色与描边全拆 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-start-main,
 html:not([data-theme="dark"]) body.exam-page.is-mock main.wrap,
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-stage-main,
 html:not([data-theme="dark"]) body.exam-page.is-mock .stage,
 html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro,
-html:not([data-theme="dark"]) body.exam-page.is-mock #introOptions{background:transparent!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #introOptions{background:transparent!important;border:0!important;box-shadow:none!important}
 
 /* 三块真卡片 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .mock-entry{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock #introParams{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .mock-directions{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important}
-html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro #btnStart{background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;border-radius:8px!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro #btnStart{background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;border-radius:8px!important;box-shadow:0 1px 2px rgba(37,99,235,.16)!important;font-weight:600!important}
 
 /* 眉标 / 小节标题 / 说明文字统一中性灰 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-eyebrow{color:#a8acb4!important;font-size:10px!important;letter-spacing:.14em!important;font-weight:600!important}
@@ -22,8 +22,29 @@ html:not([data-theme="dark"]) body.exam-page.is-mock .exam-section-title{font-si
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-note{color:#8d9199!important;font-size:12.5px!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .mock-directions summary{font-size:12.5px!important;font-weight:600!important;color:#20242b!important}
 
-/* 侧栏：模考页也走纸面 + 2px 墨线当前项 */
-html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail{background:#fffdfa!important;border-right:1px solid #e7e3da!important}
+/* 右上返回：灰字，不要胶囊、不要蓝 */
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro a.back,
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro .back-link,
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro .mock-back{background:transparent!important;border:0!important;color:#8d9199!important;font-size:12px!important;font-weight:500!important;padding:0!important;box-shadow:none!important;text-decoration:none!important}
+
+/* 结构表：去掉蓝数字，回归阅卷纸里的等宽黑字 */
+html:not([data-theme="dark"]) body.exam-page.is-mock #introParams b,
+html:not([data-theme="dark"]) body.exam-page.is-mock #introParams strong,
+html:not([data-theme="dark"]) body.exam-page.is-mock .test-structure b,
+html:not([data-theme="dark"]) body.exam-page.is-mock .test-structure strong{color:#20242b!important;font-weight:600!important;font-variant-numeric:tabular-nums}
+html:not([data-theme="dark"]) body.exam-page.is-mock .test-structure .is-total,
+html:not([data-theme="dark"]) body.exam-page.is-mock .test-structure .total{color:#20242b!important;font-weight:600!important;border-top:1px solid #efebe2!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .test-structure .is-total b,
+html:not([data-theme="dark"]) body.exam-page.is-mock .test-structure .total b{color:#20242b!important}
+/* 勾选项：蓝勾滤成铅笔灰 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .test-structure svg,
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-note svg,
+html:not([data-theme="dark"]) body.exam-page.is-mock .mock-entry svg{color:#a8acb4!important;fill:#a8acb4!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .test-structure li,
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-note li{color:#5c6169!important;font-size:12.5px!important}
+
+/* 侧栏：纸面 + 2px 墨线当前项，且铺满整列 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail{background:#fffdfa!important;border-right:1px solid #e7e3da!important;min-height:100vh!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail .rail-brand{font-size:14px!important;font-weight:600!important;color:#20242b!important;padding:4px 12px 18px!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail a{color:#5c6169!important;font-size:13px!important;font-weight:500!important;border-radius:0!important;padding:10px 12px 10px 18px!important;background:transparent!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail a[aria-current]{background:transparent!important;color:#20242b!important;box-shadow:inset 2px 0 0 #20242b!important;font-weight:600!important}
