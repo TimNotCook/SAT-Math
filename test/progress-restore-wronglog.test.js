@@ -88,6 +88,15 @@ test('本机 sections 是数组且没有 last 时，snapshot 不崩且不把数�
   assert.equal(archive.producer, 'tdsat-bluebook');
 });
 
+test('本机 cursor 是对象/NaN 时，snapshot 仍写出可恢复的合法存档', () => {
+  const { SAVE, store } = boot({ sections: { [T.sec]: { answers: {}, marks: {}, cursor: { x: 1 } } }, last: null }, mkArchive({}));
+  const st = SAVE.snapshot();
+  assert.equal(st.status, 'ok', 'cursor 对象把存档位置写成 NaN/null：' + JSON.stringify(st));
+  const archive = JSON.parse(store[SAVE_KEY]);
+  assert.equal(archive.position.n, 1, 'cursor 对象没有被归一成 0，位置 n 不是 1');
+  assert.equal(SAVE.inspect().status, 'ok');
+});
+
 test('存档 sections 是数组时判 corrupt，不给出可恢复的假成功', () => {
   const archive = mkArchive({});
   archive.sections = [];

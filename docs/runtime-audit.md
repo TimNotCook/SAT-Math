@@ -528,3 +528,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `exam.js renderResult()` / `renderResultList()` 用 `d && typeof d === 'object'` 过滤 detail，`units/topics/priority` 也一样。数组的 `typeof` 也是 object，`[ ... ]` 会通过过滤：结果页把它当一条错题渲染成 `Q?`、你的答案「—」、正确「—」、`✗`，补强区块也会多出空白单元/考点行。云端合并或半截导入把 detail 条目写成数组就会复现。
 
 修法：新增 `isRec = v => v && typeof v === 'object' && !Array.isArray(v)`，`detail0`、`allD`、`weaknessReport` 聚合、`units/topics/priority` 全部改走 `isRec`；`mergedState` 的 detail 过滤也排除数组。验证：静态回归锁住旧过滤式不再出现、`filter(isRec)` 至少 6 处；`test/array-guard.test.js` 新代码 22/22。全量 `node --test` 349/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 48 条：进度存档 snapshot 遇到 cursor 对象——位置写成 NaN → null，存档判 corrupt 且永久锁死（2026-11-27）
+
+`progress-save.js snapshot()` 取 `cursor` 后直接 `+1`。云端合并或旧版把 `cursor` 写成 `{x:1}` 时，`"[object Object]1"` 经 `Math.min/Math.max` 变 `NaN`，`JSON.stringify` 再写成 `null`；`inspect()` 判 `corrupt`，`canWrite()` 从此永远 false，用户手动存档被永久拒绝。
+
+修法：新增 `cursorNum()`，只接受非负有限数并向下取整，其余归一为 0；snapshot 归一板块 `cursor`、`last` 分支和 fallback 分支都走它。验证：本机 `cursor:{x:1}`，旧代码 `snapshot → corrupt（位置超出范围）`，新代码 `ok`、`position.n=1`、`inspect().status=ok`；该文件 8/8。全量 `node --test` 354/0；`verify_junk` 11×7；`verify_flows` 16/16。

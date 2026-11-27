@@ -37,6 +37,14 @@
     } catch (e) { return {}; }
   }
   function pad(n) { return n < 10 ? '0' + n : String(n); }
+  /* cursor 可能被云端合并/旧版写成对象/数组/NaN：直接 +1 会得到
+     "[object Object]1"/NaN，位置写进存档后 inspect 判 corrupt，手动存档从此
+     被永久锁死。统一归一成非负整数。 */
+  function cursorNum(v) {
+    var n = Number(v);
+    return isFinite(n) && n >= 0 ? Math.floor(n) : 0;
+  }
+
   function fmtTime(ts) {
     var d = new Date(ts);
     if (isNaN(d.getTime())) return '时间未知';
@@ -99,11 +107,12 @@
     Object.keys(secs).forEach(function (sid) {
       var st = secs[sid];
       if (!st || typeof st !== 'object' || Array.isArray(st)) secs[sid] = { answers: {}, marks: {}, cursor: 0 };
+      else st.cursor = cursorNum(st.cursor);
     });
     var last = live.last && A.CATALOG[live.last.sec] ? live.last : null;
     var pos;
     if (last) {
-      var n = (A.secState(last.sec, false) || {}).cursor || 0;
+      var n = cursorNum((A.secState(last.sec, false) || {}).cursor);
       var len = (A.CATALOG[last.sec] || []).length || 1;
       pos = { sec: last.sec, n: Math.max(1, Math.min(len, n + 1)) };
     } else {
@@ -120,7 +129,7 @@
       }
       if (!fallback) fallback = A.SECS && A.SECS.length ? A.SECS[0] : null;
       if (!fallback) return { status: 'no-progress', reason: '题库尚未就绪，无法创建存档' };
-      pos = { sec: fallback, n: Math.max(1, Math.min((A.CATALOG[fallback] || []).length || 1, ((secs[fallback] || {}).cursor || 0) + 1)) };
+      pos = { sec: fallback, n: Math.max(1, Math.min((A.CATALOG[fallback] || []).length || 1, cursorNum((secs[fallback] || {}).cursor) + 1)) };
     }
 
     var total = 0, answered = 0, correct = 0;
