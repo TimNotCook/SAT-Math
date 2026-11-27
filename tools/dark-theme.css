@@ -42,7 +42,16 @@
 [data-theme="dark"] body .drill-result-row.is-blank .drill-result-answers>div:first-child b::after{content:"—"!important;font-size:14px!important;color:var(--faint)!important;font-weight:500!important}
 
 /* 5) 单元抽查开场：白天版把卡片拆成纸面两欄，暗色下同样拆掉白卡，
-   改用 --line 发丝线 + --ink 字；开始按钮跟随站点暗色强调色，不另写蓝色。 */
+   改用 --line 发丝线 + --ink 字。
+   坑：抽测页外壳在 app.css 里被锁成浅色（shell-exam #f5f7fb，并且 body 自己又发了一套
+   --ink: #12233f 调色），html 上的 dark token 根本落不到卡上；所以只在“开场屏可见”时
+   把外壳切回暗色、并就地重发一次 token，进答题后 #stage-intro 隐藏即自动失效，卷面仍是浅色。 */
+html[data-theme="dark"] body.exam-page.shell-exam:has(#stage-intro:not([hidden])){
+  --ink:#e8e8ea;--ink-2:#c8c8cc;--sub:#8e8e93;--faint:#6e6e73;
+  --line:rgba(255,255,255,.10);--line-strong:rgba(255,255,255,.16);
+  --paper:#1c1c1e;--bg:#0a0a0c;
+  background-color:#0a0a0c!important;background-image:none!important;color:var(--ink)!important;
+}
 [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro .mock-grid{
   display:block!important;background:transparent!important;
   border-top:1px solid var(--line)!important;border-bottom:1px solid var(--line)!important;
@@ -69,7 +78,9 @@
 }
 [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro .unit-art{display:none!important}
 [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro #btnStart{
-  height:40px!important;min-height:0!important;padding:0 22px!important;margin-top:28px!important;border-radius:8px!important;font-size:13px!important;font-weight:600!important;box-shadow:none!important;
+  height:40px!important;min-height:0!important;padding:0 22px!important;margin-top:28px!important;border-radius:8px!important;
+  font-size:13px!important;font-weight:600!important;box-shadow:none!important;
+  background:#e8e8ea!important;border:1px solid #e8e8ea!important;color:#111114!important;
 }
 [data-theme="dark"] body.exam-page:not(.is-mock) #stage-intro .quiz-scope-h{
   display:block!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:var(--faint)!important;margin:2px 0 12px!important;
