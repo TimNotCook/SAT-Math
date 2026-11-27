@@ -284,11 +284,11 @@ function importedGroupHtml(){
   /* 导入仓库也是云端合并/旧版 JSON 的产物：items 里混进数字/字符串/数组时，
      只判 `it &&` 会把它们画成一张「题干暂缺」的幽灵导入卡，标题数量也会虚高。
      只认普通对象。 */
-  var list=asArr(readImport().items).filter(function(it){return it&&typeof it==='object'&&!Array.isArray(it)&&(!it.matchId||it.readOnly);});
+  var list=asArr(readImport().items).filter(function(it){return it&&typeof it==='object'&&!Array.isArray(it)&&(!it.matchId||isTrueFlag(it.readOnly));});
   if(!list.length)return '';
-  var nRO=list.filter(function(it){return it.readOnly && bankFor(plainText(it.matchId));}).length;
+  var nRO=list.filter(function(it){return isTrueFlag(it.readOnly) && bankFor(plainText(it.matchId));}).length;
   return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 独立记录<span>'+list.length+' 道 · 其中 '+nRO+' 道已匹配题库（只读）</span></h2>'+list.map(function(it,i){
-    var impMatch=plainText(it.matchId),itemKey=plainText(it.key),bankQ=bankFor(impMatch),ro=!!it.readOnly&&!!bankQ;
+    var impMatch=plainText(it.matchId),itemKey=plainText(it.key),bankQ=bankFor(impMatch),ro=isTrueFlag(it.readOnly)&&!!bankQ;
     var impStem=plainText(it.stem),impTopic=plainText(it.topic),impAnswer=plainText(it.answer),
         impValue=plainText(it.value),impType=plainText(it.type),impSource=plainText(it.source);
     var q=bankQ

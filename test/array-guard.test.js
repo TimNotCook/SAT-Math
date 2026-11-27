@@ -387,3 +387,9 @@ test('错题本正确答案为数字 0 时不能被 q.answer||\'\' 吞成未作�
   assert.match(src, /q\.answer!=null\?q\.answer:\(q\.value!=null/, 'analysis 的正确答案回退应显式判 null');
   assert.ok(!/String\(a\.v\|\|''\)/.test(src), '讲义错题作答 0 又被 || 吞掉');
 });
+
+test('导入错题：readOnly 是字符串 "false" 时不能当只读卡', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'wrong-page.js'), 'utf8');
+  assert.match(src, /isTrueFlag\(it\.readOnly\)/, 'readOnly 必须做真值归一');
+  assert.ok(!/!!it\.readOnly/.test(src), '!! 会把字符串 false 当只读');
+});
