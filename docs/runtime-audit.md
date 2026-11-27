@@ -504,3 +504,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 第 42 条修了 snapshot 不再写数组，但已经被旧代码写坏的存档还在本机/云端：`inspect()` 只判断 `typeof d.sections === 'object'`，数组照样判 `ok`；`restore()` 对它 `Object.keys([])` 得到空数组，直接返回 `ok:true`。用户看到「存档有效、恢复成功」，实际板块和作答一个都没回来，比直接报 corrupt 更误导。
 
 修法：`inspect()` 的必填字段校验增加 `Array.isArray(d.sections)`，数组 sections 直接判 `corrupt`（reason「存档缺少必要字段」），恢复入口随之拒绝，不再给假成功。验证：真实 `progress-save.js`，存档 `sections:[]`，旧代码 `inspect.status=ok`、`restore().ok=true`；新代码 `corrupt`、`restore().ok=false`。本文件测试旧代码 3/7、新代码 7/7。全量 `node --test` 342/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 44 条：成绩仓库数组里混入数字/字符串——记录页渲染出「日期/分数全是 —」的幽灵成绩（2026-11-27）
+
+`history-page.js` 对 `tdsat_exam_suite_results_v1` 只做了 `filter(r => r && !r.void)`：`5`、`'junk'`、`false` 这些 truthy 值全部通过，`rowHtml` 照样按记录渲染，页面出现一条「官方模考 · 全卷 44 题 / 日期 — / 正确率 0%」的假成绩，点开也没有任何 detail。云端合并或手工导入只要混进一个坏条目，用户就会以为多考了一场。
+
+修法：结果与未完成存档都只认普通对象（`typeof === 'object' && !Array.isArray && !r.void`），数字/字符串/数组一律过滤；有效记录为零时落「还没有模考或抽查记录」空态。验证：真实 `history-page.js`，仓库 `[5,'junk',null,false]`，旧代码渲染出「官方模考」幽灵行，新代码直接空态。`test/array-guard.test.js` 旧代码 18/19、新代码 19/19。全量 `node --test` 343/0；`verify_junk` 11×7；`verify_flows` 16/16。
