@@ -63,7 +63,8 @@ const READ = `(()=>{
   const done=document.querySelector('.mist-done'); const dr=done?done.getBoundingClientRect():null;
   return {
     vw:innerWidth,
-    tb:{x:Math.round(r.x),right:Math.round(r.right),w:Math.round(r.width),h:Math.round(r.height)},
+    tb:{x:Math.round(r.x),y:Math.round(r.y),right:Math.round(r.right),w:Math.round(r.width),h:Math.round(r.height),
+      ovfX:getComputedStyle(tb).overflowX, wrap:getComputedStyle(tb).flexWrap},
     sw:{n:sws.length, box:sws.map(pseudo), rect:sws.map(e=>{const b=e.getBoundingClientRect();return {x:Math.round(b.x),right:Math.round(b.right),cx:Math.round(b.x+b.width/2)}})},
     sz:{n:szs.length, box:szs.map(pseudo)},
     done:dr?{x:Math.round(dr.x),right:Math.round(dr.right),w:Math.round(dr.width),h:Math.round(dr.height)}:null,
@@ -108,6 +109,15 @@ async function audit(ctx, label, w, h) {
   const gap = d.sw.rect.length > 1 ? d.sw.rect[1].x - d.sw.rect[0].right : 0;
   if (gap <= 0) bad(`${tag} 颜色点本体互相重叠（间隙 ${gap}px）`);
   else ok(`${tag} 颜色点本体间隙 ${gap}px（本体未放大，不挤占工具条）`);
+  if (h > 420 || w < 521) {
+    if (d.tb.h > 140) bad(`${tag} 工具条高 ${d.tb.h}px，占掉矮屏太多（应 ≤140）`);
+  } else {
+    // 横屏手机/矮窗口：贴边单行、内部横滑，不许按内容宽居中出界
+    if (d.tb.y > 12) bad(`${tag} 矮视口工具条没贴顶（y=${d.tb.y}）`);
+    else ok(`${tag} 矮视口工具条贴顶 y=${d.tb.y}`);
+    if (d.tb.h > 60) bad(`${tag} 矮视口工具条高 ${d.tb.h}px（应是单行 ≤60）`);
+    else ok(`${tag} 矮视口工具条单行高 ${d.tb.h}px`);
+  }
   if (d.tb.x < 0 || d.tb.right > d.vw) bad(`${tag} 工具条横向出界：${d.tb.x}..${d.tb.right} / 视口 ${d.vw}`);
   else ok(`${tag} 工具条不出界（${d.tb.x}..${d.tb.right}，高 ${d.tb.h}）`);
   if (!d.done) bad(`${tag} 找不到 Done 按钮`);
@@ -144,6 +154,9 @@ console.log(`手写板触屏验收 → ${BASE}`);
 await withPage(port, async ctx => {
   await audit(ctx, '320×700', 320, 700);
   await audit(ctx, '390×760', 390, 760);
+  await audit(ctx, '568×320 横屏', 568, 320);
+  await audit(ctx, '667×375 横屏', 667, 375);
+  await audit(ctx, '320×380 矮屏', 320, 380);
   await auditDesktop(ctx);
   await enterTest(ctx, 390, 760);
   const r = await ctx.send('Page.captureScreenshot', { format: 'png' });

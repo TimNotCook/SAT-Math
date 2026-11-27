@@ -40,6 +40,10 @@
       '.mist-toolbar .mist-text{width:auto;padding:0 12px;font:600 13px/1 -apple-system,system-ui,"PingFang SC",sans-serif}',
       /* 窄屏（≤520）工具条换两行：390 宽下原来单行溢出，Clear/Done 被切掉一半 */
       '@media (max-width:520px){.mist-toolbar{top:auto;bottom:96px;flex-wrap:wrap;width:calc(100vw - 16px);justify-content:center;row-gap:4px;max-height:calc(100vh - 24px);overflow-y:auto}.mist-hint{display:none}}',
+      /* 横屏手机（568×320 / 667×375）宽度没到 520 那条阈值，工具条按内容宽 598 居中，
+         实测左右出界 -10..588：右边 Done 被切掉一半，320 高的屏还被压到题干上。
+         矮视口一律贴边、单行、内部横滑（按钮尺寸不变，免得多占一格高度）。 */
+      '@media (max-height:420px) and (min-width:521px){.mist-toolbar{top:6px!important;bottom:auto!important;left:4px!important;right:4px!important;transform:none!important;width:auto!important;max-width:none!important;justify-content:flex-start!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;row-gap:0!important;max-height:none!important;scrollbar-width:none}.mist-hint{display:none}}',
       /* 触屏：颜色圆点只有 20px、粗细按钮 26px 宽，手指点偏就换错色/换错粗细。
          不放大本体（会把 320 的工具条从 128px 推得更高、遮住题目），
          用不可见伪元素把命中区撑到 26×26（相邻间隙 24px，只重叠 2px）。 */
