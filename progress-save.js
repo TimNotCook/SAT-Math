@@ -91,7 +91,14 @@
   /* ---------- snapshot: copy live progress into the archive -------------- */
   function snapshot() {
     var live = readLive();
-    var secs = live.sections && typeof live.sections === 'object' ? live.sections : {};
+    /* 数组的 typeof 也是 object：sections 是 [] 时会被当成正常容器，
+       没有 last 的存档会因为 secs[fallback] 是 undefined 直接 TypeError；
+       有 last 时又会把 [] 原样写进存档，JSON 里所有板块全丢。 */
+    var secs = live.sections && typeof live.sections === 'object' && !Array.isArray(live.sections) ? live.sections : {};
+    Object.keys(secs).forEach(function (sid) {
+      var st = secs[sid];
+      if (!st || typeof st !== 'object' || Array.isArray(st)) secs[sid] = { answers: {}, marks: {}, cursor: 0 };
+    });
     var last = live.last && A.CATALOG[live.last.sec] ? live.last : null;
     var pos;
     if (last) {
@@ -112,7 +119,7 @@
       }
       if (!fallback) fallback = A.SECS && A.SECS.length ? A.SECS[0] : null;
       if (!fallback) return { status: 'no-progress', reason: '题库尚未就绪，无法创建存档' };
-      pos = { sec: fallback, n: Math.max(1, Math.min((A.CATALOG[fallback] || []).length || 1, (secs[fallback].cursor || 0) + 1)) };
+      pos = { sec: fallback, n: Math.max(1, Math.min((A.CATALOG[fallback] || []).length || 1, ((secs[fallback] || {}).cursor || 0) + 1)) };
     }
 
     var total = 0, answered = 0, correct = 0;

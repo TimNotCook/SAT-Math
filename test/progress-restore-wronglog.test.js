@@ -80,6 +80,14 @@ test('本机 sections 是数组时，恢复结果仍写回普通对象', () => {
   assert.equal(live.sections[T.sec].answers[T.qid].v, T.answer);
 });
 
+test('本机 sections 是数组且没有 last 时，snapshot 不崩且不把数组写进存档', () => {
+  const { SAVE, store } = boot({ sections: [], last: null }, mkArchive({}));
+  assert.doesNotThrow(() => SAVE.snapshot());
+  const archive = JSON.parse(store[SAVE_KEY]);
+  assert.equal(Array.isArray(archive.sections), false, '数组 sections 被原样写进存档');
+  assert.equal(archive.producer, 'tdsat-bluebook');
+});
+
 test('本机某个板块记录是数组时，不被当成普通对象挂属性', () => {
   const archive = mkArchive({});
   archive.sections[T.sec].answers = { [T.qid]: { v: T.answer, ts: 1700000000000 } };

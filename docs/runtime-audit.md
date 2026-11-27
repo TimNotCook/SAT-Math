@@ -492,3 +492,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `secIn` 第 36 条只保证 `answers` 容器是对象，没管每条记录本身。云端合并/旧版本把 `answers['TD-11-01']` 写成 `{v:{x:1}}`、`['A']` 或裸数字时：drill 的 grid 输入框直接 `value = 对象`，界面显示 `[object Object]`；`computeStats` 又用 `String(a.v).trim() !== ''` 判断，把这些坏值算成「已作答」，进度和正确率都对不上。
 
 修法：`secIn` 遍历 `answers`，记录不是普通对象时重建为 `{v}`；`v` 只保留字符串/有限数字（数字转字符串），对象/数组/布尔一律空串，与 `parseSession` 的答案值口径一致。验证：直接跑真实 `app-core.js`，种 `{v:{x:1}} / ['A'] / 3` 三条作答，旧代码 5/6（对象值原样保留），新代码 6/6（前两条 `v:''`、数字变 `'3'`）。全量 `node --test` 340/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 42 条：保存进度时本机 `sections` 是数组——无 `last` 直接 TypeError，有 `last` 把空数组写进存档（2026-11-27）
+
+`progress-save.js snapshot()` 用 `typeof live.sections === 'object'` 判断容器，数组照样放行。没有 `last` 时兜底板块走 `secs[fallback].cursor`，数组里根本没有这个键，直接 `Cannot read properties of undefined (reading 'cursor')`，保存进度失败；有 `last` 时虽然不崩，却把 `sections: []` 原样写进存档，`JSON.stringify` 只留 `[]`，用户之后用这份存档恢复时所有板块/作答全空。
+
+修法：`snapshot` 的 `secs` 显式排除数组；遍历已有板块，板块记录不是普通对象时重建 `{answers:{},marks:{},cursor:0}`；兜底取 cursor 时用 `(secs[fallback] || {})`。验证：真实 `progress-save.js`，本机 `sections:[]`、无 `last`，旧代码抛 TypeError，新代码 snapshot 成功且存档 `sections` 是普通对象；本文件测试旧代码 3/6、新代码 6/6。全量 `node --test` 341/0；`verify_junk` 11×7；`verify_flows` 16/16。
