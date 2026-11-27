@@ -32,7 +32,7 @@ window.TD_FIG_SPECS = {
   // (above the parallel, left of the transversal) -> x = 164, per the
   // printed answer key. Do NOT move x° to an acute quadrant.
   'U4-02': {
-    type: 'parallelLines',
+    type: 'parallelLines', direction: 'NE',
     topLabel: 'r', bottomLabel: 's', transLabel: 'n',
     topUL: '164°', botUL: 'x°',
     note: true
@@ -321,7 +321,7 @@ window.TD_FIG_SPECS = {
   'TD-33-14': { type: 'table', head: ['x', 'h(x)'],
     rows: [['0', '30'], ['1', '31'], ['2', '33']] },
 
-  'U2-11': { type: 'table', head: ['Score', 'Group A', 'Group B'],
+  'U2-11': { type: 'table', headGroups: [{ label: 'Score Frequencies', span: 2 }], head: ['Score', 'Group A', 'Group B'],
     rows: [['2', '1', '0'], ['3', '1', '0'], ['4', '2', '0'], ['5', '1', '4'], ['6', '3', '2'], ['7', '0', '0'], ['8', '0', '2'], ['9', '1', '1'], ['10', '0', '2'], ['Total', '9', '11']] },
   // U2-12: UV index frequency table, workbook p118 #1 (49 days: 9+15+12+13).
   'U2-12': { type: 'table', head: ['UV index', 'Number of days'],
@@ -527,6 +527,7 @@ window.TD_FIG_SPECS = {
   /* PDF03 · Topic 18 表格（SP2-025/026/056） */
   'SP2-025': {
     'type': 'table',
+    'caption': 'Climate Preferences',
     'head': ['', 'Warm', 'Cool', 'NO preference', 'Total'],
     'rows': [
       ['18-35 years old', '295', '168', '45', '508'],
@@ -848,7 +849,7 @@ Object.assign(window.TD_FIG_SPECS, {
 
 /* 题包追加（merge_transcribe_fragment.py）：TD_FIG_SPECS */
 Object.assign(window.TD_FIG_SPECS, {
-  "R03-001": {"type":"table","head":["Species of tree","Growthfactor"],"rows":[["Red maple","4.5"],["River birch","3.5"],["Cottonwood","2.0"],["Black walnut","4.5"],["White birch","5.0"],["American elm","4.0"],["Pin oak","3.0"],["Shagbark hickory","7.5"]]},
+  "R03-001": {"type":"table","head":["Species of tree","Growth factor"],"rows":[["Red maple","4.5"],["River birch","3.5"],["Cottonwood","2.0"],["Black walnut","4.5"],["White birch","5.0"],["American elm","4.0"],["Pin oak","3.0"],["Shagbark hickory","7.5"]]},
   "R03-002": {"type":"table","head":["State","Low","Medium","High","Total"],headGroups:[{"label": "Power capacity", "span": 4}],"rows":[["Texas","4","2","3","9"],["California","1","0","1","2"],["Oregon","1","0","1","2"],["Indiana","0","2","0","2"],["Colorado","1","1","0","2"],["Iowa","2","0","0","2"],["Oklahoma","1","0","0","1"],["Total","10","5","5","20"]]},
 });
 
