@@ -62,17 +62,17 @@
  function normalizeItem(raw){
    var it=raw||{},ch=it.choices||it.options||{};
    if(typeof ch==='string'){try{ch=JSON.parse(ch);}catch(e){ch={};}}
-   var type=String(pick(it.type,Object.keys(ch).length?'mcq':'grid')).toLowerCase();
+   var type=plainText(pick(it.type,Object.keys(ch).length?'mcq':'grid')).toLowerCase();
    if(type!=='grid')type='mcq';
    var ans=pick(it.answer,it.correct,it.answerKey,it.correctAnswer);
    return{
-     id:String(pick(it.id,it.qid,it.questionId)||''),
-     stem:String(pick(it.stem,it.question,it.text,it.prompt)||''),
-     choices:ch,type:type,answer:String(ans==null?'':ans),
-     value:it.value!=null?it.value:(type==='grid'?num(ans):null),
-     source:String(pick(it.source,it.from,it.page)||''),
-     topic:String(pick(it.topic)||''),
-     given:String(pick(it.given,it.userAnswer,it.yourAnswer,it.chosen,it.selected)||'')
+     id:plainText(pick(it.id,it.qid,it.questionId)),
+     stem:plainText(pick(it.stem,it.question,it.text,it.prompt)),
+     choices:plainChoices(ch),type:type,answer:plainText(ans),
+     value:it.value!=null?plainText(it.value):(type==='grid'?num(ans):null),
+     source:plainText(pick(it.source,it.from,it.page)),
+     topic:plainText(pick(it.topic)),
+     given:plainText(pick(it.given,it.userAnswer,it.yourAnswer,it.chosen,it.selected))
    };
  }
 function importData(data){

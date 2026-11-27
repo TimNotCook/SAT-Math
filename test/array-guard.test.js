@@ -120,6 +120,17 @@ test('导入错题展示字段是对象时不出 [object Object]', () => {
   assert.ok(/未作答/.test(els.wrongList.innerHTML), '对象型 given 没有降级成未作答');
   assert.ok(!/其中 1 道已匹配题库/.test(els.wrongList.innerHTML), 'matchId 无效却宣称已匹配题库');
 });
+test('导入流程 normalizeItem 不把对象字段写成 [object Object]', () => {
+  const store = {};
+  const { els, sandbox } = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store);
+  sandbox.TD_IMPORT_WRONG.importData({ items: [
+    { key: 'raw1', stem: { x: 1 }, choices: { A: { y: 1 } }, type: 'mcq', answer: { z: 1 }, given: { g: 1 }, topic: { t: 1 }, source: { s: 1 }, value: { v: 1 } },
+  ] });
+  const saved = JSON.parse(store.tdsat_imported_wrong_v1 || '{}');
+  assert.ok(!/\[object Object\]/.test(JSON.stringify(saved)), '导入时把对象字段存成了 [object Object]');
+  assert.ok(!/\[object Object\]/.test(els.wrongList.innerHTML), '导入后的错题卡出现 [object Object]');
+});
+
 test('记录页字段全是对象时不显示 [object Object]、NaN 或 Invalid Date', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([{
