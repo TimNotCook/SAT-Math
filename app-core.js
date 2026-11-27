@@ -231,6 +231,8 @@
     if (!isPlainObject(s.answers)) s.answers = {};
     if (!isPlainObject(s.marks)) s.marks = {};
     if (!isPlainObject(s.wrongLog)) s.wrongLog = {};
+    /* marks 的值也可能是字符串 'false'：!! 会把它当已标记，题号旁出现星标。 */
+    Object.keys(s.marks).forEach(function (qid) { s.marks[qid] = isRightFlag(s.marks[qid]); });
     /* submitted 也可能是字符串 'false'：练习页 !!
        会把它当已交卷，点小节直接跳成绩页。 */
     s.submitted = isRightFlag(s.submitted);

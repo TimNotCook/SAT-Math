@@ -118,3 +118,10 @@ test('板块 submitted 是字符串 "false" 时归一成布尔 false', () => {
   const st = A.secState('1.1', true);
   assert.equal(st.submitted, false);
 });
+
+
+test('板块 marks 的值是字符串 "false" 时归一成布尔 false', () => {
+  const { A } = boot({ sections: { '1.1': { answers: {}, cursor: 0, marks: { 'TD-11-01': 'false' } } } });
+  const st = A.secState('1.1', true);
+  assert.equal(st.marks['TD-11-01'], false);
+});
