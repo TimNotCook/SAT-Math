@@ -898,7 +898,10 @@
     if (!(s.moduleEndsAt > 0)) s.moduleEndsAt = s.endsAt;
     const inModule2 = mode === 'mock' && s.module === 2;
     s.module = inModule2 ? 2 : 1;
-    if (!s.answers || typeof s.answers !== 'object') s.answers = {};
+    /* 数组的 typeof 也是 'object'：answers 是 [] 时会被放行，随后按 uid 写成
+       数组的自定义属性，可 JSON.stringify 会把这些属性全部丢掉——刷新一次
+       整卷作答归零。和 sections/板块同一口径，数组一律重建为普通对象。 */
+    if (!s.answers || typeof s.answers !== 'object' || Array.isArray(s.answers)) s.answers = {};
     paper.forEach(function (x) {
       const a = s.answers[x.uid];
       if (!a || typeof a !== 'object') s.answers[x.uid] = { v: '', marked: false, spent: 0, locked: false };

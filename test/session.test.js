@@ -186,6 +186,17 @@ describe('parseSession：能重建就重建', () => {
   });
 });
 
+describe('parseSession：answers 是数组时重建为对象，刷新后作答不丢', () => {
+  test('数组作答容器会被换成普通对象，并真正序列化', () => {
+    const r = C.parseSession(baseSave({ answers: [] }), { mode: 'mock' });
+    assert.equal(r.status, 'ok');
+    assert.equal(Array.isArray(r.session.answers), false);
+    r.session.answers['M1-0'] = { v: 'A', marked: false, spent: 1, locked: false };
+    const disk = JSON.parse(JSON.stringify(r.session));
+    assert.equal(disk.answers['M1-0'].v, 'A');
+  });
+});
+
 describe('parseSession：不能重建就判过期，绝不猜区间', () => {
   test('paper 为空 → expired/paper-empty', () => {
     const r = C.parseSession(baseSave({ paper: [] }), { mode: 'mock' });
