@@ -67,6 +67,12 @@
 
     // 1) superscripts ^{...}
     s = s.replace(/\^\{([^{}]*)\}/g, function (m, body) { return keep('<sup>' + body + '</sup>'); });
+    // 1c) 裸指数：题库里有 18 道题把上标写成 x^2 / 2^x / ^(t-12)（原书印的是上标），
+    //     不转换就把 "^2" 原样印给考生。只认紧跟的 "(...)"、一串数字、单个字母，
+    //     或一个被数字守卫换掉的十进制数，其它 ^ 一律不动。
+    s = s.replace(/\^\(([^()]*)\)/g, function (m, body) { return keep('<sup>' + body + '</sup>'); });
+    s = s.replace(/\^([0-9]{1,3}|[A-Za-z])/g, function (m, body) { return keep('<sup>' + body + '</sup>'); });
+    s = s.replace(/\^(\uE000\d+\uE000)/g, function (m, body) { return keep('<sup>' + body + '</sup>'); });
 
     // 1b) subscripts: _{...} (multi-char) and _X (single char after a letter),
     // e.g. x_{1}, v_f, P_0. Kept as tokens so later fraction rules still match.
