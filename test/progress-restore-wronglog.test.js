@@ -175,3 +175,17 @@ test('存档 submitted 是字符串 "false" 时恢复后不能变成已交卷', 
   const live = JSON.parse(store[LIVE_KEY]);
   assert.notStrictEqual(live.sections[T.sec].submitted, true, '字符串 false 不能恢复成 true');
 });
+
+
+test('本机 answers 是字符串时恢复不丢答案也不 TypeError', () => {
+  const archive = Object.assign(mkArchive({}), {
+    sections: { [T.sec]: { answers: { [T.qid]: { v: T.answer, correct: true, ts: 1700000000000 } }, marks: {}, wrongLog: {} } },
+  });
+  const { SAVE, store } = boot({ sections: { [T.sec]: { answers: 'junk', marks: {}, cursor: 0 } }, last: null }, archive);
+  let threw = null;
+  try { SAVE.restore(); } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '本机 answers 是字符串时恢复崩了：' + (threw && threw.message));
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.equal(typeof live.sections[T.sec].answers, 'object');
+  assert.equal(live.sections[T.sec].answers[T.qid].v, T.answer);
+});

@@ -115,7 +115,12 @@
     Object.keys(secs).forEach(function (sid) {
       var st = secs[sid];
       if (!st || typeof st !== 'object' || Array.isArray(st)) secs[sid] = { answers: {}, marks: {}, cursor: 0 };
-      else { st.cursor = cursorNum(st.cursor); st.submitted = isRightFlag(st.submitted); }
+      else {
+        st.cursor = cursorNum(st.cursor);
+        st.submitted = isRightFlag(st.submitted);
+        if (!st.answers || typeof st.answers !== 'object' || Array.isArray(st.answers)) st.answers = {};
+        if (!st.marks || typeof st.marks !== 'object' || Array.isArray(st.marks)) st.marks = {};
+      }
     });
     var last = live.last && A.CATALOG[live.last.sec] ? live.last : null;
     var pos;
@@ -229,8 +234,10 @@
       if (!A.CATALOG[sid]) return;        // unknown section: ignore, never inject
       var cur = live.sections[sid];
       if (!cur || typeof cur !== 'object' || Array.isArray(cur)) cur = { answers: {}, marks: {}, cursor: 0 };
-      if (!cur.answers || typeof cur.answers === 'undefined' || Array.isArray(cur.answers)) cur.answers = {};
-      if (!cur.marks || typeof cur.marks === 'undefined' || Array.isArray(cur.marks)) cur.marks = {};
+      /* 本机 answers/marks 也可能是字符串（旧版/云端覆盖）：只判 undefined/数组
+         会漏掉字符串，恢复合并时 cur.answers[qid]= 直接 TypeError 或静默丢答案。 */
+      if (!cur.answers || typeof cur.answers !== 'object' || Array.isArray(cur.answers)) cur.answers = {};
+      if (!cur.marks || typeof cur.marks !== 'object' || Array.isArray(cur.marks)) cur.marks = {};
 
       var sa = snap.answers && typeof snap.answers === 'object' && !Array.isArray(snap.answers) ? snap.answers : {};
       Object.keys(sa).forEach(function (qid) {
