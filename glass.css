@@ -1220,6 +1220,25 @@ html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .bar{height:3
 html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .bar i{border-radius:0!important;height:3px!important;min-width:0!important}
 html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .pct{font-size:11.5px!important;font-weight:500!important;color:#8d9199!important;text-align:right!important;white-space:nowrap!important;letter-spacing:.01em!important}
 
+/* ==== review-result-theme：模考成绩的单题列表收成「阅卷清单行」 ==== */
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-item{display:grid!important;grid-template-columns:26px minmax(0,1fr)!important;gap:12px!important;align-items:start!important;background:transparent!important;border:0!important;border-bottom:1px solid #efebe2!important;border-radius:0!important;box-shadow:none!important;padding:15px 2px!important;margin:0!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-item:first-child{border-top:1px solid #efebe2!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-item:hover{background:#fffdfa!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-flag{width:26px!important;height:auto!important;background:transparent!important;border:0!important;border-radius:0!important;font-size:13px!important;font-weight:600!important;text-align:left!important;padding:0!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-item.no .rev-flag{color:#b5533b!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-item.ok .rev-flag{color:#2f6b4f!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-q{font-size:12.5px!important;font-weight:600!important;color:#20242b!important;letter-spacing:.01em!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-topic{font-size:11px!important;font-weight:400!important;color:#a8acb4!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-meta{font-size:11px!important;font-weight:400!important;color:#a8acb4!important;text-align:right!important;margin-left:auto!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-line1{display:flex!important;align-items:baseline!important;gap:10px!important;flex-wrap:nowrap!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-line2{font-size:11px!important;color:#a8acb4!important;margin-top:5px!important;letter-spacing:.01em!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-ans{display:flex!important;gap:24px!important;margin-top:9px!important;align-items:baseline!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-chip{background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;box-shadow:none!important;font-size:10px!important;letter-spacing:.09em!important;text-transform:uppercase!important;color:#a8acb4!important;font-weight:500!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-chip i{font-size:13px!important;font-style:normal!important;font-weight:600!important;margin-left:6px!important;letter-spacing:0!important;text-transform:none!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-chip.no i{color:#b5533b!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-chip.ok i{color:#2f6b4f!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result #resList .rev-cause{background:#fdfaf3!important;border-left:2px solid #d8c9a6!important;border-radius:0!important;padding:9px 12px!important;margin-top:12px!important;font-size:12px!important;line-height:1.65!important;color:#8a6a37!important}
+
 /* ==== catalog-theme：真题练习首页纸面化 ==== */
 /* app.css:895 用 html:has(body.shell-drill){background:#f5f7fb!important} 锁住画布，
    这里用同结构选择器在 glass.css 里压回去（层叠在 app.css 之后）。 */
