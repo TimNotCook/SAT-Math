@@ -224,6 +224,11 @@
     if (!isPlainObject(s.answers)) s.answers = {};
     if (!isPlainObject(s.marks)) s.marks = {};
     if (!isPlainObject(s.wrongLog)) s.wrongLog = {};
+    /* cursor 是「上次停在第几题」：旧版/云端合并可能是字符串 '3' 或对象。
+       drill 直接做 cursor + 1 拼 URL，'3'+1 会变成 31，对象则变成
+       [object Object]1——把用户带到不存在的题。这里归一到非负整数。 */
+    var cur = Number(s.cursor);
+    s.cursor = Number.isFinite(cur) && cur >= 0 ? Math.floor(cur) : 0;
     return s;
   }
   function secState(id, create) {

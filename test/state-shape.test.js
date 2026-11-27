@@ -32,6 +32,12 @@ function boot(seed) {
   return { A: sandbox.window.TD_APP, store };
 }
 
+test('cursor 是字符串时归一成数字，练习页续做链接不再拼错题号', () => {
+  const { A } = boot({ sections: { '1.1': { answers: {}, cursor: '3', marks: {}, completed: false } } });
+  const st = A.secState('1.1', true);
+  assert.equal(st.cursor, 3);
+});
+
 test('sections 本身是数组时归一成对象，作答能真正落库', () => {
   const { A, store } = boot({ sections: [] });
   const st = A.secState('1.1', true);
