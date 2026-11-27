@@ -69,6 +69,17 @@ describe('parseSession：作答值必须是可判分的字符串', () => {
     assert.equal(r.session.answers['M1-2'].v, '');
     assert.equal(r.session.answers['M1-3'].v, '3');
   });
+
+  test('marked / locked / finished 是字符串 false 时按布尔 false 处理', () => {
+    const s = baseSave({ finished: 'false', locked: 'false' });
+    s.answers['M1-1'] = { v: 'A', marked: 'false', locked: 'false', spent: 5 };
+    const r = C.parseSession(s, { mode: 'mock', isQuestionId: () => true });
+    assert.equal(r.status, 'ok');
+    assert.equal(r.session.answers['M1-1'].marked, false);
+    assert.equal(r.session.answers['M1-1'].locked, false);
+    assert.equal(r.session.finished, false);
+    assert.equal(r.session.locked, false);
+  });
 });
 
 describe('practiceDurationSec：旧设置里的非数字值不能产出 NaN 时长', () => {

@@ -918,7 +918,7 @@
         if (typeof a.v === 'string') { /* already fine */ }
         else if (typeof a.v === 'number' && Number.isFinite(a.v)) a.v = String(a.v);
         else a.v = '';
-        a.marked = !!a.marked; a.locked = !!a.locked;
+        a.marked = isRightFlag(a.marked); a.locked = isRightFlag(a.locked);
         a.spent = Number(a.spent) > 0 ? Number(a.spent) : 0;
       }
     });
@@ -926,6 +926,9 @@
     const hi = (inModule2 ? n : m1) - 1;
     const idx = Number(s.idx);
     s.idx = Math.min(Math.max(Number.isFinite(idx) ? idx : lo, lo), Math.max(lo, hi));
+    /* 云端/旧版可能把布尔存成字符串：'false' 是 truthy，会把未交的卷锁死。 */
+    s.finished = isRightFlag(s.finished);
+    s.locked = isRightFlag(s.locked);
     if (s.finished && !s.result) { s.finished = false; s.locked = false; if (s.stage === 'result') s.stage = 'answer'; }
     return { status: 'ok', reason: '', session: s };
   }
