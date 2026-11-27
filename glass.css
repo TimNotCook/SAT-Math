@@ -1922,3 +1922,46 @@ html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .btn:hov
   .site-rail a{font-size:11px!important;padding:6px 7px!important}
   .site-rail .rail-brand{font-size:12px!important;padding:6px 4px 4px!important}
 }
+
+/* ==== dark-theme：暗黑只做“降噪”，不改栅格
+   glass.css 本身有一套 Apple-dark 色板（--bg/--paper/--ink/--line），白天那套纸面语言在暗色下
+   最容易显脏的是：弹层白卡描边、一格一框的题目索引、被包成卡片的清单行、白底分数字格。
+   这里就处理这四处，不动目录栅格；答题卷面仍保留官方白纸（有意为之，不反转）。 */
+
+/* 1) 题目导航 / 公式纸：深面 + 发丝网格 */
+[data-theme="dark"] .drill-nav-panel,
+[data-theme="dark"] .bb-modal{background:var(--paper)!important;border:1px solid var(--line)!important;box-shadow:0 24px 60px rgba(0,0,0,.6)!important}
+[data-theme="dark"] #questionGrid button{
+  background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;
+  border-radius:0!important;box-shadow:none!important;color:var(--faint)!important;
+}
+[data-theme="dark"] #questionGrid button:hover{background:rgba(255,255,255,.05)!important;color:var(--ink)!important}
+[data-theme="dark"] #questionGrid button.is-answered{color:var(--ink-2)!important}
+[data-theme="dark"] #questionGrid button.is-current{color:var(--ink)!important;box-shadow:inset 0 -2px 0 var(--ink)!important}
+[data-theme="dark"] #questionGrid button.is-marked{color:var(--warn)!important}
+[data-theme="dark"] .drill-nav-legend i{width:6px!important;height:6px!important;border-radius:50%!important;border:0!important}
+
+/* 2) 结果页：逐题卡 → 阅卷清单行 */
+[data-theme="dark"] body .drill-result-row{
+  background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;
+  border-radius:0!important;box-shadow:none!important;
+}
+[data-theme="dark"] body .drill-result-row:hover{background:rgba(255,255,255,.035)!important}
+[data-theme="dark"] body .drill-result-summary{background:transparent!important;border:1px solid var(--line)!important;box-shadow:none!important}
+[data-theme="dark"] body .cause-box{background:rgba(255,255,255,.04)!important;border:1px solid var(--line)!important;color:var(--ink-2)!important}
+[data-theme="dark"] body .drill-result-list{background:transparent!important;border:0!important;box-shadow:none!important}
+
+/* 3) 空态与筛选条：虚线框 + 文字 tab */
+[data-theme="dark"] body .hist-empty{background:transparent!important;border:1px dashed var(--line-strong)!important;box-shadow:none!important;border-radius:8px!important}
+[data-theme="dark"] body .filter-tabs button,
+[data-theme="dark"] body .quiz-tabs button{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+[data-theme="dark"] body .filter-tabs button.is-active,
+[data-theme="dark"] body .quiz-tabs button.is-active{box-shadow:inset 0 -2px 0 var(--ink)!important;color:var(--ink)!important}
+
+/* 4) 成绩带：分数字格不要白卡；未作答行的“你的答案”不能露答案 */
+[data-theme="dark"] body .drill-result-score{background:transparent!important;border-color:var(--line)!important}
+[data-theme="dark"] body .drill-result-score strong{color:var(--ink)!important}
+[data-theme="dark"] body .drill-result-score-label,
+[data-theme="dark"] body .drill-result-score-sub{color:var(--faint)!important}
+[data-theme="dark"] body .drill-result-row.is-blank .drill-result-answers>div:first-child b{font-size:0!important;letter-spacing:0!important}
+[data-theme="dark"] body .drill-result-row.is-blank .drill-result-answers>div:first-child b::after{content:"—"!important;font-size:14px!important;color:var(--faint)!important;font-weight:500!important}
