@@ -125,6 +125,7 @@ test('导入流程 normalizeItem 不把对象字段写成 [object Object]', () =
   const { els, sandbox } = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store);
   sandbox.TD_IMPORT_WRONG.importData({ title: { x: 1 }, items: [
     { key: 'raw1', stem: { x: 1 }, choices: { A: { y: 1 } }, type: 'mcq', answer: { z: 1 }, given: { g: 1 }, topic: { t: 1 }, source: { s: 1 }, value: { v: 1 } },
+    { key: 'raw2', stem: '1+1=?', choices: 'null', type: 'mcq', answer: 'A' },
   ] });
   const saved = JSON.parse(store.tdsat_imported_wrong_v1 || '{}');
   assert.ok(!/\[object Object\]/.test(JSON.stringify(saved)), '导入时把对象字段存成了 [object Object]');

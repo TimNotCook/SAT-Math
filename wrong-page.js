@@ -70,6 +70,9 @@
  function normalizeItem(raw){
    var it=raw||{},ch=it.choices||it.options||{};
    if(typeof ch==='string'){try{ch=JSON.parse(ch);}catch(e){ch={};}}
+   /* choices 被写成字符串 "null"/"true"/"123" 时，JSON.parse 后不是对象，
+      Object.keys(null) 会直接 TypeError，整次导入失败。 */
+   if(!ch||typeof ch!=='object')ch={};
    var type=plainText(pick(it.type,Object.keys(ch).length?'mcq':'grid')).toLowerCase();
    if(type!=='grid')type='mcq';
    var ans=pick(it.answer,it.correct,it.answerKey,it.correctAnswer);
