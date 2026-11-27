@@ -159,6 +159,13 @@ const PROFILES = [
       report: { priority: [{ name: { x: 1 }, reason: { x: 1 }, action: { x: 1 }, wrongIds: [{ x: 1 }] }] }
     }])],
   ]],
+  /* M：未交卷留档的字段是对象（旧版/云端合并）。开场恢复条不能出现
+     Invalid Date / [object Object] / NaN。 */
+  ['M-void-objects', [
+    ['tdsat_exam_suite_results_v1', JSON.stringify([{
+      void: true, date: { x: 1 }, answered: { x: 1 }, total: [1], reason: { x: 1 }, mode: { x: 1 }
+    }])],
+  ]],
   /* I：导入错题历史记录里 given 是对象/数字（第 26 条）。分析环节不能 .trim() 崩页。 */
   ['I-import-given', [
     ['tdsat_imported_wrong_v1', JSON.stringify({ items: [
@@ -187,6 +194,7 @@ for (const [pname, junk] of PROFILES) {
       ids.forEach(function(id){ var el=document.getElementById(id); if(el) out[id]=String(el.textContent||'').trim().length; });
       var body=String(document.body.innerText||'');
       out.objLeak=body.indexOf('[object Object]')>=0;
+      out.badText=out.objLeak || body.indexOf('Invalid Date')>=0;
       return out; })()`);
     const errs = events.filter((e) => e.kind === 'exception' || (e.kind === 'console' && !IGNORE_URL.test(e.text) && !/Failed to load resource/i.test(e.text)));
     summary.push(`${p}: 异常/错误 ${errs.length} 项 · 容器字数 ${JSON.stringify(probe)}`);
@@ -202,7 +210,7 @@ for (const [pname, junk] of PROFILES) {
     }
     if (p === 'wrong.html' && probe && probe.wrongList === 0) offenders.push({ profile: pname, page: p, errs: [{ text: '#wrongList 空白' }] });
     if (p === 'history.html' && probe && probe.histList === 0) offenders.push({ profile: pname, page: p, errs: [{ text: '#histList 空白' }] });
-    if (probe && probe.objLeak) offenders.push({ profile: pname, page: p, errs: [{ text: '页面正文出现 [object Object]' }] });
+    if (probe && probe.badText) offenders.push({ profile: pname, page: p, errs: [{ text: '页面正文出现 [object Object]/Invalid Date' }] });
   }
 }
 

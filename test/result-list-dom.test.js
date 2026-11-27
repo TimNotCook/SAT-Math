@@ -41,3 +41,11 @@ test('成绩合并跳过对象题号，不制造假错题', () => {
   assert.match(seg, /const did = safeText\(d\.id\); if \(!did\) return/,
     'mergedState 仍在拿对象 id 当错题键');
 });
+
+
+test('未交卷恢复条对对象日期/答题数降级，不出现 Invalid Date', () => {
+  const seg = js.slice(js.indexOf('function renderSalvage'), js.indexOf('function runtimeVoid'));
+  assert.match(seg, /safeNum\(last\.date\)/, '恢复条还在直接 new Date(last.date)');
+  assert.match(seg, /answered = safeNum\(last\.answered\)/, '恢复条还在直接拼对象作答数');
+  assert.ok(!/new Date\(last\.date\)\.toLocaleString/.test(seg), '恢复条还有裸日期转换');
+});

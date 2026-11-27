@@ -274,7 +274,7 @@
     'm2-options': 'Module 2 backup paper missing', 'runtime': 'in-memory session is inconsistent'
   };
   /* 模考层纯英文（docs/UI-COPY.md）；练习/抽查层中文。 */
-  const reasonText = r => OFFICIAL ? (REASON_EN[r] || ('unknown reason ' + (r || ''))) : (REASON_CN[r] || ('未知原因 ' + (r || '')));
+  const reasonText = r => { const key = safeText(r); return OFFICIAL ? (REASON_EN[key] || ('unknown reason ' + key)) : (REASON_CN[key] || ('未知原因 ' + key)); };
 
   function repairSaved(saved) {
     return C.parseSession(saved, { mode: MODE, isQuestionId: id => !!byId(id) });
@@ -343,23 +343,26 @@
     if (!list.length) { host.hidden = true; host.innerHTML = ''; return; }
     const last = list[list.length - 1];
     host.hidden = false;
+    const rawWhen = safeNum(last.date) ?? safeText(last.date);
+    const whenObj = new Date(rawWhen), whenOk = !isNaN(whenObj.getTime());
+    const answered = safeNum(last.answered) ?? 0, total = safeNum(last.total) ?? 0;
     if (OFFICIAL) {
-      const when = new Date(last.date).toLocaleString('en-US');
+      const when = whenOk ? whenObj.toLocaleString('en-US') : '—';
       host.innerHTML = '<div class="exam-salvage-head">Unsaved test · ' + list.length + '</div>' +
-        '<div class="exam-salvage-row">Latest: ' + when + ' · answered ' + last.answered + '/' + last.total +
+        '<div class="exam-salvage-row">Latest: ' + when + ' · answered ' + answered + '/' + total +
         ' · reason: ' + reasonText(last.reason) + '</div>' +
         '<button type="button" class="btn slim" id="btnExportSalvage">Export unsaved record (JSON)</button>';
     } else {
       const modeName = OFFICIAL ? 'Mock Test' : (last.mode === 'mock' ? '模考' : (last.mode === 'quiz' ? '单元抽查' : '练习'));
       host.innerHTML = OFFICIAL
         ? '<div class="exam-salvage-head">Unsaved test records · ' + list.length + '</div>' +
-          '<div class="exam-salvage-row">Latest: ' + new Date(last.date).toLocaleString('en-US') +
-          ' · ' + modeName + ' · answered ' + last.answered + '/' + last.total +
+          '<div class="exam-salvage-row">Latest: ' + (whenOk ? whenObj.toLocaleString('en-US') : '—') +
+          ' · ' + modeName + ' · answered ' + answered + '/' + total +
           ' · reason: ' + reasonText(last.reason) + '</div>' +
           '<button type="button" class="btn slim" id="btnExportSalvage">Export unsaved record (JSON)</button>'
         : '<div class="exam-salvage-head">未交卷记录 · 共 ' + list.length + ' 卷</div>' +
-          '<div class="exam-salvage-row">最近：' + new Date(last.date).toLocaleString('zh-CN') +
-          ' · ' + modeName + ' · 已答 ' + last.answered + '/' + last.total +
+          '<div class="exam-salvage-row">最近：' + (whenOk ? whenObj.toLocaleString('zh-CN') : '—') +
+          ' · ' + modeName + ' · 已答 ' + answered + '/' + total +
           ' · 作废原因：' + reasonText(last.reason) + '</div>' +
           '<button type="button" class="btn slim" id="btnExportSalvage">导出未交卷档案（JSON）</button>';
     }
@@ -464,7 +467,7 @@
       const rec = salvageSession(saved, fixed.reason);
       try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
       sessionExpired = true;
-      const kept = rec ? (rec.answered + '/' + rec.total) : '';
+      const kept = rec ? ((safeNum(rec.answered) ?? 0) + '/' + (safeNum(rec.total) ?? 0)) : '';
       introNote = OFFICIAL
         ? 'This saved test could not be restored (' + reasonText(fixed.reason) + '). Its paper and answers were kept' +
           (kept ? ' (' + kept + ' answered)' : '') + ' and can be exported below; a new test starts now.'
