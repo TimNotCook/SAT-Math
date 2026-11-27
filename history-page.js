@@ -113,7 +113,7 @@
       '<span>已答 <b>' + numTxt(rec.answered == null ? 0 : rec.answered) + ' / ' + numTxt(rec.total) + '</b></span>' +
       '<span>中断时间 <b>' + fmtDate(rec.date) + '</b></span></div>';
     if (resumable) {
-      html += '<div class="hist-continue"><a class="btn primary" href="exam.html?mode=' + esc(rec.mode) + '">继续这卷</a></div>';
+      html += '<div class="hist-continue"><a class="btn primary" href="exam.html?mode=' + esc(txt(rec.mode)) + '">继续这卷</a></div>';
     } else {
       html += '<div class="hist-continue" style="color:var(--sub);font-size:12.5px">存档已失效（会话已被覆盖），仅供查看。</div>';
     }
