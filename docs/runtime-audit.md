@@ -564,3 +564,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 云端合并/旧版可能把 `wrongLog[qid]` 写成 `{v:{x:1}}`。`wrong-page.js collect()` 原来只判 `wl && String(wl.v).trim()`，对象 `v` 会得到 `[object Object]`，`stillWrong` 判错后 `add()` 再把对象降级成空串，于是凭空多一张「你的答案 未作答」的错题卡。
 
 修法：只接收字符串/有限数字的 `v`，对象/数组条目直接跳过。验证：真实板块第一条题种 `{v:{x:1},ts:…}`，旧代码渲染「未作答」，新代码不渲染；`test/array-guard.test.js` 新增回归。全量 `node --test` 383/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 54 条：成绩页逐题回顾对旧存档填空仍显示「正确答案 —」（2026-11-27）
+
+`exam-core scoreSession` 已在新成绩里把 grid 的 `value` 回填 `answer`，记录页 `history-page` 也补了兜底，但成绩页 `exam.js renderResultList()` 仍直接 `safeText(d.answer)`。修复前交卷的存档里 37 道 SP2 填空题 `answer:null`，从 session 恢复成绩页时「正确答案」还是「—」。
+
+修法：`dAnswer` 先取 `d.answer`/`d.value`，为空再按题号回查题库 `answer`，grid 再兜 `value`/`values`；错因分析复用同一份 `bankQ`。验证：`test/grid-answer-display.test.js` 新增成绩页静态回归，旧代码断言「成绩页缺 d.answer/d.value 兜底」失败；全量 `node --test` 385/0；`verify_junk` 11×7；`verify_flows` 16/16。

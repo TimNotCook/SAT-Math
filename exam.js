@@ -1239,12 +1239,21 @@
       const did = safeText(d.id) || '—';
       const crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(did) : [];
       const dUnit = safeText(d.unit) || '—', dType = safeText(d.type), dPoints = safeNum(d.points), dSeconds = safeNum(d.seconds) || 0;
-      const dTopic = safeText(d.topic), dSource = safeText(d.source), dGiven = safeText(d.given), dAnswer = safeText(d.answer), dHint = safeText(d.hint), dPos = safeText(d.pos) || '?';
+      const dTopic = safeText(d.topic), dSource = safeText(d.source), dGiven = safeText(d.given), dHint = safeText(d.hint), dPos = safeText(d.pos) || '?';
+      const bankQ = BANK.find(x => x.id === did) || {};
+      /* 旧存档的 detail 可能是 answer:null（37 道填空只有 value，scoreSession 修复前直接透传）：
+         逐题回顾的「正确答案」会印成「—」。按 answer → value → 题库 answer/value/values 兜底，
+         让已经交卷的历史记录也能显示答案，而不是只有记录页能补。 */
+      let dAnswer = safeText(d.answer) || safeText(d.value);
+      if (!dAnswer) {
+        dAnswer = safeText(bankQ.answer);
+        if (!dAnswer && bankQ.type === 'grid')
+          dAnswer = safeText(bankQ.value) || (Array.isArray(bankQ.values) ? bankQ.values.join(', ') : '');
+      }
       let causeHtml = '';
       const okFlag = isRightFlag(d.correct);
       if (!okFlag && AN && !OFFICIAL) {
-        const q = BANK.find(x => x.id === did) || {};
-        const a = AN.analyze(q, dGiven, (window.TD_TEXT || {})[did]);
+        const a = AN.analyze(bankQ, dGiven, (window.TD_TEXT || {})[did]);
         causeHtml = `<div class="cause-box"><b>错因 · ${esc(a.title)}</b><p>${esc(a.cause)}</p><p class="fix">${esc(a.fix)}</p></div>`;
       }
       const meta = OFFICIAL

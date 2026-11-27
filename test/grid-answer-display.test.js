@@ -33,6 +33,14 @@ test('scoreSession 不动已有 answer，多空 values 用逗号连接', () => {
   assert.strictEqual(out[1].answer, '12, 34');
 });
 
+test('成绩页逐题回顾对旧存档也能补出正确答案', () => {
+  const s = fs.readFileSync(path.join(ROOT, 'exam.js'), 'utf8');
+  assert.match(s, /let dAnswer = safeText\(d\.answer\) \|\| safeText\(d\.value\)/, '成绩页缺 d.answer/d.value 兜底');
+  assert.match(s, /dAnswer = safeText\(bankQ\.answer\)/, '成绩页缺按题号回查题库 answer 的兜底');
+  assert.match(s, /bankQ\.type === 'grid'[\s\S]{0,100}bankQ\.value/, '成绩页缺填空 value 兜底');
+  assert.ok(s.includes("esc(dAnswer || '—')"), '渲染必须用兜底后的 dAnswer');
+});
+
 test('记录页对旧存档也能补出正确答案', () => {
   const s = fs.readFileSync(path.join(ROOT, 'history-page.js'), 'utf8');
   assert.match(s, /txt\(d\.answer\) \|\| txt\(d\.value\)/, '缺 d.value 兜底');
