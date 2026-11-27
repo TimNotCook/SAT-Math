@@ -1605,3 +1605,17 @@ html body .kp-row:first-child{border-top:0!important}
 @media (hover:none),(pointer:coarse){
   html #stage-result #btnResHome, html #stage-result #btnResAgain{min-height:46px!important;height:auto!important}
 }
+
+/* 计算器面板高度写死成 min(520px, 100vh - 260px)，矮窗口里只剩标题栏：
+   320×380 实测 120px、568×320 横屏仅 60px，Desmos 一个键都看不见（等于打不开）。
+   矮窗口（≤640 高）改成贴视口，高度随视口走，宽度不超视口。 */
+@media (max-height:640px){
+  .bb-calc-panel{
+    top:8px!important;right:8px!important;
+    height:calc(100vh - 16px)!important;
+    height:calc(100dvh - 16px)!important;
+    max-height:none!important;
+    width:min(430px,calc(100vw - 16px))!important;
+  }
+  .bb-calc-body{min-height:180px}
+}
