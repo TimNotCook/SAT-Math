@@ -57,3 +57,24 @@ test('本单元题库不足时分档题数被题库上限截断', () => {
   assert.strictEqual(plan.total, 12);
   assert.strictEqual(plan.total, plan.mustWrong + plan.otherCount);
 });
+
+test('真题库：四个单元无错题时卷面恰好 20 道', () => {
+  const B = global.window.TD_BANK.questions;
+  const st = { answers: {}, wrong: {}, correctedIds: [] };
+  for (const u of [1, 2, 3, 4]) {
+    const uq = B.filter(q => q.unit === u);
+    const plan = C.quizPlan([], uq);
+    const built = C.buildQuizPaper(B, uq, plan, st, Math.random, {});
+    assert.strictEqual(built.instances.length, 20, `U${u} 卷面应为 20 道`);
+    assert.strictEqual(built.summary.wrongIncluded, 0);
+  }
+});
+test('真题库：错题 26 道时卷面 30 道、其中 15 道历史错题', () => {
+  const B = global.window.TD_BANK.questions;
+  const uq = B.filter(q => q.unit === 2);
+  const ids = uq.slice(0, 26).map(q => q.id);
+  const plan = C.quizPlan(ids, uq);
+  const built = C.buildQuizPaper(B, uq, plan, { answers: {}, wrong: {}, correctedIds: [] }, Math.random, {});
+  assert.strictEqual(built.instances.length, 30);
+  assert.strictEqual(built.summary.wrongIncluded, 15);
+});

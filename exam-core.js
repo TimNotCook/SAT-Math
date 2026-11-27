@@ -198,7 +198,9 @@
     const quota = {}; let rest = need;
     keys.forEach(k => {
       const f = (sections[k].length >= 4) ? 2 : 1;
-      quota[k] = Math.min(f, sections[k].length); rest -= quota[k];
+      /* 配额总和绝不能超过 need：小节数比需要的题还多时（抽查 20 题 / 16 个小节），
+         每个小节都先分 2 题会直接把卷子撑到 32 题，卷长规律就废了。 */
+      quota[k] = Math.min(f, sections[k].length, Math.max(0, rest)); rest -= quota[k];
     });
     while (rest > 0) {
       let best = null, bestRatio = Infinity;
