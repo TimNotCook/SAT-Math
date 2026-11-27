@@ -295,6 +295,7 @@ test('旧板块别名的存档能通过 inspect 并恢复到新板块', () => {
   const ins = SAVE.inspect();
   assert.equal(ins.status, 'ok', '旧板块别名的存档被判 corrupt：' + JSON.stringify(ins));
   assert.equal(ins.position.sec, canonical);
+  assert.equal(ins.summary.answered, 1, '旧板块 key 的作答没有被计入摘要');
   const { SAVE: S2, store } = boot({ sections: {}, last: null }, archive);
   assert.ok(S2.restore().ok);
   const live = JSON.parse(store[LIVE_KEY]);

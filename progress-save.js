@@ -95,9 +95,22 @@
       return { status: 'corrupt', reason: '存档的题目位置超出范围' };
 
     // summary from the archive itself, not from live state
+    /* 旧存档的 section key 可能是迁移前 id：摘要也要先 resolve，否则老存档
+       明明能恢复作答，面板却显示「已答 0 / 未答全部」。 */
+    var archiveAns = {};
+    Object.keys(d.sections).forEach(function (sid) {
+      var sidN = A.resolveSec ? A.resolveSec(sid) : sid;
+      if (!A.CATALOG[sidN]) return;
+      var ans = (d.sections[sid] || {}).answers;
+      if (!ans || typeof ans !== 'object' || Array.isArray(ans)) return;
+      if (!archiveAns[sidN]) archiveAns[sidN] = {};
+      Object.keys(ans).forEach(function (qid) {
+        if (!(qid in archiveAns[sidN])) archiveAns[sidN][qid] = ans[qid];
+      });
+    });
     var total = 0, answered = 0, correct = 0;
     A.SECS.forEach(function (s) {
-      var list = A.CATALOG[s] || [], ans = (d.sections[s] || {}).answers || {};
+      var list = A.CATALOG[s] || [], ans = archiveAns[s] || {};
       total += list.length;
       list.forEach(function (q) {
         var a = ans[q.id];
