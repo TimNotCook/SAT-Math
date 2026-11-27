@@ -57,6 +57,20 @@ function baseSave(over) {
   }, over || {});
 }
 
+describe('parseSession：单元抽查存档不得跨单元恢复', () => {
+  test('Unit 1 的存档在 Unit 2 页面 → 判过期，绝不混着开考', () => {
+    const s = baseSave({ mode: 'quiz', unitId: 1, paper: paper(4) });
+    const r = C.parseSession(s, { mode: 'quiz', unitId: 2, isQuestionId: () => true });
+    assert.equal(r.status, 'expired');
+    assert.equal(r.reason, 'unit');
+  });
+  test('同一 unit 的存档仍可恢复', () => {
+    const s = baseSave({ mode: 'quiz', unitId: 2, paper: paper(4) });
+    const r = C.parseSession(s, { mode: 'quiz', unitId: 2, isQuestionId: () => true });
+    assert.equal(r.status, 'ok');
+  });
+});
+
 describe('parseSession：m2Options 里的候选题必须是合法实例', () => {
   test('hard 里夹 null → 整份存档判过期，绝不拼进卷面', () => {
     const s = baseSave();

@@ -272,7 +272,10 @@
   const reasonText = r => { const key = safeText(r); return OFFICIAL ? (REASON_EN[key] || ('unknown reason ' + key)) : (REASON_CN[key] || ('未知原因 ' + key)); };
 
   function repairSaved(saved) {
-    return C.parseSession(saved, { mode: MODE, isQuestionId: id => !!byId(id) });
+    return C.parseSession(saved, {
+      mode: MODE, unitId: MODE === 'quiz' ? QUIZ_UNIT : null,
+      isQuestionId: id => { const q = byId(id); return !!q && (MODE !== 'quiz' || q.unit === QUIZ_UNIT); }
+    });
   }
 
   /* 作废前留档：卷面 + 作答写进 results（void:true，不进错题统计），可导出。

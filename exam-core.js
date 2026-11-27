@@ -842,6 +842,9 @@
     if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return fail('missing');
     const mode = opts.mode || saved.mode;
     if (!mode || saved.mode !== mode) return fail('mode');
+    /* 单元抽查的存档只属于一个 unit：在 Unit 2 页面恢复 Unit 1 的卷面，
+       会让页头写 Unit 2、题目却全是 Unit 1，提交后成绩也记到错单元。 */
+    if (opts.unitId != null && Number(saved.unitId) !== Number(opts.unitId)) return fail('unit');
     const paper = saved.paper;
     if (!Array.isArray(paper) || !paper.length) return fail('paper-empty');
     const n = paper.length;

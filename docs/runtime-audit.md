@@ -396,3 +396,13 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`tools/verify_m2` 复核用合法 22 题卷 + `m2Options:{hard:[null],easy:['junk']}`、模块一已超时；旧代码点 Start 后抛 `Cannot read properties of undefined (reading 'id')`，新代码 0 异常、停在模块一，存档不再续进模块二。`test/session.test.js` +3 条（hard 夹 null、easy 夹字符串均判 `expired`，正常候选仍 `ok`）。
 
 回归：`node --test` 316/0（session 19/19）；`verify_junk` 11×7；`verify_exam_timeout` 13/13、`verify_flows` 16/16。
+
+## 第 31 条：Unit 1 的抽查存档在 Unit 2 页面恢复 → 页头写 2、题全是 1（2026-11-27）
+
+`parseSession` 只核对 `mode === 'quiz'`，不看存档属于哪个单元。先在 Unit 1 开一场抽查（活会话留在 `tdsat_exam_suite_session_v1`），再打开 `exam.html?mode=quiz&unit=2`：存档被当成「同一场」恢复，页头写 `Unit 2`，卷面 24 题全部来自 Unit 1，交卷后成绩和错题也记到 Unit 2，属于静默串卷。
+
+修法：`parseSession` 新增 `opts.unitId`，抽查存档的 `unitId` 与当前页不一致时整份判 `expired/unit`，走留档/新卷；`exam.js` 同时把 `unitId` 传进解析器，并让 `isQuestionId` 对抽查只认当前单元的题（双保险）。
+
+验证：`tools/verify_quiz_unit.mjs` 种一场 Unit 1、24 题、模块一进行中的抽查存档，再进 Unit 2 点 Start；旧代码恢复出 `unitId=1`、24/24 题不属于 Unit 2，新代码 `unitId=2`、28 题全部属于 Unit 2、0 异常。`test/session.test.js` +2 条（跨单元 → `expired/unit`，同单元仍 `ok`）。
+
+回归：`node --test` 320/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。
