@@ -145,3 +145,20 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 2. 同一板块内也可能存着别名 id 的 `wrongLog`（`SP2-001` vs `R03-001`）：键不重映射，`wrong-page` 按 canonical `q.id` 查不到 → “已订正”永远显示不出来。
 
 修法：`normalize()` 里旧板块迁移补搬 `src.wrongLog`（按 `ALIAS` 重映射、已存在则不覆盖）；新增一遍全量 `wrongLog` 键重映射（canonical 优先，保留最初的答错时间）。新增 `test/wronglog-migrate.test.js` 3 条（vm 里跑真实 `app-core` + `data/aliases.js`，触发 `setAnswer` 走真实写盘路径）。负向验过：把重映射段删掉 → 3 条全红，恢复 → 3 pass。全量 `node --test` 197/0，runtime 六页 0 异常、flows 16/16、grading 8/8。
+
+## 错题本在慢网下先渲染成空白（第 12 条，2026-11-27）
+
+线上连跑 `verify_exam_timeout` 时撞到一次「错题回顾页 0 张卡片、`#wrongList` 文本为空」，而成绩记录里那道题明明是 `correct:false`。根因不是判分也不是错题台账，而是 `wrong-page.js` 的启动顺序：
+
+- 错题页是十几条 `defer` 脚本串起来的，题库 `data/questions.js` 有几 MB。首屏慢的时候 `all=collect()` 跑完，`questionById()` 还查不到题 → `add()` 直接 `return`，`render()` 就画了一个空列表。
+- 这个空白是**粘住的**：之后题库读完了也不会自己重画（只有用户手动切 UNIT 或调 `refresh()` 才重算）。真实学生打开看到的是一页「没有错题」，会以为记录被清了。
+
+修法：`render()` 之后挂 `load` 自检——`all` 为空就 `collect()` 重算一遍，有内容才重画（空就是真没错题，不重复渲染）。`history-page.js` 早就用 DOMContentLoaded + load 双兜底，错题页是唯一漏网的。
+
+同轮修了三条脚手架的假红（都不是产品 bug）：
+
+- `verify_flows` / `verify_grading_ui` / `verify_exam_timeout` / `verify_runtime` 的导航只等 `readyState`，线上首屏慢时读到的还是旧文档，`localStorage` 抛 `SecurityError` → 11/16；改成先等地址栏落到目标 URL 前缀，再等 `readyState`。
+- `verify_exam_timeout` 在错题页读 unit 时没等题库就绪，读到 0 就点 `data-unit="0"`（必然点空）；改成等 `TD_BANK` 有内容、等筛选按钮真画出来，再读卡片，空列表时兜底 `TD_IMPORT_WRONG.refresh()`。
+- `verify_session` 断言「开始页无作废提示」已经过时：开机兜底后会正常显示「已恢复存档、计时没停、点 Start 继续」，改成只排除「存档已过期」文案。
+
+验收：`node --test` 202/0；线上 flows 16/16、grading 8/8、exam_timeout 13/13、runtime 六页 0 异常、assets 全绿、shaded 6/6、nav 38/38、a11y 20/20、acct 26/26、session 22/22。
