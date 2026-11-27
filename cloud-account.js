@@ -229,7 +229,10 @@
     }
     if (Array.isArray(lo) || Array.isArray(co)) {
       if (Array.isArray(lo) && Array.isArray(co)) return mergeArrays(lo, co);
-      return Array.isArray(lo) ? lo : co;
+      /* 一边是数组、一边是对象：数组那侧按本项目所有状态容器的约定都是坏形状
+         （sections / answers / marks 被旧版写成 []）。以前这里总返回数组，
+         云端一个坏 [] 就能把本机整段 answers 顶掉；保留非数组那侧。 */
+      return Array.isArray(lo) ? co : lo;
     }
     if (isPlainObj(lo) && isPlainObj(co)) {
       var out = {};

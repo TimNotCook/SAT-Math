@@ -56,6 +56,15 @@ test('本机完好、云端是半截 JSON → 保留本机', () => {
   assert.strictEqual(out.tdsat_app_v1, local, '云端坏数据顶掉了本机好数据');
 });
 
+test('云端 sections 是数组时不顶掉本机的对象 sections', () => {
+  const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'B', correct: true, ts: 200 } } } } });
+  const { M } = boot({ tdsat_app_v1: local });
+  const out = M.mergeLocalWithCloud({ tdsat_app_v1: JSON.stringify({ sections: [] }) });
+  const parsed = JSON.parse(out.tdsat_app_v1);
+  assert.equal(Array.isArray(parsed.sections), false, '云端坏数组顶掉了本机 sections');
+  assert.deepStrictEqual(parsed.sections['1.1'].answers['U1-01'], { v: 'B', correct: true, ts: 200 });
+});
+
 test('两边都完好 → 深合并：新 ts 的作答胜出，旧的仍在', () => {
   const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'B', correct: true, ts: 200 } } } } });
   const cloud = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: false, ts: 100 }, 'U1-02': { v: 'C', correct: false, ts: 50 } } } } });

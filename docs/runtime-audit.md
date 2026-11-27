@@ -596,3 +596,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 60 条：进度存档 version/savedAt/position.n 是数字字符串，被误判 corrupt 锁死恢复（2026-11-27）
 
 `progress-save inspect()` 对 `version`、`savedAt`、`position.n` 用严格 `typeof === 'number'`。云端合并/旧版若写成 `"1"`、`"1700…"`、`"2"`，存档其实完全可恢复，却被判 `corrupt`，`canWrite()` 永久 false，手动恢复/覆盖都被拒。修法：三个字段统一 `Number()` 后校验（version 必须等于当前，savedAt 必须有限且 >0，n 必须是范围内整数），返回值也用归一后的数字。验证：`test/progress-restore-wronglog.test.js` 新增「数字字符串仍可识别并恢复」，旧代码报「存档缺少必要字段」失败，新代码通过；全量 `node --test` 459/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 61 条：云端 `sections` 是数组时，深合并用它顶掉本机整个对象（2026-11-27）
+
+`cloud-account deepMerge()` 遇到「一边数组、一边对象」时固定返回数组：`return Array.isArray(lo) ? lo : co`。首次登录合并本机无主进度时，云端只要有一个坏形状 `sections: []`，就会把本机 `sections` 对象整段替换成数组；随后 `applyPayload` 写盘，`app-core normalize()` 只能把数组重置成空对象——本机所有作答看似同步成功，实际全部蒸发。修法：容器形状冲突时保留非数组那侧（本项目所有状态容器都是对象，数组一律视为坏形状）。验证：`test/cloud-merge.test.js` 新增「云端 sections 是数组时不顶掉本机的对象 sections」，旧代码报「云端坏数组顶掉了本机 sections」失败，新代码通过；全量 `node --test` 460/0；`verify_junk` 11×7；`verify_flows` 16/16。
