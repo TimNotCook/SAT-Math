@@ -817,3 +817,38 @@ html[data-theme="dark"] .mist-hint{
    不动全局 --faint，避免把禁用态/装饰字一并点亮。 */
 html[data-theme="dark"] .hero-sub,
 html[data-theme="dark"] .tile-code{color:#a8a8ad!important}
+
+/* ==================== 暗黑主题：成绩页题目筛选标签 ====================
+   bluebook 的 .exam-tabs .tab:hover 写死 rgba(255,255,255,.7)，文字仍
+   var(--sub)=#8e8e93 → 悬停时浅灰底叠浅灰字，Incorrect Only 直接消失。
+   暗黑下未选中/悬停/选中三态统一深玻璃底 + 浅字。 */
+html[data-theme="dark"] .exam-tabs .tab,
+html[data-theme="dark"] .exam-page .exam-tabs .tab{
+  background:rgba(255,255,255,.06)!important;
+  color:#b8b8bd!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+}
+html[data-theme="dark"] .exam-tabs .tab:hover,
+html[data-theme="dark"] .exam-page .exam-tabs .tab:hover{
+  background:rgba(255,255,255,.14)!important;
+  color:#fff!important;
+  transform:none!important;
+}
+html[data-theme="dark"] .exam-tabs .tab.on,
+html[data-theme="dark"] .exam-page .exam-tabs .tab.on{
+  background:rgba(48,48,54,.92)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.20)!important;
+}
+
+/* ==================== 暗黑主题：全局轻提示 #toast ====================
+   bluebook 把 #toast 写死 background:#fff，文字用 var(--ink)=#e8e8ea。
+   暗黑普通页（索引/错题/记录/成绩页）上就是白底白字，任何提示都读不出；
+   答题页虽把 --ink 锁回深色，但深色 toast 浮在白纸上同样清楚。
+   统一暗色深玻璃底 + 浅银字，border/shadow 一起收。 */
+html[data-theme="dark"] #toast{
+  background:#2c2c2e!important;
+  color:#f5f5f7!important;
+  border-color:rgba(255,255,255,.16)!important;
+  box-shadow:0 12px 32px rgba(0,0,0,.60)!important;
+}

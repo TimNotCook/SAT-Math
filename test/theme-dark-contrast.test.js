@@ -92,3 +92,14 @@ test('dark 草稿纸工具条清空按钮可读', () => {
 test('dark 索引页 hero-sub / tile-code 辅助字可读', () => {
   assert.match(css, /html\[data-theme="dark"\] \.hero-sub,\nhtml\[data-theme="dark"\] \.tile-code\{color:#a8a8ad!important\}/);
 });
+
+test('dark 成绩页题目筛选标签悬停不再浅底浅字', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.exam-tabs \.tab,[^}]*background:rgba\(255,255,255,\.06\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.exam-tabs \.tab:hover,[^}]*background:rgba\(255,255,255,\.14\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.exam-tabs \.tab\.on,[^}]*background:rgba\(48,48,54,\.92\)!important/);
+});
+
+test('dark 全局 toast 不再白底白字', () => {
+  assert.match(css, /html\[data-theme="dark"\] #toast\{[^}]*background:#2c2c2e!important/);
+  assert.match(css, /html\[data-theme="dark"\] #toast\{[^}]*color:#f5f5f7!important/);
+});
