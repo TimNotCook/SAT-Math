@@ -1067,6 +1067,18 @@
 
   function renderResult() {
     const r = S.result; if (!r) return;
+    /* 存档里的成绩报告可能是旧版本/半截写入/云端合并产物：缺 estimate、report
+       或 total/correct 不是数字时，整页不能因为一个字段就白屏。能算的从 detail
+       现算，算不出的显示「—」。 */
+    const detail0 = asArr(r.detail).filter(d => d && typeof d === 'object');
+    const total = Number.isFinite(Number(r.total)) && Number(r.total) > 0 ? Number(r.total) : detail0.length;
+    const correct = Number.isFinite(Number(r.correct)) ? Number(r.correct) : detail0.filter(d => d.correct).length;
+    const elapsed = Number.isFinite(Number(r.elapsed)) && Number(r.elapsed) > 0 ? Number(r.elapsed) : 0;
+    const durationSec = Number.isFinite(Number(r.durationSec)) && Number(r.durationSec) > 0 ? Number(r.durationSec) : 0;
+    const est = asObj(r.estimate), rep = asObj(r.report);
+    const units = asArr(rep.units), topics = asArr(rep.topics), priority = asArr(rep.priority);
+    const scaled = Number.isFinite(Number(est.scaled)) ? Number(est.scaled) : null;
+    const pct = total ? Math.round(correct / total * 100) : 0;
     $('resTitle').textContent = OFFICIAL ? 'Score Report' : MODE_NAME[r.mode] + ' · 成绩报告';
     $('resSub').textContent = new Date(r.date).toLocaleString(OFFICIAL ? 'en-US' : 'zh-CN') + ' · ' +
       (OFFICIAL
@@ -1074,58 +1086,58 @@
            (MODE === 'mock' ? ' · Module 2 path: ' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : 'not reached') : ''))
         : ((r.auto ? '计时归零自动交卷' : '手动交卷') + ' · 答案已锁定' +
            (MODE === 'mock' ? ' · Module 2 路径：' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : '未进入') : '')));
-    const pct = Math.round(r.correct / r.total * 100);
     /* 只有模考换算 200–800 分；单元抽测只展示正确率，不出分、不折成 44 题。 */
     const isMock = MODE === 'mock';
+    const rawTxt = (Number.isFinite(Number(est.raw)) ? est.raw : '—') + ' / ' +
+      (Number.isFinite(Number(est.rawMax)) ? est.rawMax : '—');
     $('resScoreLabel').textContent = isMock ? T('预估 SAT 数学分数 · 200–800', 'Estimated SAT Math Score · 200–800') : '本次练习正确率';
     $('resScore').innerHTML = isMock
-      ? r.estimate.scaled + '<small> / 800</small>'
+      ? (scaled == null ? '—' : scaled) + '<small> / 800</small>'
       : pct + '<small>%</small>';
     $('resPath').textContent = isMock
       ? (OFFICIAL
-          ? 'Raw score ' + r.estimate.raw + ' / ' + r.estimate.rawMax + ' · Adaptive path: ' + (r.estimate.path === 'easy' ? 'easier' : 'harder')
-          : '原始分 raw ' + r.estimate.raw + ' / ' + r.estimate.rawMax + ' · 参考路径 ' + (r.estimate.path === 'easy' ? 'easier' : 'harder'))
-      : '答对 ' + r.correct + ' / ' + r.total + ' 题 · 正确率 ' + pct + '%';
-    const avg = Math.round(r.elapsed / r.total);
-    const slow = Math.max(0, ...asArr(r.detail).map(d => d.seconds));
+          ? 'Raw score ' + rawTxt + ' · Adaptive path: ' + (est.path === 'easy' ? 'easier' : 'harder')
+          : '原始分 raw ' + rawTxt + ' · 参考路径 ' + (est.path === 'easy' ? 'easier' : 'harder'))
+      : '答对 ' + correct + ' / ' + total + ' 题 · 正确率 ' + pct + '%';
+    const avg = total ? Math.round(elapsed / total) : 0;
+    const slow = Math.max(0, ...detail0.map(d => Number(d.seconds) || 0));
     const KV = OFFICIAL
       ? ['Correct / Total', 'Accuracy', 'Raw score (1 pt each)', 'Total time', 'Average per question', 'Longest question', 'Incorrect', 'Time limit / Used']
       : ['答对 / 总题', '正确率', '原始分（每题 1 分）', '总用时', '平均每题', '最长单题', '错题数', '限时 / 实耗'];
-    $('resKV').innerHTML = `<div><span>${KV[0]}</span><b>${r.correct} / ${r.total}</b></div>
+    $('resKV').innerHTML = `<div><span>${KV[0]}</span><b>${correct} / ${total}</b></div>
       <div><span>${KV[1]}</span><b>${pct}%</b></div>
-      <div><span>${KV[2]}</span><b>${r.correct}${OFFICIAL ? ' pts' : ' 分'}</b></div>
-      <div><span>${KV[3]}</span><b>${fmt(r.elapsed * 1000)}</b></div>
+      <div><span>${KV[2]}</span><b>${correct}${OFFICIAL ? ' pts' : ' 分'}</b></div>
+      <div><span>${KV[3]}</span><b>${fmt(elapsed * 1000)}</b></div>
       <div><span>${KV[4]}</span><b>${fmt(avg * 1000)}</b></div>
       <div><span>${KV[5]}</span><b>${fmt(slow * 1000)}</b></div>
-      <div><span>${KV[6]}</span><b>${r.total - r.correct}</b></div>
-      <div><span>${KV[7]}</span><b>${fmt(r.durationSec * 1000)} / ${fmt(r.elapsed * 1000)}</b></div>`;
+      <div><span>${KV[6]}</span><b>${total - correct}</b></div>
+      <div><span>${KV[7]}</span><b>${fmt(durationSec * 1000)} / ${fmt(elapsed * 1000)}</b></div>`;
     $('resBasis').textContent = isMock
       ? (OFFICIAL
           ? 'Estimate converts raw points to the 200–800 scale. It is a practice estimate, not an official score.'
-          : r.estimate.basis + '。' + O.scaleNote)
+          : (typeof est.basis === 'string' && est.basis ? est.basis + '。' : '') + O.scaleNote)
       : '单元练习只统计本次正确率与错题分布，不换算 SAT 分数。';
 
-    const rep = r.report;
-    $('resUnits').innerHTML = rep.units.map(u => {
+    $('resUnits').innerHTML = units.map(u => {
       const nm = OFFICIAL ? (UNIT_EN[u.unit] || u.name) : u.name;
       return `<div class="kp-row"><span class="nm" title="${esc(nm)}">${esc(nm)}</span>
       <span class="bar"><i style="width:${Math.round((1 - u.rate) * 100)}%;background:${u.rate > .5 ? 'var(--bad)' : u.rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
       <span class="pct">${OFFICIAL ? 'Wrong ' : '错 '}${u.wrong}/${u.n}</span></div>`;
     }).join('') || `<div class="small muted">${OFFICIAL ? 'All correct — nothing to prioritize' : '本次全部答对，无需补强'}</div>`;
-    $('resTopics').innerHTML = rep.topics.slice(0, 12).map(t => `<div class="kp-row"><span class="nm" title="${esc(t.name)}">${esc(t.name)}</span>
+    $('resTopics').innerHTML = topics.slice(0, 12).map(t => `<div class="kp-row"><span class="nm" title="${esc(t.name)}">${esc(t.name)}</span>
       <span class="bar"><i style="width:${Math.round((1 - t.rate) * 100)}%;background:${t.rate > .5 ? 'var(--bad)' : t.rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
       <span class="pct">错 ${t.wrong}/${t.n}</span></div>`).join('');
-    $('resPriority').innerHTML = rep.priority.map(p => `<div class="prio-item">
+    $('resPriority').innerHTML = priority.map(p => `<div class="prio-item">
       <span class="prio-lv ${p.level.toLowerCase()}">${p.level}</span>
       <div style="flex:1"><b>${esc(p.name)}</b> <span class="tiny muted">${p.type === 'unit' ? '单元' : '知识点'}</span>
         <div class="small muted" style="margin-top:2px">${esc(p.reason)}</div>
         <div class="tiny" style="margin-top:3px;color:var(--blue-strong)">${esc(p.action)}</div>
-        <div class="tiny muted" style="margin-top:3px">对应错题：${esc(p.wrongIds.join('、')) || '—'}</div></div></div>`).join('') || '<div class="small muted">本次无错题</div>';
+        <div class="tiny muted" style="margin-top:3px">对应错题：${esc(asArr(p.wrongIds).join('、')) || '—'}</div></div></div>`).join('') || '<div class="small muted">本次无错题</div>';
     renderTypeSummary();
     renderResultList();
   }
   function renderResultList() {
-    const r = S.result, allD = asArr(r.detail), list = resultTab === 'wrong' ? allD.filter(d => !d.correct) : allD;
+    const r = S.result, allD = asArr(r.detail).filter(d => d && typeof d === 'object'), list = resultTab === 'wrong' ? allD.filter(d => !d.correct) : allD;
     const AN = window.TD_ANALYSIS;
     $('resList').innerHTML = list.map(d => {
       const crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(d.id) : [];
@@ -1157,7 +1169,7 @@
     const box = $('resTypes'); if (!box) return;
     const r = S.result, AN = window.TD_ANALYSIS;
     if (!r || !AN) return;
-    const groups = AN.aggregate(asArr(r.detail), BANK, window.TD_TEXT || {});
+    const groups = AN.aggregate(asArr(r.detail).filter(d => d && typeof d === 'object'), BANK, window.TD_TEXT || {});
     if (!groups.length) { box.innerHTML = '<div class="small muted">本次全部答对，无需补强。</div>'; return; }
     box.innerHTML = groups.map(g => `<div class="prio-item"><span class="prio-lv ${'c' + g.count}">${g.count}</span>
       <div style="flex:1"><b>${esc(g.label)}</b> <span class="tiny muted">${g.ids.length} 题</span>

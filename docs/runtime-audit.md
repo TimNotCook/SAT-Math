@@ -338,3 +338,15 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 修法：`collect()` 的 wrongLog 分支去掉 `a&&a.correct` 前置条件——只要台账里有一个「按当前答案仍然算错」的作答，就记一笔；`a` 存在且已订正时仍由后面的复核循环标 `corrected=true`。
 
 验证：`test/array-guard.test.js` +1 条（only-wrongLog 存档下错题本必须非空且含该题），旧代码 1 红、新代码 8/0；`node --test` 全量全绿；`verify_junk` 5 套 × 六页全绿。
+
+## 第 24 条：老存档的成绩报告缺 estimate/report → 点「查看成绩报告」白屏（2026-11-27）
+
+复现（`tools/verify_result_degrade.mjs`）：`tdsat_exam_suite_session_v1` 里 `finished:true`、22 题卷面与 uid 都合法，但 `result` 是旧版本/半截写入的形状（`estimate:null`、`report:null`）。`parseSession` 只校验卷面与时钟，放行后开始页显示「View Score Report」；一点，`renderResult` 的 `r.estimate.scaled` 抛 `Cannot read properties of null (reading 'scaled')`，成绩页整页白屏。
+
+同一函数里还有一串同类裸取：`r.report.units/topics/priority`、`r.correct/r.total/r.elapsed/r.durationSec`、`p.wrongIds.join`；`renderResultList` 对 `detail` 里的 null 条目也是裸 `d.correct`。任一字段残缺都会把「已交卷、有成绩」变成打不开的报告。
+
+修法：`renderResult` 开头统一降级——`detail0` 过滤非对象条目，`total/correct/elapsed/durationSec` 非有限数时从 detail 现算或归零，`estimate/report` 过 `asObj`、数组过 `asArr`；分数显示「— / 800」，原始分「— / —」，报告空态照常渲染。列表页与错因聚合同样先过滤 null 条目。
+
+验证：`tools/verify_result_degrade.mjs` 在临时 profile 种残缺 result、点 Start：旧代码 1 条 TypeError、成绩页不可见；新代码 0 异常、`resultShown:true`、分数 `— / 800`、`Correct / Total 5 / 22`。`test/array-guard.test.js` +1 条静态守卫（必须 `asObj(r.estimate)`、禁止裸取），旧代码 1 红、新代码全绿。
+
+回归：`node --test` 284/0；`verify_exam_timeout` 13/13、`verify_flows` 16/16、`verify_grading_ui` 8/8、`verify_runtime` 六页 0 异常、`verify_junk` 5×6。

@@ -103,6 +103,14 @@ test('成绩记录里 detail 是对象、条目是 null 时，错题本与记录
   assert.strictEqual(threw, null, '记录页被坏 detail 打崩：' + (threw && threw.message));
 });
 
+test('exam.js 成绩页对残缺 result 降级：estimate/report 缺失也不白屏', () => {
+  const s = fs.readFileSync(path.join(ROOT, 'exam.js'), 'utf8');
+  assert.ok(/const est = asObj\(r.estimate\), rep = asObj\(r.report\)/.test(s),
+    'renderResult 没有把 estimate/report 过 asObj 降级');
+  assert.ok(!/r\.estimate\.(scaled|raw|rawMax|path)/.test(s), 'renderResult 还在裸取 r.estimate 字段');
+  assert.ok(!/rep\.(units|topics|priority)\./.test(s), 'renderResult 还在裸取 report 的数组字段');
+});
+
 test('bump_assets.py 拒绝在任何带冲突标记的文件上跑', () => {
   const s = fs.readFileSync(path.join(ROOT, 'bump_assets.py'), 'utf8');
   assert.ok(/def assert_no_conflict_markers\(\)/.test(s), 'bump_assets 缺冲突标记闸门');
