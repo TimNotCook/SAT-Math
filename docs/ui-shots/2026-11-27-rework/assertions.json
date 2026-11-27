@@ -1,0 +1,74 @@
+{
+  "drill-1280": {
+    "sigma": 0,
+    "sigmaText": 0,
+    "counters": 0,
+    "percents": 0,
+    "entryCols": 3,
+    "secCols": 4,
+    "tileCount": 24,
+    "wideTiles": 0,
+    "lgTiles": 15
+  },
+  "drill-655": {
+    "sigma": 0,
+    "sigmaText": 0,
+    "counters": 0,
+    "percents": 0,
+    "entryCols": 2,
+    "secCols": 2,
+    "tileCount": 24,
+    "wideTiles": 0,
+    "lgTiles": 15
+  },
+  "drill-390": {
+    "sigma": 0,
+    "sigmaText": 0,
+    "counters": 0,
+    "percents": 0,
+    "entryCols": 1,
+    "secCols": 1,
+    "tileCount": 24,
+    "wideTiles": 9,
+    "lgTiles": 15
+  },
+  "exam-1280": {
+    "blurb": 0,
+    "backEntries": 1,
+    "mixedButtons": 0,
+    "mixedList": [],
+    "cjkButtons": [],
+    "title": "模考"
+  },
+  "exam-655": {
+    "blurb": 0,
+    "backEntries": 1,
+    "mixedButtons": 0,
+    "mixedList": [],
+    "cjkButtons": [],
+    "title": "模考"
+  },
+  "exam-390": {
+    "blurb": 0,
+    "backEntries": 1,
+    "mixedButtons": 0,
+    "mixedList": [],
+    "cjkButtons": [],
+    "title": "模考"
+  },
+  "wrong-1280": {
+    "subtitle": 0,
+    "fortyFourInStats": 0,
+    "backEntries": 1
+  },
+  "wrong-655": {
+    "subtitle": 0,
+    "fortyFourInStats": 0,
+    "backEntries": 1
+  },
+  "wrong-390": {
+    "subtitle": 0,
+    "fortyFourInStats": 0,
+    "backEntries": 1
+  }
+}

@@ -249,9 +249,10 @@ function importedGroupHtml(){
      '<div class="wrong-hero-num">'+todo+'<small>题</small></div>'+
      (empty?'<p class="wrong-hero-sub">'+empty+'</p>':'')+
      '</div>'+
-     '<div class="stat-card"><span>已订正</span><b>'+done+'</b></div>'+
+     (total?('<div class="stat-card"><span>已订正</span><b>'+done+'</b></div>'+
      '<div class="stat-card"><span>涉及单元</span><b>'+unitN+'</b></div>'+
-     '<div class="stat-card"><span>今日新增</span><b>'+todayN+'</b></div>';
+     '<div class="stat-card"><span>今日新增</span><b>'+todayN+'</b></div>'):'');
+   if(el.classList)el.classList.toggle('stat-grid-empty',!total);
  }
  function render(){
    renderHero();
