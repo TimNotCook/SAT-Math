@@ -92,3 +92,9 @@ test('成绩页 total/correct/elapsed 不再把布尔 Number 成 1', () => {
   assert.match(seg, /const rElapsed = safeNum\(r\.elapsed\)/);
   assert.ok(!/Number\.isFinite\(Number\(r\.total\)\)/.test(seg), '总题数还在裸 Number，布尔会变 1');
 });
+
+
+test('成绩页最长单题用 safeNum，布尔/Infinity 不能污染统计', () => {
+  const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
+  assert.match(seg, /Math\.max\(0, \.\.\.detail0\.map\(d => safeNum\(d\.seconds\)/, '最长单题仍在裸 Number');
+});

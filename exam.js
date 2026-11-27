@@ -1237,7 +1237,9 @@
           : '原始分 raw ' + rawTxt + ' · 参考路径 ' + (est.path === 'easy' ? 'easier' : 'harder'))
       : '答对 ' + correct + ' / ' + total + ' 题 · 正确率 ' + pct + '%';
     const avg = total ? Math.round(elapsed / total) : 0;
-    const slow = Math.max(0, ...detail0.map(d => Number(d.seconds) || 0));
+    /* seconds 可能是布尔/Infinity/对象：Number(true) 会变成 1 秒，
+       Infinity 会把「最长单题」算成 Infinity。统一走 safeNum。 */
+    const slow = Math.max(0, ...detail0.map(d => safeNum(d.seconds) || 0));
     const KV = OFFICIAL
       ? ['Correct / Total', 'Accuracy', 'Raw score (1 pt each)', 'Total time', 'Average per question', 'Longest question', 'Incorrect', 'Time limit / Used']
       : ['答对 / 总题', '正确率', '原始分（每题 1 分）', '总用时', '平均每题', '最长单题', '错题数', '限时 / 实耗'];
