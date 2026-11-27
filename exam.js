@@ -1151,7 +1151,7 @@
                from: inst.from, correct: ok, given,
                answer: q.type === 'grid' && q.answer == null ? q.value : q.answer,
                points: ok ? 1 : 0,
-               seconds: Math.round((a.spent || 0) / 1000), marked: isRightFlag(a.marked) };
+               seconds: Math.round((safeNum(a.spent) || 0) / 1000), marked: isRightFlag(a.marked) };
     });
     const correct = detail.filter(d => isRightFlag(d.correct)).length;
     const est = C.estimateScore(MODE, correct, detail.length, S.path);
@@ -1202,7 +1202,7 @@
     /* date 可能是 null/0（旧存档/云端合并）：new Date(null) 会显示 1970 年。
        数字字符串先按时间戳；ISO 字符串才交给 Date 解析；空/0 一律显示「—」。 */
     /* true/false 的 Number() 是 1/0：旧记录日期是布尔时也会落进 1970。 */
-    const dateNum = typeof r.date === 'boolean' ? NaN : Number(r.date);
+    const dateNum = typeof r.date === 'boolean' || (typeof r.date === 'object' && !(r.date instanceof Date)) ? NaN : Number(r.date);
     const dateRaw = typeof r.date === 'string' ? r.date.trim() : '';
     const dateObj = Number.isFinite(dateNum) && dateNum > 0
       ? new Date(dateNum)
