@@ -168,9 +168,11 @@
       });
       /* wrongLog 必须跟答案一起搬：旧板块键删掉时它不在 answers/marks 里，
          不搬就等于「以前错过的题从没输过」——错题蒸发。 */
+      /* dst.wrongLog 可能是字符串/数组（云端合并/旧版）：直接往原始值上挂属性
+         在严格模式会 TypeError，整次写盘失败。先归一成普通对象。 */
+      if (!isPlainObject(dst.wrongLog)) dst.wrongLog = {};
       Object.keys(src.wrongLog || {}).forEach(function (qid) {
         var nid = ALIAS[qid] || qid;
-        dst.wrongLog = dst.wrongLog || {};
         if (!dst.wrongLog[nid]) dst.wrongLog[nid] = src.wrongLog[qid];
       });
       if ((src.cursor || 0) > (dst.cursor || 0)) dst.cursor = src.cursor;

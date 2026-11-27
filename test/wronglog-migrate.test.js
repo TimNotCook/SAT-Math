@@ -93,3 +93,18 @@ test('订正之后旧错题记录不会被删（错题本才能标「已订正�
   const a = st.sections['2.7.T17'].answers['R03-001'];
   assert.strictEqual(a.correct, true, '最新作答应判对');
 });
+
+test('旧板块 wrongLog 是字符串时迁移不崩，仍能写盘', () => {
+  const seed = { sections: {
+    '2.7.T17': {
+      answers: { 'SP2-001': { v: 'A', correct: false, ts: 111 } },
+      cursor: 0, completed: false, marks: {},
+      wrongLog: 'junk',
+    },
+  }, last: null };
+  const { A, store } = boot(seed);
+  A.setAnswer('2.7.T17', 'R03-002', 'A');
+  const st = JSON.parse(store.tdsat_app_v1);
+  assert.ok(st.sections['2.7.T17'].wrongLog && typeof st.sections['2.7.T17'].wrongLog === 'object',
+    'wrongLog 应被重建为对象');
+});
