@@ -63,7 +63,14 @@ const seeded = await ev(`(function(){
   var ans = {}; paper.forEach(function(p){ ans[p.uid] = { v:'', marked:false, spent:0, locked:true }; });
   var now = Date.now();
   var s = { mode:'mock', paper:paper, answers:ans, m1Size:22, module:1,
-    m2Options:{ hard:[], easy:[] }, startedAt:now-60000, endsAt:now+600000,
+    /* 22 题停在模块一的存档，m2Options 两条自适应分支都必须各凑满 22 题
+       （exam-core 现在按 hard.length===per && easy.length===per 判合法，
+       空数组会被判存档过期，这里要给出真实形态）。 */
+    m2Options:{
+      hard: ids.map(function(id,i){ return { uid:'h'+i, id:id, from:'bank' }; }),
+      easy: ids.map(function(id,i){ return { uid:'e'+i, id:id, from:'bank' }; })
+    },
+    startedAt:now-60000, endsAt:now+600000,
     durationSec:4200, moduleEndsAt:now+600000, finished:true, stage:'result',
     result:{ total:22, correct:5, elapsed:60, durationSec:4200, estimate:null, report:null, detail:[] } };
   localStorage.setItem('tdsat_exam_suite_session_v1', JSON.stringify(s));

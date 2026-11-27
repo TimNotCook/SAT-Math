@@ -259,7 +259,13 @@ a:hover{color:var(--blue)}
 }
 .drill-unit-button:focus-visible,.drill-board-nav-item:focus-visible,
 .unit-pick button:focus-visible,.drill-section-row:focus-visible,
-.btn:focus-visible,.exam-start-actions .btn.primary:focus-visible{
+.btn:focus-visible,.exam-start-actions .btn.primary:focus-visible,
+/* 下面这些同样被上面的 outline:none!important 清过，但恢复列表漏了它们：
+   键盘 Tab 到侧栏「设置」、题库胶囊、返回键、图导入叉、结果分/单元统计/错题卡
+   时没有任何焦点提示（实测 computed outline-style 是 none）。 */
+.td-acct-btn:focus-visible,.bankpill:focus-visible,.appbar-exit:focus-visible,
+.imgimp-x:focus-visible,.drill-result-score:focus-visible,.unit-stat:focus-visible,
+.wrong-card:focus-visible{
   outline:2px solid var(--blue-strong)!important;outline-offset:2px;
 }
 /* ---------- 做题页元素（翻页键/位置按钮/选项/题号弹层）保持官方 Bluebook，不覆盖 ---------- */
@@ -1048,4 +1054,17 @@ html[data-theme="dark"] body.site-shell.shell-history .hist-list>.hist-empty .bt
 }
 html[data-theme="dark"] body.site-shell.shell-history .hist-list>.hist-empty .btn:hover{
   background:#2f3037!important;border-color:#4a4c57!important;color:#fff!important;
+}
+
+/* 键盘焦点环在暗黑下被换成浅银/浅蓝（适合深色页面），但 exam 页是白纸，
+   浅色 ring 在白底上等于没有（实测 outline 是 rgb(127,168,255)）。
+   白纸卷面里按 Bluebook 的深蓝给 ring，顺便覆盖侧栏与开场页按钮。 */
+html[data-theme="dark"] body.exam-page :focus-visible{
+  outline:2px solid #1d4ed8!important;outline-offset:2px;
+}
+/* 开场页主按钮（Start）另有高特异性暗色规则把 ring 换成浅银，白纸里同样看不见 */
+html[data-theme="dark"] body.exam-page .exam-start-actions .btn.primary:focus-visible,
+html[data-theme="dark"] body.exam-page .btn.primary:focus-visible,
+html[data-theme="dark"] body.exam-page .btn:focus-visible{
+  outline:2px solid #1d4ed8!important;outline-offset:2px;
 }

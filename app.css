@@ -1372,7 +1372,7 @@ html body .hist-empty .btn{height:46px!important;padding:0 28px!important;border
   font-size:14px!important;font-weight:700!important;letter-spacing:.01em;display:inline-flex!important;
   align-items:center!important;justify-content:center!important;line-height:1!important}
 html body .btn.primary:hover,html body.exam-page #btnStart:hover{filter:brightness(.97)}
-html body .btn.primary:focus-visible,html body.exam-page #btnStart:focus-visible{outline:2px solid #9dc0ff!important;outline-offset:3px}
+html body .btn.primary:focus-visible,html body.exam-page #btnStart:focus-visible{outline:2px solid #2563eb!important;outline-offset:3px}
 
 /* 单元切换：撤掉四个彩色圆点（蓝/紫/橙/绿没有语义，只会显廉价） */
 html body.exam-page .quiz-tab .qt-dot{display:none!important}
