@@ -189,3 +189,20 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 顺手记一个坑：`TD_BANK` 有两个数组——`units` 和 `questions`，图表题的 id（如 `U1-12`）只在 `questions` 里；用 `all` 查会全部落空，误报「题库里没有带图的题」。
 
 验收：本地 `node --test` 218/0（队友同时补了 t031 的守门断言）；本地 `verify_mobile` 28/28；线上 `verify_mobile` **28/28**、`verify_a11y` 20/20、`verify_flows` 16/16、`verify_nav` 38/38。线上 `v=3c36a67b7fc0`。
+
+## 记录页错题题干在手机上被截成半句；验收器补成绩页（第 13 条续二，2026-11-27）
+
+`verify_mobile` 加了「行内元素 scrollWidth 明显大于 clientWidth 且 overflow:hidden 就算截断」的检查，记录页第一条就红：`.hist-wrong-stem` 在 375 宽下只有 **122px**，题干「ax + by = b In the equation above…」被切成半句。桌面靠 `title` 悬浮提示补全，手机没有 hover，等于信息丢了。
+
+修法：`app.css` 末尾（必须放在 `.hist-wrong-stem` 原定义**之后**，否则被 `white-space:nowrap` 反压）加 `@media(max-width:640px)`——错题行改成两列、题干 `white-space:normal` + `-webkit-line-clamp:2`、答案另起一行。改完题干宽度 122→224px，两行能读完半道题。
+
+同轮把模考**成绩页**也拉进验收器：种一份「一小时前开始、限时已过」的会话，点 Start 走真实交卷路径落到 `stage-result`，然后量：
+
+- 整页 `scrollWidth` 不超视口；
+- `#resKV` 八个指标右边界不越界、最窄单元格 ≥40px（之前在手机上「限时 / 实耗 1:00:00 / 0:59:12」这类最长值最容易把格子撑破）；
+- `#resUnits / #resTopics` 的 `.kp-row` 不越界；
+- 切到题单 tab 后仍不横滑。
+
+一个踩过的坑：以为成绩卡是 `<table>`，实际是 `#resKV` 的一组 `<div>`，按 table 选择器去查会一直「没有表格」。验收器现在按真实结构量。
+
+验收：本地 `node --test` 223/0；本地 `verify_mobile` 42/42；线上 `verify_mobile` **42/42**、`verify_a11y` 20/20、`verify_flows` 16/16。线上 `v=47d49ef91390`。
