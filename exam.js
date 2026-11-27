@@ -728,12 +728,17 @@
         const btn = document.getElementById('btnStart');
         if (copy && btn && btn.parentNode !== copy) copy.appendChild(btn);
         /* 左栏右侧留白那一大片，用一张本单元的线稿图填住（不做标签、不写字） */
-        if (copy && !copy.querySelector('.unit-art')) {
-          const art = document.createElement('div');
-          art.className = 'unit-art';
-          art.setAttribute('aria-hidden', 'true');
+        if (copy) {
+          /* 线稿图必须跟着当前单元换：以前只在第一次渲染时插一次，
+             从 U1 切到 U2 还留着 U1 的直线图，四个单元看起来一模一样。 */
+          let art = copy.querySelector('.unit-art');
+          if (!art) {
+            art = document.createElement('div');
+            art.className = 'unit-art';
+            art.setAttribute('aria-hidden', 'true');
+            copy.appendChild(art);
+          }
           art.innerHTML = UNIT_ART[QUIZ_UNIT] || '';
-          copy.appendChild(art);
         }
       }
     }
