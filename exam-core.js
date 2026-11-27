@@ -776,7 +776,11 @@
       return {
         pos: i + 1, id: q.id, unit: q.unit, section: q.section, topic: q.topic,
         source: q.source, image: q.image, hint: q.hint, type: q.type, level: q.level,
-        correct: ok, given, answer: q.answer, points: ok ? 1 : 0,
+        correct: ok, given,
+        /* 填空只有 value（37 题）时把 value 落进 answer，否则记录页/错题本无法显示正确答案 */
+        answer: q.answer != null ? q.answer
+          : (q.value != null ? q.value : (Array.isArray(q.values) && q.values.length ? q.values.join(', ') : q.answer)),
+        points: ok ? 1 : 0,
         seconds: Math.round((a.spent || 0) / 1000), marked: !!a.marked
       };
     });

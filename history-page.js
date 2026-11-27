@@ -103,7 +103,12 @@
     return '<div class="hist-wrong">' + wrong.map(function (d) {
       var did = txt(d.id) || '—', q = byId(did) || {};
       var stem = (txt(q.stem) || txt(d.topic) || did).replace(/\s+/g, ' ').trim().slice(0, 90);
-      var ans = '你的答案 <b>' + esc(txt(d.given) || '—') + '</b> · 正确 <i>' + esc(txt(d.answer) || '—') + '</i>';
+      /* 37 道填空（SP2 系列）只有 value 没有 answer：存档里 answer 为 null 时
+         旧版记录页会印「正确 —」，等于把正确答案吞掉。按 answer → value →
+         q.value → q.values 逐级兜底，历史记录也能补出正确答案。 */
+      var corr = txt(d.answer) || txt(d.value);
+      if (!corr && q && q.type === 'grid') corr = txt(q.value) || (Array.isArray(q.values) ? q.values.join(', ') : '');
+      var ans = '你的答案 <b>' + esc(txt(d.given) || '—') + '</b> · 正确 <i>' + esc(corr || '—') + '</i>';
       return '<div class="hist-wrong-row"><span class="hist-wrong-id">' + esc(did) + '</span>' +
         '<span class="hist-wrong-stem" title="' + esc(stem) + '">' + esc(stem) + '</span>' +
         '<span class="hist-wrong-ans">' + ans + '</span></div>';
