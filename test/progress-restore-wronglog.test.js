@@ -220,3 +220,15 @@ test('本机 answers 是字符串时恢复不丢答案也不 TypeError', () => {
   assert.equal(typeof live.sections[T.sec].answers, 'object');
   assert.equal(live.sections[T.sec].answers[T.qid].v, T.answer);
 });
+
+
+test('存档答案条目的 v 是对象时恢复成空串，不写 [object Object]', () => {
+  const archive = Object.assign(mkArchive({}), {
+    sections: { [T.sec]: { answers: { [T.qid]: { v: { x: 1 }, ts: 1 } }, marks: {}, wrongLog: {} } },
+  });
+  const { SAVE, store } = boot({ sections: {}, last: null }, archive);
+  assert.ok(SAVE.restore().ok);
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.equal(typeof live.sections[T.sec].answers[T.qid].v, 'string');
+  assert.equal(live.sections[T.sec].answers[T.qid].v, '');
+});
