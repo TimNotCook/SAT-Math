@@ -190,7 +190,11 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
        /* wrongLog 是「只增不删」的台账：最新作答是对的 → 记「已订正」；
           最新作答被清掉（再点一次已选项 = 清空作答）或这道题只有迁移来的过错题键
           → 也要凭台账记一笔「曾经错过」，不能因为 answers 里没记录就整条消失。 */
-       else if(wl&&String(wl.v==null?'':wl.v).trim()&&stillWrong(q,wl.v))
+       /* wrongLog 条目本身也可能是对象（云端合并把 v 写成 {x:1}）：String()
+          会得到 "[object Object]"，stillWrong 判错后 add 再降级成空值，凭空
+          多一张「你的答案 未作答」的幽灵错题卡。只接收字符串/数字 v。 */
+       else if(wl&&typeof wl==='object'&&!Array.isArray(wl)&&
+         (typeof wl.v==='string'||typeof wl.v==='number')&&String(wl.v).trim()&&stillWrong(q,wl.v))
          add(map,q,wl.v,src,wl.ts||0);});});
    loadArr('tdsat_exam_suite_results_v1').forEach(function(r){if(!r||typeof r!=='object')return;var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':r.mode==='jiangyi'?'讲义复习':'考试练习';
      /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(r.void)return;

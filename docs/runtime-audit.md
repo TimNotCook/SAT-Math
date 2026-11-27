@@ -558,3 +558,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `app-core.js normalize()` 迁移旧节 `wrongLog` 时只保证 `dst.answers`、`dst.marks` 是对象，没检查 `dst.wrongLog`。目标板块的 `wrongLog` 是 `'junk'` 时，strict mode 下 `dst.wrongLog[qid] = ...` 直接 `Cannot create property ... on string`，整页加载崩；是数组时属性写进数组自定义键，`JSON.stringify` 后只剩 `[]`，旧错题蒸发。
 
 修法：迁移前把 `dst.wrongLog` 归成普通对象，源 `src.wrongLog` 只接受普通对象。验证：旧节 `2.6` → `2.7.T23`，目标 `wrongLog:'junk'`，旧代码 TypeError，新代码可写回且 `R03-361` 记录落库；`test/state-shape.test.js` 8/8。全量 `node --test` 375/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 53 条：wrongLog 条目 v 是对象，错题本画「未作答」幽灵卡（2026-11-27）
+
+云端合并/旧版可能把 `wrongLog[qid]` 写成 `{v:{x:1}}`。`wrong-page.js collect()` 原来只判 `wl && String(wl.v).trim()`，对象 `v` 会得到 `[object Object]`，`stillWrong` 判错后 `add()` 再把对象降级成空串，于是凭空多一张「你的答案 未作答」的错题卡。
+
+修法：只接收字符串/有限数字的 `v`，对象/数组条目直接跳过。验证：真实板块第一条题种 `{v:{x:1},ts:…}`，旧代码渲染「未作答」，新代码不渲染；`test/array-guard.test.js` 新增回归。全量 `node --test` 383/0；`verify_junk` 11×7；`verify_flows` 16/16。

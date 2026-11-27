@@ -103,6 +103,23 @@ test('脏存档体检脚本存在、复用 lib/chrome 与 lib/serve', () => {
   assert.ok(/L-history-objects/.test(s), 'verify_junk 缺少「成绩记录展示字段全是对象」画像（第 29 条）');
 });
 
+test('wrongLog 条目 v 是对象时，不画「未作答」幽灵错题卡', () => {
+  /* 找一个真实板块和题目，只种这一条坏台账；正确/错误答案都不该出现。 */
+  const store = { tdsat_app_v1: JSON.stringify({ sections: {} }) };
+  const probe = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], {});
+  const sec = probe.sandbox.TD_APP.SECS[0], qid = probe.sandbox.TD_APP.CATALOG[sec][0].id;
+  const st = { sections: {} };
+  st.sections[sec] = { answers: {}, marks: {}, wrongLog: {} };
+  st.sections[sec].wrongLog[qid] = { v: { x: 1 }, ts: 1700000000000 };
+  store.tdsat_app_v1 = JSON.stringify(st);
+  let threw = null, els = null;
+  try { els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '对象 v 打崩错题本：' + (threw && threw.message));
+  const html = els && els.wrongList ? els.wrongList.innerHTML : '';
+  assert.ok(!/未作答/.test(html), '对象型 wrongLog.v 被画成了「未作答」幽灵错题');
+});
+
 test('导入错题 stem 是对象/数组时不崩页', () => {
   const store = {
     tdsat_imported_wrong_v1: JSON.stringify({ items: [
