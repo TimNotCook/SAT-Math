@@ -1184,6 +1184,15 @@ html:not([data-theme="dark"]) body.exam-page #stage-result .prio-item{border-bot
 html:not([data-theme="dark"]) body.exam-page #stage-result .prio-item b{font-size:14px!important;color:#20242b!important}
 html:not([data-theme="dark"]) body.exam-page #stage-result .prio-lv{background:transparent!important;border:1px solid #e7e3da!important;border-radius:2px!important;color:#8d9199!important;font-size:10px!important;letter-spacing:.08em!important}
 
+/* ---- 模考成绩：只剩一个板块时铺满整行；弱点行不再截断 ---- */
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-result .res-grid{grid-template-columns:minmax(0,1fr)!important;gap:26px!important;max-width:none!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row{display:grid!important;grid-template-columns:minmax(0,1.5fr) minmax(80px,1fr) auto!important;align-items:center!important;gap:20px!important;padding:12px 2px!important;border-bottom:1px solid #efebe2!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row:first-child{border-top:1px solid #efebe2!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .nm{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;font-size:13.5px!important;line-height:1.45!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .bar{height:3px!important;min-height:0!important;border-radius:0!important;background:#efebe2!important;background-image:none!important;border:0!important;overflow:hidden!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .bar i{border-radius:0!important;height:3px!important;min-width:0!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .pct{font-size:11.5px!important;font-weight:500!important;color:#8d9199!important;text-align:right!important;white-space:nowrap!important;letter-spacing:.01em!important}
+
 /* ==== catalog-theme：真题练习首页纸面化 ==== */
 /* app.css:895 用 html:has(body.shell-drill){background:#f5f7fb!important} 锁住画布，
    这里用同结构选择器在 glass.css 里压回去（层叠在 app.css 之后）。 */
