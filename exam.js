@@ -295,8 +295,11 @@
       };
     });
     const now = Date.now();
+    /* 作废记录要跟着卷面归属走：Unit 2 页面捡到 Unit 1 的旧卷时，
+       留档不能把这张卷记成 Unit 2，否则云端档案里的单元归属是错的。 */
+    const savedUnit = session.mode === 'quiz' && Number(session.unitId) > 0 ? Number(session.unitId) : QUIZ_UNIT;
     const rec = {
-      date: now, mode: session.mode || MODE, unit: QUIZ_UNIT, sub: null,
+      date: now, mode: session.mode || MODE, unit: savedUnit, sub: null,
       module: session.module || 1, path: session.path || null, auto: false,
       void: true, reason: reason || 'invalid', total: detail.length,
       answered: detail.filter(d => d.given).length,
