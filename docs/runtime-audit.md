@@ -600,3 +600,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 61 条：云端 `sections` 是数组时，深合并用它顶掉本机整个对象（2026-11-27）
 
 `cloud-account deepMerge()` 遇到「一边数组、一边对象」时固定返回数组：`return Array.isArray(lo) ? lo : co`。首次登录合并本机无主进度时，云端只要有一个坏形状 `sections: []`，就会把本机 `sections` 对象整段替换成数组；随后 `applyPayload` 写盘，`app-core normalize()` 只能把数组重置成空对象——本机所有作答看似同步成功，实际全部蒸发。修法：容器形状冲突时保留非数组那侧（本项目所有状态容器都是对象，数组一律视为坏形状）。验证：`test/cloud-merge.test.js` 新增「云端 sections 是数组时不顶掉本机的对象 sections」，旧代码报「云端坏数组顶掉了本机 sections」失败，新代码通过；全量 `node --test` 460/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 62 条：云合并只认原生数字时间戳，字符串 ts 让旧答案赢、记录重复（2026-11-27）
+
+`cloud-account deepMerge()` 和 `itemSig()` 都写死 `typeof x.ts === 'number'`。旧版/手工导入把 `ts` 写成 `"1700…"` 时：答题记录不再走「时间新者赢」，两条记录会继续按对象深合并，最后 `v/correct` 平手取本机——云端更新的答案被本机旧答案压住；记录数组的签名也从 `t:200` 变成整串 JSON，同一条记录数字版/字符串版各算一条，成绩页出现重复行。修法：新增 `stampNum()`，接受有限非负数字或数字字符串，`deepMerge` 与 `itemSig` 统一用它。验证：`test/cloud-merge.test.js` 新增「字符串 ts 的作答仍按时间取新」，旧代码失败（本机 A 压住云端 B），新代码取云端 B；全量 `node --test` 461/0；`verify_junk` 11×7；`verify_flows` 16/16。

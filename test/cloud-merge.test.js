@@ -74,6 +74,15 @@ test('两边都完好 → 深合并：新 ts 的作答胜出，旧的仍在', ()
   assert.deepStrictEqual(out.sections['1.1'].answers['U1-02'], { v: 'C', correct: false, ts: 50 });
 });
 
+test('字符串 ts 的作答仍按时间取新，旧本机答案不压云端新答案', () => {
+  const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: false, ts: '100' } } } } });
+  const cloud = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'B', correct: true, ts: '200' } } } } });
+  const { M } = boot({ tdsat_app_v1: local });
+  const out = JSON.parse(M.mergeLocalWithCloud({ tdsat_app_v1: cloud }).tdsat_app_v1);
+  assert.deepStrictEqual(out.sections['1.1'].answers['U1-01'], { v: 'B', correct: true, ts: '200' },
+    '字符串 ts 让较旧的本地答案压住了云端新答案');
+});
+
 test('两台设备的模考会话绝不拼接：整份取 startedAt 较新者', () => {
   const localSess = { startedAt: 1000, stage: 'answer', module: 1, paper: [{ id: 'A' }, { id: 'B' }],
     answers: { A: { v: 'x' } }, moduleEndsAt: 5000 };

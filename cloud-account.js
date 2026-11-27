@@ -202,10 +202,18 @@
      云端；其余无时间戳的轻量 UI 状态（cursor / completed / marks 等，不涉及判分）
      冲突时仍以本机为准。仅用于"首次登录、本机进度无归属"的场景。 */
   function isPlainObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
+  /* 时间戳可能是原生数字，也可能是旧版/手工导入写的数字字符串（'1700…'）。
+     以前只认 typeof === 'number'：字符串 ts 的旧答案会在深合并里靠「本机优先」
+     赢过云端更新的答案，记录数组也会因签名不同叠出重复条目。 */
+  function stampNum(v) {
+    if (v == null || v === '' || typeof v === 'boolean' || typeof v === 'object') return null;
+    var n = Number(v);
+    return isFinite(n) && n >= 0 ? n : null;
+  }
   function itemSig(x) {
     if (isPlainObj(x)) {
-      if (typeof x.date === 'number') return 'd:' + x.date;
-      if (typeof x.ts === 'number') return 't:' + x.ts;
+      var d = stampNum(x.date); if (d != null) return 'd:' + d;
+      var t = stampNum(x.ts); if (t != null) return 't:' + t;
       if (x.id != null) return 'i:' + x.id;
       if (x.uid != null) return 'u:' + x.uid;
     }
@@ -223,9 +231,10 @@
   function deepMerge(lo, co) {
     if (lo === undefined) return co;
     if (co === undefined) return lo;
-    // 版本化叶子：两边都带数字 ts → 较新的那份胜出（最后写入者赢）。
-    if (isPlainObj(lo) && isPlainObj(co) && typeof lo.ts === 'number' && typeof co.ts === 'number') {
-      return co.ts > lo.ts ? co : lo;
+    // 版本化叶子：两边都带可解析 ts → 较新的那份胜出（最后写入者赢）。
+    if (isPlainObj(lo) && isPlainObj(co)) {
+      var lt = stampNum(lo.ts), ct = stampNum(co.ts);
+      if (lt != null && ct != null) return ct > lt ? co : lo;
     }
     if (Array.isArray(lo) || Array.isArray(co)) {
       if (Array.isArray(lo) && Array.isArray(co)) return mergeArrays(lo, co);
