@@ -680,3 +680,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 79 条：缺 total/detail 的模考记录标题写成「全卷 0 题」（2026-11-27）
 
 `titleOf()` 原兜底是 `total == null ? 44 : total`，但 `scoreParts()` 永远返回数字，所以这条兜底是死代码。云端只保留 `estimate`/`report`、没有 `total`/`detail` 的模考记录会渲染成「官方模考 · 全卷 0 题」，学生以为整卷没题。官方模考固定 44 题，缺证据时按 44 显示。验证：新增缺 total/detail 的 `scaled:700` 记录回归，上一版显示「全卷 0 题」失败，新代码「全卷 44 题」。
+
+## 第 81 条：成绩页 `total` 小于 `detail` 条数时，整卷被印成半张卷（2026-11-28）
+
+旧版/云端合并会写 `total:22` 但 `detail` 保留 44 条。`renderResult()` 原来优先用 `r.total`，成绩页显示「22 题」；`correct` 又被夹到 `total`，22 对 22 会印成 100%，与逐题明细矛盾。修成 `total = Math.max(detail0.length, rTotal > 0 ? rTotal : 0)`：detail 是逐题证据，题数不能小于明细条数。验证：新增静态回归锁住该表达式，旧代码失败、新代码通过；全量见下。

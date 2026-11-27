@@ -85,6 +85,14 @@ test('成绩页 safeNum 不把布尔当数字（true 不能变 1 秒/1 分）', 
 });
 
 
+test('成绩页 total 小于 detail 条数时按明细题数显示，不印成半张卷', () => {
+  const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
+  assert.ok(seg.includes('const total = Math.max(detail0.length, rTotal != null && rTotal > 0 ? rTotal : 0);'),
+    'total 没有以 detail 条数为下限，22/44 会被印成 22 题');
+  assert.ok(!/const total = rTotal != null && rTotal > 0 ? rTotal : detail0\.length/.test(seg),
+    '仍直接用 r.total，detail 更多时整卷题数偏小');
+});
+
 test('成绩页 total/correct/elapsed 不再把布尔 Number 成 1', () => {
   const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
   assert.match(seg, /const rTotal = safeNum\(r\.total\)/);
