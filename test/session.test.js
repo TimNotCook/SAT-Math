@@ -93,6 +93,20 @@ describe('parseSession：作答值必须是可判分的字符串', () => {
     }
   });
 
+  test('result.detail 是空数组或一排 null 时也回到答题态；逐题对齐才保留成绩', () => {
+    const empty = baseSave({ finished: true, locked: true, stage: 'result', result: { detail: [] } });
+    const r1 = C.parseSession(empty, { mode: 'mock', isQuestionId: () => true });
+    assert.equal(r1.session.finished, false, '空 detail 仍被当成绩页');
+    const holes = baseSave({ finished: true, locked: true, stage: 'result', result: {} });
+    holes.result = { detail: Array.from({ length: holes.paper.length }, () => null) };
+    assert.equal(C.parseSession(holes, { mode: 'mock', isQuestionId: () => true }).session.finished, false,
+      'null detail 仍被当成绩页');
+    const good = baseSave({ finished: true, locked: true, stage: 'result', result: {} });
+    good.result = { detail: good.paper.map(x => ({ id: x.id })) };
+    const rg = C.parseSession(good, { mode: 'mock', isQuestionId: () => true });
+    assert.equal(rg.session.finished, true, '合法逐题 detail 被误判');
+  });
+
   test('marked / locked / finished 是字符串 false 时按布尔 false 处理', () => {
     const s = baseSave({ finished: 'false', locked: 'false' });
     s.answers['M1-1'] = { v: 'A', marked: 'false', locked: 'false', spent: 5 };

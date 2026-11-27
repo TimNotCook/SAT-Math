@@ -624,3 +624,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 67 条：finished 的 result 是数组/字符串/缺 detail，成绩页被放行成假成绩单（2026-11-27）
 
 `exam-core parseSession()` 对 `s.finished` 只看 `!s.result`：`result: []`、`"junk"`、`{}`、`{detail:null}` 都是 truthy，存档被判 `ok`，页面直接进成绩态。随后 `renderResultList()` 用 `asArr(r.detail)` 得到空数组，页头分数/题数全是 0，学生看到一张空白「0/0」成绩单，且无法回到答题态。修法：finished 必须有普通对象且 `detail` 是数组；形状不对就 `finished=false`、`locked=false`、`result=null`，stage 从 result 退回 answer。验证：`test/session.test.js` 新增五种坏 result 的回归，旧代码放行失败，新代码全部回到答题态；全量 `node --test` 496/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 68 条：result.detail 是空数组或一排 null，仍被当合法成绩单（2026-11-27）
+
+第 67 条要求 `result.detail` 是数组，但 `{detail: []}` 和 `Array(paper.length).fill(null)` 也满足「是数组」，会被放行进入成绩态；`renderResultList()` 过滤掉 null 后仍是空列表，页头 0/0、空白成绩单，跟没有 result 一样。修法：合法 result 的 detail 必须与 paper 等长，并且逐条是普通对象；空数组/一排 null/长度不符一律回到答题态。验证：`test/session.test.js` 新增「空数组/一排 null 回到答题态，逐题对齐才保留成绩」，旧代码放行失败，新代码拒绝且合法 detail 仍保留；全量 `node --test` 497/0；`verify_junk` 11×7；`verify_flows` 16/16。

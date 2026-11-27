@@ -974,8 +974,11 @@
     /* finished 必须有真正的 result 对象：数组、字符串、{detail:null} 都是
        truthy，旧实现会放行，随后成绩页拿 r.detail 渲染出一张空白假成绩。
        形状不对就回到可继续的答题态，而不是显示一张 0/0 的成绩单。 */
+    /* detail 光「是数组」还不够：空数组或一排 null 同样会渲染出 0/0 假成绩。
+       合法 result 必须逐题一条对象，长度与 paper 对齐。 */
     const resultOk = s.result && typeof s.result === 'object' && !Array.isArray(s.result) &&
-      Array.isArray(s.result.detail);
+      Array.isArray(s.result.detail) && s.result.detail.length === paper.length &&
+      s.result.detail.every(d => d && typeof d === 'object' && !Array.isArray(d));
     if (s.finished && !resultOk) {
       s.finished = false; s.locked = false; s.result = null;
       if (s.stage === 'result') s.stage = 'answer';
