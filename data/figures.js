@@ -265,7 +265,7 @@ window.TD_FIG_SPECS = {
   // Axis 720–732, unit ticks every 1, labels every 2; title sits under the number line.
   'TD-25-06': {
     type: 'chart',
-    x: { min: 719, max: 733, step: 1, labels: [720, 722, 724, 726, 728, 730, 732], label: 'Orbital period (days)' },
+    x: { min: 720, max: 732, step: 1, labels: [720, 722, 724, 726, 728, 730, 732], label: 'Orbital period (days)' },
     y: { min: 0, max: 4, step: 1 },
     yAxis: false, grid: false,
     pageRegion: [0.253, 0.450, 0.737, 0.542],
