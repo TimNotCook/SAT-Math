@@ -185,7 +185,9 @@
     (function parenFractions() {
       var guard = 0;
       while (guard++ < 30) {
-        var m = /\)\s*\/|(\d+|[A-Za-z])\s*\/\s*\(/.exec(s);
+        /* 分子不能只取一个字符：20πx/(π²-x²) 曾把 20π 留在外面、只把 x 压成分子；
+           分子里还可能带 Unicode 上标（π²）与占位 token（^{2}）。 */
+        var m = /\)\s*\/|((?:\u0001\d+\u0001|[A-Za-z0-9\u03c0\u00b2\u00b3\u00b9\u2070\u2074-\u2079])+)\s*\/\s*\(/.exec(s);
         if (!m) break;
         var num, den, start, end;
         if (m[0].charAt(0) === ')') {
@@ -216,7 +218,7 @@
     // 4c) variable/number, number/variable, variable/variable simple fractions:
     //     j/4, -x/5, 5r/7, b/k, 48/x, a/b, V/R. Prose slashes (and/or) never
     //     match because both sides must be a bare variable or number token.
-    s = s.replace(/(^|[\s(=(])(-?\d*[A-Za-z][A-Za-z0-9\u0001]*|-?\d+)\s*\/\s*([A-Za-z]|\d+)(?=$|[\s,.).+;+\-\]])/g,
+    s = s.replace(/(^|[\s(=(])(-?\d*[A-Za-z\u03c0][A-Za-z0-9\u0001\u03c0\u00b2\u00b3\u00b9\u2070\u2074-\u2079]*|-?\d+)\s*\/\s*([A-Za-z\u03c0]|\d+)(?=$|[\s,.).+;+\-\]])/g,
       function (m, pre, num, den) { return pre + frac(num, den); });
 
 

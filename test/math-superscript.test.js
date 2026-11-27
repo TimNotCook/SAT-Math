@@ -70,3 +70,11 @@ test('fmtMath：根号里套分数要印成「根号横线 + 上下叠分式」'
   const plain = F.fmtMath('\u221a((x-2)^{2})');
   assert.ok(!plain.includes('td-frac'), `不该把普通根式改成叠分式：${plain}`);
 });
+test('fmtMath：分式分子带系数/π/上标时整串压成分子（不许只取一个字符）', () => {
+  const num = (html) => (html.match(/td-num">([^<]*)/) || [])[1] || '';
+  assert.strictEqual(num(F.fmtMath('20\u03c0x/(\u03c0\u00b2-x\u00b2)')), '20\u03c0x');
+  assert.strictEqual(num(F.fmtMath('20\u03c0\u00b2/(\u03c0\u00b2 - x\u00b2)')), '20\u03c0\u00b2');
+  assert.strictEqual(num(F.fmtMath('5\u03c0/4')), '5\u03c0');
+  assert.strictEqual(num(F.fmtMath('prs/(pr + ps + rs)')), 'prs');
+  assert.ok(num(F.fmtMath('prs/(pr + ps + rs)')) !== '', '应压成叠分式');
+});
