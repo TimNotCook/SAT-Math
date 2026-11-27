@@ -260,3 +260,13 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 验证：`test/array-guard.test.js` 新增 1 条（vm 跑两页真实脚本，种「detail 是字符串 + 数组里有 null/数字」），先证红（1 红）后证绿（5/5）。`verify_junk` 三套 × 六页全绿（有画像 B 从「2 项异常 + 错题本 0 字」变成「0 异常 + 40 字」）。
 
 回归：`node --test` **244/0**；`verify_junk` 3×6 全绿；`verify_flows` 16/16；`verify_exam_timeout` 13/13；`verify_session` 22/22；`verify_runtime` 六页 0 异常。
+
+## 第 18 条：云端合并在「一边坏 JSON」时会把坏值顶上去，反推云端冲掉账号好数据（2026-11-27）
+
+审 `cloud-account.js` 的 `mergeLocalWithCloud()`：`JSON.parse(local)/JSON.parse(cloud)` 任一失败，`catch` 里一律 `out[k] = local[k]`。于是「本机写盘中断留下半截 JSON、云端完好」这一场景下，合并结果里这一键被替换成本机的坏串；紧接着 `silentPush` 把整包推回云端——账号里唯一的好档案被坏档案覆盖，换设备也救不回来。方向反过来（云端坏、本机好）没问题，只是运气。
+
+修法：`catch` 里再判一次哪边能 `JSON.parse`，能用的那份留下；两边都坏才回退本机。顺手把 `canon / deepMerge / mergeLocalWithCloud / mergeArrays / itemSig` 只读挂到 `window.TD_CLOUD_MERGE`，给无账号环境下的单测用（不联网、不写云）。
+
+验证：`test/cloud-merge.test.js` 3 条（vm 跑真实 `cloud-account.js`，只取钩子）——本机坏/云端好保留云端、云端坏/本机好保留本机、两边都好按 ts 深合并。用「旧代码 + 只补钩子」复现：`坏的本机存档覆盖了云端好数据` 1 红；新代码 3 绿。
+
+回归：`node --test` 全量全绿；`verify_junk` 3×6、`verify_flows` 16/16、`verify_mobile` 50/50、`verify_runtime` 六页 0 异常。

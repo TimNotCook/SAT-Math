@@ -246,7 +246,14 @@
       try {
         var lo = JSON.parse(local[k]), co = JSON.parse(out[k]);
         out[k] = JSON.stringify(deepMerge(lo, co));
-      } catch (e) { out[k] = local[k]; }
+      } catch (e) {
+        /* 两边至少有一份不是合法 JSON：别让坏的那份覆盖好的那份。
+           本机半截存档 + 云端完好时，以前的实现会把坏值写回 out[k]，
+           接着被 silentPush 推上云，等于把账号里的好数据冲掉。 */
+        var coOk = true;
+        try { JSON.parse(out[k]); } catch (e2) { coOk = false; }
+        out[k] = coOk ? out[k] : local[k];
+      }
     });
     return out;
   }
@@ -950,6 +957,13 @@
       silentPush();
     });
   }
+
+  /* 诊断钩子：合并逻辑（canon / deepMerge / mergeLocalWithCloud）对外只读暴露，
+     便于 tools / 单测在无账号环境里验证「坏存档不覆盖好存档」这类不变量。 */
+  try {
+    window.TD_CLOUD_MERGE = { canon: canon, deepMerge: deepMerge, mergeLocalWithCloud: mergeLocalWithCloud,
+      mergeArrays: mergeArrays, itemSig: itemSig };
+  } catch (e) { console.warn('合并诊断钩子注册失败', e); }
 
   function boot() {
     loadProf();
