@@ -1,0 +1,20 @@
+/* ==== result-practice-refine：板块结果页收口（在 result-practice-theme 之上） ==== */
+
+/* 页头加一行眉标，与其他页同语言 */
+html:not([data-theme="dark"]) body.drill-page #resultView h1{position:relative!important}
+html:not([data-theme="dark"]) body.drill-page #resultView h1::before{content:"SECTION RESULT";display:block!important;font-size:9.5px!important;font-weight:600!important;letter-spacing:.18em!important;color:#a8acb4!important;margin:0 0 8px!important}
+
+/* 你的答案 / 正确答案：从两个格子改成一行字，值按对错上色 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-answers{display:flex!important;flex-wrap:wrap!important;align-items:baseline!important;gap:10px 34px!important;max-width:none!important;margin:0!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-answers>div{display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:0!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-answers span{font-size:9.5px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#a8acb4!important;font-weight:600!important;flex:none!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-answers b{font-size:14px!important;font-weight:700!important;color:#20242b!important;font-variant-numeric:tabular-nums!important;letter-spacing:.01em!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-wrong .drill-result-answers>div:first-child b{color:#b5533b!important;text-decoration:line-through!important;text-decoration-thickness:1px!important;text-decoration-color:#e0c0b6!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-right .drill-result-answers>div:first-child b{color:#2f6b4f!important}
+
+/* 查看本题：去掉下划线，弱化到悬停才现 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-jump{border-bottom:0!important;padding-bottom:0!important;font-size:11px!important;opacity:.4!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hover .drill-result-jump{opacity:.85!important}
+
+/* 行悬停：极轻的纸色，不做卡片 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hover{background:#fffdfa!important;box-shadow:inset 2px 0 0 #e7e3da!important}
