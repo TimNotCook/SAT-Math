@@ -74,3 +74,11 @@ test('dark UNIT 筛选胶囊/错题小标签可读', () => {
   assert.match(css, /html\[data-theme="dark"\] \.filter-btn:not\(\.on\):hover\{[^}]*background:rgba\(255,255,255,\.12\)!important/);
   assert.match(css, /html\[data-theme="dark"\] \.wrong-hero-label\{color:var\(--sub\)!important\}/);
 });
+
+test('dark 图片识别导入面板不再白膜灰字', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.imgimp-x\{[^}]*background:rgba\(255,255,255,\.06\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.imgimp-x\{[^}]*color:#f5f5f7!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.imgimp-drop\{[^}]*background:rgba\(255,255,255,\.06\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.imgimp-row select,[^}]*background:#2c2c2e!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.imgimp-ocr,[^}]*color:#e8e8ea!important/);
+});

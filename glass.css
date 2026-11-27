@@ -740,3 +740,45 @@ html[data-theme="dark"] .filter-btn:not(.on):hover{
 /* 错题页「待订正错题」11px 小标签：--faint=#6e6e73 叠 #1c1c1e 只有 3.36:1，
    小号全大写字母更难读，暗黑下提到 --sub。 */
 html[data-theme="dark"] .wrong-hero-label{color:var(--sub)!important}
+
+/* ==================== 暗黑主题：图片识别导入面板 ====================
+   bluebook 给关闭按钮/拖拽区/候选卡/下拉框都写了半透明白膜（.4–.7），
+   暗黑下变成中浅灰；文字仍是 var(--sub)/var(--ink) 的浅灰浅银 → 灰底灰字。
+   关闭按钮「关闭」、拖拽提示、识别后的 OC 候选与下拉选项几乎读不出。
+   统一改成深玻璃底 + 浅字，hover 只抬亮度不反白。 */
+html[data-theme="dark"] .imgimp-x{
+  background:rgba(255,255,255,.06)!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#f5f5f7!important;
+}
+html[data-theme="dark"] .imgimp-x:hover{
+  background:rgba(255,255,255,.14)!important;
+  color:#fff!important;
+}
+html[data-theme="dark"] .imgimp-drop{
+  background:rgba(255,255,255,.06)!important;
+  border-color:rgba(255,255,255,.18)!important;
+  color:#b8b8bd!important;
+}
+html[data-theme="dark"] .imgimp-drop:hover,
+html[data-theme="dark"] .imgimp-drop.is-dragover{
+  background:rgba(37,99,235,.18)!important;
+  border-color:rgba(96,165,250,.50)!important;
+  color:#f5f5f7!important;
+}
+html[data-theme="dark"] .imgimp-row select,
+html[data-theme="dark"] .imgimp-grid select,
+html[data-theme="dark"] .imgimp-actions select{
+  background:#2c2c2e!important;
+  border-color:rgba(255,255,255,.16)!important;
+  color:#f5f5f7!important;
+}
+html[data-theme="dark"] .imgimp-ocr,
+html[data-theme="dark"] .imgimp-cand{
+  background:rgba(255,255,255,.06)!important;
+  color:#e8e8ea!important;
+}
+html[data-theme="dark"] .imgimp-cand:hover{
+  background:rgba(255,255,255,.12)!important;
+  border-color:rgba(96,165,250,.45)!important;
+}
