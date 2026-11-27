@@ -1714,9 +1714,11 @@ html:not([data-theme="dark"]) body.jy-page #jyQuiz .drill-questionbar-inner{heig
 html:not([data-theme="dark"]) body.jy-page #jyQuiz .drill-qnumber{width:auto!important;min-width:0!important;height:auto!important;border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important;color:#20242b!important;font-size:15px!important;font-weight:600!important;font-variant-numeric:tabular-nums}
 html:not([data-theme="dark"]) body.jy-page #jyQuiz .jy-position{font-size:11.5px!important;color:#a8acb4!important;font-variant-numeric:tabular-nums!important}
 
-/* 题干与图 */
+/* 题干与图：图卡左贴题干，宽度不超过 500（图不能比题干占得还大） */
 html:not([data-theme="dark"]) body.jy-page #jyQuiz .drill-stem{font-size:16.5px!important;line-height:1.72!important;color:#20242b!important;max-width:68ch}
-html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure{background:#fffdfa!important;border:1px solid #efebe2!important;border-radius:8px!important;padding:14px!important;box-shadow:none!important;max-width:640px!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure{display:block!important;width:100%!important;max-width:500px!important;margin:6px 0 18px!important;background:#fffdfa!important;border:1px solid #efebe2!important;border-radius:8px!important;padding:14px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure svg,
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure img{width:100%!important;height:auto!important;max-width:100%!important}
 
 /* 选项：整行 + 发丝分隔 */
 html:not([data-theme="dark"]) body.jy-page #jyQuiz .drill-choices{gap:0!important;max-width:100%!important}
