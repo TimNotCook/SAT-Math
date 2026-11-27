@@ -21,11 +21,13 @@ SOURCES = [
     "tools/notes-theme.css",
     "tools/notes-quiz-theme.css",
     "tools/empty-state-theme.css",
+    "tools/history-card-theme.css",
 ]
-# 15 份：抽在开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
+# 16 份：抽在开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
 # 目录+讲义 / 错题·记录空态 / 真题答题页 / 模考开场 / 板块结果 /
-# 结果页底座 / 画布兜底 / 讲义首页 / 讲义做题页 / 记录·错题页头。
-# 33: 成绩页单题列表改阅卷行。
+# 结果页底座 / 画布兜底 / 讲义首页 / 讲义做题页 / 记录·错题页头 /
+# 记录页空态卡。
+# 34: 记录页空态卡压回纸面。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
