@@ -179,6 +179,19 @@ test('存档 savedAt / position.n 是数字字符串时仍可识别并恢复', (
   assert.equal(live.last.sec, T.sec);
 });
 
+test('存档 answers 条目是裸字符串时，摘要按已作答统计', () => {
+  const archive = mkArchive({});
+  const { A } = boot({ sections: {}, last: null }, archive);
+  const q = (A.CATALOG[T.sec] || []).find(x => x.type === 'mcq');
+  assert.ok(q, '1.1 必须有 mcq');
+  archive.sections[T.sec].answers = { [q.id]: String(q.answer) };
+  // 重新 boot，让存档里带上真实 catalog 题号
+  const { SAVE: SAVE2 } = boot({ sections: {}, last: null }, archive);
+  const st = SAVE2.inspect();
+  assert.equal(st.status, 'ok');
+  assert.equal(st.summary.answered, 1, '裸字符串答案被摘要算成未作答');
+});
+
 test('存档 answers 条目是 null / 裸值时，本机已有作答也不会恢复崩溃', () => {
   const { A } = boot({ sections: {}, last: null }, mkArchive({}));
   const other = A.CATALOG[T.sec][1] && A.CATALOG[T.sec][1].id;

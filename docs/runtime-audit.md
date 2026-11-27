@@ -612,3 +612,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 64 条：m2Options 是空数组/半截候选，parseSession 仍放行进入半张 Module 2（2026-11-27）
 
 `exam-core parseSession()` 对 22 题模考存档只检查 `m2Options.hard/easy` 是数组且 `every` 每个候选题合法；空数组和只有 4 题的半截数组 `every` 都返回 true，存档被判 `ok`。学生选路径进 Module 2 后 `S.paper` 只有 22 + 0/4 题，题目导航空白，最终成绩按不足 44 题计算。修法：两条候选分支必须各自正好 `per`（22）题，再逐个校验实例。验证：`test/session.test.js` 新增「hard/easy 是空数组或半截候选 → 判过期」，旧代码放行失败，新代码 `reason='m2-options'`；测试夹具同步改成真实 22×2 候选。全量 `node --test` 472/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 65 条：进度存档 answers 条目是裸字符串时，摘要把已作答算成 0（2026-11-27）
+
+`progress-save hasAnswer()` 只看 `a.v`：存档/live 里 `answers[qid]` 被旧版或云端合并写成裸字符串 `"C"` 时，`a.v` 是 undefined，摘要显示 0/1236，用户以为进度没保存；但 `restore()` 第 63 条已经能把它恢复成 `{v:'C'}`。修法：`hasAnswer()` 先识别裸字符串/有限数字，按 `String(a).trim()` 判空，再走原来的 `{v}` 分支。验证：`test/progress-restore-wronglog.test.js` 新增「存档 answers 条目是裸字符串时，摘要按已作答统计」，旧代码 `answered=0` 失败，新代码 1；全量 `node --test` 476/0；`verify_junk` 11×7；`verify_flows` 16/16。

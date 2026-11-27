@@ -30,6 +30,9 @@
   /* 存档摘要只统计真实可恢复的作答：v 是对象/数组时 String() 会得到
      "[object Object]"，旧实现把这种坏记录算成「已答」，恢复后却是空白。 */
   function hasAnswer(a) {
+    /* 存档/live 里的 answers[qid] 可能是旧版写下的裸字符串或数字；只读 a.v
+       会把它们全算成未作答，摘要显示 0/…，但恢复时又能恢复出来。 */
+    if (typeof a === 'string' || (typeof a === 'number' && isFinite(a))) return String(a).trim() !== '';
     if (!a || a.v == null || typeof a.v === 'object' || typeof a.v === 'function') return false;
     return String(a.v).trim() !== '';
   }
