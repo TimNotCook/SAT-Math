@@ -49,11 +49,30 @@ for (const it of items) {
   if (!groups.has(k)) groups.set(k, []);
   groups.get(k).push(it);
 }
-const dup = [...groups.values()].filter(g => g.length > 1)
+const dup0 = [...groups.values()].filter(g => g.length > 1)
   .map(g => {
     const sorted = g.slice().sort((a, b) => rank(a.id) - rank(b.id) || a.id.localeCompare(b.id));
     return { canonical: sorted[0].id, members: sorted };
   })
+  .sort((a, b) => a.canonical.localeCompare(b.canonical));
+
+const SPLITS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/dup-splits.json'), 'utf8')).sets;
+
+/* 同题干 ≠ 同一道题（清单在 data/dup-splits.json）：每组各自成家，只在本组内部认 duplicate。 */
+function splitGroup(g) {
+  const sets = SPLITS.filter(s => s.some(id => g.members.some(m => m.id === id)));
+  if (!sets.length) return [g];
+  const out = sets
+    .map(s => ({ canonical: '', members: g.members.filter(m => s.includes(m.id)) }))
+    .filter(x => x.members.length);
+  const rest = g.members.filter(m => !sets.some(s => s.includes(m.id)));
+  if (rest.length) out.push({ canonical: '', members: rest });
+  return out.map(x => {
+    const sorted = x.members.slice().sort((a, b) => rank(a.id) - rank(b.id) || a.id.localeCompare(b.id));
+    return { canonical: sorted[0].id, members: sorted };
+  });
+}
+const dup = dup0.flatMap(splitGroup).filter(g => g.members.length > 1)
   .sort((a, b) => a.canonical.localeCompare(b.canonical));
 
 /* Unit 4 的 9 道精编原题已从真题侧撤出，改挂讲义复习 JY4「教材原题」子组（练习册 P200–207）。
