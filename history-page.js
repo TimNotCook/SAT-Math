@@ -44,7 +44,10 @@
   }
   function readSession() { try { return JSON.parse(localStorage.getItem(SESSION)) || null; } catch (e) { return null; } }
   function fmtDate(t) {
-    var d = new Date(t);
+    /* 云端/旧版可能把 Date.now() 存成字符串 '1700...'：new Date('1700...')
+       在浏览器里是 Invalid Date，整条记录的时间会显示成「—」。数字字符串
+       先转时间戳，ISO 字符串仍交给 Date 自己解析。 */
+    var n = num(t), d = n != null && n > 0 ? new Date(n) : new Date(t);
     return isNaN(d.getTime()) ? '—' : d.toLocaleString('zh-CN', { hour12: false });
   }
   function fmtDur(sec) {
