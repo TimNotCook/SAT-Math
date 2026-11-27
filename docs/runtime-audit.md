@@ -456,3 +456,11 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`tools/verify_state_shape.mjs` 种 `tdsat_app_v1` 的 `1.1` 板块 `answers:'junk',marks:[],wrongLog:'x'`，开 `drill.html?sec=1.1&i=1` 点第一个选项。旧代码抛 `Cannot create property 'TD-11-01' on string 'junk'`、落库仍为 string；新代码 answers 变对象、选项 `A` 正常落库、0 异常。新增 `test/state-shape.test.js` 1 条（真实 app-core 磁盘读写路径）。
 
 回归：`node --test` 331/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 37 条：cursor 归一化补测——对象/NaN 也能落到空题，字符串用例没兜住（2026-11-27）
+
+`secIn` 修完 `answers/marks/wrongLog` 后，`cursor:{x:1}`、`NaN`、`-5`、`'junk'` 这类值仍原样透传；`drill.js` 用 `Math.min(list.length-1, saved.cursor||0)` 算题号，对象/NaN 参与运算后得到 `NaN`，`questions[NaN]` 是空，页面既没有题也没有选项，URL 还写成 `i=NaN`。上游并发提交 `60cf6f4` 已把 `cursor` 统一 `Number` 后取非负整数，但它的回归只覆盖了字符串 `'3'`，对象/NaN/负数仍没有用例，也没有浏览器探针。
+
+补法：`test/state-shape.test.js` 增加对象、`NaN`、负数、`'junk'`、`null` 五种输入都归一为 `0`；新建 `tools/verify_cursor_shape.mjs`，种 `tdsat_app_v1` 的 `1.1` 板块 `cursor:{x:1}`，开 `drill.html?sec=1.1&i=1` 实测题号与 URL。
+
+验证：旧逻辑（只对字符串 `Number`）对象 cursor 时题号 `NaN`、URL `i=NaN`、选项 0 个；当前实现选项 4 个、正文 254 字、URL `?sec=1.1&unit=1&i=1`，0 异常。`node --test` 335/0；`verify_junk` 11×7；`verify_flows` 16/16。
