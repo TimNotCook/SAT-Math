@@ -101,7 +101,9 @@
   const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' ? '' : String(v));
   /* 布尔不是数字：true 会被 Number 成 1，旧 detail 的 seconds/points 是布尔时
      成绩页会显示假的 1 秒 / 1 分。 */
-  const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' ? null : (isFinite(Number(v)) ? Number(v) : null));
+  /* 空字符串不是数字 0：云端合并/旧版把 total/correct 写成 '' 时，
+     Number('')=0 会让成绩页显示「答对 0 / 0」并丢掉逐题明细里的真实结果。 */
+  const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' || (typeof v === 'string' && !v.trim()) ? null : (isFinite(Number(v)) ? Number(v) : null));
   const isRightFlag = v => v === true || v === 1 || v === 'true' || v === '1';
   const isWrongFlag = v => v === false || v === 0 || v === 'false' || v === '0';
   /* Rendered stem, used only for diagnostic feature detection. The exam core

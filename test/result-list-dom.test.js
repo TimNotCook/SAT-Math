@@ -115,3 +115,9 @@ test('成绩页原始分越界（999）夹到 0–44', () => {
   const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
   assert.match(seg, /Math\.max\(0, Math\.min\(44, rawN\)\)/, 'raw 没有夹到 0–44');
 });
+
+
+test('成绩页 safeNum 不把空字符串当 0', () => {
+  const seg = js.slice(js.indexOf('const safeNum'), js.indexOf('const isRightFlag'));
+  assert.match(seg, /typeof v === 'string' && !v\.trim\(\)/, 'safeNum 未排除空字符串');
+});

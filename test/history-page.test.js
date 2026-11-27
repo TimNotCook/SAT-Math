@@ -60,3 +60,9 @@ test('记录页原始分越界（999）夹到 0–44', () => {
   assert.match(s, /function rawParts\(rec\)/, '缺 rawParts');
   assert.match(s, /Math\.max\(0, Math\.min\(44, n\)\)/, 'raw 没有夹到 0–44');
 });
+
+
+setr('记录页 num 不把空字符串当 0', () => {
+  const s = read('history-page.js');
+  assert.match(s, /typeof v === 'string' && !v\.trim\(\)/, 'num 未排除空字符串');
+});

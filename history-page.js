@@ -54,6 +54,8 @@
     /* 布尔不是数字：true 会被 Number 成 1，旧记录里 total/correct/elapsed 是布尔时
        会算出假的 100% 或 1 分钟。日期除外，fmtDate 已单独挡 true/false。 */
     if (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean') return null;
+    /* '' 不是 0：旧记录 total/correct='' 时会被算成 0 分，逐题明细明明有作答。 */
+    if (typeof v === 'string' && !v.trim()) return null;
     var n = Number(v); return isFinite(n) ? n : null;
   }
   function numTxt(v) { var n = num(v); return n == null ? '—' : n; }
