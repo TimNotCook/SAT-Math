@@ -416,3 +416,13 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`tools/verify_paper_shape.mjs` 种 44 题、`module:1`、`m2Options:null`、模块一已超时的存档，点 Start；旧代码抛 `reading 'easy'`，新代码判过期后重开 22 题模块一卷、0 异常、正文 381 字。`test/session.test.js` +2 条（44 题标模块一 → `shape`；字符串 `"2"` → 正常 `ok` 且 `m1Size=22`）。
 
 回归：`node --test` 322/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。
+
+## 第 33 条：旧 settings 里 total/perQ 是字符串 → 开场 NaN:NaN、倒计时永不结束（2026-11-27）
+
+`practiceDurationSec` 直接 `Math.round(settings.total || 35)`、`n * (settings.perQ || 95)`。旧版本或云端合并把 `total:'x'`、`perQ:'x'` 写进 `tdsat_state_v1.settings` 时，字符串是真值、走不进默认值，`Math.round('x')` 得到 `NaN`：抽查开场页显示 `NaN:NaN 限时`，开考后 `endsAt = startedAt + NaN`，倒计时永远走不到 0。
+
+修法：先 `Number(...)` 并检查 `Number.isFinite`/`>0`；非法时回落到 95 秒/题的官方节奏，题数也做有限化兜底，保证 `durationSec` 永远有限且 ≥60。
+
+验证：`tools/verify_duration_nan.mjs` 种 `tdsat_state_v1={settings:{tmode:'total',total:'x'}}` 后进抽查页；旧代码开场含 `NaN`、开考后 `durationSec` 落库为 null、`ends-started` 为负，新代码开场无 NaN、`durationSec=2280`（24 题 × 95 秒）、结束时间正常。`test/session.test.js` +2 条（非法字符串回落 24×95，合法 35 分钟/60 秒每题仍按设置算）。
+
+回归：`node --test` 325/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。

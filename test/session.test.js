@@ -57,6 +57,21 @@ function baseSave(over) {
   }, over || {});
 }
 
+describe('practiceDurationSec：旧设置里的非数字值不能产出 NaN 时长', () => {
+  test('total / perQ 是字符串 x → 回落到 95 秒/题，有限且 ≥60', () => {
+    const a = C.practiceDurationSec({ tmode: 'total', total: 'x' }, 24);
+    const b = C.practiceDurationSec({ tmode: 'perq', perQ: 'x' }, 24);
+    assert.equal(Number.isFinite(a), true);
+    assert.equal(Number.isFinite(b), true);
+    assert.equal(a, 24 * 95);
+    assert.equal(b, 24 * 95);
+  });
+  test('合法设置仍按用户选择计算', () => {
+    assert.equal(C.practiceDurationSec({ tmode: 'total', total: '35' }, 24), 2100);
+    assert.equal(C.practiceDurationSec({ tmode: 'perq', perQ: '60' }, 24), 1440);
+  });
+});
+
 describe('parseSession：单元抽查存档不得跨单元恢复', () => {
   test('Unit 1 的存档在 Unit 2 页面 → 判过期，绝不混着开考', () => {
     const s = baseSave({ mode: 'quiz', unitId: 1, paper: paper(4) });

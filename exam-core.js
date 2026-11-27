@@ -587,10 +587,20 @@
   /* Duration of a practice / quiz session, from the existing practice settings. */
   function practiceDurationSec(settings, n) {
     const tmode = settings.tmode || 'official';
-    if (tmode === 'total') return Math.max(60, Math.round(settings.total || 35) * 60);
-    if (tmode === 'perq') return Math.max(60, n * (settings.perQ || 95));
-    // 'official' and 'none' (an exam-style page always has a countdown): 95s/question pacing
-    return Math.max(60, n * 95);
+    const count = Number(n);
+    const qn = Number.isFinite(count) && count > 0 ? count : 1;
+    /* 旧版本/云端合并的 settings 可能是字符串：Math.round('x') 会得到 NaN，
+       开场页显示 NaN、开考后 endsAt 也是 NaN，倒计时永远不结束。 */
+    if (tmode === 'total') {
+      const minutes = Number(settings.total);
+      if (Number.isFinite(minutes) && minutes > 0) return Math.max(60, Math.round(minutes * 60));
+    }
+    if (tmode === 'perq') {
+      const perQ = Number(settings.perQ);
+      if (Number.isFinite(perQ) && perQ > 0) return Math.max(60, Math.round(qn * perQ));
+    }
+    // 'official' and invalid legacy settings: 95s/question pacing, always finite
+    return Math.max(60, Math.round(qn * 95));
   }
 
   /* =====================================================================
