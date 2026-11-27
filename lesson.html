@@ -21,6 +21,12 @@
       --line:#2a2a2f; --line-soft:#232327; --sand:#211c14; --sand-ink:#cfc2a8;
       --sand-k:#b09468; --sand-rule:#8d7a55; --card:#18181b; --blue:#3b76f0; --bar-bg:rgba(18,18,20,.92);
     }
+    html:not(.theme-light) .diagram [stroke="#e2ded4"]{stroke:var(--line)}
+    html:not(.theme-light) .diagram [stroke="#efece4"]{stroke:var(--line-soft)}
+    html:not(.theme-light) .diagram [stroke="#20242b"]{stroke:var(--ink)}
+    html:not(.theme-light) .diagram [fill="#20242b"]{fill:var(--ink)}
+    html:not(.theme-light) .diagram [fill="#a8acb4"]{fill:var(--faint)}
+    html:not(.theme-light) .diagram [fill="#a8925f"]{fill:var(--sand-k)}
   }
   *{box-sizing:border-box}
   html{background:var(--paper);color-scheme:light dark}
@@ -67,6 +73,13 @@
   .eq{font-family:"SF Pro Display","Helvetica Neue",Georgia,serif;font-size:19px;color:var(--ink);padding:2px 0;margin:0 0 14px;letter-spacing:.01em}
   .diagram{border:1px solid var(--line);background:var(--card);border-radius:2px;padding:18px 10px 8px;margin:0 0 10px}
   .diagram svg{display:block;width:100%;height:auto}
+  /* 讲义矢量图用的是固定六色，深色下按角色换成当前纸面的墨色，否则线会黑进纸里看不见 */
+  html.theme-dark .diagram [stroke="#e2ded4"]{stroke:var(--line)}
+  html.theme-dark .diagram [stroke="#efece4"]{stroke:var(--line-soft)}
+  html.theme-dark .diagram [stroke="#20242b"]{stroke:var(--ink)}
+  html.theme-dark .diagram [fill="#20242b"]{fill:var(--ink)}
+  html.theme-dark .diagram [fill="#a8acb4"]{fill:var(--faint)}
+  html.theme-dark .diagram [fill="#a8925f"]{fill:var(--sand-k)}
   .cap{font-size:11.5px;color:var(--sub);margin:0 0 20px}
   .eg{background:var(--sand);border-radius:2px;padding:18px 20px;margin:0 0 16px}
   .eg-k{font-size:10.5px;letter-spacing:.14em;color:var(--sand-k);font-weight:600;margin:0 0 8px}
