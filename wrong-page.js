@@ -14,6 +14,8 @@
  A.nav('wrong');
  var activeUnit=parseInt(A.URL.get('unit')||'0',10); if(activeUnit<1||activeUnit>4)activeUnit=0;
  function load(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return[];}}
+ /* 只认数组：成绩仓库被云端/旧版写成对象时，直接 .forEach 会抛错→整页空白 */
+ function loadArr(k){var v=load(k);return Array.isArray(v)?v:[];}
  /* ===== 错题 JSON 导入 =====
     AI 转录的错题先尝试与题库中的同一道题对齐（按 id，其次按题干归一化）；
     命中时写入该题所在 section 的 secState.answers，的身份与题库题目完全一致，
@@ -142,7 +144,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
           由下面的 a.correct 复核标记 corrected=true，卡片显示「已在练习中订正」。 */
        else if(a&&a.correct&&wl&&String(wl.v==null?'':wl.v).trim()&&stillWrong(q,wl.v))
          add(map,q,wl.v,src,wl.ts||0);});});
-   load('tdsat_exam_suite_results_v1').forEach(function(r){var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':r.mode==='jiangyi'?'讲义复习':'考试练习';
+   loadArr('tdsat_exam_suite_results_v1').forEach(function(r){var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':r.mode==='jiangyi'?'讲义复习':'考试练习';
      /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(r.void)return;
      if(r.mode==='jiangyi'&&!window.TD_JY)return;
      (r.detail||[]).forEach(function(d){var q=questionById(d.id);

@@ -217,3 +217,19 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 这两个场景本轮没抓到新缺陷，但把口径钉住了：`test/mobile-target.test.js` 里加了三条存在性断言（缺 `Input.dispatchKeyEvent` / 缺 `answer-compare` / 缺 `resKV` 都会红），防止以后有人精简验收器时把覆盖悄悄删掉。
 
 全绿复核（线上 `https://timnotcook.github.io/SAT-Math`，`v=47d49ef91390`）：`node --test` 223/0；`verify_mobile` 50/50；`verify_flows` 16/16；`verify_grading_ui` 8/8；`verify_exam_timeout` 13/13；`verify_runtime` 六页 0 异常；`verify_nav` 38/38；`verify_a11y` 20/20；`verify_acct_entry` 26/26；`verify_session` 22/22；`verify_shaded_figures` 6/6；`verify_assets` 全绿。
+
+## 第 14、15 条：存档恢复漏搬 wrongLog / 非数组仓库打崩整页（2026-11-27）
+
+两条都是「数据在，页面却看不见」的静默蒸发，入口不同：
+
+**第 14 条 —— `progress-save.js` 的 `restore()` 漏合并 `wrongLog`。**
+存档（`tdsat_progress_save_v1`）里每个板块带着 `wrongLog`，恢复时却只按 ts 合并 `answers`、`marks`、`cursor`、`submitted`。于是「换设备/重装后恢复存档」这一路，本机 `wrongLog` 是空的：`answers` 现在是对的，错题本又靠 `wrongLog` 记住「当初错的那个答案」，判不出「曾错过、已订正」→ 这些题在错题回顾里凭空消失。和第 11 条 `normalize()` 是同一类病，换了入口。
+修法：恢复时按 `ts` 新者优先把存档 `wrongLog` 合并进本机，只加不删；本机 `wrongLog` 缺失/非法（非对象、是数组）时初始化为 `{}`。与 `app-core` 的 `normalize()` 同口径（那边是别名重映射，这边是跨存档搬运）。
+验证：`test/progress-restore-wronglog.test.js` 3 条（vm 跑真实 `progress-save.js`：搬进来 / 本机较新不被覆盖 / 缺字段自动建），先证红（2 红 1 绿）后证绿（3 绿）。
+
+**第 15 条 —— 成绩仓库被写成对象时错题本与记录页整页空白。**
+`wrong-page.js` 与 `history-page.js` 的 `load()` 都是 `JSON.parse(...) || []`：只挡了 `null`，没挡「真值但不是数组」。只要 `tdsat_exam_suite_results_v1` / `tdsat_exam_suite_abandoned_v1` 被旧版结构或云端合并写成对象，后面立刻 `.forEach / .filter / .sort` 抛 `TypeError`，两页停在占位、永不重画（和第 12 条「慢网空白」同一种用户体感：数据还在，页面是空的）。
+修法：`wrong-page.js` 加 `loadArr()` 只认 `Array.isArray`（旧 `tdsat_state_v1` 仍走对象路径不动）；`history-page.js` 的 `load()` 直接改成只认数组，其余当空列表。
+验证：`test/array-guard.test.js` 2 条（vm 跑真实页面脚本，种对象值断言不抛错、记录页落到空态占位），同样先证红（2 红）后证绿（2 绿）。
+
+全绿复核：`node --test` **236/0**；本地 `verify_mobile` 50/50、`verify_flows` 16/16。

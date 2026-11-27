@@ -26,7 +26,12 @@
     return raw.length + ':' + h;
   }
 
-  function load(k) { try { return JSON.parse(localStorage.getItem(k)) || []; } catch (e) { return []; } }
+  /* 只认数组：这两条键被写成对象（旧版/云端覆盖）时，后面 .filter/.sort 会抛错，
+     整个记录页停在占位、永不重画。宁可当空列表也不让页面炸。 */
+  function load(k) {
+    try { var v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+  }
   function readSession() { try { return JSON.parse(localStorage.getItem(SESSION)) || null; } catch (e) { return null; } }
   function fmtDate(t) { return new Date(t).toLocaleString('zh-CN', { hour12: false }); }
   function fmtDur(sec) {
