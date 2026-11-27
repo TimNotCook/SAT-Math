@@ -751,10 +751,21 @@
     if (o.headGroups && o.headGroups.length) {
       // two-row header: first head cell spans both rows, then grouped cells.
       var topRow = '<th style="' + thS + '" rowspan="2">' + esc(o.head[0]) + '</th>';
+      var spanSum = 0;
       o.headGroups.forEach(function (g) {
+        spanSum += g.span || 1;
         topRow += '<th style="' + thS + '" colspan="' + g.span + '">' + esc(g.label) + '</th>';
       });
-      var botRow = o.head.slice(1).map(function (h) {
+      /* 组后面还可能留有无分组列（如 T21 #6 的 Total 只占一行、上面没有分组标题）：
+         这些列在首行用 rowspan=2 顶到表格底，否则首行列数会比表体少一列、
+         Total 表头会滑到「Grade level」底下。 */
+      var groupedEnd = Math.min(o.head.length, 1 + spanSum);
+      if (groupedEnd < o.head.length) {
+        topRow += o.head.slice(groupedEnd).map(function (h) {
+          return '<th style="' + thS + '" rowspan="2">' + esc(h) + '</th>';
+        }).join('');
+      }
+      var botRow = o.head.slice(1, groupedEnd).map(function (h) {
         return '<th style="' + thS + '">' + esc(h) + '</th>';
       }).join('');
       head = '<thead><tr>' + topRow + '</tr><tr>' + botRow + '</tr></thead>';
