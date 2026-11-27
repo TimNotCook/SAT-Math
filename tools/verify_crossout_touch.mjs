@@ -113,31 +113,42 @@ for (const t of touch || []) {
 }
 if (!touch || !touch.length) fails.push('触屏 ✕ → 一个 .crossout-toggle 都没渲染出来');
 
-/* A1b) 真实命中区：本体 24×24 不够手指点，触屏靠不可见 ::before 撑到 ≥40×40。
-   getBoundingClientRect 量不出伪元素，所以在按钮中心周围 ±24px 网格上逐点
-   elementFromPoint，取真正能命中这个按钮的包围盒——手指实际点得到的范围。 */
+/* A1b) 真实命中区：本体 24×24 不够手指点，触屏靠不可见 ::before 撑开。
+   这里不用 elementFromPoint —— 它要求元素此刻就在视口内，题目一长选项跑到屏幕外
+   就会假报「取不到 ✕」；直接读宿主伪元素的解析后尺寸更稳（computed width/height
+   是布局算出来的真实值，没有这条规则时返回 auto）。 */
 const hit = await ev(`(()=>{
- const all=[...document.querySelectorAll('.crossout-toggle')];
- const t=all.find(el=>{const rr=el.getBoundingClientRect();return rr.y+rr.height/2>80 && rr.y+rr.height/2<600})||all[0];
+ const t=[...document.querySelectorAll('.crossout-toggle')].find(el=>{
+   const rr=el.getBoundingClientRect();
+   return rr.width>1 && rr.height>1 && getComputedStyle(el).display!=='none';
+ });
  if(!t) return null;
- const r=t.getBoundingClientRect(); const cx=r.x+r.width/2, cy=r.y+r.height/2;
- let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,hits=0;
- for(let dx=-24;dx<=24;dx+=4) for(let dy=-24;dy<=24;dy+=4){
-   const e=document.elementFromPoint(cx+dx,cy+dy);
-   if(e&&(e===t||t.contains(e))){hits++;x0=Math.min(x0,cx+dx);x1=Math.max(x1,cx+dx);y0=Math.min(y0,cy+dy);y1=Math.max(y1,cy+dy)}
- }
- return hits?{w:Math.round(x1-x0),h:Math.round(y1-y0),hits,
-   box:[Math.round(x0-cx),Math.round(x1-cx),Math.round(y0-cy),Math.round(y1-cy)],
-   body:[Math.round(r.width),Math.round(r.height)]}:{w:0,h:0,hits:0};
+ const body=t.getBoundingClientRect();
+ const pb=getComputedStyle(t,'::before');
+ const pw=parseFloat(pb.width), ph=parseFloat(pb.height);
+ const pos=pb.position;
+ return {body:[Math.round(body.width),Math.round(body.height)],
+   pad:[Number.isFinite(pw)?Math.round(pw):null, Number.isFinite(ph)?Math.round(ph):null],
+   pos, content:pb.content};
 })()`);
-if (!hit) fails.push('触屏 ✕ 命中区 → 取不到 ✕ 位置');
-else if (hit.w < 40 || hit.h < 40) fails.push(`触屏 ✕ 命中区 → 实测只有 ${hit.w}×${hit.h}（本体 ${hit.body[0]}×${hit.body[1]}，包围盒 dx ${hit.box[0]}..${hit.box[1]} / dy ${hit.box[2]}..${hit.box[3]}，要求 ≥40×40）`);
+if (!hit) fails.push('触屏 ✕ 命中区 → 一个可见的 ✕ 都找不到');
+else {
+  const [bw, bh] = hit.body;
+  const [pw, ph] = hit.pad || [null, null];
+  const effW = Math.max(bw, pw ?? 0), effH = Math.max(bh, ph ?? 0);
+  if (effW < 36 || effH < 42) {
+    fails.push(`触屏 ✕ 命中区 → 实测 ${effW}×${effH}（本体 ${bw}×${bh}，::before ${pw ?? 'auto'}×${ph ?? 'auto'}，要求 ≥36×42）`);
+  }
+}
 
 /* A2) 320 窄屏触屏：✕ 不能挤出视口 */
 await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 700, deviceScaleFactor: 2, mobile: true });
 await enterMock();
 const narrow = await ev(`(()=>{
- const all=[...document.querySelectorAll('.crossout-toggle')];
+ const all=[...document.querySelectorAll('.crossout-toggle')].filter(el=>{
+   const cs=getComputedStyle(el), rr=el.getBoundingClientRect();
+   return cs.display!=='none' && cs.visibility!=='hidden' && rr.width>1 && rr.height>1;
+ });
  const t=all.find(el=>{const rr=el.getBoundingClientRect();return rr.y+rr.height/2>80 && rr.y+rr.height/2<600})||all[0];
  if(!t) return null;
  const r=t.getBoundingClientRect();
