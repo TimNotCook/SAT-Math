@@ -263,6 +263,47 @@
     return currentUser;
   }
 
+  /* ---------- 邮箱 + 密码（不依赖邮件投递，注册即可用） ---------- */
+  function validPw(v) { return String(v || '').length >= 6; }
+
+  async function signUpPassword(email, password, name) {
+    var mail = String(email || '').trim();
+    var pw = String(password || '');
+    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再试。' });
+    if (!validPw(pw)) throw errOf(400, { msg: '密码至少 6 位。' });
+    var body = { email: mail, password: pw };
+    if (name) body.data = { display_name: String(name).slice(0, 24) };
+    var r = await raw('/auth/v1/signup', {
+      method: 'POST', headers: authHeaders(null), body: JSON.stringify(body), timeout: 25000
+    });
+    if (!r || !r.access_token) throw errOf(400, { msg: '注册没有返回登录态，请直接点「登录」试试。' });
+    return sessionFrom(r);
+  }
+
+  async function signInPassword(email, password) {
+    var mail = String(email || '').trim();
+    var pw = String(password || '');
+    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再试。' });
+    if (!pw) throw errOf(400, { msg: '请输入密码。' });
+    var r = await raw('/auth/v1/token?grant_type=password', {
+      method: 'POST', headers: authHeaders(null),
+      body: JSON.stringify({ email: mail, password: pw }), timeout: 25000
+    });
+    return sessionFrom(r);
+  }
+
+  /* 已登录状态改密码：换设备登录、忘了邮件链接都能靠它自救 */
+  async function setPassword(password) {
+    var pw = String(password || '');
+    if (!validPw(pw)) throw errOf(400, { msg: '密码至少 6 位。' });
+    var tk = await token();
+    await raw('/auth/v1/user', {
+      method: 'PUT', headers: authHeaders(tk),
+      body: JSON.stringify({ password: pw }), timeout: 20000
+    });
+    return true;
+  }
+
   /* ---------- 邮箱登录 ---------- */
   function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim()); }
 
@@ -328,6 +369,9 @@
 
     sendOtp: sendOtp,
     sendMagicLink: sendOtp,
+    signUpPassword: signUpPassword,
+    signInPassword: signInPassword,
+    setPassword: setPassword,
     verifyOtp: verifyOtp,
 
     signOut: async function () {
