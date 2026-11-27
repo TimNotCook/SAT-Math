@@ -57,7 +57,7 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-sp
   font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:#a8acb4!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-special-chips{
-  display:flex!important;gap:26px!important;margin:8px 0 0!important;flex-wrap:wrap!important;
+  display:flex!important;gap:10px 26px!important;margin:8px 0 0!important;flex-wrap:wrap!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-special-chip{
   display:inline-flex!important;align-items:center!important;gap:7px!important;font-size:12px!important;
@@ -66,8 +66,13 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-sp
 
 /* 窄屏：两栏回落成单栏，竖发丝线换成横发丝线 */
 @media (max-width:900px){
-  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-main-card{grid-template-columns:minmax(0,1fr)!important}
-  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope{
-    border-left:0!important;border-top:1px solid #e7e3da!important;padding:16px 0 0!important;margin:24px 0 0!important;
+  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-main-card{
+    display:block!important;grid-template-columns:none!important;padding:0!important;
   }
+  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-main-card #quizScope{
+    border-left:0!important;border-top:1px solid #e7e3da!important;
+    padding:18px 0 0!important;margin:26px 0 0!important;width:auto!important;
+  }
+  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope li{line-height:1.9!important}
+  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-special-chips{gap:10px 18px!important}
 }
