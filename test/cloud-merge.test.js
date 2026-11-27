@@ -64,3 +64,30 @@ test('两边都完好 → 深合并：新 ts 的作答胜出，旧的仍在', ()
   assert.deepStrictEqual(out.sections['1.1'].answers['U1-01'], { v: 'B', correct: true, ts: 200 });
   assert.deepStrictEqual(out.sections['1.1'].answers['U1-02'], { v: 'C', correct: false, ts: 50 });
 });
+
+test('两台设备的模考会话绝不拼接：整份取 startedAt 较新者', () => {
+  const localSess = { startedAt: 1000, stage: 'answer', module: 1, paper: [{ id: 'A' }, { id: 'B' }],
+    answers: { A: { v: 'x' } }, moduleEndsAt: 5000 };
+  const cloudSess = { startedAt: 2000, stage: 'result', module: 2, paper: [{ id: 'C' }, { id: 'D' }, { id: 'E' }],
+    answers: { C: { v: 'y' }, D: { v: 'z' } }, finished: true, result: { score: 1 } };
+  const { M } = boot({ tdsat_exam_suite_session_v1: JSON.stringify(localSess) });
+  const out = M.mergeLocalWithCloud({ tdsat_exam_suite_session_v1: JSON.stringify(cloudSess) });
+  assert.deepStrictEqual(JSON.parse(out.tdsat_exam_suite_session_v1), cloudSess,
+    '会话被逐字段拼成了半张卷子');
+});
+
+test('本机会话更新时保留本机整份（不被旧云端会话覆盖）', () => {
+  const localSess = { startedAt: 3000, stage: 'answer', module: 1, paper: [{ id: 'Z' }], answers: {} };
+  const cloudSess = { startedAt: 1000, stage: 'result', paper: [{ id: 'A' }, { id: 'B' }], finished: true, result: {} };
+  const { M } = boot({ tdsat_exam_suite_session_v1: JSON.stringify(localSess) });
+  const out = M.mergeLocalWithCloud({ tdsat_exam_suite_session_v1: JSON.stringify(cloudSess) });
+  assert.deepStrictEqual(JSON.parse(out.tdsat_exam_suite_session_v1), localSess);
+});
+
+test('显式存档按 savedAt 整份取新，不被逐字段合并', () => {
+  const localSave = { producer: 'tdsat-bluebook', version: 1, savedAt: 900, position: { sec: '1.1', n: 1 }, sections: { '1.1': { answers: { q1: { v: 'L', ts: 900 } } } } };
+  const cloudSave = { producer: 'tdsat-bluebook', version: 1, savedAt: 1500, position: { sec: '2.1', n: 3 }, sections: { '2.1': { answers: { q2: { v: 'C', ts: 1500 } } } } };
+  const { M } = boot({ tdsat_progress_save_v1: JSON.stringify(localSave) });
+  const out = M.mergeLocalWithCloud({ tdsat_progress_save_v1: JSON.stringify(cloudSave) });
+  assert.deepStrictEqual(JSON.parse(out.tdsat_progress_save_v1), cloudSave);
+});
