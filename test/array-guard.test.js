@@ -141,6 +141,16 @@ test('导入时旧 items 里有 null/非对象条目不崩，且被剔掉', () =
   assert.ok(saved.items.every(x => x && typeof x === 'object'), '导入后 items 里还留着 null/非对象条目');
   assert.ok(/New/.test(els.wrongList.innerHTML), '新导入没渲染出来');
 });
+test('导入仓库旧格式是数组时，新导入不覆盖丢旧错题', () => {
+  const store = { tdsat_imported_wrong_v1: JSON.stringify([{ key: 'old', stem: 'Old', type: 'mcq', answer: 'A', choices: { A: '1' } }]) };
+  const { sandbox } = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store);
+  sandbox.TD_IMPORT_WRONG.importData({ items: [{ key: 'new1', stem: 'New', type: 'mcq', answer: 'A', choices: { A: '2' } }] });
+  const saved = JSON.parse(store.tdsat_imported_wrong_v1 || '{}');
+  assert.ok(Array.isArray(saved.items), '旧数组没有被包成 items 数组');
+  assert.ok(saved.items.some(x => x.key === 'old'), '旧数组里的错题被覆盖丢了');
+  assert.ok(saved.items.some(x => /New/.test(String(x.stem))), '新错题没导入');
+});
+
 
 
 test('记录页字段全是对象时不显示 [object Object]、NaN 或 Invalid Date', () => {

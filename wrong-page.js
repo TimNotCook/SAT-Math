@@ -39,7 +39,15 @@
     未命中时作为独立「导入错题」记录保存在 IMPORT_KEY，仅在本页展示。 */
  var IMPORT_KEY='tdsat_imported_wrong_v1',IMPORT_MARK='imported_wrong_json_v1';
  function feedback(msg){var el=document.getElementById('importFeedback');if(el)el.textContent=msg||'';}
- function readImport(){try{var d=JSON.parse(localStorage.getItem(IMPORT_KEY));return d&&typeof d==='object'?d:{items:[]};}catch(e){return{items:[]};}}
+ function readImport(){
+  try{
+    var d=JSON.parse(localStorage.getItem(IMPORT_KEY));
+    /* 旧版导入仓库可能直接存成数组；统一包成 {items:[...]}，否则下一次导入
+       会把旧数组当空仓库，整批旧错题被覆盖丢失。 */
+    if(Array.isArray(d))return{items:d};
+    return d&&typeof d==='object'?d:{items:[]};
+  }catch(e){return{items:[]};}
+}
  function writeImport(d){try{localStorage.setItem(IMPORT_KEY,JSON.stringify(d));if(window.TDSync)try{window.TDSync.notify(IMPORT_KEY)}catch(e2){}return true;}catch(e){return false;}}
  function normStem(s){return String(s==null?'':s).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g,'');}
  function pick(){for(var i=0;i<arguments.length;i++){var v=arguments[i];if(v!=null&&String(v).trim()!=='')return v;}return '';}
