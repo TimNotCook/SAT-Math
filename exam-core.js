@@ -924,10 +924,15 @@
           seen[x.uid] = 1; return true;
         });
       };
+      /* 候选 uid 还必须和 Module 1 的卷面不重名：进 Module 2 时 paper 直接
+         concat，重名会让 `answers[uid]` 把 Module 1 的作答覆盖成空，22 题
+         的答案在内存里蒸发（刷新后更没法找回）。 */
+      const noPaperClash = list => list.every(x => !seenPaperUid[x.uid]);
       const optsOk = !!s.m2Options && Array.isArray(s.m2Options.hard) && Array.isArray(s.m2Options.easy) &&
         s.m2Options.hard.length === per && s.m2Options.easy.length === per &&
         s.m2Options.hard.every(instOk) && s.m2Options.easy.every(instOk) &&
-        uniqUid(s.m2Options.hard) && uniqUid(s.m2Options.easy);
+        uniqUid(s.m2Options.hard) && uniqUid(s.m2Options.easy) &&
+        noPaperClash(s.m2Options.hard) && noPaperClash(s.m2Options.easy);
       if (n === per && !optsOk) return fail('m2-options');
     } else {
       m1 = n;

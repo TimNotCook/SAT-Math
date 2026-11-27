@@ -207,6 +207,17 @@ describe('parseSession：m2Options 里的候选题必须是合法实例', () => 
     assert.equal(C.parseSession(m, { mode: 'mock' }).status, 'expired', '重复 m2 uid 被放行');
   });
 
+  test('m2Options 候选 uid 与 Module 1 卷面重名 → 过期，不能进 M2 时覆盖旧作答', () => {
+    const h = baseSave();
+    h.m2Options.hard[0].uid = h.paper[0].uid;
+    const rh = C.parseSession(h, { mode: 'mock' });
+    assert.equal(rh.status, 'expired', 'hard 候选重名被放行');
+    assert.equal(rh.reason, 'm2-options');
+    const e = baseSave();
+    e.m2Options.easy[0].uid = e.paper[1].uid;
+    assert.equal(C.parseSession(e, { mode: 'mock' }).status, 'expired', 'easy 候选重名被放行');
+  });
+
   test('正常 hard/easy 候选仍可恢复', () => {
     const r = C.parseSession(baseSave(), { mode: 'mock' });
     assert.equal(r.status, 'ok');

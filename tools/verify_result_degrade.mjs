@@ -72,7 +72,8 @@ const seeded = await ev(`(function(){
     },
     startedAt:now-60000, endsAt:now+600000,
     durationSec:4200, moduleEndsAt:now+600000, finished:true, stage:'result',
-    result:{ total:22, correct:5, elapsed:60, durationSec:4200, estimate:null, report:null, detail:[] } };
+    result:{ total:22, correct:5, elapsed:60, durationSec:4200, estimate:null, report:null,
+      detail:paper.map(function(p,i){ return { pos:i+1, uid:p.uid, id:p.id, correct:false, given:'', answer:null }; }) } };
   localStorage.setItem('tdsat_exam_suite_session_v1', JSON.stringify(s));
   return paper.length;
 })()`);

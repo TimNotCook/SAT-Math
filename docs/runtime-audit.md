@@ -628,3 +628,11 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 68 条：result.detail 是空数组或一排 null，仍被当合法成绩单（2026-11-27）
 
 第 67 条要求 `result.detail` 是数组，但 `{detail: []}` 和 `Array(paper.length).fill(null)` 也满足「是数组」，会被放行进入成绩态；`renderResultList()` 过滤掉 null 后仍是空列表，页头 0/0、空白成绩单，跟没有 result 一样。修法：合法 result 的 detail 必须与 paper 等长，并且逐条是普通对象；空数组/一排 null/长度不符一律回到答题态。验证：`test/session.test.js` 新增「空数组/一排 null 回到答题态，逐题对齐才保留成绩」，旧代码放行失败，新代码拒绝且合法 detail 仍保留；全量 `node --test` 497/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 69 条：Module 2 候选题 uid 与卷面重名，进 M2 会覆盖 Module 1 作答（2026-11-27）
+
+`parseSession()` 第 66 条只查了 paper 内部、hard/easy 内部 uid 唯一，没查候选与 Module 1 卷面之间的重名。正常生成器用 `M1-01` / `M2-01` 前缀不会撞，但旧版/云端合并/手工导入的存档可能把候选 `uid` 写成 `M1-01`；进 Module 2 时 `S.paper = S.paper.concat(S.m2Options[path])` 后两份卷面同 uid，`S.answers[x.uid] = {...}` 会把 Module 1 的作答直接重置为空，22 题答案在内存中蒸发。修法：`m2Options.hard/easy` 每个候选的 uid 还必须不在 Module 1 的 `seenPaperUid` 里，撞名即判 `m2-options` 过期。
+
+同时修正两套成绩页体检夹具：`verify_result_degrade` 和 `verify_result_given` 过去用 `detail: []` / 只有 1 条 detail 的 result，在第 68 条判据下已属非法存档；前者变成假红（成绩页不进），后者变成假绿（只查文本、结果页根本没出现）。现改为逐题对齐的 44/22 条 detail，并让 `verify_result_given` 断言真的进了成绩页。
+
+验证：新增「hard/easy 候选与 Module 1 重名 → 过期」回归，旧代码放行失败，新代码拒绝；全量 `node --test` 498/0；`verify_junk` 11×7；`verify_flows` 16/16；`verify_result_degrade` 降级可见；`verify_result_given` 成绩页可见且无 `[object Object]`。

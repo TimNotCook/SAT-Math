@@ -23,7 +23,7 @@ const seed=await ev(`(function(){var qs=window.TD_BANK.questions, a=qs.filter(fu
  var q0=a[0];
  var res={date:Date.now(),mode:'mock',module:2,path:'hard',total:44,correct:0,elapsed:100,durationSec:4200,
    estimate:{raw:0,rawMax:44,scaled:200,path:'hard'},report:{units:[],topics:[],priority:[]},
-   detail:[{pos:1,uid:'M1-01',id:q0.id,unit:q0.unit,section:q0.section,topic:q0.topic,type:q0.type,correct:false,given:{x:1},answer:q0.answer,points:0,seconds:5}]};
+   detail:paper.map(function(p,i){return {pos:i+1,uid:p.uid,id:p.id,unit:q0.unit,section:q0.section,topic:q0.topic,type:q0.type,correct:false,given:(i===0?{x:1}:''),answer:q0.answer,points:0,seconds:5};})};
  return JSON.stringify({mode:'mock',sub:null,unitId:null,stage:'result',paper:paper,answers:ans,idx:0,module:2,path:'hard',m1Size:22,m2Options:null,durationSec:4200,
    startedAt:Date.now()-10000,endsAt:Date.now()+4190000,moduleEndsAt:Date.now()+2090000,finished:true,locked:true,auto:false,endReason:'manual',result:res,plan:null,quizMeta:null,cfg:{tmode:'official'}});})()`);
 if(!seed) throw new Error('题库未就绪');
@@ -32,11 +32,13 @@ await goto(`${server.base}/exam.html?mode=mock`); errs=[];
 let clicked=false;
 for(let i=0;i<40&&!clicked;i++){clicked=await ev(`(function(){var b=document.getElementById('btnStart');if(!b||b.disabled||b.offsetParent===null)return false;b.click();return true;})()`);if(!clicked)await sleep(250);}
 await sleep(1200);
-const after=await ev(`(function(){var t=String(document.body.innerText||'');return {chars:t.replace(/\\s+/g,' ').trim().length, leak:/\\[object Object\\]/.test(t), types:String((document.getElementById('resTypes')||{}).textContent||'').slice(0,140)};})()`);
+const after=await ev(`(function(){var t=String(document.body.innerText||'');var st=document.getElementById('stage-result');return {resultShown:!!(st&&!st.hidden),chars:t.replace(/\\s+/g,' ').trim().length, leak:/\\[object Object\\]/.test(t), types:String((document.getElementById('resTypes')||{}).textContent||'').slice(0,140)};})()`);
 const bad=errs.filter(x=>!/ResizeObserver|favicon/i.test(x));
 console.log(`点 Start 后结果页 ${after.chars} 字 · 含 [object Object]=${after.leak} · 类型汇总=${JSON.stringify(after.types)}`);
 if (bad.length) { console.log('❌ 异常：'); bad.slice(0,3).forEach(x=>console.log('  '+x)); }
+else if (!after.resultShown) console.log('❌ 合法 result 没有进入成绩页，体检假绿');
 else if (after.leak) console.log('❌ 结果页错因把对象作答渲染成了 [object Object]');
 else console.log('✅ 对象作答在错因汇总里按空答案处理，页面无 [object Object]');
+process.exitCode = (bad.length || !after.resultShown || after.leak) ? 1 : 0;
 proc.kill('SIGKILL');server.stop();
 process.exit((bad.length || after.leak) ? 1 : 0);
