@@ -81,4 +81,23 @@ test('脏存档体检脚本存在、复用 lib/chrome 与 lib/serve', () => {
   assert.ok(/from '\.\/lib\/chrome\.mjs'/.test(s) && /tempProfile\('vjk-'\)/.test(s), 'verify_junk 没复用 chrome 临时 profile');
   assert.ok(/from '\.\/lib\/serve\.mjs'/.test(s) && /startStaticServer/.test(s), 'verify_junk 没复用静态服务器');
   assert.ok(/tdsat_exam_suite_results_v1/.test(s) && /tdsat_progress_save_v1/.test(s), 'verify_junk 没种关键脏键');
+  assert.ok(/PROFILES/.test(s) && /B-halfsession/.test(s) && /C-extremes/.test(s), 'verify_junk 的脏值档案少于三套');
+});
+
+test('成绩记录里 detail 是对象、条目是 null 时，错题本与记录页都不崩', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([
+      { date: 1, mode: 'mock', detail: 'nope', total: 'x' }, null, 5,
+    ]),
+  };
+  let threw = null, els = null;
+  try {
+    els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els;
+  } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '错题本被坏 detail 打崩：' + (threw && threw.message));
+  assert.ok(els && els.wrongList && els.wrongList.innerHTML.length > 0, '错题本没画出东西');
+
+  threw = null;
+  try { boot(['history-page.js'], store); } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '记录页被坏 detail 打崩：' + (threw && threw.message));
 });

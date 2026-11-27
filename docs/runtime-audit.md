@@ -245,3 +245,18 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 验证：`tools/verify_junk.mjs` 六页 0 异常、`#wrongList` / `#histList` 非空、模考页落到开始页（Start 可见、正文 4780 字）；把 `exam.js` 换回旧版即复现 2 项异常 + 白屏（先证红后证绿）。`test/array-guard.test.js` 加 2 条静态守卫（缺 `asArr/asObj`、或再出现 `load(KEY_x) || []` 都会红；`verify_junk` 必须复用 `lib/chrome` + `lib/serve` 并种关键脏键）。
 
 回归：`node --test` **239/0**；本地 `verify_runtime` 六页 0 异常、`verify_flows` 16/16、`verify_grading_ui` 8/8、`verify_exam_timeout` 13/13、`verify_session` 22/22。
+
+## 第 17 条：成绩记录内部的 `detail` 写成对象时，错题本与记录页一起崩（2026-11-27）
+
+`verify_junk` 扩到三套脏值档案（A 混型、B 半截会话 + 坏导入、C 极端数值 + 版本漂移），B 套首跑两页同时红：
+
+- `wrong-page.js:150` `Uncaught TypeError: (r.detail || []).forEach is not a function` → `#wrongList` 直接空白（0 字）；
+- `history-page.js:113` `(rec.detail || []).filter is not a function` → 记录页只画出半截。
+
+同一类病再往里一层：第 15 条修的是「仓库本身不是数组」，这条是「仓库是数组、但每条记录里的 `detail` 不是数组」。`detail` 由交卷写入，正常一定是数组，但云端旧结构 / 手工导入 / 半截会话都可能把它写成对象或字符串。B 套里还塞了 `null` 和数字条目，`wrong-page` 在 `r.mode` 上再崩一次（`Cannot read properties of null`）。
+
+修法：`wrong-page.js` 加 `asArr()`，`r.detail` 与仓库都过一遍，条目不是对象就跳过；`history-page.js` 同样加 `asArr()`，`wrongRows()` / 「错题（N）」计数都只认数组且过滤 `null` 条目。
+
+验证：`test/array-guard.test.js` 新增 1 条（vm 跑两页真实脚本，种「detail 是字符串 + 数组里有 null/数字」），先证红（1 红）后证绿（5/5）。`verify_junk` 三套 × 六页全绿（有画像 B 从「2 项异常 + 错题本 0 字」变成「0 异常 + 40 字」）。
+
+回归：`node --test` **244/0**；`verify_junk` 3×6 全绿；`verify_flows` 16/16；`verify_exam_timeout` 13/13；`verify_session` 22/22；`verify_runtime` 六页 0 异常。

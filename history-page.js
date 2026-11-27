@@ -28,6 +28,8 @@
 
   /* 只认数组：这两条键被写成对象（旧版/云端覆盖）时，后面 .filter/.sort 会抛错，
      整个记录页停在占位、永不重画。宁可当空列表也不让页面炸。 */
+  /* 成绩记录里的 detail 可能是对象/字符串（云端旧结构、手工导入）：只认数组。 */
+  function asArr(v) { return Array.isArray(v) ? v : []; }
   function load(k) {
     try { var v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : []; }
     catch (e) { return []; }
@@ -67,7 +69,7 @@
   }
 
   function wrongRows(detail) {
-    var wrong = (detail || []).filter(function (d) { return !d.correct; });
+    var wrong = asArr(detail).filter(function (d) { return d && !d.correct; });
     if (!wrong.length) return '<div class="hist-empty">本次全部答对。</div>';
     return '<div class="hist-wrong">' + wrong.map(function (d) {
       var q = byId(d.id) || {};
@@ -110,7 +112,7 @@
       (rec.mode === 'mock' && rec.estimate ? '<span>原始分 <b>' + rec.estimate.raw + ' / ' + rec.estimate.rawMax + '</b></span>' +
         '<span>自适应路径 <b>' + (rec.estimate.path === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
       '</div>';
-    html += '<div class="hist-sec">错题（' + ((rec.detail || []).filter(function (d) { return !d.correct; })).length + '）</div>' + wrongRows(rec.detail);
+    html += '<div class="hist-sec">错题（' + (asArr(rec.detail).filter(function (d) { return d && !d.correct; })).length + '）</div>' + wrongRows(rec.detail);
     html += '<div class="hist-sec">应该补哪块</div>' + prioRows(rec.report);
     return html;
   }
