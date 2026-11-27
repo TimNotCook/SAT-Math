@@ -1292,10 +1292,24 @@ html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!importan
 html:not([data-theme="dark"]) body.exam-page.is-mock .mock-entry{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-panel.mock-hide{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
 
-/* 眉标 / 小节标题 / 说明文字统一冷灰系里的中性灰 */
+/* 眉标 / 小节标题 / 说明文字统一中性灰 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-eyebrow{color:#a8acb4!important;font-size:10px!important;letter-spacing:.14em!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-section-title{font-size:11px!important;letter-spacing:.12em!important;color:#8d9199!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-note{color:#8d9199!important;font-size:12.5px!important}
 
-/* 右侧结构卡里的 Module 行：用发丝线代替白底分组 */
-html:not([data-theme="dark"]) body.exam-page.is-mock .exam-panel.mock-hide .kv{border-bottom:1px solid #efebe2!important}
+/* 卡片下方那块幽灵米色块：外层容器带的纸色，透明化 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-stage-main,
+html:not([data-theme="dark"]) body.exam-page.is-mock .stage,
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro,
+html:not([data-theme="dark"]) body.exam-page.is-mock #introOptions{background:transparent!important;box-shadow:none!important}
+
+/* Directions 折叠条同材质 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .mock-directions{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .mock-directions summary{font-size:12.5px!important;font-weight:600!important;color:#20242b!important}
+
+/* 侧栏：模考页也走纸面 + 2px 墨线当前项 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail{background:#fffdfa!important;border-right:1px solid #e7e3da!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail .rail-brand{font-size:14px!important;font-weight:600!important;color:#20242b!important;padding:4px 12px 18px!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail a{color:#5c6169!important;font-size:13px!important;font-weight:500!important;border-radius:0!important;padding:10px 12px 10px 18px!important;background:transparent!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail a[aria-current]{background:transparent!important;color:#20242b!important;box-shadow:inset 2px 0 0 #20242b!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail .rail-sep{background:#efebe2!important}
