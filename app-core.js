@@ -189,7 +189,11 @@
     /* 同一板块内也可能存着别名 id 的 wrongLog（如 TD-15-01 vs U1-12）：
        键不重映射，wrong-page 按 canonical q.id 查就永远查不到「已订正」。 */
     Object.keys(st.sections).forEach(function (sec) {
-      var wl = st.sections[sec] && st.sections[sec].wrongLog;
+      /* sections 的值可能是 null/字符串/数组（云端合并半截数据）：直接读
+         .wrongLog 会在 null 上 TypeError，整页在启动阶段白屏。非普通对象
+         留给 secIn 访问时重建。 */
+      if (!isPlainObject(st.sections[sec])) return;
+      var wl = st.sections[sec].wrongLog;
       if (!wl) return;
       var out = {};
       Object.keys(wl).forEach(function (qid) {

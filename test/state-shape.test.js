@@ -160,3 +160,11 @@ test('refreshVerdict 在答案记录缺失时不 TypeError，空作答把旧判�
   const disk = JSON.parse(store.tdsat_app_v1);
   assert.strictEqual(disk.sections['1.1'].answers['TD-11-01'].correct, false, '空作答没把磁盘里的旧 correct 清零');
 });
+
+
+test('sections 值是 null 时启动不崩，访问该板块自动重建', () => {
+  let A;
+  assert.doesNotThrow(() => { A = boot({ sections: { '1.1': null } }).A; });
+  assert.equal(A.stats('1.1').answered, 0);
+  assert.equal(A.stats('1.1').total > 0, true);
+});
