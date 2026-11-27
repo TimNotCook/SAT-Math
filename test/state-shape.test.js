@@ -32,6 +32,13 @@ function boot(seed) {
   return { A: sandbox.window.TD_APP, store };
 }
 
+test('answers.correct 是字符串 false 时统计不误算答对', () => {
+  const { A } = boot({ sections: { '1.1': { answers: { 'TD-11-01': { v: 'B', correct: 'false' } }, cursor: 0, marks: {}, completed: false } } });
+  const st = A.stats('1.1');
+  assert.equal(st.answered, 1);
+  assert.equal(st.correct, 0);
+});
+
 test('cursor 是字符串时归一成数字，练习页续做链接不再拼错题号', () => {
   const { A } = boot({ sections: { '1.1': { answers: {}, cursor: '3', marks: {}, completed: false } } });
   const st = A.secState('1.1', true);

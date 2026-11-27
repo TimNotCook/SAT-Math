@@ -303,6 +303,10 @@
     if (!g) return true;
     return !isCorrect(q, g);
   }
+  /* 旧档案/云端合并可能把 correct 存成字符串或 1/0；只认明确真值，避免
+     'false' 被 truthy 当成答对。 */
+  function isRightFlag(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
+  function isWrongFlag(v) { return v === false || v === 0 || v === 'false' || v === '0'; }
   function computeStats(id, src) {
     id = resolveSec(id);
     var qs = CATALOG[id] || [], st = secIn(src, id, false) || { answers: {}, cursor: 0 };
@@ -311,7 +315,7 @@
       var a = st.answers[q.id];
       if (a && a.v != null && String(a.v).trim() !== '') {
         answered++;
-        if (a.correct) correct++;
+        if (isRightFlag(a.correct)) correct++;
       }
     });
     return {
@@ -387,7 +391,7 @@
       CATALOG[s].forEach(function (q) {
         if (q.dup) return;   /* 与教材重复的精编题不进错题本 */
         var a = st.answers[q.id];
-        if (a && a.correct === false) out.push({ sec: s, unit: UNIT_OF(s), q: q, given: a.v });
+        if (a && isWrongFlag(a.correct)) out.push({ sec: s, unit: UNIT_OF(s), q: q, given: a.v });
       });
     });
     return out;

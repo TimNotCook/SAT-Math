@@ -14,6 +14,7 @@
  }
  /* 成绩档案里的 correct 可能是布尔、1/0 或字符串；只把明确真值当答对。 */
  function isRight(v){return v===true||v===1||v==='true'||v==='1';}
+ function isWrong(v){return v===false||v===0||v==='false'||v==='0';}
 
  function plainChoices(v){
    var out={};
@@ -185,7 +186,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
    A.SECS.forEach(function(s){var st=A.secState(s,false);if(!st)return;
      A.CATALOG[s].forEach(function(q){var a=st.answers[q.id],wl=(st.wrongLog||{})[q.id];
        var src=a&&a.importSrc===IMPORT_MARK?'导入错题':'单元练习';
-       if(a&&a.correct===false&&stillWrong(q,a.v)) add(map,q,a.v,src,a.ts||0);
+       if(a&&isWrong(a.correct)&&stillWrong(q,a.v)) add(map,q,a.v,src,a.ts||0);
        /* wrongLog 是「只增不删」的台账：最新作答是对的 → 记「已订正」；
           最新作答被清掉（再点一次已选项 = 清空作答）或这道题只有迁移来的过错题键
           → 也要凭台账记一笔「曾经错过」，不能因为 answers 里没记录就整条消失。 */
@@ -211,11 +212,11 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
    if(window.TD_JY&&window.TD_JY.state){
      var jy=window.TD_JY.state.answers||{};
      Object.keys(jy).forEach(function(id){var a=jy[id],q=questionById(id); /* 用 questionById 走别名归一，JY4-047 这类教材题会并到 TD-41-01，不重复记账 */
-       if(q&&a&&a.correct===false&&String(a.v||'').trim())add(map,q,a.v,'讲义复习',a.ts||0);});
+       if(q&&a&&isWrong(a.correct)&&String(a.v||'').trim())add(map,q,a.v,'讲义复习',a.ts||0);});
    }
    /* A later correct practice answer marks the historical mistake as corrected. */
    Object.keys(map).forEach(function(id){var x=map[id];A.SECS.some(function(s){var st=A.secState(s,false),a=st&&st.answers[id];
-     if(a&&a.correct){x.corrected=true;x.current=a.v;return true;}return false;});});
+     if(a&&isRight(a.correct)){x.corrected=true;x.current=a.v;return true;}return false;});});
    return Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return a.q.unit-b.q.unit||b.date-a.date;});
  }
  function num(s){s=String(s==null?'':s).trim().replace(/[−–]/g,'-').replace(/,/g,'');

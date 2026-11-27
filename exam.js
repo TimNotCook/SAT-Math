@@ -82,6 +82,8 @@
   /* 存档来自旧版本/云端合并：对象字段不能直接拼进模板或当数字算。 */
   const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' ? '' : String(v));
   const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' ? null : (isFinite(Number(v)) ? Number(v) : null));
+  const isRightFlag = v => v === true || v === 1 || v === 'true' || v === '1';
+  const isWrongFlag = v => v === false || v === 0 || v === 'false' || v === '0';
   /* Rendered stem, used only for diagnostic feature detection. The exam core
      stays DOM-free; it never changes the text shown to the student. */
   const stemOf = q => {
@@ -145,8 +147,8 @@
       Object.keys(answers).forEach(id => {
         const a = answers[id];
         if (!a || !byId(id)) return;                 // only bank questions can enter the quiz pool
-        if (a.correct === true && !seenCorrected[id]) { seenCorrected[id] = true; correctedIds.push(id); }
-        if (a.correct === false) {
+        if (isRightFlag(a.correct) && !seenCorrected[id]) { seenCorrected[id] = true; correctedIds.push(id); }
+        if (isWrongFlag(a.correct)) {
           if (!seenWrong[id]) { seenWrong[id] = true; wrongIds.push(id); }
           if (!meta[id] || (a.ts || 0) > (meta[id].ts || 0)) meta[id] = { v: safeText(a.v), ts: safeNum(a.ts) || 0 };
         }
@@ -161,7 +163,7 @@
     const base = oldState(), w = {};
     Object.keys(base.wrong).forEach(id => { w[id] = Object.assign({}, base.wrong[id]); });
     asArr(load(KEY_RESULTS)).forEach(r => { if (!r || r.void) return; asArr(r.detail).forEach(d => {
-      if (!d || typeof d !== 'object' || d.correct) return;   // 旧/云端合并来的 detail 里可能有 null、数字
+      if (!d || typeof d !== 'object' || isRightFlag(d.correct)) return;   // 旧/云端合并来的 detail 里可能有 null、数字
       const did = safeText(d.id); if (!did) return;             // 对象 id 会变成 "[object Object]" 这个假题号
       const x = w[did] || (w[did] = { count: 0 });
       x.count = (x.count || 0) + 1; x.last = r.date || x.last;
