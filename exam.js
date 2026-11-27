@@ -45,6 +45,9 @@
      两个存取器把「形状不对」的存档一律降级成空列表/空对象。 */
   const asArr = v => (Array.isArray(v) ? v : []);
   const asObj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+  /* 存档来自旧版本/云端合并：对象字段不能直接拼进模板或当数字算。 */
+  const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' ? '' : String(v));
+  const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' ? null : (isFinite(Number(v)) ? Number(v) : null));
   /* Rendered stem, used only for diagnostic feature detection. The exam core
      stays DOM-free; it never changes the text shown to the student. */
   const stemOf = q => {
@@ -1077,11 +1080,15 @@
     const elapsed = Number.isFinite(Number(r.elapsed)) && Number(r.elapsed) > 0 ? Number(r.elapsed) : 0;
     const durationSec = Number.isFinite(Number(r.durationSec)) && Number(r.durationSec) > 0 ? Number(r.durationSec) : 0;
     const est = asObj(r.estimate), rep = asObj(r.report);
-    const units = asArr(rep.units), topics = asArr(rep.topics), priority = asArr(rep.priority);
+    const units = asArr(rep.units).filter(u => u && typeof u === 'object');
+    const topics = asArr(rep.topics).filter(t => t && typeof t === 'object');
+    const priority = asArr(rep.priority).filter(p => p && typeof p === 'object');
     const scaled = Number.isFinite(Number(est.scaled)) ? Number(est.scaled) : null;
     const pct = total ? Math.round(correct / total * 100) : 0;
-    $('resTitle').textContent = OFFICIAL ? 'Score Report' : MODE_NAME[r.mode] + ' · 成绩报告';
-    $('resSub').textContent = new Date(r.date).toLocaleString(OFFICIAL ? 'en-US' : 'zh-CN') + ' · ' +
+    const modeTxt = MODE_NAME[safeText(r.mode)] || safeText(r.mode) || '模考';
+    const dateObj = new Date(r.date), dateTxt = isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(OFFICIAL ? 'en-US' : 'zh-CN');
+    $('resTitle').textContent = OFFICIAL ? 'Score Report' : modeTxt + ' · 成绩报告';
+    $('resSub').textContent = dateTxt + ' · ' +
       (OFFICIAL
         ? ((r.auto ? 'Auto-submitted when time expired' : 'Submitted manually') + ' · Answers locked' +
            (MODE === 'mock' ? ' · Module 2 path: ' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : 'not reached') : ''))
@@ -1120,20 +1127,27 @@
       : '单元练习只统计本次正确率与错题分布，不换算 SAT 分数。';
 
     $('resUnits').innerHTML = units.map(u => {
-      const nm = OFFICIAL ? (UNIT_EN[u.unit] || u.name) : u.name;
-      return `<div class="kp-row"><span class="nm" title="${esc(nm)}">${esc(nm)}</span>
-      <span class="bar"><i style="width:${Math.round((1 - u.rate) * 100)}%;background:${u.rate > .5 ? 'var(--bad)' : u.rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
-      <span class="pct">${OFFICIAL ? 'Wrong ' : '错 '}${u.wrong}/${u.n}</span></div>`;
+      const unitKey = safeText(u.unit), nm = OFFICIAL ? (UNIT_EN[unitKey] || safeText(u.name)) : safeText(u.name);
+      const rate = safeNum(u.rate) || 0, wrong = safeNum(u.wrong) || 0, n = safeNum(u.n) || 0;
+      return `<div class="kp-row"><span class="nm" title="${esc(nm)}">${esc(nm || '—')}</span>
+      <span class="bar"><i style="width:${Math.round((1 - rate) * 100)}%;background:${rate > .5 ? 'var(--bad)' : rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
+      <span class="pct">${OFFICIAL ? 'Wrong ' : '错 '}${wrong}/${n}</span></div>`;
     }).join('') || `<div class="small muted">${OFFICIAL ? 'All correct — nothing to prioritize' : '本次全部答对，无需补强'}</div>`;
-    $('resTopics').innerHTML = topics.slice(0, 12).map(t => `<div class="kp-row"><span class="nm" title="${esc(t.name)}">${esc(t.name)}</span>
-      <span class="bar"><i style="width:${Math.round((1 - t.rate) * 100)}%;background:${t.rate > .5 ? 'var(--bad)' : t.rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
-      <span class="pct">错 ${t.wrong}/${t.n}</span></div>`).join('');
-    $('resPriority').innerHTML = priority.map(p => `<div class="prio-item">
-      <span class="prio-lv ${p.level.toLowerCase()}">${p.level}</span>
-      <div style="flex:1"><b>${esc(p.name)}</b> <span class="tiny muted">${p.type === 'unit' ? '单元' : '知识点'}</span>
-        <div class="small muted" style="margin-top:2px">${esc(p.reason)}</div>
-        <div class="tiny" style="margin-top:3px;color:var(--blue-strong)">${esc(p.action)}</div>
-        <div class="tiny muted" style="margin-top:3px">对应错题：${esc(asArr(p.wrongIds).join('、')) || '—'}</div></div></div>`).join('') || '<div class="small muted">本次无错题</div>';
+    $('resTopics').innerHTML = topics.slice(0, 12).map(t => {
+      const nm = safeText(t.name), rate = safeNum(t.rate) || 0, wrong = safeNum(t.wrong) || 0, n = safeNum(t.n) || 0;
+      return `<div class="kp-row"><span class="nm" title="${esc(nm)}">${esc(nm || '—')}</span>
+      <span class="bar"><i style="width:${Math.round((1 - rate) * 100)}%;background:${rate > .5 ? 'var(--bad)' : rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
+      <span class="pct">错 ${wrong}/${n}</span></div>`;
+    }).join('');
+    $('resPriority').innerHTML = priority.map(p => {
+      const level = safeText(p.level).toLowerCase();
+      return `<div class="prio-item">
+      <span class="prio-lv${level ? ' ' + esc(level) : ''}">${esc(safeText(p.level) || '—')}</span>
+      <div style="flex:1"><b>${esc(safeText(p.name) || '—')}</b> <span class="tiny muted">${p.type === 'unit' ? '单元' : '知识点'}</span>
+        <div class="small muted" style="margin-top:2px">${esc(safeText(p.reason))}</div>
+        <div class="tiny" style="margin-top:3px;color:var(--blue-strong)">${esc(safeText(p.action))}</div>
+        <div class="tiny muted" style="margin-top:3px">对应错题：${esc(asArr(p.wrongIds).map(safeText).filter(Boolean).join('、')) || '—'}</div></div></div>`;
+    }).join('') || '<div class="small muted">本次无错题</div>';
     renderTypeSummary();
     renderResultList();
   }
@@ -1141,25 +1155,28 @@
     const r = S.result, allD = asArr(r.detail).filter(d => d && typeof d === 'object'), list = resultTab === 'wrong' ? allD.filter(d => !d.correct) : allD;
     const AN = window.TD_ANALYSIS;
     $('resList').innerHTML = list.map(d => {
-      const crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(d.id) : [];
+      const did = safeText(d.id) || '—';
+      const crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(did) : [];
+      const dUnit = safeText(d.unit) || '—', dType = safeText(d.type), dPoints = safeNum(d.points), dSeconds = safeNum(d.seconds) || 0;
+      const dTopic = safeText(d.topic), dSource = safeText(d.source), dGiven = safeText(d.given), dAnswer = safeText(d.answer), dHint = safeText(d.hint), dPos = safeText(d.pos) || '?';
       let causeHtml = '';
       if (!d.correct && AN && !OFFICIAL) {
-        const q = BANK.find(x => x.id === d.id) || {};
-        const a = AN.analyze(q, d.given, (window.TD_TEXT || {})[d.id]);
+        const q = BANK.find(x => x.id === did) || {};
+        const a = AN.analyze(q, dGiven, (window.TD_TEXT || {})[did]);
         causeHtml = `<div class="cause-box"><b>错因 · ${esc(a.title)}</b><p>${esc(a.cause)}</p><p class="fix">${esc(a.fix)}</p></div>`;
       }
       const meta = OFFICIAL
-        ? 'U' + d.unit + ' · ' + (d.type === 'grid' ? 'Grid-in' : 'Multiple choice') + ' · ' + d.points + ' pt'
-        : 'U' + d.unit + ' · ' + (d.type === 'grid' ? '填空' : '选择') + ' · 得 ' + d.points + ' 分';
+        ? 'U' + dUnit + ' · ' + (dType === 'grid' ? 'Grid-in' : 'Multiple choice') + ' · ' + (dPoints == null ? '—' : dPoints) + ' pt'
+        : 'U' + dUnit + ' · ' + (dType === 'grid' ? '填空' : '选择') + ' · 得 ' + (dPoints == null ? '—' : dPoints) + ' 分';
       return `<div class="rev-item ${d.correct ? 'ok' : 'no'}">
       <div class="badge">${d.correct ? '✓' : '✗'}</div>
-      <div class="body"><div class="ttl">Q${d.pos}${OFFICIAL ? '' : ' · ' + esc(d.topic)}
+      <div class="body"><div class="ttl">Q${esc(dPos)}${OFFICIAL ? '' : ' · ' + esc(dTopic)}
         <span class="tiny muted">${meta}${d.from === 'wrong' ? (OFFICIAL ? ' · Previously missed' : ' · 历史错题') : ''}${d.marked ? (OFFICIAL ? ' · Marked' : ' · 曾标记') : ''}</span></div>
-        <div class="sub">${OFFICIAL ? '' : esc(d.source) + ' · '}${OFFICIAL ? 'Time ' : '用时 '}${fmt(d.seconds * 1000)}</div>
-        <div class="ans"><span>${OFFICIAL ? 'Your answer' : '你的答案'} <b style="color:${d.correct ? 'var(--ok)' : 'var(--bad)'}">${esc(d.given || '—')}</b></span>
-          <span>${OFFICIAL ? 'Correct answer' : '正确答案'} <b>${esc(d.answer)}</b></span></div>
+        <div class="sub">${OFFICIAL ? '' : esc(dSource) + ' · '}${OFFICIAL ? 'Time ' : '用时 '}${fmt(dSeconds * 1000)}</div>
+        <div class="ans"><span>${OFFICIAL ? 'Your answer' : '你的答案'} <b style="color:${d.correct ? 'var(--ok)' : 'var(--bad)'}">${esc(dGiven || '—')}</b></span>
+          <span>${OFFICIAL ? 'Correct answer' : '正确答案'} <b>${esc(dAnswer || '—')}</b></span></div>
         ${crossed.length ? `<div class="sub crossout-note">${OFFICIAL ? 'Crossed out: ' : '已划掉：'}${crossed.join(', ')}</div>` : ''}
-        ${!d.correct && d.hint && !OFFICIAL ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(d.hint)}</div>` : ''}
+        ${!d.correct && dHint && !OFFICIAL ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(dHint)}</div>` : ''}
         ${causeHtml}
       </div></div>`;
     }).join('') || `<div class="small muted">${OFFICIAL ? 'No incorrect answers' : '无错题'}</div>`;
