@@ -6,6 +6,7 @@ on:
     paths:
       - tools/apply_progress_rail.py
       - tools/apply_result_priority.py
+      - tools/apply_design_tokens.py
       - .github/workflows/apply-progress-rail.yml
 
 permissions:
@@ -35,6 +36,9 @@ jobs:
       - name: Inject priority-first
         run: python3 tools/apply_result_priority.py
 
+      - name: Sync design tokens
+        run: python3 tools/apply_design_tokens.py
+
       - name: Syntax check
         run: node --check exam.js
 
@@ -52,7 +56,7 @@ jobs:
           git config user.name "sat-art-bot"
           git config user.email "sat-art-bot@users.noreply.github.com"
           git add -A
-          git commit -m "feat: 答题进度线 + 成绩页优先级前置"
+          git commit -m "feat: 进度线 / 优先级前置 / token 同步"
           git pull --rebase origin main
           git push origin HEAD:main
 
