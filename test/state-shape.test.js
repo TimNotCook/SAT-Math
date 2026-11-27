@@ -45,6 +45,14 @@ test('cursor 是字符串时归一成数字，练习页续做链接不再拼错�
   assert.equal(st.cursor, 3);
 });
 
+test('marks 值是字符串 false 时归一成布尔 false，不显示成已标记', () => {
+  const { A } = boot({ sections: { '1.1': { answers: {}, cursor: 0, marks: { 'TD-11-01': 'false', 'TD-11-02': 'true' }, completed: false } } });
+  const st = A.secState('1.1', false);
+  assert.strictEqual(st.marks['TD-11-01'], false, '字符串 false 被当成了已标记');
+  assert.strictEqual(st.marks['TD-11-02'], true, '字符串 true 没被归一成 true');
+  assert.strictEqual(A.toggleMark('1.1', 'TD-11-01'), true, 'false 标记再点一次应该变成已标记');
+});
+
 test('cursor 是对象/NaN/负数时归一成 0，不把练习页带进空题', () => {
   for (const cursor of [{ x: 1 }, NaN, -5, 'junk', null]) {
     const { A } = boot({ sections: { '1.1': { answers: {}, cursor, marks: {}, completed: false } } });

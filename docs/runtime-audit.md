@@ -588,3 +588,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 58 条：旧讲义成绩在记录页仍显示「正确 —」，因为 JY 题不在 TD_BANK（2026-11-27）
 
 `history-page byId()` 只查 `TD_BANK`，讲义成绩 detail 的题号是 `JY…`，查不到；旧讲义 detail 又没有 `answer`（#56 前写入的存档），错题行只能印「正确 —」。修法：history.html 横向加载 `data/jiangyi.js`，`byId` 兜底查 `JY_BANK`，`wrongRows` 缺 answer 时回查 `q.answer`（grid 再兜 `value/values`）。验证：`test/array-guard.test.js` 新增旧讲义成绩回归，旧代码「正确 —」失败，新代码通过；全量 `node --test` 454/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 59 条：练习页 marks 值是字符串 "false"，题号仍显示为已标记（2026-11-27）
+
+`app-core secIn()` 原来只把 `marks` 容器归成对象，没有归一值。云端合并/旧版把 `marks[qid]` 写成 `"false"` 时，`!!st.marks[qid]` 为真，练习导航题号一直亮「已标记」；再点一次标记 `! "false"` 又得到 false，行为正好相反。上游 `c8c77bc` 已合入 `isRightFlag` 归一，本地复核时发现自己的补丁把同一行重复插入了一次，已去重；补 `test/state-shape.test.js`「marks 值是字符串 false 时归一成布尔 false」回归锁。旧代码该用例失败，新代码通过。全量 `node --test` 455/0；`verify_junk` 11×7；`verify_flows` 16/16。
