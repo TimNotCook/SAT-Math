@@ -277,6 +277,16 @@ body.bb-modal-open{overflow:hidden}
 .drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) > .drill-choice-row:nth-child(3){order:1}
 .drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) > .drill-choice-row:nth-child(4){order:3}
 .drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) .td-choicegraph .td-choicesvg{max-width:min(100%,300px)}
+/* 2026-11-27：四个选项全是「小表格」时同样按原书两列排版——练习册 P14(#22)、P56(#6)、
+   P171(#13) 都是 A、C 上排、B、D 下排。条件：四行选项且每行都含 .td-choice-table。 */
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(:has(.td-choice-table)))){
+  display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;align-items:start;
+}
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(:has(.td-choice-table)))) > .drill-choice-row:nth-child(1){order:0}
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(:has(.td-choice-table)))) > .drill-choice-row:nth-child(2){order:2}
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(:has(.td-choice-table)))) > .drill-choice-row:nth-child(3){order:1}
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(:has(.td-choice-table)))) > .drill-choice-row:nth-child(4){order:3}
+
 .td-save-layer{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
 .td-save-layer[hidden]{display:none!important}
 .td-save-backdrop{position:absolute;inset:0;background:var(--veil)}
