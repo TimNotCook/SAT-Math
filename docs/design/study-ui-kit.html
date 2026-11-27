@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>学习界面组件库 · SAT Math</title>
+<style>
+:root{
+ --paper:#f7f6f2; --paper-2:#f9f8f4; --card:#fffdfa;
+ --ink:#20242b; --ink2:#5c6169; --ink3:#8d9199;
+ --line:#e7e3da; --line2:#efebe2; --accent:#2563eb;
+ --t:180ms cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+ font:16px/1.7 "Inter","Helvetica Neue","PingFang SC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:56px 32px 80px}
+h1{margin:0;font-size:30px;font-weight:600;letter-spacing:-.015em}
+.sub{margin:10px 0 0;color:var(--ink2);font-size:14px;max-width:900px}
+.sec{margin-top:56px}
+.sec h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:0 0 18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 4px 12px;border-bottom:1px solid var(--line)}
+.bar .l{display:flex;align-items:baseline;gap:14px;min-width:0}
+.bar b{font-size:13px;font-weight:600}
+.bar span{font-size:12px;color:var(--ink3)}
+.clock{display:flex;align-items:baseline;gap:8px;font-variant-numeric:tabular-nums}
+.clock b{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.clock small{font-size:11px;color:var(--ink3);letter-spacing:.04em}
+.railline{height:2px;background:var(--line2);border-radius:2px;margin-top:-1px;position:relative;overflow:hidden}
+.railline i{position:absolute;left:0;top:0;bottom:0;width:38%;background:var(--accent);border-radius:2px}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-top:4px}
+.tab{appearance:none;border:0;background:transparent;padding:12px 0 12px;margin-right:30px;font-size:13.5px;color:var(--ink3);cursor:pointer;font-weight:500;position:relative}
+.tab.on{color:var(--ink);font-weight:600}
+.tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--ink)}
+.opts{border-top:1px solid var(--line);margin-top:26px}
+.opt{display:flex;align-items:center;gap:16px;padding:16px 18px;border-bottom:1px solid var(--line);cursor:pointer;transition:background var(--t)}
+.opt:hover{background:#fdfbf6}
+.opt.on{background:var(--card);box-shadow:inset 3px 0 0 var(--accent)}
+.opt .k{width:20px;color:var(--ink3);font-weight:600;font-size:15px}
+.opt.on .k{color:var(--ink)}
+.opt .t{font-size:15.5px;line-height:1.6;color:var(--ink2)}
+.opt.on .t{color:var(--ink)}
+.scale{display:grid;gap:14px}
+.row{display:flex;align-items:baseline;gap:18px;border-bottom:1px dashed var(--line2);padding-bottom:12px}
+.row b{color:var(--ink3);font:500 11px/1 ui-monospace,monospace;width:120px;flex:none}
+.sw{display:flex;gap:10px;flex-wrap:wrap}
+.chip{display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--ink3)}
+.chip i{display:block;width:84px;height:44px;border-radius:8px;border:1px solid rgba(0,0,0,.06)}
+.note{margin:14px 0 0;font-size:12px;color:var(--ink3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>学习界面组件库</h1>
+  <p class="sub">只服务于一个目标：5 秒内决定开始，30 分钟里不被界面打断。所有数值写死在 token 里，不允许临时发挥。</p>
+
+  <section class="sec">
+    <h2>01 顶栏：一条线走完，不摆工具</h2>
+    <div class="panel">
+      <div class="bar">
+        <div class="l"><b>Unit 02</b><span>问题解决与数据分析</span><span>第 6 / 20 题</span></div>
+        <div class="clock"><b>19:42</b><small>REMAINING</small></div>
+      </div>
+      <div class="railline"><i></i></div>
+      <p class="note">剩余时间用 22px 等宽数字，下面一条 2px 进度线代表整卷进度。计时靠右，视线扫一次就够，其余工具（参考表、计算器、标记）全部收进「更多」。</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>02 单元切换：文字，不做按钮墙</h2>
+    <div class="panel">
+      <div class="tabs">
+        <button class="tab">U1 代数核心</button>
+        <button class="tab on">U2 问题解决与数据分析</button>
+        <button class="tab">U3 高等数学</button>
+        <button class="tab">U4 几何与三角</button>
+      </div>
+      <p class="note">四个单元用一条发丝线托底，选中只加 2px 墨色下划线。用颜色块等于告诉大脑「这里有四个入口」，而下划线说的是「现在是这一个」。</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>03 选项：整行，不用卡片</h2>
+    <div class="panel">
+      <div class="opts">
+        <div class="opt on"><span class="k">A</span><span class="t">As study time increases, scores tend to increase.</span></div>
+        <div class="opt"><span class="k">B</span><span class="t">As study time increases, scores tend to decrease.</span></div>
+        <div class="opt"><span class="k">C</span><span class="t">Study time and scores are unrelated.</span></div>
+        <div class="opt"><span class="k">D</span><span class="t">Every student who studied longer scored higher.</span></div>
+      </div>
+      <p class="note">选项整行 52px 高、发丝线分隔；选中只留 3px 左竖条与一档提亮。字母是纯文字，不做圆形徽章——徽章会把「选项」变成「表单」。</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>04 Token：颜色与字号</h2>
+    <div class="panel">
+      <div class="sw">
+        <span class="chip"><i style="background:#f7f6f2"></i>paper f7f6f2</span>
+        <span class="chip"><i style="background:#fffdfa"></i>card fffdfa</span>
+        <span class="chip"><i style="background:#20242b"></i>ink 20242b</span>
+        <span class="chip"><i style="background:#5c6169"></i>ink2 5c6169</span>
+        <span class="chip"><i style="background:#8d9199"></i>ink3 8d9199</span>
+        <span class="chip"><i style="background:#e7e3da"></i>line e7e3da</span>
+        <span class="chip"><i style="background:#2563eb"></i>accent 2563eb</span>
+      </div>
+      <div class="scale" style="margin-top:22px">
+        <div class="row"><b>30 / 600</b><span style="font-size:30px;font-weight:600;letter-spacing:-.015em">页面标题</span></div>
+        <div class="row"><b>16.5 / 1.75</b><span style="font-size:16.5px;line-height:1.75">题干正文，行长控制在 66ch</span></div>
+        <div class="row"><b>22 / 600 tnum</b><span style="font-size:22px;font-weight:600;font-variant-numeric:tabular-nums">19:42</span></div>
+        <div class="row" style="border:0"><b>12 / .1em</b><span style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8d9199">SECTION LABEL</span></div>
+      </div>
+      <p class="note">三档正文级字号 + 一档数字。多一档，页面就开始「有设计感」，也就是开始打断阅读。</p>
+    </div>
+  </section>
+</div>
+</body>
+</html>
