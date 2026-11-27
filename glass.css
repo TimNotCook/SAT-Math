@@ -1288,23 +1288,18 @@ html:not([data-theme="dark"]) body.drill-page #questionView .drill-next-button{h
 html:has(body.exam-page){background:#f7f6f2!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!important}
 
-/* 左侧主卡（Math · Practice Test）与右侧结构卡改米白纸面 */
-html:not([data-theme="dark"]) body.exam-page.is-mock .mock-entry{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
-html:not([data-theme="dark"]) body.exam-page.is-mock .exam-panel.mock-hide{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
+/* 先把开场层里所有子元素的底色清空，再只给三块真卡片上纸色 ——
+   卡片下面那块幽灵米色块就是某个容器自带的底色，逐层猜不划算。 */
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro *{background-color:transparent!important;background-image:none!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro .mock-entry{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro #introParams{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro .mock-directions{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro .btn.primary{background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;border-radius:8px!important}
 
 /* 眉标 / 小节标题 / 说明文字统一中性灰 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-eyebrow{color:#a8acb4!important;font-size:10px!important;letter-spacing:.14em!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-section-title{font-size:11px!important;letter-spacing:.12em!important;color:#8d9199!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-note{color:#8d9199!important;font-size:12.5px!important}
-
-/* 卡片下方那块幽灵米色块：外层容器带的纸色，透明化 */
-html:not([data-theme="dark"]) body.exam-page.is-mock .exam-stage-main,
-html:not([data-theme="dark"]) body.exam-page.is-mock .stage,
-html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro,
-html:not([data-theme="dark"]) body.exam-page.is-mock #introOptions{background:transparent!important;box-shadow:none!important}
-
-/* Directions 折叠条同材质 */
-html:not([data-theme="dark"]) body.exam-page.is-mock .mock-directions{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .mock-directions summary{font-size:12.5px!important;font-weight:600!important;color:#20242b!important}
 
 /* 侧栏：模考页也走纸面 + 2px 墨线当前项 */
