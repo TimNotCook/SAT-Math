@@ -259,10 +259,11 @@
           incoming = { v: String(incoming), ts: 0 };
         }
         /* 对象条目的 v 也可能是对象/数组：恢复后不重新加载页面时，输入框会直接
-           显示 [object Object]。按 app-core/parseSession 的口径归一成字符串。 */
+           显示 [object Object]。坏值不能归一成空串再写回：存档 ts 为 0 时会
+           把本机一条有效的旧作答覆盖成空答案。直接跳过这条坏记录。 */
         if (typeof incoming.v === 'string') { /* ok */ }
         else if (typeof incoming.v === 'number' && isFinite(incoming.v)) incoming.v = String(incoming.v);
-        else incoming.v = '';
+        else return;
         incoming.ts = Number.isFinite(Number(incoming.ts)) ? Number(incoming.ts) : 0;
         // newest timestamp wins; equal timestamps are the same record
         if (!existing || (Number(incoming.ts) || 0) >= (Number(existing.ts) || 0))

@@ -242,8 +242,7 @@ test('存档答案条目的 v 是对象时恢复成空串，不写 [object Objec
   const { SAVE, store } = boot({ sections: {}, last: null }, archive);
   assert.ok(SAVE.restore().ok);
   const live = JSON.parse(store[LIVE_KEY]);
-  assert.equal(typeof live.sections[T.sec].answers[T.qid].v, 'string');
-  assert.equal(live.sections[T.sec].answers[T.qid].v, '');
+  assert.equal(live.sections[T.sec].answers[T.qid], undefined, '坏 v 不能写回空答案');
 });
 
 
@@ -257,4 +256,16 @@ test('存档 wrongLog 的 v 是对象/空值时不再写回幽灵错题', () => 
   const live = JSON.parse(store[LIVE_KEY]);
   assert.equal(live.sections[T.sec].wrongLog[T.qid], undefined);
   assert.equal(live.sections[T.sec].wrongLog['TD-11-99'], undefined);
+});
+
+
+test('存档坏 v 不能把本机有效旧答案覆盖成空', () => {
+  const liveSeed = { sections: { [T.sec]: { answers: { [T.qid]: { v: 'A', ts: 1 } }, marks: {}, wrongLog: {} } }, last: null };
+  const archive = Object.assign(mkArchive({}), {
+    sections: { [T.sec]: { answers: { [T.qid]: { v: { x: 1 }, ts: 9 } }, marks: {}, wrongLog: {} } },
+  });
+  const { SAVE, store } = boot(liveSeed, archive);
+  assert.ok(SAVE.restore().ok);
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.equal(live.sections[T.sec].answers[T.qid].v, 'A');
 });
