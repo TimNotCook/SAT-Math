@@ -800,6 +800,8 @@
       }
     })();
     $('qNum').textContent = String(pos);
+    /* progress-rail: 顶栏底部 2px 进度线（样式在 glass.css 的 question-theme 块） */
+    (function(){const bar=document.querySelector('.drill-questionbar-inner');if(bar&&total>0)bar.style.setProperty('--q-progress',(pos/total*100).toFixed(2)+'%');})();
     $('footerSection').textContent = MODE === 'mock' ? 'Section 2, Module ' + S.module + ' of 2' : MODE_NAME[MODE] + ' · 第 ' + QUIZ_UNIT + ' 单元';
     $('questionPosition').textContent = OFFICIAL ? 'Question ' + pos + ' of ' + total : '第 ' + pos + ' / ' + total + ' 题';
 
