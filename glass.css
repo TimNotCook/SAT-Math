@@ -1165,11 +1165,12 @@ html:not([data-theme="dark"]) body.exam-page #stage-result .prio-item b{font-siz
 html:not([data-theme="dark"]) body.exam-page #stage-result .prio-lv{background:transparent!important;border:1px solid #e7e3da!important;border-radius:2px!important;color:#8d9199!important;font-size:10px!important;letter-spacing:.08em!important}
 
 /* ==== catalog-theme：真题练习首页纸面化 ==== */
+/* app.css:895 用 html:has(body.shell-drill){background:#f5f7fb!important} 锁住画布，
+   这里用同结构选择器在 glass.css 里压回去（层叠在 app.css 之后）。 */
+html:has(body.site-shell){background:#f7f6f2!important}
 html:not([data-theme="dark"]){background:#f7f6f2!important}
 html:not([data-theme="dark"]) body.site-shell{min-height:100vh!important;background:#f7f6f2!important}
 html:not([data-theme="dark"]) body.drill-page{background:#f7f6f2!important;min-height:100vh!important}
-/* 视口底部的 html 画布会被 --bg 蓝灰渗透，用一层固定纸色垫底 */
-html:not([data-theme="dark"]) body.drill-page::before{content:""!important;position:fixed!important;inset:0!important;background:#f7f6f2!important;z-index:-1!important;pointer-events:none!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail{background:#fffdfa!important;border-right:1px solid #e7e3da!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail .rail-brand{font-size:14px!important;font-weight:600!important;color:#20242b!important;letter-spacing:.01em!important;padding:4px 12px 18px!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail a{color:#5c6169!important;font-size:13px!important;font-weight:500!important;border-radius:0!important;padding:10px 12px 10px 18px!important;background:transparent!important}
