@@ -2,6 +2,9 @@
 
 /* 1) 版面：先治好旧模板的错位——顶栏关掉，正文回到 216px 左侧栏之后并居中 */
 body.drill-page:has(#resultView:not([hidden])) #appnav{display:none!important}
+/* 左栏底座：body 高度不等视口，用 background-attachment:fixed 直接铺到视口 */
+html:not([data-theme="dark"]) body.drill-page:has(#resultView:not([hidden])){background:linear-gradient(90deg,#fffdfa 0 216px,#f7f6f2 216px 100%)!important;background-attachment:fixed!important}
+@media(max-width:999px){html:not([data-theme="dark"]) body.drill-page:has(#resultView:not([hidden])){background:#f7f6f2!important}}
 html:not([data-theme="dark"]) body.drill-page #resultView{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;background:transparent!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-inner{width:auto!important;max-width:880px!important;margin:0 auto!important;padding:56px 24px 104px!important}
 
@@ -22,7 +25,8 @@ html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-tallies 
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-tallies dt{font-size:10px!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:#a8acb4!important;font-weight:600!important;order:2}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-tallies dd{margin:0!important;font-size:22px!important;font-weight:600!important;color:#20242b!important;line-height:1.2!important;font-variant-numeric:tabular-nums!important;order:1}
 
-/* 4) 「错题已入错题本」提醒：陶土色签条，不要黄报错盒子 */
+/* 4) 「错题已入错题本」提醒：陶土色签条；没错题就真不显示 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-notice[hidden]{display:none!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-notice{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 22px!important;padding:10px 14px!important;background:#fffdfa!important;border:1px solid #e7e3da!important;border-left:2px solid #b5793b!important;border-radius:6px!important;box-shadow:none!important;font-size:12.5px!important;color:#5c6169!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-notice svg{color:#b5793b!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-notice-link{color:#2563eb!important;font-size:12px!important;font-weight:500!important;text-decoration:none!important}
@@ -41,10 +45,9 @@ html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-state sv
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-right .drill-result-state{color:#2f6b4f!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-wrong .drill-result-state{color:#b5533b!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-blank .drill-result-state{color:#8d9199!important}
-html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-jump{font-size:11.5px!important;font-weight:500!important;color:#8d9199!important;text-decoration:none!important;border-bottom:1px solid #e7e3da!important;padding-bottom:1px!important;opacity:0;transition:opacity .12s ease}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-jump{font-size:11.5px!important;font-weight:500!important;color:#8d9199!important;text-decoration:none!important;border-bottom:1px solid #e7e3da!important;padding-bottom:1px!important;opacity:.55;transition:opacity .12s ease}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hover .drill-result-jump,
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-jump:focus{opacity:1;color:#5c6169!important}
-@media (hover:none){body.drill-page #resultView .drill-result-jump{opacity:1!important}}
 
 /* 题干：正文 15px，限行宽，不需要卡底 */
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-stem{font-family:inherit!important;font-size:14.5px!important;line-height:1.68!important;color:#20242b!important;margin:0 0 12px!important;max-width:72ch!important;-webkit-line-clamp:2!important}
