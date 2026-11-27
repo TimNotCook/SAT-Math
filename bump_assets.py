@@ -22,7 +22,7 @@ HASH_FILES = [
     'exam.js', 'drill.js', 'history-page.js', 'choice-figures.js', 'crossout.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
     'bluebook-shell.js', 'cloud-config.js', 'cloud-account.js',
     'supa-cloud.js',
-    'scratch-pad.js', 'wrong-page.js', 'theme.js',
+    'scratch-pad.js', 'wrong-page.js', 'theme.js', 'i18n.js',
     'app.css', 'bluebook.css', 'glass.css',
     # 讲义复习（jiangyi）：图与数据改动必须能换版本，否则改了也到不了浏览器
     # （本项目已经吃过两次「文件建了但页面拿的是旧缓存」的亏：supa-cloud.js）
@@ -41,7 +41,7 @@ BUMP = [
     'grade-core.js', 'app-core.js', 'app-ui.js', 'figures.js', 'exam-core.js', 'analysis.js',
     'exam.js', 'drill.js', 'history-page.js', 'choice-figures.js', 'crossout.js', 'progress-save.js', 'pdf-import.js', 'image-import.js',
     'bluebook-shell.js', 'cloud-config.js', 'cloud-account.js',
-    'supa-cloud.js', 'scratch-pad.js', 'wrong-page.js', 'theme.js', 'app.css', 'bluebook.css', 'glass.css',
+    'supa-cloud.js', 'scratch-pad.js', 'wrong-page.js', 'theme.js', 'i18n.js', 'app.css', 'bluebook.css', 'glass.css',
     'data/jiangyi.js', 'data/jiangyi_figures.js', 'jiangyi-core.js', 'jiangyi-page.js',
     'data/aliases.js',
 ]

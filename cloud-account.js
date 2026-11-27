@@ -640,7 +640,7 @@
     panel.appendChild(head);
     // 标签栏：账户 / 外观 / 关于
     var tabs = el('div', 'td-set-tabs');
-    var tabDefs = [['account', '账户'], ['appearance', '外观'], ['practice', '练习'], ['about', '关于']];
+    var tabDefs = [['account', '账户'], ['appearance', '外观'], ['language', '语言'], ['practice', '练习'], ['about', '关于']];
     tabDefs.forEach(function (pair) {
       var t = el('button', 'td-set-tab', pair[1]);
       t.type = 'button';
@@ -799,6 +799,27 @@
     b.appendChild(el('p', 'td-acct-note', '外观偏好保存在这台设备，刷新后依然有效。'));
   }
 
+  function renderLanguageTab() {
+    var b = ui.body;
+    var r = row('语言', '切换后立即生效，做题内容本身不受影响。');
+    var seg = el('div', 'td-set-seg');
+    var get = (window.TDI18n && window.TDI18n.get) ? window.TDI18n.get : function () { return 'zh'; };
+    var cur = get();
+    [['zh', '中文'], ['en', 'English']].forEach(function (pair) {
+      var btn = el('button', '', pair[1]);
+      btn.type = 'button';
+      if (cur === pair[0]) btn.setAttribute('data-active', '1');
+      btn.onclick = function () {
+        if (window.TDI18n && window.TDI18n.set) window.TDI18n.set(pair[0]);
+        else { try { localStorage.setItem('tdsat_lang', pair[0]); } catch (e) { console.warn('保存语言失败', e); } }
+        renderBody();
+      };
+      seg.appendChild(btn);
+    });
+    r.appendChild(seg); b.appendChild(r);
+    b.appendChild(el('p', 'td-acct-note', '只切换界面文字；题目、讲义原文与你的作答记录不变。'));
+  }
+
   function renderPracticeTab() {
     var b = ui.body;
     var r0 = row('单元练习计算器', '打开后，单元练习答题页也会显示计算器按钮；关闭则只有专项训练、单元抽查与模考可用。');
@@ -843,6 +864,9 @@
     } else if (activeTab === 'appearance') {
       setStatus('外观偏好自动保存在这台设备', 'plain');
       renderAppearanceTab();
+    } else if (activeTab === 'language') {
+      setStatus('语言偏好自动保存在这台设备', 'plain');
+      renderLanguageTab();
     } else if (activeTab === 'practice') {
       setStatus('练习偏好自动保存在这台设备', 'plain');
       renderPracticeTab();
