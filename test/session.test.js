@@ -345,3 +345,12 @@ test('weaknessReport：detail 混入 null/数组/字符串时不崩', () => {
     [{ id: 1, cn: '代数' }], { wrong: {} }
   ));
 });
+
+
+test('weaknessReport：unit/section 是对象时报告名不出现 [object Object]', () => {
+  const rep = C.weaknessReport(
+    [{ id: 'Q1', unit: { x: 1 }, section: { y: 1 }, topic: 0, correct: false, seconds: 0 }],
+    [{ id: 1, cn: '代数' }], { wrong: {} }
+  );
+  assert.ok(!JSON.stringify(rep).includes('[object Object]'), '对象 unit/section 泄漏进报告名');
+});

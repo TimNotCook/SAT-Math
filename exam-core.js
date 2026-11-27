@@ -803,12 +803,16 @@
     detail = Array.isArray(detail) ? detail.filter(d => d && typeof d === 'object' && !Array.isArray(d)) : [];
     const ug = {}, tg = {};
     detail.forEach(d => {
-      const u = ug[d.unit] || (ug[d.unit] = { unit: d.unit, n: 0, wrong: 0, ids: [] });
+      /* unit/section 可能是对象：直接当键会聚成 "[object Object]"，报告标题
+         还会显示成「U[object Object] ...」。先统一成字符串。 */
+      const unitKey = d.unit == null || typeof d.unit === 'object' ? '' : String(d.unit);
+      const sectionKey = d.section == null || typeof d.section === 'object' ? '' : String(d.section);
+      const u = ug[unitKey] || (ug[unitKey] = { unit: unitKey, n: 0, wrong: 0, ids: [] });
       u.n++; if (!isRightFlag(d.correct)) { u.wrong++; u.ids.push(d.id); }
       /* topic 在云端/旧记录里可能是数字或对象：直接 .replace 会把成绩页打崩。 */
       const topic = d.topic == null ? '' : String(d.topic);
-      const key = String(d.section == null ? '' : d.section) + '|' + topic;
-      const t = tg[key] || (tg[key] = { key, unit: d.unit, section: d.section, topic, n: 0, wrong: 0, ids: [], seconds: 0 });
+      const key = sectionKey + '|' + topic;
+      const t = tg[key] || (tg[key] = { key, unit: unitKey, section: sectionKey, topic, n: 0, wrong: 0, ids: [], seconds: 0 });
       t.n++; t.seconds += Number(d.seconds) || 0; if (!isRightFlag(d.correct)) { t.wrong++; t.ids.push(d.id); }
     });
     const historic = (state && state.wrong) || {};
