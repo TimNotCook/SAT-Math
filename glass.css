@@ -453,6 +453,17 @@ html[data-theme="dark"] .site-rail .rail-back{color:#fff!important}
 html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.16)!important;color:#d8d8dc!important}
 html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings:hover{background:rgba(255,255,255,.08)!important;color:#fff!important}
 
+/* 三入口「当前板块」：app.css 写死了浅色态 #1d4ed8 蓝字，dark 下叠在
+   深玻璃底上只有 2.95:1。保留品牌蓝块，字改成浅银，hover 再提一档。 */
+html[data-theme="dark"] body .entry-tile-grid .entry-tile.on{
+  background:rgba(37,99,235,.22)!important;
+  border-color:rgba(37,99,235,.38)!important;
+}
+html[data-theme="dark"] body .entry-tile-grid .entry-tile.on b,
+html[data-theme="dark"] body .entry-tile-grid .entry-tile.on .entry-arrow{color:#f5f5f7!important}
+html[data-theme="dark"] body .entry-tile-grid .entry-tile.on:hover{background:rgba(37,99,235,.30)!important}
+
+
 /* exam 页在暗黑下刻意保持 Bluebook 白纸（见上「模考/抽查页始终按白纸呈现」），
    那就必须把浅色 token 也一起恢复：dark 的 --ink 是 #e8e8ea，白底上成绩页标题、
    副标题、CTA 文字对比度只剩 1.4:1，等于看不见。顺带把 rail 从深栏浅字改回白栏深字
