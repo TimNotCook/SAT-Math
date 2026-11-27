@@ -339,7 +339,7 @@
         pos: i + 1, uid: inst0.uid, id: inst0.id, unit: q.unit || null,
         section: q.section || null, topic: q.topic || null, type: q.type || null,
         image: q.image || null, given: safeText(a.v),
-        marked: !!a.marked, spent: Math.round((safeNum(a.spent) || 0) / 1000)
+        marked: isRightFlag(a.marked), spent: Math.round((safeNum(a.spent) || 0) / 1000)
       };
     });
     const now = Date.now();
@@ -1122,7 +1122,7 @@
                from: inst.from, correct: ok, given,
                answer: q.type === 'grid' && q.answer == null ? q.value : q.answer,
                points: ok ? 1 : 0,
-               seconds: Math.round((a.spent || 0) / 1000), marked: !!a.marked };
+               seconds: Math.round((a.spent || 0) / 1000), marked: isRightFlag(a.marked) };
     });
     const correct = detail.filter(d => isRightFlag(d.correct)).length;
     const est = C.estimateScore(MODE, correct, detail.length, S.path);

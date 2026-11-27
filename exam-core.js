@@ -781,7 +781,7 @@
         answer: q.answer != null ? q.answer
           : (q.value != null ? q.value : (Array.isArray(q.values) && q.values.length ? q.values.join(', ') : q.answer)),
         points: ok ? 1 : 0,
-        seconds: Math.round((a.spent || 0) / 1000), marked: !!a.marked
+        seconds: Math.round((a.spent || 0) / 1000), marked: isRightFlag(a.marked)
       };
     });
   }

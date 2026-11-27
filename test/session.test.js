@@ -290,3 +290,12 @@ describe('sessionTimeout：刷新后的两种时间到', () => {
     assert.equal(C.sessionTimeout(s, Date.now()), '');
   });
 });
+
+
+describe('scoreSession：marked 是字符串 "false" 时不标成已标记', () => {
+  test('字符串 false 归一成布尔 false', () => {
+    const q = { id: 'M1-1', unit: 1, section: '1.1', topic: 't', type: 'mcq', answer: 'A' };
+    const d = C.scoreSession([q], { 'M1-1': { v: 'A', marked: 'false', spent: 1000 } })[0];
+    assert.equal(d.marked, false);
+  });
+});
