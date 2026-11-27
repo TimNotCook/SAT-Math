@@ -9,6 +9,7 @@ SOURCES = [
     "tools/study-theme.css",
     "tools/question-theme.css",
     "tools/intro-theme.css",
+    "tools/result-theme.css",
 ]
 
 src = io.open("glass.css", encoding="utf-8").read()
