@@ -70,6 +70,26 @@ test('恢复存档会把 wrongLog 合并进本机（已订正题不再蒸发）'
   assert.deepStrictEqual(wl[T.qid], { v: 'A', ts: 1700000000000 }, 'wrongLog 没被搬进本机');
 });
 
+test('本机 sections 是数组时，恢复结果仍写回普通对象', () => {
+  const archive = mkArchive({});
+  archive.sections[T.sec].answers = { [T.qid]: { v: T.answer, ts: 1700000000000 } };
+  const { SAVE, store } = boot({ sections: [], last: null }, archive);
+  assert.ok(SAVE.restore().ok);
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.equal(Array.isArray(live.sections), false, '数组 sections 被原样写回，JSON 会吞掉所有板块');
+  assert.equal(live.sections[T.sec].answers[T.qid].v, T.answer);
+});
+
+test('本机某个板块记录是数组时，不被当成普通对象挂属性', () => {
+  const archive = mkArchive({});
+  archive.sections[T.sec].answers = { [T.qid]: { v: T.answer, ts: 1700000000000 } };
+  const { SAVE, store } = boot({ sections: { [T.sec]: [] }, last: null }, archive);
+  assert.ok(SAVE.restore().ok);
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.equal(Array.isArray(live.sections[T.sec]), false, '板块记录仍是数组，answers 会被 JSON 丢掉');
+  assert.equal(live.sections[T.sec].answers[T.qid].v, T.answer);
+});
+
 test('本机已有更新的 wrongLog 时不被旧存档覆盖', () => {
   const { SAVE, store } = boot(
     { sections: { [T.sec]: { answers: {}, marks: {}, wrongLog: { [T.qid]: { v: 'B', ts: 1700000600000 } } } }, last: null },

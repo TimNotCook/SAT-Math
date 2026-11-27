@@ -195,17 +195,19 @@
     try { d = JSON.parse(readRaw()); }
     catch (e) { return { ok: false, status: 'corrupt' }; }
     var live = readLive();
-    if (!live.sections || typeof live.sections !== 'object') live.sections = {};
+    /* typeof [] 也是 object：本机 sections 是数组时，合并结果全挂成数组的自定义属性，
+       JSON.stringify 一写就只剩 []，恢复看起来成功、实际整份作答被吞。 */
+    if (!live.sections || typeof live.sections !== 'object' || Array.isArray(live.sections)) live.sections = {};
 
     Object.keys(d.sections).forEach(function (sid) {
       var snap = d.sections[sid] || {};
       if (!A.CATALOG[sid]) return;        // unknown section: ignore, never inject
       var cur = live.sections[sid];
-      if (!cur || typeof cur !== 'object') cur = { answers: {}, marks: {}, cursor: 0 };
+      if (!cur || typeof cur !== 'object' || Array.isArray(cur)) cur = { answers: {}, marks: {}, cursor: 0 };
       if (!cur.answers || typeof cur.answers === 'undefined' || Array.isArray(cur.answers)) cur.answers = {};
       if (!cur.marks || typeof cur.marks === 'undefined' || Array.isArray(cur.marks)) cur.marks = {};
 
-      var sa = snap.answers && typeof snap.answers === 'object' ? snap.answers : {};
+      var sa = snap.answers && typeof snap.answers === 'object' && !Array.isArray(snap.answers) ? snap.answers : {};
       Object.keys(sa).forEach(function (qid) {
         var incoming = sa[qid], existing = cur.answers[qid];
         // newest timestamp wins; equal timestamps are the same record
@@ -221,7 +223,7 @@
         var wIn = sw[qid], wCur = cur.wrongLog[qid];
         if (!wCur || (Number(wIn && wIn.ts) || 0) >= (Number(wCur && wCur.ts) || 0)) cur.wrongLog[qid] = wIn;
       });
-      var sm = snap.marks && typeof snap.marks === 'object' ? snap.marks : {};
+      var sm = snap.marks && typeof snap.marks === 'object' && !Array.isArray(snap.marks) ? snap.marks : {};
       Object.keys(sm).forEach(function (qid) {
         if (!(qid in cur.marks)) cur.marks[qid] = sm[qid];
       });
