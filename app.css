@@ -875,3 +875,50 @@ body.shell-exam:not(.is-mock) .mock-main-card{background:linear-gradient(135deg,
    开场页与结果页保留侧栏 */
 body.exam-page:has(#stage-answer:not([hidden])) .site-rail{display:none!important}
 @media(min-width:1000px){body.exam-page:has(#stage-answer:not([hidden])){padding-left:0!important}}
+
+/* 单元卡收紧：内容垂直居中，别在名字下面留一大片空 */
+.quiz-unit{justify-content:center;min-height:84px;padding:14px 16px;gap:6px}
+
+/* ---- 抽查开场页 v3：把间距、字号、内距、对齐统一成一套（v2 是临时版） ---- */
+body.exam-page:has(#stage-intro.active){background:#f7f9fc}
+body.shell-exam:not(.is-mock) .mock-entry{max-width:1120px!important;padding:30px 28px 56px!important}
+body.shell-exam:not(.is-mock) #introTitle{font-size:31px!important;font-weight:800;letter-spacing:-.015em;margin:0 0 22px}
+.quiz-units{gap:14px!important;margin:0 0 20px!important}
+.quiz-unit{border-radius:14px!important;border:1px solid #e9edf4;background:#fff;padding:13px 16px!important;min-height:76px;
+  justify-content:center;gap:5px;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.quiz-unit::after{display:none!important}
+.quiz-unit:hover{border-color:#d7e3fa;box-shadow:0 8px 18px rgba(15,23,42,.06);transform:translateY(-1px)}
+.quiz-unit.on{border-color:#2563eb!important;background:#fff;box-shadow:0 0 0 2px rgba(37,99,235,.10),0 8px 20px rgba(37,99,235,.08)}
+.qu-code{height:19px;padding:0 8px;border-radius:6px;font-size:10.5px;letter-spacing:.09em}
+.qu-name{font-size:14.5px;font-weight:700;color:#12233f}
+.qu-tick{right:12px;top:12px;width:18px;height:18px;font-size:11px;line-height:18px}
+
+body.shell-exam:not(.is-mock) .mock-main-card{min-height:108px!important;border-radius:16px!important;border:1px solid #e9edf4!important;
+  background:#fff!important;padding:20px 24px!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important}
+.quiz-card-facts{gap:0!important;align-items:center!important}
+.quiz-fact{display:inline-flex;align-items:baseline;gap:7px;font-size:12.5px;color:#7b8798;font-weight:600}
+.quiz-fact b{font-size:28px;font-weight:800;color:#0f172a;letter-spacing:-.01em}
+.quiz-fact+.quiz-fact{margin-left:26px;padding-left:26px;border-left:1px solid #e9edf4}
+body.shell-exam:not(.is-mock) #btnStart{min-width:168px!important;min-height:46px;border-radius:10px;font-size:15px;font-weight:700;letter-spacing:.01em}
+
+body.shell-exam:not(.is-mock) .exam-special-panel{margin-top:20px!important;padding:18px 20px!important;border-radius:16px!important;
+  border:1px solid #e9edf4!important;background:#fff!important;box-shadow:0 6px 18px rgba(15,23,42,.03)!important}
+body.shell-exam:not(.is-mock) .exam-special-head{font-size:11.5px!important;font-weight:800!important;color:#7b8798!important;letter-spacing:.09em!important}
+body.shell-exam:not(.is-mock) .exam-special-chips{margin-top:14px!important;gap:10px!important}
+body.shell-exam:not(.is-mock) .exam-special-chip{height:34px!important;padding:0 14px 0 33px!important;border-radius:99px!important;
+  border:1px solid #e9edf4!important;background:#f9fbfd!important;font-size:13px!important;font-weight:600!important;color:#334155!important;gap:8px!important}
+body.shell-exam:not(.is-mock) .exam-special-chip small{font-size:11.5px!important;font-weight:600;color:#94a3b8!important}
+body.shell-exam:not(.is-mock) .exam-special-chip input[type="checkbox"]{left:12px!important;top:50%!important;width:15px!important;height:15px!important;
+  margin:-7.5px 0 0!important;border-radius:5px!important;border:1.5px solid #cbd5e1!important;background:#fff!important}
+body.shell-exam:not(.is-mock) .exam-special-chip.on{background:#f2f7ff!important;border-color:#bfd5fb!important;color:#1d4ed8!important}
+@media(max-width:900px){
+  body.shell-exam:not(.is-mock) .mock-entry{padding:20px 16px 40px!important}
+  .quiz-fact+.quiz-fact{margin-left:18px;padding-left:18px}
+}
+@media(max-width:520px){
+  .quiz-units{grid-template-columns:1fr!important}
+  .quiz-card-facts{flex-wrap:wrap;gap:10px!important}
+  .quiz-fact+.quiz-fact{margin:0;padding:0;border:0}
+  body.shell-exam:not(.is-mock) .mock-main-card{flex-direction:column!important;align-items:flex-start!important;gap:14px}
+  body.shell-exam:not(.is-mock) #btnStart{width:100%}
+}
