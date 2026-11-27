@@ -112,13 +112,19 @@
 </div>
 <script src="data/lessons-a.js"></script>
 <script src="data/lessons-b.js"></script>
+<script src="data/lessons-c.js"></script>
 <script>
 (function () {
-  var S = Object.assign({}, window.LESSONS_A || {}, window.LESSONS_B || {});
+  var S = Object.assign({}, window.LESSONS_A || {}, window.LESSONS_B || {}, window.LESSONS_C || {});
   var q = new URLSearchParams(location.search);
-  var sec = q.get('sec') || '1.1';
-  var keys = Object.keys(S).sort();
-  if (!S[sec]) sec = keys[0] || '';
+  var allKeys = Object.keys(S).sort();
+  var sec = q.get('sec') || allKeys[0] || '';
+  if (!S[sec]) sec = allKeys[0] || '';
+  var unit = sec.split('.')[0];
+  var keys = allKeys.filter(function (k) { return k.split('.')[0] === unit; });
+  if (!keys.length) keys = allKeys;
+  var nextUnit = allKeys.filter(function (k) { return k.split('.')[0] === String((+unit) + 1); })[0] || '';
+  var prevUnit = allKeys.filter(function (k) { return k.split('.')[0] === String((+unit) - 1); });
 
   function md(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -169,7 +175,9 @@
 
   var prev = keys[idx - 1], next = keys[idx + 1], links = [];
   if (prev) links.push('<a href="lesson.html?sec=' + prev + '">← ' + prev + '</a>');
+  else if (prevUnit.length) links.push('<a href="lesson.html?sec=' + prevUnit[prevUnit.length - 1] + '">← 上一单元 ' + prevUnit[prevUnit.length - 1] + '</a>');
   if (next) links.push('<a href="lesson.html?sec=' + next + '">' + next + ' →</a>');
+  else if (nextUnit) links.push('<a href="lesson.html?sec=' + nextUnit + '">下一单元 ' + nextUnit + ' →</a>');
   document.getElementById('goL').innerHTML = links.join('');
   document.getElementById('goBtn').textContent = '去做 ' + sec + ' 的题';
 
@@ -216,7 +224,8 @@
     var m = readMap(), n = 0;
     [].forEach.call(document.querySelectorAll('#toc a'), function (a) {
       var k = a.getAttribute('href').split('=')[1];
-      if (m[k]) { a.classList.add('rd'); n++; }
+      var uk = k.split('.')[0];
+      if (m[k] && uk === unit) { a.classList.add('rd'); n++; }
     });
     var cnt = document.getElementById('tocCount');
     if (!cnt) {
