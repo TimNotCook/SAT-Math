@@ -752,6 +752,7 @@
       var c = {};
       for (var k in p) if (k !== 'title') c[k] = p[k];
       c.w = p.w || o.cellW || 180;
+      if (c.padL == null) c.padL = 46;
       c.h = p.h || o.cellH || 260;
       var head = p.title
         ? '<div style="font:600 14px/1.4 system-ui,sans-serif;text-align:center;margin-bottom:2px">' + p.title + '</div>'
