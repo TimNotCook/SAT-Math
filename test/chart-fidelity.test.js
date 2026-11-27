@@ -128,11 +128,24 @@ test('R04-104：三块等边三角形的边长必须相等（每个 ≈120）', 
   }
 });
 
+// 原书这三张图印着 "Figure not drawn to scale"，顶点那个直角符号是贴着两条斜边
+// 画的，几何上并不等于 90°（书上也一样）。符号本身照印，但不参与"必须真 90°"的校验。
+const SKEWED_RIGHT_MARKS = new Set(['R04-087', 'R04-088', 'R04-089']);
+
+test('R04-087/088/089：顶点与底边垂足各有一个直角符号（原书两个都印了）', () => {
+  for (const id of SKEWED_RIGHT_MARKS) {
+    const svg = SPECS[id].svg;
+    const marks = svg.match(/<path d='M [\d.]+ [\d.]+ L [\d.]+ [\d.]+ L [\d.]+ [\d.]+'/g) || [];
+    assert.strictEqual(marks.length, 2, `${id} 应有两个直角符号，实际 ${marks.length}`);
+  }
+});
+
 test('rawSvg 里每个直角方框都必须真的画成 90°', () => {
   const bad = [];
   for (const id of Object.keys(SPECS)) {
     const s = SPECS[id];
     if (s.type !== 'rawSvg') continue;
+    if (SKEWED_RIGHT_MARKS.has(id)) continue;
     const re = /<path d='M ([-\d.]+) ([-\d.]+) L ([-\d.]+) ([-\d.]+) L ([-\d.]+) ([-\d.]+)'/g;
     let m;
     while ((m = re.exec(s.svg))) {
