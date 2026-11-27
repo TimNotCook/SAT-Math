@@ -114,7 +114,11 @@ const stages = () => ev(`(()=>{const on=n=>{const s=document.getElementById('sta
     noticeShown:!!(document.getElementById('introNotice')&&!document.getElementById('introNotice').hidden),
     salvageShown:!!(document.getElementById('introSalvage')&&!document.getElementById('introSalvage').hidden),
     module:(document.getElementById('tbTotal')||{}).textContent,
-    params:(document.getElementById('introParams')||{}).textContent,
+    /* 32a20d3 起开场页三参数并进主卡（#quizCardFacts 的 .quiz-fact），#introParams 只留空壳；
+       这里优先读主卡，旧的 introParams 仍作兜底，两种版式都能判。 */
+    params:(function(){const f=document.getElementById('quizCardFacts');
+      const t=f&&!f.hidden?(f.textContent||''):'';
+      return t.trim()?t:((document.getElementById('introParams')||{}).textContent||'');})(),
     eyebrow:(document.getElementById('introEyebrow')||{}).textContent}})()`);
 
 const base = await freshSave();
@@ -230,7 +234,7 @@ const base = await freshSave();
   /* 模块一超时不再往开场页写说明条（开场页零提示），只靠 toast；这里断言开场页是干净的。 */
   check('timeout-m1', '开始页不写说明条', !s6.noticeShown, s6.notice || '(hidden)');
   check('timeout-m1', '没有把题目直接摊开', !s6.answer && s6.intro, s6.answer ? 'answer' : 'intro');
-  check('timeout-m1', '开始页参数条也显示 Module 2', /Module 2 of 2/.test(strip(s6.params)), s6.params);
+  check('timeout-m1', '开始页参数条也显示 Module 2', /2 of 2\s*Module|Module 2 of 2/.test(strip(s6.params)), s6.params);
   await shot('timeout-m1-intro');
   await ev(`document.getElementById('btnStart').click()`); await sleep(900);
   const a6 = await stages();
