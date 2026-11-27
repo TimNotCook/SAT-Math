@@ -276,7 +276,7 @@ function importedGroupHtml(){
   if(!list.length)return '';
   var nRO=list.filter(function(it){return it.readOnly && bankFor(plainText(it.matchId));}).length;
   return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 独立记录<span>'+list.length+' 道 · 其中 '+nRO+' 道已匹配题库（只读）</span></h2>'+list.map(function(it,i){
-    var impMatch=plainText(it.matchId),bankQ=bankFor(impMatch),ro=!!it.readOnly&&!!bankQ;
+    var impMatch=plainText(it.matchId),itemKey=plainText(it.key),bankQ=bankFor(impMatch),ro=!!it.readOnly&&!!bankQ;
     var impStem=plainText(it.stem),impTopic=plainText(it.topic),impAnswer=plainText(it.answer),
         impValue=plainText(it.value),impType=plainText(it.type),impSource=plainText(it.source);
     var q=bankQ
