@@ -5,6 +5,10 @@
  * 断言每个视图里 .td-acct-btn 存在、getBoundingClientRect().width > 0，
  * 点击能打开面板（.td-acct-layer[data-open="1"]），窄屏 390 仍 width > 0。
  *
+ * 例外（口径见 app.css:786 模考开场页 v2）：#stage-intro.active 时按设计不显示悬浮设置，
+ * 免得和页头 Back 抢同一个角。所以模考开场页断言「确实隐藏」，模考作答/检查/交卷/成绩
+ * 四阶段仍断言 width > 0；切阶段必须同时切 hidden 与 active，否则 :has() 规则不生效。
+ *
  * 用法：
  *   node tools/verify_acct_entry.mjs
  *   node tools/verify_acct_entry.mjs --base https://timnotcook.github.io/SAT-Math --out /tmp/proof-acct
@@ -127,15 +131,22 @@ const VIEWS = [
   { key: 'drill-list', page: 'drill.html', label: 'drill·列表视图', url: 'drill.html' },
   { key: 'drill-question', page: 'drill.html', label: 'drill·做题视图', url: 'drill.html?sec=1.1&i=1' },
   { key: 'drill-result', page: 'drill.html', label: 'drill·结果视图', url: 'drill.html?sec=1.1&result=1' },
-  { key: 'exam-mock', page: 'exam.html', label: 'exam·模考视图', url: 'exam.html?mode=mock' }
+  { key: 'exam-mock', page: 'exam.html', label: 'exam·模考作答视图', url: 'exam.html?mode=mock', stage: 'answer' }
 ];
+
+const STAGE_SET = st => ev(`(() => { ['intro','answer','review','submit','result'].forEach(s => {
+  const el = document.getElementById('stage-' + s); if (!el) return;
+  el.hidden = (s !== '${st}'); el.classList.toggle('active', s === '${st}');
+}); })()`);
 
 for (const v of VIEWS) {
   await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
   await goto(`${BASE}/${v.url}`);
+  if (v.stage) { await STAGE_SET(v.stage); await sleep(1200); }
   let p = await probeWide();
   if (p.n === 0) { // 首帧偶发未挂载：重载一次再测，避免把启动抖动记成失败
     await goto(`${BASE}/${v.url}`);
+    if (v.stage) { await STAGE_SET(v.stage); await sleep(1200); }
     p = await probeWide();
   }
   check(`acct/${v.key}·存在`, '至少 1 个 .td-acct-btn', p.n > 0 ? `${p.n} 个（${p.cls} @ ${p.host}）` : '0 个', p.n > 0);
@@ -187,20 +198,25 @@ await shot('acct-jiangyi-390.png');
 await send('Emulation.clearDeviceMetricsOverride');
 
 /* 模考各阶段：2026-11-26 已修（作答挂 .exam-toolbar-actions，检查/交卷/成绩走 fixed 兜底），
-   这里从信息项升级为断言项，防止回退。手法：直接切 #stage-* 的 hidden，让 app.css 的 :has 规则真实生效。 */
+   这里从信息项升级为断言项，防止回退。手法：同时切 #stage-* 的 hidden 与 .active，
+   让 app.css 的 :has(#stage-intro.active) 与 .stage 显示规则都真实生效。
+   开场页（intro）按模考开场页 v2 口径断言「入口确实隐藏」，其余四阶段断言 width > 0。 */
 await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
 await goto(`${BASE}/exam.html?mode=mock`);
 await probeWide();
 const examStages = [];
 for (const st of ['intro', 'answer', 'review', 'submit', 'result']) {
-  await ev(`(() => { ['intro','answer','review','submit','result'].forEach(s => {
-    const el = document.getElementById('stage-' + s); if (el) el.hidden = (s !== '${st}');
-  }); })()`);
+  await STAGE_SET(st);
   await sleep(1300);
-  const m = await ev(PROBE) || { w: 0, cls: '' };
+  const m = await ev(PROBE) || { w: 0, cls: '', n: 0 };
   examStages.push(`${st}=${m.w}`);
-  check(`acct/exam·${st}`, '该阶段 .td-acct-btn width > 0',
-    `${m.w}×${m.h} ${m.cls ? '[' + m.cls + ']' : ''}`, m.w > 0);
+  if (st === 'intro') {
+    check('acct/exam·intro', '开场页按设计不显示悬浮设置入口（width === 0）',
+      `${m.w}×${m.h} ${m.cls ? '[' + m.cls + ']' : ''}`, m.n > 0 && m.w === 0);
+  } else {
+    check(`acct/exam·${st}`, `${st} 阶段 .td-acct-btn width > 0`,
+      `${m.w}×${m.h} ${m.cls ? '[' + m.cls + ']' : ''}`, m.w > 0);
+  }
 }
 console.log(`INFO  模考阶段入口宽度：${examStages.join(' / ')}`);
 await send('Emulation.clearDeviceMetricsOverride');
