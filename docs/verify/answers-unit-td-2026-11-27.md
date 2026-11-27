@@ -298,3 +298,10 @@ python3 docs/verify/workbook-key-audit.py   # compared 489 mismatch 0 miss 0
 - 回归里把 `SR-127` 显式列白名单，其余任何题出现重复选项都会红。
 
 - 验收：252 条测试全绿（`node --test test/*.test.js`）、`verify_assets` 全绿、`?v=fd666cca7418`。
+
+### 25. `TD-33-13` 遗留双表 spec 清除 + `wrong.html` 冲突标记清理
+- 现象：`TD-33-13`（P171 · 3.3 #13）在 `data/figures.js` 里留了一份过期 spec，把 A、C 两张表画进同一张 rawSvg。页面于是在选项上方先浮出两张表，下面再列 A–D 四张表 —— 同组选项出现两遍。原书该题只有四张表，无独立插图。
+- 改法：`data/figures.js` 删掉该题 spec（249 → 248 条）。新增 `test/choice-table-no-dup-figure.test.js`（4 条）：7 道表格选项题（`TD-11-22`/`TD-15-06`/`TD-33-13`/`SP1-047`/`SP1-130`/`SP1-131`/`U1-09`）不得再挂 spec、`TD-33-13` 恰好 4 张 `<table>` 且 `showFigure` 返回空、邻居图题（`TD-33-14`/`TD-42-12`/`TD-25-02`/`TD-11-21`）仍能渲染、所有问 table 的题四格都能成表。
+- 线上验收（`drill.html?sec=3.3&i=13`）：`tables=4`、`figSvg=0`、容器 `display:grid` / `404px 404px`，A/C 上排、B/D 下排；横排表 `x｜−1｜0｜1` / `q(x)` 与原书一致（截图 `/tmp/td3313_fixed.png`）。
+- 顺带修一次线上事故：把该改推上去时，`wrong.html` 的 `?v=` 冲突被错误地带着 `<<<<<<<` 标记合入（远端那一刻 HEAD `32dee92` 的 `wrong.html` 是坏的）。已按"两侧仅令牌差异"保留一侧重写，重新 bump 到 `a8385643906f`，`node --test` 261 全绿、`verify_assets` PASS，`wrong.html` 线上 `<<<<<<<` 计数 0、页面正常渲染。
+- commit：`32dee92`（删 spec + 回归）、`6f1748e`（清冲突标记 + 令牌对齐）；线上令牌 `drill.js?v=a8385643906f`，`data/figures.js` 实测 248 条、`TD-33-13` 为 false。
