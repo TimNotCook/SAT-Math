@@ -1209,7 +1209,10 @@
     const units = asArr(rep.units).filter(isRec);
     const topics = asArr(rep.topics).filter(isRec);
     const priority = asArr(rep.priority).filter(isRec);
-    const scaled = safeNum(est.scaled);
+    /* 估分可能被旧版/云端写成 999/0/负数：结果页直接印成「999 / 800」。
+       只接受官方 200–800 区间，越界的当「—」，与记录页同一口径。 */
+    const scaledRaw = safeNum(est.scaled);
+    const scaled = scaledRaw != null && scaledRaw >= 200 && scaledRaw <= 800 ? scaledRaw : null;
     const pct = total ? Math.round(correct / total * 100) : 0;
     const modeTxt = MODE_NAME[safeText(r.mode)] || safeText(r.mode) || '模考';
     /* 云端/旧版可能把 Date.now() 存成字符串；new Date('1700...') 是 Invalid，
