@@ -1073,7 +1073,11 @@
     const scaled = Number.isFinite(Number(est.scaled)) ? Number(est.scaled) : null;
     const pct = total ? Math.round(correct / total * 100) : 0;
     const modeTxt = MODE_NAME[safeText(r.mode)] || safeText(r.mode) || '模考';
-    const dateObj = new Date(r.date), dateTxt = isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(OFFICIAL ? 'en-US' : 'zh-CN');
+    /* 云端/旧版可能把 Date.now() 存成字符串；new Date('1700...') 是 Invalid，
+       成绩页日期会变成 —。数字字符串先转时间戳，其他交给 Date 解析。 */
+    const dateNum = Number(r.date);
+    const dateObj = new Date(Number.isFinite(dateNum) && dateNum > 0 ? dateNum : r.date);
+    const dateTxt = isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(OFFICIAL ? 'en-US' : 'zh-CN');
     $('resTitle').textContent = OFFICIAL ? 'Score Report' : modeTxt + ' · 成绩报告';
     $('resSub').textContent = dateTxt + ' · ' +
       (OFFICIAL
