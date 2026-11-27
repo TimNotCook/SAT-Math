@@ -293,13 +293,13 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 
 ## 第 20 条：`wrong.html` 带 Git 冲突标记上线，错题页重复加载整套脚本（2026-11-27）
 
-在 rebase 后被 `test/conflict-markers.test.js` 拦住才发现：队友那次 `fix(dark)` 提交（`836f2e6`）把 **未解决的冲突标记连同两份重复内容** 一起提交了，`wrong.html` 里两处 `<<<<<<< HEAD … ======= … >>>>>>>` 至今在线上。后果：
+在 rebase 后被 `test/conflict-markers.test.js` 拦住才发现：队友那次 `fix(dark)` 提交（`836f2e6`）把 **未解决的冲突标记连同两份重复内容** 一起提交了，`wrong.html` 里两处 Git 冲突块（起始行 + 等号行 + 结束行）至今在线上。后果：
 
-- `<<<<<<< HEAD` 这类文本出现在 `<head>` 里，浏览器把标记当正文推到页面前面；
+- 「<<< HEAD」这类文本出现在 `<head>` 里，浏览器把标记当正文推到页面前面；
 - `<style>` 之后整段 `<script src=…>` 出现两遍 —— 错题页十几条 defer 脚本被重复请求、重复执行，`render()` 跑两次（这次没炸是脚本都幂等，纯属运气）；
 - 一旦哪天有人只在其中一份上改，页面行为就取决于哪份先执行。
 
-处置：`wrong.html` 保留 HEAD 一侧、删掉重复块（两处内容当时只差 `?v=` 令牌）。根因加固：`bump_assets.py` 增加 `assert_no_conflict_markers()`，`main()` 里先于 `digest()` 执行，任何参与哈希/改写的文件带 `<<<<<<<` / `=======` / `>>>>>>>` 就直接 `exit 2`——「在没解决的冲突上跑 bump」这条路被封死（我拿 `wrong.html` 追加一行标记验证：`exit=2`、`FAIL 这些文件还带 Git 冲突标记：wrong.html`）。
+处置：`wrong.html` 保留 HEAD 一侧、删掉重复块（两处内容当时只差 `?v=` 令牌）。根因加固：`bump_assets.py` 增加 `assert_no_conflict_markers()`，`main()` 里先于 `digest()` 执行，任何参与哈希/改写的文件带冲突起始行 / 等号行 / 结束行 就直接 `exit 2`——「在没解决的冲突上跑 bump」这条路被封死（我拿 `wrong.html` 追加一行标记验证：`exit=2`、`FAIL 这些文件还带 Git 冲突标记：wrong.html`）。
 
 验证：`wrong.html` 标记计数 0；`node --test` **265/0**（含 `conflict-markers` 与新增的 bump 闸门断言）；`verify_junk` 3×6、`verify_flows` 16/16、`verify_runtime` 六页 0 异常。
 
