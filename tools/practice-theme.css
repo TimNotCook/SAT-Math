@@ -2,28 +2,30 @@
    bluebook.css 里 body:has(#questionView:not([hidden])) .drill-main 带 id 的 !important，
    这里用「body.drill-page #questionView …」这种带 id 的层级压上去：
    多一个 .drill-page 类，(1,2,2) > (1,1,1)。
-   注：:has() 套 :has() 会非法，不能用 body.drill-page:has(#questionView) 这种链式写法。 */
+   注：:has() 里不能再套 :has()，所以不用 body.drill-page:has(#questionView) 这种链式写法。 */
 
 html:not([data-theme="dark"]) body.drill-page #questionView{background:#f7f6f2!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-main{background:transparent!important;padding:34px 20px 96px!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-question{background:transparent!important;border:0!important;box-shadow:none!important}
 
-/* 上下文条：透明 + 发丝底线，板块名当眉标 */
+/* 上下文条：透明 + 发丝底线，板块名当眉标；与题干左缘对齐 */
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-context{background:transparent!important;border-bottom:1px solid #e7e3da!important}
-html:not([data-theme="dark"]) body.drill-page #questionView .drill-context-inner{height:54px!important}
+html:not([data-theme="dark"]) body.drill-page #questionView .drill-context-inner{height:54px!important;max-width:860px!important;padding:0 20px!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-context-section{font-size:13px!important;font-weight:600!important;color:#20242b!important;letter-spacing:.01em!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-context-link{color:#8d9199!important;font-size:12px!important;text-decoration:none!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-save-status{color:#a8acb4!important;font-size:11px!important}
 
-/* 工具条：题号去方框、工具去按钮壳 */
-html:not([data-theme="dark"]) body.drill-page #questionView .drill-questionbar{background:transparent!important;border-bottom:1px solid #efebe2!important;height:52px!important;min-height:52px!important}
-html:not([data-theme="dark"]) body.drill-page #questionView .drill-questionbar-inner{height:52px!important;min-height:52px!important}
+/* 工具条：题号去方框、工具去按钮壳；底线画在内层，和题干同宽 */
+html:not([data-theme="dark"]) body.drill-page #questionView .drill-questionbar{background:transparent!important;border-bottom:0!important;height:52px!important;min-height:52px!important}
+html:not([data-theme="dark"]) body.drill-page #questionView .drill-questionbar-inner{height:52px!important;min-height:52px!important;max-width:860px!important;padding:0 20px!important;border-bottom:1px solid #efebe2!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-qnumber{width:auto!important;min-width:0!important;height:auto!important;border:0!important;background:transparent!important;color:#20242b!important;font-size:15px!important;font-weight:600!important;border-radius:0!important;box-shadow:none!important;font-variant-numeric:tabular-nums}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-mark-button{height:32px!important;min-width:0!important;padding:0 4px!important;color:#8d9199!important;font-size:12px!important;font-weight:500!important;border:0!important;background:transparent!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-mark-button[aria-pressed="true"]{color:#b5793b!important;background:transparent!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-question-tools button{height:32px!important;padding:0 8px!important;border:0!important;background:transparent!important;color:#8d9199!important;font-size:12px!important;font-weight:500!important;gap:6px!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-question-tools button:hover{color:#20242b!important;background:transparent!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-question-tools button svg{width:16px!important;height:16px!important;opacity:.55}
+/* Scratch 是 #btnScratch（id），单独拍平 */
+html:not([data-theme="dark"]) body.drill-page #questionView .drill-question-tools #btnScratch{border:0!important;background:transparent!important;box-shadow:none!important;color:#8d9199!important;font-size:12px!important;font-weight:500!important;height:32px!important;padding:0 8px!important;border-radius:0!important}
 
 /* 题干：单一阅读栏宽 */
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-stem{font-size:16.5px!important;line-height:1.72!important;color:#20242b!important;max-width:68ch}
@@ -40,10 +42,11 @@ html:not([data-theme="dark"]) body.drill-page #questionView .drill-choice[aria-p
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-choice.is-selected .drill-choice-letter{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-choice-check{color:#2563eb!important}
 
-/* 页脚：纸面 + 去胶囊 */
+/* 页脚：纸面 + 去胶囊，Next 保留实心蓝作唯一行动点 */
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-footer{background:#f7f6f2!important;border-top:1px solid #e7e3da!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.drill-page #questionView .drill-footer-inner{max-width:860px!important;padding:0 20px!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-footer-section{font-size:12px!important;color:#a8acb4!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-position-button{min-width:0!important;height:auto!important;padding:0!important;border:0!important;background:transparent!important;color:#8d9199!important;font-size:12px!important;font-weight:500!important;border-radius:0!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-page-button{height:auto!important;min-height:0!important;padding:0 2px!important;border:0!important;background:transparent!important;color:#5c6169!important;font-size:12px!important;font-weight:500!important;border-radius:0!important;gap:4px!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-page-button:hover{color:#20242b!important;background:transparent!important}
-html:not([data-theme="dark"]) body.drill-page #questionView .drill-next-button{height:34px!important;min-height:34px!important;padding:0 14px!important;border-radius:8px!important}
+html:not([data-theme="dark"]) body.drill-page #questionView .drill-next-button{height:34px!important;min-height:34px!important;padding:0 14px!important;border-radius:8px!important;background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;font-weight:600!important}
