@@ -660,3 +660,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 74 条：抽查未做完档案只存 unitId，记录标题只认 unit，永远看不出是哪个单元（2026-11-27）
 
 `exam.js archiveAbandoned()`（第 73 条修完后）写 `unitId`，但 `history-page titleOf()` 只读 `rec.unit`。抽查的未做完记录标题永远只剩「单元抽查」，学生看不到是 U3 还是 U1；而第 73 条的继续链接已经能正确带到 U3，标题与落点对不上。修法：标题的 unit 取 `rec.unit || rec.unitId`，兼容旧记录与新记录。验证：新增「只有 unitId 时标题仍标出 U3」回归，旧代码失败，新代码显示「单元抽查 · U3」；全量 `node --test` 503/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 75 条：旧成绩记录缺 correct/total，记录页把 detail 里算得出来的 50% 显示成 0%（2026-11-27）
+
+`history-page` 的成绩条/详情原来只读 `rec.correct` / `rec.total`，缺字段或 null 时一律按 0 渲染。旧版/云端合并可能只保留 `detail`，于是页头显示 0%、详情「答对 0/2」，展开的错题行却明确一题对、一题错；学生看到的是自相矛盾的假成绩。修法：新增 `scoreParts(rec)`，`total` 缺失/<=0 时用 detail 条数，`correct` 缺失时按 detail 的 `correct` 计数；`grade`、`scoreLabel`、`titleOf`、`resultBody` 统一走它。验证：新增「缺 correct/total 时从 detail 现算」回归，旧代码 0% 失败，新代码 50% 且答对 1/2；全量 `node --test` 504/0；`verify_junk` 11×7；`verify_flows` 16/16。

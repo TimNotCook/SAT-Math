@@ -336,6 +336,21 @@ test('记录页：抽查「继续这卷」必须带 unit，不能把 U3 存档�
   assert.ok(!/href="exam\.html\?mode=quiz"/.test(html), '「继续这卷」落到默认 U1');
 });
 
+test('记录页：旧记录缺 correct/total 时从 detail 现算，不把 50% 显示成 0%', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1700000000000, mode: 'quiz', unit: '1.1', total: 2,
+      detail: [{ id: 'TD-11-01', correct: true }, { id: 'TD-11-02', correct: false }],
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '缺 correct 的记录打崩：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(/50%/.test(html), 'detail 里的 50% 没有被算出来');
+  assert.ok(/答对 <b>1 \/ 2<\/b>/.test(html), '答对题数仍按 0 显示');
+});
+
 test('记录页：void 作废档案不能当正式成绩显示 0 分和整卷错题', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([{

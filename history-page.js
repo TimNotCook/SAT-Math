@@ -82,6 +82,18 @@
   }
   var MODE_NAME = { mock: '模考', quiz: '单元抽查', jiangyi: '讲义' };
 
+  /* 旧版/云端合并的记录可能只存 detail，没写 total/correct（或写成 null）：
+     旧实现一律按 0 算，成绩条显示 0%，但展开的错题行却是对的。
+     能从 detail 数出来就现算，缺字段不再把真实正确率吞成 0。 */
+  function scoreParts(rec) {
+    var detail = asArr(rec && rec.detail).filter(isDetail);
+    var total = num(rec && rec.total);
+    if (total == null || total <= 0) total = detail.length;
+    var correct = num(rec && rec.correct);
+    if (correct == null) correct = detail.filter(function (d) { return isRight(d.correct); }).length;
+    return { total: total, correct: correct };
+  }
+
   /* 分数越高越绿、越低越红、中间橙；未做完灰。
      模考用 200–800 分：≥700 绿、≥550 橙、其余红。
      抽查 / 讲义没有换算分，用正确率同阈值（≥85% / ≥60%）。 */
@@ -91,18 +103,19 @@
     if (txt(rec.mode) === 'mock' && scaled != null) {
       return scaled >= 700 ? 'good' : scaled >= 550 ? 'mid' : 'bad';
     }
-    var total = num(rec.total), correct = num(rec.correct);
-    var pct = total ? (correct || 0) / total : 0;
+    var sc = scoreParts(rec), total = sc.total, correct = sc.correct;
+    var pct = total ? correct / total : 0;
     return pct >= 0.85 ? 'good' : pct >= 0.6 ? 'mid' : 'bad';
   }
   function scoreLabel(rec) {
     if (abandonedRecord(rec)) return '未做完';
-    var est = asObj(rec.estimate), scaled = num(est.scaled), total = num(rec.total), correct = num(rec.correct);
+    var est = asObj(rec.estimate), scaled = num(est.scaled);
     if (txt(rec.mode) === 'mock' && scaled != null) return scaled + ' / 800';
-    return Math.round(total ? (correct || 0) / total * 100 : 0) + '%';
+    var sc = scoreParts(rec);
+    return Math.round(sc.total ? sc.correct / sc.total * 100 : 0) + '%';
   }
   function titleOf(rec) {
-    var mode = txt(rec.mode), board = txt(rec.board), section = txt(rec.section), total = num(rec.total);
+    var mode = txt(rec.mode), board = txt(rec.board), section = txt(rec.section), total = scoreParts(rec).total;
     /* 抽查未做完档案只写 unitId（archiveAbandoned），旧记录写 unit：
        只读 unit 会让标题永远只剩「单元抽查」，看不出是哪个单元。 */
     var unit = txt(rec.unit) || txt(rec.unitId);
@@ -187,7 +200,7 @@
   function resultBody(rec) {
     var html = '<div class="hist-kv">' +
       '<span>交卷时间 <b>' + fmtDate(rec.date) + '</b></span>' +
-      '<span>答对 <b>' + numTxt(rec.correct == null ? 0 : rec.correct) + ' / ' + numTxt(rec.total == null ? 0 : rec.total) + '</b></span>' +
+      '<span>答对 <b>' + numTxt(scoreParts(rec).correct) + ' / ' + numTxt(scoreParts(rec).total) + '</b></span>' +
       '<span>用时 <b>' + fmtDur(rec.elapsed) + '</b></span>' +
       (txt(rec.mode) === 'mock' && Object.keys(asObj(rec.estimate)).length ? '<span>原始分 <b>' + esc(numTxt(asObj(rec.estimate).raw)) + ' / ' + esc(numTxt(asObj(rec.estimate).rawMax)) + '</b></span>' +
         '<span>自适应路径 <b>' + (txt(asObj(rec.estimate).path) === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
