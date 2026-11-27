@@ -1232,4 +1232,6 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px;mar
   .drill-page-button.drill-next-button{height:44px!important}
   /* 本文件第 742 行给 .btn 打了 min-height:0!important，所以这里也必须 !important 才盖得住 */
   .exam-start-actions .btn{min-height:44px!important}
+  /* 讲义复习页的「上一题/下一题」也是主按钮，实测 40px */
+  .btn.primary{min-height:44px!important}
 }

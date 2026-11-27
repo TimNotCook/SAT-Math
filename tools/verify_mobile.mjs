@@ -158,6 +158,77 @@ for (const [w, h, tag] of [[375, 812, '375'], [320, 568, '320']]) {
   check(tag, 'Start 热区 ≥44px', startH >= 44, `${startH}px`);
   await shot(tag + '-exam-intro');
 
+  /* ---------- 5. 带图的题：SVG 不能被固定宽度撑破 ---------- */
+  /* 别手填题位：在 CATALOG 里找第一道真有图的题（TD_FIG.showFigure 返回非空），再按它的 sec/序号导航 */
+  await goto(`${BASE}/drill.html`);
+  for (let i = 0; i < 80; i++) {
+    const ok = await ev(`!!(window.TD_FIG && window.TD_APP && Object.keys(TD_APP.CATALOG || {}).length)`);
+    if (ok) break;
+    await sleep(150);
+  }
+  const figPos = await ev(`(()=>{const C=(window.TD_APP||{}).CATALOG||{};
+    for (const sec of Object.keys(C)) { const arr=C[sec]||[];
+      for (let k=0;k<arr.length;k++){ try{ if (window.TD_FIG.showFigure(arr[k])) return {sec:sec, pos:k+1, id:arr[k].id}; }catch(e){} } }
+    return null;})()`);
+  check(tag, '题库里存在带图的题（前提）', !!figPos, figPos ? `${figPos.id} @ ${figPos.sec} #${figPos.pos}` : '一道带图的题都没有');
+  if (figPos) await goto(`${BASE}/drill.html?sec=${encodeURIComponent(figPos.sec)}&i=${figPos.pos}`);
+  for (let i = 0; i < 80; i++) {
+    const ok = await ev(`!!document.querySelector('#questionView .td-figure, .td-figure, #answerArea .drill-figure')`);
+    if (ok) break;
+    await sleep(150);
+  }
+  const ov5 = await overflow();
+  const figBox = await ev(`(()=>{const f=document.querySelector('#questionView .td-figure, .td-figure, #answerArea .drill-figure');
+    if(!f) return null;const r=f.getBoundingClientRect();
+    const svg=f.querySelector('svg');const sr=svg?svg.getBoundingClientRect():null;
+    return {right:Math.round(r.right),w:Math.round(r.width),vw:innerWidth,svgW:sr?Math.round(sr.width):0,svgRight:sr?Math.round(sr.right):0}})()`);
+  check(tag, '图表题无横向溢出', ov5 && ov5.sw <= ov5.vw + 1, `${ov5.sw} / ${ov5.vw}`);
+  check(tag, '图表 SVG 在视口内', !!(figBox && figBox.svgW > 0 && figBox.svgRight <= figBox.vw + 1),
+    figBox ? `svg ${figBox.svgW}px，右边界 ${figBox.svgRight} / ${figBox.vw}` : '没找到图');
+  if (ov5 && ov5.sw > ov5.vw + 1) check(tag, '图表题溢出元素', false, JSON.stringify(await offenders()));
+  await shot(tag + '-drill-figure');
+
+  /* ---------- 6. 讲义复习页：卡片与题目不能被顶出屏幕 ---------- */
+  await goto(`${BASE}/jiangyi.html`);
+  for (let i = 0; i < 80; i++) {
+    const ok = await ev(`!!(window.TD_JY && document.querySelector('#jyBoardCards .jy-board-card'))`);
+    if (ok) break;
+    await sleep(150);
+  }
+  await ev(`(()=>{const b=document.querySelector('#jyBoardCards .jy-board-card'); if(b) b.click();})()`);
+  for (let i = 0; i < 60; i++) {
+    const ok = await ev(`!!document.querySelector('#jySectionList .drill-section-row:not([data-empty])')`);
+    if (ok) break;
+    await sleep(150);
+  }
+  await ev(`(()=>{const r=document.querySelector('#jySectionList .drill-section-row:not([data-empty])'); if(r) r.click();})()`);
+  for (let i = 0; i < 80; i++) {
+    const ok = await ev(`(()=>{const q=document.getElementById('jyQuiz'); return !!(q && !q.hidden && document.querySelector('#jyQuiz .drill-choice, #jyQuiz .drill-grid input, #jyQuiz #jyStem');})()`);
+    if (ok) break;
+    await sleep(150);
+  }
+  const ov6 = await overflow();
+  check(tag, '讲义复习页无横向溢出', ov6 && ov6.sw <= ov6.vw + 1, `${ov6.sw} / ${ov6.vw}`);
+  if (ov6 && ov6.sw > ov6.vw + 1) check(tag, '讲义页溢出元素', false, JSON.stringify(await offenders()));
+  const jyTap = await ev(`(()=>{const b=document.getElementById('jyNext');return b?Math.round(b.getBoundingClientRect().height):0;})()`);
+  if (jyTap) check(tag, '讲义下一页热区 ≥44px', jyTap >= 44, `${jyTap}px`);
+  await shot(tag + '-jiangyi');
+
+  /* ---------- 7. 记录页：条目在视口内 ---------- */
+  await goto(`${BASE}/exam.html`);
+  await sleep(400);
+  await ev(`localStorage.setItem('tdsat_exam_suite_results_v1', ${JSON.stringify(JSON.stringify([SEED_RESULT, Object.assign({}, SEED_RESULT, { total: 44, path: 'Module 1 · Module 2', date: Date.now() - 86400000 })]))})`);
+  await goto(`${BASE}/history.html`);
+  for (let i = 0; i < 60; i++) {
+    const ok = await ev(`document.querySelectorAll('#histList > *, #historyList > *').length > 0`);
+    if (ok) break;
+    await sleep(150);
+  }
+  const ov7 = await overflow();
+  check(tag, '记录页无横向溢出', ov7 && ov7.sw <= ov7.vw + 1, `${ov7.sw} / ${ov7.vw}`);
+  if (ov7 && ov7.sw > ov7.vw + 1) check(tag, '记录页溢出元素', false, JSON.stringify(await offenders()));
+  await shot(tag + '-history');
+
   await ev(`localStorage.removeItem('tdsat_exam_suite_results_v1')`);
 }
 

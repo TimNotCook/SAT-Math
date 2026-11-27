@@ -18,6 +18,7 @@ test('窄屏/触屏媒体查询把做题页按钮抬到 44px', () => {
   assert.match(block, /\.drill-page-button\{height:44px!important\}/, '上一题/下一题高度没抬到 44px');
   assert.match(block, /\.exam-start-actions \.btn\{min-height:44px!important\}/,
     '开始页主按钮没抬到 44px（注意本文件 742 行的 min-height:0!important，这里必须 !important）');
+  assert.match(block, /\.btn\.primary\{min-height:44px!important\}/, '讲义页主按钮（下一题）没抬到 44px');
 });
 
 test('verify_mobile 验收器存在且用统一 Chrome/profile/静态服务', () => {
