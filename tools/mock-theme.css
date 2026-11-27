@@ -1,6 +1,6 @@
 /* ==== mock-theme：模考开场页纸面化（只作用于 .is-mock，不碰单元抽查） ==== */
 html:has(body.exam-page){background:#f7f6f2!important}
-html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!important;min-height:100vh!important}
 
 /* 左栏铺满：rail 自身高度不可靠，直接补一条固定底板 */
 html:not([data-theme="dark"]) body.exam-page.is-mock::before{content:"";position:fixed;left:0;top:0;bottom:0;width:216px;background:#fffdfa;border-right:1px solid #e7e3da;z-index:29;pointer-events:none}
@@ -32,7 +32,7 @@ html:not([data-theme="dark"]) body.exam-page.is-mock .mock-directions summary{fo
 html:not([data-theme="dark"]) body.exam-page.is-mock #backPractice{background:transparent!important;border:0!important;color:#8d9199!important;font-size:12px!important;font-weight:500!important;padding:0!important;box-shadow:none!important;min-height:0!important;text-decoration:none!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock #backPractice:hover{color:#20242b!important}
 
-/* 结构表：去蓝，回归分栏细线 + 等宽黑字 */
+/* 结构表：去蓝，回归分栅细线 + 等宽黑字 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-row,
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-total{display:flex!important;justify-content:space-between!important;align-items:baseline!important;gap:12px!important;padding:8px 0!important;border-bottom:1px solid #efebe2!important;font-size:12.5px!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-row>span,
