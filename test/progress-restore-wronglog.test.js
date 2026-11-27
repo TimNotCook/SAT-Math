@@ -165,6 +165,20 @@ test('进度存档 inspect：correct 是字符串 "false" 时不算答对', () =
 });
 
 
+test('存档 savedAt / position.n 是数字字符串时仍可识别并恢复', () => {
+  const archive = mkArchive({});
+  archive.savedAt = '1700000000000';
+  archive.position.n = '2';
+  const { SAVE, store } = boot({ sections: {}, last: null }, archive);
+  const st = SAVE.inspect();
+  assert.equal(st.status, 'ok', '数字字符串把可恢复存档判成 corrupt：' + (st.reason || ''));
+  assert.equal(st.savedAt, 1700000000000, 'savedAt 没归一成数字');
+  assert.equal(st.position.n, 2, 'position.n 没归一成数字');
+  assert.ok(SAVE.restore().ok, '可恢复存档被 inspect 拒绝');
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.equal(live.last.sec, T.sec);
+});
+
 test('存档 submitted 是字符串 "false" 时恢复后不能变成已交卷', () => {
   const archive = Object.assign(mkArchive({}), {
     sections: { [T.sec]: { answers: {}, marks: {}, wrongLog: {}, submitted: 'false' } },

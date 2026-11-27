@@ -71,16 +71,21 @@
       return { status: 'corrupt', reason: '存档结构无效' };
     if (d.producer !== PRODUCER)
       return { status: 'corrupt', reason: '存档来自其他应用' };
-    if (typeof d.version !== 'number' || !d.savedAt || typeof d.savedAt !== 'number' ||
+    /* version / savedAt / position.n 可能被云端合并或旧版写成数字字符串
+       （"1"、"1700…"、"3"）。严格 typeof 会把其实可恢复的存档判 corrupt，
+       手动恢复被永久锁死；这里统一转数字并校验，返回值也用归一后的数字。 */
+    var version = Number(d.version), savedAt = Number(d.savedAt);
+    if (!isFinite(version) || !d.savedAt || !isFinite(savedAt) || savedAt <= 0 ||
         !d.position || typeof d.position !== 'object' ||
         !d.sections || typeof d.sections !== 'object' || Array.isArray(d.sections))
       return { status: 'corrupt', reason: '存档缺少必要字段' };
-    if (d.version !== VERSION)
-      return { status: 'version-mismatch', found: d.version, expected: VERSION, savedAt: d.savedAt };
+    if (version !== VERSION)
+      return { status: 'version-mismatch', found: version, expected: VERSION, savedAt: savedAt };
     var p = d.position;
     if (!p.sec || !A.CATALOG[p.sec])
       return { status: 'corrupt', reason: '存档指向的板块已不存在' };
-    if (typeof p.n !== 'number' || p.n < 1 || p.n > (A.CATALOG[p.sec].length || 1))
+    var pn = Number(p.n);
+    if (!isFinite(pn) || Math.floor(pn) !== pn || pn < 1 || pn > (A.CATALOG[p.sec].length || 1))
       return { status: 'corrupt', reason: '存档的题目位置超出范围' };
 
     // summary from the archive itself, not from live state
@@ -96,8 +101,8 @@
       });
     });
     return {
-      status: 'ok', version: d.version, savedAt: d.savedAt,
-      position: { sec: p.sec, n: p.n },
+      status: 'ok', version: version, savedAt: savedAt,
+      position: { sec: p.sec, n: pn },
       summary: {
         total: total, answered: answered, unanswered: total - answered, correct: correct,
         percent: total ? Math.round(answered / total * 100) : 0

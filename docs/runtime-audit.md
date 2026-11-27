@@ -592,3 +592,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 59 条：练习页 marks 值是字符串 "false"，题号仍显示为已标记（2026-11-27）
 
 `app-core secIn()` 原来只把 `marks` 容器归成对象，没有归一值。云端合并/旧版把 `marks[qid]` 写成 `"false"` 时，`!!st.marks[qid]` 为真，练习导航题号一直亮「已标记」；再点一次标记 `! "false"` 又得到 false，行为正好相反。上游 `c8c77bc` 已合入 `isRightFlag` 归一，本地复核时发现自己的补丁把同一行重复插入了一次，已去重；补 `test/state-shape.test.js`「marks 值是字符串 false 时归一成布尔 false」回归锁。旧代码该用例失败，新代码通过。全量 `node --test` 455/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 60 条：进度存档 version/savedAt/position.n 是数字字符串，被误判 corrupt 锁死恢复（2026-11-27）
+
+`progress-save inspect()` 对 `version`、`savedAt`、`position.n` 用严格 `typeof === 'number'`。云端合并/旧版若写成 `"1"`、`"1700…"`、`"2"`，存档其实完全可恢复，却被判 `corrupt`，`canWrite()` 永久 false，手动恢复/覆盖都被拒。修法：三个字段统一 `Number()` 后校验（version 必须等于当前，savedAt 必须有限且 >0，n 必须是范围内整数），返回值也用归一后的数字。验证：`test/progress-restore-wronglog.test.js` 新增「数字字符串仍可识别并恢复」，旧代码报「存档缺少必要字段」失败，新代码通过；全量 `node --test` 459/0；`verify_junk` 11×7；`verify_flows` 16/16。
