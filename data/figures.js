@@ -889,7 +889,7 @@ Object.assign(window.TD_FIG_SPECS, {
   "R03-188": {"type":"table","head":["","Amount invested","Balance increase"],"rows":[["Account A","$500","6% annual interest"],["Account B","$1,000","$25 per year"]]},
   "R03-190": {"type":"chart","x":{"min":0,"max":45,"step":15,"label":"x"},"y":{"min":0,"max":60,"step":15,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"points","points":[[10,47],[11,45.5],[12,43.5],[13,40.5],[14,37.5],[22,34],[26,30],[31,30],[33,25.5],[35,25],[37,28],[38,21]]},{"kind":"line","points":[[0,54.57],[40,24.3]]}],"minor":{"x":5,"y":7.5}},
   "R03-191": {"type":"chart","x":{"min":0,"max":50,"step":10,"label":"Total protein (grams)"},"y":{"min":0,"max":80,"step":10,"label":"Total fat (grams)"},"grid":true,"origin":"O","series":[{"kind":"points","points":[[10,13],[14,17],[20,32],[23,39],[26,41],[32,50],[40,63],[48,69]]},{"kind":"line","points":[[10,14],[48,69]]}]},
-  "R03-192": {"type":"chart","x":{"min":0,"max":20,"step":4,"label":"x"},"y":{"min":0,"max":50,"step":10,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"points","points":[[1,13.5],[2,14.5],[5,17.5],[7,21.5],[10,26],[11,28.5],[14,33.5],[17,38.5],[18,40.5],[20,43.5]]},{"kind":"line","points":[[0,12],[20,42]]}]},
+  "R03-192": {"type":"chart","minor":{"x":2,"y":5},"x":{"min":0,"max":20,"step":4,"label":"x"},"y":{"min":0,"max":50,"step":10,"label":"y"},"grid":true,"origin":"O","series":[{"kind":"points","points":[[1,13.5],[2,14.5],[5,17.5],[7,21.5],[10,26],[11,28.5],[14,33.5],[17,38.5],[18,40.5],[20,43.5]]},{"kind":"line","points":[[0,12],[20,42]]}]},
 });
 
 
