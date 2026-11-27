@@ -25,6 +25,8 @@
   var LIVE = 'tdsat_app_v1';
   var VERSION = 1;
   var PRODUCER = 'tdsat-bluebook';
+  /* 旧存档可能把 correct 写成字符串：'false' 是 truthy，不能算答对。 */
+  function isRightFlag(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
 
   function readRaw() {
     try { var s = localStorage.getItem(KEY); return s == null ? null : s; }
@@ -83,7 +85,7 @@
       list.forEach(function (q) {
         var a = ans[q.id];
         if (a && a.v != null && String(a.v).trim() !== '') {
-          answered++; if (a.correct) correct++;
+          answered++; if (isRightFlag(a.correct)) correct++;
         }
       });
     });
@@ -139,7 +141,7 @@
       list.forEach(function (q) {
         var a = ans[q.id];
         if (a && a.v != null && String(a.v).trim() !== '') {
-          answered++; if (a.correct) correct++;
+          answered++; if (isRightFlag(a.correct)) correct++;
         }
       });
     });

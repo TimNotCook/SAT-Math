@@ -135,3 +135,17 @@ test('本机没有 wrongLog 字段时恢复会自动建出来', () => {
   assert.ok(live.sections[T.sec].wrongLog && live.sections[T.sec].wrongLog[T.qid],
     '缺 wrongLog 字段时没有自动创建');
 });
+
+test('进度存档 inspect：correct 是字符串 "false" 时不算答对', () => {
+  const { A, SAVE, store } = boot({ sections: { '1.1': { answers: {}, marks: {}, cursor: 0 } }, last: null }, null);
+  const qid = A.CATALOG['1.1'][0].id;
+  store[SAVE_KEY] = JSON.stringify({
+    producer: 'tdsat-bluebook', version: SAVE.VERSION, savedAt: Date.now(),
+    position: { sec: '1.1', n: 1 },
+    sections: { '1.1': { answers: { [qid]: { v: 'B', correct: 'false' } }, marks: {}, cursor: 0 } },
+  });
+  const st = SAVE.inspect();
+  assert.equal(st.status, 'ok', '存档应被识别为可恢复：' + (st.reason || ''));
+  assert.equal(st.summary.answered, 1, '作答数应算 1');
+  assert.equal(st.summary.correct, 0, '字符串 false 被算成了答对');
+});
