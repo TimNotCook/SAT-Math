@@ -351,6 +351,22 @@ test('记录页：旧记录缺 correct/total 时从 detail 现算，不把 50% �
   assert.ok(/答对 <b>1 \/ 2<\/b>/.test(html), '答对题数仍按 0 显示');
 });
 
+test('记录页：correct 大于 total / total 小于 detail 时夹成可信分数，不显示 150%', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1700000000000, mode: 'quiz', total: 2, correct: 3,
+      detail: [{ id: 'TD-11-01', correct: true }, { id: 'TD-11-02', correct: false }],
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '坏分数记录打崩记录页：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(!/150%/.test(html), 'correct 大于 total 仍显示 150%');
+  assert.ok(/50%/.test(html), '有逐题明细时应按明细算成 50%');
+  assert.ok(/答对 <b>1 \/ 2<\/b>/.test(html), '坏 correct 没有回落到明细题数');
+});
+
 test('记录页：void 作废档案不能当正式成绩显示 0 分和整卷错题', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([{

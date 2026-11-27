@@ -668,3 +668,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 76 条：`refreshVerdict()` 少括号，缺答案记录时成绩页 TypeError；空作答又不清旧判分（2026-11-27）
 
 `app-core` 的 `if (!q || !a || a.v != null && ...) a.correct = ...` 少了外层括号：答案记录被并发清掉/旧存档缺条目时，`!a` 为真反而进入分支去读 `a.v`，抛 `Cannot read properties of undefined`，`drill.js gradeSection()` 整页成绩直接崩。反过来，用户把答案清空时条件为假，旧的 `correct:true` 留在磁盘里，统计继续算答对。修成缺题/缺记录安全返回 false，有作答才判分、空作答显式清零。验证：新增回归「缺记录不 TypeError + 空作答清零」，旧代码在 `a.v` 处失败，新代码通过；全量见下。
+
+## 第 77 条：记录页对「correct > total」「total < detail 条数」照单全收，显示 150% 假成绩（2026-11-27）
+
+成绩记录来自云端合并/旧版/手工导入，`total`、`correct` 和 `detail` 可能互相矛盾。`scoreParts` 原来只在字段缺失时补算，`total:2/correct:3` 这种记录会直接算出 150%，绿点+「答对 3 / 2」，学生看到的是不可能的成绩。修成：detail 是逐题证据，`total` 小于 detail 条数时以 detail 为准；`correct` 缺失/负数/大于 total 时，有明细按明细计数，没有明细才夹到 0..total。验证：新增 `total:2, correct:3, detail:[对,错]` 回归，旧代码显示 150% 失败，新代码 50%、答对 1/2。
