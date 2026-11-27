@@ -67,3 +67,10 @@ test('dark 错题卡片标题不再深蓝叠深玻璃', () => {
   assert.match(css, /html\[data-theme="dark"\] \.wrong-card-head b\{color:#f5f5f7!important\}/);
   assert.match(css, /html\[data-theme="dark"\] \.exam-panel h2\{color:var\(--ink\)!important\}/);
 });
+
+test('dark UNIT 筛选胶囊/错题小标签可读', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.filter-btn:not\(\.on\)\{[^}]*background:rgba\(255,255,255,\.06\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.filter-btn:not\(\.on\)\{[^}]*color:#b8b8bd!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.filter-btn:not\(\.on\):hover\{[^}]*background:rgba\(255,255,255,\.12\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.wrong-hero-label\{color:var\(--sub\)!important\}/);
+});

@@ -20,7 +20,11 @@
        are fine as-is. If more than one answer works, enter any one. */
   function gridEntry(raw) {
     if (raw == null) return null;
-    var s = String(raw).trim();
+    /* 学生从 PDF/截图复制、或在 Mac/iOS 上打出来的减号常是 U+2212「−」或
+       en/em dash「–」「—」，还有零宽字符与不换行空格。这些看上去就是负号，
+       直接拿正则挡掉会让「答对了却判错」。先归一成 ASCII '-' 再进格规则。 */
+    var s = String(raw).replace(/[\u00a0\u200b\u200c\u200d\ufeff]/g, '').trim()
+      .replace(/[\u2212\u2013\u2014]/g, '-');
     if (!/^-?(?:\d+(?:\.\d+)?|\.\d+|\d+\/\d+)$/.test(s)) return null; // no % $ , letters or spaces
     if (s.length > (s.charAt(0) === '-' ? 6 : 5)) return null;          // 5 / 6 char box
     return s;

@@ -70,7 +70,14 @@ describe('gridEntry：答题卡 5/6 字符格规则', () => {
     ['5 位超限（6 位数字）', '123456', null],
     ['含负号 6 位超限（-123456）', '-123456', null],
     ['null 输入', null, null],
-    ['首尾空白被裁剪', '  3500  ', '3500']
+    ['首尾空白被裁剪', '  3500  ', '3500'],
+    /* 粘贴/输入法带出来的「看起来是负号」的字符：U+2212 减号、en/em dash、
+       零宽字符、BOM。判分不能因为这些把对的答案判错。 */
+    ['U+2212 减号', '\u22125', '-5'],
+    ['en dash 负分数', '\u201314/15', '-14/15'],
+    ['em dash', '\u20145', '-5'],
+    ['零宽字符夹在中间', '5\u200b0', '50'],
+    ['BOM 前缀', '\ufeff-5', '-5']
   ];
   for (const [label, input, expected] of cases) {
     test(label, () => assert.equal(G.gridEntry(input), expected));
@@ -194,6 +201,13 @@ describe('isCorrect：从原始输入到判分结论', () => {
   const key0 = { type: 'grid', value: '0', answer: '' };
   test('标准 0 / 答 0 → 对', () => assert.equal(G.isCorrect(key0, '0'), true));
   test('标准 0 / 答 0.0001 → 错', () => assert.equal(G.isCorrect(key0, '0.0001'), false));
+
+  const keyNeg = { type: 'grid', value: '-5', answer: '' };
+  test('标准 -5 / 答 U+2212 减号「−5」→ 对', () => assert.equal(G.isCorrect(keyNeg, '\u22125'), true));
+  test('标准 -5 / 答 en dash「–5」→ 对', () => assert.equal(G.isCorrect(keyNeg, '\u20135'), true));
+  test('标准 -5 / 答「+5」→ 错（SAT 不接受正号）', () => assert.equal(G.isCorrect(keyNeg, '+5'), false));
+  const keyDual = { type: 'grid', values: ['-2', '3'] };
+  test('双空：答「−2, 3」→ 对', () => assert.equal(G.isCorrect(keyDual, '\u22122, 3'), true));
 
   const keyHalf = { type: 'grid', value: '1/2', answer: '' };
   test('标准 1/2 / 答 0.505 → 对（浮点边界回归）', () =>
