@@ -1416,3 +1416,8 @@ html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions 
 html:has(body.drill-page #resultView:not([hidden])){background:linear-gradient(90deg,#fffdfa 0 216px,#f7f6f2 216px 100%)!important;background-attachment:fixed!important;background-repeat:no-repeat!important}
 html:not([data-theme="dark"]) body.drill-page:has(#resultView:not([hidden])){background:transparent!important}
 @media(max-width:999px){html:has(body.drill-page #resultView:not([hidden])){background:#f7f6f2!important}}
+
+/* ==== canvas-base：全站纸色兜底（:root:root 抬高特异性，压过 app.css 的 html:has 同理规则） ==== */
+:root:root{background-color:#f7f6f2!important}
+:root:root:not([data-theme="dark"]){background-color:#f7f6f2!important}
+:root:root body.site-shell{min-height:100vh!important}
