@@ -1696,21 +1696,16 @@ html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .btn:hov
   body.site-shell #stage-intro,
   body.site-shell #stage-review,
   body.site-shell .drill-select-inner,
-  body.site-shell .page-head,
-  body.site-shell .wrong-toolbar,
   body.site-shell .hist-list{max-width:100%!important;width:100%!important;padding-left:18px!important;padding-right:18px!important;box-sizing:border-box!important}
-  body.site-shell h1,
-  body.site-shell h2,
-  body.site-shell p,
-  body.site-shell .tile-name{overflow-wrap:anywhere!important}
 
-  /* 页头：左对齐（盖过 app.css 手机端的居中堆叠） */
-  html body .page-head{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;text-align:left!important;gap:6px!important}
-  html body .page-head h1,
-  html body .page-head .drill-crumb{text-align:left!important;margin-left:0!important}
-  html body .page-head #backPractice,
-  html body .page-head a.btn,
-  html body .page-head .drill-page-button{display:none!important}
+  /* 页头与工具条：左对齐（用 (0,2,3) 级选择器压过 app.css 手机端的居中） */
+  html:not([data-theme="dark"]) body .page-head{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;text-align:left!important;gap:6px!important;padding-left:18px!important;padding-right:18px!important;box-sizing:border-box!important;width:100%!important}
+  html:not([data-theme="dark"]) body .page-head>*{margin-left:0!important;margin-right:0!important}
+  html:not([data-theme="dark"]) body .page-head h1,
+  html:not([data-theme="dark"]) body .page-head .drill-crumb{text-align:left!important;margin:0!important;width:auto!important}
+  html:not([data-theme="dark"]) body .page-head #backPractice,
+  html:not([data-theme="dark"]) body .page-head a.btn,
+  html:not([data-theme="dark"]) body .page-head .drill-page-button{display:none!important}
 
   /* 抽测开场：卡内单列堆叠 */
   #stage-intro .mock-grid{display:block!important;grid-template-columns:1fr!important;gap:18px!important}
@@ -1725,17 +1720,16 @@ html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .btn:hov
   #stage-intro .exam-special-chips{gap:14px!important;flex-wrap:wrap!important}
 
   /* 错题/记录：工具条竖排、按钮靠左 */
-  html body .wrong-toolbar{flex-direction:column!important;align-items:stretch!important;text-align:left!important;gap:10px!important;padding:14px 0!important}
-  html body .wrong-toolbar>*{margin-left:0!important;margin-right:0!important}
-  html body .wrong-toolbar .btn-row{justify-content:flex-start!important;display:flex!important}
-  html body .wrong-toolbar .btn,
-  html body .wrong-toolbar button{align-self:flex-start!important;width:auto!important}
-  html body .wrong-toolbar .small.muted{white-space:normal!important;font-size:11px!important;line-height:1.55!important;max-width:100%!important}
-  html body .unit-filter{flex-wrap:nowrap!important;overflow-x:auto!important;max-width:100%!important;gap:22px!important}
-  html body .unit-filter .filter-btn{padding:0 2px!important;flex:0 0 auto!important}
-  html body .hist-empty{padding:38px 18px 34px!important;border-radius:10px!important}
-  html body .hist-empty .he-d,
-  html body .wrong-list .he-d{font-size:12px!important;max-width:100%!important;padding:0 6px!important}
+  html:not([data-theme="dark"]) body .wrong-toolbar{flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;text-align:left!important;gap:10px!important;padding:14px 0!important}
+  html:not([data-theme="dark"]) body .wrong-toolbar>*{margin-left:0!important;margin-right:0!important;width:auto!important}
+  html:not([data-theme="dark"]) body .wrong-toolbar .btn-row{justify-content:flex-start!important;align-items:flex-start!important;display:flex!important;gap:10px!important}
+  html:not([data-theme="dark"]) body .wrong-toolbar .btn,
+  html:not([data-theme="dark"]) body .wrong-toolbar button{align-self:flex-start!important;width:auto!important}
+  html:not([data-theme="dark"]) body .wrong-toolbar .small.muted{white-space:normal!important;font-size:11px!important;line-height:1.55!important;max-width:100%!important;text-align:left!important}
+  html:not([data-theme="dark"]) body .unit-filter{flex-wrap:nowrap!important;overflow-x:auto!important;max-width:100%!important;gap:22px!important;justify-content:flex-start!important}
+  html:not([data-theme="dark"]) body .unit-filter .filter-btn{padding:0 2px!important;flex:0 0 auto!important}
+  html:not([data-theme="dark"]) body .hist-empty{padding:38px 18px 34px!important;border-radius:10px!important}
+  html:not([data-theme="dark"]) body .hist-empty .he-d{font-size:12px!important;max-width:100%!important;padding:0 6px!important}
 
   /* 目录行：编号列收窄，标题不再抢行 */
   .tile-section .tile-code{flex:0 0 34px!important;width:34px!important;font-size:10.5px!important}
@@ -1743,7 +1737,7 @@ html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .btn:hov
   .tile-section .tile-state{font-size:10.5px!important}
   .tile-section{gap:10px!important;padding:12px 2px!important}
 
-  /* 模考 review 表格：横向滚动而不爆屏 */
+  /* 模考 review 表格：横向滑动而不爆屏 */
   #stage-review .exam-table-wrap{overflow-x:auto!important}
   #stage-review .rev-table{min-width:520px!important}
   #stage-review .rev-meta{gap:14px!important;font-size:11px!important}
