@@ -206,3 +206,14 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 一个踩过的坑：以为成绩卡是 `<table>`，实际是 `#resKV` 的一组 `<div>`，按 table 选择器去查会一直「没有表格」。验收器现在按真实结构量。
 
 验收：本地 `node --test` 223/0；本地 `verify_mobile` 42/42；线上 `verify_mobile` **42/42**、`verify_a11y` 20/20、`verify_flows` 16/16。线上 `v=47d49ef91390`。
+
+## 验收器补键盘可达与答案对比两栏（第 13 条续三，2026-11-27）
+
+热区抬到 44px 之后补两项检查，`verify_mobile` 从 42 条到 **50 条**：
+
+- **键盘可达**：CDP 真发 Tab 键 24 次，记录焦点轨迹，断言能走到选项（`.drill-choice`）和 `#btnNext`，并且没有把焦点困在同一元素（24 步只落在 ≤2 个元素就算死循环）。全绿：选项与 Next 都能 Tab 到。
+- **答案对比两栏**：错题卡里「你的答案 / 正确答案」两栏逐格量右边界 + `overflow:hidden` 下 `scrollWidth > clientWidth` 的截断，320 / 375 两档均无越界、无截断（长小数与千分位目前都放得下）。
+
+这两个场景本轮没抓到新缺陷，但把口径钉住了：`test/mobile-target.test.js` 里加了三条存在性断言（缺 `Input.dispatchKeyEvent` / 缺 `answer-compare` / 缺 `resKV` 都会红），防止以后有人精简验收器时把覆盖悄悄删掉。
+
+全绿复核（线上 `https://timnotcook.github.io/SAT-Math`，`v=47d49ef91390`）：`node --test` 223/0；`verify_mobile` 50/50；`verify_flows` 16/16；`verify_grading_ui` 8/8；`verify_exam_timeout` 13/13；`verify_runtime` 六页 0 异常；`verify_nav` 38/38；`verify_a11y` 20/20；`verify_acct_entry` 26/26；`verify_session` 22/22；`verify_shaded_figures` 6/6；`verify_assets` 全绿。
