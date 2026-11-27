@@ -205,7 +205,7 @@
           '<span class="tile-name">' + esc(g.label) + '</span>' +
           '<span class="tile-dot is-new" aria-hidden="true"></span></a>';
       }
-      html += '<h2 class="drill-group-h">' + esc(b.cn || b.en) + '</h2>' + rows;
+      html += '<div class="tile-group"><h2 class="drill-group-h">' + esc(b.cn || b.en) + '</h2><div class="tile-grid">' + rows + '</div></div>';
     });
     return html;
   }
@@ -222,10 +222,10 @@
         head = gn && /^Unit\s*\d/.test(gn.cn || '') ? gn.cn
           : ('Unit ' + u + ' · ' + ((gn && gn.cn) || '专项练习'));
       }
-      html += '<h2 class="drill-group-h">' + esc(head) + '</h2>' + rowsHtml(members);
+      html += '<div class="tile-group"><h2 class="drill-group-h">' + esc(head) + '</h2><div class="tile-grid">' + rowsHtml(members) + '</div></div>';
     });
     var legacy = secs.filter(function (s) { return A.isLegacy(s); });
-    if (legacy.length) html += '<h2 class="drill-group-h">精编原题组</h2>' + rowsHtml(legacy);
+    if (legacy.length) html += '<div class="tile-group"><h2 class="drill-group-h">精编原题组</h2><div class="tile-grid">' + rowsHtml(legacy) + '</div></div>';
     return html;
   }
   function renderLanding(active) {

@@ -802,3 +802,9 @@ body.exam-page:has(#stage-intro.active) .td-acct-btn{display:none!important}
 /* 模考开场页：主卡一行式（FULL MOCK 左 / Start 右），下面三张参数卡同一行；
    .mock-grid 只是结构包装，不参与排版 */
 .mock-grid{display:contents}
+
+/* 单元/专项/讲义分组各自成一个网格：#boardPanel 原先把所有组塞进同一个 dense 网格，
+   dense 回填会把下一组的大块（如 2.1）插到上一组的空档，看起来像「Unit 1 里混进 2.1」 */
+#boardPanel{display:block!important}
+.tile-group{display:block;margin-bottom:18px}
+.tile-group .drill-group-h{margin:0 0 10px!important}
