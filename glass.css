@@ -1520,17 +1520,23 @@ html:not([data-theme="dark"]) body.shell-wrong h1::before{content:"MISSED QUESTI
 html:not([data-theme="dark"]) body.shell-history .drill-select-hero,
 html:not([data-theme="dark"]) body.shell-wrong .drill-select-hero{margin:6px 0 26px!important}
 
-/* 页头右上角返回：灰字，不要蓝胶囊 */
+/* 页头右上角返回：灰字 */
 html:not([data-theme="dark"]) body.shell-wrong .page-head #backPractice,
 html:not([data-theme="dark"]) body.shell-history .page-head .btn{background:transparent!important;border:0!important;color:#8d9199!important;font-size:12px!important;font-weight:500!important;height:auto!important;min-height:0!important;padding:0!important;box-shadow:none!important}
 html:not([data-theme="dark"]) body.shell-wrong .page-head #backPractice:hover{color:#20242b!important}
 
-/* 错题页导入条：一块卡收成上下两条发丝线之间的一行 */
-html:not([data-theme="dark"]) body.shell-wrong .wrong-toolbar{background:transparent!important;border:0!important;border-top:1px solid #e7e3da!important;border-bottom:1px solid #e7e3da!important;border-radius:0!important;box-shadow:none!important;padding:12px 2px!important;margin:0 0 18px!important;display:flex!important;align-items:center!important;gap:14px!important;flex-wrap:wrap!important}
+/* 导入条 / 筛选条：一块卡收成上下两条发丝线之间的一行 */
+html:not([data-theme="dark"]) body.shell-wrong .wrong-toolbar{background:transparent!important;border:0!important;border-top:1px solid #e7e3da!important;border-bottom:1px solid #e7e3da!important;border-radius:0!important;box-shadow:none!important;padding:8px 2px!important;margin:0 0 18px!important;display:flex!important;align-items:center!important;gap:14px!important;flex-wrap:wrap!important}
 html:not([data-theme="dark"]) body.shell-wrong .wrong-toolbar .btn-row{margin:0!important}
-html:not([data-theme="dark"]) body.shell-wrong .wrong-toolbar .btn{height:30px!important;min-height:0!important;padding:0 12px!important;border-radius:6px!important;font-size:11.5px!important;font-weight:600!important;box-shadow:none!important;background:#fffdfa!important;border:1px solid #e7e3da!important;color:#5c6169!important}
+html:not([data-theme="dark"]) body.shell-wrong .wrong-toolbar .btn{height:30px!important;min-height:0!important;padding:0 12px!important;border-radius:6px!important;font-size:11.5px!important;font-weight:600!important;box-shadow:none!important;background:transparent!important;border:1px solid #e7e3da!important;color:#5c6169!important}
 html:not([data-theme="dark"]) body.shell-wrong .wrong-toolbar .btn:hover{border-color:#c9c3b7!important;color:#20242b!important}
 html:not([data-theme="dark"]) body.shell-wrong .wrong-toolbar .small.muted{font-size:11.5px!important;color:#a8acb4!important;line-height:1.5!important}
+
+/* 单元筛选：从胶囊改成一条文字 tab */
+html:not([data-theme="dark"]) body.shell-wrong .unit-filter{gap:0!important;display:flex!important;align-items:center!important;flex-wrap:wrap!important}
+html:not([data-theme="dark"]) body.shell-wrong .unit-filter .filter-btn{height:36px!important;min-height:0!important;padding:0 14px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#8d9199!important;font-size:12.5px!important;font-weight:500!important}
+html:not([data-theme="dark"]) body.shell-wrong .unit-filter .filter-btn:hover{color:#20242b!important;background:transparent!important}
+html:not([data-theme="dark"]) body.shell-wrong .unit-filter .filter-btn.on{color:#20242b!important;font-weight:600!important;background:transparent!important;box-shadow:inset 0 -2px 0 #20242b!important}
 
 /* 空态卡片 */
 html:not([data-theme="dark"]) body.shell-history .hist-empty,
