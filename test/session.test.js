@@ -70,6 +70,18 @@ describe('parseSession：作答值必须是可判分的字符串', () => {
     assert.equal(r.session.answers['M1-3'].v, '3');
   });
 
+  test('裸字符串/数字作答恢复成可判分对象，不刷新即归零', () => {
+    const s = baseSave();
+    s.answers['M1-1'] = 'A';
+    s.answers['M1-2'] = 7;
+    s.answers['M1-3'] = { v: ['A'], marked: false, spent: 0 };
+    const r = C.parseSession(s, { mode: 'mock', isQuestionId: () => true });
+    assert.equal(r.status, 'ok');
+    assert.equal(r.session.answers['M1-1'].v, 'A');
+    assert.equal(r.session.answers['M1-2'].v, '7');
+    assert.equal(r.session.answers['M1-3'].v, '');
+  });
+
   test('marked / locked / finished 是字符串 false 时按布尔 false 处理', () => {
     const s = baseSave({ finished: 'false', locked: 'false' });
     s.answers['M1-1'] = { v: 'A', marked: 'false', locked: 'false', spent: 5 };

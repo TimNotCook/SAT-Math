@@ -911,8 +911,13 @@
     if (!s.answers || typeof s.answers !== 'object' || Array.isArray(s.answers)) s.answers = {};
     paper.forEach(function (x) {
       const a = s.answers[x.uid];
-      if (!a || typeof a !== 'object') s.answers[x.uid] = { v: '', marked: false, spent: 0, locked: false };
-      else {
+      if (!a || typeof a !== 'object' || Array.isArray(a)) {
+        /* 作答被云端合并/旧版写成裸字符串或数字时，旧实现一律清空，刷新后整题
+           答案消失。字符串/有限数字按旧值恢复成可判分对象；对象/数组仍清空，
+           避免 [object Object] 进输入框。 */
+        var rawV = typeof a === 'string' || (typeof a === 'number' && Number.isFinite(a)) ? String(a) : '';
+        s.answers[x.uid] = { v: rawV, marked: false, spent: 0, locked: false };
+      } else {
         /* 云端合并/旧版本可能把作答写成对象或数组。直接留给 DOM 会在 grid 输入框
            里显示 [object Object]，导航还会算成「已作答」，判分却按空答案算。 */
         if (typeof a.v === 'string') { /* already fine */ }

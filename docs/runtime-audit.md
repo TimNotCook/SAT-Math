@@ -580,3 +580,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 56 条：讲义交卷 detail 缺 answer，记录页错题行显示「正确 —」（2026-11-27）
 
 `jiangyi-core submitSection()` 写 `detail` 时只落 `given/correct`，没落 `answer`。记录页 `wrongRows()` 读 `d.answer`，讲义题 id 又不在 `TD_BANK`，`byId` 查不到，只能印「正确 —」。修法：按题库 `answer` → `value` → `values` 把正确答案写进每条 detail。验证：`test/jiangyi-state-shape.test.js` 新增「讲义交卷 detail 带正确答案」，旧代码 `detail.answer` 为空失败，新代码通过；全量 `node --test` 406/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 57 条：模考存档 answers 条目是裸字符串/数字，刷新后作答被清空（2026-11-27）
+
+`exam-core parseSession()` 对 `s.answers[uid]` 只判 `typeof === 'object'`，裸字符串 `'A'` 或数字 `7` 被当成坏值重置成 `{v:''}`。云端合并/旧版若写出 `answers: {"M1-1":"A"}`，刷新后该题答案消失、判分归零。修法：字符串/有限数字恢复为 `{v:String(a)}`，对象/数组仍清空防止 `[object Object]`。验证：`test/session.test.js` 新增「裸字符串/数字作答恢复成可判分对象」，旧代码该子测试失败；全量 `node --test` 434/0；`verify_junk` 11×7；`verify_flows` 16/16。
