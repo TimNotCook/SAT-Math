@@ -320,3 +320,12 @@ describe('weaknessReport：topic 是数字/对象时不崩', () => {
     ));
   });
 });
+
+
+test('parseSession：durationSec 是布尔 true 时不能留下 1 秒计时', () => {
+  const s = baseSave({ durationSec: true });
+  const r = C.parseSession(s, { mode: 'mock', isQuestionId: () => true });
+  assert.equal(r.status, 'ok');
+  assert.equal(typeof r.session.durationSec, 'number');
+  assert.ok(r.session.durationSec > 1, '布尔 duration 被当成 1 秒，恢复后会立刻交卷');
+});

@@ -907,7 +907,11 @@
       m1 = n;
     }
     s.m1Size = m1;
-    if (!(s.durationSec > 0)) s.durationSec = Math.round((s.endsAt - s.startedAt) / 1000);
+    /* durationSec 可能是布尔/Infinity/对象：true 会被 Number 成 1，恢复后
+       页面只给 1 秒就自动交卷。只接受有限正数，否则按 endsAt-startedAt 重算。 */
+    var dur = typeof s.durationSec === 'boolean' ? NaN : Number(s.durationSec);
+    if (!isFinite(dur) || dur <= 0) s.durationSec = Math.round((s.endsAt - s.startedAt) / 1000);
+    else s.durationSec = dur;
     if (!(s.moduleEndsAt > 0)) s.moduleEndsAt = s.endsAt;
     const inModule2 = mode === 'mock' && s.module === 2;
     s.module = inModule2 ? 2 : 1;
