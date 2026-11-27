@@ -89,8 +89,11 @@
     return '官方模考 · 全卷 ' + (total == null ? 44 : total) + ' 题';
   }
 
+  function isDetail(d) { return !!d && typeof d === 'object' && !Array.isArray(d); }
   function wrongRows(detail) {
-    var wrong = asArr(detail).filter(function (d) { return d && !isRight(d.correct); });
+    /* detail 条目也可能是 5 / 'junk'（云端合并、半截导入）：truthy 但不是对象，
+       只判 `d && !isRight` 会把它渲染成一条 id/答案全是「—」的幽灵错题行。 */
+    var wrong = asArr(detail).filter(function (d) { return isDetail(d) && !isRight(d.correct); });
     if (!wrong.length) return '<div class="hist-empty">本次全部答对。</div>';
     return '<div class="hist-wrong">' + wrong.map(function (d) {
       var did = txt(d.id) || '—', q = byId(did) || {};
@@ -140,7 +143,7 @@
       (txt(rec.mode) === 'mock' && Object.keys(asObj(rec.estimate)).length ? '<span>原始分 <b>' + esc(numTxt(asObj(rec.estimate).raw)) + ' / ' + esc(numTxt(asObj(rec.estimate).rawMax)) + '</b></span>' +
         '<span>自适应路径 <b>' + (txt(asObj(rec.estimate).path) === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
       '</div>';
-    html += '<div class="hist-sec">错题（' + (asArr(rec.detail).filter(function (d) { return d && !isRight(d.correct); })).length + '）</div>' + wrongRows(rec.detail);
+    html += '<div class="hist-sec">错题（' + (asArr(rec.detail).filter(function (d) { return isDetail(d) && !isRight(d.correct); })).length + '）</div>' + wrongRows(rec.detail);
     html += '<div class="hist-sec">应该补哪块</div>' + prioRows(rec.report);
     return html;
   }

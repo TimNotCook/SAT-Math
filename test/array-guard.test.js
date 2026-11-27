@@ -174,6 +174,20 @@ test('导入仓库旧格式是数组时，新导入不覆盖丢旧错题', () =>
 
 
 
+test('成绩记录 detail 数组混入数字/字符串时，不渲染幽灵错题行', () => {
+  const store = { tdsat_exam_suite_results_v1: JSON.stringify([{
+    date: 1700000000000, mode: 'mock', total: 2, correct: 2, elapsed: 60,
+    detail: [5, 'junk', null], report: {},
+  }]) };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '坏 detail 打崩记录页：' + (threw && threw.message));
+  const html = els && els.histList ? els.histList.innerHTML : '';
+  assert.ok(!/hist-wrong-row/.test(html), '数字/字符串 is 被当成错题行');
+  assert.ok(/本次全部答对/.test(html), '没有有效错题时没有落「全部答对」');
+});
+
 test('成绩仓库数组里混入数字/字符串时，不渲染幽灵记录', () => {
   const store = { tdsat_exam_suite_results_v1: JSON.stringify([5, 'junk', null, false]) };
   let threw = null, els = null;

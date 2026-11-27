@@ -516,3 +516,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `wrong-page.js importedGroupHtml()` 对 `tdsat_imported_wrong_v1.items` 只做 `it && (!it.matchId || it.readOnly)`：`5`、`'junk'` 这些 truthy 原始值、甚至数组全被当成一条导入记录，标题写「独立记录 3 道」，页面多出没有题干、没有答案的幽灵卡；有效的那一条反而被淹没。云端合并或手工导入只要混进一个坏值就会出现。
 
 修法：导入记录只认普通对象（`typeof === 'object' && !Array.isArray`），原始值和数组过滤掉，标题数量按真实条目算。验证：真实 `wrong-page.js`，仓库 `items:[5,'junk',null, 一条有效]`，旧代码标题 3 道并画幽灵卡，新代码标题 1 道、只保留有效卡。`test/array-guard.test.js` 旧代码 18/20、新代码 20/20。全量 `node --test` 347/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 46 条：成绩记录 `detail` 数组混入数字/字符串——记录页多出「— / —」幽灵错题行（2026-11-27）
+
+`history-page.js wrongRows()` 对 `detail` 也只做 `d && !isRight(d.correct)`：`5`、`'junk'` 的 `correct` 是 undefined，`!isRight(undefined)` 为 true，于是被当成错题行渲染，id、你的答案、正确答案全是「—」；`resultBody` 里的「错题（N）」也把坏值算进去。云端合并或半截导入的 detail 只要混进一个原始值，页面就多一条假错题。
+
+修法：detail 条目只认普通对象（`isDetail(d)`），`wrongRows` 和错题计数共用同一个过滤口径；有效错题为零时落「本次全部答对」。验证：真实 `history-page.js`，记录 `detail:[5,'junk',null]`，旧代码画出 2 条 `hist-wrong-row`、错题数 2，新代码 0 条并显示「本次全部答对」。`test/array-guard.test.js` 新代码 21/21。全量 `node --test` 348/0；`verify_junk` 11×7；`verify_flows` 16/16。
