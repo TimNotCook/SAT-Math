@@ -426,7 +426,7 @@
     host.innerHTML = '<header class="appbar"><div class="appbar-inner">' +
       '<a class="brand" href="drill.html"><b>SAT Math Prep</b></a>' +
       '<nav class="mainnav" aria-label="主要功能">' + items.map(function (n) {
-        return '<a href="' + n.href + '" class="' + (n.id === active ? 'on' : '') + '>' +
+        return '<a href="' + n.href + '" class="' + (n.id === active ? 'on' : '') + '"' +
           (n.id === active ? ' aria-current="page"' : '') + '>' + n.label + '</a>';
       }).join('') +       '</nav>' +
       '<a class="appbar-exit" id="btnAppExit" href="drill.html" title="退出本模块，返回上一个页面">退出</a>' +

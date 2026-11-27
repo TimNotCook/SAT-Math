@@ -546,3 +546,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `progress-save.js` 的 `inspect()` 与 `snapshot()` 摘要只判 `a.v != null && String(a.v).trim() !== ''`：`v:{x:1}` 会变成 `"[object Object]"` 被算成已答，但恢复后 `secIn` 会把它归一成空值，存档面板的「已答」与实际恢复结果不一致。
 
 修法：新增 `hasAnswer()`，只统计字符串/数字/布尔等非对象且 trim 非空的 `v`；`inspect` 与 `snapshot` 共用。验证：存档 `v:{x:1}, correct:true` 旧摘要 `answered=1`，新摘要 `answered=0`、`correct=0`；该文件 10/10。全量 `node --test` 369/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 51 条：顶部导航 class 引号没闭合，aria-current 被吞进 class（2026-11-27）
+
+`app-core.js nav()` 拼导航时写成 `class="' + (...) + '>'`，少了一个闭合双引号；实际输出 `<a ... class="on> aria-current="page">`。浏览器会把 `on> aria-current=` 当成 class 值，当前页的 `a.on` 高亮失效，`aria-current` 也不是属性，读屏软件读不到「当前页」。
+
+修法：把 class 值单独用一层引号闭合：`class="' + (...) + '"' + (active ? ' aria-current="page"' : '') + '>'`。验证：vm 里跑真实 `app-core.js nav('drill')`，旧输出含 `class="on>`，新输出为合法的 `class="on" aria-current="page"`；`test/nav.test.js` 7/7。全量 `node --test` 372/0；`verify_junk` 11×7；`verify_flows` 16/16。

@@ -6,6 +6,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 const FIVE = ['drill.html', 'exam.html?mode=quiz&unit=1', 'wrong.html', 'exam.html?mode=mock', 'history.html'];
@@ -26,6 +27,26 @@ test('讲义页 jiangyi.html 有五项导航 + 返回真题练习（讲义入口
   LABELS.forEach(l => assert.ok(s.includes('>' + l + '</a>'), 'jiangyi 缺少导航项 ' + l));
   assert.ok(s.includes('rail-back') && s.includes('返回真题练习'), 'jiangyi 缺少返回导航');
   assert.ok(!s.includes('id="appnav"'), '讲义页不要同时挂顶部导航，避免同一组链接重复两遍');
+});
+
+test('app-core 顶部导航输出合法属性：class 引号闭合，aria-current 是属性', () => {
+  const host = { innerHTML: '' };
+  const store = {};
+  const sandbox = {
+    console,
+    localStorage: { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } },
+    location: { search: '', hash: '', pathname: '/drill.html' },
+    document: { getElementById: id => (id === 'appnav' ? host : null), body: { classList: { add() {}, remove() {} } }, addEventListener() {} },
+    window: {}, URLSearchParams, navigator: { language: 'zh' }, addEventListener() {},
+  };
+  sandbox.window = sandbox;
+  vm.createContext(sandbox);
+  ['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js'].forEach(f =>
+    vm.runInContext(read(f), sandbox));
+  sandbox.window.TD_APP.nav('drill');
+  assert.match(host.innerHTML, /class="on"/, '当前页导航项没有被正确标成 class="on"');
+  assert.match(host.innerHTML, /aria-current="page"/, 'aria-current 没有作为属性输出');
+  assert.ok(!/class="on>/.test(host.innerHTML), 'class 属性的引号没有闭合，浏览器会把 aria-current 吞进 class');
 });
 
 test('app-core 顶部导航含五项（唯一真相），drill / wrong / exam 因此都能看到同一组入口', () => {
