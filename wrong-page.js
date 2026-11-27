@@ -50,7 +50,17 @@
 }
  function writeImport(d){try{localStorage.setItem(IMPORT_KEY,JSON.stringify(d));if(window.TDSync)try{window.TDSync.notify(IMPORT_KEY)}catch(e2){}return true;}catch(e){return false;}}
  function normStem(s){return String(s==null?'':s).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g,'');}
- function pick(){for(var i=0;i<arguments.length;i++){var v=arguments[i];if(v!=null&&String(v).trim()!=='')return v;}return '';}
+ function pick(){
+   /* 对象/函数字段不能当成「有内容」：否则 {stem:{...}, question:'真实题干'}
+      会先取到对象，把后面合法的 question 丢掉。数组仍保留（plainText 会拼行）。 */
+   for(var i=0;i<arguments.length;i++){
+     var v=arguments[i];
+     if(v==null||typeof v==='function')continue;
+     if(typeof v==='object'&&!Array.isArray(v))continue;
+     if(String(v).trim()!=='')return v;
+   }
+   return '';
+ }
  function bankIndex(){
    var byId={},byStem={};
    A.SECS.forEach(function(s){(A.CATALOG[s]||[]).forEach(function(q){

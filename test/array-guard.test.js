@@ -129,10 +129,13 @@ test('导入流程 normalizeItem 不把对象字段写成 [object Object]', () =
   sandbox.TD_IMPORT_WRONG.importData({ title: { x: 1 }, items: [
     { key: 'raw1', stem: { x: 1 }, choices: { A: { y: 1 } }, type: 'mcq', answer: { z: 1 }, given: { g: 1 }, topic: { t: 1 }, source: { s: 1 }, value: { v: 1 } },
     { key: 'raw2', stem: '1+1=?', choices: 'null', type: 'mcq', answer: 'A' },
+    { key: 'raw3', stem: { x: 1 }, question: '对象字段后面的合法题干', type: 'mcq', answer: 'A', choices: { A: '1' } },
   ] });
   const saved = JSON.parse(store.tdsat_imported_wrong_v1 || '{}');
   assert.ok(!/\[object Object\]/.test(JSON.stringify(saved)), '导入时把对象字段存成了 [object Object]');
   assert.ok(!/\[object Object\]/.test(els.wrongList.innerHTML), '导入后的错题卡出现 [object Object]');
+  const fallback = saved.items.find(x => x.stem === '对象字段后面的合法题干');
+  assert.ok(fallback, '对象型 stem 把后面合法的 question 字段遮蔽了');
 });
 test('导入时旧 items 里有 null/非对象条目不崩，且被剔掉', () => {
   const store = { tdsat_imported_wrong_v1: JSON.stringify({ items: [null, 5, 'x', { key: 'old', stem: 'Old' }] }) };
