@@ -370,7 +370,7 @@
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
       document.documentElement.setAttribute('data-lang', lang);
-      if (lang === 'en') applyAll();
+      if (lang === 'en') { applyAll(); watch(); }
       else {
         /* 英文模式是就地替换 DOM 文本，切回中文没法逐处还原：直接重载一次，
            页面回到代码里写的中文原文。作答都自动保存，重载不丢数据。 */
@@ -475,8 +475,11 @@
         document.addEventListener('DOMContentLoaded', function () { applyAll(); watch(); });
       } else { applyAll(); watch(); }
     }
+    var WATCHING = false;
     function watch() {
+      if (WATCHING) return;
       if (!global.MutationObserver || !document.body) return;
+      WATCHING = true;
       var obs = new global.MutationObserver(function (muts) {
         if (getLang() !== 'en') return;
         for (var i = 0; i < muts.length; i++) {
