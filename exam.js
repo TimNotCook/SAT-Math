@@ -1297,26 +1297,27 @@
         if (!dAnswer && bankQ.type === 'grid')
           dAnswer = safeText(bankQ.value) || (Array.isArray(bankQ.values) ? bankQ.values.join(', ') : '');
       }
-      let causeHtml = '';
       const okFlag = isRightFlag(d.correct);
-      if (!okFlag && AN && !OFFICIAL) {
-        const a = AN.analyze(bankQ, dGiven, (window.TD_TEXT || {})[did]);
-        causeHtml = `<div class="cause-box"><b>错因 · ${esc(a.title)}</b><p>${esc(a.cause)}</p><p class="fix">${esc(a.fix)}</p></div>`;
-      }
-      const meta = OFFICIAL
-        ? 'U' + dUnit + ' · ' + (dType === 'grid' ? 'Grid-in' : 'Multiple choice') + ' · ' + (dPoints == null ? '—' : dPoints) + ' pt'
-        : 'U' + dUnit + ' · ' + (dType === 'grid' ? '填空' : '选择') + ' · 得 ' + (dPoints == null ? '—' : dPoints) + ' 分';
+      const meta = (OFFICIAL ? 'U' + dUnit + ' · ' + (dType === 'grid' ? 'Grid-in' : 'Multiple choice') : 'U' + dUnit + ' · ' + (dType === 'grid' ? '填空' : '选择'));
+      const ptsTxt = dPoints == null ? '—' : (OFFICIAL ? dPoints + ' pt' : dPoints + ' 分');
+      let causeHtml = '';
+      if (!okFlag && AN && !OFFICIAL) causeHtml = `<div class="rev-cause">错因 · ${esc(AN.analyze(bankQ, dGiven, (window.TD_TEXT || {})[did]).title)}`;
+      if (!okFlag && dHint && !OFFICIAL) causeHtml += (causeHtml ? '<br>' : '<div class="rev-cause">') + '提示 · ' + esc(dHint);
+      if (causeHtml) causeHtml += '</div>';
       return `<div class="rev-item ${okFlag ? 'ok' : 'no'}">
-      <div class="badge">${okFlag ? '✓' : '✗'}</div>
-      <div class="body"><div class="ttl">Q${esc(dPos)}${OFFICIAL ? '' : ' · ' + esc(dTopic)}
-        <span class="tiny muted">${meta}${d.from === 'wrong' ? (OFFICIAL ? ' · Previously missed' : ' · 历史错题') : ''}${isRightFlag(d.marked) ? (OFFICIAL ? ' · Marked' : ' · 曾标记') : ''}</span></div>
-        <div class="sub">${OFFICIAL ? '' : esc(dSource) + ' · '}${OFFICIAL ? 'Time ' : '用时 '}${fmt(dSeconds * 1000)}</div>
-        <div class="ans"><span>${OFFICIAL ? 'Your answer' : '你的答案'} <b style="color:${okFlag ? 'var(--ok)' : 'var(--bad)'}">${esc(dGiven || '—')}</b></span>
-          <span>${OFFICIAL ? 'Correct answer' : '正确答案'} <b>${esc(dAnswer || '—')}</b></span></div>
-        ${crossed.length ? `<div class="sub crossout-note">${OFFICIAL ? 'Crossed out: ' : '已划掉：'}${crossed.join(', ')}</div>` : ''}
-        ${!okFlag && dHint && !OFFICIAL ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(dHint)}</div>` : ''}
-        ${causeHtml}
-      </div></div>`;
+      <span class="rev-flag">${okFlag ? '✓' : '✗'}</span>
+      <div class="rev-main">
+        <div class="rev-line1">
+          <b class="rev-q">Q${esc(dPos)}</b>
+          <span class="rev-topic">${OFFICIAL ? '' : esc(dTopic || '—')}</span>
+          <span class="rev-meta">${meta} · ${ptsTxt}${isRightFlag(d.marked) ? (OFFICIAL ? ' · Marked' : ' · 曾标记') : ''}${d.from === 'wrong' ? (OFFICIAL ? ' · Previously missed' : ' · 历史错题') : ''}</span>
+        </div>
+        <div class="rev-line2">${OFFICIAL ? '' : esc(dSource) + ' · '}${OFFICIAL ? 'Time ' : '用时 '}${fmt(dSeconds * 1000)}${crossed.length ? (OFFICIAL ? ' · Crossed out ' : ' · 已划掉 ') + crossed.join(', ') : ''}</div>
+        <div class="rev-ans">
+          <span class="rev-chip no">${OFFICIAL ? 'Your answer' : '你的答案'}<i>${esc(dGiven || '—')}</i></span>
+          <span class="rev-chip ok">${OFFICIAL ? 'Correct answer' : '正确答案'}<i>${esc(dAnswer || '—')}</i></span>
+        </div>
+        ${causeHtml}</div></div>`;
     }).join('') || `<div class="small muted">${OFFICIAL ? 'No incorrect answers' : '无错题'}</div>`;
   }
 

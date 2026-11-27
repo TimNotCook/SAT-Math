@@ -1447,3 +1447,91 @@ html body.exam-page .unit-art{position:absolute!important;right:0!important;top:
 html body.exam-page #introStartCard#introStartCard>#quizScope{margin-top:18px!important;padding-top:0!important}
 /* 线稿改成在左栏垂直居中，不再顶着卡片上沿 */
 html body.exam-page .unit-art{top:50%!important;transform:translateY(-50%)!important;right:-6px!important}
+
+/* =====================================================================
+   质感统一（第 N 次「不细致」）：卡片起影、灰字提对比、小字定档、
+   胶囊与描边收口。只动这三类，版式一律不碰。
+   ===================================================================== */
+
+/* 1) 卡片：从「一张白纸压一条浅边」改成「白纸有极轻的落影」 */
+html body .mock-main-card,html body .mock-stats,html body #introStartCard,
+html body .quiz-tabs,html body .empty-panel,html body .hist-empty,
+html body .wrong-import,html body .tile-section,html body .drill-panel{
+  border-color:#e5eaf3!important;
+  box-shadow:0 1px 2px rgba(18,35,63,.045),0 14px 30px -22px rgba(18,35,63,.22)!important}
+html body .quiz-tabs,html body .mock-main-card,html body .mock-stats{border-radius:18px!important}
+
+/* 2) 灰字提对比：11px / #8b9bb2 那档在 1280 屏上像雾 */
+html body .exam-card-kicker,html body .quiz-scope-h,html body .exam-special-head,
+html body .tile-tier,html body .tile-state,html body .hist-empty .he-d,
+html body .empty-panel p,html body #introParams .ms-row span{
+  color:#6b7c93!important}
+html body .quiz-card-facts .quiz-fact,html body .quiz-card-facts .quiz-fact span,
+html body .quiz-card-facts .quiz-fact small{color:#7386a0!important;font-size:12px!important;letter-spacing:.04em!important}
+html body .exam-card-kicker,html body .quiz-scope-h,html body .exam-special-head{font-size:12px!important;letter-spacing:.08em!important}
+html body .quiz-scope li{font-size:13.5px!important;color:#42537a!important}
+html body .empty-panel p,html body .hist-empty .he-d{font-size:14px!important;color:#66788f!important}
+html body .empty-panel h2,html body .hist-empty .he-t{font-size:20px!important;font-weight:650!important;letter-spacing:-.01em!important}
+
+/* 3) 单元名、题目名：行高收紧、字重到位，别像正文一样软 */
+html body .quiz-unit-name,html body #quizUnitName{font-size:26px!important;font-weight:700!important;
+  letter-spacing:-.02em!important;color:#12233f!important;margin-top:6px!important}
+html body .exam-card-title,html body #mockCardTitle,html body .exam-intro-title{font-size:24px!important;
+  font-weight:700!important;letter-spacing:-.02em!important}
+html body .quiz-card-facts .quiz-fact b{font-size:30px!important;font-weight:800!important;color:#12233f!important;
+  font-variant-numeric:tabular-nums!important}
+
+/* 4) 小标签：统一胶囊，去掉 6px 的直角小块 */
+html body .exam-card-kicker{height:26px!important;padding:0 12px!important;border-radius:999px!important;
+  display:inline-flex!important;align-items:center!important;background:#edf4ff!important;color:#2563eb!important;
+  font-weight:650!important;letter-spacing:.06em!important}
+
+/* 5) 组卷范围胶囊：36 高、13 号字、hover 描边转蓝 */
+html body .exam-special-chip{height:36px!important;padding:0 16px 0 13px!important;border-color:#e2e8f2!important;
+  font-size:13px!important;color:#4d5f7a!important;transition:border-color .15s,background .15s}
+html body .exam-special-chip:hover{border-color:#b9cdf0!important;background:#f8fbff!important}
+html body .exam-special-chip.on{border-color:#b3ccff!important;background:#eff5ff!important;color:#1d4ed8!important}
+
+/* 6) 磁贴：hover 抬 2px，别一动不动 */
+html body .tile-section{transition:transform .15s ease,box-shadow .15s ease}
+html body .tile-section:hover{transform:translateY(-2px);
+  box-shadow:0 2px 4px rgba(18,35,63,.05),0 18px 34px -22px rgba(18,35,63,.28)!important}
+
+/* 7) 侧栏导航：字号 14.5、选中加粗、-item 高度 44 */
+html body .rail nav a,html body .rail .rail-item{font-size:14.5px!important;height:44px!important;
+  border-radius:10px!important;font-weight:500!important}
+html body .rail nav a.on,html body .rail .rail-item.on{font-weight:650!important}
+html body .rail .brand,html body .rail h1{font-size:16px!important;font-weight:700!important;letter-spacing:-.01em!important}
+
+/* 逐题结果：从「一行塞满元信息」改成 题号 + 知识点 + 元信息三段，答案用两个底色胶囊 */
+html body .rev-item{display:grid!important;grid-template-columns:26px minmax(0,1fr)!important;gap:14px!important;
+  align-items:start!important;padding:18px 20px!important;border:0!important;border-top:1px solid #eef2f8!important;
+  background:transparent!important;border-radius:0!important}
+html body .rev-flag{width:24px!important;height:24px!important;border-radius:999px!important;display:flex!important;
+  align-items:center!important;justify-content:center!important;font-size:12px!important;font-weight:700!important;
+  margin-top:2px!important}
+html body .rev-item.ok .rev-flag{background:#e9f8f0!important;color:#1f9d63!important;border:0!important}
+html body .rev-item.no .rev-flag{background:#fdeef0!important;color:#d64c5f!important;border:0!important}
+html body .rev-line1{display:flex!important;align-items:baseline!important;gap:10px!important;flex-wrap:wrap!important}
+html body .rev-q{font-size:12.5px!important;font-weight:700!important;color:#2563eb!important;
+  font-variant-numeric:tabular-nums!important;letter-spacing:.04em!important}
+html body .rev-topic{font-size:16px!important;font-weight:650!important;color:#12233f!important;letter-spacing:-.01em!important}
+html body .rev-meta{margin-left:auto!important;font-size:12px!important;color:#7b8ba1!important;white-space:nowrap!important}
+html body .rev-line2{margin-top:5px!important;font-size:12.5px!important;color:#8b99ad!important}
+html body .rev-ans{margin-top:12px!important;display:flex!important;gap:10px!important;flex-wrap:wrap!important}
+html body .rev-chip{display:inline-flex!important;align-items:center!important;gap:8px!important;height:30px!important;
+  padding:0 12px!important;border-radius:999px!important;font-size:12.5px!important;color:#66788f!important}
+html body .rev-chip i{font-style:normal!important;font-weight:700!important;font-size:14px!important}
+html body .rev-chip.no{background:#fdf2f4!important}
+html body .rev-chip.no i{color:#d64c5f!important}
+html body .rev-chip.ok{background:#eef8f2!important}
+html body .rev-chip.ok i{color:#188a55!important}
+html body .rev-cause{margin-top:10px!important;font-size:12.5px!important;color:#a4687a!important}
+
+/* 薄弱点横条：底轨 6px + 圆头，数字定宽，别再用一片实心粉块 */
+html body .kp-row .bar{height:6px!important;background:#f1f4f9!important;border-radius:999px!important;overflow:hidden!important}
+html body .kp-row .bar i{display:block!important;height:100%!important;border-radius:999px!important;min-width:2px!important}
+html body .kp-row .pct{min-width:64px!important;text-align:right!important;font-variant-numeric:tabular-nums!important;
+  font-size:12.5px!important;color:#7b8ba1!important}
+html body .kp-row{padding:11px 0!important;border-top:1px solid #f2f5fa!important}
+html body .kp-row:first-child{border-top:0!important}
