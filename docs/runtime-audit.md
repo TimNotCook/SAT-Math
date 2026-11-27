@@ -304,3 +304,17 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`wrong.html` 标记计数 0；`node --test` **265/0**（含 `conflict-markers` 与新增的 bump 闸门断言）；`verify_junk` 3×6、`verify_flows` 16/16、`verify_runtime` 六页 0 异常。
 
 顺带说明：这轮 rebase 也把我自己第 19 条的提交挂在 `836f2e6` 之上，所以线上 `wrong.html` 的标记在我推之前一直在；推完即恢复。
+
+## 第 21 条：导入错题仓库 `items` 形状不对，错题本整页空白（2026-11-27）
+
+`verify_junk` 加第四套画像 `D-auxkeys`：把 `tdsat_crossout_v1`、`tdsat_scratch_*`、`tdsat_exam_last_paper_v1`、`tdsat_exam_special_v1`、`tdsat_jiangyi_v1`、`tdsat_theme`、`tdsat_auth_v1`、`tdsat_imported_wrong_v1` 都写成错形状。首跑红在错题页：
+
+`wrong-page.js:219` `(readImport().items || []).filter is not a function` → `#wrongList` 直接 0 字。`readImport()` 本身只保证「是对象」，`items` 可以是字符串/数字；`importedHtml()` 每次 render 都会跑，所以一坏就是整页空白。同文件 `importData()` 入口的 `data.items || … || []` 也只挡了 falsy。
+
+修法：`items` 一律过 `asArr()`（导入数据入口、列表渲染两处），条目非对象跳过。其余七个辅助键在四套画像 × 六页里没有炸。
+
+顺带固化了「冲突标记闸门」的第二道：`safe_push.sh` 在 bump 之前先 `git grep '^(<<<<<<<|>>>>>>>)'`，命中即 `exit 4` 并列出文件——bump 里的闸门只在「真的跑到 bump」时生效，这道在 rebase/stash 之后就拦。
+
+验证：`test/array-guard.test.js` 加 1 条（种 `tdsat_imported_wrong_v1.items='no'`，错题本不崩且仍画出卡片），旧代码复现 `错题本被坏导入仓库打崩：(readImport(...).items || []).filter is not a function` 1 红，新代码 7 绿。`verify_junk` **4 套 × 六页**全绿。
+
+回归：`node --test` 全量全绿；`verify_junk` 4×6、`verify_flows` 16/16、`verify_runtime` 六页 0 异常。

@@ -107,3 +107,16 @@ test('bump_assets.py 拒绝在任何带冲突标记的文件上跑', () => {
   assert.ok(/def assert_no_conflict_markers\(\)/.test(s), 'bump_assets 缺冲突标记闸门');
   assert.ok(/assert_no_conflict_markers\(\)\n    v = digest\(\)/.test(s), '闸门没有在 main 里先于 digest 执行');
 });
+
+test('导入错题仓库 items 是字符串/数字时，错题本不崩且仍画出卡片', () => {
+  const store = {
+    tdsat_imported_wrong_v1: JSON.stringify({ items: 'no', n: {} }),
+    tdsat_app_v1: JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: false, ts: 1 } } } }, last: null }),
+  };
+  let threw = null, els = null;
+  try {
+    els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els;
+  } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '错题本被坏导入仓库打崩：' + (threw && threw.message));
+  assert.ok(els && els.wrongList && els.wrongList.innerHTML.length > 0, '错题本没画出东西');
+});

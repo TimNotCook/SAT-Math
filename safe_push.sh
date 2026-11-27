@@ -112,6 +112,13 @@ if [ "$stashed" = 1 ]; then
   git stash pop || echo "    !! stash pop 有冲突，请人工处理（改动仍在 stash 中）"
 fi
 
+echo "==> [2.5/4] 冲突标记终检（在线上一旦带 <<<<<<< 就是事故）"
+if git grep -lE '^(<<<<<<<|>>>>>>>)' -- . >/dev/null 2>&1; then
+  echo "!! 这些文件还带 Git 冲突标记，先解决并 git add："
+  git grep -lE '^(<<<<<<<|>>>>>>>)' -- . || true
+  exit 4
+fi
+
 echo "==> [3/4] 基于双方最新代码重算资源版本号"
 python3 bump_assets.py || { echo "!! bump_assets.py 失败，停止"; exit 1; }
 

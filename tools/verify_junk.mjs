@@ -102,6 +102,18 @@ const PROFILES = [
     ['tdsat_jy_state_v1', JSON.stringify([{ answers: [] }])],
     ['tdsat_app_v1', JSON.stringify({ sections: [], last: [] })],
   ]],
+  ['D-auxkeys', [
+    ['tdsat_crossout_v1', JSON.stringify({ 'U1-01': 'x', list: [] })],
+    ['tdsat_scratch_U1-01', JSON.stringify({ strokes: 'x', w: 'wide' })],
+    ['tdsat_scratch_v1', JSON.stringify([])],
+    ['tdsat_exam_last_paper_v1', JSON.stringify('U1-01')],
+    ['tdsat_exam_special_v1', JSON.stringify([{ id: 1, q: 'x' }, 'nope'])],
+    ['tdsat_jiangyi_v1', JSON.stringify({ answers: [], board: 5 })],
+    ['tdsat_theme', JSON.stringify({ mode: 'x' })],
+    ['tdsat_auth_v1', JSON.stringify({ token: { nested: 1 }, uid: [] })],
+    ['tdsat_imported_wrong_v1', JSON.stringify({ items: 5, n: {} })],
+    ['tdsat_boot_retry_v1', 'NaN'],
+  ]],
   ['C-extremes', [
     ['tdsat_app_v1', JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: '', correct: false, ts: -1 } }, marks: [], cursor: -5, submitted: 'yes' }, '2.1': null }, last: { sec: '1.1' } })],
     ['tdsat_exam_suite_results_v1', JSON.stringify([{ date: -1, detail: [{ id: null, correct: 'no', given: 1234567890123 }], total: -3, correct: 1e9, elapsed: -1 }])],
