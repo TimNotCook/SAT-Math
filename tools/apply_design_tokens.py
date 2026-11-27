@@ -21,6 +21,10 @@ SOURCES = [
     "tools/notes-quiz-theme.css",
     "tools/empty-state-theme.css",
 ]
+# 共 14 份：抽在开场 / 模考答题 / 开场标题 / 模考成绩 / 目录+讲义 /
+# 错题·记录空态 / 真题答题页 / 模考开场 / 板块结果 / 结果页底座 /
+# 画布兜底 / 讲义首页 / 讲义做题页 / 记录·错题页头。
+# 29: 错题页筛选行去胶囊。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
