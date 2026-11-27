@@ -1,0 +1,56 @@
+name: apply-progress-rail
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - tools/apply_progress_rail.py
+      - .github/workflows/apply-progress-rail.yml
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: progress-rail
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Inject progress rail
+        run: python3 tools/apply_progress_rail.py
+
+      - name: Syntax check
+        run: node --check exam.js
+
+      - name: Bump asset versions
+        run: |
+          python3 bump_assets.py || true
+          python3 bump_assets.py || true
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then
+            echo "no change, skipping commit"
+            exit 0
+          fi
+          git config user.name "sat-art-bot"
+          git config user.email "sat-art-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "style: 答题顶栏 2px 进度线（exam.js 写 --q-progress）"
+          git push origin HEAD:main
+
+      - name: Trigger pages deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages-deploy.yml --ref main || true
