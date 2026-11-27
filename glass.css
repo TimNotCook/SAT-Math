@@ -1600,6 +1600,10 @@ html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-answers 
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-wrong .drill-result-answers>div:first-child b{color:#b5533b!important;text-decoration:line-through!important;text-decoration-thickness:1px!important;text-decoration-color:#e0c0b6!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-right .drill-result-answers>div:first-child b{color:#2f6b4f!important}
 
+/* 未作答的行：模板会把“你的答案”回退成题库的正确答案（drill.js:91），这里强制成破折号，不说谎 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-blank .drill-result-answers>div:first-child b{font-size:0!important;letter-spacing:0!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-blank .drill-result-answers>div:first-child b::after{content:"—"!important;font-size:14px!important;color:#c9c3b7!important;font-weight:500!important}
+
 /* 查看本题：去掉下划线，弱化到悬停才现 */
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-jump{border-bottom:0!important;padding-bottom:0!important;font-size:11px!important;opacity:.4!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hover .drill-result-jump{opacity:.85!important}
