@@ -82,6 +82,7 @@ test('脏存档体检脚本存在、复用 lib/chrome 与 lib/serve', () => {
   assert.ok(/from '\.\/lib\/serve\.mjs'/.test(s) && /startStaticServer/.test(s), 'verify_junk 没复用静态服务器');
   assert.ok(/tdsat_exam_suite_results_v1/.test(s) && /tdsat_progress_save_v1/.test(s), 'verify_junk 没种关键脏键');
   assert.ok(/PROFILES/.test(s) && /B-halfsession/.test(s) && /C-extremes/.test(s), 'verify_junk 的脏值档案少于三套');
+  assert.ok(/E-wronglog-only/.test(s), 'verify_junk 缺少「只剩 wrongLog 台账」画像（第 23 条）');
 });
 
 test('成绩记录里 detail 是对象、条目是 null 时，错题本与记录页都不崩', () => {
@@ -106,6 +107,19 @@ test('bump_assets.py 拒绝在任何带冲突标记的文件上跑', () => {
   const s = fs.readFileSync(path.join(ROOT, 'bump_assets.py'), 'utf8');
   assert.ok(/def assert_no_conflict_markers\(\)/.test(s), 'bump_assets 缺冲突标记闸门');
   assert.ok(/assert_no_conflict_markers\(\)\n    v = digest\(\)/.test(s), '闸门没有在 main 里先于 digest 执行');
+});
+
+test('作答被清空、只剩 wrongLog 台账时，错题本仍然保留这道「曾经错过」的题', () => {
+  const store = {
+    tdsat_app_v1: JSON.stringify({ sections: { L1: { answers: {}, wrongLog: { 'U1-01': { v: 'A', ts: 1 } } } }, last: null }),
+  };
+  let threw = null, els = null;
+  try {
+    els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els;
+  } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '错题本被「只有 wrongLog」的存档打崩：' + (threw && threw.message));
+  assert.ok(els && /U1-01|1\.1/.test(els.wrongList.innerHTML), '清空作答后，wrongLog 里的错题被错题本弄丢了');
+  assert.ok(/还没有错题记录/.test(els.wrongList.innerHTML) === false, '错题本落到空态，说明 wrongLog 没被收集');
 });
 
 test('导入错题仓库 items 是字符串/数字时，错题本不崩且仍画出卡片', () => {

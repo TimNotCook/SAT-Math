@@ -330,3 +330,11 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`test/grading.test.js` 加 9 条（U+2212 减号、en dash 负分数、em dash、零宽、BOM、`−5` 判对、`–5` 判对、`+5` 仍判错、双空 `−2, 3` 判对）。旧代码复现 4 红（两条 `gridEntry` + 两条 `isCorrect`），新代码 84/0。
 
 回归：`node --test` 全量全绿；`verify_grading_ui` 8/8、`verify_exam_timeout` 13/13、`verify_flows` 16/16。
+
+## 第 23 条：清空作答后「曾经错过」的题从错题本消失（2026-11-27）
+
+复现：`tdsat_app_v1` 里 `sections.L1.answers` 为空、`wrongLog` 里还留着 `U1-01:{v:'A'}`（学生第一次答错、之后把选项再点一次清空，或从别的设备恢复存档只带来 wrongLog）。`wrong-page.js` 的 `collect()` 只从 `answers[q.id]` 出发：`a` 不存在时不看 `wrongLog`，整题直接蒸发。而 `app-core.js setAnswer()` 的注释白纸黑字写着「之后订正/清空作答都不会把『曾经错过』抹掉」，实际没兑现。
+
+修法：`collect()` 的 wrongLog 分支去掉 `a&&a.correct` 前置条件——只要台账里有一个「按当前答案仍然算错」的作答，就记一笔；`a` 存在且已订正时仍由后面的复核循环标 `corrected=true`。
+
+验证：`test/array-guard.test.js` +1 条（only-wrongLog 存档下错题本必须非空且含该题），旧代码 1 红、新代码 8/0；`node --test` 全量全绿；`verify_junk` 5 套 × 六页全绿。
