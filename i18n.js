@@ -327,7 +327,14 @@
     }
   }
 
-  function applyAll() { if (typeof document !== 'undefined') walk(document.body); }
+  var ORIG_TITLE = null;
+  function applyAll() {
+    if (typeof document === 'undefined') return;
+    walk(document.body);
+    /* 浏览器标签标题也一起翻（首屏只翻一次，切回中文用原文还原） */
+    if (ORIG_TITLE == null) ORIG_TITLE = document.title;
+    document.title = getLang() === 'en' ? t(ORIG_TITLE) : ORIG_TITLE;
+  }
 
   function setLang(lang) {
     lang = (lang === 'en') ? 'en' : 'zh';
@@ -336,6 +343,7 @@
       document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
       document.documentElement.setAttribute('data-lang', lang);
       if (lang === 'en') applyAll();
+      else if (ORIG_TITLE != null) document.title = ORIG_TITLE;
     }
     if (global.TDSync) { try { global.TDSync.notify(KEY); } catch (e) {} }
     try { global.dispatchEvent(new CustomEvent('td-lang-change', { detail: { lang: lang } })); } catch (e) {}
