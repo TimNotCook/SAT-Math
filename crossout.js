@@ -73,6 +73,11 @@
     }
   }
   function label(letter, on, locked) {
+    /* 模考屏（body.is-mock）无障碍文本必须跟同屏可见文案走：一律英文，见 docs/UI-COPY.md */
+    var mock = !!(typeof document !== 'undefined' && document.body && document.body.classList.contains('is-mock'));
+    if (mock) return locked
+      ? 'Option ' + letter + (on ? ' crossed out (read only)' : ' (read only)')
+      : (on ? 'Undo cross out ' : 'Cross out ') + letter;
     if (locked) return '选项 ' + letter + (on ? ' 已划掉（只读）' : '（只读）');
     return (on ? '取消划掉选项 ' : '划掉选项 ') + letter;
   }
