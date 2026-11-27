@@ -127,3 +127,20 @@ test('R04-104：三块等边三角形的边长必须相等（每个 ≈120）', 
     assert.ok(Math.max(...s) - Math.min(...s) < 1.5, `等边三角形三边不等：${s.map(v => v.toFixed(1))}`);
   }
 });
+
+test('rawSvg 里每个直角方框都必须真的画成 90°', () => {
+  const bad = [];
+  for (const id of Object.keys(SPECS)) {
+    const s = SPECS[id];
+    if (s.type !== 'rawSvg') continue;
+    const re = /<path d='M ([-\d.]+) ([-\d.]+) L ([-\d.]+) ([-\d.]+) L ([-\d.]+) ([-\d.]+)'/g;
+    let m;
+    while ((m = re.exec(s.svg))) {
+      const [x1, y1, x2, y2, x3, y3] = m.slice(1).map(Number);
+      const ax = x2 - x1, ay = y2 - y1, bx = x3 - x2, by = y3 - y2;
+      const cos = (ax * bx + ay * by) / (Math.hypot(ax, ay) * Math.hypot(bx, by));
+      if (Math.abs(cos) > 0.05) bad.push(`${id} 直角方框 cos=${cos.toFixed(3)}`);
+    }
+  }
+  assert.deepStrictEqual(bad, []);
+});
