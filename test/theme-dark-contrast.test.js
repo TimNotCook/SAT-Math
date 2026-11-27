@@ -82,3 +82,9 @@ test('dark 图片识别导入面板不再白膜灰字', () => {
   assert.match(css, /html\[data-theme="dark"\] \.imgimp-row select,[^}]*background:#2c2c2e!important/);
   assert.match(css, /html\[data-theme="dark"\] \.imgimp-ocr,[^}]*color:#e8e8ea!important/);
 });
+
+test('dark 草稿纸工具条清空按钮可读', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.mist-toolbar button\{color:#c8c8cc!important\}/);
+  assert.match(css, /html\[data-theme="dark"\] \.mist-toolbar \.mist-done\{[^}]*background:#2563eb!important;color:#fff!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.mist-hint\{[^}]*color:#c8c8cc!important/);
+});
