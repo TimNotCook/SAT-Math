@@ -58,6 +58,16 @@ test('错题本：成绩仓库是对象时不崩页，仍渲染出列表容器',
   assert.strictEqual(threw, null, '错题本被非数组成绩仓库打崩了：' + (threw && threw.message));
 });
 
+test('记录页：date 为 null/0 时不显示 1970 年，缺时间显示「—」', () => {
+  const store = { tdsat_exam_suite_results_v1: JSON.stringify([
+    { mode: 'quiz', date: null, total: 1, correct: 1, detail: [], report: {} },
+    { mode: 'quiz', date: 0, total: 1, correct: 0, detail: [], report: {} },
+  ]) };
+  const els = boot(['history-page.js'], store).els;
+  assert.ok(!/1970/.test(els.histList.innerHTML), 'null/0 的 date 被画成了 1970 年');
+  assert.ok((els.histList.innerHTML.match(/—/g) || []).length >= 2, '缺时间没有显示「—」');
+});
+
 test('记录页：成绩仓库是对象时不崩页，落到「还没有记录」占位', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify({ items: [] }),

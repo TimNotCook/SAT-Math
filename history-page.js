@@ -50,7 +50,12 @@
     /* 云端/旧版可能把 Date.now() 存成字符串 '1700...'：new Date('1700...')
        在浏览器里是 Invalid Date，整条记录的时间会显示成「—」。数字字符串
        先转时间戳，ISO 字符串仍交给 Date 自己解析。 */
-    var n = num(t), d = n != null && n > 0 ? new Date(n) : new Date(t);
+    /* null / 0 / false 会被 new Date() 当成 1970-01-01，记录页就会出现
+       「1970 年交卷」的假时间；缺时间一律显示「—」。 */
+    if (t == null || t === '' || t === false || t === true) return '—';
+    var n = num(t);
+    if (n != null) return n > 0 ? new Date(n).toLocaleString('zh-CN', { hour12: false }) : '—';
+    var d = new Date(t);
     return isNaN(d.getTime()) ? '—' : d.toLocaleString('zh-CN', { hour12: false });
   }
   function fmtDur(sec) {

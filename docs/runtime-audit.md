@@ -534,3 +534,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `progress-save.js snapshot()` 取 `cursor` 后直接 `+1`。云端合并或旧版把 `cursor` 写成 `{x:1}` 时，`"[object Object]1"` 经 `Math.min/Math.max` 变 `NaN`，`JSON.stringify` 再写成 `null`；`inspect()` 判 `corrupt`，`canWrite()` 从此永远 false，用户手动存档被永久拒绝。
 
 修法：新增 `cursorNum()`，只接受非负有限数并向下取整，其余归一为 0；snapshot 归一板块 `cursor`、`last` 分支和 fallback 分支都走它。验证：本机 `cursor:{x:1}`，旧代码 `snapshot → corrupt（位置超出范围）`，新代码 `ok`、`position.n=1`、`inspect().status=ok`；该文件 8/8。全量 `node --test` 354/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 49 条：记录页 date 为 null/0 时显示「1970 年」假交卷时间（2026-11-27）
+
+`history-page.js fmtDate()` 把 `null`、`0`、`false` 交给 `new Date(t)`，浏览器把它们当 Unix 零点，记录页头部与「交卷时间」直接显示 1970-01-01。云端旧结构/手工导入缺日期时，用户会以为这是真实记录时间。
+
+修法：`fmtDate` 先拒绝 `null`、空串、布尔；数字只接受 `>0` 的有限值，否则显示「—」；非数字字符串仍交给 `Date` 解析。验证：记录 `date:null` 与 `date:0`，旧代码 innerHTML 出现 `1970`，新代码显示「—」；`test/array-guard.test.js` 25/25。全量 `node --test` 357/0；`verify_junk` 11×7；`verify_flows` 16/16。
