@@ -1,0 +1,4 @@
+/* ==== intro-theme：开场页标题层级（页名降级、单元名当主标题） ==== */
+html:not([data-theme="dark"]) body.exam-page #stage-intro #introTitle{font-size:12px!important;font-weight:600!important;letter-spacing:.16em!important;color:#a8acb4!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .mock-entry-head{margin-bottom:26px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-card-title{font-size:30px!important;font-weight:650!important;letter-spacing:-.01em!important}
