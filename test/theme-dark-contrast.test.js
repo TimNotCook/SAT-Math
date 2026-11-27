@@ -128,3 +128,11 @@ test('dark danger 按钮不再白膜红字', () => {
   assert.match(css, /html\[data-theme="dark"\] \.btn\.danger\{[^}]*background:rgba\(220,38,38,\.14\)!important/);
   assert.match(css, /html\[data-theme="dark"\] \.btn\.danger\{[^}]*color:#ff9a9a!important/);
 });
+
+test('dark 账号输入占位符提亮', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.td-acct-input::placeholder\{[^}]*color:#a8a8ad!important/);
+});
+
+test('dark 桌面侧栏设置按钮深玻璃底', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.site-rail \.td-acct-btn\.rail-settings\{[^}]*background:rgba\(255,255,255,\.06\)!important/);
+});

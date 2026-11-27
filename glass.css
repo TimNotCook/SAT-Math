@@ -444,7 +444,7 @@ html[data-theme="dark"] .site-rail a:hover{background:rgba(255,255,255,.08)!impo
 html[data-theme="dark"] .site-rail a[aria-current]{background:rgba(255,255,255,.14)!important;color:#fff!important}
 html[data-theme="dark"] .site-rail .rail-sep{background:rgba(255,255,255,.12)!important}
 html[data-theme="dark"] .site-rail .rail-back{color:#fff!important}
-html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings{color:#b8b8bd!important}
+html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.16)!important;color:#d8d8dc!important}
 html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings:hover{background:rgba(255,255,255,.08)!important;color:#fff!important}
 
 /* ==================== dark 顶栏配套修复 ====================
@@ -915,4 +915,13 @@ html[data-theme="dark"] .btn.danger:hover{
   background:rgba(220,38,38,.22)!important;
   border-color:rgba(255,107,107,.55)!important;
   color:#ffb3b3!important;
+}
+
+/* ==================== 暗黑主题：账号邮箱输入占位符 ====================
+   浏览器默认 placeholder 是深灰，落在暗色输入框 #1c1c1e 上只有约 4:1；
+   账号面板里的 you@example.com 几乎看不见。只作用于账号输入框，不影响
+   做题页白纸上的填空输入。 */
+html[data-theme="dark"] .td-acct-input::placeholder{
+  color:#a8a8ad!important;
+  opacity:1;
 }
