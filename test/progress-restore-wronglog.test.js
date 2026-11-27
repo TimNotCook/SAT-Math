@@ -232,3 +232,16 @@ test('存档答案条目的 v 是对象时恢复成空串，不写 [object Objec
   assert.equal(typeof live.sections[T.sec].answers[T.qid].v, 'string');
   assert.equal(live.sections[T.sec].answers[T.qid].v, '');
 });
+
+
+test('存档 wrongLog 的 v 是对象/空值时不再写回幽灵错题', () => {
+  const archive = Object.assign(mkArchive({}), {
+    sections: { [T.sec]: { answers: {}, marks: {},
+      wrongLog: { [T.qid]: { v: { x: 1 }, ts: 1 }, 'TD-11-99': { v: '', ts: 1 } } } },
+  });
+  const { SAVE, store } = boot({ sections: {}, last: null }, archive);
+  assert.ok(SAVE.restore().ok);
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.equal(live.sections[T.sec].wrongLog[T.qid], undefined);
+  assert.equal(live.sections[T.sec].wrongLog['TD-11-99'], undefined);
+});

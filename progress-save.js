@@ -272,7 +272,14 @@
       if (!cur.wrongLog || typeof cur.wrongLog !== 'object' || Array.isArray(cur.wrongLog)) cur.wrongLog = {};
       Object.keys(sw).forEach(function (qid) {
         var wIn = sw[qid], wCur = cur.wrongLog[qid];
-        if (!wCur || (Number(wIn && wIn.ts) || 0) >= (Number(wCur && wCur.ts) || 0)) cur.wrongLog[qid] = wIn;
+        /* wrongLog 条目同样可能是 null/裸值/对象 v：原样写回 live 会让
+           错题本把 String({}) 变成「[object Object]」幽灵卡。只收字符串/数字。 */
+        var wv = wIn && typeof wIn === 'object' && !Array.isArray(wIn) ? wIn.v : wIn;
+        if (typeof wv !== 'string' && !(typeof wv === 'number' && isFinite(wv))) return;
+        if (!String(wv).trim()) return;
+        wIn = { v: typeof wv === 'number' ? String(wv) : wv,
+          ts: Number.isFinite(Number(wIn && wIn.ts)) ? Number(wIn.ts) : 0 };
+        if (!wCur || wIn.ts >= (Number(wCur && wCur.ts) || 0)) cur.wrongLog[qid] = wIn;
       });
       var sm = snap.marks && typeof snap.marks === 'object' && !Array.isArray(snap.marks) ? snap.marks : {};
       Object.keys(sm).forEach(function (qid) {
