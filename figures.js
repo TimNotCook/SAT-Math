@@ -235,9 +235,12 @@
     var dk = opts.dataKey ? ' data-angle-key="' + opts.dataKey + '"' : '';
     // white halo keeps a tick label readable when a boundary line runs under it
     var halo = opts.halo ? ' stroke="#ffffff" stroke-width="2" paint-order="stroke fill"' : '';
+    // rot: rotated tick labels (the book prints 13 year labels on a vertical
+    // line graph vertically so they do not collide)
+    var rot = (opts.rot != null) ? ' transform="rotate(' + opts.rot + ' ' + x.toFixed(1) + ' ' + (y + dy).toFixed(1) + ')"' : '';
     return '<text x="' + x.toFixed(1) + '" y="' + (y + dy).toFixed(1) +
       '" font-family="' + FONT + '" font-size="' + sz + '" fill="' + fill +
-      '" ' + a + dk + halo + '>' + esc(s) + '</text>';
+      '" ' + a + dk + halo + rot + '>' + esc(s) + '</text>';
   }
   function line(x1, y1, x2, y2, w, color) {
     return '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) +
@@ -526,7 +529,7 @@
     var gstepX = (o.minor && o.minor.x) ? o.minor.x : x.step;
     var gstepY = (o.minor && o.minor.y) ? o.minor.y : y.step;
     if (o.grid !== false) {
-      for (var gx = x.min; gx <= x.max + 1e-9; gx += gstepX) {
+      for (var gx = (o.grid === 'y' ? x.max + 1 : x.min); gx <= x.max + 1e-9; gx += gstepX) {
         out.push('<line x1="' + PX(gx).toFixed(1) + '" y1="' + PY(y.min).toFixed(1) +
           '" x2="' + PX(gx).toFixed(1) + '" y2="' + PY(y.max).toFixed(1) + '" stroke="' + GRID + '" stroke-width="1"/>');
       }
@@ -569,7 +572,7 @@
     if (o.origin === 'O' && zx == null) labOut.push(txt(PX(0), PY(axYv) + 17, 'O', { size: 11, fill: FAINT }));
     if (o.origin === 'O' && zx != null) labOut.push(txt(PX(0) - yLabPad, PY(axYv) + 4, 'O', { anchor: 'end', size: 11, fill: FAINT, halo: o.axesAt === 'zero' }));
     (x.cats || []).forEach(function (c) {
-      labOut.push(txt(PX(c[1]), PY(axYv) + 17, c[0], { size: 11, fill: FAINT }));
+      labOut.push(txt(PX(c[1]), PY(axYv) + (x.rot ? 12 : 17), c[0], { size: 11, fill: FAINT, rot: x.rot }));
     });
     if (o.yAxis !== false) {
       var gy0 = (y.l0 != null) ? y.l0 : y.min;
