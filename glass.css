@@ -1285,10 +1285,10 @@ html:not([data-theme="dark"]) body.drill-page #questionView .drill-page-button:h
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-next-button{height:34px!important;min-height:34px!important;padding:0 14px!important;border-radius:8px!important;background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;font-weight:600!important}
 
 /* ==== mock-theme：模考开场页纸面化（只作用于 .is-mock，不碰单元抽查） ==== */
-html:has(body.exam-page){background:#f7f6f2!important}
-/* 左栏底座：body 高度不等视口，用 background-attachment:fixed 直接铺到视口 */
-html:not([data-theme="dark"]) body.exam-page.is-mock{background:linear-gradient(90deg,#fffdfa 0 216px,#f7f6f2 216px 100%)!important;background-attachment:fixed!important}
-@media(max-width:999px){html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!important}}
+/* 底图铺在 html 上：body 高度不等视口，只有 html 的底才铺满整块画布 */
+html:has(body.exam-page.is-mock){background:linear-gradient(90deg,#fffdfa 0 216px,#f7f6f2 216px 100%)!important;background-attachment:fixed!important;background-repeat:no-repeat!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock{background:transparent!important;min-height:100vh!important}
+@media(max-width:999px){html:has(body.exam-page.is-mock){background:#f7f6f2!important}}
 
 /* 开场层里那些“看不见的容器”：底色与描边全拆 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-start-main,
@@ -1330,7 +1330,7 @@ html:not([data-theme="dark"]) body.exam-page.is-mock .ms-included li{display:fle
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-included svg{width:12px!important;height:12px!important;flex:none!important;margin-top:3px!important;color:#a8acb4!important;stroke:#a8acb4!important}
 
 /* 侧栏 */
-html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail{background:transparent!important;border-right:0!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail{background:transparent!important;border-right:1px solid #e7e3da!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail .rail-brand{font-size:14px!important;font-weight:600!important;color:#20242b!important;padding:4px 12px 18px!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail a{color:#5c6169!important;font-size:13px!important;font-weight:500!important;border-radius:0!important;padding:10px 12px 10px 18px!important;background:transparent!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .site-rail a:hover{background:transparent!important;color:#20242b!important}
@@ -1411,3 +1411,8 @@ html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions 
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions .btn.primary{background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions .btn:not(.primary){background:transparent!important;border:1px solid #e7e3da!important;color:#5c6169!important}
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions .btn:not(.primary):hover{border-color:#c9c3b7!important;color:#20242b!important}
+
+/* ==== result-rail-base：板块结果页左栏底座（铺在 html 上，才能铺满视口） ==== */
+html:has(body.drill-page #resultView:not([hidden])){background:linear-gradient(90deg,#fffdfa 0 216px,#f7f6f2 216px 100%)!important;background-attachment:fixed!important;background-repeat:no-repeat!important}
+html:not([data-theme="dark"]) body.drill-page:has(#resultView:not([hidden])){background:transparent!important}
+@media(max-width:999px){html:has(body.drill-page #resultView:not([hidden])){background:#f7f6f2!important}}
