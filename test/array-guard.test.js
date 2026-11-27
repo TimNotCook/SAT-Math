@@ -339,3 +339,17 @@ test('导入项 key 归一后必须实际用于卡片 id，不能再拼原始对
   assert.match(src, /id:'IMP-'\+\(itemKey\|\|i\)/,
     '卡片 id 必须用归一后的 itemKey；只用变量不接线等于没修');
 });
+
+test('记录页：priority 条目是数组时不能画出一条字段全「—」的补强行', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1, mode: 'mock', total: 22, correct: 5, elapsed: 60, detail: [],
+      report: { priority: [[]] }, estimate: {},
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '数组 priority 打崩记录页：' + (threw && threw.message));
+  assert.ok(!/hist-prio-row/.test(els.histList.innerHTML), '数组 priority 被画成了补强行');
+  assert.ok(/暂无补强建议/.test(els.histList.innerHTML), '没有有效 priority 时应显示空态');
+});

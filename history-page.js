@@ -105,7 +105,7 @@
     }).join('') + '</div>';
   }
   function prioRows(report) {
-    var prio = asArr(asObj(report).priority).filter(function (p) { return p && typeof p === 'object'; });
+    var prio = asArr(asObj(report).priority).filter(isDetail);
     if (!prio.length) return '<div class="hist-empty">暂无补强建议。</div>';
     return '<div class="hist-prio">' + prio.slice(0, 5).map(function (p) {
       var ids = asArr(p && p.wrongIds).map(txt).filter(Boolean);
