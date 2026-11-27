@@ -60,3 +60,12 @@ test('成绩页：明细/units/topics/priority 里的数组条目按幽灵记录
   assert.match(seg, /const topics = asArr\(rep\.topics\)\.filter\(isRec\)/, 'topics 还只判 typeof');
   assert.match(seg, /const priority = asArr\(rep\.priority\)\.filter\(isRec\)/, 'priority 还只判 typeof');
 });
+
+test('成绩页：detail.correct 是字符串 "false" 时不能按 truthy 当答对', () => {
+  const resSeg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
+  assert.match(resSeg, /detail0\.filter\(d => isRightFlag\(d\.correct\)\)/, '成绩统计还在按 truthy 数答对');
+  const listSeg = js.slice(js.indexOf('function renderResultList'), js.indexOf('/* 本次错题按错因类型聚合'));
+  assert.match(listSeg, /const okFlag = isRightFlag\(d\.correct\)/, '逐题列表没有把 correct 归一成 okFlag');
+  assert.ok(!/d\.correct \?/.test(listSeg), '逐题列表还在按 truthy 渲染对勾/颜色');
+  assert.ok(!/filter\(d => !d\.correct\)/.test(listSeg), '错题 tab 还在按 truthy 过滤');
+});

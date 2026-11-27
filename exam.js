@@ -1109,7 +1109,7 @@
                points: ok ? 1 : 0,
                seconds: Math.round((a.spent || 0) / 1000), marked: !!a.marked };
     });
-    const correct = detail.filter(d => d.correct).length;
+    const correct = detail.filter(d => isRightFlag(d.correct)).length;
     const est = C.estimateScore(MODE, correct, detail.length, S.path);
     const rep = C.weaknessReport(detail, UNITS, mergedState());
     const elapsed = Math.round((Math.min(Date.now(), S.endsAt) - S.startedAt) / 1000);
@@ -1134,7 +1134,7 @@
        现算，算不出的显示「—」。 */
     const detail0 = asArr(r.detail).filter(isRec);
     const total = Number.isFinite(Number(r.total)) && Number(r.total) > 0 ? Number(r.total) : detail0.length;
-    const correct = Number.isFinite(Number(r.correct)) ? Number(r.correct) : detail0.filter(d => d.correct).length;
+    const correct = Number.isFinite(Number(r.correct)) ? Number(r.correct) : detail0.filter(d => isRightFlag(d.correct)).length;
     const elapsed = Number.isFinite(Number(r.elapsed)) && Number(r.elapsed) > 0 ? Number(r.elapsed) : 0;
     const durationSec = Number.isFinite(Number(r.durationSec)) && Number(r.durationSec) > 0 ? Number(r.durationSec) : 0;
     const est = asObj(r.estimate), rep = asObj(r.report);
@@ -1226,7 +1226,7 @@
     renderResultList();
   }
   function renderResultList() {
-    const r = S.result, allD = asArr(r.detail).filter(isRec), list = resultTab === 'wrong' ? allD.filter(d => !d.correct) : allD;
+    const r = S.result, allD = asArr(r.detail).filter(isRec), list = resultTab === 'wrong' ? allD.filter(d => !isRightFlag(d.correct)) : allD;
     const AN = window.TD_ANALYSIS;
     $('resList').innerHTML = list.map(d => {
       const did = safeText(d.id) || '—';
@@ -1234,7 +1234,8 @@
       const dUnit = safeText(d.unit) || '—', dType = safeText(d.type), dPoints = safeNum(d.points), dSeconds = safeNum(d.seconds) || 0;
       const dTopic = safeText(d.topic), dSource = safeText(d.source), dGiven = safeText(d.given), dAnswer = safeText(d.answer), dHint = safeText(d.hint), dPos = safeText(d.pos) || '?';
       let causeHtml = '';
-      if (!d.correct && AN && !OFFICIAL) {
+      const okFlag = isRightFlag(d.correct);
+      if (!okFlag && AN && !OFFICIAL) {
         const q = BANK.find(x => x.id === did) || {};
         const a = AN.analyze(q, dGiven, (window.TD_TEXT || {})[did]);
         causeHtml = `<div class="cause-box"><b>错因 · ${esc(a.title)}</b><p>${esc(a.cause)}</p><p class="fix">${esc(a.fix)}</p></div>`;
@@ -1242,15 +1243,15 @@
       const meta = OFFICIAL
         ? 'U' + dUnit + ' · ' + (dType === 'grid' ? 'Grid-in' : 'Multiple choice') + ' · ' + (dPoints == null ? '—' : dPoints) + ' pt'
         : 'U' + dUnit + ' · ' + (dType === 'grid' ? '填空' : '选择') + ' · 得 ' + (dPoints == null ? '—' : dPoints) + ' 分';
-      return `<div class="rev-item ${d.correct ? 'ok' : 'no'}">
-      <div class="badge">${d.correct ? '✓' : '✗'}</div>
+      return `<div class="rev-item ${okFlag ? 'ok' : 'no'}">
+      <div class="badge">${okFlag ? '✓' : '✗'}</div>
       <div class="body"><div class="ttl">Q${esc(dPos)}${OFFICIAL ? '' : ' · ' + esc(dTopic)}
         <span class="tiny muted">${meta}${d.from === 'wrong' ? (OFFICIAL ? ' · Previously missed' : ' · 历史错题') : ''}${d.marked ? (OFFICIAL ? ' · Marked' : ' · 曾标记') : ''}</span></div>
         <div class="sub">${OFFICIAL ? '' : esc(dSource) + ' · '}${OFFICIAL ? 'Time ' : '用时 '}${fmt(dSeconds * 1000)}</div>
-        <div class="ans"><span>${OFFICIAL ? 'Your answer' : '你的答案'} <b style="color:${d.correct ? 'var(--ok)' : 'var(--bad)'}">${esc(dGiven || '—')}</b></span>
+        <div class="ans"><span>${OFFICIAL ? 'Your answer' : '你的答案'} <b style="color:${okFlag ? 'var(--ok)' : 'var(--bad)'}">${esc(dGiven || '—')}</b></span>
           <span>${OFFICIAL ? 'Correct answer' : '正确答案'} <b>${esc(dAnswer || '—')}</b></span></div>
         ${crossed.length ? `<div class="sub crossout-note">${OFFICIAL ? 'Crossed out: ' : '已划掉：'}${crossed.join(', ')}</div>` : ''}
-        ${!d.correct && dHint && !OFFICIAL ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(dHint)}</div>` : ''}
+        ${!okFlag && dHint && !OFFICIAL ? `<div class="sub" style="margin-top:6px;color:var(--blue-strong)">提示：${esc(dHint)}</div>` : ''}
         ${causeHtml}
       </div></div>`;
     }).join('') || `<div class="small muted">${OFFICIAL ? 'No incorrect answers' : '无错题'}</div>`;
