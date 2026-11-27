@@ -436,3 +436,13 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`tools/verify_answer_value.mjs` 种一场 22 题模块一存档，第 3 题（U1-03，grid）`v:{x:1}`、第 4 题 `v:['A']`、第 5 题 `v:3`。旧代码恢复后输入框值 `"[object Object]"`、落库仍是对象；新代码输入框为空串、`M1-03` 落库 `""`，0 异常。`test/session.test.js` +1 条（对象/数组清空、数字转字符串）。
 
 回归：`node --test` 326/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。
+
+## 第 35 条：成绩记录里的对象作答被错因汇总判成「概念没掌握」（2026-11-27）
+
+`analysis.analyze` 直接 `String(given)`。成绩记录是云端合并/旧版本产物，`detail.given` 可能是 `{x:1}` 或 `['A']` 时，`String({})` 得到 `"[object Object]"`，被判成「写了答案但知识点没掌握」；结果页自己的答案栏走 `safeText` 显示为空，两处口径相反，错因分类也就错了。
+
+修法：`given` 是对象/数组/函数时按空串处理，和展示层 `safeText` 对齐；字符串/数字仍正常分析。
+
+验证：`tools/verify_result_given.mjs` 种一份已交卷 44 题模考会话，`result.detail[0].given={x:1}`，点 Start 进结果页。旧代码类型汇总为「知识点概念未掌握」并给出公式类建议；新代码归为「未作答 / 时间分配」，页面无 `[object Object]`，0 异常。新增 `test/analysis-shape.test.js` 2 条（对象/数组→blank、正常字符串仍分析）。
+
+回归：`node --test` 330/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。

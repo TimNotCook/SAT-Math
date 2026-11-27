@@ -1,0 +1,18 @@
+'use strict';
+/* analysis 的作答归一化：成绩记录里的 given 可能是对象/数组（云端合并/旧版本）。
+   这类值必须按「未作答」处理，不能 String 成 [object Object] 后被判成概念错。 */
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+global.window = { TD_TEXT: {} };
+window.window = window;
+require('../analysis.js');
+const AN = window.TD_ANALYSIS;
+
+test('对象/数组作答 → 未作答，不误判为知识点概念错', () => {
+  assert.equal(AN.analyze({ type: 'grid' }, { x: 1 }).type, 'blank');
+  assert.equal(AN.analyze({ type: 'grid' }, ['A']).type, 'blank');
+});
+
+test('真正的字符串答案仍走正常分析', () => {
+  assert.notEqual(AN.analyze({ type: 'grid', value: 5 }, '6').type, 'blank');
+});

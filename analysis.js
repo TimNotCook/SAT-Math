@@ -129,7 +129,10 @@
   /* ---------- 主分析 ---------- */
   function analyze(q, given, text) {
     q = q || {};
-    given = String(given == null ? '' : given).trim();
+    /* 成绩记录/云端合并里的作答可能是对象或数组：String({}) 会得到
+       "[object Object]"，被误判成「写了答案但概念没掌握」，而结果页显示的是空答案。
+       对象一律按未作答处理，和 safeText 的展示口径保持一致。 */
+    given = (given == null || typeof given === 'object' || typeof given === 'function') ? '' : String(given).trim();
     text = text || (window.TD_TEXT || {})[q.id] || {};
     var correct = String(q.answer == null ? '' : q.answer).trim();
     var topic = String(q.topic || ''), section = String(q.section || ''), stem = String(text.stem || q.stem || '');
