@@ -1619,10 +1619,10 @@ html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hove
 html:not([data-theme="dark"]) .drill-result-row.is-blank .drill-result-answers>div:first-child b{font-size:0!important;letter-spacing:0!important}
 html:not([data-theme="dark"]) .drill-result-row.is-blank .drill-result-answers>div:first-child b::after{content:"—"!important;font-size:14px!important;color:#c9c3b7!important;font-weight:500!important}
 
-/* 讲义做题页：图卡与题干同左缘，宽 620，不再居中缩进 */
-html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure{margin-left:0!important;margin-right:auto!important;max-width:620px!important;background:#fffdfa!important;border:1px solid #efebe2!important;border-radius:8px!important;box-shadow:none!important;padding:16px 18px!important}
-html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure svg,
-html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure img{max-width:100%!important;height:auto!important}
+/* 讲义做题页：图卡左对齐题干，但图本身限高——不能因为卡宽了就把矢量图撑大 */
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure{margin-left:0!important;margin-right:auto!important;max-width:620px!important;width:auto!important;background:#fffdfa!important;border:1px solid #efebe2!important;border-radius:8px!important;box-shadow:none!important;padding:16px 18px!important;display:inline-block!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure svg{max-height:320px!important;max-width:100%!important;width:auto!important;height:auto!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure img{max-height:320px!important;max-width:100%!important;width:auto!important;height:auto!important}
 
 /* 讲义做题页页脚：上一题/交本节是文字钮，下一题是唯一实心蓝 */
 html:not([data-theme="dark"]) body.jy-page #jyQuiz .drill-footer{background:#f7f6f2!important;border-top:1px solid #e7e3da!important;box-shadow:none!important}
