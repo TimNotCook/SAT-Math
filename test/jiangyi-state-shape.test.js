@@ -75,3 +75,10 @@ test('讲义成绩仓库不是数组时交卷不崩，记录仍写入数组', ()
   } catch (e) { threw = e; }
   assert.strictEqual(threw, null, '成绩仓库是对象时交卷失败：' + (threw && threw.message));
 });
+
+
+test('讲义 submitted 是字符串 "false" 时不当作已交卷', () => {
+  const store = { tdsat_jiangyi_v1: JSON.stringify({ answers: {}, submitted: { '1.1': 'false' }, cursor: 0 }) };
+  const J = boot(store).TD_JY;
+  assert.equal(J.submittedOf('1.1'), null);
+});

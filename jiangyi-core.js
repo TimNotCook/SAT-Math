@@ -277,7 +277,12 @@
     save();
     return rec;
   }
-  function submittedOf(section) { return S.submitted[section] || null; }
+  /* 交卷状态也可能是字符串 'false'：直接返回会被当成交过卷，小节磁贴标完成。 */
+  function submittedOf(section) {
+    var v = S.submitted[section];
+    if (isRightFlag(v)) return { at: 0, correct: 0, total: 0 };
+    return isObj(v) ? v : null;
+  }
 
   /* ---------- 来源标签：3.4 · p131 #12（学生一眼能回到原书那一页） ---------- */
   function sourceLabel(q) {
