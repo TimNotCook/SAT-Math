@@ -447,6 +447,85 @@ html[data-theme="dark"] .site-rail .rail-back{color:#fff!important}
 html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.16)!important;color:#d8d8dc!important}
 html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings:hover{background:rgba(255,255,255,.08)!important;color:#fff!important}
 
+/* exam 页在暗黑下刻意保持 Bluebook 白纸（见上「模考/抽查页始终按白纸呈现」），
+   那就必须把浅色 token 也一起恢复：dark 的 --ink 是 #e8e8ea，白底上成绩页标题、
+   副标题、CTA 文字对比度只剩 1.4:1，等于看不见。顺带把 rail 从深栏浅字改回白栏深字
+   （rail 在 exam 页由 app.css 强制 #fff，dark 的 .site-rail 配色只适合深栏）。 */
+html[data-theme="dark"] body.exam-page{
+  --ink:#12233f; --ink-2:#28365a; --sub:#51648a; --faint:#8294b4;
+  --line:#d2e0f1; --line-soft:#eef3fb; --line-strong:#bcd0e8;
+  --paper:#fff; --wash:#eef4fd; --navy:#12233f; --navy-2:#1b3a66;
+  --blue:#2563eb; --blue-strong:#1d4ed8; --blue-soft:#e8f0fe; --blue-line:#c2d4ea;
+  --glass-bg:rgba(255,255,255,.72); --glass-bg-strong:rgba(255,255,255,.86);
+  --appbar-bg:rgba(255,255,255,.55);
+  color:var(--ink)!important;
+}
+html[data-theme="dark"] body.exam-page .site-rail{background:#fff!important;border-color:#e6eaf0!important}
+html[data-theme="dark"] body.exam-page .site-rail .rail-brand,
+html[data-theme="dark"] body.exam-page .site-rail a{color:#0f2744!important}
+html[data-theme="dark"] body.exam-page .site-rail a:hover{background:#f3f7fc!important;color:#1d4ed8!important}
+html[data-theme="dark"] body.exam-page .site-rail a[aria-current]{background:#eaf1fd!important;color:#1d4ed8!important}
+html[data-theme="dark"] body.exam-page .site-rail .rail-sep{background:#e6eaf0!important}
+html[data-theme="dark"] body.exam-page .site-rail .rail-back{color:#1d4ed8!important}
+html[data-theme="dark"] body.exam-page .site-rail .td-acct-btn.rail-settings{background:#fff!important;border-color:#e4e9f1!important;color:#4b5b70!important}
+/* 普通 .btn 的暗黑补丁（rgba(255,255,255,.08) 底 + #e8e8ea 字）同样只适合深底；
+   exam 页是白纸，成绩页「Review Missed Questions / Take Another Test」会变成白底浅字。
+   这里把 exam 页的次要按钮整体还原成浅色主题观感，danger 仍保留红底白字。 */
+html[data-theme="dark"] body.exam-page .btn:not(.primary):not(.danger):not(.ghost){
+  background:#fff!important;border-color:#bcd0e8!important;color:#12233f!important;
+  box-shadow:0 1px 2px rgba(35,35,40,.06)!important;
+}
+html[data-theme="dark"] body.exam-page .btn:not(.primary):not(.danger):not(.ghost):hover{
+  background:#f6f9ff!important;border-color:#2563eb!important;color:#12233f!important;
+}
+html[data-theme="dark"] body.exam-page .btn.danger{
+  background:#c0392b!important;border-color:#c0392b!important;color:#fff!important;
+}
+/* 成绩页副标题（时间 · 交卷方式 · 路径）走的是 --bb-sub，而 --bb-sub 是
+   var(--sub)，暗黑下 --sub 变浅银 #8e8e93 → 白纸底上 3.0:1。这里直接钉深。
+   注意这条不能靠 body 上的 token 覆盖：多次实测它在 result 阶段仍解析成浅银。 */
+html[data-theme="dark"] body.exam-page #resSub{color:#51648a!important}
+/* 图形题下方的「Show graph answer」切换按钮吃 --paper/--blue 两个 token。
+   做题页恢复块覆盖了大部分，但在 answer 阶段仍会解析成深底 + 深蓝（1.2:1）。
+   白纸卷面里它应当是白底蓝字，直接钉住。 */
+html[data-theme="dark"] body.exam-page .td-line-toggle{
+  background:#fff!important;border-color:#c7dbff!important;color:#1d4ed8!important;
+}
+html[data-theme="dark"] body.exam-page .td-line-toggle:hover{
+  background:#eef4ff!important;border-color:#1d4ed8!important;color:#1d4ed8!important;
+}
+html[data-theme="dark"] body.exam-page .td-line-toggle[aria-expanded="true"]{
+  background:#f5f7fa!important;border-color:#dfe6ef!important;color:#39424f!important;
+}
+
+/* 外壳页的浅底是写死在 app.css 的 !important（body.site-shell.shell-history{background:#f5f7fb}），
+   选择器带两个 class，压过 dark 的 html[data-theme] body。history 页在暗黑下就变成
+   浅底 + 浅银标题（对比度 1.2:1，标题整条看不见）。这里给带外壳 class 的 body 补深底。 */
+html[data-theme="dark"] body.site-shell.shell-history,
+html[data-theme="dark"] body.drill-page.shell-drill,
+html[data-theme="dark"] body.drill-page.jy-page{
+  background-color:#0a0a0c!important;min-height:100vh;
+}
+html[data-theme="dark"] html:has(body.shell-history),
+html[data-theme="dark"] html:has(body.shell-drill),
+html[data-theme="dark"] html:has(body.jy-page){
+  background:#0a0a0c!important;
+}
+
+/* 空态面板（错题回顾 / 模考记录）在 app.css 里是写死的白卡，dark 下沿用会产生
+   白底 + 浅银字（「还没有错题记录」整块看不见）。这两页本来就是深色主题页，
+   把卡片改成深面 + 浅字；里面那个蓝色链接单独提亮。 */
+html[data-theme="dark"] .empty-panel,
+html[data-theme="dark"] .hist-empty{
+  background:#1c1c1e!important;border-color:rgba(255,255,255,.12)!important;color:#d8d8dc!important;
+}
+html[data-theme="dark"] .empty-panel h2,
+html[data-theme="dark"] .empty-panel p,
+html[data-theme="dark"] .hist-empty{
+  color:#d8d8dc!important;
+}
+html[data-theme="dark"] .hist-empty a{color:#8ab4ff!important}
+
 /* ==================== dark 顶栏配套修复 ====================
    顶栏背景已在源头变量化（bluebook.css → --appbar-bg），light/dark 各自正确。
    本层只处理仍写死浅色的配套件：导航字色、选中胶囊、品牌字、题库/退出/账号胶囊。 */
@@ -564,6 +643,26 @@ html[data-theme="dark"] .exam-special-chip span{color:#e8e8ea!important}
 html[data-theme="dark"] .exam-special-chip small{color:#9a9aa0!important}
 html[data-theme="dark"] .exam-special-chip.on span{color:#f5f5f7!important}
 html[data-theme="dark"] .exam-special-chip.on small{color:#c8c8cc!important}
+/* 上面这套白膜胶囊只适合深色主题页。exam 页是刻意保持的 Bluebook 白纸，
+   白膜落在白底上等于白底 + 浅银字（抽查开场四个「U1 专项练习」胶囊对比度 1.2:1）。
+   这里在白纸语境下恢复浅色主题的白底深字，选中态用淡蓝。 */
+html[data-theme="dark"] body.exam-page .exam-special-chip,
+html[data-theme="dark"] body.exam-page .exam-page .exam-special-chip{
+  background:#fff!important;border-color:#e4e9f1!important;color:#12233f!important;
+  box-shadow:0 1px 2px rgba(35,35,40,.06)!important;
+}
+html[data-theme="dark"] body.exam-page .exam-special-chip:hover,
+html[data-theme="dark"] body.exam-page .exam-page .exam-special-chip:hover{
+  background:#f6f9ff!important;border-color:#c3d8fb!important;transform:none!important;
+  box-shadow:0 1px 2px rgba(35,35,40,.06)!important;
+}
+html[data-theme="dark"] body.exam-page .exam-special-chip.on,
+html[data-theme="dark"] body.exam-page .exam-page .exam-special-chip.on{
+  background:#eef4fd!important;border-color:#c2d4ea!important;color:#1d4ed8!important;
+}
+html[data-theme="dark"] body.exam-page .exam-special-chip span{color:#12233f!important}
+html[data-theme="dark"] body.exam-page .exam-special-chip small{color:#51648a!important}
+html[data-theme="dark"] body.exam-page .exam-special-chip.on span{color:#1d4ed8!important}
 
 /* ---------- hover 起伏收敛（负责人要求：drill 板块/Topic 列表行起伏过大） ---------- */
 .drill-board-nav-item:hover,.drill-section-row:hover{
