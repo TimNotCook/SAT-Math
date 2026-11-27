@@ -6,30 +6,28 @@
 <title>讲义 · 线性方程与函数</title>
 <style>
   :root{
-    --bar-bg:rgba(247,246,242,.94); --paper:#f7f6f2; --ink:#20242b; --ink2:#4a4f57; --sub:#8d9199; --faint:#a8acb4;
-    --line:#e7e3da; --line-soft:#efece4; --sand:#f4eddf; --sand-ink:#4a4237;
-    --sand-k:#a08a5e; --sand-rule:#c9b48a; --card:#ffffff; --blue:#2563eb;
+    --bar-bg:rgba(252,252,252,.92); --paper:#fcfcfc; --ink:#12233f; --ink2:#28365a; --sub:#51648a; --faint:#8294b4;
+    --line:#d2e0f1; --line-soft:#eef3fb; --card:#ffffff; --blue:#2563eb; --btn:#2563eb; --btn-ink:#ffffff;
+    /* 变量名沿用纸面时期的叫法，值换回原主题：淡蓝软底 + 蓝图蓝标注 */
+    --sand:#eef4fd; --sand-ink:#12233f; --sand-k:#1d4ed8; --sand-rule:#c2d4ea;
   }
-  html.theme-dark{
-    --paper:#121214; --ink:#e9e9ec; --ink2:#b9b9c1; --sub:#8c8c95; --faint:#6d6d76;
-    --line:#2a2a2f; --line-soft:#232327; --sand:#211c14; --sand-ink:#cfc2a8;
-    --sand-k:#b09468; --sand-rule:#8d7a55; --card:#18181b; --blue:#3b76f0; --bar-bg:rgba(18,18,20,.92);
+  html[data-theme="dark"]{
+    --bar-bg:rgba(22,22,25,.94); --paper:#0a0a0c; --ink:#e8e8ea; --ink2:#c8c8cc; --sub:#8e8e93; --faint:#6e6e73;
+    --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06); --card:#1c1c1e;
+    --blue:#e8e8ea; --btn:#e8e8ea; --btn-ink:#1c1c1e;
+    --sand:#1e1e21; --sand-ink:#e8e8ea; --sand-k:#9bb2d4; --sand-rule:rgba(255,255,255,.16);
   }
-  @media (prefers-color-scheme:dark){
-    html:not(.theme-light){
-      --paper:#121214; --ink:#e9e9ec; --ink2:#b9b9c1; --sub:#8c8c95; --faint:#6d6d76;
-      --line:#2a2a2f; --line-soft:#232327; --sand:#211c14; --sand-ink:#cfc2a8;
-      --sand-k:#b09468; --sand-rule:#8d7a55; --card:#18181b; --blue:#3b76f0; --bar-bg:rgba(18,18,20,.92);
-    }
-    html:not(.theme-light) .diagram [stroke="#e2ded4"]{stroke:var(--line)}
-    html:not(.theme-light) .diagram [stroke="#efece4"]{stroke:var(--line-soft)}
-    html:not(.theme-light) .diagram [stroke="#20242b"]{stroke:var(--ink)}
-    html:not(.theme-light) .diagram [fill="#20242b"]{fill:var(--ink)}
-    html:not(.theme-light) .diagram [fill="#a8acb4"]{fill:var(--faint)}
-    html:not(.theme-light) .diagram [fill="#a8925f"]{fill:var(--sand-k)}
-  }
+  /* 讲义矢量图里是纸面时期的固定六色，按角色换成当前主题的 token（浅/深通用） */
+  .diagram [stroke="#e2ded4"]{stroke:var(--line)}
+  .diagram [stroke="#efece4"]{stroke:var(--line-soft)}
+  .diagram [stroke="#20242b"]{stroke:var(--ink)}
+  .diagram [stroke="#a8925f"]{stroke:var(--ink2)}
+  .diagram [fill="#20242b"]{fill:var(--ink)}
+  .diagram [fill="#a8acb4"]{fill:var(--faint)}
+  .diagram [fill="#a8925f"]{fill:var(--ink2)}
   *{box-sizing:border-box}
-  html{background:var(--paper);color-scheme:light dark}
+  html{background:var(--paper);color-scheme:light}
+  html[data-theme="dark"]{color-scheme:dark}
   body{margin:0;background:var(--paper);color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
     -webkit-font-smoothing:antialiased;line-height:1.75}
@@ -73,13 +71,6 @@
   .eq{font-family:"SF Pro Display","Helvetica Neue",Georgia,serif;font-size:19px;color:var(--ink);padding:2px 0;margin:0 0 14px;letter-spacing:.01em}
   .diagram{border:1px solid var(--line);background:var(--card);border-radius:2px;padding:18px 10px 8px;margin:0 0 10px}
   .diagram svg{display:block;width:100%;height:auto}
-  /* 讲义矢量图用的是固定六色，深色下按角色换成当前纸面的墨色，否则线会黑进纸里看不见 */
-  html.theme-dark .diagram [stroke="#e2ded4"]{stroke:var(--line)}
-  html.theme-dark .diagram [stroke="#efece4"]{stroke:var(--line-soft)}
-  html.theme-dark .diagram [stroke="#20242b"]{stroke:var(--ink)}
-  html.theme-dark .diagram [fill="#20242b"]{fill:var(--ink)}
-  html.theme-dark .diagram [fill="#a8acb4"]{fill:var(--faint)}
-  html.theme-dark .diagram [fill="#a8925f"]{fill:var(--sand-k)}
   .cap{font-size:11.5px;color:var(--sub);margin:0 0 20px}
   .eg{background:var(--sand);border-radius:2px;padding:18px 20px;margin:0 0 16px}
   .eg-k{font-size:10.5px;letter-spacing:.14em;color:var(--sand-k);font-weight:600;margin:0 0 8px}
@@ -91,7 +82,7 @@
   .go-l{display:flex;gap:18px;font-size:12.5px}
   .go-l a{color:var(--sub);text-decoration:none}
   .go-l a:hover{color:var(--ink)}
-  .btn{display:inline-flex;align-items:center;height:42px;padding:0 22px;border-radius:8px;background:var(--blue);color:#fff;font-size:13.5px;font-weight:600;text-decoration:none;border:1px solid var(--blue)}
+  .btn{display:inline-flex;align-items:center;height:42px;padding:0 22px;border-radius:8px;background:var(--btn);color:var(--btn-ink);font-size:13.5px;font-weight:600;text-decoration:none;border:1px solid var(--btn)}
   .btn:hover{filter:brightness(1.05)}
   .empty{font-size:14px;color:var(--sub)}
 
@@ -104,7 +95,7 @@
     .go{flex-direction:column;align-items:flex-start}
   }
 </style>
-<script>try{var t=localStorage.getItem("tdsat_theme");if(t&&/dark/i.test(t)){document.documentElement.classList.add("theme-dark")}else if(t){document.documentElement.classList.add("theme-light")}}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tdsat_theme");document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")}catch(e){}</script>
 </head>
 <body>
 <div class="bar"><div class="bar-in">
@@ -194,7 +185,7 @@
   document.getElementById('goL').innerHTML = links.join('');
   document.getElementById('goBtn').textContent = '去做 ' + sec + ' 的题';
 
-  // —— 一分钟检查：点一下划掉，本节单独记 ——
+  // — ध 一分钟检查：点一下划掉，本节单独记 —
   var CKEY = 'lesson_check_v1:' + sec, cm = {};
   try { cm = JSON.parse(localStorage.getItem(CKEY) || '{}'); } catch (e) {}
   [].forEach.call(document.querySelectorAll('.check li'), function (li) {
@@ -207,7 +198,7 @@
     });
   });
 
-  // —— 下次打开回到上次停下的位置 ——
+  // — 下次打开回到上次停下的位置 —
   var PKEY = 'lesson_pos_v1';
   function pMap() { try { return JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch (e) { return {}; } }
   var holding = false, tick = 0;
@@ -230,7 +221,7 @@
       try { localStorage.setItem(PKEY, JSON.stringify(m)); } catch (e) {}
     }, 260);
   }, { passive: true });
-  // —— 阅读进度：只在本地记一笔，用来在目录上打勾 ——
+  // — 阅读进度：只在本地记一笔，用来在目录上打勾 —
   var KEY = 'lesson_read_v1';
   function readMap() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } }
   function paintToc() {
