@@ -743,7 +743,25 @@
     return wrap(o.svg || '');
   }
 
+  /* Two mini-charts side by side — the book often prints data set A and data
+     set B as two separate panels (T19 #3 two histograms, T19 #7 two dot plots).
+     Rendering them overlaid in one frame is a fidelity error. */
+  function TEMPLATES_PAIR(o, chartFn) {
+    var panels = o.panels || [];
+    var cells = panels.map(function (p) {
+      var c = {};
+      for (var k in p) if (k !== 'title') c[k] = p[k];
+      c.w = p.w || o.cellW || 240;
+      c.h = p.h || o.cellH || 300;
+      var head = p.title
+        ? '<div style="font:600 14px/1.4 system-ui,sans-serif;text-align:center;margin-bottom:2px">' + p.title + '</div>'
+        : '';
+      return '<div class="td-pair-cell" style="display:flex;flex-direction:column;align-items:center">' + head + chartFn(c) + '</div>';
+    }).join('');
+    return '<div class="td-figure-pair" style="display:flex;gap:18px;justify-content:center;align-items:flex-start;flex-wrap:wrap">' + cells + '</div>';
+  }
   var TEMPLATES = {
+    pairchart: function (o) { return TEMPLATES_PAIR(o, chart); },
     parallelLines: parallelLines,
     crossingLines: crossingLines,
     triangle: triangle,
