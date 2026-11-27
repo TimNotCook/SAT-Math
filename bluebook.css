@@ -1213,3 +1213,13 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px;mar
   .crossout-toggle{right:6px}
   .drill-choice{padding-right:46px!important}
 }
+
+/* 窄屏 / 触屏的点击热区：Bluebook 桌面版按钮是 36px 高，手指点偏一点就落空。
+   实测 375 与 320 宽下 Next 只有 36px、Start 41px，都低于 44px（iOS HIG / Android 48dp）。
+   只在窄屏和触屏设备上抬到 44px，桌面版观感保持不变。 */
+@media (max-width:820px),(pointer:coarse){
+  .drill-page-button{height:44px!important}
+  .drill-page-button.drill-next-button{height:44px!important}
+  /* 本文件第 742 行给 .btn 打了 min-height:0!important，所以这里也必须 !important 才盖得住 */
+  .exam-start-actions .btn{min-height:44px!important}
+}
