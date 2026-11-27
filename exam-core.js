@@ -745,8 +745,8 @@
     Object.keys((state && state.wrong) || {}).forEach(id => {
       const q = byId(bank, id); if (q && q.unit === unitId) ids.push(id);
     });
-    ((state && state.history) || []).forEach(h => (h.detail || []).forEach(d => {
-      if (d.correct) return;
+    (Array.isArray(state && state.history) ? state.history : []).forEach(h => (Array.isArray(h && h.detail) ? h.detail : []).forEach(d => {
+      if (!d || typeof d !== 'object' || d.correct) return;
       const q = byId(bank, d.id); if (q && q.unit === unitId) ids.push(d.id);
     }));
     return Array.from(new Set(ids));

@@ -30,6 +30,17 @@ function loadCore() {
 }
 const C = loadCore();
 
+test('unitWrongIds 不被 null / 非数组的 history.detail 打崩', () => {
+  const bank = [{ id: 'q-a', unit: 1 }, { id: 'q-b', unit: 1 }];
+  const state = {
+    wrong: {},
+    history: [null, 5, { detail: null }, { detail: 'nope' },
+      { detail: [null, { id: 'q-a', correct: false }, { id: 'q-b', correct: true }] }],
+  };
+  assert.deepStrictEqual(C.unitWrongIds(bank, state, 1), ['q-a'],
+    '只有 detail 里真正 correct:false 的题目才算单元错题');
+});
+
 const PER = C.OFFICIAL.questionsPerModule;          // 22
 
 function inst(i, mod) { return { uid: 'M' + (mod || 1) + '-' + i, id: 'Q' + i, module: mod || 1 }; }

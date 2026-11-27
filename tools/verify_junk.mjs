@@ -5,7 +5,7 @@
  * 再逐页导航，断言
  *   ① 没有未捕获异常 / console error（页面不能打崩）
  *   ② 关键容器真的画出了东西（错题本 #wrongList、记录页 #histList 不能空）
- *   ③ 脏 session 不会把 exam.html 卡成白页
+ *   ③ 脏 session 不会把 exam.html（模考 + 单元抽查）卡成白页
  * 用临时 profile，只写本机浏览器；线上/线下两用。
  *
  * 用法：
@@ -176,7 +176,7 @@ const PROFILES = [
   ]],
 ];
 
-const PAGES = ['index.html', 'wrong.html', 'history.html', 'drill.html', 'exam.html?mode=mock', 'jiangyi.html'];
+const PAGES = ['index.html', 'wrong.html', 'history.html', 'drill.html', 'exam.html?mode=mock', 'exam.html?mode=quiz&unit=1.1', 'jiangyi.html'];
 const summary = [];
 const offenders = [];
 for (const [pname, junk] of PROFILES) {
@@ -196,6 +196,37 @@ for (const [pname, junk] of PROFILES) {
       out.objLeak=body.indexOf('[object Object]')>=0;
       out.badText=out.objLeak || body.indexOf('Invalid Date')>=0 || body.indexOf('NaN')>=0 || body.indexOf('undefined')>=0 || body.indexOf('Infinity')>=0;
       return out; })()`);
+    /* 单元抽查：Start 之前 newSession() 会先读题库/导入仓库/历史，脏字段正是在这炸。
+       真点一下 Start，确认不是「首页能画、一开考就白」。 */
+    if (p === 'exam.html?mode=quiz&unit=1.1') {
+      let start = false;
+      for (let i = 0; i < 80 && !start; i++) {   /* 别点成兜底 Reload，也别在脚本还没绑定时抢跑 */
+        start = await ev(`(function(){var b=document.getElementById('btnStart');if(!b)return false;
+          var label=String(b.textContent||'').trim();
+          return !!(b.offsetParent!==null && !b.disabled && label!=='Reload' && label!=='重新加载');})()`);
+        if (!start) await sleep(250);
+      }
+      if (start) { await ev(`document.getElementById('btnStart').click()`); await sleep(600); }
+      let stage = { chars: 0 };
+      for (let i = 0; i < 60; i++) {              /* 等首题真正画出来，别拿加载中的空页判红 */
+        stage = await ev(`(function(){var t=String(document.body.innerText||'').replace(/\s+/g,' ').trim();
+          return { chars: t.length, head: t.slice(0, 60) }; })()`);
+        if (stage && stage.chars >= 200) break;
+        await sleep(250);
+      }
+      const paper = await ev(`(function(){
+        var s=null; try { s=JSON.parse(localStorage.getItem('tdsat_exam_suite_session_v1')||'null'); } catch(e) {}
+        if(!s||!Array.isArray(s.paper)) return {ok:false,why:'no-session'};
+        var bank=(window.TD_BANK&&window.TD_BANK.questions)||[]; var ids={};
+        bank.forEach(function(q){ if(q&&q.unit===1)ids[q.id]=1; });
+        var bad=s.paper.filter(function(x){return !x||!ids[x.id];}).length;
+        var ans=Object.keys(s.answers||{}).length;
+        return {ok:s&&s.mode==='quiz'&&bad===0&&ans>=s.paper.length, mode:s&&s.mode, bad:bad, ans:ans, n:s.paper.length, sample:(s.paper[0]||{}).id};
+      })()`);
+      summary.push(`  quiz 落点：Start 可点=${start} · 正文 ${stage.chars} 字 · 卷面 ${JSON.stringify(paper)}`);
+      if (stage.chars < 80) offenders.push({ profile: pname, page: p, errs: [{ text: '单元抽查点击 Start 后白屏（正文几乎为空）' }] });
+      if (!paper || !paper.ok) offenders.push({ profile: pname, page: p, errs: [{ text: '单元抽查卷面不属于当前单元/答案未覆盖：' + JSON.stringify(paper) }] });
+    }
     const errs = events.filter((e) => e.kind === 'exception' || (e.kind === 'console' && !IGNORE_URL.test(e.text) && !/Failed to load resource/i.test(e.text)));
     summary.push(`${p}: 异常/错误 ${errs.length} 项 · 容器字数 ${JSON.stringify(probe)}`);
     for (const e of errs.slice(0, 5)) summary.push(`  [${e.kind}] ${e.text}`);
@@ -216,7 +247,7 @@ for (const [pname, junk] of PROFILES) {
 
 console.log(summary.join('\n'));
 writeFileSync(join(OUT, 'junk.json'), JSON.stringify({ offenders }, null, 1));
-console.log(offenders.length ? `\n❌ ${offenders.length} 项不合格` : `\n✅ ${PROFILES.length} 套脏值 × 六页均不崩、容器非空`);
+console.log(offenders.length ? `\n❌ ${offenders.length} 项不合格` : `\n✅ ${PROFILES.length} 套脏值 × 七页（含单元抽查开考）均不崩、容器非空`);
 console.log(`截图/明细：${OUT}`);
 cleanup();
 process.exit(offenders.length ? 1 : 0);

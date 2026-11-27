@@ -81,7 +81,7 @@
     let d;
     try { d = JSON.parse(localStorage.getItem(IMPORT_KEY)) || {}; } catch (e) { return []; }
     const ids = [];
-    (d.items || []).forEach(it => {
+    (Array.isArray(d.items) ? d.items : []).forEach(it => {
       const id = it && (it.matchId || it.id);
       const q = id && byId(String(id));
       if (q && q.unit === unitId && ids.indexOf(q.id) < 0) ids.push(q.id);
@@ -832,7 +832,13 @@
        real answers worth preserving. An unstarted intro session is disposable:
        seeding from it would silently replace our freshly built plan/paper with
        a stale one from a different unit/mode sharing the same key. */
-    const diskIsLive = hasPaper(disk) && (!!disk.startedAt || !!disk.finished);
+    /* 只认「同一份卷」的活会话：mode/单元/卷面必须一致。否则上一页的模考
+       （或另一个单元的抽查）会被当成同一场，把旧 paper 拼到新卷上——uid 对不上
+       就直接 isLocked 崩页，uid 对上则把旧答案悄悄记到新题上。 */
+    const samePaper = !!S && hasPaper(disk) && disk.mode === S.mode &&
+      (S.mode !== 'quiz' || String(disk.unitId || '') === String(S.unitId || '')) &&
+      snap(disk.paper) === snap(S.paper);
+    const diskIsLive = samePaper && (!!disk.startedAt || !!disk.finished);
     const out = diskIsLive ? disk
       : (hasPaper(base) ? JSON.parse(JSON.stringify(base)) : {});
     if (S) {

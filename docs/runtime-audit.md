@@ -372,3 +372,16 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`test/array-guard.test.js` +1 条（导入项 `given:{x:1}` 与 `given:123`，旧代码 1 红 `x.given.trim is not a function`，新代码 11/0）；`verify_junk` 新增 `I-import-given` 画像，7 套 × 六页全绿。
 
 回归：`node --test` 292/0；`verify_junk` 7×6；`verify_runtime` 六页 0 异常。
+
+## 第 29 条：单元抽查一开考就崩 / 卷面被上一场模考顶替（2026-11-27）
+
+`exam.html?mode=quiz` 的开场页会先跑一次 `newSession()` 画题数与时长，脏数据正是死在这一步：
+`importedWrongIds()` 对导入仓库写死 `(d.items || []).forEach`，`items` 是对象/数字时（旧导入器、云端合并）直接 TypeError；`exam-core.unitWrongIds()` 对成绩历史写死 `h.detail.forEach`，`history` 里夹 `null` 或 `detail` 是字符串时同样崩。两处一炸，页面只剩「This page could not finish loading」，Start 点了也只会再抛 `Cannot set properties of null`。
+
+顺着 `verify_junk` 把单元抽查页加进体检、并真的点 Start，又炸出第三层：上一页模考留下的**活会话**（同一 localStorage key、`startedAt` 非 0）会被 `persist()` 当成同一场复用——`out = disk` 后只回填本地变化的字段，于是模考的 22 题 paper 被拼进抽查卷，uid 对不上就直接 `S.answers[uid].locked` 崩；uid 若能对上，旧答案会被静默记到新题上，错得更隐蔽。
+
+修法：`importedWrongIds` 只遍历 `Array.isArray(d.items)`；`unitWrongIds` 对 `history`/`detail` 双层校验数组并跳过 null/非对象条目；`persist()` 复用活会话前要求 **mode、单元、卷面签名三者一致**（`snap(disk.paper) === snap(S.paper)`），不同场次一律以本页新卷为准。
+
+验证：`verify_junk` 升级为 7 页（新增 `exam.html?mode=quiz&unit=1.1` 并点击 Start），断言无异常、正文 ≥200 字、落库卷面全部属于 Unit 1 且答案覆盖 paper；旧代码复现 `(d.items||[]).forEach is not a function`、`(h.detail||[]).forEach is not a function`、`reading 'locked'` 三条异常，新代码 10 套脏值 × 7 页全绿。
+
+回归：`node --test` 309/0（`unitWrongIds` 新增 null/非数组 detail 单测、`persist` 同卷闸门静态守卫）；`verify_junk` 10×7；`bump_assets.py` PASS `b7d6c31456f6`。

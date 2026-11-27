@@ -86,6 +86,9 @@ test('脏存档体检脚本存在、复用 lib/chrome 与 lib/serve', () => {
   assert.ok(/H-bad-report/.test(s), 'verify_junk 缺少「成绩记录 report 错类型」画像（第 25 条）');
   assert.ok(/I-import-given/.test(s), 'verify_junk 缺少「导入错题 given 错类型」画像（第 26 条）');
   assert.ok(/J-import-stem/.test(s), 'verify_junk 缺少「导入错题 stem 错类型」画像（第 27 条）');
+  assert.ok(/exam\.html\?mode=quiz/.test(s), 'verify_junk 必须体检单元抽查页，不能只查 mode=mock（第 29 条）');
+  assert.ok(/snap\(disk\.paper\) === snap\(S\.paper\)/.test(fs.readFileSync(path.join(__dirname, '..', 'exam.js'), 'utf8')),
+    'persist() 只能复用「同一份卷」的活会话，否则会把上一场模考的 paper 拼到抽查卷上（第 29 条）');
   assert.ok(/K-import-objects/.test(s), 'verify_junk 缺少「导入错题展示字段全是对象」画像（第 28 条）');
   assert.ok(/L-history-objects/.test(s), 'verify_junk 缺少「成绩记录展示字段全是对象」画像（第 29 条）');
 });
