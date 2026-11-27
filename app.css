@@ -1575,3 +1575,27 @@ html body .kp-row:first-child{border-top:0!important}
   html body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar .exam-toolbar-actions button{
     padding:0 6px!important}
 }
+
+/* 练习页（drill）320/375 窄屏：上下文条把「1.1 线性方程与函数图像」压成 31px
+   宽、只显示「1.1 …」，板块名完全读不出。右侧 Reference / 退出 / 作答自动保存
+   合计吃掉 265px。窄屏下让标题独占第一行、工具退到第二行。 */
+@media (max-width:420px){
+  html body:has(#questionView:not([hidden])) .drill-context{
+    height:auto!important;min-height:46px!important}
+  html body:has(#questionView:not([hidden])) .drill-context-inner{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    height:auto!important;min-height:46px!important;row-gap:2px!important;
+    padding-top:5px!important;padding-bottom:5px!important}
+  html body:has(#questionView:not([hidden])) .drill-context-inner>.drill-context-left{
+    width:100%!important;min-width:0!important}
+  html body:has(#questionView:not([hidden])) #currentSection{
+    display:block!important;width:100%!important;white-space:normal!important;
+    overflow:visible!important;text-overflow:clip!important;line-height:1.35!important}
+  html body:has(#questionView:not([hidden])) .drill-context-inner>.drill-context-right{
+    width:100%!important;justify-content:flex-end!important;gap:10px!important}
+}
+
+/* 「作答自动保存」沿用了暗底配色的近白色（238,243,250，白底上 1.11:1），
+   白底练习页上等于隐形；aria-live 播报的文字用户根本看不见（320 抽查发现）。 */
+/* 两个主题下答题态的上下文条都是白底（暗色主题只染顶栏），所以这里统一用深灰。 */
+.drill-save-status{color:#5b6b82!important}
