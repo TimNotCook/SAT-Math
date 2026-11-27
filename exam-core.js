@@ -903,7 +903,11 @@
       const a = s.answers[x.uid];
       if (!a || typeof a !== 'object') s.answers[x.uid] = { v: '', marked: false, spent: 0, locked: false };
       else {
-        if (a.v == null) a.v = '';
+        /* 云端合并/旧版本可能把作答写成对象或数组。直接留给 DOM 会在 grid 输入框
+           里显示 [object Object]，导航还会算成「已作答」，判分却按空答案算。 */
+        if (typeof a.v === 'string') { /* already fine */ }
+        else if (typeof a.v === 'number' && Number.isFinite(a.v)) a.v = String(a.v);
+        else a.v = '';
         a.marked = !!a.marked; a.locked = !!a.locked;
         a.spent = Number(a.spent) > 0 ? Number(a.spent) : 0;
       }

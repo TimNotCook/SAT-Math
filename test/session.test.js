@@ -57,6 +57,20 @@ function baseSave(over) {
   }, over || {});
 }
 
+describe('parseSession：作答值必须是可判分的字符串', () => {
+  test('对象/数组作答清空，数字作答转字符串，不留 [object Object]', () => {
+    const s = baseSave();
+    s.answers['M1-1'] = { v: { x: 1 }, marked: true, spent: 5 };
+    s.answers['M1-2'] = { v: ['A'], marked: false, spent: 0 };
+    s.answers['M1-3'] = { v: 3, marked: false, spent: 0 };
+    const r = C.parseSession(s, { mode: 'mock', isQuestionId: () => true });
+    assert.equal(r.status, 'ok');
+    assert.equal(r.session.answers['M1-1'].v, '');
+    assert.equal(r.session.answers['M1-2'].v, '');
+    assert.equal(r.session.answers['M1-3'].v, '3');
+  });
+});
+
 describe('practiceDurationSec：旧设置里的非数字值不能产出 NaN 时长', () => {
   test('total / perQ 是字符串 x → 回落到 95 秒/题，有限且 ≥60', () => {
     const a = C.practiceDurationSec({ tmode: 'total', total: 'x' }, 24);

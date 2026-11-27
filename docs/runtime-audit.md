@@ -426,3 +426,13 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`tools/verify_duration_nan.mjs` 种 `tdsat_state_v1={settings:{tmode:'total',total:'x'}}` 后进抽查页；旧代码开场含 `NaN`、开考后 `durationSec` 落库为 null、`ends-started` 为负，新代码开场无 NaN、`durationSec=2280`（24 题 × 95 秒）、结束时间正常。`test/session.test.js` +2 条（非法字符串回落 24×95，合法 35 分钟/60 秒每题仍按设置算）。
 
 回归：`node --test` 325/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。
+
+## 第 34 条：作答值是对象/数组 → 恢复后输入框显示 [object Object]，导航算已答、判分算空（2026-11-27）
+
+`parseSession` 只把 `a.v == null` 补成空串，对象/数组原样保留。云端合并或旧版本把 `v:{x:1}`、`v:['A']` 写进存档时，恢复后单空 grid 输入框直接显示 `[object Object]`，导航按 `a.v` 真值算「已作答」，交卷判分却走 `String` 拿不到合法答案，等同于空答；数字作答也会以非字符串形态落库。
+
+修法：恢复时统一作答值——字符串原样保留，有限数字 `String(v)`，其余（对象、数组、布尔、NaN/Infinity）全部清空，保证 DOM 和判分看到同一份可判分文本。
+
+验证：`tools/verify_answer_value.mjs` 种一场 22 题模块一存档，第 3 题（U1-03，grid）`v:{x:1}`、第 4 题 `v:['A']`、第 5 题 `v:3`。旧代码恢复后输入框值 `"[object Object]"`、落库仍是对象；新代码输入框为空串、`M1-03` 落库 `""`，0 异常。`test/session.test.js` +1 条（对象/数组清空、数字转字符串）。
+
+回归：`node --test` 326/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。
