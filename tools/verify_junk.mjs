@@ -150,6 +150,15 @@ const PROFILES = [
       { key: 'ob:1', stem: 'Test', choices: { A: { x: 1 } }, type: 'mcq', answer: { x: 1 }, given: { y: 2 }, topic: { x: 1 }, source: { x: 1 }, importedAt: { x: 1 }, readOnly: true, matchId: { x: 1 } }
     ] })],
   ]],
+  /* L：成绩记录所有展示字段都是对象（第 29 条）。不能把 [object Object]/NaN 端给用户。 */
+  ['L-history-objects', [
+    ['tdsat_exam_suite_results_v1', JSON.stringify([{
+      date: { x: 1 }, mode: { x: 1 }, unit: { x: 1 }, board: { x: 1 }, section: { x: 1 },
+      total: { x: 1 }, correct: { x: 1 }, elapsed: { x: 1 },
+      detail: [{ id: { x: 1 }, given: { x: 1 }, answer: { x: 1 }, topic: { x: 1 }, correct: false }],
+      report: { priority: [{ name: { x: 1 }, reason: { x: 1 }, action: { x: 1 }, wrongIds: [{ x: 1 }] }] }
+    }])],
+  ]],
   /* I：导入错题历史记录里 given 是对象/数字（第 26 条）。分析环节不能 .trim() 崩页。 */
   ['I-import-given', [
     ['tdsat_imported_wrong_v1', JSON.stringify({ items: [

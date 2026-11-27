@@ -33,15 +33,24 @@
   /* 成绩记录是云端合并/旧版本/手工导入的产物：report、estimate 可能是字符串或
      缺字段，里面再嵌一个错误类型就能把整页打崩（第 25 条）。 */
   function asObj(v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
+  /* 记录也可能被云端旧结构/手工导入写成对象：对象直接当空，别把
+     [object Object] 端到页面；数字字段统一过 num，坏值显示「—」。 */
+  function txt(v) { return v == null || typeof v === 'object' || typeof v === 'function' ? '' : String(v); }
+  function num(v) { if (v == null || typeof v === 'object' || typeof v === 'function') return null; var n = Number(v); return isFinite(n) ? n : null; }
+  function numTxt(v) { var n = num(v); return n == null ? '—' : n; }
   function load(k) {
     try { var v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : []; }
     catch (e) { return []; }
   }
   function readSession() { try { return JSON.parse(localStorage.getItem(SESSION)) || null; } catch (e) { return null; } }
-  function fmtDate(t) { return new Date(t).toLocaleString('zh-CN', { hour12: false }); }
+  function fmtDate(t) {
+    var d = new Date(t);
+    return isNaN(d.getTime()) ? '—' : d.toLocaleString('zh-CN', { hour12: false });
+  }
   function fmtDur(sec) {
-    if (!sec || sec < 0) return '—';
-    var m = Math.floor(sec / 60);
+    var n = num(sec);
+    if (n == null || n < 0) return '—';
+    var m = Math.floor(n / 60);
     return m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : m + ' min';
   }
   var MODE_NAME = { mock: '模考', quiz: '单元抽查', jiangyi: '讲义' };
@@ -51,36 +60,37 @@
      抽查 / 讲义没有换算分，用正确率同阈值（≥85% / ≥60%）。 */
   function grade(rec) {
     if (rec.finished === false) return 'void';
-    var est = asObj(rec.estimate);
-    if (rec.mode === 'mock' && est.scaled) {
-      var s = est.scaled;
-      return s >= 700 ? 'good' : s >= 550 ? 'mid' : 'bad';
+    var est = asObj(rec.estimate), scaled = num(est.scaled);
+    if (txt(rec.mode) === 'mock' && scaled != null) {
+      return scaled >= 700 ? 'good' : scaled >= 550 ? 'mid' : 'bad';
     }
-    var pct = rec.total ? (rec.correct || 0) / rec.total : 0;
+    var total = num(rec.total), correct = num(rec.correct);
+    var pct = total ? (correct || 0) / total : 0;
     return pct >= 0.85 ? 'good' : pct >= 0.6 ? 'mid' : 'bad';
   }
   function scoreLabel(rec) {
     if (rec.finished === false) return '未做完';
-    var est = asObj(rec.estimate);
-    if (rec.mode === 'mock' && est.scaled) return esc(est.scaled) + ' / 800';
-    return Math.round(rec.total ? (rec.correct || 0) / rec.total * 100 : 0) + '%';
+    var est = asObj(rec.estimate), scaled = num(est.scaled), total = num(rec.total), correct = num(rec.correct);
+    if (txt(rec.mode) === 'mock' && scaled != null) return scaled + ' / 800';
+    return Math.round(total ? (correct || 0) / total * 100 : 0) + '%';
   }
   function titleOf(rec) {
-    if (rec.mode === 'jiangyi') return '讲义复习' + (rec.board ? ' · ' + rec.board : '') + (rec.section ? ' · ' + rec.section : '');
-    if (rec.mode === 'quiz') return '单元抽查' + (rec.unit ? ' · U' + rec.unit : '');
+    var mode = txt(rec.mode), board = txt(rec.board), section = txt(rec.section), unit = txt(rec.unit), total = num(rec.total);
+    if (mode === 'jiangyi') return '讲义复习' + (board ? ' · ' + board : '') + (section ? ' · ' + section : '');
+    if (mode === 'quiz') return '单元抽查' + (unit ? ' · U' + unit : '');
     /* 未交卷的模考只发到第一模块（22 题），写「全卷 22 题」会误导成整卷只有 22 题。 */
     if (rec.finished === false) return '官方模考 · 未交卷';
-    return '官方模考 · 全卷 ' + (rec.total || 44) + ' 题';
+    return '官方模考 · 全卷 ' + (total == null ? 44 : total) + ' 题';
   }
 
   function wrongRows(detail) {
     var wrong = asArr(detail).filter(function (d) { return d && !d.correct; });
     if (!wrong.length) return '<div class="hist-empty">本次全部答对。</div>';
     return '<div class="hist-wrong">' + wrong.map(function (d) {
-      var q = byId(d.id) || {};
-      var stem = String(q.stem || d.topic || d.id).replace(/\s+/g, ' ').trim().slice(0, 90);
-      var ans = '你的答案 <b>' + esc(d.given || '—') + '</b> · 正确 <i>' + esc(d.answer == null ? '' : d.answer) + '</i>';
-      return '<div class="hist-wrong-row"><span class="hist-wrong-id">' + esc(d.id) + '</span>' +
+      var did = txt(d.id) || '—', q = byId(did) || {};
+      var stem = (txt(q.stem) || txt(d.topic) || did).replace(/\s+/g, ' ').trim().slice(0, 90);
+      var ans = '你的答案 <b>' + esc(txt(d.given) || '—') + '</b> · 正确 <i>' + esc(txt(d.answer) || '—') + '</i>';
+      return '<div class="hist-wrong-row"><span class="hist-wrong-id">' + esc(did) + '</span>' +
         '<span class="hist-wrong-stem" title="' + esc(stem) + '">' + esc(stem) + '</span>' +
         '<span class="hist-wrong-ans">' + ans + '</span></div>';
     }).join('') + '</div>';
@@ -89,9 +99,10 @@
     var prio = asArr(asObj(report).priority).filter(function (p) { return p && typeof p === 'object'; });
     if (!prio.length) return '<div class="hist-empty">暂无补强建议。</div>';
     return '<div class="hist-prio">' + prio.slice(0, 5).map(function (p) {
-      return '<div class="hist-prio-row"><b>' + esc(p.name) + '</b>' +
-        '<small>' + esc(p.reason || '') + (p.action ? ' → ' + esc(p.action) : '') +
-        (asArr(p && p.wrongIds).length ? '（错题：' + esc(asArr(p.wrongIds).join('、')) + '）' : '') + '</small></div>';
+      var ids = asArr(p && p.wrongIds).map(txt).filter(Boolean);
+      return '<div class="hist-prio-row"><b>' + esc(txt(p.name) || '—') + '</b>' +
+        '<small>' + esc(txt(p.reason)) + (txt(p.action) ? ' → ' + esc(txt(p.action)) : '') +
+        (ids.length ? '（错题：' + esc(ids.join('、')) + '）' : '') + '</small></div>';
     }).join('') + '</div>';
   }
 
@@ -99,7 +110,7 @@
     var sess = readSession();
     var resumable = !!(sess && rec.startedAt && sess.startedAt === rec.startedAt && !sess.finished);
     var html = '<div class="hist-kv"><span>状态 <b>未做完</b></span>' +
-      '<span>已答 <b>' + (rec.answered || 0) + ' / ' + (rec.total || '—') + '</b></span>' +
+      '<span>已答 <b>' + numTxt(rec.answered == null ? 0 : rec.answered) + ' / ' + numTxt(rec.total) + '</b></span>' +
       '<span>中断时间 <b>' + fmtDate(rec.date) + '</b></span></div>';
     if (resumable) {
       html += '<div class="hist-continue"><a class="btn primary" href="exam.html?mode=' + esc(rec.mode) + '">继续这卷</a></div>';
@@ -109,14 +120,13 @@
     return html;
   }
 
-  function numTxt(v) { return Number.isFinite(Number(v)) ? Number(v) : '—'; }
   function resultBody(rec) {
     var html = '<div class="hist-kv">' +
       '<span>交卷时间 <b>' + fmtDate(rec.date) + '</b></span>' +
-      '<span>答对 <b>' + (rec.correct || 0) + ' / ' + (rec.total || 0) + '</b></span>' +
+      '<span>答对 <b>' + numTxt(rec.correct == null ? 0 : rec.correct) + ' / ' + numTxt(rec.total == null ? 0 : rec.total) + '</b></span>' +
       '<span>用时 <b>' + fmtDur(rec.elapsed) + '</b></span>' +
-      (rec.mode === 'mock' && Object.keys(asObj(rec.estimate)).length ? '<span>原始分 <b>' + esc(numTxt(asObj(rec.estimate).raw)) + ' / ' + esc(numTxt(asObj(rec.estimate).rawMax)) + '</b></span>' +
-        '<span>自适应路径 <b>' + (asObj(rec.estimate).path === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
+      (txt(rec.mode) === 'mock' && Object.keys(asObj(rec.estimate)).length ? '<span>原始分 <b>' + esc(numTxt(asObj(rec.estimate).raw)) + ' / ' + esc(numTxt(asObj(rec.estimate).rawMax)) + '</b></span>' +
+        '<span>自适应路径 <b>' + (txt(asObj(rec.estimate).path) === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
       '</div>';
     html += '<div class="hist-sec">错题（' + (asArr(rec.detail).filter(function (d) { return d && !d.correct; })).length + '）</div>' + wrongRows(rec.detail);
     html += '<div class="hist-sec">应该补哪块</div>' + prioRows(rec.report);
@@ -129,7 +139,7 @@
     var head = '<button type="button" class="hist-bar-head" aria-expanded="false" data-idx="' + idx + '">' +
       '<span class="hist-dot ' + g + '" aria-hidden="true"></span>' +
       '<span class="hist-title">' + esc(titleOf(rec)) +
-      '<small>' + fmtDate(rec.date) + ' · ' + (MODE_NAME[rec.mode] || rec.mode || '记录') + '</small></span>' +
+      '<small>' + fmtDate(rec.date) + ' · ' + (MODE_NAME[txt(rec.mode)] || txt(rec.mode) || '记录') + '</small></span>' +
       '<span class="hist-score ' + g + '">' + esc(scoreLabel(rec)) + '</span>' +
       '<svg class="hist-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>' +
       '</button>';

@@ -87,6 +87,7 @@ test('脏存档体检脚本存在、复用 lib/chrome 与 lib/serve', () => {
   assert.ok(/I-import-given/.test(s), 'verify_junk 缺少「导入错题 given 错类型」画像（第 26 条）');
   assert.ok(/J-import-stem/.test(s), 'verify_junk 缺少「导入错题 stem 错类型」画像（第 27 条）');
   assert.ok(/K-import-objects/.test(s), 'verify_junk 缺少「导入错题展示字段全是对象」画像（第 28 条）');
+  assert.ok(/L-history-objects/.test(s), 'verify_junk 缺少「成绩记录展示字段全是对象」画像（第 29 条）');
 });
 
 test('导入错题 stem 是对象/数组时不崩页', () => {
@@ -117,6 +118,26 @@ test('导入错题展示字段是对象时不出 [object Object]', () => {
   assert.ok(!/\[object Object\]/.test(els.wrongList.innerHTML), '错题卡出现 [object Object]');
   assert.ok(/未作答/.test(els.wrongList.innerHTML), '对象型 given 没有降级成未作答');
 });
+test('记录页字段全是对象时不显示 [object Object]、NaN 或 Invalid Date', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: { x: 1 }, mode: { x: 1 }, unit: { x: 1 }, board: { x: 1 }, section: { x: 1 },
+      total: { x: 1 }, correct: { x: 1 }, elapsed: { x: 1 },
+      detail: [{ id: { x: 1 }, given: { x: 1 }, answer: { x: 1 }, topic: { x: 1 }, correct: false }],
+      report: { priority: [{ name: { x: 1 }, reason: { x: 1 }, action: { x: 1 }, wrongIds: [{ x: 1 }] }] },
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'history-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '记录页脏字段打崩：' + (threw && threw.message));
+  const html = els && els.histList ? els.histList.innerHTML : '';
+  assert.ok(html.length > 0, '记录页没画出内容');
+  assert.ok(!/\[object Object\]/.test(html), '记录页出现 [object Object]');
+  assert.ok(!/NaN/.test(html), '记录页出现 NaN');
+  assert.ok(!/Invalid Date/.test(html), '记录页出现 Invalid Date');
+});
+
 
 
 test('成绩记录里 detail 是对象、条目是 null 时，错题本与记录页都不崩', () => {
