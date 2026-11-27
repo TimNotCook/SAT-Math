@@ -226,10 +226,71 @@ for (const [w, h, tag] of [[375, 812, '375'], [320, 568, '320']]) {
   }
   const ov7 = await overflow();
   check(tag, '记录页无横向溢出', ov7 && ov7.sw <= ov7.vw + 1, `${ov7.sw} / ${ov7.vw}`);
+  /* 长文案不许被截成半截：行内元素若 scrollWidth 明显大于 clientWidth 且 overflow:hidden，就是真截断 */
+  const clipped = await ev(`(()=>{const bad=[];
+    document.querySelectorAll('#histList *, #historyList *').forEach(el=>{
+      const cs=getComputedStyle(el);
+      if(cs.overflow!=='hidden'&&cs.textOverflow!=='ellipsis') return;
+      if(el.scrollWidth>el.clientWidth+2&&el.clientWidth>0&&el.textContent.trim().length>0)
+        bad.push({cls:(el.className||el.tagName).toString().slice(0,40), sw:el.scrollWidth, cw:el.clientWidth, txt:el.textContent.trim().slice(0,30)});});
+    return bad.slice(0,3);})()`);
+  check(tag, '记录页文字没有被截断', Array.isArray(clipped) && clipped.length === 0, JSON.stringify(clipped));
   if (ov7 && ov7.sw > ov7.vw + 1) check(tag, '记录页溢出元素', false, JSON.stringify(await offenders()));
   await shot(tag + '-history');
 
-  await ev(`localStorage.removeItem('tdsat_exam_suite_results_v1')`);
+  /* ---------- 8. 模考成绩页：窄屏下结果表格不许横滑出屏 ---------- */
+  const SK = 'tdsat_exam_suite_session_v1';
+  await goto(`${BASE}/exam.html?mode=mock`);
+  await ev(`localStorage.removeItem('${SK}')`);
+  await goto(`${BASE}/exam.html?mode=mock`);
+  for (let i = 0; i < 60; i++) {
+    const ok = await ev(`!!document.getElementById('btnStart') && !!window.__TD_EXAM__`);
+    if (ok) break;
+    await sleep(150);
+  }
+  await ev(`document.getElementById('btnStart') && document.getElementById('btnStart').click()`);
+  await sleep(800);
+  /* 把会话改成「一小时前开始、限时已过」：点 Start 就会走真实交卷路径，落到成绩页 */
+  await ev(`(()=>{const k='${SK}';const s=JSON.parse(localStorage.getItem(k)||'null');
+    if(!s) return false; s.startedAt=Date.now()-3600000; s.endsAt=Date.now()-1000; s.moduleEndsAt=Date.now()-1000;
+    s.stage='answer'; localStorage.setItem(k, JSON.stringify(s)); return true;})()`);
+  await goto(`${BASE}/exam.html?mode=mock`);
+  await ev(`document.getElementById('btnStart') && document.getElementById('btnStart').click()`);
+  let resStage = false;
+  for (let i = 0; i < 120; i++) {
+    resStage = await ev(`!!(document.getElementById('stage-result') && !document.getElementById('stage-result').hidden)`);
+    if (resStage) break;
+    await sleep(200);
+  }
+  check(tag, '计时到点后落到成绩页（前提）', resStage, resStage ? 'stage-result' : '还停在别的阶段');
+  if (resStage) {
+    await sleep(600);
+    const ov8 = await overflow();
+    check(tag, '成绩页无横向溢出', ov8 && ov8.sw <= ov8.vw + 1, `${ov8.sw} / ${ov8.vw}`);
+    if (ov8 && ov8.sw > ov8.vw + 1) check(tag, '成绩页溢出元素', false, JSON.stringify(await offenders()));
+    /* 成绩卡里的 8 个指标（#resKV）与单元/知识点错题条（.kp-row）不许被挤到出屏 */
+    const kv = await ev(`(()=>{const g=document.getElementById('resKV'); if(!g) return null;
+      const gr=g.getBoundingClientRect();
+      const cells=Array.prototype.map.call(g.children,c=>{const r=c.getBoundingClientRect();
+        return {right:Math.round(r.right), w:Math.round(r.width), txt:c.innerText.replace(/\s+/g,' ').slice(0,16)};});
+      return {right:Math.round(gr.right), vw:innerWidth, scrollW:g.scrollWidth, clientW:g.clientWidth,
+        minCellW:cells.length?Math.min.apply(null,cells.map(c=>c.w)):0,
+        worst:cells.filter(c=>c.right>innerWidth+1).slice(0,2)};})()`);
+    check(tag, '成绩指标区不超出视口', !!(kv && kv.right <= kv.vw + 1), kv ? `右边界 ${kv.right} / ${kv.vw}` : '没有指标区');
+    check(tag, '成绩指标没有被挤成 0 宽', !!(kv && kv.minCellW >= 40), kv ? `最窄 ${kv.minCellW}px` : '没有指标区');
+    if (kv && kv.scrollW > kv.clientW + 2) check(tag, '成绩指标区溢出元素', false, JSON.stringify(kv.worst));
+    const kp = await ev(`(()=>{const rows=document.querySelectorAll('#resUnits .kp-row, #resTopics .kp-row');
+      if(!rows.length) return {n:0,over:[]}; const over=[];
+      rows.forEach(r=>{if(r.getBoundingClientRect().right>innerWidth+1) over.push(r.innerText.slice(0,20));});
+      return {n:rows.length, over:over.slice(0,2)};})()`);
+    check(tag, '单元/知识点错题条在视口内', !!(kp && kp.over.length === 0), kp ? `${kp.n} 行，越界 ${kp.over.length}` : '没有错题条');
+    await ev(`(()=>{const b=document.querySelector('#stage-result .res-tab, #stage-result [data-tab]'); if(b) b.click();})()`);
+    await sleep(400);
+    const ov8b = await overflow();
+    check(tag, '成绩页切换题单后仍无横向溢出', ov8b && ov8b.sw <= ov8b.vw + 1, `${ov8b.sw} / ${ov8b.vw}`);
+  }
+  await shot(tag + '-result');
+  await ev(`localStorage.removeItem('${SK}');localStorage.removeItem('tdsat_exam_suite_results_v1')`);
 }
 
 const pass = results.filter(r => r.ok).length;

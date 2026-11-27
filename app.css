@@ -109,6 +109,7 @@ h1,h2,h3,h4{margin:0;font-weight:650;letter-spacing:-.01em;color:var(--ink)}
 .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:900px){.g4,.g3,.g2{grid-template-columns:1fr}}
 
+
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 16px;
   border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);border-radius:var(--radius-sm);
@@ -620,3 +621,11 @@ body.shell-drill .drill-board-panel{display:block!important}
 
 /* 线段上划线（题干里的 \overline{AB}）：用文本线，避免依赖 MathJax */
 .td-overline{text-decoration:overline;text-underline-offset:auto;padding:0 .06em}
+
+/* 记录页错题行：桌面上题干单行省略 + title 悬浮提示；手机上既没 hover 又只有 120px 宽，
+   题干会被截成「ax + by = b In the equation ab」这种半句。窄屏改成两行截断、答案另起一行。 */
+@media(max-width:640px){
+  .hist-wrong-row{grid-template-columns:auto minmax(0,1fr)}
+  .hist-wrong-stem{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .hist-wrong-ans{grid-column:1 / -1}
+}

@@ -21,6 +21,13 @@ test('窄屏/触屏媒体查询把做题页按钮抬到 44px', () => {
   assert.match(block, /\.btn\.primary\{min-height:44px!important\}/, '讲义页主按钮（下一题）没抬到 44px');
 });
 
+test('窄屏记录页错题题干允许两行（不再单行截成半句）', () => {
+  const appCss = fs.readFileSync(path.join(ROOT, 'app.css'), 'utf8');
+  const block = appCss.slice(appCss.search(/@media\(max-width:640px\)\{\s*\n\s*\.hist-wrong-row/));
+  assert.ok(block && block.length > 0, '缺窄屏 hist-wrong-row 媒体查询（注意要放在 .hist-wrong-stem 原定义之后）');
+  assert.match(block, /\.hist-wrong-stem\{white-space:normal;display:-webkit-box;-webkit-line-clamp:2/, '题干没有改成两行截断');
+});
+
 test('verify_mobile 验收器存在且用统一 Chrome/profile/静态服务', () => {
   const p = path.join(ROOT, 'tools', 'verify_mobile.mjs');
   assert.ok(fs.existsSync(p), '缺 tools/verify_mobile.mjs');
