@@ -40,17 +40,17 @@
   }
 
   /* ---------- 四个子板块 ---------- */
+  var JY_ARROW = '<svg class="entry-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
   function renderBoards() {
     var list = J.allStats();
     els.jyBoardCards.innerHTML = list.map(function (st) {
-      /* 极简卡片：只留标题 + 中文名；已录/应有/完成度等内部口径不再展示，空板块保留「待录入」胶囊 */
-      return '<button type="button" class="jy-board-card" data-board="' + st.board + '">' +
-        '<b>U' + st.unit + ' ' + esc(st.en) + '</b>' +
-        '<span>' + esc(st.cn) + '</span>' +
-        (st.dataReady
-          ? '<span class="jy-bar"><i style="width:' + (st.percent || 0) + '%"></i></span>'
-          : '<small>待题库录入</small>') +
-        '</button>';
+      /* 磁贴只留中文标题 + 细箭头；未录入板块挂灰胶囊，不显示进度条/题量口径 */
+      if (!st.dataReady) {
+        return '<button type="button" class="entry-tile is-empty" data-board="' + st.board + '">' +
+          '<b>' + esc(st.cn) + '</b><span class="tile-empty-badge">待录入</span></button>';
+      }
+      return '<button type="button" class="entry-tile" data-board="' + st.board + '">' +
+        '<b>' + esc(st.cn) + '</b>' + JY_ARROW + '</button>';
     }).join('');
     els.jyBoardCards.querySelectorAll('[data-board]').forEach(function (b) {
       b.addEventListener('click', function () { openBoard(b.dataset.board); });
@@ -64,17 +64,16 @@
     boardId = id; section = null;
     var b = J.board(id), st = J.boardStats(id);
     els.jyCrumb.textContent = '讲义复习 › U' + b.unit;
-    els.jyBoardTitle.textContent = 'U' + b.unit + ' ' + b.en;
-    els.jyBoardLead.textContent = st.dataReady ? b.cn : '题目尚未录入。';
+    els.jyBoardTitle.textContent = b.cn + ' · Unit ' + b.unit;
+    els.jyBoardLead.textContent = '';
+    els.jyBoardLead.hidden = true;
     var secs = J.sectionsOf(id);
     var g = J.groupStats(id);
     if (g && g.total) {
       els.jyGroupList.hidden = false;
-      els.jyGroupList.innerHTML = '<div class="jy-subgroup">' +
-        '<button type="button" class="jy-subgroup-card" data-group="' + g.key + '">' +
-        '<span class="go">进入 ›</span>' +
-        '<b>' + esc(g.label) + '</b>' +
-        '</button></div>';
+      els.jyGroupList.innerHTML = '<div class="entry-tile-grid">' +
+        '<button type="button" class="entry-tile" data-group="' + g.key + '">' +
+        '<b>' + esc(g.label) + '</b>' + JY_ARROW + '</button></div>';
       els.jyGroupList.querySelector('[data-group]').addEventListener('click', function () {
         openSection(id, this.dataset.group);
       });
@@ -82,21 +81,20 @@
     els.jySectionList.innerHTML = secs.length ? secs.map(function (s) {
       var x = J.stats(id, s);
       if (!x.total) {
-        /* P1-A：0 题小节是禁用态、不是链接。data-empty="1" 命中页内作用域样式：
-           悬停无高亮/无浮起、无手型光标、整行降饱和；右侧是独立「待录入」徽标。
+        /* 0 题小节是禁用态、不是链接。悬停无高亮/无浮起、无手型光标；右侧「待录入」徽标。
            误点只弹轻提示，绝不进做题页。 */
-        return '<div class="drill-section-row jy-empty-row" data-empty="1" aria-disabled="true">' +
-          '<span class="drill-section-code">' + esc(s) + '</span>' +
-          '<span class="drill-section-name">' + esc(x.cn || '未命名小节') + '</span>' +
-          '<span class="drill-section-meta"></span>' +
-          '<span class="drill-section-go"><span class="jy-empty-badge">待录入</span></span></div>';
+        return '<div class="tile-section tile-sm is-empty" data-empty="1" aria-disabled="true">' +
+          '<span class="tile-code">' + esc(s) + '</span>' +
+          '<span class="tile-name">' + esc(x.cn || '未命名小节') + '</span>' +
+          '<span class="tile-empty-badge">待录入</span></div>';
       }
       var sub = J.submittedOf(s);
-      return '<a class="drill-section-row" href="#" data-sec="' + esc(s) + '"' + (sub ? ' data-result="1"' : '') + '>' +
-        '<span class="drill-section-code">' + esc(s) + '</span>' +
-        '<span class="drill-section-name">' + esc(x.cn || '未命名小节') + '</span>' +
-        '<span class="drill-section-meta">' + (x.answered ? '作答 ' + x.answered + ' / ' + x.total : '') + '</span>' +
-        '<span class="drill-section-go">' + (sub ? '查看结果' : (x.answered ? '继续' : '开始')) + '</span></a>';
+      var state = sub ? 'is-done' : (x.answered ? 'is-active' : 'is-new');
+      var tier = x.total >= 20 ? 'tile-lg' : x.total >= 10 ? 'tile-md' : 'tile-sm';
+      return '<a class="tile-section ' + tier + ' ' + state + '" href="#" data-sec="' + esc(s) + '"' + (sub ? ' data-result="1"' : '') + '>' +
+        '<span class="tile-code">' + esc(s) + '</span>' +
+        '<span class="tile-name">' + esc(x.cn || '未命名小节') + '</span>' +
+        '<span class="tile-dot ' + state + '"></span></a>';
     }).join('') : '<p class="jy-empty">该板块暂无小节数据。</p>';
     els.jySectionList.querySelectorAll('[data-sec]').forEach(function (a) {
       a.addEventListener('click', function (e) { e.preventDefault(); openSection(id, a.dataset.sec); });
@@ -105,7 +103,7 @@
     els.jySectionList.querySelectorAll('[data-empty="1"]').forEach(function (row) {
       row.addEventListener('click', function () { jyToast('本节题目尚未录入，先在题库里补题'); });
     });
-    title('讲义复习 · U' + b.unit + ' ' + b.en);
+    title('讲义复习 · ' + b.cn);
     show('jySections');
   }
 
