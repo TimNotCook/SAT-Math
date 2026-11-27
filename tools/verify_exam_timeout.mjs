@@ -262,6 +262,13 @@ for (let i = 0; i < 60; i++) {
   const ready = await ev(`(function(){return !!(window.TD_APP && document.getElementById('wrongList'));})()`);
   if (ready) break;
 }
+/* 线上题库几 MB，慢的时候 TD_BANK 还是空的：这时读到的 unit 是 0，
+   点 data-unit="0" 必然点空 → 假红。先等到题库真有内容。 */
+for (let i = 0; i < 80; i++) {
+  const banked = await ev(`(function(){var B=window.TD_BANK||{};var a=B.all||B.questions||[];return Array.isArray(a)&&a.length>0;})()`);
+  if (banked) break;
+  await sleep(150);
+}
 /* 错题页默认只展示一个单元，先按题目所属 unit 切筛选，否则会误判"没进错题本" */
 const wantUnit = await ev(`(function(){
   var want = ${JSON.stringify(wantQid)};
@@ -269,13 +276,23 @@ const wantUnit = await ev(`(function(){
   var q = all.filter(function (x) { return x.id === want; })[0];
   return q ? q.unit : 0;
 })()`);
-await ev(`(function(){
+/* 等筛选按钮真画出来再点：首屏慢时 render() 还没跑到 unitFilter，click 落空。 */
+for (let i = 0; i < 60; i++) {
+  const hasBtn = await ev(`!!document.querySelector('#unitFilter .filter-btn[data-unit="${wantUnit}"]')`);
+  if (hasBtn) break;
+  await sleep(150);
+}
+const applyFilter = `(function(){
   var u = ${JSON.stringify(wantUnit)};
   var b = document.querySelector('#unitFilter .filter-btn[data-unit="' + u + '"]');
   if (b) b.click();
-})()`);
+})()`;
+await ev(applyFilter);
 await sleep(300);
-const wrongCards = await ev(`(function(){
+/* 兜底：页面若在结果写完前就渲染成空列表，让页面重算一次错题集合。 */
+let wrongCards = null;
+for (let attempt = 0; attempt < 3; attempt++) {
+  wrongCards = await ev(`(function(){
   var list = document.getElementById('wrongList');
   var cards = document.querySelectorAll('#wrongList > *').length;
   var txt = list ? list.innerText : '';
@@ -289,6 +306,11 @@ const wrongCards = await ev(`(function(){
   var label = q ? (q.section + ' · 第 ' + q.no + ' 题') : '';
   return { cards: cards, label: label, hasLabel: label ? txt.indexOf(label) >= 0 : false, text: txt.replace(/\s+/g, ' ').slice(0, 140) };
 })()`);
+  if (wrongCards && wrongCards.cards >= 1) break;
+  await ev(`(function(){ var W=window.TD_IMPORT_WRONG; if(W&&W.refresh) W.refresh(); })()`);
+  await ev(applyFilter);
+  await sleep(400);
+}
 check('错题回顾页出现这道题（按 板块 · 第 N 题 定位）', wrongCards && wrongCards.cards >= 1 && wrongCards.hasLabel, JSON.stringify(wrongCards));
 await cap('timeout-4-wrongbook');
 

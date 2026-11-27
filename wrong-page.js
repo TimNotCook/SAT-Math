@@ -278,4 +278,11 @@ function importedGroupHtml(){
  document.addEventListener('click',function(e){var b=e.target.closest('[data-unit]');if(!b)return;
    activeUnit=+b.dataset.unit;var p=activeUnit?'?unit='+activeUnit:'';history.replaceState(null,'','wrong.html'+p);render();});
  render();
+ /* 慢网兜底：defer 链很长，首屏可能读完题库前就渲染，错题本会先呈现空白。
+    load 之后再自检一次，空了就重算一遍，避免学生以为错题被清空。 */
+ window.addEventListener('load',function(){
+   setTimeout(function(){
+     if(!all.length){ all=collect(); if(all.length) render(); }
+   },600);
+ });
 })();
