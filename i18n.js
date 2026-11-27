@@ -231,6 +231,22 @@
     '云端账号：未登录 · 图片识别需先登录': 'Cloud account: signed out · sign in to use image import',
     '需要先登录云端账号才能使用图片识别': 'Sign in to use image import',
     '回顾等式变形、斜率截距与函数代入。': 'Review equation manipulation, slope/intercept, and substitution.',
+    '钢笔': 'Pen',
+    '荧光笔': 'Highlighter',
+    '橡皮（整笔擦除）': 'Eraser (whole stroke)',
+    '颜色 1': 'Color 1',
+    '颜色 2': 'Color 2',
+    '颜色 3': 'Color 3',
+    '细': 'Thin',
+    '中': 'Medium',
+    '粗': 'Thick',
+    '撤销': 'Undo',
+    '重做': 'Redo',
+    '清空本题': 'Clear this question',
+    '移动：让开画布，可点选项与翻页': 'Move: pan the canvas aside to tap choices and turn pages',
+    '草稿板：在题目上涂画标记、写草稿，答案可直接填写': 'Scratch pad: draw on the question and take notes; answers can be typed directly',
+    '题目工具': 'Question tools',
+    '全站导航': 'Site navigation',
   };
 
   /* 带数字的句子：模板字符串拼出来的是一个整体文本节点，靠模式匹配 */
