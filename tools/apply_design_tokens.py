@@ -29,7 +29,7 @@ SOURCES = [
 # 目录+讲义 / 错题·记录空态 / 真题答题页 / 题目导航修正 /
 # 模考开场 / 板块结果 / 结果页底座 / 画布兜底 / 讲义首页 /
 # 讲义做题页 / 记录·错题页头 / 记录页空态卡 / 手机端重排。
-# 42: 当前题去蓝框。
+# 43: aria-current 去蓝描边。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
