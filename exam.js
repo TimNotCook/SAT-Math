@@ -1235,8 +1235,11 @@
            (MODE === 'mock' ? ' · Module 2 路径：' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : '未进入') : '')));
     /* 只有模考换算 200–800 分；单元抽测只展示正确率，不出分、不折成 44 题。 */
     const isMock = MODE === 'mock';
-    const rawVal = safeNum(est.raw), rawMaxVal = safeNum(est.rawMax);
-    const rawTxt = (rawVal == null ? '—' : rawVal) + ' / ' + (rawMaxVal == null ? '—' : rawMaxVal);
+    /* 原始分上限固定 44（模考和非模考都折算到 44 题）。旧记录/云端乱写
+       raw=999 时，成绩页会印出「999 / 44」这种不可能的分。 */
+    const rawN = safeNum(est.raw);
+    const rawVal = rawN == null ? null : Math.max(0, Math.min(44, rawN));
+    const rawTxt = (rawVal == null ? '—' : rawVal) + ' / 44';
     applyQuizCopy();
     $('resScoreLabel').textContent = isMock ? T('预估 SAT 数学分数 · 200–800', 'Estimated SAT Math Score · 200–800') : '本次练习正确率';
     $('resScore').innerHTML = isMock

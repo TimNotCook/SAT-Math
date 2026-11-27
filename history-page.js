@@ -217,12 +217,19 @@
     return html;
   }
 
+  /* 原始分只可能是 0–44（SCALE/estimateScore 都按 44 题折算）。旧记录
+     乱写 999 时，记录页会显示「原始分 999 / 44」这种不可能的分。 */
+  function rawParts(rec) {
+    var n = num(asObj(rec && rec.estimate).raw);
+    return { raw: n == null ? null : Math.max(0, Math.min(44, n)), max: 44 };
+  }
+
   function resultBody(rec) {
     var html = '<div class="hist-kv">' +
       '<span>交卷时间 <b>' + fmtDate(rec.date) + '</b></span>' +
       '<span>答对 <b>' + numTxt(scoreParts(rec).correct) + ' / ' + numTxt(scoreParts(rec).total) + '</b></span>' +
       '<span>用时 <b>' + fmtDur(rec.elapsed) + '</b></span>' +
-      (txt(rec.mode) === 'mock' && Object.keys(asObj(rec.estimate)).length ? '<span>原始分 <b>' + esc(numTxt(asObj(rec.estimate).raw)) + ' / ' + esc(numTxt(asObj(rec.estimate).rawMax)) + '</b></span>' +
+      (txt(rec.mode) === 'mock' && Object.keys(asObj(rec.estimate)).length ? (function(){var rp=rawParts(rec);return '<span>原始分 <b>' + esc(numTxt(rp.raw)) + ' / ' + rp.max + '</b></span>';})() +
         '<span>自适应路径 <b>' + (txt(asObj(rec.estimate).path) === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
       '</div>';
     html += '<div class="hist-sec">错题（' + (asArr(rec.detail).filter(function (d) { return isDetail(d) && !isRight(d.correct); })).length + '）</div>' + wrongRows(rec.detail);

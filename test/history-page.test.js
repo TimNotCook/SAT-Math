@@ -53,3 +53,10 @@ test('记录页日期是数组/对象时不显示 1970', () => {
   const s = read('history-page.js');
   assert.match(s, /typeof t === 'object' && !\(t instanceof Date\)/, 'fmtDate 缺少非 Date 对象排除');
 });
+
+
+test('记录页原始分越界（999）夹到 0–44', () => {
+  const s = read('history-page.js');
+  assert.match(s, /function rawParts\(rec\)/, '缺 rawParts');
+  assert.match(s, /Math\.max\(0, Math\.min\(44, n\)\)/, 'raw 没有夹到 0–44');
+});
