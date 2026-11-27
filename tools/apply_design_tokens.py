@@ -22,12 +22,13 @@ SOURCES = [
     "tools/notes-quiz-theme.css",
     "tools/empty-state-theme.css",
     "tools/history-card-theme.css",
+    "tools/mobile-theme.css",
 ]
-# 16 份：抽在开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
+# 17 份：抽在开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
 # 目录+讲义 / 错题·记录空态 / 真题答题页 / 模考开场 / 板块结果 /
 # 结果页底座 / 画布兜底 / 讲义首页 / 讲义做题页 / 记录·错题页头 /
-# 记录页空态卡。
-# 35: 空态说明不断行。
+# 记录页空态卡 / 手机端重排（末位，所有 @media 覆盖）。
+# 36: 手机端。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
