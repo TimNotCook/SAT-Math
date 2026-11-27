@@ -14,9 +14,8 @@ SOURCES = [
     "tools/archive-theme.css",
 ]
 # 每页一份 theme：study(抽查开场) / question(答题) / intro(开场标题层) /
-# result(成绩) / catalog(练习首页) / archive(错题·记录空态)。
+# result(成绩) / catalog(练习首页+讲义) / archive(错题·记录空态)。
 # 改完任一份后推 main，本脚本会被 workflow 自动执行。
-# 注意：catalog 的入口行只作用于 body.drill-page:not(.jy-page)，别影响讲义页。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
