@@ -18,7 +18,7 @@ SOURCES = [
 # 每页一份 theme：study(抽查开场) / question(模考答题) / intro(开场标题层) /
 # result(成绩) / catalog(练习首页+讲义) / archive(错题·记录空态) /
 # practice(真题练习答题页) / mock(模考开场)。
-# 16: 模考开场层容器底色清空，Back 链接恢复。
+# 17: 模考开场描边拆除、结构表去蓝、侧栏铺满。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
