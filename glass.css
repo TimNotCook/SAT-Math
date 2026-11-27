@@ -1611,6 +1611,28 @@ html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hove
 /* 行悬停：极轻的纸色，不做卡片 */
 html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hover{background:#fffdfa!important;box-shadow:inset 2px 0 0 #e7e3da!important}
 
+/* ==== result-blank-guard：收口的两个小口子 ====
+   1) 任何一个“未作答”结果行，都不能把题库正确答案显示成“你的答案”
+      （drill.js:91 的 answerLabel 会把 grid 题的 q.value 回填，样式层先兜住）
+   2) 讲义做题页的图形卡对齐题干左缘，页脚按钮回到纸面语言 */
+
+html:not([data-theme="dark"]) .drill-result-row.is-blank .drill-result-answers>div:first-child b{font-size:0!important;letter-spacing:0!important}
+html:not([data-theme="dark"]) .drill-result-row.is-blank .drill-result-answers>div:first-child b::after{content:"—"!important;font-size:14px!important;color:#c9c3b7!important;font-weight:500!important}
+
+/* 讲义做题页：图卡与题干同左缘，宽 620，不再居中缩进 */
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure{margin-left:0!important;margin-right:auto!important;max-width:620px!important;background:#fffdfa!important;border:1px solid #efebe2!important;border-radius:8px!important;box-shadow:none!important;padding:16px 18px!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure svg,
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure img{max-width:100%!important;height:auto!important}
+
+/* 讲义做题页页脚：上一题/交本节是文字钮，下一题是唯一实心蓝 */
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .drill-footer{background:#f7f6f2!important;border-top:1px solid #e7e3da!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .drill-footer-inner{max-width:860px!important;padding:0 20px!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .drill-footer-section{font-size:12px!important;color:#a8acb4!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz #jyPrev,
+html:not([data-theme="dark"]) body.jy-page #jyQuiz #jySubmit{height:34px!important;min-height:0!important;padding:0 14px!important;border-radius:8px!important;border:1px solid #e7e3da!important;background:transparent!important;color:#5c6169!important;font-size:12.5px!important;font-weight:500!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz #jyPrev:disabled{color:#c9c3b7!important;border-color:#efebe2!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz #jyNext{height:34px!important;min-height:0!important;padding:0 16px!important;border-radius:8px!important;border:1px solid #2563eb!important;background:#2563eb!important;color:#fff!important;font-size:12.5px!important;font-weight:600!important;box-shadow:none!important}
+
 /* ==== result-rail-base：板块结果页左栏底座（铺在 html 上，才能铺满视口） ==== */
 html:has(body.drill-page #resultView:not([hidden])){background:linear-gradient(90deg,#fffdfa 0 216px,#f7f6f2 216px 100%)!important;background-attachment:fixed!important;background-repeat:no-repeat!important}
 html:not([data-theme="dark"]) body.drill-page:has(#resultView:not([hidden])){background:transparent!important}
