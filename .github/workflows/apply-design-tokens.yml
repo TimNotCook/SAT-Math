@@ -1,0 +1,55 @@
+name: sync-design-tokens
+
+on:
+  push:
+    paths:
+      - tools/study-theme.css
+      - tools/question-theme.css
+      - tools/apply_design_tokens.py
+      - .github/workflows/apply-design-tokens.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: design-tokens
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Sync tokens into glass.css
+        run: python3 tools/apply_design_tokens.py
+
+      - name: Bump asset versions
+        run: |
+          python3 tools/bump_assets.py || true
+          python3 tools/bump_assets.py
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then
+            echo "no change, skipping commit"
+            exit 0
+          fi
+          git config user.name "sat-art-bot"
+          git config user.email "sat-art-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "style: sync design tokens into glass.css"
+          git push origin HEAD:main
+
+      - name: Trigger pages deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages-deploy.yml --ref main || true
