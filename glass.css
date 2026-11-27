@@ -1186,13 +1186,13 @@ html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-card-title{font-
 
 /* ==== 单元抽查开场（非模考）：从“白卡”改成纸面两栏
    卡、圆角、阴影全部拆掉，换成上、下发丝线包住的一整页卷面：
-   左栏题目量 / 限时 + 开始按钮，右栏涵盖考点，底部组卷范围。 */
+   左栏题目量 / 限时 + 开始按钮，右栏涵盖考点，底部组卷范围。
+   分栏与右栅只在桌面生效，窄屏交给 mobile-theme 的单栏处理。 */
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-grid{
   display:block!important;border-top:1px solid #e7e3da!important;border-bottom:1px solid #e7e3da!important;
   padding:30px 0 34px!important;margin:0 0 26px!important;background:transparent!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-main-card{
-  display:grid!important;grid-template-columns:minmax(0,1fr) 320px!important;align-items:start!important;column-gap:0!important;
   background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
   min-height:0!important;padding:0!important;
 }
@@ -1219,10 +1219,6 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #btnStar
   border-radius:8px!important;background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;
   font-size:13px!important;font-weight:600!important;box-shadow:none!important;
 }
-html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope{
-  background:transparent!important;border:0!important;border-left:1px solid #e7e3da!important;
-  border-radius:0!important;box-shadow:none!important;padding:0 0 0 40px!important;margin:0!important;
-}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .quiz-scope-h{
   display:block!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:#a8acb4!important;margin:2px 0 12px!important;
 }
@@ -1245,17 +1241,14 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-sp
   color:#8d9199!important;background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;
 }
 
-/* 窄屏：两栏回落成单栏，竖发丝线换成横发丝线 */
-@media (max-width:900px){
+@media (min-width:901px){
   html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-main-card{
-    display:block!important;grid-template-columns:none!important;padding:0!important;
+    display:grid!important;grid-template-columns:minmax(0,1fr) 320px!important;align-items:start!important;column-gap:0!important;
   }
-  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-main-card #quizScope{
-    border-left:0!important;border-top:1px solid #e7e3da!important;
-    padding:18px 0 0!important;margin:26px 0 0!important;width:auto!important;
+  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope{
+    background:transparent!important;border:0!important;border-left:1px solid #e7e3da!important;
+    border-radius:0!important;box-shadow:none!important;padding:0 0 0 40px!important;margin:0!important;
   }
-  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope li{line-height:1.9!important}
-  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-special-chips{gap:10px 18px!important}
 }
 
 /* ==== result-theme：成绩页按「阅卷纸」排版，不再是仪表盘 ==== */
