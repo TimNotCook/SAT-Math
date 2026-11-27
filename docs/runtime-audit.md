@@ -318,3 +318,15 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`test/array-guard.test.js` 加 1 条（种 `tdsat_imported_wrong_v1.items='no'`，错题本不崩且仍画出卡片），旧代码复现 `错题本被坏导入仓库打崩：(readImport(...).items || []).filter is not a function` 1 红，新代码 7 绿。`verify_junk` **4 套 × 六页**全绿。
 
 回归：`node --test` 全量全绿；`verify_junk` 4×6、`verify_flows` 16/16、`verify_runtime` 六页 0 异常。
+
+## 第 22 条：从 PDF 复制/输入法带出的「假负号」被判错（2026-11-27）
+
+`grade-core.js` 的 `gridEntry()` 只认 ASCII `-`：`/^-?(?:\d+…)$/`。而学生在 Mac/iOS 上打出来的减号、从 PDF 复制的负号、以及 iOS 智能标点，常常是 **U+2212「−」**、或 **en/em dash「–」「—」**，还可能夹着零宽字符 / BOM。这些输入看上去就是 `-5`，但 `gridEntry` 直接返回 `null` → `isCorrect` 判错。
+
+更讽刺的是同一个仓库里 `wrong-page.js` 的 `num()` 早就 `replace(/[−–]/g,'-')` 了——判分比错题分析更严，于是错题本说「你这题其实是对的」，卷面却扣了分。
+
+修法：`gridEntry()` 先进一次归一化（去 `\u00a0\u200b\u200c\u200d\ufeff`、把 `\u2212\u2013\u2014` 换成 `-`）再走 5/6 字符格规则；`parseNum()` 原有的同类替换保留（双保险）。`dualCorrect` 走同一个 `gridEntry`，两个空格的题一并修好。
+
+验证：`test/grading.test.js` 加 9 条（U+2212 减号、en dash 负分数、em dash、零宽、BOM、`−5` 判对、`–5` 判对、`+5` 仍判错、双空 `−2, 3` 判对）。旧代码复现 4 红（两条 `gridEntry` + 两条 `isCorrect`），新代码 84/0。
+
+回归：`node --test` 全量全绿；`verify_grading_ui` 8/8、`verify_exam_timeout` 13/13、`verify_flows` 16/16。
