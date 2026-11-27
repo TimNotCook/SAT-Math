@@ -620,3 +620,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 66 条：模考卷面/Module 2 候选的 uid 重复，同一格答案被两道题共用（2026-11-27）
 
 `exam-core parseSession()` 只检查每个 paper / m2Options 实例的 uid 是非空字符串、题号合法，没有检查唯一性。云端合并或旧版把同一道题拼两次时，44 题卷面里两个位置共用一个 uid：作答写到同一格，导航和判分都串题；Module 2 候选有重复 uid 时，进入模块后 `answers[x.uid]` 被后一条覆盖，题号还在但答案错位。修法：paper 逐项建 `seenPaperUid`，重复直接 `paper-uid-dup` 判过期；hard/easy 各加 `uniqUid()`，重复候选同样 `m2-options` 判过期。验证：`test/session.test.js` 新增「paper / m2Options 的 uid 重复 → 判过期」，旧代码放行失败，新代码拒绝；全量 `node --test` 495/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 67 条：finished 的 result 是数组/字符串/缺 detail，成绩页被放行成假成绩单（2026-11-27）
+
+`exam-core parseSession()` 对 `s.finished` 只看 `!s.result`：`result: []`、`"junk"`、`{}`、`{detail:null}` 都是 truthy，存档被判 `ok`，页面直接进成绩态。随后 `renderResultList()` 用 `asArr(r.detail)` 得到空数组，页头分数/题数全是 0，学生看到一张空白「0/0」成绩单，且无法回到答题态。修法：finished 必须有普通对象且 `detail` 是数组；形状不对就 `finished=false`、`locked=false`、`result=null`，stage 从 result 退回 answer。验证：`test/session.test.js` 新增五种坏 result 的回归，旧代码放行失败，新代码全部回到答题态；全量 `node --test` 496/0；`verify_junk` 11×7；`verify_flows` 16/16。

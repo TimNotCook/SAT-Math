@@ -82,6 +82,17 @@ describe('parseSession：作答值必须是可判分的字符串', () => {
     assert.equal(r.session.answers['M1-3'].v, '');
   });
 
+  test('finished 的 result 是数组/字符串/缺 detail 时回到答题态，不显示假成绩页', () => {
+    for (const bad of [[], 'junk', {}, { detail: null }, { detail: 'junk' }]) {
+      const s = baseSave({ finished: true, locked: true, stage: 'result', result: bad });
+      const r = C.parseSession(s, { mode: 'mock', isQuestionId: () => true });
+      assert.equal(r.status, 'ok');
+      assert.equal(r.session.finished, false, '坏 result 被当成绩页：' + JSON.stringify(bad));
+      assert.equal(r.session.result, null);
+      assert.equal(r.session.stage, 'answer');
+    }
+  });
+
   test('marked / locked / finished 是字符串 false 时按布尔 false 处理', () => {
     const s = baseSave({ finished: 'false', locked: 'false' });
     s.answers['M1-1'] = { v: 'A', marked: 'false', locked: 'false', spent: 5 };

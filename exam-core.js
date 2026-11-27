@@ -971,7 +971,15 @@
     /* 云端/旧版可能把布尔存成字符串：'false' 是 truthy，会把未交的卷锁死。 */
     s.finished = isRightFlag(s.finished);
     s.locked = isRightFlag(s.locked);
-    if (s.finished && !s.result) { s.finished = false; s.locked = false; if (s.stage === 'result') s.stage = 'answer'; }
+    /* finished 必须有真正的 result 对象：数组、字符串、{detail:null} 都是
+       truthy，旧实现会放行，随后成绩页拿 r.detail 渲染出一张空白假成绩。
+       形状不对就回到可继续的答题态，而不是显示一张 0/0 的成绩单。 */
+    const resultOk = s.result && typeof s.result === 'object' && !Array.isArray(s.result) &&
+      Array.isArray(s.result.detail);
+    if (s.finished && !resultOk) {
+      s.finished = false; s.locked = false; s.result = null;
+      if (s.stage === 'result') s.stage = 'answer';
+    }
     return { status: 'ok', reason: '', session: s };
   }
 
