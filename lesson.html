@@ -185,7 +185,7 @@
   document.getElementById('goL').innerHTML = links.join('');
   document.getElementById('goBtn').textContent = '去做 ' + sec + ' 的题';
 
-  // — ध 一分钟检查：点一下划掉，本节单独记 —
+  // 一分钟检查：点一下划掉，本节单独记
   var CKEY = 'lesson_check_v1:' + sec, cm = {};
   try { cm = JSON.parse(localStorage.getItem(CKEY) || '{}'); } catch (e) {}
   [].forEach.call(document.querySelectorAll('.check li'), function (li) {
@@ -198,7 +198,7 @@
     });
   });
 
-  // — 下次打开回到上次停下的位置 —
+  // 下次打开回到上次停下的位置
   var PKEY = 'lesson_pos_v1';
   function pMap() { try { return JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch (e) { return {}; } }
   var holding = false, tick = 0;
@@ -221,7 +221,7 @@
       try { localStorage.setItem(PKEY, JSON.stringify(m)); } catch (e) {}
     }, 260);
   }, { passive: true });
-  // — 阅读进度：只在本地记一笔，用来在目录上打勾 —
+  // 阅读进度：只在本地记一笔，用来在目录上打勾
   var KEY = 'lesson_read_v1';
   function readMap() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } }
   function paintToc() {
