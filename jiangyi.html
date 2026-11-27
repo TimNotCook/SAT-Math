@@ -8,19 +8,11 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.supabase.in; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>SAT Math Prep · 讲义复习</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=9e5e53fed6bf">
-  <link rel="stylesheet" href="bluebook.css?v=9e5e53fed6bf">
-  <link rel="stylesheet" href="glass.css?v=9e5e53fed6bf">
-  <script src="theme.js?v=9e5e53fed6bf"></script>
+  <link rel="stylesheet" href="app.css?v=4a1a9014f818">
+  <link rel="stylesheet" href="bluebook.css?v=4a1a9014f818">
+  <link rel="stylesheet" href="glass.css?v=4a1a9014f818">
+  <script src="theme.js?v=4a1a9014f818"></script>
   <style>
-    .jy-board-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0 8px}
-    .jy-board-card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);text-align:left;cursor:pointer;transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
-    .jy-board-card:hover{border-color:var(--blue-line);box-shadow:0 1px 2px rgba(15,39,68,.06)}
-    .jy-board-card b{font-size:16px;font-weight:800;color:var(--navy)}
-    .jy-board-card span{font-size:12.5px;color:var(--sub);line-height:1.5}
-    .jy-board-card small{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
-    .jy-bar{height:6px;border-radius:99px;background:var(--line-soft,#eef2f7);overflow:hidden;margin-top:4px}
-    .jy-bar i{display:block;height:100%;background:var(--blue);border-radius:99px}
     .jy-position{font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums}
     .jy-table{border-collapse:collapse;margin:14px 0;font-size:14px;font-variant-numeric:tabular-nums}
     .jy-table th,.jy-table td{border:1px solid var(--line);padding:6px 14px;text-align:center}
@@ -35,38 +27,9 @@
     .jy-grid-multi input{width:100%;box-sizing:border-box}
     .jy-grid-multi #jyGridSet{grid-column:1/-1;justify-self:start}
     .jy-book-chip{display:block;width:max-content;max-width:100%;margin:0 0 12px;padding:3px 9px;border:1px solid var(--blue-line,#c7d9f7);border-radius:99px;background:#f3f7ff;color:#1d4ed8;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em}
-    .jy-subgroup{display:flex;flex-direction:column;gap:6px;margin:0 0 18px}
-    .jy-subgroup-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;align-items:center;padding:16px 18px;border:1px solid var(--blue-line,#c7d9f7);border-radius:var(--radius);background:#f7faff;text-decoration:none;color:var(--navy)}
-    .jy-subgroup-card b{font-size:15px;font-weight:800}
-    .jy-subgroup-card small{grid-column:1/-1;font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums}
-    .jy-subgroup-card .go{font-size:13px;font-weight:700;color:#1d4ed8}
-    .jy-subgroup-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:#2563eb;text-transform:uppercase}
     .jy-empty{padding:28px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--sub);text-align:center}
     .jy-result-row{display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line-soft)}
     .jy-result-row .s{font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums;min-width:120px}
-    /* P1-A：0 题小节禁用态。只命中 data-empty="1"，不改任何共享 CSS 现有声明：
-       悬停无高亮/无浮起/无投影、无手型光标、整行降饱和；右侧独立「待录入」灰 pill。
-       选择器带 .jy-page 前缀，特异性压过 glass/bluebook 里 .drill-section-row:hover 的 !important。 */
-    .jy-page .drill-section-row[data-empty="1"]{
-      cursor:default!important;opacity:.62!important;
-      background:transparent!important;border:0!important;border-bottom:1px solid var(--line-soft,rgba(35,35,40,.08))!important;
-      border-radius:0!important;box-shadow:none!important;transform:none!important;
-    }
-    .jy-page .drill-section-row[data-empty="1"]:hover,
-    .jy-page .drill-section-row[data-empty="1"]:focus,
-    .jy-page .drill-section-row[data-empty="1"]:focus-visible{
-      background:transparent!important;border-color:transparent!important;box-shadow:none!important;transform:none!important;outline:none!important;
-    }
-    .jy-page .drill-section-row[data-empty="1"] .drill-section-code{
-      background:var(--wash,#f0f2f5)!important;color:var(--sub,#8a9099)!important;
-    }
-    .jy-page .drill-section-row[data-empty="1"] .drill-section-name,
-    .jy-page .drill-section-row[data-empty="1"] .drill-section-meta{color:var(--sub,#8a9099)!important}
-    .jy-page .jy-empty-badge{
-      display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;
-      background:var(--wash,#f0f2f5);color:var(--sub,#8a9099);
-      font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap;
-    }
   </style>
 </head>
 <body class="drill-page jy-page site-shell">
@@ -84,10 +47,9 @@
   <!-- 1) 四个子板块 -->
   <main class="drill-select" id="jyBoards">
     <div class="drill-select-inner">
-      <p class="drill-select-eyebrow">LECTURE REVIEW</p>
       <h1>讲义复习</h1>
       <!-- 冷启动占位：数据脚本未就绪前先给一句话，避免整页空白（renderBoards 会整段覆盖） -->
-      <div class="jy-board-grid" id="jyBoardCards"><p class="jy-empty" id="jyLoading">正在载入讲义题目…</p></div>
+      <div class="entry-tile-grid" id="jyBoardCards"><p class="jy-empty" id="jyLoading">正在载入讲义题目…</p></div>
       <p class="jy-empty" id="jyDataNotice" hidden>讲义题目正在补充，稍后再来。</p>
     </div>
   </main>
@@ -95,11 +57,11 @@
   <!-- 2) 小节列表 -->
   <main class="drill-select" id="jySections" hidden>
     <div class="drill-select-inner">
-      <p class="drill-select-eyebrow" id="jyCrumb">讲义复习</p>
-      <h1 id="jyBoardTitle">U1 Algebra</h1>
-      <p class="drill-select-lead" id="jyBoardLead"></p>
+      <nav class="drill-crumb" id="jyCrumb">讲义复习</nav>
+      <h1 id="jyBoardTitle">代数 · Unit 1</h1>
+      <p class="drill-select-lead" id="jyBoardLead" hidden></p>
       <div id="jyGroupList" hidden></div>
-      <div class="drill-section-list" id="jySectionList"></div>
+      <div class="tile-grid" id="jySectionList"></div>
       <p style="margin-top:16px"><a class="btn" href="jiangyi.html">返回四个子板块</a></p>
     </div>
   </main>
@@ -145,7 +107,6 @@
   <!-- 4) 结果 -->
   <main class="drill-result" id="jyResult" hidden>
     <div class="drill-result-inner">
-      <p class="drill-select-eyebrow">SECTION RESULTS</p>
       <h1 id="jyResultTitle">本节结果</h1>
       <section class="drill-result-summary" aria-label="本节成绩">
         <div class="drill-result-score">
@@ -166,15 +127,15 @@
   <!-- 讲义页与真题题库隔离：不加载 data/questions.js（560K），只给 app-core 一个空题库，
        这样导航栏仍由 app-core 单一来源渲染，讲义进度也不会碰到教材 CATALOG。 -->
   <script>window.TD_BANK = window.TD_BANK || { units: [], questions: [] };</script>
-  <script src="grade-core.js?v=9e5e53fed6bf" defer></script>
-  <script src="app-core.js?v=9e5e53fed6bf" defer></script>
-  <script src="data/jiangyi.js?v=9e5e53fed6bf" defer></script>
-  <script src="data/jiangyi_figures.js?v=9e5e53fed6bf" defer></script>
-  <script src="choice-figures.js?v=9e5e53fed6bf" defer></script>
-  <script src="jiangyi-core.js?v=9e5e53fed6bf" defer></script>
-  <script src="jiangyi-page.js?v=9e5e53fed6bf" defer></script>
+  <script src="grade-core.js?v=4a1a9014f818" defer></script>
+  <script src="app-core.js?v=4a1a9014f818" defer></script>
+  <script src="data/jiangyi.js?v=4a1a9014f818" defer></script>
+  <script src="data/jiangyi_figures.js?v=4a1a9014f818" defer></script>
+  <script src="choice-figures.js?v=4a1a9014f818" defer></script>
+  <script src="jiangyi-core.js?v=4a1a9014f818" defer></script>
+  <script src="jiangyi-page.js?v=4a1a9014f818" defer></script>
   <!-- 账户面板：与 drill.html 同一套 Supabase 通道（配置 → 会话 → 面板），顺序不可乱。 -->
-  <script src="cloud-config.js?v=9e5e53fed6bf" defer></script><script src="supa-cloud.js?v=9e5e53fed6bf" defer></script>
-  <script src="cloud-account.js?v=9e5e53fed6bf" defer></script>
+  <script src="cloud-config.js?v=4a1a9014f818" defer></script><script src="supa-cloud.js?v=4a1a9014f818" defer></script>
+  <script src="cloud-account.js?v=4a1a9014f818" defer></script>
 </body>
 </html>
