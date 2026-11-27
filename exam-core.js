@@ -622,26 +622,32 @@
     return QUIZ_TIERS[3];
   }
   /* wrongIds: unique question ids from the unit's usual mistake notebook.
-     组卷目标：覆盖本单元每个知识点（小节），节内优先高难度题；
-     历史错题只保留少量复测槽位（至多 5 道），不再按错题数决定卷长。 */
+     卷长按 QUIZ_TIERS 的错题数分档（这是产品定下的规律，别再用「覆盖率」改它）：
+       错题 0–20  →  20 题，历史错题最多 10 道复测（不足 10 道全纳入，不凑数）
+       错题 21–25 →  25 题，其中 10 道历史错题
+       错题 26–30 →  30 题，其中 15 道历史错题
+       错题 > 30  →  30 题，其中 15 道历史错题
+     其余题位仍按小节配额铺开，保证覆盖本单元全部知识点（这是下面 secCount 的用途）。
+     卷长不超过本单元题库实际题数。 */
   function quizPlan(wrongIds, unitQuestions) {
     const ids = Array.from(new Set(wrongIds || []));
     const W = ids.length;
     const uq = unitQuestions || [];
+    const tier = quizTier(W);
+    const total = Math.max(1, Math.min(tier.total, uq.length || tier.total));
+    const mustCapRaw = tier.must === 'min(W,10)' ? Math.min(W, 10) : tier.must;
+    const mustWrong = Math.max(0, Math.min(mustCapRaw, W, total));
+    const otherCount = Math.max(0, total - mustWrong);
     const sections = {};
     uq.forEach(q => { const k = coverageKey(q); (sections[k] = sections[k] || []).push(q); });
     const secCount = Object.keys(sections).length;
-    // 卷长：目标 24 题、封顶 30、不超过本单元题库；小节太少时至少 18 题。
-    const total = Math.min(30, uq.length, Math.max(18, secCount * 4, 24));
-    const mustWrong = Math.min(5, W);
-    const otherCount = Math.max(0, total - mustWrong);
     return {
-      wrongCount: W, tierId: 'COV', tierLabel: '知识点覆盖卷',
-      tierRule: '按小节配额覆盖本单元全部知识点，节内优先高难度题；历史错题至多 5 道复测',
+      wrongCount: W, tierId: tier.id, tierLabel: tier.label,
+      tierRule: tier.rule + '；其余题位按小节配额覆盖本单元全部知识点，节内优先高难度题',
       total, mustWrong, otherCount,
       wrongIds: ids.slice(0, mustWrong),
       allWrongIds: ids,                 // ALL historical mistakes drive weakness detection
-      bankSize: uq.length
+      bankSize: uq.length, sectionCount: secCount
     };
   }
   /* Weak knowledge points, ranked by mistake frequency (then recency count). */
