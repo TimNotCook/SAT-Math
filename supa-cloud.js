@@ -3,7 +3,9 @@
  * 为什么是 Supabase：identitytoolkit.googleapis.com 在国内不翻墙直接超时；
  * Supabase 的 REST / Auth 接口国内实测可直连。
  *
- * 当前过渡形态：**邮件链接登录（magic link）**。
+ * 主通道：**邮箱 + 密码**（signUpPassword / signInPassword）。本项目 mailer_autoconfirm=true，
+ * 注册当场返回 access_token，完全不经过邮件投递，因此不受默认 SMTP 额度影响。
+ * 备用通道：**邮件链接登录（magic link）**。
  *   1. sendOtp(email) → POST /auth/v1/otp { email, create_user: true }
  *      邮件里收到一条登录链接（首次登录自动建档，create_user=true）。
  *   2. 用户在邮件里点链接，Supabase 回跳到本站，会话参数带在 `location.hash`

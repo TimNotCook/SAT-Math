@@ -1,6 +1,8 @@
 /* 站点云端配置：
    1) 账号登录 / 进度同步：Supabase（window.TD_CLOUD_CONFIG.supabase），
-      邮箱登录唯一通道（当前为邮件链接 magic link；6 位数字码待自定义 SMTP + 模板改造后切回）；填了 Project URL 与 anon public key 即启用。
+      邮箱账号通道：主路径是「邮箱 + 密码」（mailer_autoconfirm=true，注册当场返回会话，
+      不依赖邮件投递）；备用「邮件链接」；6 位数字码仍被 Supabase 的自定义 SMTP 模板门禁卡住，
+      手机号登录需要项目开启 Phone provider + 短信服务商凭据，代码已留接口、UI 未接。填了 Project URL 与 anon public key 即启用。
    2) 图片识别导入（image-import.js）走应用已开通的云端视觉模型（WorkBuddy Cloud SDK，
       publishableKey 无权限，服务端按 Origin 授权，仅 timnotcook.github.io 可用，
       无需用户登录、不落地密钥）。endpoint / oauthRelayBaseUrl / publishableKey
