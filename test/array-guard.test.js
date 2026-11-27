@@ -383,6 +383,20 @@ test('记录页：模考 scaled 超出 200–800 时不当真，不显示「999 
   assert.ok(/50%/.test(html), '越界 scaled 没有退回明细正确率');
 });
 
+test('记录页：模考记录没有 total/detail 时标题写全卷 44 题，不写 0 题', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1700000000000, mode: 'mock', estimate: { scaled: 700, raw: 30, rawMax: 44 },
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '缺 total/detail 的模考记录打崩记录页：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(/全卷 44 题/.test(html), '缺题数证据的模考没有按 44 题显示');
+  assert.ok(!/全卷 0 题/.test(html), '模考标题仍写成全卷 0 题');
+});
+
 test('记录页：void 作废档案不能当正式成绩显示 0 分和整卷错题', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([{

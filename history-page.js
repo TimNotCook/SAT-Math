@@ -140,7 +140,10 @@
     if (mode === 'quiz') return '单元抽查' + (unit ? ' · U' + unit : '');
     /* 未交卷的模考只发到第一模块（22 题），写「全卷 22 题」会误导成整卷只有 22 题。 */
     if (abandonedRecord(rec)) return '官方模考 · 未交卷';
-    return '官方模考 · 全卷 ' + (total == null ? 44 : total) + ' 题';
+    /* scoreParts 永远返回数字，原来的 `total == null` 兜底是死代码：云端只存
+       estimate/report、没有 total/detail 的模考记录会写成「全卷 0 题」。
+       官方模考整卷固定 44 题，缺证据时按 44 显示。 */
+    return '官方模考 · 全卷 ' + (total > 0 ? total : 44) + ' 题';
   }
 
   function isDetail(d) { return !!d && typeof d === 'object' && !Array.isArray(d); }
