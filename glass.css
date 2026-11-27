@@ -689,3 +689,37 @@ html[data-theme="dark"] .td-acct-btn2[data-neutral="1"]{
   color:#e8e8ea!important;
 }
 html[data-theme="dark"] .td-acct-btn2[data-neutral="1"]:hover{background:rgba(255,255,255,.08)!important}
+
+/* ==================== 暗黑主题：逐题结果 / 模考回顾行 ====================
+   bluebook.css 的「可交互行」统一写死 background:rgba(255,255,255,.5)!important，
+   而结果行文字用 var(--ink)=#e8e8ea：暗色下就是浅银字叠浅灰卡，题干、题号、
+   你的答案/正确答案几乎读不出。答案框又单独写白玻璃 .55，同样中招。
+   这里把结果行/回顾行改深玻璃，答案框改低透明白；答错红、答对绿保留语义色。 */
+html[data-theme="dark"] .drill-result-row,
+html[data-theme="dark"] .rev-item{
+  background:rgba(255,255,255,.06)!important;
+  border-color:rgba(255,255,255,.12)!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .drill-result-row:hover,
+html[data-theme="dark"] .rev-item:hover{background:rgba(255,255,255,.10)!important}
+html[data-theme="dark"] .drill-result-row .drill-result-answers>div{
+  background:rgba(255,255,255,.06)!important;
+  border-color:rgba(255,255,255,.14)!important;
+}
+html[data-theme="dark"] .drill-result-row.is-wrong .drill-result-answers>div:first-child{
+  background:rgba(255,107,107,.12)!important;
+  border-color:rgba(255,107,107,.38)!important;
+}
+html[data-theme="dark"] .drill-result-row.is-right .drill-result-answers>div:first-child,
+html[data-theme="dark"] .drill-result-row .drill-result-answers>div:last-child{
+  background:rgba(52,199,89,.12)!important;
+  border-color:rgba(52,199,89,.38)!important;
+}
+
+/* ==================== 暗黑主题：错题卡片标题 ====================
+   .wrong-card 本身在暗色下已是深玻璃卡，但 .wrong-card-head b 仍写死
+   color:var(--navy)=#0f2744 → 深蓝标题叠深灰卡，错题的「小节 · 第 N 题」
+   几乎读不出来。标题统一浅银；exam-panel h2 的 navy 也一并兜底。 */
+html[data-theme="dark"] .wrong-card-head b{color:#f5f5f7!important}
+html[data-theme="dark"] .exam-panel h2{color:var(--ink)!important}

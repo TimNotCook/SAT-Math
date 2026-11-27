@@ -277,6 +277,15 @@ body.bb-modal-open{overflow:hidden}
 .drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) > .drill-choice-row:nth-child(3){order:1}
 .drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) > .drill-choice-row:nth-child(4){order:3}
 .drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) .td-choicegraph .td-choicesvg{max-width:min(100%,300px)}
+/* 2026-11-27：四个选项全是「小表格」时同样按原书两列排版——练习册 P14(#22)、P56(#6)、
+   P171(#13) 都是 A、C 上排、B、D 下排。判定在 drill.js / exam.js 做完（四格都渲染出
+   td-choice-table 就打 is-table-choices），浏览器只要认 :has 就不会误伤普通文字选项。 */
+.drill-choices.is-table-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;align-items:start}
+.drill-choices.is-table-choices > .drill-choice-row:nth-child(1){order:0}
+.drill-choices.is-table-choices > .drill-choice-row:nth-child(2){order:2}
+.drill-choices.is-table-choices > .drill-choice-row:nth-child(3){order:1}
+.drill-choices.is-table-choices > .drill-choice-row:nth-child(4){order:3}
+
 .td-save-layer{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
 .td-save-layer[hidden]{display:none!important}
 .td-save-backdrop{position:absolute;inset:0;background:var(--veil)}
@@ -1209,7 +1218,11 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px;mar
 /* 24px 的圆点视觉不变，但手指落点扩到 44px：手机上 A/B/C/D 的划掉键原本只有
    24×24，实测经常点不中（尤其 390 宽、选项行高 52px 时）。伪元素只扩大命中
    区域，不参与布局、不改视觉。 */
-.crossout-toggle::after{content:'';position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);border-radius:50%}
+/* 命中区仍是 44px，但改成「右边缘对齐按钮、向左扩」：居中会让伪元素向右侧露出 10px，
+   叠加按钮 right:-28px 后整页右侧溢出 38px —— 655 宽（iPad 竖屏）实测 docW 661，能横向滚 6px。
+   向左扩后溢出降到 28px（右侧余量 32px），按钮位置、尺寸、视觉全不变，多覆盖的只是
+   选项卡片 16px 右内边距（那块空白原本点了也不选中）。 */
+.crossout-toggle::after{content:'';position:absolute;right:0;left:auto;top:50%;width:44px;height:44px;transform:translateY(-50%);border-radius:50%}
 .drill-choice.is-crossed .drill-choice-text{
   color:#7c8590!important;text-decoration:line-through!important;
   text-decoration-color:#9aa3ae!important;text-decoration-thickness:2px;

@@ -114,129 +114,165 @@
   }
   function renderPicker(container, units, active, onPick, statFn) {
     container.innerHTML = units.map(function (u) {
+      var st = statFn ? statFn(u) : A.unitStats(u);
       return '<button type="button" class="drill-unit-button' + (u === active ? ' on' : '') +
-        '" data-unit="' + u + '"><b>Unit ' + u + '</b><span>' + esc(A.unit(u).cn || '') + '</span></button>';
+        '" data-unit="' + u + '"><b>Unit ' + u + '</b><span>' + esc(A.unit(u).cn || '') + '</span>' +
+        '<small>' + st.answered + ' / ' + st.total + ' 题</small></button>';
     }).join('');
     container.querySelectorAll('[data-unit]').forEach(function (b) {
       b.addEventListener('click', function () { onPick(+b.dataset.unit); });
     });
   }
-  /* ---- 小节磁贴：编号（左上淡灰）+ 名称（垂直居中）+ 右下角状态点 ---- */
-  function tileTier(total) {
-    if (total >= 20) return 'tile-lg';
-    if (total >= 10) return 'tile-md';
-    return 'tile-sm';
-  }
-  function sectionTile(s) {
-    var st = A.stats(s);
-    var saved = A.secState(s, false) || {};
-    var done = !!saved.submitted;
-    var state = done ? 'is-done' : (st.answered ? 'is-active' : 'is-new');
-    var tier = tileTier(st.total);
-    var name = A.SECTION_CN[s] || s;
-    if (!st.total) {
-      return '<div class="tile-section drill-section-row ' + tier + ' is-empty" data-empty="1" aria-disabled="true">' +
-        '<span class="tile-code">' + esc(s) + '</span>' +
-        '<span class="tile-name">' + esc(name) + '</span>' +
-        '<span class="tile-empty-badge">待录入</span></div>';
-    }
-    var href = done ? resultUrl(s) : A.secUrl(s, st.cursor + 1);
-    return '<a class="tile-section drill-section-row ' + tier + ' ' + state + '" href="' + href + '"' +
-      (done ? ' data-result="1"' : '') + '>' +
-      '<span class="tile-code">' + esc(s) + '</span>' +
-      '<span class="tile-name">' + esc(name) + '</span>' +
-      '<span class="tile-dot ' + state + '" aria-hidden="true"></span></a>';
+  function sectionRow(s, label, meta, go, href, done, sub) {
+    return '<a class="drill-section-row" href="' + href + '"' + (done ? ' data-result="1"' : '') + '>' +
+      '<span class="drill-section-code">' + esc(s) + '</span>' +
+      '<span class="drill-section-name">' + esc(label) +
+      (sub ? '<em class="drill-section-sub">' + esc(sub) + '</em>' : '') + '</span>' +
+      '<span class="drill-section-meta">' + esc(meta) + '</span>' +
+      '<span class="drill-section-go">' + esc(go) + '</span></a>';
   }
   function rowsHtml(ids) {
-    return ids.map(sectionTile).join('');
-  }
-  var activeBoard = 'unit';
-  var ENTRY_TITLES = [
-    { key: 'unit', title: '单元练习' },
-    { key: 'special', title: '专项训练' },
-    { key: 'jiangyi', title: '讲义复习' }
-  ];
-  var ENTRY_ARROW = '<svg class="entry-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
-  function entryTile(item) {
-    return '<button type="button" class="entry-tile' + (activeBoard === item.key ? ' on' : '') +
-      '" data-board="' + item.key + '">' +
-      '<b>' + esc(item.title) + '</b>' + ENTRY_ARROW + '</button>';
-  }
-  /* 讲义数据未就绪时的降级：四条直达磁贴，跳转路径不变。 */
-  function jiangyiFallbackTiles() {
-    return [1, 2, 3, 4].map(function (n) {
-      return '<a class="tile-section drill-section-row tile-sm is-new" href="jiangyi.html?b=JY' + n + '&i=1">' +
-        '<span class="tile-code">JY' + n + '</span>' +
-        '<span class="tile-name">讲义 JY' + n + '</span>' +
-        '<span class="tile-dot is-new" aria-hidden="true"></span></a>';
+    return ids.map(function (s) {
+      var st = A.stats(s), cur = st.cursor + 1;
+      var saved = A.secState(s, false) || {};
+      var done = !!saved.submitted;
+      var href = done ? resultUrl(s) : A.secUrl(s, cur);
+      var go = done ? '查看结果' : (st.answered ? '继续' : '开始');
+      return sectionRow(s, A.SECTION_CN[s] || s,
+        st.answered + ' / ' + st.total + ' 题' + (done ? ' · 已公布结果' : (st.completed ? ' · 已完成' : '')),
+        go, href, done, A.SECTION_SUB ? A.SECTION_SUB[s] : '');
     }).join('');
   }
-  function jiangyiTiles() {
-    var J = window.TD_JY;
-    if (!J || !J.boards || !J.boardStats) return jiangyiFallbackTiles();
-    var html = '';
-    J.boards().forEach(function (b) {
-      var st = J.boardStats(b.id);
-      if (!st || !st.dataReady) return;
-      var rows = J.sectionsOf(b.id).map(function (sec) {
-        var ss = J.stats(b.id, sec);
-        if (!ss.total) {
-          return '<div class="tile-section drill-section-row tile-sm is-empty" data-empty="1" aria-disabled="true">' +
-            '<span class="tile-code">' + esc(sec) + '</span>' +
-            '<span class="tile-name">' + esc(ss.cn || '未命名小节') + '</span>' +
-            '<span class="tile-empty-badge">待录入</span></div>';
-        }
-        var cur = (J.state.last && J.state.last.board === b.id && J.state.last.section === sec)
-          ? (J.state.last.i + 1) : 1;
-        var submitted = J.submittedOf ? J.submittedOf(sec) : false;
-        var state = submitted ? 'is-done' : (ss.answered ? 'is-active' : 'is-new');
-        var tier = tileTier(ss.total);
-        return '<a class="tile-section drill-section-row ' + tier + ' ' + state + '" href="jiangyi.html?b=' + b.id +
-          '&s=' + encodeURIComponent(sec) + '&i=' + cur + '">' +
-          '<span class="tile-code">' + esc(sec) + '</span>' +
-          '<span class="tile-name">' + esc(ss.cn || sec) + '</span>' +
-          '<span class="tile-dot ' + state + '" aria-hidden="true"></span></a>';
-      }).join('');
-      var g = J.groupStats(b.id);
-      if (g && g.total) {
-        rows += '<a class="tile-section drill-section-row tile-sm is-new" href="jiangyi.html?b=' + b.id +
-          '&s=' + encodeURIComponent(g.key) + '&i=1">' +
-          '<span class="tile-code">' + esc(g.key) + '</span>' +
-          '<span class="tile-name">' + esc(g.label) + '</span>' +
-          '<span class="tile-dot is-new" aria-hidden="true"></span></a>';
-      }
-      html += '<h2 class="drill-group-h">' + esc(b.cn || b.en) + '</h2>' + rows;
-    });
-    return html;
+  var activeBoard = 'unit';
+  function boardNavItem(key, title, desc, st, topicMode) {
+    /* 极简卡片：只留标题 + 进入动作；副标题、题量/板块数等内部口径不再展示 */
+    return '<button type="button" class="drill-board-nav-item' + (activeBoard === key ? ' on' : '') +
+      '" data-board="' + key + '">' +
+      '<b>' + esc(title) + '</b></button>';
   }
-  function groupTiles(secs, units, topicMode) {
+  /* 第三组「讲义复习」：进度在 jiangyi.html 与独立存储 tdsat_jiangyi_v1 里，
+     和上面两组互不影响；讲义 core 加载失败时降级为 4 条直达链接。 */
+  function jiangyiNavItem() {
+    return '<button type="button" class="drill-board-nav-item" data-board="jiangyi">' +
+      '<b>讲义复习</b></button>';
+  }
+  function jiangyiFallbackHtml() {
+    return [1, 2, 3, 4].map(function (n) {
+      return sectionRow('JY' + n, '讲义 JY' + n, '', '进入',
+        'jiangyi.html?b=JY' + n + '&i=1', false);
+    }).join('');
+  }
+  function groupedHtml(secs, units, topicMode) {
     var html = '';
     units.forEach(function (u) {
       var members = secs.filter(function (s) {
         return A.UNIT_OF(s) === u && !A.isLegacy(s);
       });
       if (!members.length) return;
-      var head = 'Unit ' + u + ' · ' + (A.unit(u).cn || '');
+      html += '<h2 class="drill-group-h">Unit ' + u + ' · ' + esc(A.unit(u).cn || '') + '</h2>' +
+        rowsHtml(members);
+    });
+    var legacy = secs.filter(function (s) { return A.isLegacy(s); });
+    if (legacy.length) {
+      html += '<h2 class="drill-group-h">精编原题组</h2>' + rowsHtml(legacy);
+    }
+    return html;
+  }
+  /* ---- landing 长条（accordion）：一条 = 一个单元，展开 = 该单元板块列表 ---- */
+  function pctOf(st) { return st.total ? Math.round(st.answered / st.total * 100) : 0; }
+  function unitBar(title, st, body, open) {
+    var pct = pctOf(st);
+    return '<section class="drill-unit-bar' + (open ? ' open' : '') + '">' +
+      '<button type="button" class="drill-unit-bar-head" aria-expanded="' + (open ? 'true' : 'false') + '">' +
+        '<span class="drill-unit-bar-title">' + esc(title) + '</span>' +
+        '<span class="drill-unit-bar-meta">' + st.answered + ' / ' + st.total + ' 题 · ' +
+          st.completedSections + ' / ' + st.sections + ' 板块完成</span>' +
+        '<span class="drill-unit-bar-pct">' + pct + '%</span>' +
+        '<svg class="drill-unit-bar-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>' +
+        '<span class="drill-unit-bar-track"><i style="width:' + pct + '%"></i></span>' +
+      '</button>' +
+      '<div class="drill-unit-bar-body">' + body + '</div>' +
+    '</section>';
+  }
+  function accordionHtml(secs, units, topicMode) {
+    var html = '', first = true;
+    units.forEach(function (u) {
+      var members = secs.filter(function (s) {
+        return A.UNIT_OF(s) === u && !A.isLegacy(s);
+      });
+      if (!members.length) return;
+      var head = 'Unit ' + u + ' · ' + (A.unit(u).cn || ''), sub = '';
       if (topicMode) {
+        /* 专项训练按册分组：主标题「Unit N · 专项练习」，副标题「XX 册」（取自群组节点 cn/sub） */
         var gn = A.specialGroupNode ? A.specialGroupNode(u) : null;
         head = gn && /^Unit\s*\d/.test(gn.cn || '') ? gn.cn
           : ('Unit ' + u + ' · ' + ((gn && gn.cn) || '专项练习'));
+        sub = (gn && gn.sub) ? '<p class="drill-group-sub">' + esc(gn.sub) + '</p>' : '';
       }
-      html += '<h2 class="drill-group-h">' + esc(head) + '</h2>' + rowsHtml(members);
+      html += unitBar(head, groupStats(members),
+        sub + rowsHtml(members), first);
+      first = false;
     });
     var legacy = secs.filter(function (s) { return A.isLegacy(s); });
-    if (legacy.length) html += '<h2 class="drill-group-h">精编原题组</h2>' + rowsHtml(legacy);
+    if (legacy.length) {
+      html += unitBar('精编原题组', groupStats(legacy), rowsHtml(legacy), first);
+    }
     return html;
+  }
+  /* 讲义长条：JY1–JY4 每条展开 = 讲义小节列表；数据未加载时降级为直达链接 */
+  function jiangyiAccordionHtml() {
+    var J = window.TD_JY;
+    if (!J || !J.boards || !J.boardStats) {
+      return jiangyiFallbackHtml();
+    }
+    var html = '';
+    J.boards().forEach(function (b, i) {
+      var st = J.boardStats(b.id);
+      if (!st || !st.dataReady) return;
+      var rows = J.sectionsOf(b.id).map(function (sec) {
+        var ss = J.stats(b.id, sec);
+        var cur = (J.state.last && J.state.last.board === b.id && J.state.last.section === sec)
+          ? (J.state.last.i + 1) : 1;
+        return sectionRow(sec, ss.cn || sec,
+          ss.answered + ' / ' + ss.total + ' 题' + (ss.complete ? ' · 已完成' : ''),
+          ss.answered ? '继续' : '开始',
+          'jiangyi.html?b=' + b.id + '&s=' + encodeURIComponent(sec) + '&i=' + cur, false);
+      }).join('');
+      var g = J.groupStats(b.id);
+      if (g && g.total) {
+        rows += sectionRow('TB', g.label,
+          g.answered + ' / ' + g.total + ' 题', g.answered ? '继续' : '开始',
+          'jiangyi.html?b=' + b.id + '&s=' + encodeURIComponent(g.key) + '&i=1', false);
+      }
+      html += unitBar(b.id + ' · ' + (b.cn || b.en),
+        { answered: st.answered, total: st.total, completedSections: st.completeSections, sections: st.sections },
+        rows, i === 0);
+    });
+    return html;
+  }
+  function bindAccordion(root) {
+    root.querySelectorAll('.drill-unit-bar-head').forEach(function (head) {
+      head.addEventListener('click', function () {
+        var bar = head.parentElement;
+        var open = bar.classList.toggle('open');
+        head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
   }
   function renderLanding(active) {
     activeBoard = active || 'unit';
     var reg = allRegularSections(), sp = allSpecialSections();
-    els.boardNav.innerHTML = ENTRY_TITLES.map(entryTile).join('');
+    var rg = groupStats(reg), sg = groupStats(sp);
+    els.boardNav.innerHTML =
+      boardNavItem('unit', '单元练习', '教材常规板块，按单元分组', rg, false) +
+      boardNavItem('special', '专项训练', '按 Topic 分组的专项板块', sg, true) +
+      jiangyiNavItem();
     var panelHtml;
-    if (activeBoard === 'special') panelHtml = groupTiles(sp, specialUnits(), true);
-    else if (activeBoard === 'jiangyi') panelHtml = jiangyiTiles();
-    else panelHtml = groupTiles(reg, A.UNITS.map(function (u) { return u.id; }));
+    if (activeBoard === 'special') panelHtml = accordionHtml(sp, specialUnits(), true);
+    else if (activeBoard === 'jiangyi') panelHtml = jiangyiAccordionHtml();
+    else panelHtml = accordionHtml(reg, A.UNITS.map(function (u) { return u.id; }));
     els.boardPanel.innerHTML = panelHtml || emptyNotice('题库暂未加载板块列表，请刷新页面重试。');
+    bindAccordion(els.boardPanel);
     els.boardNav.querySelectorAll('[data-board]').forEach(function (b) {
       b.addEventListener('click', function () {
         activeBoard = b.dataset.board;
@@ -383,15 +419,6 @@
     els.resumeSlot.innerHTML = '<a class="drill-resume" href="' + A.secUrl(last, (st.cursor || 0) + 1) + '">' +
       '继续上次练习 · ' + esc(A.sectionLabel(last)) + ' 第 ' + ((st.cursor || 0) + 1) + ' 题</a>';
   }
-  /* 空小节禁用态：误点只弹轻提示，绝不进做题页。 */
-  function drillToast(msg) {
-    var t = document.getElementById('toast');
-    if (!t) return;
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(drillToast._t);
-    drillToast._t = setTimeout(function () { t.classList.remove('show'); }, 2600);
-  }
   /* ---------------- question view ---------------- */
   function currentQuestion() { return questions[index] || null; }
   function textFor(q) { return (window.TD_TEXT || {})[q.id] || {}; }
@@ -490,7 +517,7 @@
       var letter = it.letter, selected = current === letter;
       var inner, cls;
       if (it.txt && !(it.hit && it.hit.source === 'field')) {
-        inner = window.TD_FIG ? window.TD_FIG.fmtMath(it.txt) : esc(it.txt);
+        inner = window.TD_FIG ? (window.TD_FIG.fmtChoice || window.TD_FIG.fmtMath)(it.txt, q.id) : esc(it.txt);
         cls = '';
       } else if (it.hit && it.visual) {
         inner = it.hit.html;
@@ -511,6 +538,10 @@
         (window.TD_CROSSOUT ? window.TD_CROSSOUT.buttonHtml(letter, window.TD_CROSSOUT.has(q.id, letter), false) : '') +
         '</div>';
     });
+    /* 四个选项都是小表格时按原书摆成两列（A/C 上排、B/D 下排）：每格各一张表 → 共 4 个 */
+    if ((html.match(/td-choice-table/g) || []).length >= 4) {
+      html = html.replace('<div class="drill-choices"', '<div class="drill-choices is-table-choices"');
+    }
     return html + '</div>';
   }
 
@@ -915,12 +946,6 @@
   });
 
   els.scratch.addEventListener('click', scratchPad.toggle);
-  /* 空小节（0 题）禁用态：点击只弹提示，不进做题页。 */
-  document.addEventListener('click', function (e) {
-    if (e.target && e.target.closest && e.target.closest('[data-empty]')) {
-      drillToast('本节题目尚未录入，先在题库里补题');
-    }
-  });
   U.bindTools({ reference: 'btnReference', calculator: 'btnCalculator', allowCalculator: true });
   // 计算器默认隐藏，进入题目后按板块与设置决定（单元练习可由设置开关打开）
   (function () { var c = $('btnCalculator'); if (c) c.hidden = true; })();

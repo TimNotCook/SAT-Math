@@ -128,11 +128,16 @@
   // 设置齿轮图标（内联 SVG，无需外部图标字体）
   function setBtnIcon(btn) {
     if (!btn) return;
+    /* 模考五屏一律英文（docs/UI-COPY.md v1.2）：入口跟 Bluebook 一样叫 Settings。
+       is-mock 由 exam.html 内联脚本打在 body 上；cloud-account 是 defer，读得到。 */
+    var isMock = !!(document.body && document.body.classList.contains('is-mock'));
+    var label = isMock ? 'Settings' : '设置';
     // Bluebook 顶栏风格：细线描边图标 + 文字标签（同 Reference / 退出）。
     btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" ' +
       'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" ' +
       'aria-hidden="true"><circle cx="12" cy="12" r="3"></circle>' +
-      '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>设置</span>';
+      '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>' + label + '</span>';
+    btn.setAttribute('aria-label', label); btn.title = label;
   }
   function friendlyError(e) {
     var c = e && e.code, m = e && e.message;
@@ -246,7 +251,14 @@
       try {
         var lo = JSON.parse(local[k]), co = JSON.parse(out[k]);
         out[k] = JSON.stringify(deepMerge(lo, co));
-      } catch (e) { out[k] = local[k]; }
+      } catch (e) {
+        /* 两边至少有一份不是合法 JSON：别让坏的那份覆盖好的那份。
+           本机半截存档 + 云端完好时，以前的实现会把坏值写回 out[k]，
+           接着被 silentPush 推上云，等于把账号里的好数据冲掉。 */
+        var coOk = true;
+        try { JSON.parse(out[k]); } catch (e2) { coOk = false; }
+        out[k] = coOk ? out[k] : local[k];
+      }
     });
     return out;
   }
@@ -950,6 +962,13 @@
       silentPush();
     });
   }
+
+  /* 诊断钩子：合并逻辑（canon / deepMerge / mergeLocalWithCloud）对外只读暴露，
+     便于 tools / 单测在无账号环境里验证「坏存档不覆盖好存档」这类不变量。 */
+  try {
+    window.TD_CLOUD_MERGE = { canon: canon, deepMerge: deepMerge, mergeLocalWithCloud: mergeLocalWithCloud,
+      mergeArrays: mergeArrays, itemSig: itemSig };
+  } catch (e) { console.warn('合并诊断钩子注册失败', e); }
 
   function boot() {
     loadProf();
