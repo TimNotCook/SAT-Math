@@ -103,3 +103,9 @@ test('dark 全局 toast 不再白底白字', () => {
   assert.match(css, /html\[data-theme="dark"\] #toast\{[^}]*background:#2c2c2e!important/);
   assert.match(css, /html\[data-theme="dark"\] #toast\{[^}]*color:#f5f5f7!important/);
 });
+
+test('dark 顶栏账号按钮已登录/悬停不再浅银底白字', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.td-acct-btn\[data-on="1"\],[^}]*background:rgba\(37,99,235,\.22\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.td-acct-btn:hover,[^}]*background:rgba\(255,255,255,\.18\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.td-acct-btn\[data-on="1"\]:hover,[^}]*background:rgba\(37,99,235,\.32\)!important/);
+});

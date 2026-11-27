@@ -852,3 +852,31 @@ html[data-theme="dark"] #toast{
   border-color:rgba(255,255,255,.16)!important;
   box-shadow:0 12px 32px rgba(0,0,0,.60)!important;
 }
+
+/* ==================== 暗黑主题：顶栏账号按钮 ====================
+   已登录时 glass.css 把 .td-acct-btn[data-on="1"] 写成
+   background:var(--blue)。暗黑 --blue=#e8e8ea，于是浅银底 + #fff 白字，
+   顶栏账号入口整块发白、字看不见；hover 又被 bluebook 的
+   rgba(255,255,255,.85) 白膜覆盖，依然白底浅字。统一改深蓝底白字。 */
+html[data-theme="dark"] .td-acct-btn:hover,
+html[data-theme="dark"] .appbar-inner .td-acct-btn:hover,
+html[data-theme="dark"] .appbar .td-acct-btn:hover{
+  background:rgba(255,255,255,.18)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.20)!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .td-acct-btn[data-on="1"],
+html[data-theme="dark"] .appbar-inner .td-acct-btn[data-on="1"],
+html[data-theme="dark"] .appbar .td-acct-btn[data-on="1"]{
+  background:rgba(37,99,235,.22)!important;
+  color:#fff!important;
+  border-color:rgba(96,165,250,.45)!important;
+}
+html[data-theme="dark"] .td-acct-btn[data-on="1"]:hover,
+html[data-theme="dark"] .appbar-inner .td-acct-btn[data-on="1"]:hover,
+html[data-theme="dark"] .appbar .td-acct-btn[data-on="1"]:hover{
+  background:rgba(37,99,235,.32)!important;
+  color:#fff!important;
+  border-color:rgba(96,165,250,.60)!important;
+}
