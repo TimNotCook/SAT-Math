@@ -452,6 +452,18 @@
         }
       });
       obs.observe(document.body, { childList: true, subtree: true, characterData: true });
+      /* <title> 由各页脚本随时改写（每换一节就换标题），单独盯 head：
+         英文模式下标题一出现中文就翻，切回中文后由页面自己写回原文。 */
+      try {
+        var headObs = new global.MutationObserver(function () {
+          if (getLang() !== 'en') return;
+          var ti = document.title;
+          if (!ti || !/[\u4e00-\u9fff]/.test(ti)) return;
+          ORIG_TITLE = ti;
+          document.title = t(ti);
+        });
+        headObs.observe(document.head || document.documentElement, { childList: true, subtree: true, characterData: true });
+      } catch (e) {}
     }
   }
 })(typeof window !== 'undefined' ? window : globalThis);
