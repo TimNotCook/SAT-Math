@@ -181,9 +181,27 @@
   function declared(unit, section) { return DECLARED[unit + '|' + section] || null; }
 
   /* ---------- 状态：独立 key，答案按题 id 存 ---------- */
-  var S = read(KEY) || { answers: {}, cursor: 0, submitted: {}, last: null, startedAt: null };
-  if (!S.answers) S.answers = {};
-  if (!S.submitted) S.submitted = {};
+  /* 讲义状态也会被云端合并/旧版写成字符串、数组，或 answers 是字符串。
+     直接 S.answers[q.id]=… 在严格模式下会 TypeError，讲义页答一题就崩。
+     先把容器归成普通对象，再把答案条目归一成 {v,correct,ts}。 */
+  function isObj(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
+  var S = read(KEY);
+  if (!isObj(S)) S = {};
+  if (!isObj(S.answers)) S.answers = {};
+  if (!isObj(S.submitted)) S.submitted = {};
+  if (!isObj(S.last)) S.last = null;
+  var curNum = Number(S.cursor); S.cursor = isFinite(curNum) && curNum >= 0 ? Math.floor(curNum) : 0;
+  Object.keys(S.answers).forEach(function (qid) {
+    var a = S.answers[qid];
+    if (!isObj(a)) {
+      S.answers[qid] = { v: typeof a === 'string' || (typeof a === 'number' && isFinite(a)) ? String(a) : '', correct: false, ts: 0 };
+      return;
+    }
+    if (typeof a.v === 'string') { /* ok */ }
+    else if (typeof a.v === 'number' && isFinite(a.v)) a.v = String(a.v);
+    else a.v = '';
+    if (typeof a.ts !== 'number' || !isFinite(a.ts)) a.ts = 0;
+  });
   function save() { write(KEY, S); }
   function answerOf(qid) { return S.answers[qid] || null; }
   function answerQ(q, v) {
@@ -247,7 +265,9 @@
       unit: b.unit, path: null, auto: false, total: qs.length, correct: correct,
       answered: answered, elapsed: 0, detail: detail
     };
-    var all = read(RESULTS_KEY) || []; all.push(rec); if (all.length > 40) all.shift();
+    var all = read(RESULTS_KEY);
+    if (!Array.isArray(all)) all = [];
+    all.push(rec); if (all.length > 40) all.shift();
     write(RESULTS_KEY, all);
     S.submitted[section] = { at: rec.date, correct: correct, total: qs.length };
     save();

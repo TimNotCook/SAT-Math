@@ -570,3 +570,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `exam-core scoreSession` 已在新成绩里把 grid 的 `value` 回填 `answer`，记录页 `history-page` 也补了兜底，但成绩页 `exam.js renderResultList()` 仍直接 `safeText(d.answer)`。修复前交卷的存档里 37 道 SP2 填空题 `answer:null`，从 session 恢复成绩页时「正确答案」还是「—」。
 
 修法：`dAnswer` 先取 `d.answer`/`d.value`，为空再按题号回查题库 `answer`，grid 再兜 `value`/`values`；错因分析复用同一份 `bankQ`。验证：`test/grid-answer-display.test.js` 新增成绩页静态回归，旧代码断言「成绩页缺 d.answer/d.value 兜底」失败；全量 `node --test` 385/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 55 条：讲义独立状态/成绩仓库是字符串或对象，答题/交卷直接崩（2026-11-27）
+
+`jiangyi-core.js` 的状态初始化只写 `var S = read(KEY) || {...}`。`tdsat_jiangyi_v1` 是 JSON 字符串时，`S` 变成原始值，严格模式下 `S.answers = {}` 直接 TypeError，讲义页整页初始化失败；`answers` 是字符串时答题 `S.answers[q.id]=…` 同样 TypeError；成绩仓库是对象时 `submitSection` 的 `all.push(rec)` 报 `all.push is not a function`，交卷丢失。
+
+修法：状态容器 `S/answers/submitted/last` 统一过普通对象判定，答案条目归一成 `{v,correct,ts}`，非字符串/有限数字的 v 清空；`submitSection` 读成绩仓库只认数组，非数组重建。验证：`test/jiangyi-state-shape.test.js` 三条回归，旧代码分别报 `Cannot create property 'answers' on string 'junk'`、`all.push is not a function`；全量 `node --test` 392/0；`verify_junk` 11×7；`verify_flows` 16/16。
