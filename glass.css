@@ -1429,20 +1429,20 @@ html:not([data-theme="dark"]) body.jy-page #jyBoards h1::before{content:"LECTURE
 
 /* 四列目录：每张卡带 01–04 的行走编号 */
 html:not([data-theme="dark"]) body.jy-page #jyBoardCards{counter-reset:jyb!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px!important}
-html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile{counter-increment:jyb;position:relative;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;gap:8px!important;padding:20px 20px 24px!important;background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important;text-align:left!important;transition:border-color .16s ease,background-color .16s ease!important;min-height:136px}
-html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile::before{content:"0" counter(jyb);font-size:10px!important;letter-spacing:.14em!important;color:#a8acb4!important;font-weight:600!important;line-height:1!important;margin-bottom:14px!important}
-html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile:hover{border-color:#d8d2c4!important;background:#fffefb!important}
+html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile{counter-increment:jyb;position:relative;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;gap:0!important;padding:18px 18px 22px!important;background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important;text-align:left!important;transition:border-color .16s ease,background-color .16s ease!important;height:auto!important;min-height:132px!important;overflow:visible!important}
+html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile::before{content:"0" counter(jyb);font-size:10px!important;letter-spacing:.14em!important;color:#a8acb4!important;font-weight:600!important;line-height:1!important;margin-bottom:14px!important;flex:none!important}
+html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile:hover{border-color:#d8d2c4!important;background:#fffefb!important;transform:none!important}
 html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile:focus-visible{outline:2px solid #2563eb!important;outline-offset:-2px!important}
 
 /* 卡里的名字：字当正文，箭头退到右下角 */
-html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile b{font-size:15.5px!important;font-weight:600!important;letter-spacing:-.005em!important;line-height:1.45!important;color:#20242b!important;margin:0!important}
+html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile b{display:block!important;font-size:15.5px!important;font-weight:600!important;letter-spacing:-.005em!important;line-height:1.45!important;color:#20242b!important;margin:0!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;max-width:100%!important}
 html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile .entry-arrow,
 html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile svg{display:none!important}
-html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile::after{content:"›";position:absolute;right:18px;bottom:16px;font-size:14px;line-height:1;color:#c9c3b7;font-weight:400}
-html:not([data-theme="dark"]) body.jy-page #jyBoardCards .tile-empty-badge{font-size:10px!important;letter-spacing:.08em!important;color:#a8acb4!important;font-weight:600!important;background:transparent!important;border:0!important;padding:0!important}
+html:not([data-theme="dark"]) body.jy-page #jyBoardCards .entry-tile::after{content:"›";position:absolute;right:17px;bottom:14px;font-size:14px;line-height:1;color:#c9c3b7;font-weight:400}
+html:not([data-theme="dark"]) body.jy-page #jyBoardCards .tile-empty-badge{font-size:10px!important;letter-spacing:.08em!important;color:#a8acb4!important;font-weight:600!important;background:transparent!important;border:0!important;padding:0!important;margin-top:8px!important;display:block!important}
 
 /* 空态/加载：一行灰字就够，不要虚线盒子 */
-html:not([data-theme="dark"]) body.jy-page #jyBoards .jy-empty{padding:0!important;border:0!important;background:transparent!important;color:#8d9199!important;font-size:12.5px!important;text-align:left!important;grid-column:1/-1}
+html:not([data-theme="dark"]) body.jy-page #jyBoards .jy-empty{padding:0!important;border:0!important;background:transparent!important;color:#8d9199!important;font-size:12.5px!important;text-align:left!important;grid-column:1/-1;min-height:0!important;height:auto!important}
 html:not([data-theme="dark"]) body.jy-page #jyBoards .jy-empty[hidden]{display:none!important}
 
 @media(max-width:999px){html:not([data-theme="dark"]) body.jy-page #jyBoardCards{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
