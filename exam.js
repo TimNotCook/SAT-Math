@@ -128,8 +128,8 @@
     Object.keys(base.wrong).forEach(id => { w[id] = Object.assign({}, base.wrong[id]); });
     asArr(load(KEY_RESULTS)).forEach(r => { if (!r || r.void) return; asArr(r.detail).forEach(d => {
       if (!d || typeof d !== 'object' || d.correct) return;   // 旧/云端合并来的 detail 里可能有 null、数字
-
-      const x = w[d.id] || (w[d.id] = { count: 0 });
+      const did = safeText(d.id); if (!did) return;             // 对象 id 会变成 "[object Object]" 这个假题号
+      const x = w[did] || (w[did] = { count: 0 });
       x.count = (x.count || 0) + 1; x.last = r.date || x.last;
     }); });
     const pm = practiceMistakes();

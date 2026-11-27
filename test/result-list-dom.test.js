@@ -35,3 +35,9 @@ test('成绩页逐题列表对对象字段用 safeText/safeNum 降级', () => {
   assert.match(seg, /const dUnit = safeText\(d\.unit\)/, '逐题列表还在裸用 d.unit');
   assert.match(seg, /dSeconds = safeNum\(d\.seconds\)/, '逐题列表还在裸算 d.seconds');
 });
+
+test('成绩合并跳过对象题号，不制造假错题', () => {
+  const seg = js.slice(js.indexOf('function mergedState()'), js.indexOf('function newSession'));
+  assert.match(seg, /const did = safeText\(d\.id\); if \(!did\) return/,
+    'mergedState 仍在拿对象 id 当错题键');
+});
