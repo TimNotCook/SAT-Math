@@ -522,6 +522,8 @@
 
     if (official) {
       $('introUnitPick').innerHTML = '';
+      const k0 = $('introKicker'); if (k0) k0.hidden = false;
+      const f0 = $('quizCardFacts'); if (f0) { f0.hidden = true; f0.innerHTML = ''; }
       $('introParams').innerHTML =
         '<div class="stat-card"><b>' + O.questionsPerModule + '</b><span>Questions</span></div>' +
         '<div class="stat-card"><b>' + (O.secondsPerModule / 60) + '</b><span>Minutes</span></div>' +
@@ -530,8 +532,10 @@
       /* Directions 收成 details 可展开条；完整 Bluebook 原文仍在答题页左上角 Directions 弹窗里。 */
     } else {
       $('introDirections').hidden = true;
-      $('introUnitPick').innerHTML = '<div class="exam-pick-label">选择单元</div><div class="unit-pick">' +
-        UNITS.map(u => `<button data-unit="${u.id}" class="${u.id === QUIZ_UNIT ? 'on' : ''}">U${u.id}<br>${esc(u.cn)}</button>`).join('') + '</div>';
+      $('introUnitPick').innerHTML = '<div class="quiz-units" role="group" aria-label="选择单元">' +
+        UNITS.map(u => `<button type="button" class="quiz-unit${u.id === QUIZ_UNIT ? ' on' : ''}" data-unit="${u.id}" aria-pressed="${u.id === QUIZ_UNIT}">` +
+          `<span class="qu-code">U${u.id}</span><span class="qu-name">${esc(u.cn)}</span>` +
+          (u.id === QUIZ_UNIT ? '<span class="qu-tick" aria-hidden="true">✓</span>' : '') + '</button>').join('') + '</div>';
       $('introUnitPick').querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => {
         QUIZ_UNIT = +b.dataset.unit;
         /* Choosing another unit starts a clean paper; drop any saved session so
@@ -543,10 +547,18 @@
         try { history.replaceState({}, '', url.href); } catch (e) { console.warn('更新地址栏失败', e); }
       }));
       const t = S.plan;
-      /* Show the TOTAL historical mistake count (same number the wrong
-         notebook shows), not the "must draw" quota. When the quota is smaller
-         explain it in a tooltip instead of adding a fourth span. */
-      $('introParams').innerHTML = '<span>' + t.total + ' 题</span><span>' + fmt(S.durationSec * 1000) + '</span>';
+      /* 题量与时限不再单列一排（会从卡片里漏出去）：并进主卡左侧的 facts 行。
+         total 是错题总量（与错题本同数），不是必抽配额。 */
+      $('introParams').innerHTML = '';
+      const facts = $('quizCardFacts');
+      if (facts) {
+        facts.hidden = false;
+        facts.innerHTML = '<span class="quiz-fact"><b>' + t.total + '</b>道题</span>' +
+          '<span class="quiz-fact"><b>' + fmt(S.durationSec * 1000) + '</b>限时</span>';
+      }
+      const kicker = $('introKicker');
+      if (kicker) kicker.hidden = true;
+      if (quizTitle) quizTitle.hidden = true;
     }
     renderSpecialOptions();
     $('clockText').textContent = fmt((official ? O.secondsPerModule : S.durationSec) * 1000);

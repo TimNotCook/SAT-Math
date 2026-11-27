@@ -280,23 +280,13 @@ function importedGroupHtml(){
       '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">'+(ro?('该题已有作答记录（'+esc(impMatch)+'），按只增不改原则未写入'):'未在题库中找到对应题目，无法进入抽查抽题')+'</span></div></article>';
   }).join('')+'</section>';
 }
+ /* 统计卡（待订正 / 已订正 / 涉及单元 / 今日新增）按 Tim 的要求整块下线：
+   错题本只保留清单本身，不要用四张数字卡凑版面。 */
  function renderHero(){
-   var total=all.length,todo=0,done=0,units={};
-   all.forEach(function(x){if(!x.corrected)todo++;else done++;if(x.q&&x.q.unit)units[x.q.unit]=1;});
-   var unitN=Object.keys(units).length;
-   var el=document.getElementById('wrongHero');if(!el)return;
-   var today=new Date(); today.setHours(0,0,0,0);
-   var todayN=all.filter(function(x){return (x.date||0)>=today.getTime();}).length;
-   var empty=total?'':'完成真题练习、单元抽查或模考后，错题会自动汇总到这里。';
-   el.innerHTML='<div class="stat-card wrong-hero-main">'+
-     '<p class="wrong-hero-label">待订正</p>'+
-     '<div class="wrong-hero-num">'+todo+'<small>题</small></div>'+
-     (empty?'<p class="wrong-hero-sub">'+empty+'</p>':'')+
-     '</div>'+
-     (total?('<div class="stat-card"><span>已订正</span><b>'+done+'</b></div>'+
-     '<div class="stat-card"><span>涉及单元</span><b>'+unitN+'</b></div>'+
-     '<div class="stat-card"><span>今日新增</span><b>'+todayN+'</b></div>'):'');
-   if(el.classList)el.classList.toggle('stat-grid-empty',!total);
+   /* 统计卡（待订正 / 已订正 / 涉及单元 / 今日新增）按 Tim 的要求整块下线：
+      错题本只保留清单本身，不要用四张数字卡凑版面。 */
+   var el=document.getElementById('wrongHero');
+   if(el){ if(el.style) el.style.display='none'; el.innerHTML=''; }
  }
  function render(){
    renderHero();
