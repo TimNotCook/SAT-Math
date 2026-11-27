@@ -62,7 +62,7 @@
  }
 function importData(data){
   if(!data)throw new Error('JSON 内容为空');
-  var items=Array.isArray(data)?data:(data.items||data.questions||data.records||data.wrong||[]);
+  var items=Array.isArray(data)?data:asArr(data.items||data.questions||data.records||data.wrong);
   if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
   var store=readImport();if(!Array.isArray(store.items))store.items=[];
   var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0;
@@ -216,7 +216,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
     (they are deliberately excluded from the quiz drawing pool). */
 function importedGroupHtml(){
   if(activeUnit)return '';
-  var list=(readImport().items||[]).filter(function(it){return !it.matchId||it.readOnly;});
+  var list=asArr(readImport().items).filter(function(it){return it&&(!it.matchId||it.readOnly);});
   if(!list.length)return '';
   var nRO=list.filter(function(it){return it.readOnly;}).length;
   return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 独立记录<span>'+list.length+' 道 · 其中 '+nRO+' 道已匹配题库（只读）</span></h2>'+list.map(function(it,i){
