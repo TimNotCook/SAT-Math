@@ -266,6 +266,17 @@ body.bb-modal-open{overflow:hidden}
 .td-lineanswer{max-width:360px;margin:16px auto 0}
 .td-lineanswer .td-linesvg{display:block;margin:0 auto}
 .td-choicegraph .td-choicesvg{display:block;max-width:220px;width:100%;height:auto;margin:2px auto}
+/* 2026-11-27：四个选项全是坐标系图时按原书版式摆成两列——练习册 P89 / P174 / P175
+   都是「A、C 上排，B、D 下排」（左列 A/B、右列 C/D），不是四张图纵向堆叠。
+   只在四个选项都有图时才启用；条件不支持 :has 的浏览器自动退回纵向列表。 */
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))){
+  display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;align-items:start;
+}
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) > .drill-choice-row:nth-child(1){order:0}
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) > .drill-choice-row:nth-child(2){order:2}
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) > .drill-choice-row:nth-child(3){order:1}
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) > .drill-choice-row:nth-child(4){order:3}
+.drill-choices:has(> .drill-choice-row:nth-child(4)):not(:has(> .drill-choice-row > .drill-choice:not(.is-image-option))) .td-choicegraph .td-choicesvg{max-width:min(100%,300px)}
 .td-save-layer{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
 .td-save-layer[hidden]{display:none!important}
 .td-save-backdrop{position:absolute;inset:0;background:var(--veil)}
