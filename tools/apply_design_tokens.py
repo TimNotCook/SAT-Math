@@ -15,11 +15,13 @@ SOURCES = [
     "tools/practice-theme.css",
     "tools/mock-theme.css",
     "tools/result-practice-theme.css",
+    "tools/result-rail-base.css",
 ]
 # 每页一份 theme：study(抽查开场) / question(模考答题) / intro(开场标题层) /
 # result(模考成绩) / catalog(练习首页+讲义) / archive(错题·记录空态) /
-# practice(真题答题页) / mock(模考开场) / result-practice(板块结果)。
-# 21: 两页左栏底座改 background-attachment:fixed。
+# practice(真题答题页) / mock(模考开场) / result-practice(板块结果) /
+# result-rail-base(结果页左栏底座)。
+# 22: 底图全部改铺 html。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
@@ -32,5 +34,3 @@ while "\n\n\n" in out:
 assert out.count("{") == out.count("}"), "brace mismatch"
 io.open("glass.css", "w", encoding="utf-8").write(out)
 print("glass.css synced: %d bytes" % len(out))
-
-# 占用行数：让 diff 每次都有变化，稳定触发 workflow。
