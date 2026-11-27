@@ -189,7 +189,7 @@
        只判 `r && !r.void` 会被渲染成一条日期/分数全是「—」的幽灵记录。
        只认普通对象，数组记录也丢掉。 */
     var isRec = function (r) { return !!r && typeof r === 'object' && !Array.isArray(r); };
-    var results = (load(RESULTS) || []).filter(function (r) { return isRec(r) && !r.void; }).sort(byDateDesc);
+    var results = (load(RESULTS) || []).filter(function (r) { return isRec(r) && !finishedFlag(r.void); }).sort(byDateDesc);
     var abandoned = (load(ABANDONED) || []).filter(function (r) { return isRec(r) && unfinishedFlag(r.finished); }).sort(byDateDesc);
     if (!results.length && !abandoned.length) {
       box.innerHTML = '<div class="hist-empty">还没有模考或抽查记录。去<a href="exam.html?mode=mock" style="color:var(--blue-strong)">做一次模考</a>，交卷后这里会出现成绩、错题与补强报告。</div>';

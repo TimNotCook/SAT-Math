@@ -89,6 +89,8 @@
   /* 报告/明细数组里可能混进数组（云端合并把 [..] 写成一项）：数组也是 object，
      只判 typeof 会画出一行空字段的幽灵记录。 */
   const isRec = v => !!v && typeof v === 'object' && !Array.isArray(v);
+  /* void 标记可能是字符串 'false'：truthy 会把有效成绩整条藏掉。 */
+  const isTrueFlag = v => v === true || v === 1 || v === 'true' || v === '1';
   /* 存档来自旧版本/云端合并：对象字段不能直接拼进模板或当数字算。 */
   const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' ? '' : String(v));
   const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' ? null : (isFinite(Number(v)) ? Number(v) : null));
@@ -172,7 +174,7 @@
   function mergedState() {
     const base = oldState(), w = {};
     Object.keys(base.wrong).forEach(id => { w[id] = Object.assign({}, base.wrong[id]); });
-    asArr(load(KEY_RESULTS)).forEach(r => { if (!r || r.void) return; asArr(r.detail).forEach(d => {
+    asArr(load(KEY_RESULTS)).forEach(r => { if (!r || isTrueFlag(r.void)) return; asArr(r.detail).forEach(d => {
       if (!d || typeof d !== 'object' || isRightFlag(d.correct)) return;   // 旧/云端合并来的 detail 里可能有 null、数字
       const did = safeText(d.id); if (!did) return;             // 对象 id 会变成 "[object Object]" 这个假题号
       const x = w[did] || (w[did] = { count: 0 });
@@ -359,7 +361,7 @@
     return rec;
   }
 
-  function voidRecords() { return asArr(load(KEY_RESULTS)).filter(r => r && r.void); }
+  function voidRecords() { return asArr(load(KEY_RESULTS)).filter(r => r && isTrueFlag(r.void)); }
 
   /* 运行中结构异常（理论上不可达）：同样走留档 + 重置，不给错数。 */
   function runtimeVoid() {

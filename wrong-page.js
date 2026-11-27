@@ -15,6 +15,7 @@
  /* 成绩档案里的 correct 可能是布尔、1/0 或字符串；只把明确真值当答对。 */
  function isRight(v){return v===true||v===1||v==='true'||v==='1';}
  function isWrong(v){return v===false||v===0||v==='false'||v==='0';}
+ function isTrueFlag(v){return v===true||v===1||v==='true'||v==='1';}
 
  function plainChoices(v){
    var out={};
@@ -197,7 +198,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
          (typeof wl.v==='string'||typeof wl.v==='number')&&String(wl.v).trim()&&stillWrong(q,wl.v))
          add(map,q,wl.v,src,wl.ts||0);});});
    loadArr('tdsat_exam_suite_results_v1').forEach(function(r){if(!r||typeof r!=='object')return;var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':r.mode==='jiangyi'?'讲义复习':'考试练习';
-     /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(r.void)return;
+     /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(isTrueFlag(r.void))return;
      if(r.mode==='jiangyi'&&!window.TD_JY)return;
      asArr(r.detail).forEach(function(d){if(!d||typeof d!=='object')return;var q=questionById(d.id);
        if(r.mode==='jiangyi'&&!String(d.given==null?'':d.given).trim())return; /* 讲义未作答不算错题 */
