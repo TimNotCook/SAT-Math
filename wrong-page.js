@@ -220,7 +220,8 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
    return Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return a.q.unit-b.q.unit||b.date-a.date;});
  }
  function num(s){s=String(s==null?'':s).trim().replace(/[−–]/g,'-').replace(/,/g,'');
-   var m=/^(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)\$/.exec(s);if(m&&+m[2])return +m[1]/+m[2];
+   /* 这里必须是行尾锚点，不是字面量 \$；旧写法把 3/4 当格式错误。 */
+   var m=/^(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)$/.exec(s);if(m&&+m[2])return +m[1]/+m[2];
    return /^-?\d+(?:\.\d+)?$/.test(s)?+s:null;}
  function choiceText(q,L){var e=T[q.id]||{},v=(e.choices&&e.choices[L])||(q.choices&&q.choices[L]);return v?String(v):'';}
  function analysis(x){
