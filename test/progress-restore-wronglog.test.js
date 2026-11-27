@@ -179,6 +179,23 @@ test('存档 savedAt / position.n 是数字字符串时仍可识别并恢复', (
   assert.equal(live.last.sec, T.sec);
 });
 
+test('存档 answers 条目是 null / 裸值时，本机已有作答也不会恢复崩溃', () => {
+  const { A } = boot({ sections: {}, last: null }, mkArchive({}));
+  const other = A.CATALOG[T.sec][1] && A.CATALOG[T.sec][1].id;
+  if (!other) return;
+  const archive = mkArchive({});
+  archive.sections[T.sec].answers = { [T.qid]: null, [other]: 'A' };
+  const { SAVE, store } = boot(
+    { sections: { [T.sec]: { answers: { [T.qid]: { v: 'C', ts: 1700000600000 } }, marks: {}, cursor: 0 } }, last: null },
+    archive);
+  let res;
+  assert.doesNotThrow(() => { res = SAVE.restore(); }, 'null 答案在本机已有作答时把恢复打崩');
+  assert.ok(res && res.ok, '恢复应成功：' + JSON.stringify(res));
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.equal(live.sections[T.sec].answers[T.qid].v, 'C', '本机已有作答被 null 存档覆盖');
+  assert.equal(live.sections[T.sec].answers[other].v, 'A', '裸字符串答案没有恢复成 {v}');
+});
+
 test('存档 submitted 是字符串 "false" 时恢复后不能变成已交卷', () => {
   const archive = Object.assign(mkArchive({}), {
     sections: { [T.sec]: { answers: {}, marks: {}, wrongLog: {}, submitted: 'false' } },

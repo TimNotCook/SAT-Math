@@ -247,6 +247,14 @@
       var sa = snap.answers && typeof snap.answers === 'object' && !Array.isArray(snap.answers) ? snap.answers : {};
       Object.keys(sa).forEach(function (qid) {
         var incoming = sa[qid], existing = cur.answers[qid];
+        /* 存档里的 answers[qid] 可能是 null、裸字符串或数字（云端合并/旧版）：
+           本机已有作答时 `incoming.ts` 会对 null 直接 TypeError，整次恢复崩掉；
+           裸值也按 app-core 的口径恢复成 {v,ts}，别把原始值写进 live。 */
+        if (incoming == null || (typeof incoming === 'object' && Array.isArray(incoming))) return;
+        if (typeof incoming !== 'object') {
+          if (typeof incoming !== 'string' && !(typeof incoming === 'number' && isFinite(incoming))) return;
+          incoming = { v: String(incoming), ts: 0 };
+        }
         // newest timestamp wins; equal timestamps are the same record
         if (!existing || (Number(incoming.ts) || 0) >= (Number(existing.ts) || 0))
           cur.answers[qid] = incoming;

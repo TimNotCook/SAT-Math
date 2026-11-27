@@ -604,3 +604,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 62 条：云合并只认原生数字时间戳，字符串 ts 让旧答案赢、记录重复（2026-11-27）
 
 `cloud-account deepMerge()` 和 `itemSig()` 都写死 `typeof x.ts === 'number'`。旧版/手工导入把 `ts` 写成 `"1700…"` 时：答题记录不再走「时间新者赢」，两条记录会继续按对象深合并，最后 `v/correct` 平手取本机——云端更新的答案被本机旧答案压住；记录数组的签名也从 `t:200` 变成整串 JSON，同一条记录数字版/字符串版各算一条，成绩页出现重复行。修法：新增 `stampNum()`，接受有限非负数字或数字字符串，`deepMerge` 与 `itemSig` 统一用它。验证：`test/cloud-merge.test.js` 新增「字符串 ts 的作答仍按时间取新」，旧代码失败（本机 A 压住云端 B），新代码取云端 B；全量 `node --test` 461/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 63 条：进度存档 answers 条目是 null，本机已有作答时恢复直接 TypeError（2026-11-27）
+
+`progress-save restore()` 合并答案时无条件读 `Number(incoming.ts)`。存档里 `answers[qid]` 是 `null` 时：本机没有该题作答，`!existing` 短路掩盖问题；一旦本机已有作答（正是最需要保护进度的场景），就会读 `null.ts` 抛 `Cannot read properties of null`，整次恢复失败，用户只看到「恢复失败：存档状态异常」。同一条路径对裸字符串/数字答案也会 `.ts` 取值失败。修法：先拒绝 null/数组；裸字符串/有限数字按 app-core 口径转成 `{v:String(a), ts:0}`；对象仍按 ts 新者胜。验证：`test/progress-restore-wronglog.test.js` 新增「null / 裸值答案遇到本机已有作答」，旧代码 `Cannot read properties of null (reading 'ts')` 失败，新代码恢复成功且本机 C 不被 null 覆盖；全量 `node --test` 463/0；`verify_junk` 11×7；`verify_flows` 16/16。
