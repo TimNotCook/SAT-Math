@@ -741,13 +741,14 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{margin-block:0!importan
 .wrong-hero-main .wrong-hero-sub{margin:10px 0 0;color:var(--sub);font-size:12.5px;line-height:1.6}
 
 @media(max-width:999px){
-  .mock-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* 概览卡按可用宽度自适应铺满一行，避免 3 张卡在 2 列网格里留一块空档 */
+  .mock-stats{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
   .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(min-width:641px){
-  /* 宽屏由 rail 上的「← 返回真题练习」承担返回，hero 蓝按钮隐藏，避免同屏两个动作；
-     窄屏（≤640）rail 不显示，此时露出 hero 按钮，否则模考开场成死路 */
-  body.exam-page #backPractice{display:none!important}
+  /* 只有「宽屏 + 非模考」这两种条件同时成立时，rail 上那颗才在，hero 按钮才该藏；
+     模考模式整条 rail 被收起、窄屏 rail 也不显示，此时必须露出 hero 按钮，否则开场无返回入口 */
+  body.exam-page:not(.is-mock) #backPractice{display:none!important}
 }
 @media(max-width:560px){
   .mock-stats,.stat-grid{grid-template-columns:1fr}
@@ -757,7 +758,8 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{margin-block:0!importan
 /* 同屏只保留一个「返回真题练习」：exam/wrong 页头已有一颗 hero 按钮，
    rail 上那条重复入口在这两页统一隐藏（导航栏里的「真题练习」仍在） */
 @media(min-width:641px){
-  body.exam-page .rail-back,
+  /* 宽屏只留 rail 上那颗；hero 蓝按钮在 ≥641 隐藏（见上条），exam 页不要同时藏掉 rail-back，
+     否则桌面端模考开场也无返回入口 */
   body.shell-wrong .rail-back{display:none!important}
 }
 @media(max-width:640px){
