@@ -194,7 +194,7 @@ for (const [pname, junk] of PROFILES) {
       ids.forEach(function(id){ var el=document.getElementById(id); if(el) out[id]=String(el.textContent||'').trim().length; });
       var body=String(document.body.innerText||'');
       out.objLeak=body.indexOf('[object Object]')>=0;
-      out.badText=out.objLeak || body.indexOf('Invalid Date')>=0 || body.indexOf('NaN')>=0;
+      out.badText=out.objLeak || body.indexOf('Invalid Date')>=0 || body.indexOf('NaN')>=0 || body.indexOf('undefined')>=0 || body.indexOf('Infinity')>=0;
       return out; })()`);
     const errs = events.filter((e) => e.kind === 'exception' || (e.kind === 'console' && !IGNORE_URL.test(e.text) && !/Failed to load resource/i.test(e.text)));
     summary.push(`${p}: 异常/错误 ${errs.length} 项 · 容器字数 ${JSON.stringify(probe)}`);
