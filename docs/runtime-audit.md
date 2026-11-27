@@ -350,3 +350,15 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`tools/verify_result_degrade.mjs` 在临时 profile 种残缺 result、点 Start：旧代码 1 条 TypeError、成绩页不可见；新代码 0 异常、`resultShown:true`、分数 `— / 800`、`Correct / Total 5 / 22`。`test/array-guard.test.js` +1 条静态守卫（必须 `asObj(r.estimate)`、禁止裸取），旧代码 1 红、新代码全绿。
 
 回归：`node --test` 284/0；`verify_exam_timeout` 13/13、`verify_flows` 16/16、`verify_grading_ui` 8/8、`verify_runtime` 六页 0 异常、`verify_junk` 5×6。
+
+## 第 25 条：成绩记录里的 report/estimate 与 detail null 条目打崩记录页（2026-11-27）
+
+`history-page.js` 把 `report.priority` 当成数组用：云端合并/旧版本/手工导入写出 `{priority:"x"}` 时，`prio.slice(...).map` 直接 TypeError；`priority` 数组里夹一个 `null` 时，`p.name` 再崩一次。同一页还裸取 `rec.estimate.raw/rawMax`，遇到半截 estimate 会渲染成 `undefined / undefined`。
+
+顺着这条线用 `verify_junk` 新增 `H-bad-report` 画像，又炸出 exam.js：`mergedState()` 的 `asArr(r.detail).forEach(d => { if (d.correct) ... })` 没跳过 `detail` 里的 `null`/数字条目，模考开始页在 `newSession` 阶段就抛 `Cannot read properties of null (reading 'correct')`——错题池因此整块建不出来。
+
+修法：`history-page.js` 加 `asObj`，`report/estimate` 全部降级，`priority` 过 `asArr` 且过滤非对象，`wrongIds` 过 `asArr`，原始分非数字显示「—」；`exam.js mergedState` 的 detail 条目先判对象再读 `correct`。
+
+验证：`test/array-guard.test.js` +1 条（坏 report/estimate + null 条目，旧代码 `prio.slice(...).map is not a function` 1 红，新代码 10/0）；`verify_junk` 新增 H 画像，6 套 × 六页全绿（旧 exam.js 在 H 下复现 2 条异常、Start 页 4859 字但错题池空）。
+
+回归：`node --test` 288/0；`verify_junk` 6×6；`verify_runtime` 六页 0 异常；`verify_exam_timeout` 13/13。

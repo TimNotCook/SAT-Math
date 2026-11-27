@@ -30,6 +30,9 @@
      整个记录页停在占位、永不重画。宁可当空列表也不让页面炸。 */
   /* 成绩记录里的 detail 可能是对象/字符串（云端旧结构、手工导入）：只认数组。 */
   function asArr(v) { return Array.isArray(v) ? v : []; }
+  /* 成绩记录是云端合并/旧版本/手工导入的产物：report、estimate 可能是字符串或
+     缺字段，里面再嵌一个错误类型就能把整页打崩（第 25 条）。 */
+  function asObj(v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
   function load(k) {
     try { var v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : []; }
     catch (e) { return []; }
@@ -48,8 +51,9 @@
      抽查 / 讲义没有换算分，用正确率同阈值（≥85% / ≥60%）。 */
   function grade(rec) {
     if (rec.finished === false) return 'void';
-    if (rec.mode === 'mock' && rec.estimate && rec.estimate.scaled) {
-      var s = rec.estimate.scaled;
+    var est = asObj(rec.estimate);
+    if (rec.mode === 'mock' && est.scaled) {
+      var s = est.scaled;
       return s >= 700 ? 'good' : s >= 550 ? 'mid' : 'bad';
     }
     var pct = rec.total ? (rec.correct || 0) / rec.total : 0;
@@ -57,7 +61,8 @@
   }
   function scoreLabel(rec) {
     if (rec.finished === false) return '未做完';
-    if (rec.mode === 'mock' && rec.estimate && rec.estimate.scaled) return rec.estimate.scaled + ' / 800';
+    var est = asObj(rec.estimate);
+    if (rec.mode === 'mock' && est.scaled) return esc(est.scaled) + ' / 800';
     return Math.round(rec.total ? (rec.correct || 0) / rec.total * 100 : 0) + '%';
   }
   function titleOf(rec) {
@@ -81,12 +86,12 @@
     }).join('') + '</div>';
   }
   function prioRows(report) {
-    var prio = (report && report.priority) || [];
+    var prio = asArr(asObj(report).priority).filter(function (p) { return p && typeof p === 'object'; });
     if (!prio.length) return '<div class="hist-empty">暂无补强建议。</div>';
     return '<div class="hist-prio">' + prio.slice(0, 5).map(function (p) {
       return '<div class="hist-prio-row"><b>' + esc(p.name) + '</b>' +
         '<small>' + esc(p.reason || '') + (p.action ? ' → ' + esc(p.action) : '') +
-        (p.wrongIds && p.wrongIds.length ? '（错题：' + esc(p.wrongIds.join('、')) + '）' : '') + '</small></div>';
+        (asArr(p && p.wrongIds).length ? '（错题：' + esc(asArr(p.wrongIds).join('、')) + '）' : '') + '</small></div>';
     }).join('') + '</div>';
   }
 
@@ -104,13 +109,14 @@
     return html;
   }
 
+  function numTxt(v) { return Number.isFinite(Number(v)) ? Number(v) : '—'; }
   function resultBody(rec) {
     var html = '<div class="hist-kv">' +
       '<span>交卷时间 <b>' + fmtDate(rec.date) + '</b></span>' +
       '<span>答对 <b>' + (rec.correct || 0) + ' / ' + (rec.total || 0) + '</b></span>' +
       '<span>用时 <b>' + fmtDur(rec.elapsed) + '</b></span>' +
-      (rec.mode === 'mock' && rec.estimate ? '<span>原始分 <b>' + rec.estimate.raw + ' / ' + rec.estimate.rawMax + '</b></span>' +
-        '<span>自适应路径 <b>' + (rec.estimate.path === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
+      (rec.mode === 'mock' && Object.keys(asObj(rec.estimate)).length ? '<span>原始分 <b>' + esc(numTxt(asObj(rec.estimate).raw)) + ' / ' + esc(numTxt(asObj(rec.estimate).rawMax)) + '</b></span>' +
+        '<span>自适应路径 <b>' + (asObj(rec.estimate).path === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
       '</div>';
     html += '<div class="hist-sec">错题（' + (asArr(rec.detail).filter(function (d) { return d && !d.correct; })).length + '）</div>' + wrongRows(rec.detail);
     html += '<div class="hist-sec">应该补哪块</div>' + prioRows(rec.report);

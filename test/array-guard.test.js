@@ -83,6 +83,7 @@ test('脏存档体检脚本存在、复用 lib/chrome 与 lib/serve', () => {
   assert.ok(/tdsat_exam_suite_results_v1/.test(s) && /tdsat_progress_save_v1/.test(s), 'verify_junk 没种关键脏键');
   assert.ok(/PROFILES/.test(s) && /B-halfsession/.test(s) && /C-extremes/.test(s), 'verify_junk 的脏值档案少于三套');
   assert.ok(/E-wronglog-only/.test(s), 'verify_junk 缺少「只剩 wrongLog 台账」画像（第 23 条）');
+  assert.ok(/H-bad-report/.test(s), 'verify_junk 缺少「成绩记录 report 错类型」画像（第 25 条）');
 });
 
 test('成绩记录里 detail 是对象、条目是 null 时，错题本与记录页都不崩', () => {
@@ -108,6 +109,8 @@ test('exam.js 成绩页对残缺 result 降级：estimate/report 缺失也不白
   assert.ok(/const est = asObj\(r.estimate\), rep = asObj\(r.report\)/.test(s),
     'renderResult 没有把 estimate/report 过 asObj 降级');
   assert.ok(!/r\.estimate\.(scaled|raw|rawMax|path)/.test(s), 'renderResult 还在裸取 r.estimate 字段');
+  assert.ok(!/asArr\(r\.detail\)\.forEach\(d => \{\s*if \(d\.correct\)/.test(s),
+    'mergedState 对 detail 里的 null 条目没有跳过（第 25 条同源）');
   assert.ok(!/rep\.(units|topics|priority)\./.test(s), 'renderResult 还在裸取 report 的数组字段');
 });
 
@@ -128,6 +131,22 @@ test('作答被清空、只剩 wrongLog 台账时，错题本仍然保留这道�
   assert.strictEqual(threw, null, '错题本被「只有 wrongLog」的存档打崩：' + (threw && threw.message));
   assert.ok(els && /U1-01|1\.1/.test(els.wrongList.innerHTML), '清空作答后，wrongLog 里的错题被错题本弄丢了');
   assert.ok(/还没有错题记录/.test(els.wrongList.innerHTML) === false, '错题本落到空态，说明 wrongLog 没被收集');
+});
+
+test('记录页：report.priority 是字符串、priority 条目缺字段时不崩，仍渲染记录', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1, mode: 'mock', total: 22, correct: 5, elapsed: 60, detail: [],
+      report: { priority: 'x' }, estimate: { raw: 'x', rawMax: null, path: 5 },
+    }, {
+      date: 2, mode: 'mock', total: 22, correct: 5, elapsed: 60, detail: [],
+      report: { priority: [{ name: '换元', reason: 5 }, null] }, estimate: 'nope',
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '记录页被坏 report/estimate 打崩：' + (threw && threw.message));
+  assert.ok(els && String(els.histList.innerHTML).length > 0, '记录页没画出记录');
 });
 
 test('导入错题仓库 items 是字符串/数字时，错题本不崩且仍画出卡片', () => {

@@ -127,6 +127,15 @@ const PROFILES = [
     ['tdsat_app_v1', JSON.stringify({ sections: { L1: { answers: {}, wrongLog: { 'U1-01': { v: 'A', ts: 1700000000000 } } } }, last: null })],
     ['tdsat_exam_suite_results_v1', JSON.stringify([{ date: 1700000000000, mode: 'quiz', unit: '1.1', total: 10, correct: 7, elapsed: 600, detail: [] }])],
   ]],
+  /* H：成绩记录的 report / estimate 是错类型（第 25 条）。记录页必须照常渲染，
+     不能因为 priority 是字符串或条目是 null 就在 prioRows 里 TypeError。 */
+  ['H-bad-report', [
+    ['tdsat_exam_suite_results_v1', JSON.stringify([
+      { date: 1700000000000, mode: 'mock', total: 22, correct: 5, elapsed: 60, detail: [], report: { priority: 'x' }, estimate: { raw: 'x', rawMax: null, path: 5 } },
+      { date: 1700000000001, mode: 'mock', total: 22, correct: 4, elapsed: 60, detail: [null, 5], report: { priority: [{ name: '换元', reason: 5 }, null] }, estimate: 'nope' }
+    ])],
+    ['tdsat_app_v1', JSON.stringify({ sections: { L1: { answers: { 'U1-01': { v: 'A', correct: false, ts: 1 } } } }, last: null })],
+  ]],
 ];
 
 const PAGES = ['index.html', 'wrong.html', 'history.html', 'drill.html', 'exam.html?mode=mock', 'jiangyi.html'];
