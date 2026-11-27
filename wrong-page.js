@@ -12,6 +12,8 @@
    if(typeof v==='object')return'';
    return String(v);
  }
+ /* 成绩档案里的 correct 可能是布尔、1/0 或字符串；只把明确真值当答对。 */
+ function isRight(v){return v===true||v===1||v==='true'||v==='1';}
 
  function plainChoices(v){
    var out={};
@@ -194,7 +196,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
      if(r.mode==='jiangyi'&&!window.TD_JY)return;
      asArr(r.detail).forEach(function(d){if(!d||typeof d!=='object')return;var q=questionById(d.id);
        if(r.mode==='jiangyi'&&!String(d.given==null?'':d.given).trim())return; /* 讲义未作答不算错题 */
-       if(!d.correct&&stillWrong(q,d.given))add(map,q,d.given,name,r.date||0);});});
+       if(!isRight(d.correct)&&stillWrong(q,d.given))add(map,q,d.given,name,r.date||0);});});
    var legacy=load('tdsat_state_v1')||{},legacyWrong=legacy.wrong||{},legacySeen={};
    Object.keys(legacyWrong).forEach(function(id){
      var key=id+'|历史错题';

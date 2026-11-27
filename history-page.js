@@ -36,6 +36,9 @@
   /* 记录也可能被云端旧结构/手工导入写成对象：对象直接当空，别把
      [object Object] 端到页面；数字字段统一过 num，坏值显示「—」。 */
   function txt(v) { return v == null || typeof v === 'object' || typeof v === 'function' ? '' : String(v); }
+  /* detail.correct 可能是布尔、1/0、'true'/'false'（云端旧结构）。只认明确的
+     真值，否则 'false' 会被当成答对，整条错题行从记录里消失。 */
+  function isRight(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
   function num(v) { if (v == null || typeof v === 'object' || typeof v === 'function') return null; var n = Number(v); return isFinite(n) ? n : null; }
   function numTxt(v) { var n = num(v); return n == null ? '—' : n; }
   function load(k) {
@@ -87,7 +90,7 @@
   }
 
   function wrongRows(detail) {
-    var wrong = asArr(detail).filter(function (d) { return d && !d.correct; });
+    var wrong = asArr(detail).filter(function (d) { return d && !isRight(d.correct); });
     if (!wrong.length) return '<div class="hist-empty">本次全部答对。</div>';
     return '<div class="hist-wrong">' + wrong.map(function (d) {
       var did = txt(d.id) || '—', q = byId(did) || {};
@@ -137,7 +140,7 @@
       (txt(rec.mode) === 'mock' && Object.keys(asObj(rec.estimate)).length ? '<span>原始分 <b>' + esc(numTxt(asObj(rec.estimate).raw)) + ' / ' + esc(numTxt(asObj(rec.estimate).rawMax)) + '</b></span>' +
         '<span>自适应路径 <b>' + (txt(asObj(rec.estimate).path) === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
       '</div>';
-    html += '<div class="hist-sec">错题（' + (asArr(rec.detail).filter(function (d) { return d && !d.correct; })).length + '）</div>' + wrongRows(rec.detail);
+    html += '<div class="hist-sec">错题（' + (asArr(rec.detail).filter(function (d) { return d && !isRight(d.correct); })).length + '）</div>' + wrongRows(rec.detail);
     html += '<div class="hist-sec">应该补哪块</div>' + prioRows(rec.report);
     return html;
   }
