@@ -1,0 +1,5 @@
+/* 2026-11-28：结果页「具体知识点」面板下线。
+   只隐藏外壳（h3 + 面板），DOM 里的 #resTopics 保留——exam.js 仍会往里写内容，
+   删掉节点会让后续结果渲染报 null。剩下「Units to Prioritize」一栏拉满整行。 */
+.exam-panel:has(#resTopics){display:none!important}
+.res-grid:has(#resTopics){grid-template-columns:1fr}
