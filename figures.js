@@ -97,10 +97,38 @@
         }
         if (end < 0) { out += text.charAt(i++); continue; }
         var body = text.slice(i + 2, end);
+        /* 根号里套分数（⁴√(1/b³)、√((5x-4z)/(20x²z²))）：原页印的是「根号横线 + 上下叠分式」，
+           直接在根号里留斜杠会把 1/b³ 印成一行 1/b³，与书不一致。这里先切成上下叠分式。 */
+        var sl = topLevelSlash(body);
+        if (sl > 0) {
+          body = '<span class="td-frac"><span class="td-num">' + stripOuterParens(body.slice(0, sl)) +
+            '</span><span class="td-den">' + stripOuterParens(body.slice(sl + 1)) + '</span></span>';
+        }
         out += body.trim() ? radHTML(body) : text.slice(i, end + 1);
         i = end + 1;
       }
       return out;
+    }
+    function topLevelSlash(text) {
+      var depth = 0;
+      for (var k = 0; k < text.length; k++) {
+        var c = text.charAt(k);
+        if (c === '(') depth++;
+        else if (c === ')') depth--;
+        else if (c === '/' && depth === 0) return k;
+      }
+      return -1;
+    }
+    function stripOuterParens(t) {
+      t = t.trim();
+      if (t.charAt(0) !== '(' || t.charAt(t.length - 1) !== ')') return t;
+      var depth = 0;
+      for (var k = 0; k < t.length; k++) {
+        var c = t.charAt(k);
+        if (c === '(') depth++;
+        else if (c === ')') { depth--; if (depth === 0 && k < t.length - 1) return t; }
+      }
+      return t.slice(1, -1);
     }
     s = wrapRadicals(s);
     // index roots like ³√(...) / ⁵√(...): the index digit sits before √

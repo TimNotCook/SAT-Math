@@ -59,3 +59,14 @@ test('TD-31-25：题干用 π 而不是 pi（练习册 P145 #25 原页）', () =
   assert.ok(q.stem.includes('\u03c0'), '题干应含 π');
   assert.ok(!/\bpi\b/.test(q.stem.replace(/\u03c0/g, '')), '题干不该出现 "pi"');
 });
+test('fmtMath：根号里套分数要印成「根号横线 + 上下叠分式」', () => {
+  const cases = ['\u2074\u221a(1/b^{3})', '\u221a(x/y) - 19', '\u221a((5x\u22124z)/(20x\u00b2z\u00b2))', '\u221a(1/(4xz\u00b2-5x\u00b2z))'];
+  for (const raw of cases) {
+    const html = F.fmtMath(raw);
+    assert.ok(/td-sqrt[\s\S]*td-frac/.test(html), `根号里应是叠分式：${raw} \u2192 ${html}`);
+    assert.ok(!html.replace(/<[^>]+>/g, '').includes('/'), `叠分式里不该留斜杠：${raw} \u2192 ${html}`);
+  }
+  /* 根号里没有分数时不许动 */
+  const plain = F.fmtMath('\u221a((x-2)^{2})');
+  assert.ok(!plain.includes('td-frac'), `不该把普通根式改成叠分式：${plain}`);
+});
