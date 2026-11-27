@@ -1135,3 +1135,25 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .drill-questionbar-in
 html:not([data-theme="dark"]) body.exam-page #stage-intro #introTitle{font-size:12px!important;font-weight:600!important;letter-spacing:.16em!important;color:#a8acb4!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .mock-entry-head{margin-bottom:26px!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-card-title{font-size:30px!important;font-weight:650!important;letter-spacing:-.01em!important}
+
+/* ==== result-theme：成绩页按「阅卷纸」排版，不再是仪表盘 ==== */
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-panel{background:transparent!important;border:0!important;border-top:1px solid #e7e3da!important;border-radius:0!important;box-shadow:none!important;padding:26px 0!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-score-panel{border-top:2px solid #20242b!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .score-num{font-size:84px!important;font-weight:600!important;color:#20242b!important;letter-spacing:-.03em!important;font-variant-numeric:tabular-nums!important;line-height:1!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .score-num small{font-size:22px!important;font-weight:500!important;color:#8d9199!important;margin-left:4px}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-note{font-size:12px!important;color:#8d9199!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kv div{font-size:12px!important;color:#5c6169!important;border-bottom:1px solid #efebe2!important;padding:8px 0!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kv b{font-size:14px!important;font-weight:600!important;color:#20242b!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-eyebrow{font-size:10px!important;letter-spacing:.18em!important;color:#a8acb4!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result #resTitle{font-size:26px!important;font-weight:650!important;letter-spacing:-.01em!important;color:#20242b!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-section-title{font-size:11px!important;font-weight:600!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#8d9199!important;margin:34px 0 6px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-panel h3{font-size:12px!important;font-weight:600!important;letter-spacing:.06em!important;color:#8d9199!important;margin:0 0 12px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row{padding:10px 0!important;border-bottom:1px solid #efebe2!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .nm{font-size:13.5px!important;color:#20242b!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .bar{background:#f3efe6!important;height:2px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .bar i{background:#c9c3b7!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .kp-row .pct{font-size:12px!important;color:#8d9199!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-tabs{background:transparent!important;border:0!important;border-bottom:1px solid #e7e3da!important;border-radius:0!important;gap:0!important;padding:0!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-tabs .tab{background:transparent!important;border:0!important;border-radius:0!important;color:#8d9199!important;font-size:12.5px!important;font-weight:500!important;padding:10px 14px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-tabs .tab.on{color:#20242b!important;font-weight:600!important;box-shadow:inset 0 -2px 0 #20242b!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-stage-head .btn{background:transparent!important;border:1px solid #e7e3da!important;border-radius:6px!important;color:#5c6169!important;font-size:12px!important;font-weight:500!important;box-shadow:none!important}
