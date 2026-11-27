@@ -874,10 +874,15 @@
     const paper = saved.paper;
     if (!Array.isArray(paper) || !paper.length) return fail('paper-empty');
     const n = paper.length;
+    const seenPaperUid = {};
     for (let i = 0; i < n; i++) {
       const x = paper[i];
       if (!x || typeof x !== 'object') return fail('paper-shape');
       if (typeof x.uid !== 'string' || !x.uid) return fail('paper-uid');
+      /* 同一份卷面里 uid 重复：两个位置写同一格答案，判分和导航都会串题。
+         旧版/云端合并可能把同一道题拼两次；这种卷面不可重建，直接作废。 */
+      if (seenPaperUid[x.uid]) return fail('paper-uid-dup');
+      seenPaperUid[x.uid] = 1;
       if (!isBank(x.id)) return fail('bank');
     }
     /* 布尔时间不是合法时间：true 的 Number 是 1，搭配一个 0.5 的 startedAt
@@ -912,9 +917,17 @@
       /* 两条自适应分支都必须正好凑满一个模块（22 题）。只查 every 会把
          `{hard:[],easy:[]}` 或只有 4 题的半截候选当成合法：进入 Module 2 后
          paper 只有 26/32 题，题目导航空白、成绩按不足 44 题计算。 */
+      const uniqUid = list => {
+        const seen = {};
+        return list.every(x => {
+          if (seen[x.uid]) return false;
+          seen[x.uid] = 1; return true;
+        });
+      };
       const optsOk = !!s.m2Options && Array.isArray(s.m2Options.hard) && Array.isArray(s.m2Options.easy) &&
         s.m2Options.hard.length === per && s.m2Options.easy.length === per &&
-        s.m2Options.hard.every(instOk) && s.m2Options.easy.every(instOk);
+        s.m2Options.hard.every(instOk) && s.m2Options.easy.every(instOk) &&
+        uniqUid(s.m2Options.hard) && uniqUid(s.m2Options.easy);
       if (n === per && !optsOk) return fail('m2-options');
     } else {
       m1 = n;

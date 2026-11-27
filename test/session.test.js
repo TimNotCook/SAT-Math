@@ -171,6 +171,17 @@ describe('parseSession：m2Options 里的候选题必须是合法实例', () => 
     assert.equal(C.parseSession(half, { mode: 'mock' }).status, 'expired', '半截候选被放行');
   });
 
+  test('paper / m2Options 的 uid 重复 → 判过期，不能同一格答案串两道题', () => {
+    const s = baseSave();
+    s.paper[1] = Object.assign({}, s.paper[0]);
+    const r = C.parseSession(s, { mode: 'mock' });
+    assert.equal(r.status, 'expired', '重复 paper uid 被放行');
+    assert.equal(r.reason, 'paper-uid-dup');
+    const m = baseSave();
+    m.m2Options.hard[1] = Object.assign({}, m.m2Options.hard[0]);
+    assert.equal(C.parseSession(m, { mode: 'mock' }).status, 'expired', '重复 m2 uid 被放行');
+  });
+
   test('正常 hard/easy 候选仍可恢复', () => {
     const r = C.parseSession(baseSave(), { mode: 'mock' });
     assert.equal(r.status, 'ok');
