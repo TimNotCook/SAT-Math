@@ -161,12 +161,20 @@
     var sess = readSession();
     /* startedAt 在旧版/云端合并里可能是字符串；严格 === 会把同一张还能做的卷
        误报成「存档已失效」。按有限数字比较，类型不一致也认。 */
-    var resumable = !!(sess && sameStamp(rec.startedAt, sess.startedAt) && !finishedFlag(sess.finished));
+    var resumable = !!(sess && sameStamp(rec.startedAt, sess.startedAt) && !finishedFlag(sess.finished) &&
+      txt(rec.mode) === txt(sess.mode));
+    /* 抽查存档按 unit 隔离：链接不带 unit 会落到默认 U1，exam.js 再把
+       原 Unit 的存档判成「unit 不匹配」并作废。优先用当前会话的 unit，
+       老档案没有 unitId 时退回记录里的。 */
+    var resumeUnit = num(sess && sess.unitId);
+    if (resumeUnit == null) resumeUnit = num(rec.unitId);
+    var resumeHref = 'exam.html?mode=' + esc(txt(rec.mode));
+    if (txt(rec.mode) === 'quiz' && resumeUnit != null) resumeHref += '&unit=' + resumeUnit;
     var html = '<div class="hist-kv"><span>状态 <b>未做完</b></span>' +
       '<span>已答 <b>' + numTxt(rec.answered == null ? 0 : rec.answered) + ' / ' + numTxt(rec.total) + '</b></span>' +
       '<span>中断时间 <b>' + fmtDate(rec.date) + '</b></span></div>';
     if (resumable) {
-      html += '<div class="hist-continue"><a class="btn primary" href="exam.html?mode=' + esc(txt(rec.mode)) + '">继续这卷</a></div>';
+      html += '<div class="hist-continue"><a class="btn primary" href="' + resumeHref + '">继续这卷</a></div>';
     } else {
       html += '<div class="hist-continue" style="color:var(--sub);font-size:12.5px">存档已失效（会话已被覆盖），仅供查看。</div>';
     }

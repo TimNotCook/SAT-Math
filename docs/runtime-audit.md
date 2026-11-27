@@ -650,3 +650,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 72 条：作废/未做完档案按 startedAt 严格 === 去重，数字字符串会留下两条记录（2026-11-27）
 
 `exam.js archiveAbandoned()` 的 upsert 用 `x.startedAt === rec.startedAt`，`clearAbandoned()` 也用严格相等。旧版/云端合并会把 `startedAt` 存成数字字符串；同一次开考再次 pagehide 时认不出旧记录，追加一条新的，历史页出现两条「未做完」；交卷后也只清掉数字那条，字符串那条永远留着。修法：`exam-core` 新增 `sameTime()`（数字/数字字符串按数值比较，布尔/null 一律不算），`archiveAbandoned` 与 `clearAbandoned` 统一走它。验证：新增 `sameTime` 单测（字符串=数字、布尔不算）；全量 `node --test` 501/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 73 条：抽查「继续这卷」不带 unit，U3 未做完记录会把 U3 存档作废并开成 U1（2026-11-27）
+
+`exam.js archiveAbandoned()` 只存 `mode/module/answered/total`，不存 `unitId`；`history-page abandonedBody()` 的继续链接也固定写 `exam.html?mode=quiz`。抽查存档按 `unitId` 隔离，`exam.js` 默认 `unit=1`，于是 U3 的存档被 `parseSession` 判成 `unit` 不匹配、`salvageSession` 作废，再开一张 U1 的卷。学生点「继续这卷」实际把 U3 进度清零。修法：新归档写入 `unitId`；历史链接优先取当前会话 `sess.unitId`，老档案退回 `rec.unitId`，抽查时拼 `&unit=`；同时要求 `rec.mode === sess.mode` 才显示继续入口，防止模式错配。
+
+验证：新增「抽查继续这卷必须带 unit=3」回归，旧代码输出裸 `mode=quiz` 失败，新代码带 `&unit=3`；全量 `node --test` 502/0；`verify_junk` 11×7；`verify_flows` 16/16。

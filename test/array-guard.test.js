@@ -302,6 +302,25 @@ test('作答被清空、只剩 wrongLog 台账时，错题本仍然保留这道�
   assert.ok(/还没有错题记录/.test(els.wrongList.innerHTML) === false, '错题本落到空态，说明 wrongLog 没被收集');
 });
 
+test('记录页：抽查「继续这卷」必须带 unit，不能把 U3 存档带回 U1', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([]),
+    tdsat_exam_suite_abandoned_v1: JSON.stringify([{
+      date: 1700000000000, startedAt: 1700000000000, mode: 'quiz', unitId: 3,
+      finished: false, answered: 5, total: 22,
+    }]),
+    tdsat_exam_suite_session_v1: JSON.stringify({
+      mode: 'quiz', unitId: 3, startedAt: 1700000000000, finished: false,
+    }),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '抽查未做完记录打崩：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(/href="exam\.html\?mode=quiz&unit=3"/.test(html), '「继续这卷」没带 unit=3');
+  assert.ok(!/href="exam\.html\?mode=quiz"/.test(html), '「继续这卷」落到默认 U1');
+});
+
 test('记录页：void 作废档案不能当正式成绩显示 0 分和整卷错题', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([{

@@ -419,6 +419,9 @@
       const all = asArr(load(KEY_ABANDONED));
       const rec = {
         date: Date.now(), startedAt: S.startedAt, mode: MODE, finished: false,
+        /* 抽查的「继续这卷」必须知道是哪个 unit：缺 unit 会落到默认 U1，
+         parseSession 再把 U3 的存档判成 unit 不匹配并作废。 */
+        unitId: MODE === 'quiz' ? QUIZ_UNIT : null,
         module: S.module || 1, answered: answeredCount(), total: S.paper ? S.paper.length : 0,
       };
       const i = all.findIndex(x => x && C.sameTime(x.startedAt, rec.startedAt) && x.mode === rec.mode);
