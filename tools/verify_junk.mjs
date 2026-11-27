@@ -136,6 +136,14 @@ const PROFILES = [
     ])],
     ['tdsat_app_v1', JSON.stringify({ sections: { L1: { answers: { 'U1-01': { v: 'A', correct: false, ts: 1 } } } }, last: null })],
   ]],
+  /* I：导入错题历史记录里 given 是对象/数字（第 26 条）。分析环节不能 .trim() 崩页。 */
+  ['I-import-given', [
+    ['tdsat_imported_wrong_v1', JSON.stringify({ items: [
+      { key: 's:x', stem: '1+1=?', type: 'mcq', answer: 'A', given: { x: 1 }, choices: { A: '2', B: '3' } },
+      { key: 's:y', stem: '2+2=?', type: 'mcq', answer: 'B', given: 123, choices: { A: '3', B: '4' }, matchId: 'U1-01', readOnly: true }
+    ] })],
+    ['tdsat_exam_suite_results_v1', JSON.stringify([{ date: 1700000000000, mode: 'quiz', unit: '1.1', total: 10, correct: 7, elapsed: 600, detail: [] }])],
+  ]],
 ];
 
 const PAGES = ['index.html', 'wrong.html', 'history.html', 'drill.html', 'exam.html?mode=mock', 'jiangyi.html'];

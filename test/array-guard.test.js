@@ -84,6 +84,7 @@ test('脏存档体检脚本存在、复用 lib/chrome 与 lib/serve', () => {
   assert.ok(/PROFILES/.test(s) && /B-halfsession/.test(s) && /C-extremes/.test(s), 'verify_junk 的脏值档案少于三套');
   assert.ok(/E-wronglog-only/.test(s), 'verify_junk 缺少「只剩 wrongLog 台账」画像（第 23 条）');
   assert.ok(/H-bad-report/.test(s), 'verify_junk 缺少「成绩记录 report 错类型」画像（第 25 条）');
+  assert.ok(/I-import-given/.test(s), 'verify_junk 缺少「导入错题 given 错类型」画像（第 26 条）');
 });
 
 test('成绩记录里 detail 是对象、条目是 null 时，错题本与记录页都不崩', () => {
@@ -147,6 +148,21 @@ test('记录页：report.priority 是字符串、priority 条目缺字段时不�
   try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
   assert.strictEqual(threw, null, '记录页被坏 report/estimate 打崩：' + (threw && threw.message));
   assert.ok(els && String(els.histList.innerHTML).length > 0, '记录页没画出记录');
+});
+
+test('导入错题里的 given 是对象/数字时，错题本不崩且仍画出卡片', () => {
+  const store = {
+    tdsat_imported_wrong_v1: JSON.stringify({ items: [
+      { key: 's:x', stem: '1+1=?', type: 'mcq', answer: 'A', given: { x: 1 }, choices: { A: '2', B: '3' } },
+      { key: 's:y', stem: '2+2=?', type: 'mcq', answer: 'B', given: 123, choices: { A: '3', B: '4' } },
+    ] }),
+  };
+  let threw = null, els = null;
+  try {
+    els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els;
+  } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '错题本被导入项里的 given 对象打崩：' + (threw && threw.message));
+  assert.ok(els && /导入/.test(els.wrongList.innerHTML), '导入错题没有渲染出来');
 });
 
 test('导入错题仓库 items 是字符串/数字时，错题本不崩且仍画出卡片', () => {

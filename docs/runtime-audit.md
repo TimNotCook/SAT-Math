@@ -362,3 +362,13 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`test/array-guard.test.js` +1 条（坏 report/estimate + null 条目，旧代码 `prio.slice(...).map is not a function` 1 红，新代码 10/0）；`verify_junk` 新增 H 画像，6 套 × 六页全绿（旧 exam.js 在 H 下复现 2 条异常、Start 页 4859 字但错题池空）。
 
 回归：`node --test` 288/0；`verify_junk` 6×6；`verify_runtime` 六页 0 异常；`verify_exam_timeout` 13/13。
+
+## 第 26 条：导入错题的 given 是对象/数字 → 错题本整页空白（2026-11-27）
+
+`wrong-page.js` 的 `analysis()` 第一行就是 `x.given.trim()`。自己导入的错题经 `normalizeItem` 会转成字符串，但**已存进 localStorage 的历史导入记录**（旧导入器、手工改过、云端合并）里 `given` 可能是对象或数字；`importedGroupHtml()` 直接把它塞进 `x.given`，于是渲染第一张卡片时抛 `x.given.trim is not a function`，整页错题本白掉。
+
+修法：`analysis()` 把 `given` 先 `String(x.given == null ? '' : x.given).trim()`，与 `add()` 落库时的 `String(given)` 口径对齐。
+
+验证：`test/array-guard.test.js` +1 条（导入项 `given:{x:1}` 与 `given:123`，旧代码 1 红 `x.given.trim is not a function`，新代码 11/0）；`verify_junk` 新增 `I-import-given` 画像，7 套 × 六页全绿。
+
+回归：`node --test` 292/0；`verify_junk` 7×6；`verify_runtime` 六页 0 异常。

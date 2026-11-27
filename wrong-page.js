@@ -179,7 +179,9 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
    return /^-?\d+(?:\.\d+)?$/.test(s)?+s:null;}
  function choiceText(q,L){var e=T[q.id]||{},v=(e.choices&&e.choices[L])||(q.choices&&q.choices[L]);return v?String(v):'';}
  function analysis(x){
-   var q=x.q,g=x.given.trim(),correct=String(q.answer||'').trim(),tp=topic(q);
+   /* 导入错题是历史 JSON / 云端合并来的：given 可能是对象/数字（旧导入器逐字
+      存了原始字段），不能直接 .trim()，否则整页错题本在分析阶段就崩。 */
+   var q=x.q,g=String(x.given==null?'':x.given).trim(),correct=String(q.answer||'').trim(),tp=topic(q);
    if(window.TD_ANALYSIS){
      var a=window.TD_ANALYSIS.analyze(q,g,(window.TD_TEXT||{})[q.id]);
      return{title:a.title,detail:a.cause+' 改进方向：'+a.fix};
