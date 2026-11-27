@@ -744,8 +744,9 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{margin-block:0!importan
   .mock-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-@media(max-width:640px){
-  /* 窄屏 rail 已有「← 返回真题练习」入口，隐藏 hero 蓝按钮，避免同屏两个动作 */
+@media(min-width:641px){
+  /* 宽屏由 rail 上的「← 返回真题练习」承担返回，hero 蓝按钮隐藏，避免同屏两个动作；
+     窄屏（≤640）rail 不显示，此时露出 hero 按钮，否则模考开场成死路 */
   body.exam-page #backPractice{display:none!important}
 }
 @media(max-width:560px){
