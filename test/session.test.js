@@ -329,3 +329,11 @@ test('parseSession：durationSec 是布尔 true 时不能留下 1 秒计时', ()
   assert.equal(typeof r.session.durationSec, 'number');
   assert.ok(r.session.durationSec > 1, '布尔 duration 被当成 1 秒，恢复后会立刻交卷');
 });
+
+
+test('parseSession：布尔 startedAt/endsAt 不能骗过时钟校验', () => {
+  const s = baseSave({ startedAt: 0.5, endsAt: true });
+  const r = C.parseSession(s, { mode: 'mock', isQuestionId: () => true });
+  assert.equal(r.status, 'expired');
+  assert.equal(r.reason, 'clock');
+});

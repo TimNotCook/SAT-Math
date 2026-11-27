@@ -873,8 +873,14 @@
       if (typeof x.uid !== 'string' || !x.uid) return fail('paper-uid');
       if (!isBank(x.id)) return fail('bank');
     }
-    if (!(Number(saved.startedAt) > 0) || !(Number(saved.endsAt) > Number(saved.startedAt))) return fail('clock');
+    /* 布尔时间不是合法时间：true 的 Number 是 1，搭配一个 0.5 的 startedAt
+       就能骗过校验，恢复后 Date.now() >= S.endsAt 立即自动交卷。只认有限数字。 */
+    const startN = Number(saved.startedAt), endN = Number(saved.endsAt);
+    if (typeof saved.startedAt === 'boolean' || typeof saved.endsAt === 'boolean' ||
+        !isFinite(startN) || !isFinite(endN) ||
+        !(startN > 0) || !(endN > startN)) return fail('clock');
     const s = JSON.parse(JSON.stringify(saved));
+    s.startedAt = startN; s.endsAt = endN;
     /* 存档里的 unitId 可能是字符串 '2'（旧版/云端合并）。校验用 Number 通过后，
        归一到调用方的数字，否则后面 UI 的严格 !== 仍会把可恢复的卷拒掉。 */
     if (opts.unitId != null) s.unitId = opts.unitId;
@@ -912,7 +918,8 @@
     var dur = typeof s.durationSec === 'boolean' ? NaN : Number(s.durationSec);
     if (!isFinite(dur) || dur <= 0) s.durationSec = Math.round((s.endsAt - s.startedAt) / 1000);
     else s.durationSec = dur;
-    if (!(s.moduleEndsAt > 0)) s.moduleEndsAt = s.endsAt;
+    var modEnd = typeof s.moduleEndsAt === 'boolean' ? NaN : Number(s.moduleEndsAt);
+    s.moduleEndsAt = isFinite(modEnd) && modEnd > 0 ? modEnd : s.endsAt;
     const inModule2 = mode === 'mock' && s.module === 2;
     s.module = inModule2 ? 2 : 1;
     /* 数组的 typeof 也是 'object'：answers 是 [] 时会被放行，随后按 uid 写成
