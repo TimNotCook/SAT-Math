@@ -1707,6 +1707,14 @@ html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .btn:hov
   html:not([data-theme="dark"]) body .page-head a.btn,
   html:not([data-theme="dark"]) body .page-head .drill-page-button{display:none!important}
 
+  /* 错题导入条：#importBar 直接用 id 压层级 */
+  #importBar{display:flex!important;flex-direction:column!important;align-items:stretch!important;text-align:left!important;gap:10px!important;padding:14px 0!important}
+  #importBar .btn-row{display:flex!important;justify-content:flex-start!important;align-items:flex-start!important;gap:10px!important;width:auto!important}
+  #importBar .btn-row>*{margin-left:0!important;margin-right:0!important}
+  #importBar .btn,
+  #importBar button{align-self:flex-start!important;width:auto!important;height:32px!important;font-size:12px!important;margin:0!important}
+  #importBar .small.muted{white-space:normal!important;font-size:11px!important;line-height:1.55!important;max-width:100%!important;text-align:left!important}
+
   /* 抽测开场：卡内单列堆叠 */
   #stage-intro .mock-grid{display:block!important;grid-template-columns:1fr!important;gap:18px!important}
   #stage-intro .mock-main-card{padding:22px 20px 26px!important;border-radius:10px!important}
@@ -1719,17 +1727,11 @@ html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .btn:hov
   #stage-intro .unit-art{display:none!important}
   #stage-intro .exam-special-chips{gap:14px!important;flex-wrap:wrap!important}
 
-  /* 错题/记录：工具条竖排、按钮靠左 */
-  html:not([data-theme="dark"]) body .wrong-toolbar{flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;text-align:left!important;gap:10px!important;padding:14px 0!important}
-  html:not([data-theme="dark"]) body .wrong-toolbar>*{margin-left:0!important;margin-right:0!important;width:auto!important}
-  html:not([data-theme="dark"]) body .wrong-toolbar .btn-row{justify-content:flex-start!important;align-items:flex-start!important;display:flex!important;gap:10px!important}
-  html:not([data-theme="dark"]) body .wrong-toolbar .btn,
-  html:not([data-theme="dark"]) body .wrong-toolbar button{align-self:flex-start!important;width:auto!important}
-  html:not([data-theme="dark"]) body .wrong-toolbar .small.muted{white-space:normal!important;font-size:11px!important;line-height:1.55!important;max-width:100%!important;text-align:left!important}
+  /* 单元筛选：横向滑动 */
   html:not([data-theme="dark"]) body .unit-filter{flex-wrap:nowrap!important;overflow-x:auto!important;max-width:100%!important;gap:22px!important;justify-content:flex-start!important}
   html:not([data-theme="dark"]) body .unit-filter .filter-btn{padding:0 2px!important;flex:0 0 auto!important}
   html:not([data-theme="dark"]) body .hist-empty{padding:38px 18px 34px!important;border-radius:10px!important}
-  html:not([data-theme="dark"]) body .hist-empty .he-d{font-size:12px!important;max-width:100%!important;padding:0 6px!important}
+  html:not([data-theme="dark"]) body .hist-empty .he-d{font-size:12px!important;max-width:34ch!important;padding:0!important;margin:8px auto 0!important}
 
   /* 目录行：编号列收窄，标题不再抢行 */
   .tile-section .tile-code{flex:0 0 34px!important;width:34px!important;font-size:10.5px!important}
@@ -1754,6 +1756,4 @@ html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .btn:hov
   .site-rail{padding:4px 8px 6px!important}
   .site-rail a{font-size:11px!important;padding:6px 7px!important}
   .site-rail .rail-brand{font-size:12px!important;padding:6px 4px 4px!important}
-  html body .wrong-toolbar .btn,
-  html body .wrong-toolbar button{height:32px!important;font-size:12px!important}
 }
