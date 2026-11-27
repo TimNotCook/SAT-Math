@@ -3,14 +3,15 @@
 用法：python3 tools/apply_design_tokens.py
 
 2026-11-28：整体回退到原来的主题（"改回原来的主题"）。
-SOURCES 清空 => glass.css 只保留原始底座（淡奶白 + 蓝图蓝 + 白玻璃卡），
-纸面 / 沙色那套覆盖层整段移除。要恢复：把下面注释里的 23 份按顺序填回 SOURCES，
-再推一次本文件即可，脚本幂等、按 marker 整段替换。
+当前 SOURCES 只挂一份极小的收尾补丁 tools/hide-topics.css（下线结果页「具体知识点」面板），
+主体仍是原始底座（淡奶白 + 蓝图蓝 + 白玻璃卡）。
+纸面 / 沙色那套覆盖层仍整段移除：要恢复，把下面注释里的 23 份按原顺序填回 SOURCES，
+再推一次本文件即可，脚本幂等、按 marker 整段替换（marker 会从 tools/study-theme.css 首行回来）。
 """
 import io
 
 MARKER = "/* ==== study-theme v2"
-SOURCES = []
+SOURCES = ["tools/hide-topics.css"]
 # 原 23 份（回到纸面主题时按原顺序填回）：
 # tools/study-theme.css
 # tools/question-theme.css
