@@ -101,3 +101,9 @@ test('成绩记录里 detail 是对象、条目是 null 时，错题本与记录
   try { boot(['history-page.js'], store); } catch (e) { threw = e; }
   assert.strictEqual(threw, null, '记录页被坏 detail 打崩：' + (threw && threw.message));
 });
+
+test('bump_assets.py 拒绝在任何带冲突标记的文件上跑', () => {
+  const s = fs.readFileSync(path.join(ROOT, 'bump_assets.py'), 'utf8');
+  assert.ok(/def assert_no_conflict_markers\(\)/.test(s), 'bump_assets 缺冲突标记闸门');
+  assert.ok(/assert_no_conflict_markers\(\)\n    v = digest\(\)/.test(s), '闸门没有在 main 里先于 digest 执行');
+});

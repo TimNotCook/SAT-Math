@@ -84,6 +84,25 @@ def assert_versions_synced(expected=None):
     print('PASS 五页资源版本一致：' + sorted(allv)[0])
 
 
+CONFLICT = re.compile(r'^(?:<<<<<<<|=======|>>>>>>>)', re.M)
+
+
+def assert_no_conflict_markers():
+    """带冲突标记的文件绝不能进哈希/提交：曾有一次 bump 在未解决的
+    wrong.html 上运行，把 <<<<<<< HEAD 连同两份重复脚本一起带上线。"""
+    bad = []
+    for f in HASH_FILES + BUMP:
+        p = os.path.join(ROOT, f)
+        if not os.path.exists(p):
+            continue
+        txt = io.open(p, encoding='utf-8', errors='replace').read()
+        if CONFLICT.search(txt):
+            bad.append(f)
+    if bad:
+        print('FAIL 这些文件还带 Git 冲突标记：' + '、'.join(bad))
+        raise SystemExit(2)
+
+
 def digest():
     h = hashlib.sha256()
     html_names = set(HTML)
@@ -123,6 +142,7 @@ def sw_version():
 
 
 def main():
+    assert_no_conflict_markers()
     v = digest()
     if CHECK:
         print('asset version:', v)

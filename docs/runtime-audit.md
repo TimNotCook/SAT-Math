@@ -290,3 +290,17 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`test/cloud-merge.test.js` 加 3 条（会话不拼接取新、本机更新保留本机、存档按 `savedAt` 整份取新）。去掉 `ATOMIC_KEYS` 分支复现 3 红（`会话被逐字段拼成了半张卷子`），恢复后 6 绿。
 
 回归：`node --test` 全量全绿；`verify_junk` 3×6、`verify_flows` 16/16、`verify_session` 22/22、`verify_acct_entry` 26/26。
+
+## 第 20 条：`wrong.html` 带 Git 冲突标记上线，错题页重复加载整套脚本（2026-11-27）
+
+在 rebase 后被 `test/conflict-markers.test.js` 拦住才发现：队友那次 `fix(dark)` 提交（`836f2e6`）把 **未解决的冲突标记连同两份重复内容** 一起提交了，`wrong.html` 里两处 `<<<<<<< HEAD … ======= … >>>>>>>` 至今在线上。后果：
+
+- `<<<<<<< HEAD` 这类文本出现在 `<head>` 里，浏览器把标记当正文推到页面前面；
+- `<style>` 之后整段 `<script src=…>` 出现两遍 —— 错题页十几条 defer 脚本被重复请求、重复执行，`render()` 跑两次（这次没炸是脚本都幂等，纯属运气）；
+- 一旦哪天有人只在其中一份上改，页面行为就取决于哪份先执行。
+
+处置：`wrong.html` 保留 HEAD 一侧、删掉重复块（两处内容当时只差 `?v=` 令牌）。根因加固：`bump_assets.py` 增加 `assert_no_conflict_markers()`，`main()` 里先于 `digest()` 执行，任何参与哈希/改写的文件带 `<<<<<<<` / `=======` / `>>>>>>>` 就直接 `exit 2`——「在没解决的冲突上跑 bump」这条路被封死（我拿 `wrong.html` 追加一行标记验证：`exit=2`、`FAIL 这些文件还带 Git 冲突标记：wrong.html`）。
+
+验证：`wrong.html` 标记计数 0；`node --test` **265/0**（含 `conflict-markers` 与新增的 bump 闸门断言）；`verify_junk` 3×6、`verify_flows` 16/16、`verify_runtime` 六页 0 异常。
+
+顺带说明：这轮 rebase 也把我自己第 19 条的提交挂在 `836f2e6` 之上，所以线上 `wrong.html` 的标记在我推之前一直在；推完即恢复。
