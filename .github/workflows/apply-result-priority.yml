@@ -1,0 +1,58 @@
+name: apply-result-priority
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - tools/apply_result_priority.py
+      - .github/workflows/apply-result-priority.yml
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: result-priority
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Inject priority-first
+        run: python3 tools/apply_result_priority.py
+
+      - name: Syntax check
+        run: node --check exam.js
+
+      - name: Bump asset versions
+        run: |
+          python3 bump_assets.py || true
+          python3 bump_assets.py || true
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then
+            echo "no change, skipping commit"
+            exit 0
+          fi
+          git config user.name "sat-art-bot"
+          git config user.email "sat-art-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: 成绩页先给复习优先级，再给分数"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Trigger pages deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages-deploy.yml --ref main || true
