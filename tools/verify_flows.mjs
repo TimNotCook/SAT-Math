@@ -78,7 +78,7 @@ async function goto(url) {
 await send('Runtime.enable');
 await send('Page.enable');
 
-/* 页面就绪判据不能賭固定 sleep：drill 的选项块由 drill.js 渲染，题库越大越慢。
+/* 页面就绪判据不能赌固定 sleep：drill 的选项块由 drill.js 渲染，题库越大越慢。
    轮询到条件成立再断言，超时才判红——否则会把「还没画完」误报成「功能坏了」。 */
 /* 默认 6s 对 data/questions.js（1300+ 题）偏紧，慢机器/首次加载会假失败，放宽到 12s */
 async function waitFor(expr, ms = 12000) {

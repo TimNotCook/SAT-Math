@@ -1218,7 +1218,11 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px;mar
 /* 24px 的圆点视觉不变，但手指落点扩到 44px：手机上 A/B/C/D 的划掉键原本只有
    24×24，实测经常点不中（尤其 390 宽、选项行高 52px 时）。伪元素只扩大命中
    区域，不参与布局、不改视觉。 */
-.crossout-toggle::after{content:'';position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);border-radius:50%}
+/* 命中区仍是 44px，但改成「右边缘对齐按钮、向左扩」：居中会让伪元素向右侧露出 10px，
+   叠加按钮 right:-28px 后整页右侧溢出 38px —— 655 宽（iPad 竖屏）实测 docW 661，能横向滚 6px。
+   向左扩后溢出降到 28px（右侧余量 32px），按钮位置、尺寸、视觉全不变，多覆盖的只是
+   选项卡片 16px 右内边距（那块空白原本点了也不选中）。 */
+.crossout-toggle::after{content:'';position:absolute;right:0;left:auto;top:50%;width:44px;height:44px;transform:translateY(-50%);border-radius:50%}
 .drill-choice.is-crossed .drill-choice-text{
   color:#7c8590!important;text-decoration:line-through!important;
   text-decoration-color:#9aa3ae!important;text-decoration-thickness:2px;
