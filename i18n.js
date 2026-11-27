@@ -358,6 +358,7 @@
   function applyAll() {
     if (typeof document === 'undefined') return;
     walk(document.body);
+    document.body.setAttribute('data-i18n-en', '1');
     /* 浏览器标签标题也一起翻（首屏只翻一次，切回中文用原文还原） */
     if (ORIG_TITLE == null) ORIG_TITLE = document.title;
     document.title = getLang() === 'en' ? t(ORIG_TITLE) : ORIG_TITLE;
@@ -370,7 +371,13 @@
       document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
       document.documentElement.setAttribute('data-lang', lang);
       if (lang === 'en') applyAll();
-      else if (ORIG_TITLE != null) document.title = ORIG_TITLE;
+      else {
+        /* 英文模式是就地替换 DOM 文本，切回中文没法逐处还原：直接重载一次，
+           页面回到代码里写的中文原文。作答都自动保存，重载不丢数据。 */
+        if (document.body && document.body.getAttribute('data-i18n-en') === '1') {
+          try { document.location.reload(); } catch (e) {}
+        } else if (ORIG_TITLE != null) document.title = ORIG_TITLE;
+      }
     }
     if (global.TDSync) { try { global.TDSync.notify(KEY); } catch (e) {} }
     try { global.dispatchEvent(new CustomEvent('td-lang-change', { detail: { lang: lang } })); } catch (e) {}
