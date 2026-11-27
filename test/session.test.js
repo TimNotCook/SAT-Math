@@ -69,6 +69,12 @@ describe('parseSession：单元抽查存档不得跨单元恢复', () => {
     const r = C.parseSession(s, { mode: 'quiz', unitId: 2, isQuestionId: () => true });
     assert.equal(r.status, 'ok');
   });
+  test('unitId 是字符串 "2" 时归一成数字，后续严格比较不再误拒', () => {
+    const s = baseSave({ mode: 'quiz', unitId: '2', paper: paper(4) });
+    const r = C.parseSession(s, { mode: 'quiz', unitId: 2, isQuestionId: () => true });
+    assert.equal(r.status, 'ok');
+    assert.equal(r.session.unitId, 2);
+  });
 });
 
 describe('parseSession：m2Options 里的候选题必须是合法实例', () => {

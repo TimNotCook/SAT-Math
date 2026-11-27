@@ -856,6 +856,9 @@
     }
     if (!(Number(saved.startedAt) > 0) || !(Number(saved.endsAt) > Number(saved.startedAt))) return fail('clock');
     const s = JSON.parse(JSON.stringify(saved));
+    /* 存档里的 unitId 可能是字符串 '2'（旧版/云端合并）。校验用 Number 通过后，
+       归一到调用方的数字，否则后面 UI 的严格 !== 仍会把可恢复的卷拒掉。 */
+    if (opts.unitId != null) s.unitId = opts.unitId;
     let m1;
     if (mode === 'mock') {
       /* 官方卷只有两种合法形态：22 题（只在 Module 1）/ 44 题（两模块） */
