@@ -220,10 +220,24 @@
     '拖入 / 点击选择截图，或直接粘贴（Ctrl/Cmd+V），松开即自动识别导入': 'Drop or click a screenshot, or paste (Ctrl/Cmd+V) to import automatically',
     '只切换界面文字；题目、讲义原文与你的作答记录不变。': 'Only interface text changes; questions, lecture text and your answers stay as they are.',
     '语言偏好自动保存在这台设备': 'Language is saved on this device',
+    '已答': 'Answered',
+    '当前': 'Current',
+    '清空': 'Clear',
+    '完成': 'Done',
+    '粘贴或上传题目截图，AI 识别文字与公式后自动匹配题库后追加到错题回顾（只增不改）。':
+      'Paste or upload a screenshot; AI reads the text and formulas, matches the bank, then appends to Wrong Answers (append-only).',
+    '识别调用云端 AI，消耗应用积分；需从线上域名访问。':
+      'Recognition uses cloud AI and costs credits; it requires the online domain.',
+    '云端账号：未登录 · 图片识别需先登录': 'Cloud account: signed out · sign in to use image import',
+    '需要先登录云端账号才能使用图片识别': 'Sign in to use image import',
+    '回顾等式变形、斜率截距与函数代入。': 'Review equation manipulation, slope/intercept, and substitution.',
   };
 
   /* 带数字的句子：模板字符串拼出来的是一个整体文本节点，靠模式匹配 */
   var PATS = [
+    [/^← 返回(.+)$/, '← Back to $1'],
+    [/^返回(.+)$/, 'Back to $1'],
+    [/(.+) · 第 (\d+) 题$/, '$1 · Question $2'],
     [/^Resume · (.+) 第 (\d+) 题$/, 'Resume · $1 Question $2'],
     [/^错题（(\d+)）$/, 'Wrong answers ($1)'],
     [/^第 (\d+) 单元$/, 'Unit $1'],
