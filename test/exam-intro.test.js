@@ -51,3 +51,16 @@ test('模考页：Start 在脚本绑好前必须禁用，绑好后与兜底 Relo
   assert.match(js, /\$\('btnStart'\)\.disabled\s*=\s*false/, '绑定 click 后必须解禁');
   assert.match(html, /btn\.textContent = 'Reload'; btn\.disabled = false/, '兜底变 Reload 时必须解禁');
 });
+
+/* 模考屏语言：侧栏在开场页可见（模考开场页 v2）后，五屏里不许再露中文导航。
+   2026-11-27 两次踩坑：4267128 打开侧栏 → 24 字中文；2d9fa4b 重写答题台时把 enNav 整段覆盖回退。 */
+test('模考屏：is-mock 分支必须有 enNav，且覆盖侧栏五条中文', () => {
+  const html = read('exam.html');
+  assert.ok(/function enNav\(\)/.test(html), 'exam.html 的 is-mock 分支必须保留 enNav()');
+  assert.ok(/MutationObserver\(function\(\)\{enChoices\(\);enNav\(\);\}\)/.test(html),
+    'enNav 必须挂进 MutationObserver，侧栏异步渲染也能改到');
+  const rail = ['真题练习', '单元抽查', '错题回顾', '模考记录', '模考'];
+  for (const zh of rail) assert.ok(html.includes(`'${zh}':'`), `侧栏文案 ${zh} 必须在映射表里`);
+  assert.ok(html.includes("'← 返回真题练习':'← Back to Practice'"), 'rail-back 也要英文化');
+  assert.ok(html.includes("rail.setAttribute('aria-label','Site navigation')"), '侧栏 aria-label 也要英文');
+});
