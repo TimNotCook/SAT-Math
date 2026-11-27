@@ -1283,3 +1283,19 @@ html:not([data-theme="dark"]) body.drill-page #questionView .drill-position-butt
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-page-button{height:auto!important;min-height:0!important;padding:0 2px!important;border:0!important;background:transparent!important;color:#5c6169!important;font-size:12px!important;font-weight:500!important;border-radius:0!important;gap:4px!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-page-button:hover{color:#20242b!important;background:transparent!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-next-button{height:34px!important;min-height:34px!important;padding:0 14px!important;border-radius:8px!important;background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;font-weight:600!important}
+
+/* ==== mock-theme：模考开场页纸面化（只作用于 .is-mock，不碰单元抽查） ==== */
+html:has(body.exam-page){background:#f7f6f2!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!important}
+
+/* 左侧主卡（Math · Practice Test）与右侧结构卡改米白纸面 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .mock-entry{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-panel.mock-hide{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
+
+/* 眉标 / 小节标题 / 说明文字统一冷灰系里的中性灰 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-eyebrow{color:#a8acb4!important;font-size:10px!important;letter-spacing:.14em!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-section-title{font-size:11px!important;letter-spacing:.12em!important;color:#8d9199!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-note{color:#8d9199!important;font-size:12.5px!important}
+
+/* 右侧结构卡里的 Module 行：用发丝线代替白底分组 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-panel.mock-hide .kv{border-bottom:1px solid #efebe2!important}
