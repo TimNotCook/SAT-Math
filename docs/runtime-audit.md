@@ -608,3 +608,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 63 条：进度存档 answers 条目是 null，本机已有作答时恢复直接 TypeError（2026-11-27）
 
 `progress-save restore()` 合并答案时无条件读 `Number(incoming.ts)`。存档里 `answers[qid]` 是 `null` 时：本机没有该题作答，`!existing` 短路掩盖问题；一旦本机已有作答（正是最需要保护进度的场景），就会读 `null.ts` 抛 `Cannot read properties of null`，整次恢复失败，用户只看到「恢复失败：存档状态异常」。同一条路径对裸字符串/数字答案也会 `.ts` 取值失败。修法：先拒绝 null/数组；裸字符串/有限数字按 app-core 口径转成 `{v:String(a), ts:0}`；对象仍按 ts 新者胜。验证：`test/progress-restore-wronglog.test.js` 新增「null / 裸值答案遇到本机已有作答」，旧代码 `Cannot read properties of null (reading 'ts')` 失败，新代码恢复成功且本机 C 不被 null 覆盖；全量 `node --test` 463/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 64 条：m2Options 是空数组/半截候选，parseSession 仍放行进入半张 Module 2（2026-11-27）
+
+`exam-core parseSession()` 对 22 题模考存档只检查 `m2Options.hard/easy` 是数组且 `every` 每个候选题合法；空数组和只有 4 题的半截数组 `every` 都返回 true，存档被判 `ok`。学生选路径进 Module 2 后 `S.paper` 只有 22 + 0/4 题，题目导航空白，最终成绩按不足 44 题计算。修法：两条候选分支必须各自正好 `per`（22）题，再逐个校验实例。验证：`test/session.test.js` 新增「hard/easy 是空数组或半截候选 → 判过期」，旧代码放行失败，新代码 `reason='m2-options'`；测试夹具同步改成真实 22×2 候选。全量 `node --test` 472/0；`verify_junk` 11×7；`verify_flows` 16/16。

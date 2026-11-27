@@ -51,7 +51,7 @@ function baseSave(over) {
   return Object.assign({
     mode: 'mock', sub: null, unitId: null, stage: 'answer', paper: paper(PER),
     answers: {}, idx: 0, module: 1, path: null,
-    m2Options: { hard: paper(4, 2), easy: paper(4, 2) },
+    m2Options: { hard: paper(PER, 2), easy: paper(PER, 2) },
     durationSec: 4200, startedAt: Date.now() - 60 * 1000, endsAt: Date.now() + 69 * 60 * 1000,
     moduleEndsAt: Date.now() + 34 * 60 * 1000, finished: false, locked: false
   }, over || {});
@@ -160,6 +160,17 @@ describe('parseSession：m2Options 里的候选题必须是合法实例', () => 
     const r = C.parseSession(s, { mode: 'mock' });
     assert.equal(r.status, 'expired');
   });
+  test('hard/easy 是空数组或半截候选 → 判过期，不能进入只有半张卷的 Module 2', () => {
+    const s = baseSave();
+    s.m2Options = { hard: [], easy: [] };
+    const r = C.parseSession(s, { mode: 'mock' });
+    assert.equal(r.status, 'expired', '空候选被当成合法 Module 2');
+    assert.equal(r.reason, 'm2-options');
+    const half = baseSave();
+    half.m2Options.hard = paper(4, 2);
+    assert.equal(C.parseSession(half, { mode: 'mock' }).status, 'expired', '半截候选被放行');
+  });
+
   test('正常 hard/easy 候选仍可恢复', () => {
     const r = C.parseSession(baseSave(), { mode: 'mock' });
     assert.equal(r.status, 'ok');

@@ -896,7 +896,11 @@
          模块二 concat 后 renderQuestion 会在 cur().id 上崩，提前判存档过期更安全。 */
       const instOk = x => !!x && typeof x === 'object' &&
         typeof x.uid === 'string' && !!x.uid && isBank(x.id);
+      /* 两条自适应分支都必须正好凑满一个模块（22 题）。只查 every 会把
+         `{hard:[],easy:[]}` 或只有 4 题的半截候选当成合法：进入 Module 2 后
+         paper 只有 26/32 题，题目导航空白、成绩按不足 44 题计算。 */
       const optsOk = !!s.m2Options && Array.isArray(s.m2Options.hard) && Array.isArray(s.m2Options.easy) &&
+        s.m2Options.hard.length === per && s.m2Options.easy.length === per &&
         s.m2Options.hard.every(instOk) && s.m2Options.easy.every(instOk);
       if (n === per && !optsOk) return fail('m2-options');
     } else {
