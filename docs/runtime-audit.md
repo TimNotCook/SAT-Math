@@ -174,7 +174,7 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 
 同轮新增验收器 `tools/verify_mobile.mjs`（375/320 两档 × 首页 / 练题页 / 错题页 / 模考开始页，检查横向溢出 + 溢出元素定位 + 热区尺寸，错题页用合成成绩记录种一条错题），以及守门测试 `test/mobile-target.test.js`（防止有人为了「还原截图」把 44px 那段删回去）。
 
-验收：本地 `node --test` 204/0；`verify_mobile` 16/16；线上 `verify_mobile` 16/16、`verify_a11y` 20/20（Back/Next 实测 50×44）、`verify_flows` 16/16、`verify_grading_ui` 8/8、`verify_nav` 38/38、`verify_shaded_figures` 6/6、`verify_runtime` 六页 0 异常。线上 `v=c7bc5fa41550`。
+验收：本地 `node --test` 204/0；`verify_mobile` 16/16；线上 `verify_mobile` 16/16、`verify_a11y` 20/20（Back/Next 实测 50×44）、`verify_flows` 16/16、`verify_grading_ui` 8/8、`verify_nav` 38/38、`verify_shaded_figures` 6/6、`verify_runtime` 六页 0 异常。线上 `v=ada8ef824389`。
 
 ## 讲义页主按钮也是 40px；验收器扩到图表题 / 讲义页 / 记录页（第 13 条续，2026-11-27）
 
@@ -188,7 +188,7 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 
 顺手记一个坑：`TD_BANK` 有两个数组——`units` 和 `questions`，图表题的 id（如 `U1-12`）只在 `questions` 里；用 `all` 查会全部落空，误报「题库里没有带图的题」。
 
-验收：本地 `node --test` 218/0（队友同时补了 t031 的守门断言）；本地 `verify_mobile` 28/28；线上 `verify_mobile` **28/28**、`verify_a11y` 20/20、`verify_flows` 16/16、`verify_nav` 38/38。线上 `v=3c36a67b7fc0`。
+验收：本地 `node --test` 218/0（队友同时补了 t031 的守门断言）；本地 `verify_mobile` 28/28；线上 `verify_mobile` **28/28**、`verify_a11y` 20/20、`verify_flows` 16/16、`verify_nav` 38/38。线上 `v=ada8ef824389`。
 
 ## 记录页错题题干在手机上被截成半句；验收器补成绩页（第 13 条续二，2026-11-27）
 
@@ -205,7 +205,7 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 
 一个踩过的坑：以为成绩卡是 `<table>`，实际是 `#resKV` 的一组 `<div>`，按 table 选择器去查会一直「没有表格」。验收器现在按真实结构量。
 
-验收：本地 `node --test` 223/0；本地 `verify_mobile` 42/42；线上 `verify_mobile` **42/42**、`verify_a11y` 20/20、`verify_flows` 16/16。线上 `v=47d49ef91390`。
+验收：本地 `node --test` 223/0；本地 `verify_mobile` 42/42；线上 `verify_mobile` **42/42**、`verify_a11y` 20/20、`verify_flows` 16/16。线上 `v=ada8ef824389`。
 
 ## 验收器补键盘可达与答案对比两栏（第 13 条续三，2026-11-27）
 
@@ -216,7 +216,7 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 
 这两个场景本轮没抓到新缺陷，但把口径钉住了：`test/mobile-target.test.js` 里加了三条存在性断言（缺 `Input.dispatchKeyEvent` / 缺 `answer-compare` / 缺 `resKV` 都会红），防止以后有人精简验收器时把覆盖悄悄删掉。
 
-全绿复核（线上 `https://timnotcook.github.io/SAT-Math`，`v=47d49ef91390`）：`node --test` 223/0；`verify_mobile` 50/50；`verify_flows` 16/16；`verify_grading_ui` 8/8；`verify_exam_timeout` 13/13；`verify_runtime` 六页 0 异常；`verify_nav` 38/38；`verify_a11y` 20/20；`verify_acct_entry` 26/26；`verify_session` 22/22；`verify_shaded_figures` 6/6；`verify_assets` 全绿。
+全绿复核（线上 `https://timnotcook.github.io/SAT-Math`，`v=ada8ef824389`）：`node --test` 223/0；`verify_mobile` 50/50；`verify_flows` 16/16；`verify_grading_ui` 8/8；`verify_exam_timeout` 13/13；`verify_runtime` 六页 0 异常；`verify_nav` 38/38；`verify_a11y` 20/20；`verify_acct_entry` 26/26；`verify_session` 22/22；`verify_shaded_figures` 6/6；`verify_assets` 全绿。
 
 ## 第 14、15 条：存档恢复漏搬 wrongLog / 非数组仓库打崩整页（2026-11-27）
 
@@ -464,3 +464,25 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 补法：`test/state-shape.test.js` 增加对象、`NaN`、负数、`'junk'`、`null` 五种输入都归一为 `0`；新建 `tools/verify_cursor_shape.mjs`，种 `tdsat_app_v1` 的 `1.1` 板块 `cursor:{x:1}`，开 `drill.html?sec=1.1&i=1` 实测题号与 URL。
 
 验证：旧逻辑（只对字符串 `Number`）对象 cursor 时题号 `NaN`、URL `i=NaN`、选项 0 个；当前实现选项 4 个、正文 254 字、URL `?sec=1.1&unit=1&i=1`，0 异常。`node --test` 335/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 38 条：main 上六个页面的 `?v=` 与内容哈希脱节——改完样式没 bump，线上继续吃旧缓存（2026-11-27）
+
+`python3 bump_assets.py --check` 在 origin `d270056` 上直接红：内容哈希 `5a2e12222cb1`，六个页面和 `sw.js` 却仍是 `da604e743c60`。来源是队友 `6da3108`（drill 窄屏装饰圆环）改了 `drill.html` 后没跑 bump，页面引用的 JS/CSS 还是上一版令牌；浏览器按旧 `?v=` 命中强缓存，样式/脚本改动对老用户根本不生效。
+
+修法：`python3 bump_assets.py` 重算并把六页与 `sw.js` 一起写成同一令牌。第 39/40 条又改了 JS，哈希再次变化，最终再跑一次对齐到 `0fef92bc1f8b`，`bump_assets.py --check` 通过。
+
+回归：`node --test` 338/0 中的 `version-sync.test.js` 恢复通过；线上六页令牌已核对为同一个 `v=ada8ef824389`。
+
+## 第 39 条：模考存档 `answers` 是数组时被当普通对象放行，刷新一次整卷作答归零（2026-11-27）
+
+`parseSession` 只判断 `!s.answers || typeof s.answers !== 'object'`。数组的 `typeof` 同样是 `object`，旧版/云端合并来的 `answers: []` 会直接放行；随后按 `answers[uid]` 写进去的是数组的字符串自定义属性，`JSON.stringify` 序列化数组时只保留数字下标，这些属性全部被丢掉——刷新后整卷作答变空，成绩、错题本跟着全错。
+
+修法：`answers` 是数组时一律重建为 `{}`，与板块 answers/sections 的普通对象口径一致。验证：把同一份 `answers: []` 存档跑真实 `parseSession`，旧代码 `answersIsArray=true`、写 `M1-0` 后序列化 `(lost)`；新代码 `answersIsArray=false`、落库 `A`。`test/session.test.js` 新增 1 条，旧代码 27/28、新代码 28/28。
+
+## 第 40 条：本机 `sections` / 单个板块是数组时，「恢复存档」成功回执但合并结果被 JSON 吞掉（2026-11-27）
+
+`progress-save.js restore()` 用 `typeof live.sections === 'object'` 判断本机容器，数组照样放行；`cur` 也只看 `typeof`。于是 `live.sections=[]` 或 `sections['1.1']=[]` 时，合并结果全挂成数组的自定义属性，`localStorage.setItem(LIVE, JSON.stringify(live))` 一写只剩 `[]`——UI 返回 `ok:true`，用户以为恢复成功，实际整份作答/错题台账消失。
+
+修法：`live.sections`、单个 `cur` 是数组时重建普通对象；存档里的 `answers` / `marks` 也显式排除数组。验证（真实 `progress-save.js` + 真实题库）：本机 `sections:[]`、存档带 `1.1` 的 `TD-11-01=A`，旧代码 `ok:true / sectionsIsArray:true / answer:undefined`，新代码 `ok:true / sectionsIsArray:false / answer:A`。`test/progress-restore-wronglog.test.js` 新增 2 条，旧代码 3/5、新代码 5/5。
+
+回归：`node --test` 338/0；`verify_junk` 11×7；`verify_flows` 16/16。
