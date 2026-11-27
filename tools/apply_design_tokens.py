@@ -16,7 +16,8 @@ SOURCES = [
 ]
 # 每页一份 theme：study(抽查开场) / question(模考答题) / intro(开场标题层) /
 # result(成绩) / catalog(练习首页+讲义) / archive(错题·记录空态) /
-# practice(真题练习答题页 #questionView，选择器必须带 id 层级)。
+# practice(真题练习答题页 #questionView)。
+# 12: 答题页头部对齐 + Scratch 去壳 + Next 实心蓝。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
