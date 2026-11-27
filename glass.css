@@ -1106,3 +1106,21 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-answer .drill-
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-answer .drill-choice[aria-pressed="true"]{background:#fffdfa!important;border:0!important;border-bottom:1px solid #e7e3da!important;box-shadow:inset 3px 0 0 #2563eb!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-answer #answerArea .drill-choice-letter{width:22px!important;height:22px!important;background:transparent!important;border:0!important;color:#8d9199!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-answer #answerArea .drill-choice.is-selected .drill-choice-letter{color:#20242b!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .exam-context{background:transparent!important;border-bottom:1px solid #e7e3da!important;height:54px!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .exam-context-inner{max-width:992px!important;height:54px!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .exam-context-title{font-size:12px!important;font-weight:500!important;color:#8d9199!important;letter-spacing:.02em!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #clockText{font-size:20px!important;font-weight:600!important;color:#20242b!important;font-variant-numeric:tabular-nums!important;letter-spacing:.01em!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #clockLabel{font-size:10px!important;letter-spacing:.1em!important;text-transform:uppercase!important;color:#a8acb4!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .exam-context-meta{font-size:11px!important;color:#8d9199!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #btnHideTimer{background:transparent!important;border:0!important;color:#a8acb4!important;font-size:11px!important;font-weight:500!important;padding:0 2px!important;height:auto!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #btnHideTimer:hover{color:#5c6169!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .drill-questionbar{background:transparent!important;border-bottom:1px solid #e7e3da!important;height:52px!important;min-height:52px!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .drill-questionbar-inner{max-width:992px!important;height:52px!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .drill-qnumber{width:auto!important;height:auto!important;background:transparent!important;border:0!important;border-radius:0!important;color:#20242b!important;font-size:14px!important;font-weight:600!important;font-variant-numeric:tabular-nums!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .exam-tool-link{font-size:12px!important;font-weight:500!important;color:#5c6169!important;letter-spacing:0!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .exam-tool-link:hover{color:#20242b!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .drill-mark-button{border:0!important;background:transparent!important;color:#8d9199!important;font-size:12px!important;font-weight:500!important;padding:0 4px!important;height:auto!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .drill-mark-button[aria-pressed="true"]{color:#20242b!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .exam-main{padding-top:36px!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .exam-context>.exam-context-inner{width:100%!important;max-width:992px!important;margin:0 auto!important;padding:0!important}
+html body.exam-page:has(#stage-answer:not([hidden])) .drill-questionbar-inner{width:100%!important;max-width:992px!important;margin:0 auto!important;padding:0!important}
