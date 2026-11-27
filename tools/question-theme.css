@@ -1,6 +1,4 @@
 /* ==== question-theme v2：答题页纸感与整行选项 ==== */
-html:not([data-theme="dark"]):has(body.exam-page:not(.is-mock):has(#stage-answer:not([hidden]))) body,
-html:not([data-theme="dark"]) body.exam-page:not(.is-mock):has(#stage-answer:not([hidden])){background:#f9f8f4!important;background-image:none!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-answer .drill-stem{font-size:16.5px!important;line-height:1.75!important;color:#20242b!important;max-width:66ch}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-answer .drill-choices{gap:0!important;margin-top:26px!important;border-top:1px solid #e7e3da!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-answer .drill-choice{background:transparent!important;border:0!important;border-bottom:1px solid #e7e3da!important;border-radius:0!important;padding:15px 16px 15px 18px!important;box-shadow:none!important}
