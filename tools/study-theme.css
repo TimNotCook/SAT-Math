@@ -17,7 +17,7 @@ html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chips{ga
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip:hover{color:#5c6169!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip:has(input:checked){color:#20242b!important;font-weight:600!important;box-shadow:inset 0 -1px 0 #20242b!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-head{font-size:10px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#a8acb4!important;margin-bottom:10px!important}
-html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip>span::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#dcd7cb;margin-right:8px;vertical-align:2px}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip>span::before{content:""!important;display:inline-block;width:5px;height:5px;border-radius:50%;background:#dcd7cb;margin-right:8px;vertical-align:2px}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip:has(input:checked)>span::before{background:#20242b}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab .qt-name{color:#5c6169!important;font-weight:500!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab.on .qt-name{color:#20242b!important;font-weight:600!important}
@@ -30,3 +30,4 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a[aria-cur
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a[href*="mode=quiz"]{box-shadow:inset 2px 0 0 #20242b!important;color:#20242b!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail .rail-sep{background:#efebe2!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail .rail-back{color:#8d9199!important;font-weight:500!important}
+/* sync trigger 2026-11-27b */
