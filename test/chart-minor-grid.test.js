@@ -53,3 +53,12 @@ test('SR-241 散点坐标按原页（-7,20）(-6,18)(-1,10)(0,9)(2.5,8.5)(5.5,8)
   const pts = SPECS['SR-241'].series[0].points;
   assert.equal(JSON.stringify(pts), JSON.stringify([[-7, 20], [-6, 18], [-1, 10], [0, 9], [2.5, 8.5], [5.5, 8]]));
 });
+
+test('SR-238 标签从 -4 / 2 起标（网格 -5..5、-1..12 每 1）', () => {
+  const svg = W.TD_FIG.showFigure({ id: 'SR-238' });
+  // x 轴标签：-4 -2 0 2 4；y 轴标签：2 4 6 8 10（书里不标 0 与 -1）
+  for (const t of ['-4', '-2', '2', '4']) assert.ok(svg.includes('>' + t + '<'), `缺 x 标签 ${t}`);
+  for (const t of ['6', '8', '10']) assert.ok(svg.includes('>' + t + '<'), `缺 y 标签 ${t}`);
+  assert.ok(!svg.includes('>-1<'), 'y 轴不该标 -1');
+  assert.ok(!svg.includes('>-5<'), 'x 轴不该标 -5');
+});
