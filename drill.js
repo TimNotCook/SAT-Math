@@ -538,6 +538,10 @@
         (window.TD_CROSSOUT ? window.TD_CROSSOUT.buttonHtml(letter, window.TD_CROSSOUT.has(q.id, letter), false) : '') +
         '</div>';
     });
+    /* 四个选项都是小表格时按原书摆成两列（A/C 上排、B/D 下排）：每格各一张表 → 共 4 个 */
+    if ((html.match(/td-choice-table/g) || []).length >= 4) {
+      html = html.replace('<div class="drill-choices"', '<div class="drill-choices is-table-choices"');
+    }
     return html + '</div>';
   }
 

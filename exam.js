@@ -732,7 +732,7 @@
           '选项缺失：这道题的选项在原书里无法识别，本题暂不可作答。</p></div>';
         return;
       }
-      area.innerHTML = '<div class="drill-choices" role="radiogroup" aria-label="答案选项">' + optLetters(q.id).map(L => {
+      var choiceHtml = '<div class="drill-choices" role="radiogroup" aria-label="答案选项">' + optLetters(q.id).map(L => {
         const it = opt(L), selected = a.v === L;
         let disp, cls;
         if (it.raw && !(it.hit && it.hit.source === 'field')) {
@@ -756,6 +756,11 @@
           (window.TD_CROSSOUT ? window.TD_CROSSOUT.buttonHtml(L, window.TD_CROSSOUT.has(q.id, L), locked) : '') +
           `</div>`;
       }).join('') + '</div>';
+      /* 四个选项都是小表格时按原书摆成两列（A/C 上排、B/D 下排） */
+      if ((choiceHtml.match(/td-choice-table/g) || []).length >= 4) {
+        choiceHtml = choiceHtml.replace('<div class="drill-choices"', '<div class="drill-choices is-table-choices"');
+      }
+      area.innerHTML = choiceHtml;
       area.querySelectorAll('.drill-choice').forEach(button => button.addEventListener('click', () => {
         if (isLocked(cur().uid)) return;
         curA().v = button.dataset.choice;
