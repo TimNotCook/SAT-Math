@@ -1,0 +1,71 @@
+/* ==== result-practice-theme：真题练习「板块结果」= 一页阅卷纸 ==== */
+
+/* 1) 版面：先治好旧模板的错位——顶栏关掉，正文回到 216px 左侧栏之后并居中 */
+body.drill-page:has(#resultView:not([hidden])) #appnav{display:none!important}
+html:not([data-theme="dark"]) body.drill-page #resultView{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;background:transparent!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-inner{width:auto!important;max-width:880px!important;margin:0 auto!important;padding:56px 24px 104px!important}
+
+/* 2) 页头 */
+html:not([data-theme="dark"]) body.drill-page #resultView h1{font-size:26px!important;font-weight:600!important;letter-spacing:-.01em!important;color:#20242b!important;margin:0 0 6px!important;line-height:1.35!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-select-lead{font-size:12.5px!important;color:#8d9199!important;margin:0 0 26px!important}
+
+/* 3) 成绩表头：一张带发丝线的阅卷纸，不是仪表盘 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-summary{display:grid!important;grid-template-columns:232px minmax(0,1fr)!important;align-items:stretch!important;background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important;overflow:hidden!important;margin:0 0 22px!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-score{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:2px!important;padding:22px 24px!important;background:transparent!important;border-right:1px solid #efebe2!important;border-radius:0!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-score-label{font-size:10px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#a8acb4!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-score strong{font-size:46px!important;font-weight:600!important;line-height:1.1!important;letter-spacing:-.03em!important;color:#20242b!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-score-sub{font-size:12px!important;color:#8d9199!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-tallies{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;margin:0!important;padding:0!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-tallies div{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:2px!important;padding:22px 8px!important;border-left:1px solid #efebe2!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-tallies div:first-child{border-left:0!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-tallies div::before{display:none!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-tallies dt{font-size:10px!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:#a8acb4!important;font-weight:600!important;order:2}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-tallies dd{margin:0!important;font-size:22px!important;font-weight:600!important;color:#20242b!important;line-height:1.2!important;font-variant-numeric:tabular-nums!important;order:1}
+
+/* 4) 「错题已入错题本」提醒：陶土色签条，不要黄报错盒子 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-notice{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 22px!important;padding:10px 14px!important;background:#fffdfa!important;border:1px solid #e7e3da!important;border-left:2px solid #b5793b!important;border-radius:6px!important;box-shadow:none!important;font-size:12.5px!important;color:#5c6169!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-notice svg{color:#b5793b!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-notice-link{color:#2563eb!important;font-size:12px!important;font-weight:500!important;text-decoration:none!important}
+
+/* 5) 小节标题：抬头小字 + 一条通栏发丝线 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-select-h{font-size:10px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#8d9199!important;font-weight:600!important;margin:30px 0 0!important;padding:0 0 10px!important;border-bottom:1px solid #e7e3da!important}
+
+/* 6) 逐题列表：连续的一张卷子，不是一堆卡片 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-list{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;margin:0!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row{padding:18px 2px 20px!important;border-bottom:1px solid #efebe2!important;background:transparent!important;box-shadow:none!important;border-radius:0!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hover{background:transparent!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row-head{gap:10px!important;margin-bottom:8px!important;align-items:baseline!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-num{font-size:12px!important;font-weight:600!important;color:#8d9199!important;letter-spacing:.02em!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-state{font-size:11.5px!important;font-weight:600!important;gap:5px!important;letter-spacing:.02em!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-state svg{width:12px!important;height:12px!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-right .drill-result-state{color:#2f6b4f!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-wrong .drill-result-state{color:#b5533b!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-blank .drill-result-state{color:#8d9199!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-jump{font-size:11.5px!important;font-weight:500!important;color:#8d9199!important;text-decoration:none!important;border-bottom:1px solid #e7e3da!important;padding-bottom:1px!important;opacity:0;transition:opacity .12s ease}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hover .drill-result-jump,
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-jump:focus{opacity:1;color:#5c6169!important}
+html:@media (hover:none){body.drill-page #resultView .drill-result-jump{opacity:1}}
+
+/* 题干：正文 15px，限行宽，不需要卡底 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-stem{font-family:inherit!important;font-size:14.5px!important;line-height:1.68!important;color:#20242b!important;margin:0 0 12px!important;max-width:72ch!important;-webkit-line-clamp:2!important}
+
+/* 7) 你的答案 / 正确答案：两个小格子，纸面带发丝线 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-answers{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;max-width:520px!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-answers>div{display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:10px!important;padding:8px 12px!important;background:#fffdfa!important;border:1px solid #efebe2!important;border-radius:6px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-answers span{font-size:10px!important;letter-spacing:.1em!important;text-transform:uppercase!important;color:#a8acb4!important;font-weight:600!important;flex:none!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-answers b{font-size:14px!important;font-weight:600!important;color:#20242b!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row.is-right .drill-result-answers>div:first-child{border-color:#dfe6dd!important}
+
+/* 8) 错因：一条沙色批注，说的是人话 */
+html:not([data-theme="dark"]) body.drill-page #resultView .cause-box{margin:12px 0 0!important;padding:10px 14px!important;background:#fdfaf3!important;border:0!important;border-left:2px solid #d8c9a6!important;border-radius:0 6px 6px 0!important;box-shadow:none!important;max-width:72ch!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .cause-box b{display:block!important;font-size:11px!important;font-weight:600!important;letter-spacing:.04em!important;color:#8a6a37!important;margin-bottom:4px!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .cause-box p{margin:0!important;font-size:12.5px!important;line-height:1.65!important;color:#5c6169!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .cause-box p.fix{color:#20242b!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .crossout-note{font-size:11.5px!important;color:#a8acb4!important;margin:8px 0 0!important}
+
+/* 9) 页脚动作：一主两副 */
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions{margin-top:34px!important;padding-top:20px!important;border-top:1px solid #e7e3da!important;gap:10px!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions .btn{height:36px!important;min-height:0!important;padding:0 16px!important;border-radius:8px!important;font-size:12.5px!important;font-weight:600!important;box-shadow:none!important;display:inline-flex!important;align-items:center!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions .btn.primary{background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions .btn:not(.primary){background:transparent!important;border:1px solid #e7e3da!important;color:#5c6169!important}
+html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-actions .btn:not(.primary):hover{border-color:#c9c3b7!important;color:#20242b!important}
