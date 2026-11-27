@@ -471,7 +471,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 
 修法：`python3 bump_assets.py` 重算并把六页与 `sw.js` 一起写成同一令牌。第 39/40 条又改了 JS，哈希再次变化，最终再跑一次对齐到 `0fef92bc1f8b`，`bump_assets.py --check` 通过。
 
-回归：`node --test` 338/0 中的 `version-sync.test.js` 恢复通过；线上六页令牌已核对为同一个 `v=ada8ef824389`。
+回归：`node --test` 338/0 中的 `version-sync.test.js` 恢复通过；线上六页令牌已核对为同一个 `v=eeab7010d77c`。
 
 ## 第 39 条：模考存档 `answers` 是数组时被当普通对象放行，刷新一次整卷作答归零（2026-11-27）
 
@@ -486,3 +486,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 修法：`live.sections`、单个 `cur` 是数组时重建普通对象；存档里的 `answers` / `marks` 也显式排除数组。验证（真实 `progress-save.js` + 真实题库）：本机 `sections:[]`、存档带 `1.1` 的 `TD-11-01=A`，旧代码 `ok:true / sectionsIsArray:true / answer:undefined`，新代码 `ok:true / sectionsIsArray:false / answer:A`。`test/progress-restore-wronglog.test.js` 新增 2 条，旧代码 3/5、新代码 5/5。
 
 回归：`node --test` 338/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 41 条：练习板块的作答值是对象/数组——输入框显示 `[object Object]`，统计还当已作答（2026-11-27）
+
+`secIn` 第 36 条只保证 `answers` 容器是对象，没管每条记录本身。云端合并/旧版本把 `answers['TD-11-01']` 写成 `{v:{x:1}}`、`['A']` 或裸数字时：drill 的 grid 输入框直接 `value = 对象`，界面显示 `[object Object]`；`computeStats` 又用 `String(a.v).trim() !== ''` 判断，把这些坏值算成「已作答」，进度和正确率都对不上。
+
+修法：`secIn` 遍历 `answers`，记录不是普通对象时重建为 `{v}`；`v` 只保留字符串/有限数字（数字转字符串），对象/数组/布尔一律空串，与 `parseSession` 的答案值口径一致。验证：直接跑真实 `app-core.js`，种 `{v:{x:1}} / ['A'] / 3` 三条作答，旧代码 5/6（对象值原样保留），新代码 6/6（前两条 `v:''`、数字变 `'3'`）。全量 `node --test` 340/0；`verify_junk` 11×7；`verify_flows` 16/16。

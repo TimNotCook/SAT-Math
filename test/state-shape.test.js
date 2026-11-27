@@ -72,6 +72,14 @@ test('板块记录本身是字符串时，secState 不崩并换成空对象', ()
   assert.equal(JSON.parse(store.tdsat_app_v1).sections['1.1'].answers['TD-11-01'].v, 'A');
 });
 
+test('作答记录的值是对象/数组时归一成空串，练习页不再显示 [object Object]', () => {
+  const { A } = boot({ sections: { '1.1': { answers: { 'TD-11-01': { v: { x: 1 } }, 'TD-11-02': ['A'], 'TD-11-03': 3 }, marks: {}, wrongLog: {} } } });
+  const st = A.secState('1.1', true);
+  assert.equal(st.answers['TD-11-01'].v, '');
+  assert.equal(st.answers['TD-11-02'].v, '');
+  assert.equal(st.answers['TD-11-03'].v, '3');
+});
+
 test('answers 是字符串时仍能写入作答，并修复成对象', () => {
   const { A, store } = boot({ sections: { '1.1': { answers: 'junk', marks: [], wrongLog: 'x' } } });
   const st = A.secState('1.1', true);

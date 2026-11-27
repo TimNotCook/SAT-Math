@@ -224,6 +224,19 @@
     if (!isPlainObject(s.answers)) s.answers = {};
     if (!isPlainObject(s.marks)) s.marks = {};
     if (!isPlainObject(s.wrongLog)) s.wrongLog = {};
+    /* 作答记录本身也可能是字符串/数组，或 {v:{x:1}} 这类对象值：drill 把对象
+       直接塞进 input.value 会显示 [object Object]，统计又按「非空」算已作答。
+       与 exam parseSession 同一口径：容器坏值重建，v 只留字符串/有限数字。 */
+    Object.keys(s.answers).forEach(function (qid) {
+      var a = s.answers[qid];
+      if (!isPlainObject(a)) {
+        s.answers[qid] = { v: typeof a === 'string' || (typeof a === 'number' && isFinite(a)) ? String(a) : '' };
+        return;
+      }
+      if (typeof a.v === 'string') { /* ok */ }
+      else if (typeof a.v === 'number' && isFinite(a.v)) a.v = String(a.v);
+      else a.v = '';
+    });
     /* cursor 是「上次停在第几题」：旧版/云端合并可能是字符串 '3' 或对象。
        drill 直接做 cursor + 1 拼 URL，'3'+1 会变成 31，对象则变成
        [object Object]1——把用户带到不存在的题。这里归一到非负整数。 */
