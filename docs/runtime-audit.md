@@ -162,3 +162,16 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 - `verify_session` 断言「开始页无作废提示」已经过时：开机兜底后会正常显示「已恢复存档、计时没停、点 Start 继续」，改成只排除「存档已过期」文案。
 
 验收：`node --test` 202/0；线上 flows 16/16、grading 8/8、exam_timeout 13/13、runtime 六页 0 异常、assets 全绿、shaded 6/6、nav 38/38、a11y 20/20、acct 26/26、session 22/22。
+
+## 窄屏点击热区不足 44px（第 13 条，2026-11-27）
+
+`verify_a11y` 只验「有没有可访问名」，`verify_runtime` 只验「有没有报错」，两样都不看尺寸。新写的 `tools/verify_mobile.mjs` 在 375×812 与 320×568 两个视口下量了实尺寸，第一次跑就红了两条：
+
+- 做题页 `.drill-page-button`（上一题 / 下一题）被 `bluebook.css` 固定成 `height:36px!important`，375 和 320 宽下都只有 **36px**；
+- 模考开始页 `#btnStart` 只有 **41px**：`.exam-start-actions .btn{min-height:44px}` 本来写了，但同一文件 742 行的 `.btn{min-height:0!important}` 把它盖掉了。
+
+两者都低于 iOS HIG 的 44pt，手指点偏一点就落空。修法：`bluebook.css` 末尾加窄屏/触屏媒体查询 `@media (max-width:820px),(pointer:coarse)`，把这两类按钮抬到 44px；对 `.exam-start-actions .btn` 必须用 `!important` 才压得住 742 行那条。桌面版（>820px 且非触屏）观感不变——Bluebook 桌面按钮本来就是 36px。
+
+同轮新增验收器 `tools/verify_mobile.mjs`（375/320 两档 × 首页 / 练题页 / 错题页 / 模考开始页，检查横向溢出 + 溢出元素定位 + 热区尺寸，错题页用合成成绩记录种一条错题），以及守门测试 `test/mobile-target.test.js`（防止有人为了「还原截图」把 44px 那段删回去）。
+
+验收：本地 `node --test` 204/0；`verify_mobile` 16/16；线上 `verify_mobile` 16/16、`verify_a11y` 20/20（Back/Next 实测 50×44）、`verify_flows` 16/16、`verify_grading_ui` 8/8、`verify_nav` 38/38、`verify_shaded_figures` 6/6、`verify_runtime` 六页 0 异常。线上 `v=c7bc5fa41550`。
