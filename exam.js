@@ -114,7 +114,7 @@
         if (a.correct === true && !seenCorrected[id]) { seenCorrected[id] = true; correctedIds.push(id); }
         if (a.correct === false) {
           if (!seenWrong[id]) { seenWrong[id] = true; wrongIds.push(id); }
-          if (!meta[id] || (a.ts || 0) > (meta[id].ts || 0)) meta[id] = { v: a.v == null ? '' : String(a.v), ts: a.ts || 0 };
+          if (!meta[id] || (a.ts || 0) > (meta[id].ts || 0)) meta[id] = { v: safeText(a.v), ts: safeNum(a.ts) || 0 };
         }
       });
     });
@@ -281,13 +281,14 @@
     if (!session || !Array.isArray(session.paper)) return null;   // 卷面为空也要留一条「这卷作废」记录
     const answers = session.answers || {};
     const detail = session.paper.map((inst, i) => {
-      const q = byId(inst && inst.id) || {};
-      const a = answers[inst.uid] || {};
+      const inst0 = inst || {};
+      const q = byId(inst0.id) || {};
+      const a = answers[inst0.uid] || {};
       return {
-        pos: i + 1, uid: inst.uid, id: inst.id, unit: q.unit || null,
+        pos: i + 1, uid: inst0.uid, id: inst0.id, unit: q.unit || null,
         section: q.section || null, topic: q.topic || null, type: q.type || null,
-        image: q.image || null, given: a.v == null ? '' : String(a.v),
-        marked: !!a.marked, spent: Math.round((a.spent || 0) / 1000)
+        image: q.image || null, given: safeText(a.v),
+        marked: !!a.marked, spent: Math.round((safeNum(a.spent) || 0) / 1000)
       };
     });
     const now = Date.now();
@@ -979,7 +980,7 @@
     S.finished = true; S.locked = true; S.auto = !!auto; S.endReason = reason || 'manual';
     clearAbandoned(S.startedAt);
     const detail = S.paper.map((inst, i) => {
-      const q = byId(inst.id), a = S.answers[inst.uid], given = a.v == null ? '' : String(a.v);
+      const inst0 = inst || {}, q = byId(inst0.id), a = (S.answers && S.answers[inst0.uid]) || {}, given = safeText(a.v);
       const ok = C.grade(q, given);
       return { pos: i + 1, uid: inst.uid, id: q.id, unit: q.unit, section: q.section, topic: q.topic,
                source: q.source, image: q.image, hint: q.hint, type: q.type, level: q.level,
