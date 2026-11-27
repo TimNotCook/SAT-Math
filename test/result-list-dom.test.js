@@ -50,3 +50,13 @@ test('未交卷导出面板已整体移除，开场页不再有 salvage 区块',
   /* 静默作废仍然要留档：results 里的 void 记录这条账不能删。 */
   assert.match(js, /salvageSession\(saved, fixed\.reason\)/, '存档作废仍要写 void 记录');
 });
+
+test('成绩页：明细/units/topics/priority 里的数组条目按幽灵记录过滤', () => {
+  assert.match(js, /const isRec = v => !!v && typeof v === 'object' && !Array\.isArray\(v\)/,
+    '缺少排除数组的 isRec 判定');
+  const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
+  assert.match(seg, /const detail0 = asArr\(r\.detail\)\.filter\(isRec\)/, 'detail 还只判 typeof');
+  assert.match(seg, /const units = asArr\(rep\.units\)\.filter\(isRec\)/, 'units 还只判 typeof');
+  assert.match(seg, /const topics = asArr\(rep\.topics\)\.filter\(isRec\)/, 'topics 还只判 typeof');
+  assert.match(seg, /const priority = asArr\(rep\.priority\)\.filter\(isRec\)/, 'priority 还只判 typeof');
+});

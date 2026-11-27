@@ -86,6 +86,9 @@
      两个存取器把「形状不对」的存档一律降级成空列表/空对象。 */
   const asArr = v => (Array.isArray(v) ? v : []);
   const asObj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+  /* 报告/明细数组里可能混进数组（云端合并把 [..] 写成一项）：数组也是 object，
+     只判 typeof 会画出一行空字段的幽灵记录。 */
+  const isRec = v => !!v && typeof v === 'object' && !Array.isArray(v);
   /* 存档来自旧版本/云端合并：对象字段不能直接拼进模板或当数字算。 */
   const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' ? '' : String(v));
   const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' ? null : (isFinite(Number(v)) ? Number(v) : null));
@@ -1129,15 +1132,15 @@
     /* 存档里的成绩报告可能是旧版本/半截写入/云端合并产物：缺 estimate、report
        或 total/correct 不是数字时，整页不能因为一个字段就白屏。能算的从 detail
        现算，算不出的显示「—」。 */
-    const detail0 = asArr(r.detail).filter(d => d && typeof d === 'object');
+    const detail0 = asArr(r.detail).filter(isRec);
     const total = Number.isFinite(Number(r.total)) && Number(r.total) > 0 ? Number(r.total) : detail0.length;
     const correct = Number.isFinite(Number(r.correct)) ? Number(r.correct) : detail0.filter(d => d.correct).length;
     const elapsed = Number.isFinite(Number(r.elapsed)) && Number(r.elapsed) > 0 ? Number(r.elapsed) : 0;
     const durationSec = Number.isFinite(Number(r.durationSec)) && Number(r.durationSec) > 0 ? Number(r.durationSec) : 0;
     const est = asObj(r.estimate), rep = asObj(r.report);
-    const units = asArr(rep.units).filter(u => u && typeof u === 'object');
-    const topics = asArr(rep.topics).filter(t => t && typeof t === 'object');
-    const priority = asArr(rep.priority).filter(p => p && typeof p === 'object');
+    const units = asArr(rep.units).filter(isRec);
+    const topics = asArr(rep.topics).filter(isRec);
+    const priority = asArr(rep.priority).filter(isRec);
     const scaled = Number.isFinite(Number(est.scaled)) ? Number(est.scaled) : null;
     const pct = total ? Math.round(correct / total * 100) : 0;
     const modeTxt = MODE_NAME[safeText(r.mode)] || safeText(r.mode) || '模考';
@@ -1223,7 +1226,7 @@
     renderResultList();
   }
   function renderResultList() {
-    const r = S.result, allD = asArr(r.detail).filter(d => d && typeof d === 'object'), list = resultTab === 'wrong' ? allD.filter(d => !d.correct) : allD;
+    const r = S.result, allD = asArr(r.detail).filter(isRec), list = resultTab === 'wrong' ? allD.filter(d => !d.correct) : allD;
     const AN = window.TD_ANALYSIS;
     $('resList').innerHTML = list.map(d => {
       const did = safeText(d.id) || '—';
@@ -1258,7 +1261,7 @@
     const box = $('resTypes'); if (!box) return;
     const r = S.result, AN = window.TD_ANALYSIS;
     if (!r || !AN) return;
-    const groups = AN.aggregate(asArr(r.detail).filter(d => d && typeof d === 'object'), BANK, window.TD_TEXT || {});
+    const groups = AN.aggregate(asArr(r.detail).filter(isRec), BANK, window.TD_TEXT || {});
     if (!groups.length) { box.innerHTML = '<div class="small muted">本次全部答对，无需补强。</div>'; return; }
     box.innerHTML = groups.map(g => `<div class="prio-item"><span class="prio-lv ${'c' + g.count}">${g.count}</span>
       <div style="flex:1"><b>${esc(g.label)}</b> <span class="tiny muted">${g.ids.length} 题</span>
