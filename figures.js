@@ -589,8 +589,11 @@
       if (o.yAxis !== false && y.label) out.push(txt(PX(axXv) + 9, PY(y.max) - 6, y.label, { anchor: 'start', size: 12, fill: INK }));
     } else {
       if (x.label) out.push(txt(padL + pw / 2, H - 8, x.label, { size: 12, fill: INK }));
-      if (o.yAxis !== false && y.label) out.push('<text x="16" y="' + (padT + ph / 2) + '" font-family="' + FONT +
-        '" font-size="12" fill="' + INK + '" text-anchor="middle" transform="rotate(-90 16 ' + (padT + ph / 2) + ')">' + esc(y.label) + '</text>');
+      if (o.yAxis !== false && y.label) {
+        var ytx = (o.yTitleX != null ? o.yTitleX : 16);
+        out.push('<text x="' + ytx + '" y="' + (padT + ph / 2) + '" font-family="' + FONT +
+          '" font-size="12" fill="' + INK + '" text-anchor="middle" transform="rotate(-90 ' + ytx + ' ' + (padT + ph / 2) + ')">' + esc(y.label) + '</text>');
+      }
     }
     // clip series/marks to the plot rectangle (real graphs cut curves at the frame)
     var __cid = 'tdclip' + ((chart.__seq = (chart.__seq || 0) + 1));
@@ -913,9 +916,10 @@
        交给正式图的 chart() 渲染器 —— 刻度、原点 O、轴箭头、越界裁切
        都和题目大图同一套几何，不再用早期那套 300×300 的简化画法。 */
     if (s.x && s.y) {
-      var cspec = { w: s.w || 340, h: s.h || 320, padL: 38, padR: 26, padT: 22, padB: 34,
+      var cspec = { w: s.w || 340, h: s.h || 320, padL: (s.padL != null ? s.padL : 38), padR: 26,
+        padT: 22, padB: (s.padB != null ? s.padB : 34), yTitleX: s.yTitleX,
         x: s.x, y: s.y, grid: s.grid !== false, origin: 'O', axesAt: 'zero',
-        axisLabelsEnd: true, yLabelPad: (s.yLabelPad != null ? s.yLabelPad : 13),
+        axisLabelsEnd: (s.axisLabelsEnd != null ? s.axisLabelsEnd : true), yLabelPad: (s.yLabelPad != null ? s.yLabelPad : 13),
         series: s.series || [], marks: s.marks || [] };
       var svg = chart(cspec);
       svg = svg.replace(/^<div class="td-figure td-figure--svg">/, '').replace(/<\/div>$/, '')

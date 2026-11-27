@@ -603,30 +603,40 @@ window.TD_CHOICE_GRAPHS = {
      A = 截距对调(20,15)；D = 同斜率整体放大(30,40)。
      C 沿用仓库既有口径（同 B 的截距、坐标轴标注区间更小）；原页 p89 扫描
      不在仓库，这条无法核刻度，已在 docs/choice-figures-12.md 标为待核。 */
+  /* 练习册 P89 · 2.2 #14 逐格核对（2026-11-27）：40x+30y=600 ⇒ y=20−(4/3)x。
+     原书四格：A 轴 0–40、线 (0,15)→(20,0)（截距对调：30x+40y=600，干扰项）；
+     B 轴 0–40、线 (0,20)→(15,0)（正确答案）；C 轴 0–20、线 (0,15)→(15,0)
+     （两截距同为 15，干扰项）；D 轴 0–20、线 (0,0)→(15,20)（正斜率，干扰项）。
+     四格都印了轴标题 "Number of oak trees" / "Number of pine trees"，一并复原。 */
   'TD-22-14': {
-    A: { x: { min: 0, max: 40, step: 10, label: 'x', labels: [10, 20, 30, 40] },
-         y: { min: 0, max: 40, step: 10, label: 'y', labels: [10, 20, 30, 40] },
-         series: [{ kind: 'line', points: [[0, 15], [40, -15]] }] },
-    B: { x: { min: 0, max: 40, step: 10, label: 'x', labels: [10, 20, 30, 40] },
-         y: { min: 0, max: 40, step: 10, label: 'y', labels: [10, 20, 30, 40] },
+    A: { origin: 'O', axisLabelsEnd: false, padL: 50, padB: 46, yTitleX: 12,
+         x: { min: 0, max: 40, step: 5, label: 'Number of oak trees', labels: [5, 10, 15, 20, 25, 30, 35, 40] },
+         y: { min: 0, max: 40, step: 5, label: 'Number of pine trees', labels: [5, 10, 15, 20, 25, 30, 35, 40] },
+         series: [{ kind: 'line', points: [[0, 15], [20, 0]] }] },
+    B: { origin: 'O', axisLabelsEnd: false, padL: 50, padB: 46, yTitleX: 12,
+         x: { min: 0, max: 40, step: 5, label: 'Number of oak trees', labels: [5, 10, 15, 20, 25, 30, 35, 40] },
+         y: { min: 0, max: 40, step: 5, label: 'Number of pine trees', labels: [5, 10, 15, 20, 25, 30, 35, 40] },
          series: [{ kind: 'line', points: [[0, 20], [15, 0]] }] },
-    C: { x: { min: 0, max: 20, step: 5, label: 'x', labels: [5, 10, 15, 20] },
-         y: { min: 0, max: 20, step: 5, label: 'y', labels: [5, 10, 15, 20] },
-         series: [{ kind: 'line', points: [[0, 20], [15, 0]] }] },
-    D: { x: { min: 0, max: 40, step: 10, label: 'x', labels: [10, 20, 30, 40] },
-         y: { min: 0, max: 40, step: 10, label: 'y', labels: [10, 20, 30, 40] },
-         series: [{ kind: 'line', points: [[0, 40], [30, 0]] }] }
+    C: { origin: 'O', axisLabelsEnd: false, padL: 50, padB: 46, yTitleX: 12,
+         x: { min: 0, max: 20, step: 2, label: 'Number of oak trees', labels: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20] },
+         y: { min: 0, max: 20, step: 2, label: 'Number of pine trees', labels: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20] },
+         series: [{ kind: 'line', points: [[0, 15], [15, 0]] }] },
+    D: { origin: 'O', axisLabelsEnd: false, padL: 50, padB: 46, yTitleX: 12,
+         x: { min: 0, max: 20, step: 2, label: 'Number of oak trees', labels: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20] },
+         y: { min: 0, max: 20, step: 2, label: 'Number of pine trees', labels: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20] },
+         series: [{ kind: 'line', points: [[0, 0], [15, 20]] }] }
   },
 
   /* 递降指数函数 → 正确答案 D（y 截距 10、向右单调减）。p174 #18 逐格复核：
-     A 递增直线（x 截距 2）；B 递减直线（y 截距 6、x 截距 4.5，斜率 −4/3）；
+     A 递增直线：过 (2,0) 与 (10,10)（斜率 5/4，原书线止于 (10,10) 不是 (10,12)）；
+     B 递减直线：y 截距 6、x 截距 4.5，斜率 −4/3；
      C 递升指数：过 (4,1)、(5,3)、(6,9)，y = (1/81)·3^x；
      D 递降指数：过 (1,3.5)、(2,1.2)、(3,0.4)，y = 10·0.35^x。 */
   'TD-33-18': {
     pageRegion: [0.177, 0.225, 0.743, 0.625],
     A: { x: { min: 0, max: 10, step: 1, label: 'x', labels: [2, 4, 6, 8, 10] },
          y: { min: 0, max: 10, step: 1, label: 'y', labels: [2, 4, 6, 8, 10] },
-         series: [{ kind: 'line', points: [[0, -3], [10, 12]] }] },
+         series: [{ kind: 'line', points: [[2, 0], [10, 10]] }] },
     B: { x: { min: 0, max: 10, step: 1, label: 'x', labels: [2, 4, 6, 8, 10] },
          y: { min: 0, max: 10, step: 1, label: 'y', labels: [2, 4, 6, 8, 10] },
          series: [{ kind: 'line', points: [[0, 6], [10, -7.33]] }] },
@@ -638,21 +648,30 @@ window.TD_CHOICE_GRAPHS = {
          series: [{ kind: 'exp', a: 10, b: 0.35 }] }
   },
 
-  /* f(x)=0 有一解 x=7、且含因式 (x+5) → 图像必须过 (-5,0) 与 (7,0)，答案 A。
-     四条都是三次曲线，只差第三根的位置/重根/开口方向——刻度读得出来才分得清。 */
+  /* f(x)=0 有一解 x=7、且含因式 (x+5) ⇒ 图像必须过 (−5,0) 与 (7,0)，答案 A。
+     p175 #19 逐格读数（每格 1 单位、框到 ±9）：四个选项都是三次曲线且开口向下。
+     A：零点 −5 / 1 / 7，极小 (−2.5,−3.6)、极大 (4.5,3.6)；
+     B：零点 −7 / −1 / 5.2，极小 (−4.5,−3.4)、极大 (2.6,3.6)；
+     C：x=−0.4 处与 x 轴相切（二重根）+ 零点 7，极大 (4.5,3.5)；
+     D：零点 0.3 / 6 / 8.6，极小 (2.5,−2.0)、极大 (7.4,0.5)。
+     k 由「极值落在原书读数」反解，不再用归一化自动缩放（自动缩放会把峰顶顶到框边）。 */
   'TD-33-19': {
-    A: { x: { min: -6, max: 8, step: 2, label: 'x', labels: [-6, -4, -2, 2, 4, 6, 8] },
-         y: { min: -6, max: 6, step: 2, label: 'y', labels: [-6, -4, -2, 2, 4, 6] },
-         series: [{ kind: 'poly', roots: [-5, 3, 7], sign: -1 }] },
-    B: { x: { min: -6, max: 8, step: 2, label: 'x', labels: [-6, -4, -2, 2, 4, 6, 8] },
-         y: { min: -6, max: 6, step: 2, label: 'y', labels: [-6, -4, -2, 2, 4, 6] },
-         series: [{ kind: 'poly', roots: [-5, 2, 7], sign: 1 }] },
-    C: { x: { min: -6, max: 8, step: 2, label: 'x', labels: [-6, -4, -2, 2, 4, 6, 8] },
-         y: { min: -6, max: 6, step: 2, label: 'y', labels: [-6, -4, -2, 2, 4, 6] },
-         series: [{ kind: 'poly', roots: [-5, 2.5, 7], sign: 1 }] },
-    D: { x: { min: -6, max: 8, step: 2, label: 'x', labels: [-6, -4, -2, 2, 4, 6, 8] },
-         y: { min: -6, max: 6, step: 2, label: 'y', labels: [-6, -4, -2, 2, 4, 6] },
-         series: [{ kind: 'poly', roots: [-5, 4.5, 4.5], sign: -1 }] }
+    A: { origin: 'O',
+         x: { min: -9, max: 9, step: 1, label: 'x', labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+         y: { min: -9, max: 9, step: 1, label: 'y', labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+         series: [{ kind: 'poly', roots: [-5, 1, 7], sign: -1, k: 0.0433 }] },
+    B: { origin: 'O',
+         x: { min: -9, max: 9, step: 1, label: 'x', labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+         y: { min: -9, max: 9, step: 1, label: 'y', labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+         series: [{ kind: 'poly', roots: [-7, -1, 5.2], sign: -1, k: 0.0405 }] },
+    C: { origin: 'O',
+         x: { min: -9, max: 9, step: 1, label: 'x', labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+         y: { min: -9, max: 9, step: 1, label: 'y', labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+         series: [{ kind: 'poly', roots: [-0.4, -0.4, 7], sign: -1, k: 0.058 }] },
+    D: { origin: 'O',
+         x: { min: -9, max: 9, step: 1, label: 'x', labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+         y: { min: -9, max: 9, step: 1, label: 'y', labels: [-8, -6, -4, -2, 2, 4, 6, 8] },
+         series: [{ kind: 'poly', roots: [0.3, 6, 8.6], sign: -1, k: 0.0426 }] }
   }
 };
 
