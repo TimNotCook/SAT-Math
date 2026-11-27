@@ -34,6 +34,8 @@
 */
 (function () {
   'use strict';
+  /* 旧存档/云端可能把 correct 写成字符串 'false'：truthy 会被算成答对。 */
+  function isRightFlag(v){ return v === true || v === 1 || v === 'true' || v === '1'; }
   /* 题库侧实际结构（be7b955 起）：window.JY_SECTIONS + window.JY_BANK；
      早期文档里的 TD_JIANGYI{units,questions} 保留兼容，两种都能吃。 */
   var DATA = window.JY_BANK
@@ -171,7 +173,7 @@
     var qs = groupQuestions(boardId), answered = 0, correct = 0;
     qs.forEach(function (q) {
       var a = S.answers[q.id];
-      if (a && strip(a.v)) { answered++; if (a.correct) correct++; }
+      if (a && strip(a.v)) { answered++; if (isRightFlag(a.correct)) correct++; }
     });
     return { board: boardId, key: TB_GROUP.key, label: TB_GROUP.label, total: qs.length,
       answered: answered, correct: correct, percent: qs.length ? Math.round(answered / qs.length * 100) : 0 };
@@ -200,7 +202,7 @@
     var answered = 0, correct = 0;
     qs.forEach(function (q) {
       var a = S.answers[q.id];
-      if (a && strip(a.v)) { answered++; if (a.correct) correct++; }
+      if (a && strip(a.v)) { answered++; if (isRightFlag(a.correct)) correct++; }
     });
     var d = declared(board(boardId).unit, section);
     return {
@@ -216,7 +218,7 @@
     var answered = 0, correct = 0, done = 0, secs = sectionsOf(boardId);
     qs.forEach(function (q) {
       var a = S.answers[q.id];
-      if (a && strip(a.v)) { answered++; if (a.correct) correct++; }
+      if (a && strip(a.v)) { answered++; if (isRightFlag(a.correct)) correct++; }
     });
     secs.forEach(function (s) { if (sectionStats(boardId, s).complete) done++; });
     return {
@@ -236,9 +238,9 @@
     var answered = 0, correct = 0;
     var detail = qs.map(function (q, i) {
       var a = S.answers[q.id] || {};
-      if (strip(a.v)) { answered++; if (a.correct) correct++; }
+      if (strip(a.v)) { answered++; if (isRightFlag(a.correct)) correct++; }
       return { pos: i + 1, uid: q.id, id: q.id, unit: q.unit, section: q.section,
-        topic: q.source, type: q.type, given: a.v == null ? '' : a.v, correct: !!a.correct };
+        topic: q.source, type: q.type, given: a.v == null ? '' : a.v, correct: isRightFlag(a.correct) };
     });
     var rec = {
       date: Date.now(), mode: 'jiangyi', board: boardId, section: section,

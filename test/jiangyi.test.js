@@ -238,3 +238,11 @@ test('normalize 保留双空 values 与 grid 数值键', () => {
   assert.ok(single, '缺可抽查的单空 grid');
   assert.ok(isFinite(single.value), '单空 grid 的数值键被弄丢了：' + single.id);
 });
+
+test('讲义 core：统计不把字符串 correct "false" 按 truthy 算答对', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'jiangyi-core.js'), 'utf8');
+  assert.match(src, /function isRightFlag\(v\)/, '缺少 correct 真值归一');
+  assert.ok(!/(a && strip\(a\.v\)|strip\(a\.v\))[^}]*if \(a\.correct\)/.test(src),
+    '讲义统计仍在按 truthy 判断 a.correct');
+  assert.ok(!/correct: !!a\.correct/.test(src), '讲义结果仍把 !!a.correct 当正确');
+});
