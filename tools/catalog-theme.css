@@ -1,5 +1,6 @@
 /* ==== catalog-theme：真题练习首页纸面化 ==== */
 html:not([data-theme="dark"]){background:#f7f6f2}
+html:not([data-theme="dark"]) body.site-shell{min-height:100vh!important}
 html:not([data-theme="dark"]) body.drill-page{background:#f7f6f2!important;min-height:100vh!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail{background:#fffdfa!important;border-right:1px solid #e7e3da!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail .rail-brand{font-size:14px!important;font-weight:600!important;color:#20242b!important;letter-spacing:.01em!important;padding:4px 12px 18px!important}
