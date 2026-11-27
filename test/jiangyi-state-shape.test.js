@@ -49,6 +49,19 @@ test('讲义 answers 是字符串时仍能答题并落库', () => {
   assert.strictEqual(threw, null, 'answers 是字符串时答题失败：' + (threw && threw.message));
 });
 
+test('讲义交卷 detail 带正确答案，记录页不再显示「正确 —」', () => {
+  const store = { tdsat_jiangyi_v1: JSON.stringify({ answers: {}, submitted: {}, cursor: 0 }), tdsat_exam_suite_results_v1: JSON.stringify([]) };
+  const J = boot(store).TD_JY;
+  const { b, s } = firstBoardSection(J);
+  const q = J.questionsOf(b, s).find(x => stripText(x.answer));
+  function stripText(v) { return String(v == null ? '' : v).trim(); }
+  assert.ok(q, '该小节没有带答案的题');
+  const rec = J.submitSection(b, s);
+  const d = rec.detail.find(x => x.id === q.id);
+  assert.ok(d, '交卷记录缺少题目');
+  assert.ok(stripText(d.answer), 'detail.answer 为空，记录页会显示「正确 —」');
+});
+
 test('讲义成绩仓库不是数组时交卷不崩，记录仍写入数组', () => {
   const store = { tdsat_jiangyi_v1: JSON.stringify({ answers: {}, submitted: {}, cursor: 0 }), tdsat_exam_suite_results_v1: JSON.stringify({ bad: true }) };
   let threw = null, J = null, rec = null;

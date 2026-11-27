@@ -576,3 +576,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `jiangyi-core.js` 的状态初始化只写 `var S = read(KEY) || {...}`。`tdsat_jiangyi_v1` 是 JSON 字符串时，`S` 变成原始值，严格模式下 `S.answers = {}` 直接 TypeError，讲义页整页初始化失败；`answers` 是字符串时答题 `S.answers[q.id]=…` 同样 TypeError；成绩仓库是对象时 `submitSection` 的 `all.push(rec)` 报 `all.push is not a function`，交卷丢失。
 
 修法：状态容器 `S/answers/submitted/last` 统一过普通对象判定，答案条目归一成 `{v,correct,ts}`，非字符串/有限数字的 v 清空；`submitSection` 读成绩仓库只认数组，非数组重建。验证：`test/jiangyi-state-shape.test.js` 三条回归，旧代码分别报 `Cannot create property 'answers' on string 'junk'`、`all.push is not a function`；全量 `node --test` 392/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 56 条：讲义交卷 detail 缺 answer，记录页错题行显示「正确 —」（2026-11-27）
+
+`jiangyi-core submitSection()` 写 `detail` 时只落 `given/correct`，没落 `answer`。记录页 `wrongRows()` 读 `d.answer`，讲义题 id 又不在 `TD_BANK`，`byId` 查不到，只能印「正确 —」。修法：按题库 `answer` → `value` → `values` 把正确答案写进每条 detail。验证：`test/jiangyi-state-shape.test.js` 新增「讲义交卷 detail 带正确答案」，旧代码 `detail.answer` 为空失败，新代码通过；全量 `node --test` 406/0；`verify_junk` 11×7；`verify_flows` 16/16。

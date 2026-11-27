@@ -257,8 +257,12 @@
     var detail = qs.map(function (q, i) {
       var a = S.answers[q.id] || {};
       if (strip(a.v)) { answered++; if (isRightFlag(a.correct)) correct++; }
+      /* 记录页靠 detail.answer 显示「正确答案」；讲义 detail 原来漏了它，
+         交卷后在记录页错题行只能印「正确 —」。按题库 answer → value → values 落一份。 */
+      var corr = q.answer != null && strip(q.answer) ? q.answer
+        : (q.value != null ? q.value : (Array.isArray(q.values) && q.values.length ? q.values.join(', ') : ''));
       return { pos: i + 1, uid: q.id, id: q.id, unit: q.unit, section: q.section,
-        topic: q.source, type: q.type, given: a.v == null ? '' : a.v, correct: isRightFlag(a.correct) };
+        topic: q.source, type: q.type, given: a.v == null ? '' : a.v, answer: corr, correct: isRightFlag(a.correct) };
     });
     var rec = {
       date: Date.now(), mode: 'jiangyi', board: boardId, section: section,
