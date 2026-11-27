@@ -40,6 +40,12 @@
       '.mist-toolbar .mist-text{width:auto;padding:0 12px;font:600 13px/1 -apple-system,system-ui,"PingFang SC",sans-serif}',
       /* 窄屏（≤520）工具条换两行：390 宽下原来单行溢出，Clear/Done 被切掉一半 */
       '@media (max-width:520px){.mist-toolbar{top:auto;bottom:96px;flex-wrap:wrap;width:calc(100vw - 16px);justify-content:center;row-gap:4px;max-height:calc(100vh - 24px);overflow-y:auto}.mist-hint{display:none}}',
+      /* 触屏：颜色圆点只有 20px、粗细按钮 26px 宽，手指点偏就换错色/换错粗细。
+         不放大本体（会把 320 的工具条从 128px 推得更高、遮住题目），
+         用不可见伪元素把命中区撑到 26×26（相邻间隙 24px，只重叠 2px）。 */
+      '@media (hover:none),(pointer:coarse){.mist-toolbar .mist-sw,.mist-toolbar .mist-size{position:relative}',
+      '  .mist-toolbar .mist-sw::before{content:"";position:absolute;inset:-5px;border-radius:999px}',
+      '  .mist-toolbar .mist-size::before{content:"";position:absolute;inset:-3px;border-radius:999px}}',
       '.mist-toolbar .mist-done{background:#2563eb;color:#fff}',
       '.mist-toolbar .mist-done:hover{background:#1d4ed8;color:#fff}',
       '.mist-hint{position:fixed;top:62px;left:50%;transform:translateX(-50%);z-index:71;pointer-events:none;',
