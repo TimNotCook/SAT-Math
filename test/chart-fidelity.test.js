@@ -77,3 +77,20 @@ test('数值角标签的钝／锐位置与截线方向一致（平行线图）',
   }
   assert.deepStrictEqual(bad, []);
 });
+
+test('R04-061：两条截线必须在 q 上方相交，且一右倾一左倾（原书如此）', () => {
+  const svg = SPECS['R04-061'].svg;
+  const lines = [...svg.matchAll(/<line x1='([-\d.]+)' y1='([-\d.]+)' x2='([-\d.]+)' y2='([-\d.]+)'/g)]
+    .map(m => [+m[1], +m[2], +m[3], +m[4]]);
+  const q = lines.find(l => Math.abs(l[1] - l[3]) < 1e-9 && Math.abs(l[1] - 150) < 0.5);
+  const oblique = lines.filter(l => Math.abs(l[1] - l[3]) > 1e-9);
+  assert.strictEqual(oblique.length, 2, '应有两条斜截线');
+  const slopes = oblique.map(l => (l[2] - l[0]) / (l[3] - l[1]));
+  assert.ok(slopes[0] > 0 && slopes[1] < 0, `截线方向应为右倾+左倾，实际 ${slopes}`);
+  const [a, b] = oblique;
+  const k1 = (a[2] - a[0]) / (a[3] - a[1]), k2 = (b[2] - b[0]) / (b[3] - b[1]);
+  const yc = (b[0] - a[0] + k1 * a[1] - k2 * b[1]) / (k1 - k2);
+  const xc = a[0] + k1 * (yc - a[1]);
+  assert.ok(yc < 150 && yc > 0, `交点应在 q(y=150) 之上且在框内，实际 y=${yc.toFixed(1)}`);
+  assert.ok(xc > 0 && xc < 440, `交点 x 应在框内，实际 x=${xc.toFixed(1)}`);
+});
