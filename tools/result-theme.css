@@ -1,6 +1,6 @@
 /* ==== result-theme：成绩页按「阅卷纸」排版，不再是仪表盘 ==== */
 html:not([data-theme="dark"]) body.exam-page #stage-result .exam-panel{background:transparent!important;border:0!important;border-top:1px solid #e7e3da!important;border-radius:0!important;box-shadow:none!important;padding:26px 0!important}
-html:not([data-theme="dark"]) body.exam-page #stage-result .exam-score-panel{border-top:2px solid #20242b!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-score-panel{border-top:1px solid #e7e3da!important}
 html:not([data-theme="dark"]) body.exam-page #stage-result .score-num{font-size:84px!important;font-weight:600!important;color:#20242b!important;letter-spacing:-.03em!important;font-variant-numeric:tabular-nums!important;line-height:1!important}
 html:not([data-theme="dark"]) body.exam-page #stage-result .score-num small{font-size:22px!important;font-weight:500!important;color:#8d9199!important;margin-left:4px}
 html:not([data-theme="dark"]) body.exam-page #stage-result .exam-note{font-size:12px!important;color:#8d9199!important}
@@ -19,3 +19,8 @@ html:not([data-theme="dark"]) body.exam-page #stage-result .exam-tabs{background
 html:not([data-theme="dark"]) body.exam-page #stage-result .exam-tabs .tab{background:transparent!important;border:0!important;border-radius:0!important;color:#8d9199!important;font-size:12.5px!important;font-weight:500!important;padding:10px 14px!important;box-shadow:none!important}
 html:not([data-theme="dark"]) body.exam-page #stage-result .exam-tabs .tab.on{color:#20242b!important;font-weight:600!important;box-shadow:inset 0 -2px 0 #20242b!important}
 html:not([data-theme="dark"]) body.exam-page #stage-result .exam-stage-head .btn{background:transparent!important;border:1px solid #e7e3da!important;border-radius:6px!important;color:#5c6169!important;font-size:12px!important;font-weight:500!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-priority-panel{border-top:2px solid #20242b!important;padding-top:22px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .exam-priority-panel h3{font-size:13px!important;font-weight:600!important;letter-spacing:.02em!important;color:#20242b!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .prio-item{border-bottom:1px solid #efebe2!important;padding:12px 0!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .prio-item b{font-size:14px!important;color:#20242b!important}
+html:not([data-theme="dark"]) body.exam-page #stage-result .prio-lv{background:transparent!important;border:1px solid #e7e3da!important;border-radius:2px!important;color:#8d9199!important;font-size:10px!important;letter-spacing:.08em!important}
