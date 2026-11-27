@@ -1,146 +1,165 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>学习氛围 · 抽查开场页概念</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>单元抽查 · 学习氛围概念 v2</title>
 <style>
-  :root{
-    --paper:#f7f6f2;
-    --card:#fffdfa;
-    --ink:#20242b;
-    --ink-2:#5c6169;
-    --ink-3:#8d9199;
-    --line:#e7e3da;
-    --line-soft:#efebe2;
-    --accent:#2563eb;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    background:
-      radial-gradient(1200px 600px at 12% -10%, #fffdf8 0%, rgba(255,253,248,0) 60%),
-      radial-gradient(900px 500px at 95% 0%, #f2f5fb 0%, rgba(242,245,251,0) 55%),
-      var(--paper);
-    color:var(--ink);
-    font:400 15px/1.7 -apple-system, "SF Pro Text", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    -webkit-font-smoothing:antialiased;
-    min-height:100vh;
-  }
-  .wrap{max-width:1020px;margin:0 auto;padding:0 32px}
-  header{border-bottom:1px solid var(--line-soft)}
-  .nav{height:60px;display:flex;align-items:center;gap:28px}
-  .brand{font-weight:600;letter-spacing:.02em;font-size:15px;color:var(--ink);margin-right:8px}
-  .brand i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:9px;transform:translateY(-1px)}
-  .nav a{color:var(--ink-3);text-decoration:none;font-size:14px;padding:6px 0;position:relative}
-  .nav a.on{color:var(--ink)}
-  .nav a.on::after{content:"";position:absolute;left:0;right:0;bottom:-17px;height:2px;background:var(--accent)}
-  .nav .right{margin-left:auto;color:var(--ink-3);font-size:13px}
-  main{padding:64px 0 40px}
-  .kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 18px}
-  .grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:72px;align-items:start}
-  h1{font-family:Georgia,"Songti SC","Noto Serif SC",serif;font-weight:600;font-size:34px;line-height:1.28;letter-spacing:-.01em;margin:0 0 14px}
-  .lede{color:var(--ink-2);font-size:15px;margin:0 0 40px;max-width:34em}
-  .facts{display:flex;align-items:baseline;gap:0;margin:0 0 40px}
-  .fact{padding:0 32px}
-  .fact:first-child{padding-left:0}
-  .fact + .fact{border-left:1px solid var(--line)}
-  .num{font-size:46px;line-height:1;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-  .unit{font-size:12px;color:var(--ink-3);margin-left:6px;letter-spacing:.02em}
-  .fact small{display:block;font-size:12px;color:var(--ink-3);margin-top:8px;letter-spacing:.02em}
-  .cta{
-    display:inline-flex;align-items:center;gap:12px;
-    height:52px;padding:0 26px;min-width:212px;justify-content:center;
-    background:var(--accent);color:#fff;text-decoration:none;border-radius:8px;
-    font-weight:600;font-size:15px;letter-spacing:.01em;
-    transition:transform .18s ease, background .18s ease;
-  }
-  .cta:hover{transform:translateY(-1px);background:#1f5ae0}
-  .cta svg{width:16px;height:16px}
-  .note{display:inline-block;margin-left:16px;color:var(--ink-3);font-size:12.5px}
-  .art{border-left:1px solid var(--line-soft);padding-left:36px;position:sticky;top:88px}
-  .art svg{width:100%;max-width:260px;height:auto;opacity:.72;display:block}
-  .art .cap{margin-top:22px;font-size:12px;color:var(--ink-3);letter-spacing:.04em;line-height:1.8}
-  .topics{margin-top:56px;border-top:1px solid var(--line);padding-top:26px}
-  .topics h3{margin:0 0 14px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
-  .topics ul{margin:0;padding:0;list-style:none;columns:2;column-gap:40px}
-  .topics li{font-size:13.5px;color:var(--ink-2);padding:7px 0;break-inside:avoid}
-  .topics li b{display:inline-block;width:5px;height:5px;border-radius:50%;background:#c9c4b8;margin-right:10px;transform:translateY(-2px)}
-  .status{margin-top:64px;border-top:1px solid var(--line-soft);padding:18px 0 60px;display:flex;gap:36px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3)}
-  .status b{color:var(--ink-2);font-weight:500;font-variant-numeric:tabular-nums}
-  @media (max-width:860px){
-    .grid{grid-template-columns:1fr;gap:40px}
-    .art{display:none}
-  }
+:root{
+  --paper:#f7f6f2; --card:#fffdfa; --ink:#20242b; --ink2:#5c6169; --ink3:#8d9199;
+  --line:#e7e3da; --line-soft:#efebe2; --accent:#2563eb;
+  --r-card:12px; --r-ctl:8px;
+  --t:180ms cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font:16px/1.7 "Inter","Helvetica Neue","PingFang SC",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"kern" 1,"liga" 1;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.035; z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:rgba(37,99,235,.12)}
+a{color:inherit}
+.nav{
+  position:relative; z-index:2; height:56px; display:flex; align-items:center;
+  gap:28px; padding:0 32px; border-bottom:1px solid var(--line-soft);
+}
+.brand{font-size:13px; letter-spacing:.02em; font-weight:600}
+.nav a{font-size:13px; color:var(--ink2); text-decoration:none; padding:6px 0; border-bottom:2px solid transparent; transition:color var(--t)}
+.nav a:hover{color:var(--ink)}
+.nav a[aria-current]{color:var(--ink); border-bottom-color:var(--accent)}
+.wrap{position:relative; z-index:2; max-width:1080px; margin:0 auto; padding:0 32px}
+.units{display:flex; gap:32px; padding:22px 0 0}
+.units button{
+  all:unset; cursor:pointer; font-size:13px; color:var(--ink3); padding:0 0 10px;
+  border-bottom:1px solid transparent; transition:color var(--t),border-color var(--t);
+}
+.units button:hover{color:var(--ink2)}
+.units button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--ink)}
+.card{
+  margin-top:28px; background:var(--card); border:1px solid var(--line);
+  border-radius:var(--r-card); padding:40px 44px 34px;
+  box-shadow:0 1px 2px rgba(32,36,43,.03);
+}
+.hero{display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:36px; align-items:center}
+.eyebrow{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3)}
+h1{
+  margin:14px 0 0; font:600 40px/1.2 "Inter","Helvetica Neue","PingFang SC",system-ui,sans-serif;
+  letter-spacing:-.015em;
+}
+.lede{margin:12px 0 0; font-size:15px; color:var(--ink2); max-width:520px}
+.metrics{display:flex; gap:48px; margin-top:34px; align-items:baseline}
+.metric b{
+  display:block; font:500 42px/1 "Inter",sans-serif; font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;
+}
+.metric span{display:block; margin-top:8px; font-size:12px; color:var(--ink3)}
+.metric em{font-style:normal; font-size:13px; color:var(--ink2); margin-left:6px}
+.cta{
+  margin-top:36px; display:inline-flex; align-items:center; gap:10px;
+  height:46px; padding:0 24px; border:0; border-radius:var(--r-ctl);
+  background:var(--accent); color:#fff; font-size:15px; font-weight:500; cursor:pointer;
+  transition:transform var(--t),background var(--t),box-shadow var(--t);
+  box-shadow:0 1px 2px rgba(37,99,235,.18);
+}
+.cta:hover{background:#1d55d0; transform:translateY(-1px); box-shadow:0 4px 10px rgba(37,99,235,.16)}
+.cta:active{transform:translateY(0)}
+.cta:focus-visible{outline:2px solid rgba(37,99,235,.35); outline-offset:3px}
+.cta svg{width:16px;height:16px;opacity:.9}
+.art{justify-self:end; margin-top:6px; opacity:.66}
+.art svg{display:block; width:100%; height:auto}
+.points{margin-top:40px; padding-top:26px; border-top:1px solid var(--line-soft)}
+.pt-head{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3)}
+.pt-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 48px; margin-top:6px}
+.pt{
+  display:flex; align-items:baseline; gap:12px; padding:13px 0;
+  border-bottom:1px solid var(--line-soft); font-size:15px; color:var(--ink2);
+}
+.pt i{width:3px; height:3px; border-radius:50%; background:var(--ink3); flex:none; transform:translateY(-3px)}
+.foot{display:flex; gap:0; margin-top:34px; border-top:1px solid var(--line-soft); padding-top:22px}
+.foot div{padding-right:36px; margin-right:36px; border-right:1px solid var(--line-soft)}
+.foot div:last-child{border:0; margin:0; padding:0}
+.foot b{font:500 15px/1 "Inter",sans-serif; font-variant-numeric:tabular-nums}
+.foot span{margin-left:8px; font-size:12px; color:var(--ink3)}
+.hint{margin:18px 0 0; font-size:12px; color:var(--ink3); text-align:center}
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .art{display:none}
+  .pt-grid{grid-template-columns:1fr}
+  h1{font-size:36px}
+  .card{padding:30px 24px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<header>
-  <div class="wrap nav">
-    <span class="brand"><i></i>SAT Math</span>
-    <a href="#">真题练习</a>
-    <a href="#" class="on">单元抽查</a>
-    <a href="#">错题回顾</a>
-    <a href="#">模考</a>
-    <a href="#" class="right">设置</a>
+<nav class="nav">
+  <span class="brand">SAT Math Prep</span>
+  <a href="#">真题练习</a>
+  <a href="#" aria-current="page">单元抽查</a>
+  <a href="#">错题回顾</a>
+  <a href="#">模考</a>
+</nav>
+<div class="wrap">
+  <div class="units" role="tablist" aria-label="单元">
+    <button role="tab" aria-selected="false">U1 代数核心</button>
+    <button role="tab" aria-selected="true">U2 问题解决与数据分析</button>
+    <button role="tab" aria-selected="false">U3 高等数学</button>
+    <button role="tab" aria-selected="false">U4 几何与三角</button>
   </div>
-</header>
-
-<main class="wrap">
-  <p class="kicker">Unit 02 · Problem Solving &amp; Data Analysis</p>
-  <div class="grid">
-    <div>
-      <h1>问题解决与数据分析</h1>
-      <p class="lede">今天只做这一件事：20 道题，把比例、百分比和图表这三块重新过一遍。</p>
-
-      <div class="facts">
-        <div class="fact"><span class="num">20</span><span class="unit">题</span><small>含 0 道历史错题</small></div>
-        <div class="fact"><span class="num">31:40</span><span class="unit">限时</span><small>按官方 95 秒 / 题</small></div>
+  <section class="card">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">第 2 单元 · 抽查</div>
+        <h1>问题解决与数据分析</h1>
+        <p class="lede">今天只做这一件事：20 道题，半小时，做完就收。</p>
+        <div class="metrics">
+          <div class="metric"><b>20</b><span>道题<em>· 含 0 道历史错题</em></span></div>
+          <div class="metric"><b>31:40</b><span>限时</span></div>
+        </div>
+        <button class="cta">开始抽查
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h13M13 6.5l5.5 5.5-5.5 5.5" stroke-linecap="round"/></svg>
+        </button>
       </div>
-
-      <a class="cta" href="#">
-        开始抽测
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </a>
-      <span class="note">开始后计时即走，中途退出会保存进度</span>
-
-      <section class="topics">
-        <h3>本卷覆盖</h3>
-        <ul>
-          <li><b></b>长宽比与比例</li>
-          <li><b></b>连续百分比增长</li>
-          <li><b></b>表格求百分比</li>
-          <li><b></b>散点图选拟合直线</li>
-        </ul>
-      </section>
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 176 132">
+          <path d="M18 104H152" stroke="#dbe7f8" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M160 104l-6-3.2V107.2z" stroke="#dbe7f8" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M46 104V30" stroke="#dbe7f8" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M46 22l-3.2 6H49.2z" stroke="#dbe7f8" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M46 40H156M46 64H156M46 88H156" stroke="#edf4fc"/>
+          <path d="M76 104V40M106 104V40M136 104V40" stroke="#edf4fc"/>
+          <rect x="48" y="78" width="16" height="26" rx="2" fill="#f5faff" stroke="#c4d7f3" stroke-width="1.5"/>
+          <rect x="76" y="64" width="16" height="40" rx="2" fill="#f5faff" stroke="#c4d7f3" stroke-width="1.5"/>
+          <rect x="104" y="50" width="16" height="54" rx="2" fill="#f5faff" stroke="#c4d7f3" stroke-width="1.5"/>
+          <rect x="132" y="34" width="16" height="70" rx="2" fill="#eaf3ff" stroke="#8fb3ee" stroke-width="1.5"/>
+          <path d="M44 84.3L158 24.6" stroke="#8fb3ee" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <circle cx="56" cy="78" r="2.4" fill="#8fb3ee"/><circle cx="84" cy="64" r="2.4" fill="#8fb3ee"/>
+          <circle cx="112" cy="50" r="2.4" fill="#8fb3ee"/><circle cx="140" cy="34" r="2.4" fill="#8fb3ee"/>
+        </svg>
+      </div>
     </div>
-
-    <aside class="art">
-      <svg viewBox="0 0 176 132" fill="none" aria-hidden="true">
-        <path d="M18 104H152" stroke="#d8d3c6" stroke-width="1.4" stroke-linecap="round"/>
-        <path d="M160 104l-6-3.2V107.2z" stroke="#d8d3c6" stroke-width="1.2" stroke-linejoin="round"/>
-        <path d="M46 104V30" stroke="#d8d3c6" stroke-width="1.4" stroke-linecap="round"/>
-        <path d="M46 22l-3.2 6H49.2z" stroke="#d8d3c6" stroke-width="1.2" stroke-linejoin="round"/>
-        <path d="M46 40H156M46 64H156M46 88H156" stroke="#efece4" stroke-width="1"/>
-        <rect x="48" y="78" width="16" height="26" rx="2" fill="#f7f5ef" stroke="#d9d4c7" stroke-width="1.4"/>
-        <rect x="76" y="64" width="16" height="40" rx="2" fill="#f7f5ef" stroke="#d9d4c7" stroke-width="1.4"/>
-        <rect x="104" y="50" width="16" height="54" rx="2" fill="#f7f5ef" stroke="#d9d4c7" stroke-width="1.4"/>
-        <rect x="132" y="34" width="16" height="70" rx="2" fill="#eef2fb" stroke="#2563eb" stroke-opacity=".55" stroke-width="1.4"/>
-        <path d="M44 84.3L158 24.6" stroke="#2563eb" stroke-opacity=".55" stroke-width="1.4" stroke-dasharray="5 5" stroke-linecap="round"/>
-        <circle cx="56" cy="78" r="2.4" fill="#2563eb" fill-opacity=".6"/>
-        <circle cx="84" cy="64" r="2.4" fill="#2563eb" fill-opacity=".6"/>
-        <circle cx="112" cy="50" r="2.4" fill="#2563eb" fill-opacity=".6"/>
-        <circle cx="140" cy="34" r="2.4" fill="#2563eb" fill-opacity=".6"/>
-      </svg>
-      <div class="cap">本单元 7 个考点<br>题库 333 题 · 已练 61 题</div>
-    </aside>
-  </div>
-
-  <div class="status">
-    <span>上次练习 <b>11 月 24 日</b></span>
-    <span>本单元正确率 <b>78%</b></span>
-    <span>累计专注 <b>3 小时 12 分</b></span>
-  </div>
-</main>
+    <div class="points">
+      <div class="pt-head">覆盖考点</div>
+      <div class="pt-grid">
+        <div class="pt"><i></i>比例、比率与百分比</div>
+        <div class="pt"><i></i>图表与数据推断</div>
+        <div class="pt"><i></i>平均数、中位数与众数</div>
+        <div class="pt"><i></i>散点图与拟合直线</div>
+      </div>
+    </div>
+    <div class="foot">
+      <div><b>3 次</b><span>上次练习</span></div>
+      <div><b>86%</b><span>正确率</span></div>
+      <div><b>4h 20m</b><span>累计专注</span></div>
+    </div>
+  </section>
+  <p class="hint">开始后计时不会因为切题而暂停；时间到自动交卷。</p>
+</div>
 </body>
 </html>
