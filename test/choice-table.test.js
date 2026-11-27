@@ -36,11 +36,14 @@ test('表格选项渲染成 <table>，表头与行数与题干一致', () => {
   for (const id of TABLES) {
     const ch = TEXT[id].choices;
     for (const L of ['A', 'B', 'C', 'D']) {
-      const html = FIG.fmtChoice(ch[L]);
-      assert.match(html, /class="td-choice-table"/, `${id} ${L} 应是表格`);
+      const html = FIG.fmtChoice(ch[L], id);
+      assert.match(html, /class="td-choice-table(?!--h)/, `${id} ${L} 应是表格`);
       const rows = (html.match(/<tr>/g) || []).length;
-      assert.equal(rows, 4, `${id} ${L} 应是表头 1 行 + 数据 3 行（实际 ${rows}）`);
-      assert.match(html, /<thead><tr><th>(x)<\/th><th>(y|q\(x\))/, `${id} ${L} 表头不对`);
+      // 横排（TD-11-22 / TD-33-13，原书印成两行）是 2 行；其余是表头 1 行 + 数据 3 行
+      const transposed = /td-choice-table--h/.test(html);
+      assert.equal(rows, transposed ? 2 : 4, `${id} ${L} 行数不对（实际 ${rows}）`);
+      if (transposed) assert.match(html, /<thead><tr><th>x<\/th><th>/, `${id} ${L} 横排表头应以 x 开头`);
+      else assert.match(html, /<thead><tr><th>(x)<\/th><th>(y|q\(x\))/, `${id} ${L} 表头不对`);
     }
   }
 });
@@ -82,4 +85,44 @@ test('每一道题干里问 "which table / which of the following tables" 的题
     const rendered = opts.filter((L) => /td-choice-table/.test(FIG.fmtChoice(ch[L])));
     assert.ok(rendered.length >= 2, `${q.id} 问 table，但选项没渲染成表格（${opts.join('/')}）`);
   }
+});
+
+test('原书横排的选项表按横排还原（TD-11-22 / TD-33-13）', () => {
+  const h1 = FIG.fmtChoice(TEXT['TD-11-22'].choices.A, 'TD-11-22');
+  assert.match(h1, /td-choice-table--h/);
+  const cells1 = [...h1.matchAll(/<t[hd][^>]*>([^<]*)<\/t[hd]>/g)].map((m) => m[1]);
+  assert.equal(cells1.join('|'), 'x|0|5|10|y|14|21|28', 'TD-11-22 A 应排成 x 0 5 10 上 / y 14 21 28 下');
+
+  const h2 = FIG.fmtChoice(TEXT['TD-33-13'].choices.D, 'TD-33-13');
+  const cells2 = [...h2.matchAll(/<t[hd][^>]*>([^<]*)<\/t[hd]>/g)].map((m) => m[1]);
+  assert.equal(cells2.join('|'), 'x|-1|0|1|q(x)|-63|3|63');
+});
+
+test('原书竖排的选项表保持竖排（TD-15-06 不能被白名单带走）', () => {
+  const html = FIG.fmtChoice(TEXT['TD-15-06'].choices.A, 'TD-15-06');
+  assert.ok(!/td-choice-table--h/.test(html));
+  const cells = [...html.matchAll(/<t[hd][^>]*>([^<]*)<\/t[hd]>/g)].map((m) => m[1]);
+  assert.equal(cells.join('|'), 'x|y|-9|27|-10|51|-12|-4');
+});
+
+test('同一道选择题里不许出现两个一模一样的选项', () => {
+  // SR-127（02 册 p62 · Topic 10 #43）C/D 目前重复，原书 p62 扫描件不在手边，
+  // 已登记为待核项；除它以外全库不得再有重复选项。
+  const KNOWN = ['SR-127'];
+  const norm = (x) => String(x == null ? '' : x).toLowerCase().replace(/\s+/g, '').replace(/[−–—]/g, '-').replace(/×/g, '*');
+  const bad = [];
+  for (const q of QUESTIONS) {
+    const t = TEXT[q.id] || {};
+    if (q.type !== 'mcq' || (t.figure || []).length === 4) continue;
+    const ch = t.choices || {};
+    const seen = {};
+    for (const L of ['A', 'B', 'C', 'D']) {
+      const k = norm(ch[L]);
+      if (!k) continue;
+      if (seen[k]) bad.push(`${q.id} ${seen[k]}=${L}`);
+      else seen[k] = L;
+    }
+  }
+  const unexpected = bad.filter((b) => !KNOWN.some((id) => b.startsWith(id + ' ')));
+  assert.equal(unexpected.join('|'), '', `重复选项：${unexpected.join(', ')}`);
 });

@@ -978,12 +978,19 @@
     return '<div class="td-choicegraph">' + out.join('') + '</div>';
   }
 
+  /* 原书把选项表印成横排（第一行变量名 + 自变量值、第二行函数名 + 函数值）的题：
+     TD-11-22（P14 · 1.1 #22）印 x｜0｜5｜10 / y｜14｜21｜28；
+     TD-33-13（P171 · 3.3 #13）印 x｜−1｜0｜1 / q(x)｜7｜21｜63。
+     其余表格选项题（如 TD-15-06）原书是 x｜y 竖排两列，不受影响。
+     页面可覆盖 window.TD_CHOICE_TABLE_TRANSPOSED 来增加/撤销。 */
+  var TRANSPOSED_TABLES = { 'TD-11-22': true, 'TD-33-13': true };
+
   /* 选择题里的「小表格 / 联立方程组」选项：
      原书这几个选项是排成表格（表头 x｜y 或 x｜q(x)）或带大括号的方程组，
      题库里只能存成一行串（"x: 0, 5, 10; y: 14, 21, 28"、"x=3,y=21; x=5,y=47; ..."、
      "c = 3m; c + m = 28"）。直接印成一行既不像原题，也不好读。这里按串的形状
      还原成真正的表格 / 联立式，做不到就原样退回 fmtMath。 */
-  function fmtChoice(raw) {
+  function fmtChoice(raw, id) {
     var s = String(raw == null ? '' : raw).trim();
     if (!s) return fmtMath(raw);
     var t = s.replace(/\s*(?:→|->)\s*/g, '; ');
@@ -1010,6 +1017,12 @@
       var xs = m1[2].split(',').map(function (v) { return v.trim(); });
       var ys = m2[2].split(',').map(function (v) { return v.trim(); });
       if (xs.length === ys.length && xs.length >= 2) {
+        /* 原书有几道题的表是「横排」：表头一行是变量名 + 各自变量值，第二行才是函数值
+           （TD-11-22 印 x｜0｜5｜10 上、y｜14｜21｜28 下；TD-33-13 印 x｜−1｜0｜1 上、
+           q(x)｜7｜21｜63 下）。这类题按 TD_CHOICE_TABLE_TRANSPOSED 白名单横排还原，
+           其余题仍是 x｜y 竖排两列。 */
+        var tset = window.TD_CHOICE_TABLE_TRANSPOSED || TRANSPOSED_TABLES;
+        if (id && tset[id]) return tableHtmlH(m1[1].trim(), m2[1].trim(), xs, ys);
         var rowsA = xs.map(function (v, i) { return [v, ys[i]]; });
         return tableHtml(m1[1].trim(), m2[1].trim(), rowsA);
       }
@@ -1025,6 +1038,15 @@
         '</span></span>';
     }
     return fmtMath(raw);
+  }
+
+  /* 横排表：第一行 = 变量名 + 一排自变量值，第二行 = 函数名 + 一排函数值 */
+  function tableHtmlH(h1, h2, xs, ys) {
+    var html = '<table class="td-choice-table td-choice-table--h"><thead><tr><th>' + fmtMath(h1) + '</th>';
+    xs.forEach(function (v) { html += '<th>' + fmtMath(v) + '</th>'; });
+    html += '</tr></thead><tbody><tr><td class="td-choice-table-hlab">' + fmtMath(h2) + '</td>';
+    ys.forEach(function (v) { html += '<td>' + fmtMath(v) + '</td>'; });
+    return html + '</tr></tbody></table>';
   }
 
   function tableHtml(h1, h2, rows) {
