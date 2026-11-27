@@ -51,3 +51,8 @@ test('dark 记录页 Σ 徽标保持品牌蓝白字、讲义板块标题不再�
   assert.match(css, /html\[data-theme="dark"\] \.drill-select-sigma\{color:#fff!important\}/);
   assert.match(css, /html\[data-theme="dark"\] \.jy-board-card b\{color:#f5f5f7!important\}/);
 });
+
+test('dark 账号面板主按钮保持品牌蓝白字，neutral 按钮透明浅字', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.td-acct-btn2\{\s*background:#2563eb!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.td-acct-btn2\[data-neutral="1"\]\{/);
+});
