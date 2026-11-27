@@ -1163,7 +1163,8 @@ html:not([data-theme="dark"]) body.exam-page #stage-result .prio-item{border-bot
 html:not([data-theme="dark"]) body.exam-page #stage-result .prio-item b{font-size:14px!important;color:#20242b!important}
 html:not([data-theme="dark"]) body.exam-page #stage-result .prio-lv{background:transparent!important;border:1px solid #e7e3da!important;border-radius:2px!important;color:#8d9199!important;font-size:10px!important;letter-spacing:.08em!important}
 
-/* ==== catalog-theme：真题练习首页先统一纸面（画布、侧栏、卡片） ==== */
+/* ==== catalog-theme：真题练习首页纸面化 ==== */
+html:not([data-theme="dark"]){background:#f7f6f2}
 html:not([data-theme="dark"]) body.drill-page{background:#f7f6f2!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail{background:#fffdfa!important;border-right:1px solid #e7e3da!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail .rail-brand{font-size:14px!important;font-weight:600!important;color:#20242b!important;letter-spacing:.01em!important;padding:4px 12px 18px!important}
@@ -1171,10 +1172,23 @@ html:not([data-theme="dark"]) body.drill-page .site-rail a{color:#5c6169!importa
 html:not([data-theme="dark"]) body.drill-page .site-rail a:hover{background:#faf8f3!important;color:#20242b!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail a[aria-current]{background:transparent!important;color:#20242b!important;box-shadow:inset 2px 0 0 #20242b!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail .rail-sep{background:#efebe2!important}
-html:not([data-theme="dark"]) body.drill-page #boardPanel .tile-section{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:8px!important;box-shadow:none!important}
-html:not([data-theme="dark"]) body.drill-page #boardPanel .tile-section .tile-code{color:#a8acb4!important}
-html:not([data-theme="dark"]) body.drill-page #boardPanel .tile-section .tile-name{color:#20242b!important}
-html:not([data-theme="dark"]) body.drill-page #boardPanel .tile-section .tile-state{color:#a8acb4!important;background:transparent!important}
+
+/* 顶部三个入口：从大卡片改回安静的分段行，当前项用 2px 墨线 */
+html:not([data-theme="dark"]) body.drill-page .entry-tile-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;border-top:1px solid #e7e3da!important;border-bottom:1px solid #e7e3da!important;margin:0 0 28px!important}
+html:not([data-theme="dark"]) body.drill-page .entry-tile{position:relative!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:15px 2px!important;transform:none!important}
+html:not([data-theme="dark"]) body.drill-page .entry-tile b{font-size:13px!important;font-weight:500!important;color:#8d9199!important;letter-spacing:.01em!important}
+html:not([data-theme="dark"]) body.drill-page .entry-tile .entry-arrow{display:none!important}
+html:not([data-theme="dark"]) body.drill-page .entry-tile:hover b{color:#20242b!important}
+html:not([data-theme="dark"]) body.drill-page .entry-tile.on b{color:#20242b!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.drill-page .entry-tile.on::after{content:""!important;position:absolute!important;left:0!important;right:0!important;bottom:-1px!important;height:2px!important;background:#20242b!important}
+
+/* 板块磁贴：米白纸面卡片 */
+html:not([data-theme="dark"]) body.drill-page #boardPanel .tile-section,
+html:not([data-theme="dark"]) body.drill-page #sectionList .tile-section,
+html:not([data-theme="dark"]) body.drill-page #specialList .tile-section{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:8px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.drill-page .tile-grid .tile-section .tile-code{color:#a8acb4!important}
+html:not([data-theme="dark"]) body.drill-page .tile-grid .tile-section .tile-name{color:#20242b!important}
+html:not([data-theme="dark"]) body.drill-page .tile-grid .tile-section .tile-state{color:#a8acb4!important;background:transparent!important}
 html:not([data-theme="dark"]) body.drill-page .drill-group-h{font-size:11px!important;font-weight:600!important;letter-spacing:.12em!important;color:#8d9199!important}
 
 /* ==== archive-theme：错题回顾 / 模考记录统一纸面 ==== */
