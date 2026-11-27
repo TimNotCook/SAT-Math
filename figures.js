@@ -520,12 +520,17 @@
     function ytk(v) { return (y.step % 1 !== 0) ? v.toFixed(1) : tk(v); }
     var out = [openSvg('0 0 ' + W + ' ' + H, 'td-figsvg')];
     // gridlines
+    /* minor:'1' — the book prints SAT coordinate planes with a 1-unit grid but
+       labels only every 2 units (e.g. SR-228 / SR-229). Draw the fine grid at
+       x.minor / y.minor while the tick labels stay on x.step / y.step. */
+    var gstepX = (o.minor && o.minor.x) ? o.minor.x : x.step;
+    var gstepY = (o.minor && o.minor.y) ? o.minor.y : y.step;
     if (o.grid !== false) {
-      for (var gx = x.min; gx <= x.max + 1e-9; gx += x.step) {
+      for (var gx = x.min; gx <= x.max + 1e-9; gx += gstepX) {
         out.push('<line x1="' + PX(gx).toFixed(1) + '" y1="' + PY(y.min).toFixed(1) +
           '" x2="' + PX(gx).toFixed(1) + '" y2="' + PY(y.max).toFixed(1) + '" stroke="' + GRID + '" stroke-width="1"/>');
       }
-      for (var gy = y.min; gy <= y.max + 1e-9; gy += y.step) {
+      for (var gy = y.min; gy <= y.max + 1e-9; gy += gstepY) {
         out.push('<line x1="' + PX(x.min).toFixed(1) + '" y1="' + PY(gy).toFixed(1) +
           '" x2="' + PX(x.max).toFixed(1) + '" y2="' + PY(gy).toFixed(1) + '" stroke="' + GRID + '" stroke-width="1"/>');
       }
@@ -1058,5 +1063,5 @@
     return html + '</tbody></table>';
   }
 
-  window.TD_FIG = { showFigure: showFigure, lineAnswer: lineAnswer, hasLine: hasLine, fmtMath: fmtMath, fmtChoice: fmtChoice, choiceGraph: choiceGraph };
+  window.TD_FIG = { showFigure: showFigure, lineAnswer: lineAnswer, hasLine: hasLine, fmtMath: fmtMath, fmtChoice: fmtChoice, choiceGraph: choiceGraph, chart: chart };
 })();
