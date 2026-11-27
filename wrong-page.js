@@ -4,6 +4,14 @@
  /* Render ^{...} superscripts as real <sup> (same typography as the exam pages). */
  function mathfmt(s){var e=String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
    return e.replace(/\^\{([^{}]*)\}/g,'<sup>$1</sup>');}
+ /* 导入错题来自历史 JSON / 云端合并：stem 可能是对象、数组或数字，不能直接
+    .trim()。只把字符串/数字当正文，数组拼成一行，其余当缺省。 */
+ function plainText(v){
+   if(v==null)return'';
+   if(Array.isArray(v))return v.filter(function(x){return typeof x==='string'||typeof x==='number';}).join(' ');
+   if(typeof v==='object')return'';
+   return String(v);
+ }
  /* Render the question's figure (graph/table/diagram) when one is registered,
     so 错题回顾 shows the same visual as 单元练习 / 单元抽查 / 模考.
     Uses the shared window.TD_FIG.showFigure — never throws if absent. */
@@ -228,12 +236,12 @@ function importedGroupHtml(){
     var q=bankQ
       ?{id:bankQ.id,stem:(T[bankQ.id]||{}).stem||bankQ.stem||it.stem,choices:(T[bankQ.id]||{}).choices||{},type:bankQ.type,
         answer:bankQ.answer,value:bankQ.value,topic:bankQ.topic||it.topic||'',section:bankQ.section,unit:bankQ.unit,no:bankQ.no}
-      :{id:'IMP-'+(it.key||i),stem:it.stem,choices:it.choices||{},type:it.type,answer:it.answer,
+      :{id:'IMP-'+(it.key||i),stem:plainText(it.stem)||'题干文字暂缺。',choices:it.choices||{},type:it.type,answer:it.answer,
         value:it.value,topic:it.topic||'',section:'导入',unit:0,no:'—'};
     var x={q:q,given:it.given||'',attempts:1,sources:['导入错题'],date:it.importedAt||0,corrected:false},a=analysis(x);
     return'<article class="wrong-card"><div class="wrong-card-head"><b>导入 · '+(it.source?esc(it.source):'第 '+(i+1)+' 道')+'</b><span>'+(ro?'已匹配题库 · 只读记录 · 未改动你的作答':'导入错题 · 仅错题本可见')+'</span></div>'+
       figHtml(q)+
-      '<p class="wrong-stem">'+mathfmt((it.stem||'题干文字暂缺。').trim())+'</p>'+
+      '<p class="wrong-stem">'+mathfmt(plainText(q.stem).trim()||'题干文字暂缺。')+'</p>'+
       '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
       '<div class="cause-box"><b>'+esc(a.title)+'</b><p>'+esc(a.detail)+'</p></div>'+
       '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">'+(ro?('该题已有作答记录（'+esc(it.matchId||'')+'），按只增不改原则未写入'):'未在题库中找到对应题目，无法进入抽查抽题')+'</span></div></article>';
@@ -273,7 +281,7 @@ function importedGroupHtml(){
      html+='<section class="wrong-unit"><h2>UNIT '+u.id+' · '+esc(u.cn)+'<span>'+list.length+' 道</span></h2>'+list.map(function(x){var q=x.q,a=analysis(x),sec=q.section||'L'+q.unit;
        return'<article class="wrong-card'+(x.corrected?' corrected':'')+'"><div class="wrong-card-head"><b>'+esc((q.origin==='jiangyi'&&window.TD_JY)?window.TD_JY.sourceLabel(q):(sec+' · 第 '+(q.no||'—')+' 题'))+'</b><span>'+esc(x.sources.join(' / '))+(x.attempts>1?' · '+x.attempts+' 次记录':'')+(x.corrected?' · 已在练习中订正':'')+'</span></div>'+
        figHtml(q)+
-       '<p class="wrong-stem">'+mathfmt(((T[q.id]||{}).stem||q.stem||'题干文字暂缺。').trim())+'</p>'+
+       '<p class="wrong-stem">'+mathfmt(plainText((T[q.id]||{}).stem||q.stem||'题干文字暂缺。').trim())+'</p>'+
        '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
        '<div class="cause-box"><b>'+esc(a.title)+'</b><p>'+esc(a.detail)+'</p></div>'+
        '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><a class="btn sm" href="'+drillLink(q)+'">回到本题重练</a></div></article>';}).join('')+'</section>';});

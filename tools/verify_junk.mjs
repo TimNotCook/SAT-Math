@@ -136,6 +136,14 @@ const PROFILES = [
     ])],
     ['tdsat_app_v1', JSON.stringify({ sections: { L1: { answers: { 'U1-01': { v: 'A', correct: false, ts: 1 } } } }, last: null })],
   ]],
+  /* J：导入错题 stem 是对象/数组（第 27 条）。渲染环节不能 .trim() 崩页。 */
+  ['J-import-stem', [
+    ['tdsat_imported_wrong_v1', JSON.stringify({ items: [
+      { key: 'st:o', stem: { x: 1 }, type: 'mcq', answer: 'A', given: 'A', choices: { A: '1' } },
+      { key: 'st:a', stem: ['1+1=?'], type: 'mcq', answer: 'A', given: 'A', choices: { A: '2' } }
+    ] })],
+    ['tdsat_exam_suite_results_v1', JSON.stringify([{ date: 1700000000000, mode: 'quiz', unit: '1.1', total: 10, correct: 7, elapsed: 600, detail: [] }])],
+  ]],
   /* I：导入错题历史记录里 given 是对象/数字（第 26 条）。分析环节不能 .trim() 崩页。 */
   ['I-import-given', [
     ['tdsat_imported_wrong_v1', JSON.stringify({ items: [
