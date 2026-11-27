@@ -1196,7 +1196,7 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-ma
   background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
   min-height:0!important;padding:0!important;
 }
-html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-card-copy{min-width:0!important;padding:0 40px 0 0!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-card-copy{min-width:0!important;padding:0!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-card-kicker{
   display:block!important;font-size:11px!important;font-weight:600!important;letter-spacing:.14em!important;color:#a8acb4!important;
 }
@@ -1221,7 +1221,7 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #btnStar
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope{
   background:transparent!important;border:0!important;border-left:1px solid #e7e3da!important;
-  border-radius:0!important;box-shadow:none!important;padding:0 0 0 32px!important;margin:0!important;
+  border-radius:0!important;box-shadow:none!important;padding:0 0 0 40px!important;margin:0!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .quiz-scope-h{
   display:block!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:#a8acb4!important;margin:2px 0 12px!important;
@@ -1248,7 +1248,6 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-sp
 /* 窄屏：两栏回落成单栏，竖发丝线换成横发丝线 */
 @media (max-width:900px){
   html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-main-card{grid-template-columns:minmax(0,1fr)!important}
-  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-card-copy{padding:0!important}
   html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope{
     border-left:0!important;border-top:1px solid #e7e3da!important;padding:16px 0 0!important;margin:24px 0 0!important;
   }
