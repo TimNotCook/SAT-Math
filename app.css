@@ -901,3 +901,15 @@ body.shell-wrong .empty-panel{border:1px solid #e6ebf3!important;border-radius:1
   .quiz-tabs{grid-auto-rows:40px}
   .quiz-tab{height:40px;padding:0 8px;gap:6px;font-size:13px}
 }
+
+/* 全站一块灰画布：真题练习 / 讲义复习 / 模考记录 也跟错题页、开场页同底 */
+html:has(body.shell-drill),html:has(body.shell-history),html:has(body.jy-page){background:#f5f7fb!important}
+/* bluebook.css 末尾用 body.drill-page 统一刷白，这里要压过它 */
+body.drill-page.shell-drill,body.site-shell.shell-history,body.drill-page.jy-page{background:#f5f7fb!important;min-height:100vh}
+body.shell-drill .site-rail,body.shell-history .site-rail,body.jy-page .site-rail{background:#fff}
+
+/* 讲义四个板块排成四等分，别落一个孤儿卡；模考记录空态也换成白卡 */
+body.jy-page #jyBoardCards{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){body.jy-page #jyBoardCards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+body.shell-history .hist-empty{padding:44px 24px;border:1px solid #e6ebf3;border-radius:14px;
+  background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04);color:#7b8798}
