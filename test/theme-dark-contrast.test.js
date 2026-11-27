@@ -88,3 +88,7 @@ test('dark 草稿纸工具条清空按钮可读', () => {
   assert.match(css, /html\[data-theme="dark"\] \.mist-toolbar \.mist-done\{[^}]*background:#2563eb!important;color:#fff!important/);
   assert.match(css, /html\[data-theme="dark"\] \.mist-hint\{[^}]*color:#c8c8cc!important/);
 });
+
+test('dark 索引页 hero-sub / tile-code 辅助字可读', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.hero-sub,\nhtml\[data-theme="dark"\] \.tile-code\{color:#a8a8ad!important\}/);
+});
