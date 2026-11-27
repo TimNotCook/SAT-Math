@@ -81,6 +81,9 @@ function importData(data){
   if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
   var store=readImport();if(!Array.isArray(store.items))store.items=[];
   var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0;
+  /* 旧存档/云端合并可能把 items 写成 [null, ...]：先剔掉非对象条目，
+     否则下一次导入在 x.key 处直接 TypeError，整次导入失败。 */
+  store.items=store.items.filter(function(x){return x&&typeof x==='object';});
   store.items.forEach(function(x){var k=x.key||(x.matchId?'i:'+x.matchId:'s:'+normStem(x.stem));if(k)seen[k]=true;});
   items.forEach(function(raw){
     var it=normalizeItem(raw),m=matchItem(it,idx);

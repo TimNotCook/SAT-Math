@@ -130,6 +130,18 @@ test('导入流程 normalizeItem 不把对象字段写成 [object Object]', () =
   assert.ok(!/\[object Object\]/.test(JSON.stringify(saved)), '导入时把对象字段存成了 [object Object]');
   assert.ok(!/\[object Object\]/.test(els.wrongList.innerHTML), '导入后的错题卡出现 [object Object]');
 });
+test('导入时旧 items 里有 null/非对象条目不崩，且被剔掉', () => {
+  const store = { tdsat_imported_wrong_v1: JSON.stringify({ items: [null, 5, 'x', { key: 'old', stem: 'Old' }] }) };
+  const { els, sandbox } = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store);
+  let threw = null;
+  try { sandbox.TD_IMPORT_WRONG.importData({ items: [{ key: 'new1', stem: 'New', type: 'mcq', answer: 'A', choices: { A: '1' } }] }); }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '旧 items 的 null/非对象条目打崩导入：' + (threw && threw.message));
+  const saved = JSON.parse(store.tdsat_imported_wrong_v1 || '{}');
+  assert.ok(saved.items.every(x => x && typeof x === 'object'), '导入后 items 里还留着 null/非对象条目');
+  assert.ok(/New/.test(els.wrongList.innerHTML), '新导入没渲染出来');
+});
+
 
 test('记录页字段全是对象时不显示 [object Object]、NaN 或 Invalid Date', () => {
   const store = {
