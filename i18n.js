@@ -187,6 +187,7 @@
 
   /* 带数字的句子：模板字符串拼出来的是一个整体文本节点，靠模式匹配 */
   var PATS = [
+    [/^Resume · (.+) 第 (\d+) 题$/, 'Resume · $1 Question $2'],
     [/^第 (\d+) 题$/, 'Question $1'],
     [/^第 (\d+) 题，/, 'Question $1, '],
     [/^ · 第 (\d+) 题$/, ' · Question $1'],
@@ -217,6 +218,9 @@
   function t(s) {
     if (s == null) return s;
     if (Object.prototype.hasOwnProperty.call(EN, s)) return EN[s];
+    /* 含中文才做词块替换，纯英文/数字串原样返回，避免误伤题干 */
+    if (/[\u4e00-\u9fff]/.test(s)) s = phraseReplace(s);
+    if (!/[\u4e00-\u9fff]/.test(s)) return s;
     for (var i = 0; i < PATS.length; i++) {
       if (PATS[i][0].test(s)) return s.replace(PATS[i][0], PATS[i][1]);
     }
@@ -281,6 +285,80 @@
     if (global.TDSync) { try { global.TDSync.notify(KEY); } catch (e) {} }
     try { global.dispatchEvent(new CustomEvent('td-lang-change', { detail: { lang: lang } })); } catch (e) {}
     return lang;
+  }
+
+
+  /* 词块表：小节名 / 单元名 / 状态词出现在整句里时也能翻（长词优先替换，
+     这样「Topic 20 · 模型与散点图」和「继续上次练习 · … 第 3 题」都能整体变英文）。 */
+  var PHRASES = {
+    /* 单元名 */
+    '代数核心': 'Heart of Algebra',
+    '问题解决与数据分析': 'Problem Solving & Data Analysis',
+    '高等数学': 'Advanced Math',
+    '几何与三角': 'Geometry & Trigonometry',
+    /* 教材小节 */
+    '线性方程与函数图像': 'Linear Equations and Graphs',
+    '一元线性方程求解': 'Solving Linear Equations',
+    '线性函数与方程解读': 'Interpreting Linear Functions and Equations',
+    '线性方程与不等式应用题': 'Linear Equations and Inequalities Word Problems',
+    '线性不等式与图像': 'Linear Inequalities and Graphs',
+    '绝对值与方程': 'Absolute Value and Equations',
+    '比率、百分比与单位换算': 'Ratios, Percentages, and Unit Conversion',
+    '比率、比例与单位换算': 'Ratios, Proportions, and Unit Conversion',
+    '散点图与统计图表': 'Scatterplots and Statistical Graphs',
+    '线性与指数关系': 'Linear and Exponential Relationships',
+    '概率与条件概率': 'Probability and Conditional Probability',
+    '数据分析：集中与离散': 'Data Analysis: Center and Spread',
+    '分布与集中、离散度量': 'Distributions and Measures of Center and Spread',
+    '样本推断与误差范围': 'Inference from Sample Statistics and Margin of Error',
+    '统计论断评估': 'Evaluating Statistical Claims',
+    '模型与散点图': 'Models and Scatterplots',
+    '百分数': 'Percentages',
+    '指数、根式与多项式运算': 'Exponents, Radicals, and Polynomials',
+    '二次、根式与分式方程': 'Quadratic, Radical, and Rational Equations',
+    '二次与多项式函数图像': 'Graphs of Quadratic and Polynomial Functions',
+    '函数记号与变换': 'Function Notation and Transformations',
+    '非线性函数建模与解读': 'Modeling and Interpreting Nonlinear Functions',
+    '非线性建模与解读': 'Modeling and Interpreting Nonlinear Relationships',
+    '二次函数与建模': 'Quadratic Functions and Modeling',
+    '多项式与因式': 'Polynomials and Factors',
+    '有理式与根式': 'Rational and Radical Expressions',
+    '指数与根式运算': 'Exponents and Radicals',
+    '方程与不等式应用': 'Applications of Equations and Inequalities',
+    '函数记号与图像': 'Function Notation and Graphs',
+    '二次方程与判别式': 'Quadratic Equations and the Discriminant',
+    '线性方程组解的个数': 'Number of Solutions of Linear Systems',
+    '两点坐标与直线（Desmos）': 'Points, Lines, and Desmos',
+    '线性关系典型题': 'Typical Linear Relationship Problems',
+    '线性不等式': 'Linear Inequalities',
+    '直线与角': 'Lines and Angles',
+    '三角形全等与相似': 'Triangle Congruence and Similarity',
+    '面积与体积': 'Area and Volume',
+    '三角函数与单位圆': 'Trigonometry and the Unit Circle',
+    '圆（练习册）': 'Circles (Workbook)',
+    '几何综合': 'Geometry Review',
+    '直角三角形与三角函数': 'Right Triangles and Trigonometry',
+    '函数图像': 'Graphs of Functions',
+    '绝对值': 'Absolute Value',
+    '函数表达式变换': 'Transforming Function Expressions',
+    /* 状态与常用短语 */
+    '未开始': 'Not started',
+    '进行中': 'In progress',
+    '已完成': 'Completed',
+    '继续上次练习 · ': 'Resume · ',
+    '教材原题（练习册 P200–207）': 'Textbook questions (Workbook P200–207)',
+    '讲义（TESTDAILY）': 'Lecture (TESTDAILY)',
+    '专项训练': 'Targeted Practice',
+    '真题练习': 'Practice',
+  };
+  var PKEYS = Object.keys(PHRASES).map(function (k) { return [k, PHRASES[k]]; })
+    .sort(function (a, b) { return b[0].length - a[0].length; });
+
+  function phraseReplace(s) {
+    for (var i = 0; i < PKEYS.length; i++) {
+      if (s.indexOf(PKEYS[i][0]) >= 0) s = s.split(PKEYS[i][0]).join(PKEYS[i][1]);
+    }
+    return s;
   }
 
   var api = { t: t, get: getLang, set: setLang, apply: applyAll, order: EN };

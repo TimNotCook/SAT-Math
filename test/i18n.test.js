@@ -30,6 +30,21 @@ test('核心界面词都有英文：导航、按钮、设置、模考', () => {
   for (const zh of Object.keys(must)) assert.strictEqual(i18n.t(zh), must[zh], zh);
 });
 
+
+test('小节名 / 单元名 / 状态词在整句里也能翻（词块替换）', () => {
+  assert.strictEqual(i18n.t('1.1 线性方程与函数图像'), '1.1 Linear Equations and Graphs');
+  assert.strictEqual(i18n.t('Unit 1 · 代数核心'), 'Unit 1 · Heart of Algebra');
+  assert.strictEqual(i18n.t('Topic 20 · 模型与散点图'), 'Topic 20 · Models and Scatterplots');
+  assert.strictEqual(i18n.t('未开始'), 'Not started');
+  assert.strictEqual(i18n.t('进行中'), 'In progress');
+  assert.strictEqual(i18n.t('继续上次练习 · 2.7.T20 Topic 20 · 模型与散点图 第 3 题'),
+    'Resume · 2.7.T20 Topic 20 · Models and Scatterplots Question 3');
+  // 认不出来的中文保持原样，不乱翻
+  assert.strictEqual(i18n.t('期末复习'), '期末复习');
+  // 纯英文/数学串不经过词块替换
+  assert.strictEqual(i18n.t('What is the value of x?'), 'What is the value of x?');
+});
+
 test('带数字的句子按模式翻，不依赖每个调用点改代码', () => {
   assert.strictEqual(i18n.t('第 3 题'), 'Question 3');
   assert.strictEqual(i18n.t('还有 5 题未作答，交卷后按错误计入成绩。'),
