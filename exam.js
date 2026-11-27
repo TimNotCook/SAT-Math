@@ -576,11 +576,16 @@
       const k0 = $('introKicker'); if (k0) k0.hidden = false;
       const f0 = $('quizCardFacts'); if (f0) { f0.hidden = true; f0.innerHTML = ''; }
       /* 参数并进主卡左侧；右侧换成「考试结构」，别再空着 */
-      $('introParams').classList.remove('mock-stats');
+      $('introParams').classList.remove('mock-stats', 'exam-start-meta');
       $('introParams').innerHTML = '<span class="quiz-scope-h">TEST STRUCTURE</span>' +
         '<div class="ms-row"><span>Module 1</span><b>' + O.questionsPerModule + ' questions · ' + (O.secondsPerModule / 60) + ' min</b></div>' +
         '<div class="ms-row"><span>Module 2</span><b>' + O.questionsPerModule + ' questions · ' + (O.secondsPerModule / 60) + ' min</b></div>' +
-        '<div class="ms-total"><span>Total</span><b>' + (O.questionsPerModule * 2) + ' questions · ' + (O.secondsPerModule * 2 / 60) + ' min</b></div>';
+        '<div class="ms-total"><span>Total</span><b>' + (O.questionsPerModule * 2) + ' questions · ' + (O.secondsPerModule * 2 / 60) + ' min</b></div>' +
+        '<ul class="ms-included">' +
+        '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>Calculator on every question</li>' +
+        '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>Reference sheet always available</li>' +
+        '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>Answers lock after Module 2</li>' +
+        '</ul>';
       let mt = document.getElementById('mockCardTitle');
       const copy0 = document.querySelector('#introStartCard .mock-card-copy');
       if (copy0 && !mt) {

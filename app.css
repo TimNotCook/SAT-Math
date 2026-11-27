@@ -1185,3 +1185,30 @@ html body.exam-page #introParams{align-self:stretch!important;height:auto!import
 html body.exam-page .mock-grid>.mock-main-card{align-self:stretch!important;height:auto!important}
 html body.exam-page #introParams{margin:0!important;gap:0!important}
 html body.exam-page #introParams{background-image:none!important}
+
+/* 模考/抽查开场：事实做成竖排数字块，右侧补「包含内容」，两张卡同高 */
+html body.exam-page .quiz-card-facts{display:flex!important;align-items:stretch!important;gap:0!important;margin-top:22px!important}
+html body.exam-page .quiz-card-facts .quiz-fact{display:flex!important;flex-direction:column!important;gap:3px!important;
+  padding:0 26px 0 0!important;margin-right:26px!important;border-right:1px solid #edf1f7!important}
+html body.exam-page .quiz-card-facts .quiz-fact:last-child{border-right:0!important;margin-right:0!important;padding-right:0!important}
+html body.exam-page .quiz-card-facts .quiz-fact b{font-size:26px!important;font-weight:800!important;line-height:1.05!important;letter-spacing:-.02em!important}
+html body.exam-page .quiz-card-facts .quiz-fact{font-size:11px!important;letter-spacing:.02em!important;color:#8b97a8!important}
+html body.exam-page .quiz-card-facts .quiz-fact span,html body.exam-page .quiz-card-facts .quiz-fact small{font-size:11px!important;color:#8b97a8!important}
+html body.exam-page .quiz-fact u{text-decoration:none!important}
+html body.exam-page #btnStart{height:46px!important;min-width:168px!important;padding:0 24px!important;font-size:13.5px!important;
+  font-weight:700!important;border-radius:11px!important;box-shadow:0 2px 8px rgba(37,99,235,.18)!important;transition:background-color .16s ease,box-shadow .16s ease,transform .16s ease}
+html body.exam-page #btnStart:hover{background:#1d4ed8!important;box-shadow:0 4px 14px rgba(37,99,235,.24)!important}
+html body.exam-page #btnStart:active{transform:translateY(1px)}
+html body.exam-page #btnStart:disabled{background:#c8d6ee!important;box-shadow:none!important;cursor:default}
+html body.exam-page .ms-included{margin-top:18px!important;padding-top:16px!important;border-top:1px solid #f0f4f9!important}
+html body.exam-page .ms-included li{display:flex!important;align-items:center!important;gap:8px!important;font-size:12px!important;color:#64748b!important;padding:5px 0!important}
+html body.exam-page .ms-included svg{width:13px!important;height:13px!important;flex:0 0 auto;color:#2563eb!important}
+html body.exam-page .mock-main-card{display:grid!important;grid-template-columns:minmax(0,1fr)!important;align-content:start!important;gap:0!important}
+html body.exam-page .mock-card-copy{display:flex!important;flex-direction:column!important}
+html body.exam-page .mock-card-copy #btnStart{align-self:flex-start!important;margin-top:26px!important}
+html body.exam-page .mock-main-card{min-height:0!important;padding:30px 34px 32px!important}
+html body.exam-page #backPractice::before{content:"← "!important}
+*:focus-visible{outline:2px solid #7fa8ff!important;outline-offset:2px!important}
+html body.exam-page #introParams span{padding-right:0!important;border-right:0!important}
+html body.exam-page #introParams{align-self:stretch!important;justify-self:stretch!important;height:100%!important}
+html body.exam-page #btnStart{box-shadow:0 1px 3px rgba(37,99,235,.16)!important}
