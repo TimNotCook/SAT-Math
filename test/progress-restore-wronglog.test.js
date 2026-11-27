@@ -301,3 +301,12 @@ test('旧板块别名的存档能通过 inspect 并恢复到新板块', () => {
   const live = JSON.parse(store[LIVE_KEY]);
   assert.equal(live.sections[canonical].answers[qid].v, 'A', '旧板块 key 的作答没有搬进新板块');
 });
+
+
+test('没有 last 时旧板块别名的作答也能决定存档位置', () => {
+  const liveSeed = { sections: { '2.6.T17': { answers: { 'TD-11-01': { v: 'A', ts: 1 } }, marks: {}, wrongLog: {}, cursor: 2 } }, last: null };
+  const { SAVE } = boot(liveSeed, null);
+  const res = SAVE.snapshot();
+  assert.equal(res.status, 'ok', '存档应该能写出来：' + JSON.stringify(res));
+  assert.equal(res.position.sec, '2.7.T17', '无 last 时旧板块作答没有决定存档位置');
+});

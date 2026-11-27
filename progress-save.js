@@ -161,16 +161,21 @@
          to the first section holding an answer, then the first section at all.
          NEVER write position:null — inspect() would mark the new archive as
          corrupt and every subsequent autosave/manual save would be blocked. */
-      var fallback = null;
+      var fallback = null, fallbackKey = null;
       for (var sid in secs) {
-        if (!Object.prototype.hasOwnProperty.call(secs, sid) || !A.CATALOG[sid]) continue;
+        if (!Object.prototype.hasOwnProperty.call(secs, sid)) continue;
+        /* 旧板块 id 也要先 resolve，否则只有旧板块作答、没有 last 时，
+           存档位置会错落到 A.SECS[0]。 */
+        var sidN = A.resolveSec ? A.resolveSec(sid) : sid;
+        if (!A.CATALOG[sidN]) continue;
         var ans = secs[sid].answers || {};
-        if (Object.keys(ans).length) { fallback = sid; break; }
-        if (!fallback) fallback = sid;
+        if (Object.keys(ans).length) { fallback = sidN; fallbackKey = sid; break; }
+        if (!fallback) { fallback = sidN; fallbackKey = sid; }
       }
       if (!fallback) fallback = A.SECS && A.SECS.length ? A.SECS[0] : null;
       if (!fallback) return { status: 'no-progress', reason: '题库尚未就绪，无法创建存档' };
-      pos = { sec: fallback, n: Math.max(1, Math.min((A.CATALOG[fallback] || []).length || 1, cursorNum((secs[fallback] || {}).cursor) + 1)) };
+      var fdata = secs[fallbackKey] || {};
+      pos = { sec: fallback, n: Math.max(1, Math.min((A.CATALOG[fallback] || []).length || 1, cursorNum(fdata.cursor) + 1)) };
     }
 
     var total = 0, answered = 0, correct = 0;
