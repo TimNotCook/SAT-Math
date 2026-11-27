@@ -70,7 +70,7 @@
      模考用 200–800 分：≥700 绿、≥550 橙、其余红。
      抽查 / 讲义没有换算分，用正确率同阈值（≥85% / ≥60%）。 */
   function grade(rec) {
-    if (rec.finished === false) return 'void';
+    if (unfinishedFlag(rec.finished)) return 'void';
     var est = asObj(rec.estimate), scaled = num(est.scaled);
     if (txt(rec.mode) === 'mock' && scaled != null) {
       return scaled >= 700 ? 'good' : scaled >= 550 ? 'mid' : 'bad';
@@ -80,7 +80,7 @@
     return pct >= 0.85 ? 'good' : pct >= 0.6 ? 'mid' : 'bad';
   }
   function scoreLabel(rec) {
-    if (rec.finished === false) return '未做完';
+    if (unfinishedFlag(rec.finished)) return '未做完';
     var est = asObj(rec.estimate), scaled = num(est.scaled), total = num(rec.total), correct = num(rec.correct);
     if (txt(rec.mode) === 'mock' && scaled != null) return scaled + ' / 800';
     return Math.round(total ? (correct || 0) / total * 100 : 0) + '%';
@@ -90,7 +90,7 @@
     if (mode === 'jiangyi') return '讲义复习' + (board ? ' · ' + board : '') + (section ? ' · ' + section : '');
     if (mode === 'quiz') return '单元抽查' + (unit ? ' · U' + unit : '');
     /* 未交卷的模考只发到第一模块（22 题），写「全卷 22 题」会误导成整卷只有 22 题。 */
-    if (rec.finished === false) return '官方模考 · 未交卷';
+    if (unfinishedFlag(rec.finished)) return '官方模考 · 未交卷';
     return '官方模考 · 全卷 ' + (total == null ? 44 : total) + ' 题';
   }
 
@@ -129,11 +129,15 @@
     var x = num(a), y = num(b);
     return x != null && y != null && x === y;
   }
+  /* 旧存档/云端合并可能把布尔写成字符串：'false' 是 truthy，会把未交卷的卷
+     误判成已出分；'true' 又会让还能继续的卷显示「存档已失效」。 */
+  function finishedFlag(v) { return v === true || v === 'true' || v === 1 || v === '1'; }
+  function unfinishedFlag(v) { return v === false || v === 'false' || v === 0 || v === '0'; }
   function abandonedBody(rec) {
     var sess = readSession();
     /* startedAt 在旧版/云端合并里可能是字符串；严格 === 会把同一张还能做的卷
        误报成「存档已失效」。按有限数字比较，类型不一致也认。 */
-    var resumable = !!(sess && sameStamp(rec.startedAt, sess.startedAt) && !sess.finished);
+    var resumable = !!(sess && sameStamp(rec.startedAt, sess.startedAt) && !finishedFlag(sess.finished));
     var html = '<div class="hist-kv"><span>状态 <b>未做完</b></span>' +
       '<span>已答 <b>' + numTxt(rec.answered == null ? 0 : rec.answered) + ' / ' + numTxt(rec.total) + '</b></span>' +
       '<span>中断时间 <b>' + fmtDate(rec.date) + '</b></span></div>';
@@ -160,7 +164,7 @@
 
   function rowHtml(rec, idx) {
     var g = grade(rec);
-    var unfinished = rec.finished === false;
+    var unfinished = unfinishedFlag(rec.finished);
     var head = '<button type="button" class="hist-bar-head" aria-expanded="false" data-idx="' + idx + '">' +
       '<span class="hist-dot ' + g + '" aria-hidden="true"></span>' +
       '<span class="hist-title">' + esc(titleOf(rec)) +
@@ -186,7 +190,7 @@
        只认普通对象，数组记录也丢掉。 */
     var isRec = function (r) { return !!r && typeof r === 'object' && !Array.isArray(r); };
     var results = (load(RESULTS) || []).filter(function (r) { return isRec(r) && !r.void; }).sort(byDateDesc);
-    var abandoned = (load(ABANDONED) || []).filter(function (r) { return isRec(r) && r.finished === false; }).sort(byDateDesc);
+    var abandoned = (load(ABANDONED) || []).filter(function (r) { return isRec(r) && unfinishedFlag(r.finished); }).sort(byDateDesc);
     if (!results.length && !abandoned.length) {
       box.innerHTML = '<div class="hist-empty">还没有模考或抽查记录。去<a href="exam.html?mode=mock" style="color:var(--blue-strong)">做一次模考</a>，交卷后这里会出现成绩、错题与补强报告。</div>';
       return;
