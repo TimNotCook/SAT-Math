@@ -163,3 +163,15 @@ test('进度存档 inspect：correct 是字符串 "false" 时不算答对', () =
   assert.equal(st.summary.answered, 1, '作答数应算 1');
   assert.equal(st.summary.correct, 0, '字符串 false 被算成了答对');
 });
+
+
+test('存档 submitted 是字符串 "false" 时恢复后不能变成已交卷', () => {
+  const archive = Object.assign(mkArchive({}), {
+    sections: { [T.sec]: { answers: {}, marks: {}, wrongLog: {}, submitted: 'false' } },
+  });
+  const { SAVE, store } = boot({ sections: {}, last: null }, archive);
+  const res = SAVE.restore();
+  assert.ok(res && res.ok, '恢复应当成功：' + JSON.stringify(res));
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.notStrictEqual(live.sections[T.sec].submitted, true, '字符串 false 不能恢复成 true');
+});

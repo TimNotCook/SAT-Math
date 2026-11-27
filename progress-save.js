@@ -115,7 +115,7 @@
     Object.keys(secs).forEach(function (sid) {
       var st = secs[sid];
       if (!st || typeof st !== 'object' || Array.isArray(st)) secs[sid] = { answers: {}, marks: {}, cursor: 0 };
-      else st.cursor = cursorNum(st.cursor);
+      else { st.cursor = cursorNum(st.cursor); st.submitted = isRightFlag(st.submitted); }
     });
     var last = live.last && A.CATALOG[live.last.sec] ? live.last : null;
     var pos;
@@ -253,7 +253,7 @@
         if (!(qid in cur.marks)) cur.marks[qid] = sm[qid];
       });
       if ((Number(snap.cursor) || 0) > (Number(cur.cursor) || 0)) cur.cursor = Number(snap.cursor) || 0;
-      if (snap.submitted && !cur.submitted) {
+      if (isRightFlag(snap.submitted) && !isRightFlag(cur.submitted)) {
         cur.submitted = true;
         if (snap.submittedAt) cur.submittedAt = snap.submittedAt;
       }
