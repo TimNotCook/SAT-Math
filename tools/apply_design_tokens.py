@@ -17,12 +17,14 @@ SOURCES = [
     "tools/result-practice-theme.css",
     "tools/result-rail-base.css",
     "tools/canvas-base.css",
+    "tools/notes-theme.css",
 ]
 # 每页一份 theme：study(抽查开场) / question(模考答题) / intro(开场标题层) /
 # result(模考成绩) / catalog(练习首页+讲义) / archive(错题·记录空态) /
 # practice(真题答题页) / mock(模考开场) / result-practice(板块结果) /
-# result-rail-base(结果页左栏底座) / canvas-base(画布兜底)。
-# 23: 画布纸色兜底。
+# result-rail-base(结果页左栏底座) / canvas-base(画布兜底) /
+# notes-theme(讲义首页目录卡)。
+# 24: 讲义首页目录卡。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
