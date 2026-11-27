@@ -124,7 +124,9 @@ const base = await freshSave();
   await loadSave(base);
   const s1 = await stages();
   check('new', '恢复后停在开始页', s1.intro, s1.intro ? 'intro' : 'not intro');
-  check('new', '开始页无作废提示', !s1.noticeShown, s1.notice);
+  /* 开机兜底之后，开始页会主动显示「已恢复存档、计时没停、点 Start 继续」的提示，
+     那是正常引导而不是「存档已过期」。这里只排除过期文案。 */
+  check('new', '开始页不是「存档已过期」提示', !/expired|已过期|重新开始/i.test(s1.notice || ''), s1.notice);
   await ev(`document.getElementById('btnStart').click()`); await sleep(800);
   const a1 = await stages();
   check('new', '题号是 1 of 22', /Question 1 of 22/.test(strip(a1.pos)), a1.pos);
@@ -141,7 +143,7 @@ const base = await freshSave();
   const written = JSON.parse(await ev(`localStorage.getItem(${JSON.stringify(SK)})`));
   check('old', '回写 m1Size=22', written.m1Size === 22, 'm1Size=' + written.m1Size);
   const s2 = await stages();
-  check('old', '开始页无作废提示', !s2.noticeShown, s2.notice);
+  check('old', '开始页不是「存档已过期」提示', !/expired|已过期|重新开始/i.test(s2.notice || ''), s2.notice);
   await ev(`document.getElementById('btnStart').click()`); await sleep(800);
   const a2 = await stages();
   check('old', '题号是 1 of 22', /Question 1 of 22/.test(strip(a2.pos)), a2.pos);
