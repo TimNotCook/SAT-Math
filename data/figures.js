@@ -495,7 +495,9 @@ window.TD_FIG_SPECS = {
     type: 'chart',
     w: 460,
     h: 360,
+    grid: 'y',
     x: {
+      rot: -90,
       min: 0,
       max: 12,
       step: 1,
