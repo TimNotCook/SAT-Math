@@ -141,7 +141,7 @@
        只看“该节是否存在”，不碰任何做题逻辑；样式页内自托管，不影响其他页。 -->
   <script>
     (function () {
-      var SEC = '1.1';
+      var SEC = '1.1', N = 6, SECS = ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6'];
       var CSS = '<style id="lessonEntryStyle">' +
         '#lessonEntry{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:0;margin:0 0 14px;padding:13px 0;border:1px solid #e7e3da;border-radius:2px;background:#faf6ec;text-decoration:none}' +
         '#lessonEntry:hover{background:#f4ede0;border-color:#ded8ca}' +
@@ -150,6 +150,17 @@
         '#lessonEntry .le-a{font-size:12px;color:#2563eb;font-weight:700;white-space:nowrap;padding-right:18px}' +
         '@media (max-width:560px){#lessonEntry{grid-template-columns:minmax(0,1fr) auto;padding:13px 16px}#lessonEntry .le-k{display:none}}' +
         '</style>';
+      function fill(a) {
+        var m = {};
+        try { m = JSON.parse(localStorage.getItem('lesson_read_v1') || '{}'); } catch (e) {}
+        var n = 0, go = null;
+        for (var i = 0; i < SECS.length; i++) {
+          if (m[SECS[i]]) n++; else if (!go) go = SECS[i];
+        }
+        a.href = 'lesson.html?sec=' + (go || SEC);
+        a.innerHTML = '<span class="le-k">讲解</span><span class="le-t">线性方程与函数 · 6 节</span>' +
+          '<span class="le-a">' + (n ? '已读 ' + n + ' / ' + N + ' · 继续 →' : '从 1.1 开始读 →') + '</span>';
+      }
       function inject() {
         var list = document.getElementById('jySectionList');
         var view = document.getElementById('jySections');
@@ -157,12 +168,11 @@
         var entry = document.getElementById('lessonEntry');
         var row = list.querySelector('[data-sec="' + SEC + '"]');
         if (!row) { if (entry) entry.parentNode.removeChild(entry); return; }
-        if (entry) return;
+        if (entry) { fill(entry); return; }
         if (!document.getElementById('lessonEntryStyle')) document.head.insertAdjacentHTML('beforeend', CSS);
         var a = document.createElement('a');
         a.id = 'lessonEntry';
-        a.href = 'lesson.html?sec=' + SEC;
-        a.innerHTML = '<span class="le-k">讲解</span><span class="le-t">1.1 线性方程与函数图像</span><span class="le-a">阅读 →</span>';
+        fill(a);
         list.parentNode.insertBefore(a, list);
       }
       var timer = null;
