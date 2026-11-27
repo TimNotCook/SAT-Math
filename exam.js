@@ -1288,6 +1288,8 @@
         <div class="tiny" style="margin-top:3px;color:var(--blue-strong)">${esc(safeText(p.action))}</div>
         <div class="tiny muted" style="margin-top:3px">对应错题：${esc(asArr(p.wrongIds).map(safeText).filter(Boolean).join('、')) || '—'}</div></div></div>`;
     }).join('') || '<div class="small muted">本次无错题</div>';
+    /* result-priority: 把「复习优先级」移到分数之前——先给下一步，再给数字。DOM 层移动，阅读顺序一致 */
+    (function(){var st=document.getElementById('stage-result');if(!st)return;var sc=st.querySelector('.exam-score-panel'),pr=st.querySelector('.exam-priority-panel');if(sc&&pr&&sc.parentNode&&pr.parentNode===sc.parentNode&&pr.nextElementSibling!==sc){sc.parentNode.insertBefore(pr,sc);}})();
     renderTypeSummary();
     renderResultList();
   }
