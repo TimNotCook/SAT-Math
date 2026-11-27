@@ -446,3 +446,13 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`tools/verify_result_given.mjs` 种一份已交卷 44 题模考会话，`result.detail[0].given={x:1}`，点 Start 进结果页。旧代码类型汇总为「知识点概念未掌握」并给出公式类建议；新代码归为「未作答 / 时间分配」，页面无 `[object Object]`，0 异常。新增 `test/analysis-shape.test.js` 2 条（对象/数组→blank、正常字符串仍分析）。
 
 回归：`node --test` 330/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。
+
+## 第 36 条：板块 answers/marks/wrongLog 被写成字符串 → 练习页点选项就 TypeError（2026-11-27）
+
+`secIn` 只判断 `!s.answers`，字符串 `"junk"` 是真值就放过。云端合并/旧版本把某个板块的 `answers`、`marks` 或 `wrongLog` 写成字符串时，练习页点选项走 `setAnswer` → `st.answers[qid] = …`，严格模式下直接 `Cannot create property 'TD-11-01' on string 'junk'`，答案写不进去；`marks`/`wrongLog` 同样会在标记或错题台账写入时崩。
+
+修法：`secIn` 统一按普通对象校验——字符串、数组、null 一律重建为 `{}`，新建板块也带 `wrongLog:{}`；读路径同样修复，宁可丢这一段坏记录，也不让页面写不进新答案。
+
+验证：`tools/verify_state_shape.mjs` 种 `tdsat_app_v1` 的 `1.1` 板块 `answers:'junk',marks:[],wrongLog:'x'`，开 `drill.html?sec=1.1&i=1` 点第一个选项。旧代码抛 `Cannot create property 'TD-11-01' on string 'junk'`、落库仍为 string；新代码 answers 变对象、选项 `A` 正常落库、0 异常。新增 `test/state-shape.test.js` 1 条（真实 app-core 磁盘读写路径）。
+
+回归：`node --test` 331/0；`verify_junk` 11×7；`verify_flows` 16/16。

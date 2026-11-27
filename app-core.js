@@ -208,14 +208,19 @@
     syncFromDisk(st);
   }
 
+  function isPlainObject(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
   function secIn(st, id, create) {
     if (!st.sections[id]) {
       if (create === false) return null;
-      st.sections[id] = { answers: {}, cursor: 0, completed: false, marks: {} };
+      st.sections[id] = { answers: {}, cursor: 0, completed: false, marks: {}, wrongLog: {} };
     }
     var s = st.sections[id];
-    if (!s.answers) s.answers = {};
-    if (!s.marks) s.marks = {};
+    /* 云端合并/旧版本可能把 answers / marks / wrongLog 写成字符串、数组：
+       它们是真值但不是对象，setAnswer 往 answers[qid] 上写会直接 TypeError。
+       读路径也统一修成普通对象，宁可丢这一段坏记录，也不能让练习页写不进答案。 */
+    if (!isPlainObject(s.answers)) s.answers = {};
+    if (!isPlainObject(s.marks)) s.marks = {};
+    if (!isPlainObject(s.wrongLog)) s.wrongLog = {};
     return s;
   }
   function secState(id, create) {
