@@ -175,3 +175,17 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 同轮新增验收器 `tools/verify_mobile.mjs`（375/320 两档 × 首页 / 练题页 / 错题页 / 模考开始页，检查横向溢出 + 溢出元素定位 + 热区尺寸，错题页用合成成绩记录种一条错题），以及守门测试 `test/mobile-target.test.js`（防止有人为了「还原截图」把 44px 那段删回去）。
 
 验收：本地 `node --test` 204/0；`verify_mobile` 16/16；线上 `verify_mobile` 16/16、`verify_a11y` 20/20（Back/Next 实测 50×44）、`verify_flows` 16/16、`verify_grading_ui` 8/8、`verify_nav` 38/38、`verify_shaded_figures` 6/6、`verify_runtime` 六页 0 异常。线上 `v=c7bc5fa41550`。
+
+## 讲义页主按钮也是 40px；验收器扩到图表题 / 讲义页 / 记录页（第 13 条续，2026-11-27）
+
+`verify_mobile` 扩到三个新场景后，又红了一条：讲义复习页的「下一题」（`#jyNext`，`.btn.primary`）实测 **40px**——上一轮只修了 `.exam-start-actions .btn`，没管通用主按钮。补 `.btn.primary{min-height:44px!important}` 后 375 / 320 两档都到 44px。
+
+同时把验收口径钉死在新扩的场景上（28 条）：
+
+- **图表题**：不手填题位，先在 `CATALOG` 里用 `TD_FIG.showFigure()` 找一道真有图的题再导航，断言 `scrollWidth` 不超视口、SVG 右边界在视口内（固定宽度的 SVG 最容易被 320 宽撑破）。
+- **讲义复习页**：点第一张 board 卡 → 第一个非空小节 → 进入题目视图，量横向溢出与「下一题」热区。
+- **记录页**：种两条成绩记录后打开，量横向溢出（记录条里的长路径/用时最容易顶出去）。
+
+顺手记一个坑：`TD_BANK` 有两个数组——`units` 和 `questions`，图表题的 id（如 `U1-12`）只在 `questions` 里；用 `all` 查会全部落空，误报「题库里没有带图的题」。
+
+验收：本地 `node --test` 218/0（队友同时补了 t031 的守门断言）；本地 `verify_mobile` 28/28；线上 `verify_mobile` **28/28**、`verify_a11y` 20/20、`verify_flows` 16/16、`verify_nav` 38/38。线上 `v=3c36a67b7fc0`。
