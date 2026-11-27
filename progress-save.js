@@ -212,6 +212,15 @@
         if (!existing || (Number(incoming.ts) || 0) >= (Number(existing.ts) || 0))
           cur.answers[qid] = incoming;
       });
+      /* 错题台账也要跟着搬：存档里 wrongLog 记着「当初答错的那个答案」，
+         恢复只合并 answers 的话，已订正的题会变成「从没错过」——错题本上凭空消失。
+         与板块迁移（app-core normalize）同一口径：按 ts 新者优先，只加不删。 */
+      var sw = snap.wrongLog && typeof snap.wrongLog === 'object' && !Array.isArray(snap.wrongLog) ? snap.wrongLog : {};
+      if (!cur.wrongLog || typeof cur.wrongLog !== 'object' || Array.isArray(cur.wrongLog)) cur.wrongLog = {};
+      Object.keys(sw).forEach(function (qid) {
+        var wIn = sw[qid], wCur = cur.wrongLog[qid];
+        if (!wCur || (Number(wIn && wIn.ts) || 0) >= (Number(wCur && wCur.ts) || 0)) cur.wrongLog[qid] = wIn;
+      });
       var sm = snap.marks && typeof snap.marks === 'object' ? snap.marks : {};
       Object.keys(sm).forEach(function (qid) {
         if (!(qid in cur.marks)) cur.marks[qid] = sm[qid];
