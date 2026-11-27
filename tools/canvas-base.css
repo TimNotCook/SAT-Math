@@ -1,0 +1,4 @@
+/* ==== canvas-base：全站纸色兜底（:root:root 抬高特异性，压过 app.css 的 html:has 同理规则） ==== */
+:root:root{background-color:#f7f6f2!important}
+:root:root:not([data-theme="dark"]){background-color:#f7f6f2!important}
+:root:root body.site-shell{min-height:100vh!important}
