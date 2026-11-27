@@ -459,8 +459,10 @@
           if (getLang() !== 'en') return;
           var ti = document.title;
           if (!ti || !/[\u4e00-\u9fff]/.test(ti)) return;
+          var out = t(ti);
+          if (out === ti) return;   /* 翻不动就别写，写同值会再触发观察者 → 死循环 */
           ORIG_TITLE = ti;
-          document.title = t(ti);
+          document.title = out;
         });
         headObs.observe(document.head || document.documentElement, { childList: true, subtree: true, characterData: true });
       } catch (e) {}
