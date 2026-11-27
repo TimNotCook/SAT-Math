@@ -906,7 +906,19 @@
     }
     function place() {
       var h = host();
-      if (!h) return park();
+      if (!h) {
+        /* 模考开考/成绩等没有工具条的屏：按 Bluebook 把入口固定右上角；
+           不 park() 到右下角（会跟计时器/题号条打架）。 */
+        if (document.body && document.body.classList.contains('is-mock')) {
+          btn.classList.remove('rail-settings', 'ctx-settings', 'floating-settings');
+          btn.classList.add('floating-settings', 'mock-corner');
+          btn.setAttribute('style', 'position:fixed;top:10px;right:16px;z-index:8999;display:flex');
+          if (btn.parentNode !== document.body) document.body.appendChild(btn);
+          return true;
+        }
+        return park();
+      }
+      btn.style.display = '';
       if (btn.parentNode !== h.node || btn.classList.contains('floating-settings')) {
         btn.classList.remove('rail-settings', 'ctx-settings', 'floating-settings');
         btn.classList.add(h.cls);
