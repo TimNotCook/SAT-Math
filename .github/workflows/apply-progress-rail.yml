@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - tools/apply_progress_rail.py
+      - tools/apply_result_priority.py
       - .github/workflows/apply-progress-rail.yml
 
 permissions:
@@ -22,6 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -29,6 +31,9 @@ jobs:
 
       - name: Inject progress rail
         run: python3 tools/apply_progress_rail.py
+
+      - name: Inject priority-first
+        run: python3 tools/apply_result_priority.py
 
       - name: Syntax check
         run: node --check exam.js
@@ -47,7 +52,8 @@ jobs:
           git config user.name "sat-art-bot"
           git config user.email "sat-art-bot@users.noreply.github.com"
           git add -A
-          git commit -m "style: 答题顶栏 2px 进度线（exam.js 写 --q-progress）"
+          git commit -m "feat: 答题进度线 + 成绩页优先级前置"
+          git pull --rebase origin main
           git push origin HEAD:main
 
       - name: Trigger pages deploy
