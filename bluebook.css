@@ -1252,6 +1252,18 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{padding:36px 0 44px;mar
   .drill-choice{padding-right:46px!important}
 }
 
+/* 2026-11-27 触屏命中区：.crossout-toggle 本体只有 24×24（比 iOS HIG 的 44 差一半），
+   手指点在图标边缘就落空。不改本体尺寸（练习页是白圆点、模考页是裸 ✕，放大都会变形），
+   用不可见的 ::before 把可点区域撑到 38×44：上下各外扩 10px、左 8px、右 6px。
+   右侧只扩 6 是为了不越过卡片右缘（模考窄屏 right:6px 正好贴边，再多就出视口）；
+   左侧 8px 落在选项文字与 ✕ 之间原有的空隙里，不会抢正文的点击。
+   伪元素属于宿主按钮，点击仍冒泡成 .crossout-toggle 的 click，不影响 aria。 */
+@media (hover:none),(pointer:coarse){
+  .crossout-toggle::before{
+    content:"";position:absolute;top:-10px;bottom:-10px;left:-8px;right:-6px;border-radius:999px;
+  }
+}
+
 /* 窄屏 / 触屏的点击热区：Bluebook 桌面版按钮是 36px 高，手指点偏一点就落空。
    实测 375 与 320 宽下 Next 只有 36px、Start 41px，都低于 44px（iOS HIG / Android 48dp）。
    只在窄屏和触屏设备上抬到 44px，桌面版观感保持不变。 */

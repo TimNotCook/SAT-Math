@@ -113,11 +113,33 @@ for (const t of touch || []) {
 }
 if (!touch || !touch.length) fails.push('触屏 ✕ → 一个 .crossout-toggle 都没渲染出来');
 
+/* A1b) 真实命中区：本体 24×24 不够手指点，触屏靠不可见 ::before 撑到 ≥40×40。
+   getBoundingClientRect 量不出伪元素，所以在按钮中心周围 ±24px 网格上逐点
+   elementFromPoint，取真正能命中这个按钮的包围盒——手指实际点得到的范围。 */
+const hit = await ev(`(()=>{
+ const all=[...document.querySelectorAll('.crossout-toggle')];
+ const t=all.find(el=>{const rr=el.getBoundingClientRect();return rr.y+rr.height/2>80 && rr.y+rr.height/2<600})||all[0];
+ if(!t) return null;
+ const r=t.getBoundingClientRect(); const cx=r.x+r.width/2, cy=r.y+r.height/2;
+ let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,hits=0;
+ for(let dx=-24;dx<=24;dx+=4) for(let dy=-24;dy<=24;dy+=4){
+   const e=document.elementFromPoint(cx+dx,cy+dy);
+   if(e&&(e===t||t.contains(e))){hits++;x0=Math.min(x0,cx+dx);x1=Math.max(x1,cx+dx);y0=Math.min(y0,cy+dy);y1=Math.max(y1,cy+dy)}
+ }
+ return hits?{w:Math.round(x1-x0),h:Math.round(y1-y0),hits,
+   box:[Math.round(x0-cx),Math.round(x1-cx),Math.round(y0-cy),Math.round(y1-cy)],
+   body:[Math.round(r.width),Math.round(r.height)]}:{w:0,h:0,hits:0};
+})()`);
+if (!hit) fails.push('触屏 ✕ 命中区 → 取不到 ✕ 位置');
+else if (hit.w < 40 || hit.h < 40) fails.push(`触屏 ✕ 命中区 → 实测只有 ${hit.w}×${hit.h}（本体 ${hit.body[0]}×${hit.body[1]}，包围盒 dx ${hit.box[0]}..${hit.box[1]} / dy ${hit.box[2]}..${hit.box[3]}，要求 ≥40×40）`);
+
 /* A2) 320 窄屏触屏：✕ 不能挤出视口 */
 await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 700, deviceScaleFactor: 2, mobile: true });
 await enterMock();
 const narrow = await ev(`(()=>{
- const t=document.querySelector('.crossout-toggle'); if(!t) return null;
+ const all=[...document.querySelectorAll('.crossout-toggle')];
+ const t=all.find(el=>{const rr=el.getBoundingClientRect();return rr.y+rr.height/2>80 && rr.y+rr.height/2<600})||all[0];
+ if(!t) return null;
  const r=t.getBoundingClientRect();
  return {right:Math.round(r.right), vw:innerWidth, opacity:+getComputedStyle(t).opacity,
    ovf:document.documentElement.scrollWidth>innerWidth+1};
