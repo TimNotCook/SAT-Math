@@ -30,4 +30,24 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a[aria-cur
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a[href*="mode=quiz"]{box-shadow:inset 2px 0 0 #20242b!important;color:#20242b!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail .rail-sep{background:#efebe2!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail .rail-back{color:#8d9199!important;font-weight:500!important}
-/* sync trigger 2026-11-27b */
+
+/* ---- 抽查开场：插画去蓝、考点清单入纸、tab 不吃满四等分 ---- */
+html:not([data-theme="dark"]) body.exam-page #stage-intro .unit-art svg{filter:grayscale(1) contrast(.92) opacity(.5)!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-scope{background:transparent!important;border-left:1px solid #efebe2!important;padding:2px 0 2px 26px!important;margin:0!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-scope-h{display:block!important;font-size:10px!important;font-weight:600!important;letter-spacing:.14em!important;color:#a8acb4!important;margin:0 0 13px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-scope ul{display:flex!important;flex-direction:column!important;gap:9px!important;margin:0!important;padding:0!important;list-style:none!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-scope li{display:flex!important;align-items:baseline!important;gap:9px!important;font-size:12.5px!important;line-height:1.6!important;color:#5c6169!important;font-weight:400!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-scope li i{display:inline-block!important;flex:0 0 4px!important;width:4px!important;height:4px!important;border-radius:50%!important;background:#c9c3b7!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tabs{display:flex!important;justify-content:flex-start!important;align-items:stretch!important;gap:34px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab{flex:0 0 auto!important;display:inline-flex!important;align-items:center!important;gap:7px!important;height:42px!important;padding:0 1px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab .qt-code{font-size:10.5px!important;font-weight:600!important;letter-spacing:.1em!important;color:#a8acb4!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab.on .qt-code{color:#5c6169!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab .qt-name{font-size:13px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab .qt-dot{display:none!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-unit-name{display:block!important;font-size:26px!important;font-weight:600!important;letter-spacing:-.01em!important;color:#20242b!important;margin:8px 0 0!important;line-height:1.3!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-card-facts{gap:26px!important;margin:22px 0 0!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-fact{font-size:11px!important;letter-spacing:.02em!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro #btnStart{height:40px!important;min-height:0!important;padding:0 18px!important;font-size:13px!important;font-weight:600!important;margin-top:26px!important;display:inline-flex!important;align-items:center!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip>span::before{width:6px!important;height:6px!important;background:transparent!important;border:1px solid #c9c3b7!important;vertical-align:1px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip:has(input:checked)>span::before{background:#20242b!important;border-color:#20242b!important}
+/* sync trigger 2026-11-27c */
