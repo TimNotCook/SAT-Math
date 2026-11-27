@@ -86,7 +86,7 @@
      模考用 200–800 分：≥700 绿、≥550 橙、其余红。
      抽查 / 讲义没有换算分，用正确率同阈值（≥85% / ≥60%）。 */
   function grade(rec) {
-    if (unfinishedFlag(rec.finished)) return 'void';
+    if (abandonedRecord(rec)) return 'void';
     var est = asObj(rec.estimate), scaled = num(est.scaled);
     if (txt(rec.mode) === 'mock' && scaled != null) {
       return scaled >= 700 ? 'good' : scaled >= 550 ? 'mid' : 'bad';
@@ -96,7 +96,7 @@
     return pct >= 0.85 ? 'good' : pct >= 0.6 ? 'mid' : 'bad';
   }
   function scoreLabel(rec) {
-    if (unfinishedFlag(rec.finished)) return '未做完';
+    if (abandonedRecord(rec)) return '未做完';
     var est = asObj(rec.estimate), scaled = num(est.scaled), total = num(rec.total), correct = num(rec.correct);
     if (txt(rec.mode) === 'mock' && scaled != null) return scaled + ' / 800';
     return Math.round(total ? (correct || 0) / total * 100 : 0) + '%';
@@ -106,7 +106,7 @@
     if (mode === 'jiangyi') return '讲义复习' + (board ? ' · ' + board : '') + (section ? ' · ' + section : '');
     if (mode === 'quiz') return '单元抽查' + (unit ? ' · U' + unit : '');
     /* 未交卷的模考只发到第一模块（22 题），写「全卷 22 题」会误导成整卷只有 22 题。 */
-    if (unfinishedFlag(rec.finished)) return '官方模考 · 未交卷';
+    if (abandonedRecord(rec)) return '官方模考 · 未交卷';
     return '官方模考 · 全卷 ' + (total == null ? 44 : total) + ' 题';
   }
 
@@ -152,6 +152,11 @@
      误判成已出分；'true' 又会让还能继续的卷显示「存档已失效」。 */
   function finishedFlag(v) { return v === true || v === 'true' || v === 1 || v === '1'; }
   function unfinishedFlag(v) { return v === false || v === 'false' || v === 0 || v === '0'; }
+  /* 作废/中断档案用 void:true 标记，且旧版 salvage 记录根本没写 finished。
+     只判 finished===false 会把它当正式成绩：答对 0/22、整卷 22 题全进错题，
+     还把「继续这卷」藏掉。void 一律按未做完处理。 */
+  function voidFlag(rec) { return !!rec && (rec.void === true || rec.void === 'true' || rec.void === 1 || rec.void === '1'); }
+  function abandonedRecord(rec) { return voidFlag(rec) || unfinishedFlag(rec && rec.finished); }
   function abandonedBody(rec) {
     var sess = readSession();
     /* startedAt 在旧版/云端合并里可能是字符串；严格 === 会把同一张还能做的卷
@@ -183,7 +188,7 @@
 
   function rowHtml(rec, idx) {
     var g = grade(rec);
-    var unfinished = unfinishedFlag(rec.finished);
+    var unfinished = abandonedRecord(rec);
     var head = '<button type="button" class="hist-bar-head" aria-expanded="false" data-idx="' + idx + '">' +
       '<span class="hist-dot ' + g + '" aria-hidden="true"></span>' +
       '<span class="hist-title">' + esc(titleOf(rec)) +
@@ -208,8 +213,14 @@
        只判 `r && !r.void` 会被渲染成一条日期/分数全是「—」的幽灵记录。
        只认普通对象，数组记录也丢掉。 */
     var isRec = function (r) { return !!r && typeof r === 'object' && !Array.isArray(r); };
-    var results = (load(RESULTS) || []).filter(function (r) { return isRec(r) && !finishedFlag(r.void); }).sort(byDateDesc);
-    var abandoned = (load(ABANDONED) || []).filter(function (r) { return isRec(r) && unfinishedFlag(r.finished); }).sort(byDateDesc);
+    var rawResults = (load(RESULTS) || []).filter(isRec);
+    var results = rawResults.filter(function (r) { return !voidFlag(r); }).sort(byDateDesc);
+    /* 作废前留档（exam.js salvageSession）写进 RESULTS 并打 void:true。
+       只把它们从成绩列表过滤会变成「存了但永远看不到」；它们不是成绩，
+       但应该按未做完记录显示，否则学生以为那一卷被静默清零。 */
+    var salvaged = rawResults.filter(voidFlag);
+    var abandoned = (load(ABANDONED) || []).filter(function (r) { return isRec(r) && unfinishedFlag(r.finished); })
+      .concat(salvaged).sort(byDateDesc);
     if (!results.length && !abandoned.length) {
       box.innerHTML = '<div class="hist-empty"><svg class="empty-art" width="112" height="96" viewBox="0 0 112 96" fill="none" aria-hidden="true"><rect x="30" y="10" width="52" height="66" rx="11" fill="#f4f9ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="M42 30h28M42 41h28M42 52h17" stroke="#dde9f9" stroke-width="1.6"/><circle cx="78" cy="68" r="17" fill="#eaf2ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="m71 68 4.6 4.6L85 63" stroke="#4d84ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '<div class="he-t">还没有模考或抽查记录</div>' +

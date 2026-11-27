@@ -640,3 +640,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 70 条：旧存档 cursor=999，续做链接写「第 1000 题」但真实落点是最后一题（2026-11-27）
 
 `app-core secIn()` 已把 cursor 的对象/NaN/负数归一成 0，但没有按板块题数夹上界。旧版/云端合并留下 `cursor: 999` 时，练习卡片和「继续上次练习」仍会拼出 `?i=1000`、文案写「第 1000 题」；`drill.js readLocation()` 又把 `i` 夹回 1..题数，实际打开的是最后一题。学生看到的题号与落点对不上，还会误以为进度丢了。修法：`secIn` 按 `CATALOG[id].length - 1` 夹上界；空板块为 0。验证：新增「cursor 999 夹到最后一题」回归，旧代码保持 999 失败，新代码通过；全量 `node --test` 499/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 71 条：作废留档 `void:true` 写进成绩仓库后，记录页直接过滤掉，整卷永久不可见（2026-11-27）
+
+`exam.js salvageSession()` 在存档作废前把卷面+作答写进 `tdsat_exam_suite_results_v1` 并打 `void:true`，但 `history-page.js render()` 的 `results` 用 `!finishedFlag(r.void)` 过滤掉了这些记录；`abandoned` 又只读另一个 `tdsat_exam_suite_abandoned_v1` 键。结果就是「留档还在 localStorage 里，学生永远看不到」，误以为那一卷被静默清零。同时 `rowHtml` 只判 `finished===false`，作废记录没写 `finished`，一旦显示也会被当成正式成绩：答对 0/22、整卷 detail 全列成错题。
+
+修法：`void:true` 的记录从正式成绩列表移出、并入未做完列表（按日期倒序），状态/分数/标题统一走 `abandonedRecord = voidFlag || finished===false`；续做判定仍只看真正的会话。验证：新增「记录页 void 作废档案不能显示 0 分和整卷错题」回归，旧代码直接空态失败，新代码显示「未做完」；全量 `node --test` 500/0；`verify_junk` 11×7；`verify_flows` 16/16。

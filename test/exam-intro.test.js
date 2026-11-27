@@ -24,8 +24,8 @@ test('模考说明与参数行从 OFFICIAL 配置取值', () => {
 
 test('记录页：未交卷模考不得标成「全卷 22 题」', () => {
   const js = read('history-page.js');
-  assert.ok(js.includes("if (unfinishedFlag(rec.finished)) return '官方模考 · 未交卷';"),
-    '未交卷的模考只到第一模块，标题必须写未交卷而不是全卷题数');
+  assert.ok(js.includes("if (abandonedRecord(rec)) return '官方模考 · 未交卷';"),
+    '未交卷/作废的模考只到第一模块，标题必须写未交卷而不是全卷题数');
 });
 
 test('模考页：核心脚本没加载完时要有可见兜底，而不是死页', () => {

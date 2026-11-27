@@ -302,6 +302,22 @@ test('作答被清空、只剩 wrongLog 台账时，错题本仍然保留这道�
   assert.ok(/还没有错题记录/.test(els.wrongList.innerHTML) === false, '错题本落到空态，说明 wrongLog 没被收集');
 });
 
+test('记录页：void 作废档案不能当正式成绩显示 0 分和整卷错题', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1700000000000, mode: 'mock', void: true, reason: 'invalid',
+      total: 22, answered: 5, elapsed: 60, detail: [{ id: 'TD-11-01', given: 'B' }, { id: 'TD-11-02', given: '' }],
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, 'void 记录打崩记录页：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(/未做完/.test(html), 'void 档案没有显示为未做完');
+  assert.ok(!/答对 <b>0 \/ 22<\/b>/.test(html), 'void 档案被当成 0 分正式成绩');
+  assert.ok(!/错题（2）/.test(html), 'void 档案把未判分题全列成错题');
+});
+
 test('记录页：report.priority 是字符串、priority 条目缺字段时不崩，仍渲染记录', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([{

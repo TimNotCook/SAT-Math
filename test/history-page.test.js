@@ -31,7 +31,7 @@ test('记录页：finished 是字符串 "false"/"true" 时仍按布尔处理', (
   const s = read('history-page.js');
   assert.ok(s.includes('function finishedFlag(v)'), '缺 finished 真值归一');
   assert.ok(s.includes('function unfinishedFlag(v)'), '缺 unfinished 假值归一');
-  assert.ok(s.includes('unfinishedFlag(rec.finished)'), '状态/标题/分组必须用归一后的 false');
+  assert.ok(s.includes('abandonedRecord(rec)'), '状态/标题/分组必须用归一后的 false/void');
   assert.ok(s.includes('!finishedFlag(sess.finished)'), '续做判定不能把字符串 false 当已交卷');
   assert.ok(!/rec\.finished === false/.test(s), '直接 === false 会漏掉字符串 false');
 });
