@@ -593,29 +593,23 @@
     }
     renderSalvage();
     const introMod = official && S && S.module === 2 ? 2 : 1;
-    $('introEyebrow').textContent = official ? 'SECTION 2, MODULE ' + introMod + ': MATH' : 'UNIT MASTERY CHECK';
-    $('introTitle').textContent = official ? 'SAT Math Prep' : '单元抽查';
-    /* 单元抽查说明小字做减法：整段删除；官方模考保留 Bluebook 原文 */
-    $('introDesc').hidden = !official;
-    if (!official) $('introDesc').textContent = '';
-    else $('introDesc').textContent =
-      'The digital SAT Math section has two modules. Each module has ' + O.questionsPerModule +
-      ' questions and is timed separately.';
+    $('introTitle').textContent = official ? '模考' : '单元抽查';
+    const quizTitle = $('introQuizTitle');
+    if (quizTitle) quizTitle.hidden = official;
     $('btnStart').textContent = resumeStage === 'result'
       ? (official ? 'View Score Report' : '查看成绩报告')
       : (official ? 'Start' : '开始抽测');
 
     if (official) {
       $('introUnitPick').innerHTML = '';
-      $('introParams').innerHTML = '<span>' + O.questionsPerModule + ' Questions</span><span>' +
-        (O.secondsPerModule / 60) + ' minutes</span><span>Module ' + introMod + ' of 2</span>';
-      /* Start screen stays short; the verbatim DIRECTIONS live in the
-         top-left Directions button of every question screen, as in Bluebook. */
-      $('introDirections').innerHTML = '<div class="exam-start-directions">' +
-        '<button type="button" id="btnIntroDirections">Directions</button>' +
-        '<span>The questions in this section address a number of important math skills.</span></div>';
+      $('introParams').innerHTML =
+        '<div class="stat-card"><b>' + O.questionsPerModule + '</b><span>Questions</span></div>' +
+        '<div class="stat-card"><b>' + (O.secondsPerModule / 60) + '</b><span>Minutes</span></div>' +
+        '<div class="stat-card"><b>' + introMod + ' of 2</b><span>Module</span>' +
+        '<span class="sr-only">Module ' + introMod + ' of 2</span></div>';
+      /* Directions 收成 details 可展开条；完整 Bluebook 原文仍在答题页左上角 Directions 弹窗里。 */
     } else {
-      $('introDirections').innerHTML = '';
+      $('introDirections').hidden = true;
       $('introUnitPick').innerHTML = '<div class="exam-pick-label">选择单元</div><div class="unit-pick">' +
         UNITS.map(u => `<button data-unit="${u.id}" class="${u.id === QUIZ_UNIT ? 'on' : ''}">U${u.id}<br>${esc(u.cn)}</button>`).join('') + '</div>';
       $('introUnitPick').querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => {

@@ -63,24 +63,29 @@
   </header>
 
   <section class="stage active" id="stage-intro">
-    <main class="exam-start-main">
-      <p class="exam-eyebrow" id="introEyebrow">SECTION 2, MODULE 1: MATH</p>
-      <h1 id="introTitle">Math</h1>
-      <p id="introDesc"></p>
+    <main class="wrap exam-start-main mock-entry">
+      <header class="page-head mock-entry-head">
+        <div><h1 id="introTitle">模考</h1></div>
+        <a class="btn primary" id="backPractice" href="drill.html">返回真题练习</a>
+      </header>
       <p id="introNotice" class="exam-intro-note" hidden></p>
       <div id="introSalvage" class="exam-salvage" hidden></div>
       <div id="introUnitPick"></div>
-      <div class="exam-start-meta" id="introParams"></div>
-      <div id="introDirections"></div>
-      <div id="introOptions"></div>
-      <div class="exam-start-actions">
-        <div class="exam-start-card">
-          <span class="exam-card-kicker">FULL MOCK</span>
-          <strong class="exam-card-title is-mock">开始模考</strong>
-          <strong class="exam-card-title is-quiz">开始单元抽查</strong>
-          <button class="btn primary" id="btnStart" type="button" disabled>Start</button>
+      <section class="exam-start-meta mock-stats" id="introParams" aria-label="Test overview"></section>
+      <section class="mock-main-card" id="introStartCard">
+        <span class="exam-card-kicker">FULL MOCK</span>
+        <strong class="exam-card-title is-quiz" id="introQuizTitle" hidden>开始单元抽查</strong>
+        <button class="btn primary" id="btnStart" type="button" disabled>Start</button>
+      </section>
+      <details class="mock-directions" id="introDirections">
+        <summary>Directions</summary>
+        <div class="mock-directions-body">
+          <p>The questions in this section address a number of important math skills.</p>
+          <p>Use of a calculator is permitted for all questions. A reference sheet, calculator, and these directions can be accessed throughout the test.</p>
+          <button type="button" class="btn sm" id="btnIntroDirections">Open full Directions</button>
         </div>
-      </div>
+      </details>
+      <div id="introOptions"></div>
     </main>
   </section>
 
@@ -140,20 +145,20 @@
       <div class="exam-stage-head">
         <div>
           <p class="exam-eyebrow">CHECK YOUR WORK</p>
-          <h1 data-en="Check Answers">检查答案</h1>
-          <p data-en="Select a question number to jump back to it, or edit answers directly in the table below. Answers are locked after you submit.">点击题号回到答题页定位，也可以直接在下表修改答案。交卷后答案将被锁定。</p>
+          <h1>Check Answers</h1>
+          <p>Select a question number to jump back to it, or edit answers directly in the table below. Answers are locked after you submit.</p>
         </div>
         <button class="btn" id="btnReviewNav" type="button">Question Menu</button>
       </div>
       <div class="rev-summary" id="revSummary"></div>
       <div class="exam-table-wrap">
         <table class="rev-table"><thead><tr>
-          <th data-en="Question">题号</th><th data-en="Topic / Source">知识点 / 出处</th><th data-en="Status">状态</th><th data-en="Your Answer">你的答案</th><th data-en="Go">定位</th>
+          <th>Question</th><th>Topic / Source</th><th>Status</th><th>Your Answer</th><th>Go</th>
         </tr></thead><tbody id="revBody"></tbody></table>
       </div>
       <div class="exam-button-row exam-review-actions">
-        <button class="btn" id="btnBackAnswer" type="button" data-en="Back to Test">返回答题</button>
-        <button class="btn primary" id="btnGoSubmit" type="button" data-en="Submit">交卷</button>
+        <button class="btn" id="btnBackAnswer" type="button">Back to Test</button>
+        <button class="btn primary" id="btnGoSubmit" type="button">Submit</button>
       </div>
     </main>
   </section>
@@ -161,13 +166,13 @@
   <section class="stage" id="stage-submit" hidden>
     <main class="exam-submit-main exam-panel">
       <p class="exam-eyebrow">SUBMIT SECTION</p>
-      <h1 id="subTitle" data-en="Submit your answers?">确认交卷？</h1>
+      <h1 id="subTitle">Submit your answers?</h1>
       <div class="exam-submit-count tnum" id="subCount">0 / 22</div>
       <p id="subDesc"></p>
       <div class="exam-notice" id="subWarn"></div>
       <div class="exam-button-row exam-submit-actions">
-        <button class="btn" id="btnSubBack" type="button" data-en="Keep Reviewing">继续检查</button>
-        <button class="btn danger" id="btnSubConfirm" type="button" data-en="Submit and Lock Answers">确认交卷并锁定答案</button>
+        <button class="btn" id="btnSubBack" type="button">Keep Reviewing</button>
+        <button class="btn danger" id="btnSubConfirm" type="button">Submit and Lock Answers</button>
       </div>
     </main>
   </section>
@@ -181,14 +186,14 @@
           <p id="resSub"></p>
         </div>
         <div class="exam-button-row">
-          <button class="btn" id="btnResHome" type="button" data-en="Review Missed Questions">查看错题回顾</button>
-          <button class="btn" id="btnResAgain" type="button" data-en="Take Another Test">再做一次</button>
+          <button class="btn" id="btnResHome" type="button">Review Missed Questions</button>
+          <button class="btn" id="btnResAgain" type="button">Take Another Test</button>
         </div>
       </div>
       <section class="exam-panel exam-score-panel">
         <div class="score-hero">
           <div>
-            <p class="exam-note" id="resScoreLabel" data-en="Estimated SAT Math Score · 200–800">预估 SAT 数学分数 · 200–800</p>
+            <p class="exam-note" id="resScoreLabel">Estimated SAT Math Score · 200–800</p>
             <div class="score-num tnum" id="resScore">—</div>
             <p class="exam-note" id="resPath"></p>
           </div>
@@ -198,17 +203,17 @@
           </div>
         </div>
       </section>
-      <h2 class="exam-section-title" data-en="Weakness Report">薄弱点报告</h2>
+      <h2 class="exam-section-title">Weakness Report</h2>
       <div class="res-grid">
-        <section class="exam-panel"><h3 data-en="Units to Prioritize">需优先补强的单元</h3><div id="resUnits"></div></section>
+        <section class="exam-panel"><h3>Units to Prioritize</h3><div id="resUnits"></div></section>
         <section class="exam-panel mock-hide"><h3>具体知识点</h3><div id="resTopics"></div></section>
       </div>
       <section class="exam-panel exam-priority-panel mock-hide"><h3>复习优先级排序</h3><div id="resPriority"></div></section>
       <section class="exam-panel mock-hide"><h3>本次错题类型分布（按你的作答自动归因）</h3><div id="resTypes"></div></section>
-      <h2 class="exam-section-title" data-en="Question-by-Question Results">逐题得分明细</h2>
+      <h2 class="exam-section-title">Question-by-Question Results</h2>
       <div class="exam-tabs">
-        <button class="tab on" data-rtab="all" type="button" data-en="All Questions">全部题目</button>
-        <button class="tab" data-rtab="wrong" type="button" data-en="Incorrect Only">仅错题</button>
+        <button class="tab on" data-rtab="all" type="button">All Questions</button>
+        <button class="tab" data-rtab="wrong" type="button">Incorrect Only</button>
       </div>
       <div id="resList"></div>
     </main>

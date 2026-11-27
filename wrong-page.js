@@ -241,18 +241,16 @@ function importedGroupHtml(){
    all.forEach(function(x){if(!x.corrected)todo++;else done++;if(x.q&&x.q.unit)units[x.q.unit]=1;});
    var unitN=Object.keys(units).length;
    var el=document.getElementById('wrongHero');if(!el)return;
-   var sub=total?('共 '+total+' 道错题 · 已订正 '+done+' 道 · 覆盖 '+unitN+' 个单元'):'完成真题练习、单元抽查或模考后，错题会自动汇总到这里。';
-   el.innerHTML='<div class="wrong-hero-main">'+
-     '<p class="wrong-hero-label">待订正错题</p>'+
+   var pct=total?Math.round(done/total*100):0;
+   var empty=total?'':'完成真题练习、单元抽查或模考后，错题会自动汇总到这里。';
+   el.innerHTML='<div class="stat-card wrong-hero-main">'+
+     '<p class="wrong-hero-label">待订正</p>'+
      '<div class="wrong-hero-num">'+todo+'<small>题</small></div>'+
-     '<p class="wrong-hero-sub">'+sub+'</p>'+
+     (empty?'<p class="wrong-hero-sub">'+empty+'</p>':'')+
      '</div>'+
-     '<div class="wrong-hero-kv">'+
-     '<div><span>错题总数</span><b>'+total+'</b></div>'+
-     '<div><span>待订正</span><b>'+todo+'</b></div>'+
-     '<div><span>已订正</span><b>'+done+'</b></div>'+
-     '<div><span>涉及单元</span><b>'+unitN+'</b></div>'+
-     '</div>';
+     '<div class="stat-card"><span>已订正</span><b>'+done+'</b></div>'+
+     '<div class="stat-card"><span>涉及单元</span><b>'+unitN+'</b></div>'+
+     '<div class="stat-card"><span>订正进度</span><b>'+pct+'%</b></div>';
  }
  function render(){
    renderHero();
