@@ -1,10 +1,8 @@
 /* ==== mock-theme：模考开场页纸面化（只作用于 .is-mock，不碰单元抽查） ==== */
 html:has(body.exam-page){background:#f7f6f2!important}
-html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!important;min-height:100vh!important}
-
-/* 左栏铺满：rail 自身高度不可靠，直接补一条固定底板 */
-html:not([data-theme="dark"]) body.exam-page.is-mock::before{content:"";position:fixed;left:0;top:0;bottom:0;width:216px;background:#fffdfa;border-right:1px solid #e7e3da;z-index:29;pointer-events:none}
-@media(max-width:999px){html:not([data-theme="dark"]) body.exam-page.is-mock::before{display:none}}
+/* 左栏底座：body 高度不等视口，用 background-attachment:fixed 直接铺到视口 */
+html:not([data-theme="dark"]) body.exam-page.is-mock{background:linear-gradient(90deg,#fffdfa 0 216px,#f7f6f2 216px 100%)!important;background-attachment:fixed!important}
+@media(max-width:999px){html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!important}}
 
 /* 开场层里那些“看不见的容器”：底色与描边全拆 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-start-main,
