@@ -41,6 +41,10 @@
   });
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(k); } catch (e2) { console.warn('同步通知未生效', e2); } } catch (e) { console.warn('保存会话失败', e); } };
   const load = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+  /* 仓库被写成对象/数组以外的东西时，别让 .forEach 把整页打崩：
+     两个存取器把「形状不对」的存档一律降级成空列表/空对象。 */
+  const asArr = v => (Array.isArray(v) ? v : []);
+  const asObj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
   /* Rendered stem, used only for diagnostic feature detection. The exam core
      stays DOM-free; it never changes the text shown to the student. */
   const stemOf = q => {
@@ -82,9 +86,9 @@
     return ids;
   }
   function oldState() {
-    const s = load(KEY_OLD) || {};
-    return { settings: Object.assign({ tmode: 'official', perQ: 95, total: 35, count: 22, order: 'mixed' }, s.settings || {}),
-             wrong: s.wrong || {}, done: s.done || {}, history: s.history || [] };
+    const s = asObj(load(KEY_OLD));
+    return { settings: Object.assign({ tmode: 'official', perQ: 95, total: 35, count: 22, order: 'mixed' }, asObj(s.settings)),
+             wrong: asObj(s.wrong), done: asObj(s.done), history: asArr(s.history) };
   }
   /* Practice answers live in tdsat_app_v1, one independent section each.
      wrong.html counts a question as a mistake when ANY section holds an answer
@@ -119,7 +123,7 @@
   function mergedState() {
     const base = oldState(), w = {};
     Object.keys(base.wrong).forEach(id => { w[id] = Object.assign({}, base.wrong[id]); });
-    (load(KEY_RESULTS) || []).forEach(r => { if (r.void) return; (r.detail || []).forEach(d => {
+    asArr(load(KEY_RESULTS)).forEach(r => { if (!r || r.void) return; asArr(r.detail).forEach(d => {
       if (d.correct) return;
       const x = w[d.id] || (w[d.id] = { count: 0 });
       x.count = (x.count || 0) + 1; x.last = r.date || x.last;
@@ -298,12 +302,12 @@
       startedAt: session.startedAt || null, endsAt: session.endsAt || null,
       plan: session.plan || null, detail
     };
-    const all = load(KEY_RESULTS) || []; all.push(rec); if (all.length > 40) all.shift();
+    const all = asArr(load(KEY_RESULTS)); all.push(rec); if (all.length > 40) all.shift();
     save(KEY_RESULTS, all);
     return rec;
   }
 
-  function voidRecords() { return (load(KEY_RESULTS) || []).filter(r => r && r.void); }
+  function voidRecords() { return asArr(load(KEY_RESULTS)).filter(r => r && r.void); }
 
   function exportSalvage() {
     const list = voidRecords();
@@ -386,7 +390,7 @@
     if (!S || S.finished) return;
     if (!S.startedAt || S.stage === 'intro') return;   // 没开考不算未做完
     try {
-      const all = load(KEY_ABANDONED) || [];
+      const all = asArr(load(KEY_ABANDONED));
       const rec = {
         date: Date.now(), startedAt: S.startedAt, mode: MODE, finished: false,
         module: S.module || 1, answered: answeredCount(), total: S.paper ? S.paper.length : 0,
@@ -400,7 +404,7 @@
   function clearAbandoned(startedAt) {
     if (startedAt == null) return;
     try {
-      const all = load(KEY_ABANDONED) || [];
+      const all = asArr(load(KEY_ABANDONED));
       const next = all.filter(x => !(x && x.startedAt === startedAt && x.mode === MODE));
       if (next.length !== all.length) save(KEY_ABANDONED, next);
     } catch (e) {}
@@ -1055,7 +1059,7 @@
       estimate: est, detail, report: rep, plan: S.plan, quizMeta: S.quizMeta ? { summary: S.quizMeta.summary } : null
     };
     S.result = result;
-    const all = load(KEY_RESULTS) || []; all.push(result); if (all.length > 40) all.shift();
+    const all = asArr(load(KEY_RESULTS)); all.push(result); if (all.length > 40) all.shift();
     save(KEY_RESULTS, all);                       // independent store; original state untouched
     persist();
     renderResult(); setStage('result'); window.scrollTo(0, 0);
@@ -1084,7 +1088,7 @@
           : '原始分 raw ' + r.estimate.raw + ' / ' + r.estimate.rawMax + ' · 参考路径 ' + (r.estimate.path === 'easy' ? 'easier' : 'harder'))
       : '答对 ' + r.correct + ' / ' + r.total + ' 题 · 正确率 ' + pct + '%';
     const avg = Math.round(r.elapsed / r.total);
-    const slow = Math.max(0, ...r.detail.map(d => d.seconds));
+    const slow = Math.max(0, ...asArr(r.detail).map(d => d.seconds));
     const KV = OFFICIAL
       ? ['Correct / Total', 'Accuracy', 'Raw score (1 pt each)', 'Total time', 'Average per question', 'Longest question', 'Incorrect', 'Time limit / Used']
       : ['答对 / 总题', '正确率', '原始分（每题 1 分）', '总用时', '平均每题', '最长单题', '错题数', '限时 / 实耗'];
@@ -1122,7 +1126,7 @@
     renderResultList();
   }
   function renderResultList() {
-    const r = S.result, list = resultTab === 'wrong' ? r.detail.filter(d => !d.correct) : r.detail;
+    const r = S.result, allD = asArr(r.detail), list = resultTab === 'wrong' ? allD.filter(d => !d.correct) : allD;
     const AN = window.TD_ANALYSIS;
     $('resList').innerHTML = list.map(d => {
       const crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(d.id) : [];
@@ -1154,7 +1158,7 @@
     const box = $('resTypes'); if (!box) return;
     const r = S.result, AN = window.TD_ANALYSIS;
     if (!r || !AN) return;
-    const groups = AN.aggregate(r.detail, BANK, window.TD_TEXT || {});
+    const groups = AN.aggregate(asArr(r.detail), BANK, window.TD_TEXT || {});
     if (!groups.length) { box.innerHTML = '<div class="small muted">本次全部答对，无需补强。</div>'; return; }
     box.innerHTML = groups.map(g => `<div class="prio-item"><span class="prio-lv ${'c' + g.count}">${g.count}</span>
       <div style="flex:1"><b>${esc(g.label)}</b> <span class="tiny muted">${g.ids.length} 题</span>

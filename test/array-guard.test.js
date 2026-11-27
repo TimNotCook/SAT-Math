@@ -68,3 +68,17 @@ test('记录页：成绩仓库是对象时不崩页，落到「还没有记录�
   assert.strictEqual(threw, null, '记录页被非数组仓库打崩了：' + (threw && threw.message));
   assert.ok(box && /还没有模考或抽查记录/.test(box.innerHTML), '记录页没有落到空态占位');
 });
+
+test('exam.js 读仓库一律过 asArr/asObj，不再裸 `|| []` / `|| {}`', () => {
+  const s = fs.readFileSync(path.join(ROOT, 'exam.js'), 'utf8');
+  assert.ok(/const asArr = v =>/.test(s) && /const asObj = v =>/.test(s), 'exam.js 缺少 asArr/asObj 降级器');
+  assert.ok(!/(load\((?:KEY_)[A-Z]+\)\s*\|\|\s*\[\])/.test(s),
+    'exam.js 里还有 `load(KEY_x) || []` 的裸数组假设');
+});
+
+test('脏存档体检脚本存在、复用 lib/chrome 与 lib/serve', () => {
+  const s = fs.readFileSync(path.join(ROOT, 'tools/verify_junk.mjs'), 'utf8');
+  assert.ok(/from '\.\/lib\/chrome\.mjs'/.test(s) && /tempProfile\('vjk-'\)/.test(s), 'verify_junk 没复用 chrome 临时 profile');
+  assert.ok(/from '\.\/lib\/serve\.mjs'/.test(s) && /startStaticServer/.test(s), 'verify_junk 没复用静态服务器');
+  assert.ok(/tdsat_exam_suite_results_v1/.test(s) && /tdsat_progress_save_v1/.test(s), 'verify_junk 没种关键脏键');
+});

@@ -233,3 +233,15 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 验证：`test/array-guard.test.js` 2 条（vm 跑真实页面脚本，种对象值断言不抛错、记录页落到空态占位），同样先证红（2 红）后证绿（2 绿）。
 
 全绿复核：`node --test` **236/0**；本地 `verify_mobile` 50/50、`verify_flows` 16/16。
+
+## 第 16 条：exam.js 读成绩仓库裸假设数组，脏存档直接白屏（2026-11-27）
+
+写了个「脏存档体检」`tools/verify_junk.mjs`：先往 `localStorage` 里种九种「合法 JSON 但形状不对」的值（成绩仓库写成对象、`wrongLog` 写成数组、session 字段是字符串、progress 存档半截 JSON……），再逐页导航，断言不抛异常、关键容器非空、模考页不白屏。
+
+首跑就红：`exam.html?mode=mock` 抛 `TypeError: (load(...) || []).forEach is not a function`（`exam.js:122 mergedState`），栈一路走到 `newSession → restoreOrIntro`，整个模考页停在半截、连 Start 都没有。根因和第 15 条同源：`load()` 只挡 JSON 解析失败，`|| []` 只挡 `null`，挡不住「真值对象」。同一份文件里 `KEY_RESULTS` 被这样裸用了 5 处，`KEY_ABANDONED` 2 处，`oldState()` 还把 `s.wrong/settings` 当对象直接 `Object.keys`。
+
+修法：`exam.js` 加两个降级器 `asArr` / `asObj`，所有仓库读取一律过一遍；`r.detail` 也改成 `asArr(r.detail)`（成绩记录里 `detail` 被写成对象时，结果页三个 tab 会一起崩）。
+
+验证：`tools/verify_junk.mjs` 六页 0 异常、`#wrongList` / `#histList` 非空、模考页落到开始页（Start 可见、正文 4780 字）；把 `exam.js` 换回旧版即复现 2 项异常 + 白屏（先证红后证绿）。`test/array-guard.test.js` 加 2 条静态守卫（缺 `asArr/asObj`、或再出现 `load(KEY_x) || []` 都会红；`verify_junk` 必须复用 `lib/chrome` + `lib/serve` 并种关键脏键）。
+
+回归：`node --test` **239/0**；本地 `verify_runtime` 六页 0 异常、`verify_flows` 16/16、`verify_grading_ui` 8/8、`verify_exam_timeout` 13/13、`verify_session` 22/22。
