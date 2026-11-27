@@ -56,7 +56,8 @@
     if (d.producer !== PRODUCER)
       return { status: 'corrupt', reason: '存档来自其他应用' };
     if (typeof d.version !== 'number' || !d.savedAt || typeof d.savedAt !== 'number' ||
-        !d.position || typeof d.position !== 'object' || !d.sections || typeof d.sections !== 'object')
+        !d.position || typeof d.position !== 'object' ||
+        !d.sections || typeof d.sections !== 'object' || Array.isArray(d.sections))
       return { status: 'corrupt', reason: '存档缺少必要字段' };
     if (d.version !== VERSION)
       return { status: 'version-mismatch', found: d.version, expected: VERSION, savedAt: d.savedAt };

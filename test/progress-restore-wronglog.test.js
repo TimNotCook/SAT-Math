@@ -88,6 +88,15 @@ test('本机 sections 是数组且没有 last 时，snapshot 不崩且不把数�
   assert.equal(archive.producer, 'tdsat-bluebook');
 });
 
+test('存档 sections 是数组时判 corrupt，不给出可恢复的假成功', () => {
+  const archive = mkArchive({});
+  archive.sections = [];
+  const { SAVE } = boot({ sections: {}, last: null }, archive);
+  const st = SAVE.inspect();
+  assert.equal(st.status, 'corrupt', '数组 sections 被当成合法存档');
+  assert.equal(SAVE.restore().ok, false);
+});
+
 test('本机某个板块记录是数组时，不被当成普通对象挂属性', () => {
   const archive = mkArchive({});
   archive.sections[T.sec].answers = { [T.qid]: { v: T.answer, ts: 1700000000000 } };

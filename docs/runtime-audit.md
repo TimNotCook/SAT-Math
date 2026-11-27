@@ -498,3 +498,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `progress-save.js snapshot()` 用 `typeof live.sections === 'object'` 判断容器，数组照样放行。没有 `last` 时兜底板块走 `secs[fallback].cursor`，数组里根本没有这个键，直接 `Cannot read properties of undefined (reading 'cursor')`，保存进度失败；有 `last` 时虽然不崩，却把 `sections: []` 原样写进存档，`JSON.stringify` 只留 `[]`，用户之后用这份存档恢复时所有板块/作答全空。
 
 修法：`snapshot` 的 `secs` 显式排除数组；遍历已有板块，板块记录不是普通对象时重建 `{answers:{},marks:{},cursor:0}`；兜底取 cursor 时用 `(secs[fallback] || {})`。验证：真实 `progress-save.js`，本机 `sections:[]`、无 `last`，旧代码抛 TypeError，新代码 snapshot 成功且存档 `sections` 是普通对象；本文件测试旧代码 3/6、新代码 6/6。全量 `node --test` 341/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 43 条：旧快照写出的 `sections: []` 存档仍被判「可恢复」，恢复回执成功但什么都没搬（2026-11-27）
+
+第 42 条修了 snapshot 不再写数组，但已经被旧代码写坏的存档还在本机/云端：`inspect()` 只判断 `typeof d.sections === 'object'`，数组照样判 `ok`；`restore()` 对它 `Object.keys([])` 得到空数组，直接返回 `ok:true`。用户看到「存档有效、恢复成功」，实际板块和作答一个都没回来，比直接报 corrupt 更误导。
+
+修法：`inspect()` 的必填字段校验增加 `Array.isArray(d.sections)`，数组 sections 直接判 `corrupt`（reason「存档缺少必要字段」），恢复入口随之拒绝，不再给假成功。验证：真实 `progress-save.js`，存档 `sections:[]`，旧代码 `inspect.status=ok`、`restore().ok=true`；新代码 `corrupt`、`restore().ok=false`。本文件测试旧代码 3/7、新代码 7/7。全量 `node --test` 342/0；`verify_junk` 11×7；`verify_flows` 16/16。
