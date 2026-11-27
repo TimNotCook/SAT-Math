@@ -117,6 +117,7 @@ test('导入错题展示字段是对象时不出 [object Object]', () => {
   assert.ok(els && els.wrongList && els.wrongList.innerHTML.length > 0, '导入错题没画出卡片');
   assert.ok(!/\[object Object\]/.test(els.wrongList.innerHTML), '错题卡出现 [object Object]');
   assert.ok(/未作答/.test(els.wrongList.innerHTML), '对象型 given 没有降级成未作答');
+  assert.ok(!/其中 1 道已匹配题库/.test(els.wrongList.innerHTML), 'matchId 是对象却宣称已匹配题库');
 });
 test('记录页字段全是对象时不显示 [object Object]、NaN 或 Invalid Date', () => {
   const store = {

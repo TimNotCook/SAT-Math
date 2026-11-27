@@ -236,9 +236,9 @@ function importedGroupHtml(){
   if(activeUnit)return '';
   var list=asArr(readImport().items).filter(function(it){return it&&(!it.matchId||it.readOnly);});
   if(!list.length)return '';
-  var nRO=list.filter(function(it){return it.readOnly;}).length;
+  var nRO=list.filter(function(it){return it.readOnly && plainText(it.matchId);}).length;
   return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 独立记录<span>'+list.length+' 道 · 其中 '+nRO+' 道已匹配题库（只读）</span></h2>'+list.map(function(it,i){
-    var ro=!!it.readOnly,impMatch=plainText(it.matchId),bankQ=null;
+    var impMatch=plainText(it.matchId),ro=!!it.readOnly&&!!impMatch,bankQ=null;
     if(ro&&impMatch){for(var s=0;s<A.SECS.length&&!bankQ;s++){bankQ=(A.CATALOG[A.SECS[s]]||[]).find(function(x){return x.id===impMatch;})||null;}}
     var impStem=plainText(it.stem),impTopic=plainText(it.topic),impAnswer=plainText(it.answer),
         impValue=plainText(it.value),impType=plainText(it.type),impSource=plainText(it.source);
