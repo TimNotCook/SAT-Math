@@ -24,7 +24,7 @@ SOURCES = [
 # practice(真题答题页) / mock(模考开场) / result-practice(板块结果) /
 # result-rail-base(结果页左栏底座) / canvas-base(画布兜底) /
 # notes-theme(讲义首页目录卡)。
-# 24: 讲义首页目录卡。
+# 25: 讲义卡解除 80px 锁高。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
