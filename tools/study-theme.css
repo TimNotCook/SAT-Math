@@ -1,5 +1,6 @@
 /* ==== study-theme v2：抽查开场页的纸感与克制 ==== */
 html:not([data-theme="dark"]) body.exam-page.shell-exam:not(.is-mock){background:#f7f6f2!important;background-image:none!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock){min-height:100vh}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .mock-main-card{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:0 1px 2px rgba(32,36,43,.04)!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tabs{background:transparent!important;border:0!important;border-bottom:1px solid #e7e3da!important;border-radius:0!important;padding:0!important;gap:0!important;grid-auto-rows:42px!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab{background:transparent!important;box-shadow:none!important;border-radius:0!important;color:#8d9199!important;font-weight:500!important}
@@ -15,3 +16,11 @@ html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-special-chip.on{
 html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab .qt-name{color:#5c6169!important;font-weight:500!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .quiz-tab.on .qt-name{color:#20242b!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-card-kicker{background:transparent!important;border:0!important;padding:0!important;color:#8d9199!important;font-size:11px!important;font-weight:600!important;letter-spacing:.12em!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail{background:#fffdfa!important;border-right:1px solid #e7e3da!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail .rail-brand{font-size:14px!important;font-weight:600!important;color:#20242b!important;letter-spacing:.01em!important;padding:4px 12px 18px!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a{color:#5c6169!important;font-size:13px!important;font-weight:500!important;border-radius:0!important;padding:10px 12px 10px 18px!important;background:transparent!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a:hover{background:#faf8f3!important;color:#20242b!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a[aria-current]{background:transparent!important;color:#5c6169!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail a[href*="mode=quiz"]{box-shadow:inset 2px 0 0 #20242b!important;color:#20242b!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail .rail-sep{background:#efebe2!important}
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .site-rail .rail-back{color:#8d9199!important;font-weight:500!important}
