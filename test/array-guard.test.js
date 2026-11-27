@@ -324,3 +324,11 @@ test('常规错题记录里作答是对象时，不把 [object Object] 印到「
   assert.ok(!/\[object Object\]/.test(els.wrongList.innerHTML), '常规错题出现 [object Object]');
   assert.ok(/未作答/.test(els.wrongList.innerHTML), '对象作答没有降级成未作答');
 });
+
+test('导入项 key 归一后必须实际用于卡片 id，不能再拼原始对象', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'wrong-page.js'), 'utf8');
+  assert.match(src, /var impMatch=plainText\(it\.matchId\),itemKey=plainText\(it\.key\)/,
+    'key 必须先进 plainText');
+  assert.match(src, /id:'IMP-'\+\(itemKey\|\|i\)/,
+    '卡片 id 必须用归一后的 itemKey；只用变量不接线等于没修');
+});

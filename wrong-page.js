@@ -286,7 +286,7 @@ function importedGroupHtml(){
     var q=bankQ
       ?{id:bankQ.id,stem:plainText((T[bankQ.id]||{}).stem||bankQ.stem||it.stem),choices:plainChoices((T[bankQ.id]||{}).choices||bankQ.choices),
         type:bankQ.type,answer:bankQ.answer,value:bankQ.value,topic:plainText(bankQ.topic||it.topic),section:bankQ.section,unit:bankQ.unit,no:bankQ.no}
-      :{id:'IMP-'+(it.key||i),stem:impStem||'题干文字暂缺。',choices:plainChoices(it.choices),type:impType,answer:impAnswer,
+      :{id:'IMP-'+(itemKey||i),stem:impStem||'题干文字暂缺。',choices:plainChoices(it.choices),type:impType,answer:impAnswer,
         value:impValue,topic:impTopic,section:'导入',unit:0,no:'—'};
     var x={q:q,given:plainText(it.given),attempts:1,sources:['导入错题'],date:it.importedAt||0,corrected:false},a=analysis(x);
     return'<article class="wrong-card"><div class="wrong-card-head"><b>导入 · '+(impSource?esc(impSource):'第 '+(i+1)+' 道')+'</b><span>'+(ro?'已匹配题库 · 只读记录 · 未改动你的作答':'导入错题 · 仅错题本可见')+'</span></div>'+
