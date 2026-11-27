@@ -115,6 +115,18 @@ describe('parseSession：作答值必须是可判分的字符串', () => {
     assert.equal(rg.session.finished, true, '合法逐题 detail 被误判');
   });
 
+  test('spent 是布尔/Infinity 时归一成 0，不会让用时变成 Infinity', () => {
+    const s = baseSave();
+    s.answers['M1-1'] = { v: 'A', spent: true };
+    s.answers['M1-2'] = { v: 'B', spent: Infinity };
+    s.answers['M1-3'] = { v: 'C', spent: 1200 };
+    const r = C.parseSession(s, { mode: 'mock', isQuestionId: () => true });
+    assert.equal(r.status, 'ok');
+    assert.equal(r.session.answers['M1-1'].spent, 0);
+    assert.equal(r.session.answers['M1-2'].spent, 0);
+    assert.equal(r.session.answers['M1-3'].spent, 1200);
+  });
+
   test('marked / locked / finished 是字符串 false 时按布尔 false 处理', () => {
     const s = baseSave({ finished: 'false', locked: 'false' });
     s.answers['M1-1'] = { v: 'A', marked: 'false', locked: 'false', spent: 5 };
@@ -408,4 +420,14 @@ test('weaknessReport：unit/section 是对象时报告名不出现 [object Objec
     [{ id: 1, cn: '代数' }], { wrong: {} }
   );
   assert.ok(!JSON.stringify(rep).includes('[object Object]'), '对象 unit/section 泄漏进报告名');
+});
+
+
+test('weaknessReport：秒数为 Infinity/布尔时平均用时仍是有限数字', () => {
+  const rep = C.weaknessReport(
+    [{ id: 'Q1', unit: 1, section: '1.1', topic: 1, correct: false, seconds: Infinity },
+     { id: 'Q2', unit: 1, section: '1.1', topic: 1, correct: false, seconds: true }],
+    [{ id: 1, cn: '代数' }], { wrong: {} }
+  );
+  rep.topics.forEach(t => assert.equal(Number.isFinite(t.avgSeconds), true, '平均用时不是有限数字: ' + t.avgSeconds));
 });

@@ -822,7 +822,10 @@
       const topic = d.topic == null || typeof d.topic === 'object' ? '' : String(d.topic);
       const key = sectionKey + '|' + topic;
       const t = tg[key] || (tg[key] = { key, unit: unitKey, section: sectionKey, topic, n: 0, wrong: 0, ids: [], seconds: 0 });
-      t.n++; t.seconds += Number(d.seconds) || 0; if (!isRightFlag(d.correct)) { t.wrong++; t.ids.push(d.id); }
+      /* seconds 是报告里的平均用时：布尔/Infinity 不能累加进去。 */
+      var secN = typeof d.seconds === 'boolean' ? NaN : Number(d.seconds);
+      t.seconds += isFinite(secN) && secN > 0 ? secN : 0;
+      t.n++; if (!isRightFlag(d.correct)) { t.wrong++; t.ids.push(d.id); }
     });
     const historic = (state && state.wrong) || {};
     const hScore = ids => ids.reduce((s, id) => s + ((historic[id] || {}).count || 0), 0);
@@ -984,7 +987,10 @@
         else if (typeof a.v === 'number' && Number.isFinite(a.v)) a.v = String(a.v);
         else a.v = '';
         a.marked = isRightFlag(a.marked); a.locked = isRightFlag(a.locked);
-        a.spent = Number(a.spent) > 0 ? Number(a.spent) : 0;
+        /* spent 是毫秒：true 会被 Number 成 1，Infinity 会让本题用时变成
+           Infinity，报告里出现「平均用时 Infinity 秒」。只收有限正数。 */
+        var spentN = typeof a.spent === 'boolean' ? NaN : Number(a.spent);
+        a.spent = isFinite(spentN) && spentN > 0 ? spentN : 0;
       }
     });
     const lo = inModule2 ? m1 : 0;
