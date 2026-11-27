@@ -510,3 +510,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `history-page.js` 对 `tdsat_exam_suite_results_v1` 只做了 `filter(r => r && !r.void)`：`5`、`'junk'`、`false` 这些 truthy 值全部通过，`rowHtml` 照样按记录渲染，页面出现一条「官方模考 · 全卷 44 题 / 日期 — / 正确率 0%」的假成绩，点开也没有任何 detail。云端合并或手工导入只要混进一个坏条目，用户就会以为多考了一场。
 
 修法：结果与未完成存档都只认普通对象（`typeof === 'object' && !Array.isArray && !r.void`），数字/字符串/数组一律过滤；有效记录为零时落「还没有模考或抽查记录」空态。验证：真实 `history-page.js`，仓库 `[5,'junk',null,false]`，旧代码渲染出「官方模考」幽灵行，新代码直接空态。`test/array-guard.test.js` 旧代码 18/19、新代码 19/19。全量 `node --test` 343/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 45 条：导入错题仓库 `items` 混入数字/字符串——错题本多出「题干暂缺」的幽灵导入卡（2026-11-27）
+
+`wrong-page.js importedGroupHtml()` 对 `tdsat_imported_wrong_v1.items` 只做 `it && (!it.matchId || it.readOnly)`：`5`、`'junk'` 这些 truthy 原始值、甚至数组全被当成一条导入记录，标题写「独立记录 3 道」，页面多出没有题干、没有答案的幽灵卡；有效的那一条反而被淹没。云端合并或手工导入只要混进一个坏值就会出现。
+
+修法：导入记录只认普通对象（`typeof === 'object' && !Array.isArray`），原始值和数组过滤掉，标题数量按真实条目算。验证：真实 `wrong-page.js`，仓库 `items:[5,'junk',null, 一条有效]`，旧代码标题 3 道并画幽灵卡，新代码标题 1 道、只保留有效卡。`test/array-guard.test.js` 旧代码 18/20、新代码 20/20。全量 `node --test` 347/0；`verify_junk` 11×7；`verify_flows` 16/16。

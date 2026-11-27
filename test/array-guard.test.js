@@ -107,6 +107,20 @@ test('导入错题 stem 是对象/数组时不崩页', () => {
   assert.ok(els && els.wrongList && els.wrongList.innerHTML.length > 0, '导入错题没画出卡片');
   assert.ok(/题干文字暂缺/.test(els.wrongList.innerHTML), '对象型 stem 没有落缺省文案');
 });
+test('导入错题数组混入数字/字符串时，不渲染幽灵卡片', () => {
+  const store = { tdsat_imported_wrong_v1: JSON.stringify({ items: [
+    5, 'junk', null,
+    { key: 'ok', stem: '真实导入题', type: 'mcq', answer: 'A', given: 'B', choices: { A: '1' } },
+  ] }) };
+  let threw = null, els = null;
+  try { els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '坏条目打崩错题本：' + (threw && threw.message));
+  const html = els && els.wrongList ? els.wrongList.innerHTML : '';
+  assert.ok(!/导入错题 · 独立记录<span>3 道/.test(html), '数字/字符串/null 被算成了导入错题');
+  assert.ok(/导入错题 · 独立记录<span>1 道/.test(html), '有效导入题没有单独保留');
+});
+
 test('导入错题展示字段是对象时不出 [object Object]', () => {
   const store = {
     tdsat_imported_wrong_v1: JSON.stringify({ items: [
