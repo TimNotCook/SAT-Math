@@ -117,3 +117,14 @@ test('dark 未做完成绩角标可读', () => {
 test('dark 图片导入关闭按钮文字不竖排', () => {
   assert.match(css, /html\[data-theme="dark"\] \.imgimp-x\{[^}]*white-space:nowrap/);
 });
+
+test('dark 普通次要按钮不再白膜浅字', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.btn:not\(\.primary\):not\(\.danger\):not\(\.ghost\)\{[^}]*background:rgba\(255,255,255,\.08\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.btn:not\(\.primary\):not\(\.danger\):not\(\.ghost\)\{[^}]*color:#e8e8ea!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.btn:not\(\.primary\):not\(\.danger\):not\(\.ghost\):hover\{[^}]*background:rgba\(255,255,255,\.14\)!important/);
+});
+
+test('dark danger 按钮不再白膜红字', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.btn\.danger\{[^}]*background:rgba\(220,38,38,\.14\)!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.btn\.danger\{[^}]*color:#ff9a9a!important/);
+});

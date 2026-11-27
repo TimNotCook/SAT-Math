@@ -886,3 +886,33 @@ html[data-theme="dark"] .appbar .td-acct-btn[data-on="1"]:hover{
    .hist-score.void 用 var(--faint)=#6e6e73，深玻璃卡上 3.36:1；
    「未做完」是状态判断字，15px 下不该这么灰。提到 #a8a8ad。 */
 html[data-theme="dark"] .hist-score.void{color:#a8a8ad!important}
+
+/* ==================== 暗黑主题：普通 .btn 次要按钮 ====================
+   bluebook 的 .btn 底是 rgba(255,255,255,.55)，文字 var(--ink)=#e8e8ea。
+   暗黑下这是中灰底 + 浅银字（≈1.7:1），错题卡「回到本题重练」、各类
+   取消/次要操作都会消失。主按钮已有浅银渐变反白规则，这里只补非主按钮。
+   danger 保留红字，ghost 保留透明。 */
+html[data-theme="dark"] .btn:not(.primary):not(.danger):not(.ghost){
+  background:rgba(255,255,255,.08)!important;
+  border-color:rgba(255,255,255,.16)!important;
+  color:#e8e8ea!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .btn:not(.primary):not(.danger):not(.ghost):hover{
+  background:rgba(255,255,255,.14)!important;
+  border-color:rgba(255,255,255,.24)!important;
+  color:#fff!important;
+}
+
+/* danger 按钮在暗黑下也是白膜 + #ff6b6b 红字（≈1.4:1），同样读不出。 */
+html[data-theme="dark"] .btn.danger{
+  background:rgba(220,38,38,.14)!important;
+  border-color:rgba(255,107,107,.4)!important;
+  color:#ff9a9a!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .btn.danger:hover{
+  background:rgba(220,38,38,.22)!important;
+  border-color:rgba(255,107,107,.55)!important;
+  color:#ffb3b3!important;
+}
