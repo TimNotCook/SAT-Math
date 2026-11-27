@@ -54,7 +54,11 @@ async function withPage(port, fn) {
   } finally { proc.kill('SIGKILL'); }
 }
 
-const OPEN_SECTION = `(()=>{const r=document.querySelector('.drill-section-row');if(!r)return false;const b=r.querySelector('button,a')||r;b.click();return true})()`;
+/* 320 下第一行落在视口底缘（top 654 / 视口 700），直接 click 偶发不跳转；
+   scrollIntoView 居中后再点，并回读 #questionView 是否真的打开了。 */
+const OPEN_SECTION = `(()=>{const r=document.querySelector('.drill-section-row');if(!r)return false;
+  r.scrollIntoView({block:'center'});const b=r.querySelector('button,a')||r;b.click();return true})()`;
+const IN_TEST = `(()=>{const v=document.getElementById('questionView');return !!v && !v.hidden})()`;
 
 const READ = `(()=>{
   const hd=document.querySelector('.drill-context');
@@ -93,10 +97,19 @@ async function audit(ctx, label, width, height, dark) {
   await ctx.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 2, mobile: width < 760 });
   await ctx.send('Emulation.setTouchEmulationEnabled', { enabled: width < 760, maxTouchPoints: 5 });
   await ctx.send('Page.navigate', { url: `${BASE}/drill.html?unit=1` });
-  await sleep(1300);
+  await sleep(800);
+  for (let i = 0; i < 12; i++) {
+    if (await ctx.ev(`document.querySelectorAll('.drill-section-row').length > 0`)) break;
+    await sleep(400);
+  }
   if (dark) { await ctx.ev(`try{localStorage.setItem('tdsat_theme','dark')}catch(e){};document.documentElement.setAttribute('data-theme','dark');1`); await sleep(400); }
-  await ctx.ev(OPEN_SECTION);
-  await sleep(1300);
+  let opened = false;
+  for (let i = 0; i < 3 && !opened; i++) {
+    await ctx.ev(OPEN_SECTION);
+    await sleep(1400);
+    opened = await ctx.ev(IN_TEST);
+  }
+  if (!opened) { bad(`${label} 点开板块后没进答题态（#questionView 仍隐藏），本条跳过`); return; }
   const d = await ctx.ev(READ);
   if (!d || d.missing) { bad(`${label} 取不到答题态上下文条`); return; }
   const tag = `${label}${dark ? '（暗色）' : ''}`;
