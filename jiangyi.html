@@ -137,7 +137,7 @@
   <!-- 账户面板：与 drill.html 同一套 Supabase 通道（配置 → 会话 → 面板），顺序不可乱。 -->
   <script src="cloud-config.js?v=8aafa2c15443" defer></script><script src="supa-cloud.js?v=8aafa2c15443" defer></script>
   <script src="cloud-account.js?v=8aafa2c15443" defer></script>
-  <!-- 讲义正文入口：小节列表里出现 1.1 时，在其上方插入一条「先读讲解」；切到别的板块自动移除。
+  <!-- 讲义正文入口：小节列表里出现 1.1 时，在其上方插入一条「讲解」行；切到别的板块自动移除。
        只看“该节是否存在”，不碰任何做题逻辑；样式页内自托管，不影响其他页。 -->
   <script>
     (function () {
@@ -145,7 +145,7 @@
       var CSS = '<style id="lessonEntryStyle">' +
         '#lessonEntry{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:0;margin:0 0 14px;padding:13px 0;border:1px solid #e7e3da;border-radius:2px;background:#faf6ec;text-decoration:none}' +
         '#lessonEntry:hover{background:#f4ede0;border-color:#ded8ca}' +
-        '#lessonEntry .le-k{font-size:10.5px;letter-spacing:.14em;color:#a8925f;font-weight:700;white-space:nowrap;padding-left:18px}' +
+        '#lessonEntry .le-k{font-size:10.5px;letter-spacing:.1em;color:#a8925f;font-weight:700;white-space:nowrap;padding-left:18px}' +
         '#lessonEntry .le-t{font-size:14px;color:#20242b;font-weight:600}' +
         '#lessonEntry .le-a{font-size:12px;color:#2563eb;font-weight:700;white-space:nowrap;padding-right:18px}' +
         '@media (max-width:560px){#lessonEntry{grid-template-columns:minmax(0,1fr) auto;padding:13px 16px}#lessonEntry .le-k{display:none}}' +
@@ -162,7 +162,7 @@
         var a = document.createElement('a');
         a.id = 'lessonEntry';
         a.href = 'lesson.html?sec=' + SEC;
-        a.innerHTML = '<span class="le-k">先读讲解</span><span class="le-t">1.1 线性方程与函数图像</span><span class="le-a">阅读 →</span>';
+        a.innerHTML = '<span class="le-k">讲解</span><span class="le-t">1.1 线性方程与函数图像</span><span class="le-a">阅读 →</span>';
         list.parentNode.insertBefore(a, list);
       }
       var timer = null;
