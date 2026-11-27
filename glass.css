@@ -1267,6 +1267,14 @@ html:not([data-theme="dark"]) body.drill-page #questionView .drill-choice[aria-p
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-choice.is-selected .drill-choice-letter{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-choice-check{color:#2563eb!important}
 
+/* 划掉按钮：有悬停能力的设备上默认隐身，只在行悬停/聚焦时出现 */
+@media (hover:hover) and (pointer:fine){
+  html:not([data-theme="dark"]) body.drill-page #questionView .crossout-toggle{opacity:0!important;color:#c9c3b7!important}
+  html:not([data-theme="dark"]) body.drill-page #questionView .drill-choice-row:hover .crossout-toggle,
+  html:not([data-theme="dark"]) body.drill-page #questionView .crossout-toggle:focus-visible{opacity:.7!important}
+  html:not([data-theme="dark"]) body.drill-page #questionView .crossout-toggle.is-on{opacity:1!important;color:#8d9199!important}
+}
+
 /* 页脚：纸面 + 去胶囊，Next 保留实心蓝作唯一行动点 */
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-footer{background:#f7f6f2!important;border-top:1px solid #e7e3da!important;box-shadow:none!important}
 html:not([data-theme="dark"]) body.drill-page #questionView .drill-footer-inner{max-width:860px!important;padding:0 20px!important}
