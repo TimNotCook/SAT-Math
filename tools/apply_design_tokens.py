@@ -15,6 +15,7 @@ SOURCES = [
     "tools/archive-theme.css",
     "tools/practice-theme.css",
     "tools/practice-theme-nav.css",
+    "tools/reference-sheet-theme.css",
     "tools/mock-theme.css",
     "tools/result-practice-theme.css",
     "tools/result-rail-base.css",
@@ -25,11 +26,11 @@ SOURCES = [
     "tools/history-card-theme.css",
     "tools/mobile-theme.css",
 ]
-# 18 份：抽在开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
+# 19 份：抽测开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
 # 目录+讲义 / 错题·记录空态 / 真题答题页 / 题目导航修正 /
-# 模考开场 / 板块结果 / 结果页底座 / 画布兜底 / 讲义首页 /
-# 讲义做题页 / 记录·错题页头 / 记录页空态卡 / 手机端重排。
-# 43: aria-current 去蓝描边。
+# 公式参考纸 / 模考开场 / 板块结果 / 结果页底座 / 画布兜底 /
+# 讲义首页 / 讲义做题页 / 记录·错题页头 / 记录页空态卡 / 手机端。
+# 44: 公式参考纸。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
