@@ -540,3 +540,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `history-page.js fmtDate()` 把 `null`、`0`、`false` 交给 `new Date(t)`，浏览器把它们当 Unix 零点，记录页头部与「交卷时间」直接显示 1970-01-01。云端旧结构/手工导入缺日期时，用户会以为这是真实记录时间。
 
 修法：`fmtDate` 先拒绝 `null`、空串、布尔；数字只接受 `>0` 的有限值，否则显示「—」；非数字字符串仍交给 `Date` 解析。验证：记录 `date:null` 与 `date:0`，旧代码 innerHTML 出现 `1970`，新代码显示「—」；`test/array-guard.test.js` 25/25。全量 `node --test` 357/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 50 条：进度存档摘要把对象答案算「已答」，恢复后却是空白（2026-11-27）
+
+`progress-save.js` 的 `inspect()` 与 `snapshot()` 摘要只判 `a.v != null && String(a.v).trim() !== ''`：`v:{x:1}` 会变成 `"[object Object]"` 被算成已答，但恢复后 `secIn` 会把它归一成空值，存档面板的「已答」与实际恢复结果不一致。
+
+修法：新增 `hasAnswer()`，只统计字符串/数字/布尔等非对象且 trim 非空的 `v`；`inspect` 与 `snapshot` 共用。验证：存档 `v:{x:1}, correct:true` 旧摘要 `answered=1`，新摘要 `answered=0`、`correct=0`；该文件 10/10。全量 `node --test` 369/0；`verify_junk` 11×7；`verify_flows` 16/16。
