@@ -429,3 +429,9 @@ test('成绩 detail 的 given 是对象/空值时，错题本不生成幽灵卡'
   const html = els && els.wrongList ? els.wrongList.innerHTML : '';
   assert.ok(!/TD-11-01|TD-11-02/.test(html), '对象/空 given 被收成幽灵错题卡');
 });
+
+
+test('错题本 plainText 不把布尔写成 true/false 文案', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'wrong-page.js'), 'utf8');
+  assert.match(src, /typeof v==='object'\|\|typeof v==='boolean'/, 'plainText 缺少布尔排除');
+});

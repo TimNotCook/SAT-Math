@@ -98,3 +98,8 @@ test('成绩页最长单题用 safeNum，布尔/Infinity 不能污染统计', ()
   const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
   assert.match(seg, /Math\.max\(0, \.\.\.detail0\.map\(d => safeNum\(d\.seconds\)/, '最长单题仍在裸 Number');
 });
+
+
+test('成绩页 safeText 不把布尔写成 true/false 文案', () => {
+  assert.match(js, /const safeText = v => \(.*typeof v === 'boolean'/, 'safeText 缺少布尔排除');
+});

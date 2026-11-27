@@ -9,7 +9,7 @@
  function plainText(v){
    if(v==null)return'';
    if(Array.isArray(v))return v.filter(function(x){return typeof x==='string'||typeof x==='number';}).join(' ');
-   if(typeof v==='object')return'';
+   if(typeof v==='object'||typeof v==='boolean')return'';
    return String(v);
  }
  /* 成绩档案里的 correct 可能是布尔、1/0 或字符串；只把明确真值当答对。 */

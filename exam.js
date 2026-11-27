@@ -118,7 +118,7 @@
   /* void 标记可能是字符串 'false'：truthy 会把有效成绩整条藏掉。 */
   const isTrueFlag = v => v === true || v === 1 || v === 'true' || v === '1';
   /* 存档来自旧版本/云端合并：对象字段不能直接拼进模板或当数字算。 */
-  const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' ? '' : String(v));
+  const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' ? '' : String(v));
   /* 布尔不是数字：true 会被 Number 成 1，旧 detail 的 seconds/points 是布尔时
      成绩页会显示假的 1 秒 / 1 分。 */
   const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' ? null : (isFinite(Number(v)) ? Number(v) : null));

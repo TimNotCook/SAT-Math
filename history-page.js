@@ -42,7 +42,11 @@
   function asObj(v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
   /* 记录也可能被云端旧结构/手工导入写成对象：对象直接当空，别把
      [object Object] 端到页面；数字字段统一过 num，坏值显示「—」。 */
-  function txt(v) { return v == null || typeof v === 'object' || typeof v === 'function' ? '' : String(v); }
+  function txt(v) {
+    /* 布尔不是文案：旧记录把 given/mode 写成 true/false 时，直接 String 会
+       渲染成「你的答案 true」。布尔按空值处理。 */
+    return v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' ? '' : String(v);
+  }
   /* detail.correct 可能是布尔、1/0、'true'/'false'（云端旧结构）。只认明确的
      真值，否则 'false' 会被当成答对，整条错题行从记录里消失。 */
   function isRight(v) { return v === true || v === 1 || v === 'true' || v === '1'; }

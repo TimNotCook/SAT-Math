@@ -41,3 +41,9 @@ test('记录页 num 不把布尔当数字（true 不能变 1 题/100%）', () =>
   const s = read('history-page.js');
   assert.match(s, /typeof v === 'boolean'/, 'num 缺少布尔排除');
 });
+
+
+test('记录页 txt 不把布尔写成 true/false 文案', () => {
+  const s = read('history-page.js');
+  assert.match(s, /typeof v === 'boolean' \? '' : String\(v\)/, 'txt 缺少布尔排除');
+});
