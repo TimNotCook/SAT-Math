@@ -50,13 +50,19 @@ await new Promise(r => ws.addEventListener('open', r));
 let mid = 0; const pending = new Map();
 ws.addEventListener('message', ev => {
   const m = JSON.parse(ev.data);
-  if (m.id && pending.has(m.id)) { pending.get(m.id)(m.result); pending.delete(m.id); }
+  /* CDP 报错时回包只有 error 没有 result：这里必须归一成对象，
+     否则 resolve(undefined) 会让下游 `r.result` 抛 TypeError（页面上下文
+     还没建好时 Runtime.evaluate 就会这样回），整条验收线直接崩。 */
+  if (m.id && pending.has(m.id)) { pending.get(m.id)(m.error ? { error: m.error } : (m.result || {})); pending.delete(m.id); }
 });
 const send = (method, params = {}) => new Promise(r => {
   const i = ++mid; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params }));
   setTimeout(() => { if (pending.has(i)) { pending.delete(i); r({}); } }, 25000);
 });
-const ev = async expr => (await send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true })).result?.value;
+const ev = async expr => {
+  const r = await send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true });
+  return r && r.result ? r.result.value : undefined;
+};
 const viewport = (w, h) => send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: true });
 const shot = async name => {
   const r = await send('Page.captureScreenshot', { format: 'png' });
@@ -66,7 +72,7 @@ const strip = s => String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
 const results = [];
 function check(tag, label, ok, got) { results.push({ tag, label, ok: !!ok, got: strip(got) }); }
 
-/* 导航：先等地址栏落到目标前缀，再等 readyState（线上首屏慢时旧文档会让 localStorage 抛 SecurityError） */
+/* 导航：先等地址栗落到目标前缀，再等 readyState（线上首屏慢时旧文档会让 localStorage 抛 SecurityError） */
 async function goto(url) {
   const wantBase = url.replace(/[^/]*$/, '');
   await send('Page.navigate', { url });
@@ -143,7 +149,7 @@ for (const [w, h, tag] of [[375, 812, '375'], [320, 568, '320']]) {
   check(tag, '错题卡片在视口内', !!(card && card.right <= card.vw + 1), card ? `右边界 ${card.right} / 视口 ${card.vw}` : '没有卡片');
   check(tag, '错题页无横向溢出', ov3 && ov3.sw <= ov3.vw + 1, `${ov3.sw} / ${ov3.vw}`);
   if (card && card.right > card.vw + 1) check(tag, '卡片内部溢出元素', false, JSON.stringify(card.tailOverflow));
-  /* 你的答案 / 正确答案两栏：长小数、带逗号的千分位最容易被挤成竖排或截断 */
+  /* 你的答案 / 正确答案两栅：长小数、带逗号的千分位最容易被挤成竖排或截断 */
   const cmp = await ev(`(()=>{const rows=document.querySelectorAll('#wrongList .answer-compare');
     if(!rows.length) return {n:0, bad:[]};
     const bad=[]; rows.forEach(row=>{
@@ -158,7 +164,7 @@ for (const [w, h, tag] of [[375, 812, '375'], [320, 568, '320']]) {
       });
     });
     return {n:rows.length, bad:bad.slice(0,3), minW:Math.min.apply(null, Array.prototype.map.call(rows[0].children,c=>Math.round(c.getBoundingClientRect().width)))};})()`);
-  check(tag, '答案对比两栏不被挤爆/截断', !!(cmp && cmp.bad.length === 0), cmp ? `${cmp.n} 组，窄栏 ${cmp.minW}px，问题 ${JSON.stringify(cmp.bad)}` : '没有答案对比');
+  check(tag, '答案对比两栅不被挤爆/截断', !!(cmp && cmp.bad.length === 0), cmp ? `${cmp.n} 组，窄栅 ${cmp.minW}px，问题 ${JSON.stringify(cmp.bad)}` : '没有答案对比');
   await shot(tag + '-wrong');
 
   /* ---------- 4. 模考开始页：Start 热区 ---------- */
