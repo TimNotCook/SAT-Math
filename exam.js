@@ -531,11 +531,15 @@
       $('introUnitPick').innerHTML = '';
       const k0 = $('introKicker'); if (k0) k0.hidden = false;
       const f0 = $('quizCardFacts'); if (f0) { f0.hidden = true; f0.innerHTML = ''; }
-      $('introParams').innerHTML =
-        '<div class="stat-card"><b>' + O.questionsPerModule + '</b><span>Questions</span></div>' +
-        '<div class="stat-card"><b>' + (O.secondsPerModule / 60) + '</b><span>Minutes</span></div>' +
-        '<div class="stat-card"><b>' + introMod + ' of 2</b><span>Module</span>' +
-        '<span class="sr-only">Module ' + introMod + ' of 2</span></div>';
+      /* 三个参数不再各占一张卡：并进主卡左侧，和抽查页同一套 facts 排版 */
+      $('introParams').innerHTML = '';
+      const mf = $('quizCardFacts');
+      if (mf) {
+        mf.hidden = false;
+        mf.innerHTML = '<span class="quiz-fact"><b>' + O.questionsPerModule + '</b>Questions</span>' +
+          '<span class="quiz-fact"><b>' + (O.secondsPerModule / 60) + '</b>Minutes</span>' +
+          '<span class="quiz-fact"><b>' + introMod + ' of 2</b>Module</span>';
+      }
       /* Directions 收成 details 可展开条；完整 Bluebook 原文仍在答题页左上角 Directions 弹窗里。 */
     } else {
       $('introDirections').hidden = true;
