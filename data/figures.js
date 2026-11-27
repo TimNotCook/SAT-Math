@@ -311,6 +311,7 @@ window.TD_FIG_SPECS = {
   'TD-24-06': { type: 'table', head: ['', 'Live north of Center St.', 'Live south of Center St.', 'Total'],
     rows: [['Less than 45 years old', '15', '14', '29'], ['At least 45 years old', '20', '86', '106'], ['Total', '35', '100', '135']] },
   'TD-24-08': { type: 'table', head: ['Subject', 'Sixth', 'Seventh', 'Eighth', 'Total'],
+    headGroups: [{ label: 'Grade level', span: 3 }],
     rows: [['English', '4', '9', '9', '24'], ['Mathematics', '10', '1', '9', '20'], ['Science', '4', '6', '4', '14'], ['Social studies', '6', '9', '9', '24'], ['Total', '24', '25', '31', '80']] },
   'TD-24-15': { type: 'table', head: ['Flavor', 'Sprinkles', 'No Sprinkles'],
     rows: [['Chocolate', '60', '30'], ['Vanilla', '20', '30'], ['Twist', '80', '20']] },
