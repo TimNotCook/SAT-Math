@@ -1,0 +1,8 @@
+/* ==== practice-theme：真题练习答题页与题目导航（纸面体系） ==== */
+html:not([data-theme="dark"]) body.drill-page #questionView .drill-choice-check{display:none!important}
+
+/* 当前题目：去蓝色描边，改蓝色数字 + 墨色下划 */
+html:not([data-theme="dark"]) #questionNav #questionGrid button{outline:0!important}
+html:not([data-theme="dark"]) #questionNav #questionGrid button.is-current{color:#2563eb!important;font-weight:700!important;box-shadow:inset 0 -2px 0 #20242b!important;border:0!important;background:transparent!important}
+html:not([data-theme="dark"]) #questionNav #questionGrid button:focus-visible{outline:1px solid #2563eb!important;outline-offset:-3px!important}
+html:not([data-theme="dark"]) #questionNav .drill-nav-legend i{box-shadow:none!important;outline:0!important}
