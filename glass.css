@@ -1074,3 +1074,13 @@ html[data-theme="dark"] body.exam-page .btn:focus-visible{
    删掉节点会让后续结果渲染报 null。剩下「Units to Prioritize」一栏拉满整行。 */
 .exam-panel:has(#resTopics){display:none!important}
 .res-grid:has(#resTopics){grid-template-columns:1fr}
+
+/* 2026-11-28：结果页「知识点总结」（具体知识点）下线。
+   只隐藏外壳（h3 + 面板），DOM 里的 #resTopics 保留——exam.js 仍会往里写内容，
+   删掉节点会让后续结果渲染报 null。 */
+.exam-panel:has(#resTopics){display:none!important}
+.res-grid:has(#resTopics){grid-template-columns:1fr}
+
+/* 单元抽查里 Units to Prioritize、错题类型、具体知识点三块都已收起，
+   「薄弱点报告」标题会变成孤零零一行，一并藏掉；模考（body.is-mock）仍保留标题与 Units。 */
+html body.exam-page:not(.is-mock) #stage-result .exam-section-title:has(+ .res-grid){display:none!important}
