@@ -1551,3 +1551,27 @@ html body .kp-row .pct{min-width:64px!important;text-align:right!important;font-
   font-size:12.5px!important;color:#7b8ba1!important}
 html body .kp-row{padding:11px 0!important;border-top:1px solid #f2f5fa!important}
 html body .kp-row:first-child{border-top:0!important}
+
+/* 2026-11-27 320/375 实测：模考答题条的题号组 + Reference/Calculator/Review/Submit
+   在窄屏排不下，.exam-toolbar-actions 换行后整条只有 60px 高（app.css:931 用 !important
+   钉死），溢出的 Submit 直接压在题卡第一行上（图里盖住 "A cylinder has a diameter of 14"）。
+   375 同样溢出（Submit bottom 344 > 题卡 top 308）。修法：≤900 放开整条高度走 auto
+   （这正是 bluebook.css:678 的原设计，只是被 931 钉死），并让工具组独占第二行、
+   按钮间距收紧，375/390 上一行放得下四个按钮（原来 355 > 343 放不下才被挤到第三行）。 */
+@media (max-width:900px){
+  html body.exam-page:has(#stage-answer:not([hidden])) .drill-questionbar,
+  html body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar{height:auto!important;min-height:52px!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar .drill-questionbar-inner{
+    height:auto!important;min-height:52px!important;padding:6px 16px!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar .drill-questionbar-inner>.exam-toolbar-actions{
+    flex:1 1 100%!important;justify-content:flex-end!important;gap:4px!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar .exam-toolbar-actions button{
+    padding:0 8px!important}
+}
+
+/* 320 再紧一档：可用宽 288px，四个按钮（80/80/63/62 + 3×4 gap = 297）差 9px 放不下，
+   Submit 会被挤到第三行。padding 收到 6 后总宽 281，320 上也是整齐的两行。 */
+@media (max-width:340px){
+  html body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar .exam-toolbar-actions button{
+    padding:0 6px!important}
+}
