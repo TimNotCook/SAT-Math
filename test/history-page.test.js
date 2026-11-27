@@ -35,3 +35,9 @@ test('记录页：finished 是字符串 "false"/"true" 时仍按布尔处理', (
   assert.ok(s.includes('!finishedFlag(sess.finished)'), '续做判定不能把字符串 false 当已交卷');
   assert.ok(!/rec\.finished === false/.test(s), '直接 === false 会漏掉字符串 false');
 });
+
+
+test('记录页 num 不把布尔当数字（true 不能变 1 题/100%）', () => {
+  const s = read('history-page.js');
+  assert.match(s, /typeof v === 'boolean'/, 'num 缺少布尔排除');
+});

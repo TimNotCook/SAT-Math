@@ -78,3 +78,8 @@ test('成绩页：date 为 null/0 时不显示 1970 年假时间', () => {
   assert.match(seg, /typeof r\.date === 'boolean'/, '布尔日期仍会被 Number 成 1970');
   assert.match(seg, /const dateTxt = !dateObj || isNaN/, '空日期应显示 —');
 });
+
+
+test('成绩页 safeNum 不把布尔当数字（true 不能变 1 秒/1 分）', () => {
+  assert.match(js, /const safeNum = v => \(.*typeof v === 'boolean'/, 'safeNum 缺少布尔排除');
+});

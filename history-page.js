@@ -46,7 +46,12 @@
   /* detail.correct 可能是布尔、1/0、'true'/'false'（云端旧结构）。只认明确的
      真值，否则 'false' 会被当成答对，整条错题行从记录里消失。 */
   function isRight(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
-  function num(v) { if (v == null || typeof v === 'object' || typeof v === 'function') return null; var n = Number(v); return isFinite(n) ? n : null; }
+  function num(v) {
+    /* 布尔不是数字：true 会被 Number 成 1，旧记录里 total/correct/elapsed 是布尔时
+       会算出假的 100% 或 1 分钟。日期除外，fmtDate 已单独挡 true/false。 */
+    if (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean') return null;
+    var n = Number(v); return isFinite(n) ? n : null;
+  }
   function numTxt(v) { var n = num(v); return n == null ? '—' : n; }
   function load(k) {
     try { var v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : []; }

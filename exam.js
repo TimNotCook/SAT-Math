@@ -119,7 +119,9 @@
   const isTrueFlag = v => v === true || v === 1 || v === 'true' || v === '1';
   /* 存档来自旧版本/云端合并：对象字段不能直接拼进模板或当数字算。 */
   const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' ? '' : String(v));
-  const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' ? null : (isFinite(Number(v)) ? Number(v) : null));
+  /* 布尔不是数字：true 会被 Number 成 1，旧 detail 的 seconds/points 是布尔时
+     成绩页会显示假的 1 秒 / 1 分。 */
+  const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' ? null : (isFinite(Number(v)) ? Number(v) : null));
   const isRightFlag = v => v === true || v === 1 || v === 'true' || v === '1';
   const isWrongFlag = v => v === false || v === 0 || v === 'false' || v === '0';
   /* Rendered stem, used only for diagnostic feature detection. The exam core
