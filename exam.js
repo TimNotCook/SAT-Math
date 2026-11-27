@@ -74,6 +74,32 @@
     3: '二次函数与方程 · 指数与根式 · 多项式与因式分解',
     4: '平行线与角度 · 相交直线与对顶角 · 直线方程与夹角 · 相似三角形'
   };
+  const UNIT_ART = {
+    1: '<svg viewBox="0 0 176 132" width="176" height="132" fill="none" aria-hidden="true">' +
+       '<path d="M22 96h132M58 26v88" stroke="#dbe7f8" stroke-width="1.6" stroke-linecap="round"/>' +
+       '<path d="M22 118 158 34" stroke="#c4d7f3" stroke-width="1.6"/>' +
+       '<circle cx="62" cy="104" r="4" fill="#eaf2ff" stroke="#8fb3ee" stroke-width="1.6"/>' +
+       '<circle cx="150" cy="44" r="4" fill="#eaf2ff" stroke="#8fb3ee" stroke-width="1.6"/>' +
+       '</svg>',
+    2: '<svg viewBox="0 0 176 132" width="176" height="132" fill="none" aria-hidden="true">' +
+       '<path d="M26 26v88h126" stroke="#dbe7f8" stroke-width="1.6" stroke-linecap="round"/>' +
+       '<rect x="48" y="76" width="18" height="26" rx="4" fill="#f2f8ff" stroke="#c4d7f3" stroke-width="1.6"/>' +
+       '<rect x="82" y="60" width="18" height="42" rx="4" fill="#f2f8ff" stroke="#c4d7f3" stroke-width="1.6"/>' +
+       '<rect x="116" y="42" width="18" height="60" rx="4" fill="#f2f8ff" stroke="#8fb3ee" stroke-width="1.6"/>' +
+       '<path d="M46 88 92 64l22-14 14-8" stroke="#8fb3ee" stroke-width="1.6" stroke-dasharray="4 5" stroke-linecap="round"/>' +
+       '</svg>',
+    3: '<svg viewBox="0 0 176 132" width="176" height="132" fill="none" aria-hidden="true">' +
+       '<path d="M24 26v88h128" stroke="#dbe7f8" stroke-width="1.6" stroke-linecap="round"/>' +
+       '<path d="M40 110C70 110 74 34 104 34s34 30 48 46" stroke="#8fb3ee" stroke-width="1.7" stroke-linecap="round"/>' +
+       '<circle cx="62" cy="46" r="3.5" fill="#eaf2ff" stroke="#c4d7f3" stroke-width="1.5"/>' +
+       '</svg>',
+    4: '<svg viewBox="0 0 176 132" width="176" height="132" fill="none" aria-hidden="true">' +
+       '<path d="M34 104 96 26l46 78z" stroke="#c4d7f3" stroke-width="1.7" stroke-linejoin="round"/>' +
+       '<path d="M34 104h108" stroke="#dbe7f8" stroke-width="1.6"/>' +
+       '<path d="M50 104a26 26 0 0 1 8-13" stroke="#8fb3ee" stroke-width="1.6" stroke-linecap="round"/>' +
+       '<path d="M120 104a30 30 0 0 0-9-14" stroke="#8fb3ee" stroke-width="1.6" stroke-linecap="round"/>' +
+       '</svg>'
+  };
   const T = (zh, en) => (OFFICIAL ? en : zh);     // 模考层纯英文：docs/UI-COPY.md v1.1
   const UNIT_EN = { 1: 'Heart of Algebra', 2: 'Problem Solving & Data Analysis', 3: 'Advanced Math', 4: 'Geometry & Trigonometry' };
   document.querySelectorAll('.exam-modules a').forEach(a => {
@@ -693,6 +719,14 @@
         /* 主按钮收进左栏，标题/说明/数字/按钮一条竖线下来 */
         const btn = document.getElementById('btnStart');
         if (copy && btn && btn.parentNode !== copy) copy.appendChild(btn);
+        /* 左栏右侧留白那一大片，用一张本单元的线稿图填住（不做标签、不写字） */
+        if (copy && !copy.querySelector('.unit-art')) {
+          const art = document.createElement('div');
+          art.className = 'unit-art';
+          art.setAttribute('aria-hidden', 'true');
+          art.innerHTML = UNIT_ART[QUIZ_UNIT] || '';
+          copy.appendChild(art);
+        }
       }
     }
     renderSpecialOptions();

@@ -1380,3 +1380,70 @@ html body.exam-page .quiz-tab.on .qt-name{font-weight:700!important;color:#1d4ed
 /* 空态插画：一张纸 / 一页题的线稿，只用浅蓝描边，不做图标牌 */
 html body .empty-panel,html body .hist-empty{gap:0!important}
 html body .empty-panel .empty-art,html body .hist-empty .empty-art{margin:0 0 6px!important}
+
+/* 抽查开场：左栏标题/数字/开始，右栏考点，底部组卷范围——
+   之前单栏纵向导致 976 宽的卡里内容全挤左边、右半片空白 */
+html body.exam-page:not(.is-mock) #introStartCard{display:grid!important;
+  grid-template-columns:minmax(0,1fr) 336px!important;
+  grid-template-areas:"copy scope" "opts opts"!important;
+  column-gap:56px!important;row-gap:0!important;align-items:start!important;
+  padding:34px 36px 32px!important}
+html body.exam-page:not(.is-mock) #introStartCard>.mock-card-copy{grid-area:copy!important;width:auto!important;max-width:none!important}
+html body.exam-page #quizScope{grid-area:scope!important;width:auto!important;max-width:none!important;
+  margin:0!important;border-left:1px solid #edf1f7!important;padding:8px 0 8px 48px!important}
+html body.exam-page #quizScope .quiz-scope-h{display:block!important;font-size:11.5px!important;font-weight:600!important;
+  color:#8b9bb2!important;letter-spacing:.12em!important;margin-bottom:14px!important}
+html body.exam-page #quizScope ul{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important;margin:0!important;padding:0!important}
+html body.exam-page #quizScope li{font-size:13px!important;color:#41506a!important;line-height:1.45!important;list-style:none!important}
+html body.exam-page #quizScope li i{width:4px!important;height:4px!important;background:#b9c8dd!important;margin-right:10px!important}
+html body.exam-page:not(.is-mock) #introStartCard>#introOptions{grid-area:opts!important;width:auto!important;max-width:none!important;
+  margin-top:26px!important;padding-top:22px!important;border-top:1px solid #eff3f8!important}
+@media (max-width:900px){
+  html body.exam-page:not(.is-mock) #introStartCard{grid-template-columns:minmax(0,1fr)!important;
+    grid-template-areas:"copy" "scope" "opts"!important;padding:26px 22px 24px!important}
+  html body.exam-page #quizScope{border-left:0!important;padding:20px 0 0!important;border-top:1px solid #edf1f7!important}
+}
+
+/* :has(#stage-intro.active) 那条 flex 规则带了一个 id 权重，普通 #id 压不住，
+   这里用重复 id 提权，把抽查卡真正改成左右两栏 */
+html body.exam-page:not(.is-mock) #introStartCard#introStartCard{display:grid!important;
+  grid-template-columns:minmax(0,1fr) 336px!important;
+  grid-template-areas:"copy scope" "opts opts"!important;
+  column-gap:56px!important;row-gap:0!important;
+  align-items:start!important;justify-items:stretch!important;text-align:left!important;
+  padding:34px 36px 32px!important;flex-direction:row!important}
+html body.exam-page:not(.is-mock) #introStartCard#introStartCard>.mock-card-copy{grid-area:copy!important;
+  width:auto!important;max-width:none!important;align-items:flex-start!important;text-align:left!important}
+html body.exam-page #introStartCard#introStartCard>#quizScope{grid-area:scope!important;width:auto!important;max-width:none!important;
+  margin:0!important;border-left:1px solid #edf1f7!important;padding:8px 0 8px 48px!important;align-items:flex-start!important}
+html body.exam-page:not(.is-mock) #introStartCard#introStartCard>#introOptions{grid-area:opts!important;width:auto!important;
+  max-width:none!important;margin-top:26px!important;padding-top:22px!important;border-top:1px solid #eff3f8!important}
+@media (max-width:900px){
+  html body.exam-page:not(.is-mock) #introStartCard#introStartCard{grid-template-columns:minmax(0,1fr)!important;
+    grid-template-areas:"copy" "scope" "opts"!important;padding:26px 22px 24px!important}
+}
+
+/* 收线：右栏只要一根竖线，底部组卷范围只留一根横线（原来上下各多一根） */
+html body.exam-page #introStartCard#introStartCard>#quizScope{grid-area:scope!important;width:auto!important;max-width:none!important;
+  margin:0!important;border-top:0!important;border-right:0!important;border-bottom:0!important;
+  border-left:1px solid #edf1f7!important;padding:2px 0 2px 48px!important;align-items:flex-start!important}
+html body.exam-page:not(.is-mock) #introStartCard#introStartCard>#introOptions{grid-area:opts!important;width:auto!important;
+  max-width:none!important;margin:0!important;padding:0!important;border:0!important}
+html body.exam-page:not(.is-mock) #introStartCard#introStartCard .exam-special-panel{
+  margin:28px 0 0!important;padding:22px 0 0!important;border:0!important;border-top:1px solid #edf1f7!important}
+
+/* 三块数字等宽成列：22 / 35 / 2 之间原来间距 190 和 167 不一致 */
+html body.exam-page .quiz-card-facts{gap:0!important;display:flex!important;align-items:flex-start!important}
+html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:104px!important;margin:0!important;
+  padding:0!important;min-width:0!important;border:0!important}
+
+/* 抽查开场左栏右侧那块空白：放一张本单元的浅色线稿，不做标签也不写字 */
+html body.exam-page:not(.is-mock) .mock-card-copy{position:relative!important}
+html body.exam-page .unit-art{position:absolute!important;right:0!important;top:34px!important;
+  width:176px!important;height:132px!important;pointer-events:none!important;opacity:.95}
+@media (max-width:1100px){html body.exam-page .unit-art{display:none!important}}
+
+/* 右栏竖线起点抬在标题上方 25px，看着像一根悬空的线：整栏下移对齐「涵盖考点」 */
+html body.exam-page #introStartCard#introStartCard>#quizScope{margin-top:18px!important;padding-top:0!important}
+/* 线稿改成在左栏垂直居中，不再顶着卡片上沿 */
+html body.exam-page .unit-art{top:50%!important;transform:translateY(-50%)!important;right:-6px!important}

@@ -202,7 +202,7 @@
     var results = (load(RESULTS) || []).filter(function (r) { return isRec(r) && !finishedFlag(r.void); }).sort(byDateDesc);
     var abandoned = (load(ABANDONED) || []).filter(function (r) { return isRec(r) && unfinishedFlag(r.finished); }).sort(byDateDesc);
     if (!results.length && !abandoned.length) {
-      box.innerHTML = '<div class="hist-empty"><svg class="empty-art" width="104" height="88" viewBox="0 0 104 88" fill="none" aria-hidden="true"><rect x="26" y="10" width="52" height="64" rx="10" stroke="#cfe0f8" stroke-width="1.5"/><path d="M38 30h28M38 40h28M38 50h18" stroke="#dbe7f8" stroke-width="1.5"/><circle cx="72" cy="64" r="16" fill="#fff" stroke="#cfe0f8" stroke-width="1.5"/><path d="m65.5 64 4.5 4.5L79 59" stroke="#7fa8ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      box.innerHTML = '<div class="hist-empty"><svg class="empty-art" width="112" height="96" viewBox="0 0 112 96" fill="none" aria-hidden="true"><rect x="30" y="10" width="52" height="66" rx="11" fill="#f4f9ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="M42 30h28M42 41h28M42 52h17" stroke="#dde9f9" stroke-width="1.6"/><circle cx="78" cy="68" r="17" fill="#eaf2ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="m71 68 4.6 4.6L85 63" stroke="#4d84ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '<div class="he-t">还没有模考或抽查记录</div>' +
         '<p class="he-d">做完一次模考或抽查，交卷后成绩、错题和补强报告都会出现在这里。</p>' +
         '<a class="btn primary" href="exam.html?mode=mock">去做一次模考</a>' +
