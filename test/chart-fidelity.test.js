@@ -94,3 +94,36 @@ test('R04-061：两条截线必须在 q 上方相交，且一右倾一左倾（�
   assert.ok(yc < 150 && yc > 0, `交点应在 q(y=150) 之上且在框内，实际 y=${yc.toFixed(1)}`);
   assert.ok(xc > 0 && xc < 440, `交点 x 应在框内，实际 x=${xc.toFixed(1)}`);
 });
+
+test('R04-081：DE∥BC、DE/BC=1/3，直角符号画在 B 且两边正交', () => {
+  const svg = SPECS['R04-081'].svg;
+  const L = [...svg.matchAll(/<line x1='([-\d.]+)' y1='([-\d.]+)' x2='([-\d.]+)' y2='([-\d.]+)'/g)]
+    .map(m => [+m[1], +m[2], +m[3], +m[4]]);
+  const bc = L.find(l => Math.abs(l[1] - 195) < 0.01 && Math.abs(l[3] - 195) < 0.01);
+  const de = L.find(l => Math.abs(l[1] - 95) < 0.01 && Math.abs(l[3] - 95) < 0.01);
+  assert.ok(bc && de, 'BC 与 DE 都应是水平线（互相平行）');
+  const bcLen = Math.abs(bc[2] - bc[0]), deLen = Math.abs(de[2] - de[0]);
+  assert.ok(Math.abs(deLen / bcLen - 1 / 3) < 0.02, `DE/BC 应为 1/3，实际 ${(deLen / bcLen).toFixed(3)}`);
+  const ab = L.find(l => Math.abs(l[0] - 120) < 0.01 && Math.abs(l[2] - 120) < 0.01);
+  assert.ok(ab && ab[0] === 120 && ab[2] === 120 && Math.abs(ab[3] - 195) < 0.01,
+    'AB 应竖直且下端在 B(120,195)');
+  const sq = /<path d='M ([\d.]+) ([\d.]+) L ([\d.]+) ([\d.]+) L ([\d.]+) ([\d.]+)'/.exec(svg);
+  assert.ok(sq, '应有直角方框');
+  assert.ok(Math.abs((+sq[4]) - (+sq[2])) < 0.01 && Math.abs((+sq[5]) - (+sq[3])) < 0.01,
+    '直角方框的两边应分别水平、竖直（真正画出 90°）');
+});
+
+test('R04-104：三块等边三角形的边长必须相等（每个 ≈120）', () => {
+  const svg = SPECS['R04-104'].svg;
+  const pts = [...svg.matchAll(/<polygon points='([^']+)'/g)]
+    .map(m => m[1].split(' ').map(p => p.split(',').map(Number)))
+    .filter(p => p.length === 4)[0];
+  const v = [pts[0], pts[1], pts[2], pts[3]];
+  const mid = [v[2][0] / 2 + v[1][0] / 2, v[3][1]];
+  const tris = [[v[0], v[1], [mid[0], v[3][1]]], [v[1], [mid[0], v[3][1]], v[2]]];
+  const len = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  for (const t of tris) {
+    const s = [len(t[0], t[1]), len(t[1], t[2]), len(t[2], t[0])];
+    assert.ok(Math.max(...s) - Math.min(...s) < 1.5, `等边三角形三边不等：${s.map(v => v.toFixed(1))}`);
+  }
+});
