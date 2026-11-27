@@ -337,3 +337,11 @@ test('parseSession：布尔 startedAt/endsAt 不能骗过时钟校验', () => {
   assert.equal(r.status, 'expired');
   assert.equal(r.reason, 'clock');
 });
+
+
+test('weaknessReport：detail 混入 null/数组/字符串时不崩', () => {
+  assert.doesNotThrow(() => C.weaknessReport(
+    [null, [], 'junk', { id: 'Q1', unit: 1, section: '1.1', topic: 0, correct: false, seconds: 0 }],
+    [{ id: 1, cn: '代数' }], { wrong: {} }
+  ));
+});

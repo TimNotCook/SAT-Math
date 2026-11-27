@@ -798,6 +798,9 @@
   /* Weakness report grouped by unit AND knowledge point, with an explicit
      priority ranking and the concrete wrong questions attached. */
   function weaknessReport(detail, units, state) {
+    /* detail 是旧记录/云端合并来的数组时，可能混进 null、数组、字符串：
+       直接 d.unit 会 TypeError，整份成绩报告打不开。先过滤成真实对象。 */
+    detail = Array.isArray(detail) ? detail.filter(d => d && typeof d === 'object' && !Array.isArray(d)) : [];
     const ug = {}, tg = {};
     detail.forEach(d => {
       const u = ug[d.unit] || (ug[d.unit] = { unit: d.unit, n: 0, wrong: 0, ids: [] });
