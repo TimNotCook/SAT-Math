@@ -130,7 +130,11 @@
         if (!st.marks || typeof st.marks !== 'object' || Array.isArray(st.marks)) st.marks = {};
       }
     });
-    var last = live.last && A.CATALOG[live.last.sec] ? live.last : null;
+    /* 旧板块 id 可能还留在 last.sec（app-core 的迁移只在页面加载时跑）：
+       不先 resolveSec 就判 CATALOG，会把存档位置错落到第一个板块。 */
+    var lastSec = live.last && live.last.sec && A.resolveSec ? A.resolveSec(live.last.sec) : (live.last && live.last.sec);
+    var last = live.last && lastSec && A.CATALOG[lastSec]
+      ? { sec: lastSec, qid: live.last.qid, ts: live.last.ts } : null;
     var pos;
     if (last) {
       var n = cursorNum((A.secState(last.sec, false) || {}).cursor);

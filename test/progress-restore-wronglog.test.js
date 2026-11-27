@@ -269,3 +269,13 @@ test('存档坏 v 不能把本机有效旧答案覆盖成空', () => {
   const live = JSON.parse(store[LIVE_KEY]);
   assert.equal(live.sections[T.sec].answers[T.qid].v, 'A');
 });
+
+
+test('存档位置跟随旧板块别名归一，不再错落到第一个板块', () => {
+  const liveSeed = { sections: { '2.6.T17': { answers: {}, marks: {}, wrongLog: {}, cursor: 1 } },
+    last: { sec: '2.6.T17', qid: null, ts: 1700000000000 } };
+  const { SAVE } = boot(liveSeed, null);
+  const res = SAVE.snapshot();
+  assert.equal(res.status, 'ok', '存档应该能写出来：' + JSON.stringify(res));
+  assert.equal(res.position.sec, '2.7.T17', '旧板块别名没有归一，存档位置错了');
+});
