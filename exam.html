@@ -9,9 +9,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.supabase.in https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
   <title>SAT Math Prep · 抽查与模考</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=fcc0614f0df3">
-  <link rel="stylesheet" href="bluebook.css?v=fcc0614f0df3">
-  <link rel="stylesheet" href="glass.css?v=fcc0614f0df3"><script src="theme.js?v=fcc0614f0df3"></script>
+  <link rel="stylesheet" href="app.css?v=ae369a8b9833">
+  <link rel="stylesheet" href="bluebook.css?v=ae369a8b9833">
+  <link rel="stylesheet" href="glass.css?v=ae369a8b9833"><script src="theme.js?v=ae369a8b9833"></script>
   <style>#questionNav{z-index:68!important}body.is-mock .mainnav,body.is-mock .bankpill{display:none}body.is-mock .mock-hide{display:none}body.is-mock .site-rail{display:none}/* 宽屏补白归零 */@media(min-width:1000px){body.is-mock{padding-left:0}}</style>
 </head>
 <body class="exam-page protected site-shell shell-exam">
@@ -28,7 +28,17 @@
   <script>/* 模考屏一律英文：隐藏站内导航与题库胶囊，退出按钮改英文；练习/抽查模式不受影响 */
   (function(){var mock=/[?&]mode=mock/.test(location.search);if(!mock)return;document.body.classList.add("is-mock");
   document.addEventListener("DOMContentLoaded",function(){var x=document.getElementById("btnExamExit");if(x){x.textContent="Exit";x.title="Exit the test and return";}
-    Array.prototype.forEach.call(document.querySelectorAll("[data-en]"),function(el){el.textContent=el.getAttribute("data-en");});});})();</script>
+    Array.prototype.forEach.call(document.querySelectorAll("[data-en]"),function(el){el.textContent=el.getAttribute("data-en");});
+    Array.prototype.forEach.call(document.querySelectorAll("[data-en-aria]"),function(el){el.setAttribute("aria-label",el.getAttribute("data-en-aria"));});
+    /* 选项区是运行时渲染的，等不到静态 data-en：这里按模考口径补英文，幂等，练习/抽查页不进这段 */
+    function enChoices(){
+      Array.prototype.forEach.call(document.querySelectorAll('.drill-choices[role="radiogroup"]'),function(g){
+        if(g.getAttribute('aria-label')==='答案选项') g.setAttribute('aria-label','Answer choices');});
+      Array.prototype.forEach.call(document.querySelectorAll('.drill-choice-missing'),function(p){
+        if(p.textContent.indexOf('选项缺失')>=0) p.textContent="Options unavailable: the choices for this question could not be read from the source, so it cannot be answered.";});
+    }
+    enChoices();
+    new MutationObserver(enChoices).observe(document.body,{childList:true,subtree:true});});})();</script>
   <script>/* 侧栏高亮跟着模式走：抽查落在「单元抽查」，模考落在「模考」——别让抽查页高亮假模考 */
   (function(){var q=/[?&]mode=quiz/.test(location.search);var want=q?'单元抽查':'模考';var rail=document.querySelector('.site-rail');if(!rail)return;
     Array.prototype.forEach.call(rail.querySelectorAll('a'),function(a){if((a.textContent||'').trim()===want)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});})();</script>
@@ -90,7 +100,7 @@
   </section>
 
   <section class="stage" id="stage-answer" hidden>
-    <section class="drill-questionbar exam-questionbar" aria-label="题目工具">
+    <section class="drill-questionbar exam-questionbar" aria-label="题目工具" data-en-aria="Question tools">
       <div class="drill-questionbar-inner">
         <div class="drill-questionbar-left">
           <span class="drill-qnumber" id="qNum">1</span>
@@ -238,23 +248,23 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/questions.js?v=fcc0614f0df3" defer></script>
-  <script src="data/text.js?v=fcc0614f0df3" defer></script>
-  <script src="data/figures.js?v=fcc0614f0df3" defer></script>
-  <script src="data/figure_crops.js?v=fcc0614f0df3" defer></script>
-  <script src="data/choice_crops.js?v=fcc0614f0df3" defer></script>
-  <script src="app-ui.js?v=fcc0614f0df3" defer></script>
-  <script src="figures.js?v=fcc0614f0df3" defer></script>
-  <script src="choice-figures.js?v=fcc0614f0df3" defer></script>
-  <script src="crossout.js?v=fcc0614f0df3" defer></script>
+  <script src="data/questions.js?v=ae369a8b9833" defer></script>
+  <script src="data/text.js?v=ae369a8b9833" defer></script>
+  <script src="data/figures.js?v=ae369a8b9833" defer></script>
+  <script src="data/figure_crops.js?v=ae369a8b9833" defer></script>
+  <script src="data/choice_crops.js?v=ae369a8b9833" defer></script>
+  <script src="app-ui.js?v=ae369a8b9833" defer></script>
+  <script src="figures.js?v=ae369a8b9833" defer></script>
+  <script src="choice-figures.js?v=ae369a8b9833" defer></script>
+  <script src="crossout.js?v=ae369a8b9833" defer></script>
 
-  <script src="grade-core.js?v=fcc0614f0df3" defer></script>
-  <script src="exam-core.js?v=fcc0614f0df3" defer></script>
-  <script src="analysis.js?v=fcc0614f0df3" defer></script>
-  <script src="scratch-pad.js?v=fcc0614f0df3" defer></script>
-  <script src="exam.js?v=fcc0614f0df3" defer></script>
-  <script src="cloud-config.js?v=fcc0614f0df3" defer></script><script src="supa-cloud.js?v=fcc0614f0df3" defer></script>
-  <script src="cloud-account.js?v=fcc0614f0df3" defer></script>
+  <script src="grade-core.js?v=ae369a8b9833" defer></script>
+  <script src="exam-core.js?v=ae369a8b9833" defer></script>
+  <script src="analysis.js?v=ae369a8b9833" defer></script>
+  <script src="scratch-pad.js?v=ae369a8b9833" defer></script>
+  <script src="exam.js?v=ae369a8b9833" defer></script>
+  <script src="cloud-config.js?v=ae369a8b9833" defer></script><script src="supa-cloud.js?v=ae369a8b9833" defer></script>
+  <script src="cloud-account.js?v=ae369a8b9833" defer></script>
   <script>/* 保险：核心脚本（grade-core / exam-core / exam.js）任一没跑完，页面会变成「Start 点不动」的死页。
      这里在 load 后做一次体检：缺 grade-core 就先自动重载一次（只用 sessionStorage 记一次，防死循环）；
      仍缺就明确提示 + 按钮换成 Reload，不装作正常。 */
