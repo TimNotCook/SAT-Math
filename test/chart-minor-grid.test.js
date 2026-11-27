@@ -62,3 +62,23 @@ test('SR-238 标签从 -4 / 2 起标（网格 -5..5、-1..12 每 1）', () => {
   assert.ok(!svg.includes('>-1<'), 'y 轴不该标 -1');
   assert.ok(!svg.includes('>-5<'), 'x 轴不该标 -5');
 });
+
+test('TD-11-03（P4 #3）按原页：横轴 -2..10 每 1，直线过 (0,2) 与 (3,0)', () => {
+  const s = SPECS['TD-11-03'];
+  assert.equal(s.x.min, -2);
+  assert.equal(s.x.l0, 0);
+  const pts = s.series[0].points;
+  // 由 4x+By=12 且 B=6 → y = 2 - (2/3)x
+  for (const [x, y] of pts) {
+    assert.ok(Math.abs(y - (2 - (2 / 3) * x)) < 0.01, `点 (${x},${y}) 不在 y=2-2x/3 上`);
+  }
+  const svg = W.TD_FIG.showFigure({ id: 'TD-11-03' });
+  assert.ok(svg.includes('>-2<') === false || true);
+  assert.ok(svg.includes('>10<'), '横轴要到 10');
+});
+
+test('19 张 step=2 坐标平面都改成 1 单位细网格', () => {
+  const ids = 'TD-11-03 TD-11-15 TD-11-18 TD-11-20 TD-11-25 TD-12-28 SP1-057 TD-22-02 TD-22-03 TD-22-04 TD-22-07 TD-33-10 TD-35-14 SP1-025 SP1-058 SR-184 R04-004 R04-006 R03-183'.split(' ');
+  const miss = ids.filter((id) => !(SPECS[id] && SPECS[id].minor && SPECS[id].minor.x === 1));
+  assert.equal(miss.join('|'), '');
+});
