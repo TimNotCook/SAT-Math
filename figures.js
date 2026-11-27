@@ -1019,6 +1019,11 @@
      页面可覆盖 window.TD_CHOICE_TABLE_TRANSPOSED 来增加/撤销。 */
   var TRANSPOSED_TABLES = { 'TD-11-22': true, 'TD-33-13': true };
 
+  /* 四个选项都是小表格时，默认 A/C 上排、B/D 下排（练习册 P126 #14 就是这样印的）；
+     但 03 册 P121 #14（R03-134）同一道题原书是把 A/B/C/D 四张表**纵向堆叠**，
+     这张走单列，故列入 STACK 白名单。 */
+  window.TD_CHOICE_TABLE_STACK = window.TD_CHOICE_TABLE_STACK || { 'R03-134': true };
+
   /* 选择题里的「小表格 / 联立方程组」选项：
      原书这几个选项是排成表格（表头 x｜y 或 x｜q(x)）或带大括号的方程组，
      题库里只能存成一行串（"x: 0, 5, 10; y: 14, 21, 28"、"x=3,y=21; x=5,y=47; ..."、
@@ -1092,5 +1097,5 @@
     return html + '</tbody></table>';
   }
 
-  window.TD_FIG = { showFigure: showFigure, lineAnswer: lineAnswer, hasLine: hasLine, fmtMath: fmtMath, fmtChoice: fmtChoice, choiceGraph: choiceGraph, chart: chart };
+  window.TD_FIG = { showFigure: showFigure, lineAnswer: lineAnswer, hasLine: hasLine, fmtMath: fmtMath, fmtChoice: fmtChoice, choiceGraph: choiceGraph, chart: chart, get TD_CHOICE_TABLE_STACK() { return window.TD_CHOICE_TABLE_STACK; } };
 })();

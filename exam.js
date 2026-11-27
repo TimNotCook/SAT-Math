@@ -691,7 +691,9 @@
       }).join('') + '</div>';
       /* 四个选项都是小表格时按原书摆成两列（A/C 上排、B/D 下排） */
       if ((choiceHtml.match(/td-choice-table/g) || []).length >= 4) {
-        choiceHtml = choiceHtml.replace('<div class="drill-choices"', '<div class="drill-choices is-table-choices"');
+        const stackTbl = (window.TD_CHOICE_TABLE_STACK || {})[q.id];
+        choiceHtml = choiceHtml.replace('<div class="drill-choices"', '<div class="drill-choices is-table-choices' +
+          (stackTbl ? ' is-table-choices-stacked' : '') + '"');
       }
       area.innerHTML = choiceHtml;
       area.querySelectorAll('.drill-choice').forEach(button => button.addEventListener('click', () => {

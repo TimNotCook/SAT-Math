@@ -3,6 +3,7 @@
  *
  * 原书有 8 道题的选择项不是一行文字，而是四张小表格或带大括号的方程组：
  *   表格类：TD-11-22、TD-15-06、TD-33-13、SP1-047、SP1-130、SP1-131
+ *   频率表类：TD-25-14、R03-134（表头是 Value｜Frequency，另测）
  *   方程组类：U1-09（四个选项各是两条方程）
  * 题库只能把它们存成一行串，drill/exam 必须还原成表格/联立式，否则不像原题。
  * 这里锁：这 8 题必须走 `TD_FIG.fmtChoice` 的表格/联立分支，且其余题目的普通
@@ -125,4 +126,29 @@ test('同一道选择题里不许出现两个一模一样的选项', () => {
   }
   const unexpected = bad.filter((b) => !KNOWN.some((id) => b.startsWith(id + ' ')));
   assert.equal(unexpected.join('|'), '', `重复选项：${unexpected.join(', ')}`);
+});
+
+test('频率表选项按原书真的是「Value | Frequency」四行表（TD-25-14 / R03-134）', () => {
+  const expect = {
+    'TD-25-14': { A: ['4', '5', '6', '7'], B: ['8', '5', '5', '8'],
+                  C: ['6', '6', '6', '6'], D: ['7', '6', '6', '7'], values: ['10', '20', '30', '40'] },
+    'R03-134': { A: ['4', '5', '6', '7'], B: ['6', '6', '6', '6'],
+                 C: ['7', '6', '6', '7'], D: ['8', '5', '5', '8'], values: ['70', '80', '90', '100'] },
+  };
+  for (const [id, e] of Object.entries(expect)) {
+    for (const L of ['A', 'B', 'C', 'D']) {
+      const html = FIG.fmtChoice(TEXT[id].choices[L], id);
+      assert.match(html, /<table class="td-choice-table">/, `${id} ${L} 应是竖排两列表格`);
+      assert.ok(html.includes('<th>Value</th><th>Frequency</th>'), `${id} ${L} 表头应是 Value｜Frequency`);
+      const cells = [...html.matchAll(/<tr><td>(\d+)<\/td><td>(\d+)<\/td><\/tr>/g)].map((m) => [m[1], m[2]]);
+      assert.equal(cells.length, 4, `${id} ${L} 应四行`);
+      assert.deepEqual(cells.map((c) => c[0]), e.values, `${id} ${L} 左列 Value 顺序`);
+      assert.deepEqual(cells.map((c) => c[1]), e[L], `${id} ${L} 频数列`);
+    }
+  }
+});
+
+test('R03-134 原书四张表纵向堆叠（走 STACK 白名单），TD-25-14 走两列', () => {
+  assert.equal(FIG.TD_CHOICE_TABLE_STACK && FIG.TD_CHOICE_TABLE_STACK['R03-134'], true);
+  assert.ok(!(FIG.TD_CHOICE_TABLE_STACK && FIG.TD_CHOICE_TABLE_STACK['TD-25-14']));
 });
