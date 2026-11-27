@@ -118,7 +118,7 @@ function importData(data){
     if(!rec.matchId)created++;
     store.items.push(rec);added++;
   });
-  store.title=String(pick(data.title,store.title)||'导入错题');
+  store.title=plainText(pick(data.title,store.title))||'导入错题';
   store.importedAt=now;
   if(!writeImport(store))throw new Error('localStorage 写入失败');
   var msg='已导入 '+added+' 道：新增错题 '+written+' 道 · 已有作答仅只读展示 '+readOnly+' 道（未改动）· 未匹配 '+created+' 道';

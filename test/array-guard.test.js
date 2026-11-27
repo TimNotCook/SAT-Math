@@ -123,7 +123,7 @@ test('导入错题展示字段是对象时不出 [object Object]', () => {
 test('导入流程 normalizeItem 不把对象字段写成 [object Object]', () => {
   const store = {};
   const { els, sandbox } = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store);
-  sandbox.TD_IMPORT_WRONG.importData({ items: [
+  sandbox.TD_IMPORT_WRONG.importData({ title: { x: 1 }, items: [
     { key: 'raw1', stem: { x: 1 }, choices: { A: { y: 1 } }, type: 'mcq', answer: { z: 1 }, given: { g: 1 }, topic: { t: 1 }, source: { s: 1 }, value: { v: 1 } },
   ] });
   const saved = JSON.parse(store.tdsat_imported_wrong_v1 || '{}');
