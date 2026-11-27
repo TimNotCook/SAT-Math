@@ -99,7 +99,7 @@
     return a;
   }
   const byId = (bank, id) => bank.find(q => q.id === id);
-  const unitName = (units, u) => { const x = units.find(v => v.id === u); return x ? 'U' + u + ' ' + x.cn : 'U' + u; };
+  const unitName = (units, u) => { const x = (units || []).find(v => v.id === u); return x ? 'U' + u + ' ' + x.cn : 'U' + u; };
 
   /* =====================================================================
      Diagnostic paper design — College-Board-inspired, deliberately fair
@@ -802,8 +802,10 @@
     detail.forEach(d => {
       const u = ug[d.unit] || (ug[d.unit] = { unit: d.unit, n: 0, wrong: 0, ids: [] });
       u.n++; if (!isRightFlag(d.correct)) { u.wrong++; u.ids.push(d.id); }
-      const key = d.section + '|' + d.topic;
-      const t = tg[key] || (tg[key] = { key, unit: d.unit, section: d.section, topic: d.topic, n: 0, wrong: 0, ids: [], seconds: 0 });
+      /* topic 在云端/旧记录里可能是数字或对象：直接 .replace 会把成绩页打崩。 */
+      const topic = d.topic == null ? '' : String(d.topic);
+      const key = String(d.section == null ? '' : d.section) + '|' + topic;
+      const t = tg[key] || (tg[key] = { key, unit: d.unit, section: d.section, topic, n: 0, wrong: 0, ids: [], seconds: 0 });
       t.n++; t.seconds += Number(d.seconds) || 0; if (!isRightFlag(d.correct)) { t.wrong++; t.ids.push(d.id); }
     });
     const historic = (state && state.wrong) || {};

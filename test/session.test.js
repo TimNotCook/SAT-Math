@@ -299,3 +299,13 @@ describe('scoreSession：marked 是字符串 "false" 时不标成已标记', () 
     assert.equal(d.marked, false);
   });
 });
+
+
+describe('weaknessReport：topic 是数字/对象时不崩', () => {
+  test('旧记录 topic=0 仍能生成报告', () => {
+    assert.doesNotThrow(() => C.weaknessReport(
+      [{ id: 'Q1', unit: 1, section: '1.1', topic: 0, correct: false, seconds: 0 }],
+      [{ id: 1, cn: '代数' }], { wrong: {} }
+    ));
+  });
+});
