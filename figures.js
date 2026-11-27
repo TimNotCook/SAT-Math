@@ -756,7 +756,7 @@
       var head = p.title
         ? '<div style="font:600 14px/1.4 system-ui,sans-serif;text-align:center;margin-bottom:2px">' + p.title + '</div>'
         : '';
-      return '<div class="td-pair-cell" style="display:flex;flex-direction:column;align-items:center">' + head + chartFn(c) + '</div>';
+      return '<div class="td-pair-cell" style="display:flex;flex-direction:column;align-items:center;width:' + c.w + 'px;flex:0 0 ' + c.w + 'px">' + head + chartFn(c) + '</div>';
     }).join('');
     return '<div class="td-figure-pair" style="display:flex;gap:10px;justify-content:center;align-items:flex-start;flex-wrap:nowrap">' + cells + '</div>';
   }
