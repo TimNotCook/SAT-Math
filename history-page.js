@@ -106,9 +106,15 @@
     }).join('') + '</div>';
   }
 
+  function sameStamp(a, b) {
+    var x = num(a), y = num(b);
+    return x != null && y != null && x === y;
+  }
   function abandonedBody(rec) {
     var sess = readSession();
-    var resumable = !!(sess && rec.startedAt && sess.startedAt === rec.startedAt && !sess.finished);
+    /* startedAt 在旧版/云端合并里可能是字符串；严格 === 会把同一张还能做的卷
+       误报成「存档已失效」。按有限数字比较，类型不一致也认。 */
+    var resumable = !!(sess && sameStamp(rec.startedAt, sess.startedAt) && !sess.finished);
     var html = '<div class="hist-kv"><span>状态 <b>未做完</b></span>' +
       '<span>已答 <b>' + numTxt(rec.answered == null ? 0 : rec.answered) + ' / ' + numTxt(rec.total) + '</b></span>' +
       '<span>中断时间 <b>' + fmtDate(rec.date) + '</b></span></div>';
@@ -155,7 +161,7 @@
     if (box.getAttribute('data-sig') === sig) return;   /* 数据没变就别重建，保住展开状态 */
     box.setAttribute('data-sig', sig);
     /* 两组各自按时间倒序：存档存进去的顺序不一定是时间序，别用 reverse 赌 */
-    var byDateDesc = function (a, b) { return (b.date || 0) - (a.date || 0); };
+    var byDateDesc = function (a, b) { return (num(b.date) || 0) - (num(a.date) || 0); };
     var results = (load(RESULTS) || []).filter(function (r) { return r && !r.void; }).sort(byDateDesc);
     var abandoned = (load(ABANDONED) || []).filter(function (r) { return r && r.finished === false; }).sort(byDateDesc);
     if (!results.length && !abandoned.length) {
