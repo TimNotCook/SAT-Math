@@ -1288,13 +1288,19 @@ html:not([data-theme="dark"]) body.drill-page #questionView .drill-next-button{h
 html:has(body.exam-page){background:#f7f6f2!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock{background:#f7f6f2!important}
 
-/* 先把开场层里所有子元素的底色清空，再只给三块真卡片上纸色 ——
-   卡片下面那块幽灵米色块就是某个容器自带的底色，逐层猜不划算。 */
-html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro *{background-color:transparent!important;background-image:none!important;box-shadow:none!important}
-html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro .mock-entry{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important}
-html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro #introParams{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important}
-html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro .mock-directions{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important}
-html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro .btn.primary{background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;border-radius:8px!important}
+/* 开场层里那些“看不见的白底容器”：一律透明 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-start-main,
+html:not([data-theme="dark"]) body.exam-page.is-mock main.wrap,
+html:not([data-theme="dark"]) body.exam-page.is-mock .exam-stage-main,
+html:not([data-theme="dark"]) body.exam-page.is-mock .stage,
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro,
+html:not([data-theme="dark"]) body.exam-page.is-mock #introOptions{background:transparent!important;box-shadow:none!important}
+
+/* 三块真卡片 */
+html:not([data-theme="dark"]) body.exam-page.is-mock .mock-entry{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #introParams{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .mock-directions{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro #btnStart{background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;border-radius:8px!important}
 
 /* 眉标 / 小节标题 / 说明文字统一中性灰 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .exam-eyebrow{color:#a8acb4!important;font-size:10px!important;letter-spacing:.14em!important;font-weight:600!important}
