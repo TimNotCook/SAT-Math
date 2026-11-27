@@ -1670,3 +1670,11 @@ html:not([data-theme="dark"]) body.shell-wrong .he-d{font-size:12.5px!important;
 html:not([data-theme="dark"]) body.shell-history .hist-empty .btn,
 html:not([data-theme="dark"]) body.shell-wrong .empty-panel .btn{height:34px!important;min-height:0!important;padding:0 16px!important;border-radius:8px!important;font-size:12.5px!important;font-weight:600!important;margin-top:24px!important;box-shadow:none!important;display:inline-flex!important;align-items:center!important}
 html:not([data-theme="dark"]) body.shell-history .hist-list{background:transparent!important}
+
+/* ==== history-card-theme：模考记录空态卡压回纸面（盖过 app.css 的 16px 圆角白卡） ==== */
+html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important;padding:52px 24px 44px!important;margin:0!important}
+html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .empty-art{filter:grayscale(1) contrast(.92) opacity(.42)!important;display:block!important;margin:0 auto 4px!important}
+html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .he-t{font-size:16px!important;font-weight:600!important;letter-spacing:-.005em!important;color:#20242b!important;line-height:1.4!important;margin:14px 0 0!important}
+html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .he-d{font-size:12.5px!important;line-height:1.7!important;color:#8d9199!important;max-width:46ch!important;margin:8px auto 0!important}
+html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .btn{height:34px!important;min-height:0!important;padding:0 16px!important;border-radius:8px!important;border:0!important;background:#2563eb!important;color:#fff!important;font-size:12.5px!important;font-weight:600!important;box-shadow:none!important;margin-top:22px!important;display:inline-flex!important;align-items:center!important}
+html:not([data-theme="dark"]) body.shell-history .hist-list>.hist-empty .btn:hover{background:#1d4ed8!important}
