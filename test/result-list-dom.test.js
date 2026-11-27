@@ -69,3 +69,11 @@ test('成绩页：detail.correct 是字符串 "false" 时不能按 truthy 当答
   assert.ok(!/d\.correct \?/.test(listSeg), '逐题列表还在按 truthy 渲染对勾/颜色');
   assert.ok(!/filter\(d => !d\.correct\)/.test(listSeg), '错题 tab 还在按 truthy 过滤');
 });
+
+test('成绩页：date 为 null/0 时不显示 1970 年假时间', () => {
+  const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
+  assert.match(seg, /const dateObj = Number\.isFinite\(dateNum\) && dateNum > 0/, '日期没有先排除 null/0');
+  assert.ok(!/new Date\(Number\.isFinite\(dateNum\) && dateNum > 0 \? dateNum : r\.date\)/.test(seg),
+    '仍在 new Date(null) 兜底，会显示 1970');
+  assert.match(seg, /const dateTxt = !dateObj || isNaN/, '空日期应显示 —');
+});

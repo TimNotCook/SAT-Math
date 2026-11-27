@@ -1146,9 +1146,14 @@
     const modeTxt = MODE_NAME[safeText(r.mode)] || safeText(r.mode) || '模考';
     /* 云端/旧版可能把 Date.now() 存成字符串；new Date('1700...') 是 Invalid，
        成绩页日期会变成 —。数字字符串先转时间戳，其他交给 Date 解析。 */
+    /* date 可能是 null/0（旧存档/云端合并）：new Date(null) 会显示 1970 年。
+       数字字符串先按时间戳；ISO 字符串才交给 Date 解析；空/0 一律显示「—」。 */
     const dateNum = Number(r.date);
-    const dateObj = new Date(Number.isFinite(dateNum) && dateNum > 0 ? dateNum : r.date);
-    const dateTxt = isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(OFFICIAL ? 'en-US' : 'zh-CN');
+    const dateRaw = typeof r.date === 'string' ? r.date.trim() : '';
+    const dateObj = Number.isFinite(dateNum) && dateNum > 0
+      ? new Date(dateNum)
+      : (dateRaw && !Number.isFinite(dateNum) ? new Date(dateRaw) : null);
+    const dateTxt = !dateObj || isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(OFFICIAL ? 'en-US' : 'zh-CN');
     $('resTitle').textContent = OFFICIAL ? 'Score Report' : modeTxt + ' · 成绩报告';
     $('resSub').textContent = dateTxt + ' · ' +
       (OFFICIAL
