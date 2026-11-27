@@ -1431,18 +1431,18 @@ html:not([data-theme="dark"]) .bb-modal-layer .bb-modal-close:hover{color:#20242
 
 html:not([data-theme="dark"]) .bb-modal-layer .bb-modal-body{padding:8px 28px 26px!important;background:transparent!important;overflow:auto!important}
 
-/* 公式栅：两栏、行内发丝线、名字左式右 */
-html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 56px!important;margin:6px 0 0!important}
-html:not([data-theme="dark"]) .bb-modal-layer .bb-formula{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:18px!important;padding:11px 0!important;border:0!important;border-bottom:1px solid #efebe2!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
-html:not([data-theme="dark"]) .bb-modal-layer .bb-formula-label{font-size:12px!important;color:#5c6169!important;font-weight:500!important;letter-spacing:.01em!important;text-transform:none!important}
-html:not([data-theme="dark"]) .bb-modal-layer .bb-formula-expr{font-size:14px!important;color:#20242b!important;font-weight:500!important;letter-spacing:.01em!important;font-variant-numeric:tabular-nums!important;white-space:nowrap!important;text-align:right!important}
-html:not([data-theme="dark"]) .bb-modal-layer .bb-formula-expr sup{font-size:.68em!important;vertical-align:super!important}
+/* 公式栅：两栏；每栏内“名称列 + 公式列”对齐成一条线，不再左右拉开 */
+html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 56px!important;margin:6px 0 0!important;align-items:start!important}
+html:not([data-theme="dark"]) .bb-modal-layer .bb-formula{display:grid!important;grid-template-columns:minmax(0,150px) minmax(0,1fr)!important;align-items:baseline!important;gap:14px!important;padding:11px 0!important;border:0!important;border-bottom:1px solid #efebe2!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+html:not([data-theme="dark"]) .bb-modal-layer .bb-formula-label{font-size:12px!important;color:#5c6169!important;font-weight:500!important;letter-spacing:.01em!important;text-transform:none!important;margin:0!important}
+html:not([data-theme="dark"]) .bb-modal-layer .bb-formula-expr{font-size:14px!important;color:#20242b!important;font-weight:500!important;letter-spacing:.01em!important;font-variant-numeric:tabular-nums!important;white-space:nowrap!important;text-align:left!important;margin:0!important}
+html:not([data-theme="dark"]) .bb-modal-layer .bb-formula-expr sup{font-size:.68em!important;vertical-align:super!important;line-height:0!important}
 
 /* 小标题：眉标式 + 上发丝线 */
-html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-title{font-size:10px!important;font-weight:600!important;letter-spacing:.16em!important;text-transform:uppercase!important;color:#a8acb4!important;margin:30px 0 18px!important;padding-top:20px!important;border-top:1px solid #efebe2!important}
-html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-triangles{display:flex!important;justify-content:center!important;align-items:flex-end!important;gap:64px!important;padding:2px 0 10px!important}
+html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-title{font-size:10px!important;font-weight:600!important;letter-spacing:.16em!important;text-transform:uppercase!important;color:#a8acb4!important;margin:30px 0 16px!important;padding-top:20px!important;border-top:1px solid #efebe2!important;text-align:center!important}
+html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-triangles{display:flex!important;justify-content:center!important;align-items:flex-end!important;gap:80px!important;padding:6px 0 12px!important}
 html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-triangles > div{filter:grayscale(1) contrast(.95)!important}
-html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-triangles svg{max-height:150px}
+html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-triangles svg{max-height:172px}
 
 /* 末尾三条事实：沙色批注块 */
 html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-facts{margin:22px 0 0!important;padding:16px 18px!important;background:#fdfaf3!important;border:1px solid #efe7d6!important;border-radius:8px!important}
@@ -1451,8 +1451,11 @@ html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-facts p::before{content:""
 
 @media (max-width:720px){
   html:not([data-theme="dark"]) .bb-modal-layer .bb-modal{width:94vw!important}
+  html:not([data-theme="dark"]) .bb-modal-layer .bb-modal-body{padding:8px 20px 22px!important}
+  html:not([data-theme="dark"]) .bb-modal-layer .bb-modal-head{padding:18px 20px 14px!important}
   html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-grid{grid-template-columns:1fr!important;gap:0!important}
   html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-triangles{gap:28px!important}
+  html:not([data-theme="dark"]) .bb-modal-layer .bb-ref-triangles svg{max-height:130px}
 }
 
 /* ==== mock-theme：模考开场页纸面化（只作用于 .is-mock，不碰单元抽查） ==== */
