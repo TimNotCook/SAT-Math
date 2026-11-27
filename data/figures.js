@@ -451,7 +451,7 @@ window.TD_FIG_SPECS = {
   // SR-229: 陡升直线 y=4x+1, grid -6..6
   'SR-229': {type:"chart",minor:{"x":1,"y":1},x:{"min":-6,"max":6,"step":2,"label":"x"},y:{"min":-6,"max":6,"step":2,"label":"y"},series:[{"kind":"line","points":[[-1.75,-6],[1.25,6]]}]},
   // SR-238: 下降直线 (graph of f(x)+19), y-int 3, x-int 1, grid x-5..5 y-1..12
-  'SR-238': {type:"chart",minor:{"x":1,"y":1},x:{"min":-5,"max":5,"step":2,"label":"x"},y:{"min":-1,"max":12,"step":2,"label":"y"},series:[{"kind":"line","points":[[-2,11],[1.5,-1]]}]},
+  'SR-238': {type:"chart",minor:{"x":1,"y":1},x:{"min":-5,"max":5,"step":2,"l0":-4,"label":"x"},y:{"min":-1,"max":12,"step":2,"l0":2,"label":"y"},series:[{"kind":"line","points":[[-2,11],[1.5,-1]]}]},
   // SR-239: 抛物线 y=2x^2+4x-6, vertex(-1,-8), roots -3/1, y-int -6
   'SR-239': {type:"chart",minor:{"x":1,"y":1},x:{"min":-6,"max":4,"step":2,"label":"x"},y:{"min":-10,"max":4,"step":2,"label":"y"},series:[{"kind":"line","points":[[-3.5,4.5],[-3.25,2.12],[-3.0,0.0],[-2.75,-1.88],[-2.5,-3.5],[-2.25,-4.88],[-2.0,-6.0],[-1.75,-6.88],[-1.5,-7.5],[-1.25,-7.88],[-1.0,-8.0],[-0.75,-7.88],[-0.5,-7.5],[-0.25,-6.88],[0.0,-6.0],[0.25,-4.88],[0.5,-3.5],[0.75,-1.88],[1.0,0.0],[1.25,2.12],[1.5,4.5]]},{"kind":"points","points":[[-2,-6],[0,-6],[-1,-8]]}]},
   // SR-241: 散点图 6 points decaying toward y=8

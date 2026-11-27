@@ -121,6 +121,12 @@ const PROFILES = [
     ['tdsat_progress_save_v1', JSON.stringify({ producer: 'tdsat-bluebook', version: 999, savedAt: 1e15, position: { sec: '1.1', n: 999 }, sections: [] })],
     ['tdsat_state_v1', 'null'],
   ]],
+  /* E：作答被清空、只剩 wrongLog 台账（第 23 条）。answers 为空时错题本仍必须留住
+     「曾经错过」的题；顺便给一条正常成绩记录，保证记录页不空。 */
+  ['E-wronglog-only', [
+    ['tdsat_app_v1', JSON.stringify({ sections: { L1: { answers: {}, wrongLog: { 'U1-01': { v: 'A', ts: 1700000000000 } } } }, last: null })],
+    ['tdsat_exam_suite_results_v1', JSON.stringify([{ date: 1700000000000, mode: 'quiz', unit: '1.1', total: 10, correct: 7, elapsed: 600, detail: [] }])],
+  ]],
 ];
 
 const PAGES = ['index.html', 'wrong.html', 'history.html', 'drill.html', 'exam.html?mode=mock', 'jiangyi.html'];

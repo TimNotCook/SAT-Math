@@ -558,7 +558,9 @@
     var xHasTicks = !x.cats;
     var labOut = [];   // tick labels are painted AFTER the data, so a line never cuts through the text
     var yLabPad = (o.yLabelPad != null ? o.yLabelPad : (zx != null ? 14 : 9));   // wider gutter when a data line runs near the axis
-    for (var gx2 = x.min; gx2 <= x.max + 1e-9; gx2 += x.step) {
+    /* l0: 标签起点的偏移 —— 书里网格从 -5 起、数字却从 -4 起标（SR-238）。 */
+    var gx0 = (x.l0 != null) ? x.l0 : x.min;
+    for (var gx2 = gx0; gx2 <= x.max + 1e-9; gx2 += x.step) {
       if (!xHasTicks) continue;
       if (x.labels && !x.labels.some(function (v) { return Math.abs(v - gx2) < 1e-9; })) continue;
       if (o.origin === 'O' && Math.abs(gx2) < 1e-9) continue;   // "O" is drawn below, left of the origin
@@ -570,7 +572,8 @@
       labOut.push(txt(PX(c[1]), PY(axYv) + 17, c[0], { size: 11, fill: FAINT }));
     });
     if (o.yAxis !== false) {
-      for (var gy2 = y.min; gy2 <= y.max + 1e-9; gy2 += y.step) {
+      var gy0 = (y.l0 != null) ? y.l0 : y.min;
+      for (var gy2 = gy0; gy2 <= y.max + 1e-9; gy2 += y.step) {
         if (y.labels && !y.labels.some(function (v) { return Math.abs(v - gy2) < 1e-9; })) continue;
         if (Math.abs(gy2) < 1e-9 && !y.showZero) continue;
         labOut.push(txt(PX(axXv) - yLabPad, PY(gy2) + 4, ytk(gy2), { anchor: 'end', size: 11, fill: FAINT, halo: o.axesAt === 'zero' }));
