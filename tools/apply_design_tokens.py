@@ -1,0 +1,19 @@
+"""把 tools/ 下的设计 token 同步进 glass.css（按 marker 整体替换，幂等）。
+
+用法：python3 tools/apply_design_tokens.py
+"""
+import io
+
+MARKER = "/* ==== study-theme v2"
+SOURCES = ["tools/study-theme.css", "tools/question-theme.css"]
+
+src = io.open("glass.css", encoding="utf-8").read()
+i = src.find(MARKER)
+base = (src[:i] if i != -1 else src).rstrip()
+
+blocks = [io.open(f, encoding="utf-8").read().strip() for f in SOURCES]
+out = base + "\n\n" + "\n\n".join(blocks) + "\n"
+out = out.replace("\n\n\n\n", "\n\n")
+assert out.count("{") == out.count("}"), "brace mismatch"
+io.open("glass.css", "w", encoding="utf-8").write(out)
+print("glass.css synced: %d bytes" % len(out))
