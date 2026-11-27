@@ -75,3 +75,14 @@ test('模考屏：is-mock 分支要把标题和 lang 一起切成英文', () => 
   // 抽查模式（mode=quiz）走同一页但不进 is-mock，标题应仍是中文
   assert.ok(/<title>SAT Math Prep · 抽查与模考<\/title>/.test(html), '抽查模式的中文标题要保留');
 });
+
+/* 开场页三个参数（题数 / 时长 / 模块）里，模块那格必须按「当前在第几个模块」显示。
+   固定写死 2 Modules 时，模块一已到期、刷新回开始页的人看不出自己已经在模块二，
+   点 Start 才发现（11-24 修过一次，渲染迁到 facts 行时又丢了）。 */
+test('模考开场页：模块参数按当前模块显示，不再固定写死模块总数', () => {
+  const js = read('exam.js');
+  assert.ok(!/'\s*\+\s*(?:\(2\)|2)\s*\+\s*'<\/b>Modules<\/span>'/.test(js),
+    '模块格不能固定写死 2 Modules');
+  assert.ok(/Number\(S\.module\)\s*===\s*2/.test(js), '模块格要按 S.module 取 1 / 2');
+  assert.ok(/of 2 modules/.test(js), '文案要能读出「第几个模块 of 2」');
+});

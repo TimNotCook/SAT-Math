@@ -85,6 +85,12 @@ const SCAN = `(()=>{
  return JSON.stringify(out);
 })()`;
 
+/* exam 页必须始终是 Bluebook 白纸：暗黑主题下卷面若被深底规则吃掉，
+   差分对比度反而会「全绿」（深底浅字），所以单独断言背景亮度。 */
+const BG_LUM = `(()=>{const m=getComputedStyle(document.body).backgroundColor.match(/[\\d.]+/g)||[];const r=+m[0],g=+m[1],b=+m[2];
+ const f=v=>{v=v/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};
+ return +((.2126*f(r)+.7152*f(g)+.0722*f(b)).toFixed(3))})()`;
+
 const PAGES = ['/index.html', '/drill.html', '/wrong.html', '/history.html', '/jiangyi.html', '/exam.html?mode=quiz&unit=1', '/exam.html?mode=mock'];
 // key 里不能带日期时间这类每次渲染都变的文本，否则 light/dark 对不上，差分失效
 const norm = (t) => String(t).replace(/[0-9][0-9/.:,\- ]*/g, '#').replace(/\s+/g, ' ').trim();
@@ -93,9 +99,10 @@ const KEY = (page, x) => `${page}|${norm(x.t)}|${x.cls}`;
 async function collect(theme) {
   await nav('/index.html');
   await ev(`localStorage.setItem('tdsat_theme','${theme}')`);
-  const map = new Map();
+  const map = new Map(); const white = {};
   for (const p of PAGES) {
     await nav(p);
+    if (p.startsWith('/exam.html')) white[p] = await ev(BG_LUM);
     const list = JSON.parse((await ev(SCAN)) || '[]');
     for (const x of list) map.set(KEY(p, x), x);
   }
@@ -103,6 +110,7 @@ async function collect(theme) {
   await nav('/exam.html?mode=mock');
   await ev(`document.getElementById('btnStart')&&document.getElementById('btnStart').click()`);
   await sleep(1500);
+  white.answer = await ev(BG_LUM);
   let list = JSON.parse((await ev(SCAN)) || '[]');
   for (const x of list) map.set(KEY('answer', x), x);
   await ev(`(()=>{const k='tdsat_exam_suite_session_v1';const s=JSON.parse(localStorage.getItem(k)||'null');if(!s)return false;
@@ -112,20 +120,31 @@ async function collect(theme) {
   await ev(`document.getElementById('btnStart')&&document.getElementById('btnStart').click()`);
   for (let i = 0; i < 80; i++) { if (await ev(`!!(document.getElementById('stage-result')&&!document.getElementById('stage-result').hidden)`)) break; await sleep(200); }
   await sleep(800);
+  white.result = await ev(BG_LUM);
   list = JSON.parse((await ev(SCAN)) || '[]');
   for (const x of list) map.set(KEY('result', x), x);
-  return map;
+  return { map, white };
 }
 
 const light = await collect('light');
 const dark = await collect('dark');
+const whiteFails = Object.entries(dark.white).filter(([, l]) => !(typeof l === 'number' && l >= 0.70));
+const map = dark.map;
 const regressions = [];
-for (const [k, x] of dark) if (!light.has(k)) regressions.push({ key: k, cr: x.cr });
+for (const [k, x] of map) if (!light.map.has(k)) regressions.push({ key: k, cr: x.cr });
+void light.white;
 
-const totalDarkLow = dark.size;
+const totalDarkLow = map.size;
 console.log('=== 暗黑可读性（差分口径）===');
-console.log(`light 下低于 AA 的可见文本：${light.size} 项（既有灰阶设计，作为基线放行）`);
+console.log(`light 下低于 AA 的可见文本：${light.map.size} 项（既有灰阶设计，作为基线放行）`);
 console.log(`dark  下低于 AA 的可见文本：${totalDarkLow} 项`);
+const wv = Object.entries(dark.white).map(([k, l]) => `${k.replace('/exam.html','')}=${l}`).join(' ');
+console.log(`dark  exam 页卷面亮度：${wv}`);
+if (whiteFails.length) {
+  console.log('❌ 暗黑下 exam 页卷面不再是白纸：');
+  for (const [k, l] of whiteFails) console.log('   ', k, 'bodyBg亮度=', l);
+}
+if (!Object.keys(dark.white).length) { console.log('❌ 白纸断言没采到样本'); process.exitCode = 1; }
 if (regressions.length) {
   console.log(`❌ dark 独有回归：${regressions.length} 项`);
   for (const r of regressions) console.log('   ', r.cr, '|', r.key);
@@ -134,4 +153,4 @@ if (regressions.length) {
 }
 
 cleanup();
-process.exit(regressions.length ? 1 : 0);
+process.exit((regressions.length || whiteFails.length) ? 1 : 0);

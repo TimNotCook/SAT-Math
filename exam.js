@@ -635,7 +635,10 @@
         mf.hidden = false;
         mf.innerHTML = '<span class="quiz-fact"><b>' + O.questionsPerModule + '</b>Questions</span>' +
           '<span class="quiz-fact"><b>' + (O.secondsPerModule / 60) + '</b>Minutes</span>' +
-          '<span class="quiz-fact"><b>' + (2) + '</b>Modules</span>';
+          /* 恢复 Module 2 时开场页要标当前模块：以前固定写「2 Modules」，
+             模块一已到期、刷新后回到开始页的人看不出自己已在模块二（点 Start
+             才发现），11-24 修过一次同类问题，渲染迁到 facts 行时又丢了。 */
+          '<span class="quiz-fact"><b>' + ((S && Number(S.module) === 2) ? 2 : 1) + '</b>of 2 modules</span>';
       }
       /* Directions 收成 details 可展开条；完整 Bluebook 原文仍在答题页左上角 Directions 弹窗里。 */
     } else {

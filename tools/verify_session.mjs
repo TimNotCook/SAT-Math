@@ -144,8 +144,12 @@ const base = await freshSave();
   delete old.m1Size; delete old.moduleEndsAt;
   old.module = 1; old.idx = 0; old.stage = 'answer';
   await loadSave(old);
-  const written = JSON.parse(await ev(`localStorage.getItem(${JSON.stringify(SK)})`));
-  check('old', '回写 m1Size=22', written.m1Size === 22, 'm1Size=' + written.m1Size);
+  /* 存档被清空时 JSON.parse(null) 是 null，直接读字段会把整个验收器崩掉，
+     这里改成可读的失败信息，顺便把「被清空」和「没补字段」区分开。 */
+  const rawWritten = await ev(`localStorage.getItem(${JSON.stringify(SK)})`);
+  const written = rawWritten ? JSON.parse(rawWritten) : null;
+  check('old', '回写 m1Size=22', !!written && written.m1Size === 22,
+    written ? 'm1Size=' + written.m1Size : '存档被清空 raw=' + String(rawWritten).slice(0, 80));
   const s2 = await stages();
   check('old', '开始页不是「存档已过期」提示', !/expired|已过期|重新开始/i.test(s2.notice || ''), s2.notice);
   await ev(`document.getElementById('btnStart').click()`); await sleep(800);
@@ -234,7 +238,7 @@ const base = await freshSave();
   /* 模块一超时不再往开场页写说明条（开场页零提示），只靠 toast；这里断言开场页是干净的。 */
   check('timeout-m1', '开始页不写说明条', !s6.noticeShown, s6.notice || '(hidden)');
   check('timeout-m1', '没有把题目直接摊开', !s6.answer && s6.intro, s6.answer ? 'answer' : 'intro');
-  check('timeout-m1', '开始页参数条也显示 Module 2', /2 of 2\s*Module|Module 2 of 2/.test(strip(s6.params)), s6.params);
+  check('timeout-m1', '开始页参数条标注当前是 2 of 2 模块', /2\s*of\s*2\s*modules/i.test(strip(s6.params)), s6.params);
   await shot('timeout-m1-intro');
   await ev(`document.getElementById('btnStart').click()`); await sleep(900);
   const a6 = await stages();

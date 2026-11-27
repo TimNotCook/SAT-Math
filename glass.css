@@ -451,7 +451,17 @@ html[data-theme="dark"] .site-rail .td-acct-btn.rail-settings:hover{background:r
    那就必须把浅色 token 也一起恢复：dark 的 --ink 是 #e8e8ea，白底上成绩页标题、
    副标题、CTA 文字对比度只剩 1.4:1，等于看不见。顺带把 rail 从深栏浅字改回白栏深字
    （rail 在 exam 页由 app.css 强制 #fff，dark 的 .site-rail 配色只适合深栏）。 */
+/* 只恢复 token 还不够：暗黑背景规则（[data-theme="dark"] body.exam-page 那段
+   深底 + 径向渐变）比 bluebook.css 里钉 #fff 的 body 规则特异性更高，卷面实际
+   仍是深底；而 --bb-* 是在 :root 里以 var(--ink) 声明、在 :root 就解析成
+   dark 的浅银字面值，改 body 上的 --ink 管不到它们。两处都得在这里补。 */
+html[data-theme="dark"]:has(body.exam-page){background-color:#fff!important;background-image:none!important}
 html[data-theme="dark"] body.exam-page{
+  background-color:#fff!important;background-image:none!important;background-size:auto!important;
+  --bb-ink:#16273f; --bb-sub:#5a6b85; --bb-muted:#5a6b85; --bb-faint:#8a99ae; --bb-fg:#16273f;
+  --bb-paper:#fff; --bb-white:#fff; --bb-accent:#1d3a5f; --bb-accent-strong:#12233f;
+  --bb-accent-soft:#eef2f7; --bb-border:#e4eaf2; --bb-line:#e4eaf2; --bb-line-soft:#f0f4f9;
+  --bb-hover:#f5f7fa; --bb-disabled:#e4eaf2; --bb-figure-tint:#f5f7fa; --bb-choice-hover:#eef2f7;
   --ink:#12233f; --ink-2:#28365a; --sub:#51648a; --faint:#8294b4;
   --line:#d2e0f1; --line-soft:#eef3fb; --line-strong:#bcd0e8;
   --paper:#fff; --wash:#eef4fd; --navy:#12233f; --navy-2:#1b3a66;

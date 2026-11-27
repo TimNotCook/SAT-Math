@@ -613,6 +613,11 @@ body.shell-drill .drill-board-panel{display:block!important}
   /* 分数是这页的主信息，窄屏不能藏；日期换行到标题下，避免「2026/11/26 13…」被切半 */
   .hist-score{display:block;font-size:13px;letter-spacing:-.01em}
   .hist-title small{display:block;margin:3px 0 0;font-size:11.5px}
+  /* 320 的卡片正文只有 99px 宽：标题行 nowrap + ellipsis 会把「官方模考 · 未交卷」
+     和日期都切掉，连省略号都显示不全（scrollWidth 146 vs clientWidth 99）。
+     窄屏允许换行，标题与日期各自完整显示。 */
+  .hist-title{white-space:normal;overflow:visible;text-overflow:clip;word-break:keep-all;overflow-wrap:anywhere}
+  .hist-title small{white-space:normal}
 }
 
 /* 线段上划线（题干里的 \overline{AB}）：用文本线，避免依赖 MathJax */
