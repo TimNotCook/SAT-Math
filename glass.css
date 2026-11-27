@@ -1614,13 +1614,13 @@ html:not([data-theme="dark"]) body.drill-page #resultView .drill-result-row:hove
 /* ==== result-blank-guard：两个收口 ====
    1) 任何一个“未作答”结果行，都不能把题库正确答案显示成“你的答案”
       （drill.js:91 的 answerLabel 会把 grid 题的 q.value 回填，样式层先兜住）
-   2) 讲义做题页图形卡：回到能正常渲染的写法（不要 width:auto + inline-block，
-      矢量图无内禀尺寸时会直接塔成 0×0），只保留纸面边框 */
+   2) 讲义做题页图形卡：左对齐题干、限宽不超过 500px（图不能占得比题干大）
+      注意不要用 width:auto + inline-block，矢量图无内禀尺寸时会塔成 0×0 */
 
 html:not([data-theme="dark"]) .drill-result-row.is-blank .drill-result-answers>div:first-child b{font-size:0!important;letter-spacing:0!important}
 html:not([data-theme="dark"]) .drill-result-row.is-blank .drill-result-answers>div:first-child b::after{content:"—"!important;font-size:14px!important;color:#c9c3b7!important;font-weight:500!important}
 
-html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure{display:block!important;width:100%!important;max-width:640px!important;margin:6px 0 18px!important;background:#fffdfa!important;border:1px solid #efebe2!important;border-radius:8px!important;box-shadow:none!important;padding:14px!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure{display:block!important;width:100%!important;max-width:500px!important;margin:6px 0 18px!important;background:#fffdfa!important;border:1px solid #efebe2!important;border-radius:8px!important;box-shadow:none!important;padding:14px!important}
 html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure svg{width:100%!important;height:auto!important;max-width:100%!important}
 html:not([data-theme="dark"]) body.jy-page #jyQuiz .td-figure img{width:100%!important;height:auto!important;max-width:100%!important}
 
