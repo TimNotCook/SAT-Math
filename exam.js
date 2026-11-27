@@ -575,8 +575,25 @@
       $('introUnitPick').innerHTML = '';
       const k0 = $('introKicker'); if (k0) k0.hidden = false;
       const f0 = $('quizCardFacts'); if (f0) { f0.hidden = true; f0.innerHTML = ''; }
-      /* 三个参数不再各占一张卡：并进主卡左侧，和抽查页同一套 facts 排版 */
-      $('introParams').innerHTML = '';
+      /* 参数并进主卡左侧；右侧换成「考试结构」，别再空着 */
+      $('introParams').classList.remove('mock-stats');
+      $('introParams').innerHTML = '<span class="quiz-scope-h">TEST STRUCTURE</span>' +
+        '<div class="ms-row"><span>Module 1</span><b>' + O.questionsPerModule + ' questions · ' + (O.secondsPerModule / 60) + ' min</b></div>' +
+        '<div class="ms-row"><span>Module 2</span><b>' + O.questionsPerModule + ' questions · ' + (O.secondsPerModule / 60) + ' min</b></div>' +
+        '<div class="ms-total"><span>Total</span><b>' + (O.questionsPerModule * 2) + ' questions · ' + (O.secondsPerModule * 2 / 60) + ' min</b></div>';
+      let mt = document.getElementById('mockCardTitle');
+      const copy0 = document.querySelector('#introStartCard .mock-card-copy');
+      if (copy0 && !mt) {
+        mt = document.createElement('strong');
+        mt.id = 'mockCardTitle'; mt.className = 'quiz-unit-name';
+        mt.textContent = 'Math · Practice Test';
+        const k = document.getElementById('introKicker');
+        copy0.insertBefore(mt, k ? k.nextSibling : copy0.firstChild);
+        const md = document.createElement('p');
+        md.id = 'mockCardDesc'; md.className = 'quiz-unit-desc';
+        md.textContent = 'Two modules, ' + O.questionsPerModule + ' questions each. Module 2 adapts to how you did on Module 1.';
+        mt.parentNode.insertBefore(md, mt.nextSibling);
+      }
       const mf = $('quizCardFacts');
       if (mf) {
         mf.hidden = false;

@@ -855,7 +855,7 @@ body.exam-page:has(#stage-intro.active) #btnStart{min-width:160px;min-height:44p
   font-size:14.5px;font-weight:700;letter-spacing:.01em}
 #introOptions{flex:0 0 100%;width:100%}
 #introOptions:empty{display:none}
-body.exam-page:has(#stage-intro.active) #introParams{display:none!important}
+body.exam-page:has(#stage-intro.active):not(.is-mock) #introParams{display:none!important}
 
 /* 专项开关：卡内隔一条细线，胶囊再轻一点 */
 body.exam-page:has(#stage-intro.active) .exam-special-panel{margin:14px 0 0!important;padding:14px 0 0!important;
@@ -1155,3 +1155,33 @@ html body.exam-page:not(.is-mock) #stage-result .res-grid>.exam-panel>h3{font-si
 html body.exam-page:not(.is-mock) #stage-result #resUnits{display:none!important}
 
 html body.exam-page:not(.is-mock) #stage-result .res-grid>.exam-panel:has(#resUnits){display:none!important}
+
+/* 模考开场：返回降级成文字链接，右侧补一张考试结构卡 */
+html body.exam-page #backPractice{background:transparent!important;border:0!important;box-shadow:none!important;color:#64748b!important;
+  font-size:13px!important;font-weight:600!important;padding:0!important;min-height:0!important;height:32px!important;display:inline-flex!important;align-items:center!important;gap:6px!important}
+html body.exam-page #backPractice:hover{color:#1d4ed8!important;background:transparent!important}
+html body.exam-page .mock-grid{display:grid!important;grid-template-columns:minmax(0,1fr) 300px!important;gap:18px!important;align-items:start!important}
+html body.exam-page #introParams{background:#fff!important;border:1px solid #e6ebf3!important;border-radius:14px!important;
+  padding:22px 24px!important;box-shadow:0 2px 8px rgba(15,23,42,.05)!important;display:block!important}
+html body.exam-page .ms-row{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:12px!important;
+  padding:11px 0!important;border-bottom:1px solid #f0f4f9!important}
+html body.exam-page .ms-row span{font-size:12.5px!important;color:#7b8798!important}
+html body.exam-page .ms-row b{font-size:12.5px!important;font-weight:700!important;color:#12233f!important;font-variant-numeric:tabular-nums}
+html body.exam-page .ms-total{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:12px!important;padding:12px 0 0!important}
+html body.exam-page .ms-total span{font-size:12.5px!important;color:#1d4ed8!important;font-weight:700!important}
+html body.exam-page .ms-total b{font-size:12.5px!important;font-weight:800!important;color:#1d4ed8!important}
+html body.exam-page #introTitle{font-size:30px!important;font-weight:800!important;letter-spacing:-.02em!important}
+html body.exam-page .mock-entry-head{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:8px!important}
+html body.exam-page:has(#stage-intro.active) #introParams{display:block!important}
+html body.exam-page .ms-row b,html body.exam-page .ms-total b{border-left:0!important;padding-left:0!important;background:none!important;box-shadow:none!important}
+html body.exam-page .ms-row span{flex:1 1 auto!important}
+html body.exam-page .mock-grid{align-items:stretch!important}
+html body.exam-page #introParams{display:flex!important;flex-direction:column!important;justify-content:center!important}
+html body.exam-page .ms-row span,html body.exam-page .ms-total span{border-right:0!important;border-left:0!important}
+html body.exam-page .ms-row span::after,html body.exam-page .ms-total span::after,
+html body.exam-page .ms-row b::after,html body.exam-page .ms-total b::after{content:none!important;display:none!important}
+html body.exam-page #introParams::after,html body.exam-page #introParams::before{display:none!important;content:none!important}
+html body.exam-page #introParams{align-self:stretch!important;height:auto!important;min-height:100%!important;box-sizing:border-box!important}
+html body.exam-page .mock-grid>.mock-main-card{align-self:stretch!important;height:auto!important}
+html body.exam-page #introParams{margin:0!important;gap:0!important}
+html body.exam-page #introParams{background-image:none!important}
