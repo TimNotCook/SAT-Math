@@ -16,7 +16,7 @@ SOURCES = [
 # 每页一份 theme：study(抽查开场) / question(答题) / intro(开场标题层) /
 # result(成绩) / catalog(练习首页) / archive(错题·记录空态)。
 # 改完任一份后推 main，本脚本会被 workflow 自动执行。
-# html 也要上纸色，否则视口高于内容时底部露 --bg 蓝灰。
+# html 上纸色 + 固定垫底：避免视口高于内容时底部露 --bg 蓝灰。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
