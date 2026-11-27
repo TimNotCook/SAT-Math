@@ -1599,3 +1599,9 @@ html body .kp-row:first-child{border-top:0!important}
    白底练习页上等于隐形；aria-live 播报的文字用户根本看不见（320 抽查发现）。 */
 /* 两个主题下答题态的上下文条都是白底（暗色主题只染顶栏），所以这里统一用深灰。 */
 .drill-save-status{color:#5b6b82!important}
+
+/* 触屏上成绩页两个 CTA 只有 40/41px 高（.btn 的 min-height:42 减去边框），
+   低于 HIG 的 44；这里只抬 #stage-result 里的按钮，不动别处的紧凑布局。 */
+@media (hover:none),(pointer:coarse){
+  html #stage-result #btnResHome, html #stage-result #btnResAgain{min-height:46px!important;height:auto!important}
+}
