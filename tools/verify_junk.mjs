@@ -185,6 +185,8 @@ for (const [pname, junk] of PROFILES) {
       var ids=['wrongList','histList','questionView','introView'];
       var out={};
       ids.forEach(function(id){ var el=document.getElementById(id); if(el) out[id]=String(el.textContent||'').trim().length; });
+      var body=String(document.body.innerText||'');
+      out.objLeak=body.indexOf('[object Object]')>=0;
       return out; })()`);
     const errs = events.filter((e) => e.kind === 'exception' || (e.kind === 'console' && !IGNORE_URL.test(e.text) && !/Failed to load resource/i.test(e.text)));
     summary.push(`${p}: 异常/错误 ${errs.length} 项 · 容器字数 ${JSON.stringify(probe)}`);
@@ -200,6 +202,7 @@ for (const [pname, junk] of PROFILES) {
     }
     if (p === 'wrong.html' && probe && probe.wrongList === 0) offenders.push({ profile: pname, page: p, errs: [{ text: '#wrongList 空白' }] });
     if (p === 'history.html' && probe && probe.histList === 0) offenders.push({ profile: pname, page: p, errs: [{ text: '#histList 空白' }] });
+    if (probe && probe.objLeak) offenders.push({ profile: pname, page: p, errs: [{ text: '页面正文出现 [object Object]' }] });
   }
 }
 
