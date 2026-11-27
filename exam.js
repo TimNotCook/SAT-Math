@@ -1172,9 +1172,9 @@
     $('resTitle').textContent = OFFICIAL ? 'Score Report' : modeTxt + ' · 成绩报告';
     $('resSub').textContent = dateTxt + ' · ' +
       (OFFICIAL
-        ? ((r.auto ? 'Auto-submitted when time expired' : 'Submitted manually') + ' · Answers locked' +
+        ? ((isTrueFlag(r.auto) ? 'Auto-submitted when time expired' : 'Submitted manually') + ' · Answers locked' +
            (MODE === 'mock' ? ' · Module 2 path: ' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : 'not reached') : ''))
-        : ((r.auto ? '计时归零自动交卷' : '手动交卷') + ' · 答案已锁定' +
+        : ((isTrueFlag(r.auto) ? '计时归零自动交卷' : '手动交卷') + ' · 答案已锁定' +
            (MODE === 'mock' ? ' · Module 2 路径：' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : '未进入') : '')));
     /* 只有模考换算 200–800 分；单元抽测只展示正确率，不出分、不折成 44 题。 */
     const isMock = MODE === 'mock';
