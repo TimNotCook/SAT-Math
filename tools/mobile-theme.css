@@ -1,0 +1,61 @@
+/* ==== mobile-theme：≤999px 手机端的纸面重排（不碰桌面） ==== */
+@media (max-width:999px){
+  html,body{overflow-x:hidden!important}
+
+  /* 顶栏：紧凑、可横向滑动，不再把文字挤出屏外 */
+  .site-rail{flex-wrap:wrap!important;gap:2px 2px!important;padding:8px 10px!important}
+  .site-rail .rail-brand{font-size:12.5px!important;padding:6px 8px 6px 4px!important;flex:0 0 auto!important}
+  .site-rail a{font-size:12px!important;padding:7px 8px!important;white-space:nowrap!important}
+  .site-rail .rail-back{display:none!important}
+
+  /* 统一留白 */
+  body.site-shell main,
+  body.site-shell .drill-select,
+  body.site-shell .exam-stage-main,
+  body.site-shell #stage-intro,
+  body.site-shell #stage-review,
+  body.site-shell .drill-select-inner,
+  body.site-shell .page-head,
+  body.site-shell .wrong-toolbar,
+  body.site-shell .hist-list{max-width:100%!important;width:100%!important;padding-left:18px!important;padding-right:18px!important;box-sizing:border-box!important}
+  body.site-shell h1,
+  body.site-shell h2,
+  body.site-shell p,
+  body.site-shell .tile-name{overflow-wrap:anywhere!important}
+
+  /* 抽测开场：卡内单列堆叠 */
+  #stage-intro .mock-grid{display:block!important;grid-template-columns:1fr!important;gap:18px!important}
+  #stage-intro .mock-main-card{padding:22px 20px 26px!important;border-radius:10px!important}
+  #stage-intro .quiz-unit-name{font-size:24px!important}
+  #stage-intro .quiz-scope{border-left:0!important;border-top:1px solid #efebe2!important;padding:18px 0 0!important;margin:20px 0 0!important}
+  #stage-intro #btnStart{width:100%!important;justify-content:center!important;height:44px!important}
+  #stage-intro .quiz-tabs{flex-wrap:nowrap!important;overflow-x:auto!important;gap:22px!important;scrollbar-width:none}
+  #stage-intro .quiz-tabs::-webkit-scrollbar{display:none}
+  #stage-intro .unit-art{display:none!important}
+  #stage-intro .exam-special-chips{gap:14px!important;flex-wrap:wrap!important}
+
+  /* 错题/记录：工具条竖排、说明可换行 */
+  .page-head{flex-wrap:wrap!important;gap:8px 12px!important;align-items:flex-start!important}
+  .page-head #backPractice{display:none!important}
+  body.shell-wrong .wrong-toolbar{flex-direction:column!important;align-items:flex-start!important;gap:10px!important;padding:12px 0!important}
+  body.shell-wrong .wrong-toolbar .small.muted{white-space:normal!important;font-size:11px!important;line-height:1.55!important;max-width:100%!important}
+  body.shell-wrong .unit-filter{flex-wrap:nowrap!important;overflow-x:auto!important;max-width:100%!important}
+  .hist-empty{padding:38px 18px 34px!important;border-radius:10px!important}
+  .hist-empty .he-d,
+  body.shell-wrong .he-d{font-size:12px!important;max-width:100%!important}
+
+  /* 目录行：编号列收窄，标题不再抢行 */
+  .tile-section .tile-code{flex:0 0 34px!important;width:34px!important;font-size:10.5px!important}
+  .tile-section .tile-name{font-size:13.5px!important}
+  .tile-section .tile-state{font-size:10.5px!important}
+  .tile-section{gap:10px!important;padding:12px 2px!important}
+
+  /* 模考 review 表格：横向滚动而不爆屏 */
+  #stage-review .exam-table-wrap{overflow-x:auto!important}
+  #stage-review .rev-table{min-width:520px!important}
+  #stage-review .rev-meta{gap:14px!important;font-size:11px!important}
+
+  /* 成绩页数字 */
+  #stage-result .score-num{font-size:56px!important}
+  #stage-result .kp-row{grid-template-columns:minmax(0,1fr) 60px auto!important;gap:12px!important}
+}
