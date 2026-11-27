@@ -90,11 +90,14 @@
       }
       var sub = J.submittedOf(s);
       var state = sub ? 'is-done' : (x.answered ? 'is-active' : 'is-new');
-      var tier = x.total >= 20 ? 'tile-lg' : x.total >= 10 ? 'tile-md' : 'tile-sm';
+        function stateLabel(state){
+    return state === 'is-done' ? '已完成' : state === 'is-active' ? '进行中' : '未开始';
+  }
+        var tier = x.total >= 20 ? 'tile-lg' : x.total >= 10 ? 'tile-md' : 'tile-sm';
       return '<a class="tile-section drill-section-row ' + tier + ' ' + state + '" href="#" data-sec="' + esc(s) + '"' + (sub ? ' data-result="1"' : '') + '>' +
         '<span class="tile-code">' + esc(s) + '</span>' +
         '<span class="tile-name">' + esc(x.cn || '未命名小节') + '</span>' +
-        '<span class="tile-dot ' + state + '"></span></a>';
+        '<span class="tile-state ' + state + '">' + (state === 'is-done' ? '已完成' : state === 'is-active' ? '进行中' : '未开始') + '</span></a>';
     }).join('') : '<p class="jy-empty">该板块暂无小节数据。</p>';
     els.jySectionList.querySelectorAll('[data-sec]').forEach(function (a) {
       a.addEventListener('click', function (e) { e.preventDefault(); openSection(id, a.dataset.sec); });

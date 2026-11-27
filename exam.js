@@ -72,7 +72,7 @@
     1: '线性方程与函数图像 · 一元一次方程 · 线性不等式 · 绝对值方程',
     2: '比例与百分比 · 单位换算 · 统计图表 · 数据推理',
     3: '二次函数与方程 · 指数与根式 · 多项式与因式分解',
-    4: '面积与体积 · 坐标几何 · 直角三角形 · 圆与角'
+    4: '平行线与角度 · 相交直线与对顶角 · 直线方程与夹角 · 相似三角形'
   };
   const T = (zh, en) => (OFFICIAL ? en : zh);     // 模考层纯英文：docs/UI-COPY.md v1.1
   const UNIT_EN = { 1: 'Heart of Algebra', 2: 'Problem Solving & Data Analysis', 3: 'Advanced Math', 4: 'Geometry & Trigonometry' };
@@ -609,7 +609,7 @@
         mf.hidden = false;
         mf.innerHTML = '<span class="quiz-fact"><b>' + O.questionsPerModule + '</b>Questions</span>' +
           '<span class="quiz-fact"><b>' + (O.secondsPerModule / 60) + '</b>Minutes</span>' +
-          '<span class="quiz-fact"><b>' + introMod + ' of 2</b>Module</span>';
+          '<span class="quiz-fact"><b>' + (2) + '</b>Modules</span>';
       }
       /* Directions 收成 details 可展开条；完整 Bluebook 原文仍在答题页左上角 Directions 弹窗里。 */
     } else {
@@ -658,7 +658,8 @@
           if (facts && facts.parentNode) facts.parentNode.insertBefore(desc, facts);
           else name.parentNode.insertBefore(desc, name.nextSibling);
         }
-        desc.textContent = UNIT_BLURB[QUIZ_UNIT] || '';
+        /* 范围说明和下面「涵盖考点」是同一批名字，重复一遍只会显得啰嗦：这行收掉 */
+        desc.remove();
         /* 右侧「涵盖考点」：只列考点名，不显示题量 */
         let scope = document.getElementById('quizScope');
         const card = document.getElementById('introStartCard');
@@ -669,13 +670,25 @@
           copy.parentNode.insertBefore(scope, copy.nextSibling);
         }
         if (scope) {
+          /* 题库里的 topic 常带「· 第 3 题」这类逐题尾巴，直接列会变成六条重复；
+             先洗掉尾巴再去重，不够四条用本单元的范围名补齐（只列名字，不列题量）。 */
           const seen = [];
-          BANK.filter(q => q.unit === QUIZ_UNIT && q.topic && /^[0-9]/.test(q.topic)).forEach(q => {
-            const t = String(q.topic).replace(/^[0-9.]+\s*/, '').trim();
-            if (t && seen.indexOf(t) < 0) seen.push(t);
+          const push = t => {
+            t = String(t || '').trim();
+            if (!t) return;
+            /* 同一考点在题库里常写成「平行线与垂直」「平行线被截线所截求角」这类近义变体，
+               按前三个字收口，省得列出一堆读起来一样的条目 */
+            const key = t.slice(0, 3);
+            if (seen.some(x => x.slice(0, 3) === key) || seen.indexOf(t) >= 0) return;
+            seen.push(t);
+          };
+          BANK.filter(q => q.unit === QUIZ_UNIT && q.topic).forEach(q => {
+            push(String(q.topic).replace(/^[0-9.]+\s*/, '').replace(/\s*·\s*第\s*\d+\s*题.*$/, '')
+              .replace(/（填空）/g, '').replace(/[：:]\s*[^·]*$/, ''));
           });
+          String(UNIT_BLURB[QUIZ_UNIT] || '').split('·').forEach(push);
           scope.innerHTML = '<span class="quiz-scope-h">涵盖考点</span><ul>' +
-            seen.slice(0, 6).map(t => '<li><i></i>' + esc(t) + '</li>').join('') + '</ul>';
+            seen.slice(0, 4).map(t => '<li><i></i>' + esc(t) + '</li>').join('') + '</ul>';
         }
         /* 主按钮收进左栏，标题/说明/数字/按钮一条竖线下来 */
         const btn = document.getElementById('btnStart');

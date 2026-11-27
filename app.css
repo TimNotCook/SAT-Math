@@ -1208,3 +1208,150 @@ body.exam-page:not(.is-mock) .mock-main-card{grid-template-areas:"copy scope" "o
   column-gap:40px!important;row-gap:0!important}
 body.exam-page:not(.is-mock) .quiz-scope{border-left:1px solid #eff3f8!important;padding-left:34px!important}
 body.exam-page:not(.is-mock) .exam-special-panel{margin-top:18px!important;padding-top:14px!important}
+
+/* =====================================================================
+   2026-11-27 细节统一（总监第五次「不细致」后的自查批）
+   1) 全站内容列统一到 rail 右侧 44px 起、宽 976，任何页面标题/卡片左缘都是 260
+   2) 磁贴全部等高、三列、状态改文字
+   3) 模考「1 of 2」语义与竖分隔线
+   ===================================================================== */
+
+/* ---- 内容列：drill / 抽查 / 模考 都对齐到 x=260 ---- */
+html body .drill-select{width:min(976px,calc(100% - 88px))!important;margin:0 auto!important}
+html body.exam-page .mock-entry,html body.exam-page .exam-start-main{max-width:none!important}
+html body.site-shell .drill-select-inner{max-width:none!important;padding-left:0!important;padding-right:0!important}
+html body.exam-page .mock-entry{padding-left:44px!important;padding-right:44px!important}
+html body.shell-wrong .wrap{padding-left:44px!important;padding-right:44px!important;max-width:none!important}
+
+/* 各页大标题统一：38px，上留 44，下留 22 */
+html body.site-shell h1{font-size:38px!important;line-height:1.18!important;font-weight:650!important;letter-spacing:0!important}
+html body .drill-select{padding-top:44px!important}
+html body.shell-wrong .wrap{padding-top:44px!important}
+
+/* ---- 磁贴：等高、三列 ---- */
+html body .tile-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;grid-auto-flow:row!important}
+html body .tile-grid .tile-section{grid-column:auto!important;min-height:0!important;height:112px!important;
+  padding:16px 18px 14px!important;justify-content:flex-start!important;gap:0!important}
+html body .tile-grid .tile-code{position:static!important;display:block!important;font-size:11px!important;
+  color:#a8b4c6!important;letter-spacing:.02em;line-height:1!important;margin-bottom:14px!important}
+html body .tile-grid .tile-name{font-size:15.5px!important;font-weight:650!important;line-height:1.42!important;
+  padding-right:0!important;margin:0!important}
+html body .tile-grid .tile-name::after{content:"";display:none}
+html body .tile-grid .tile-state{position:absolute;left:18px;bottom:14px;font-size:11px;font-weight:700;
+  letter-spacing:.02em;color:#b4bfcd;line-height:1}
+html body .tile-grid .tile-state.is-active{color:#2563eb}
+html body .tile-grid .tile-state.is-done{color:#0f9d58}
+html body .tile-grid .tile-dot{display:none!important}
+html body .tile-grid .tile-section.tile-lg .tile-name,
+html body .tile-grid .tile-section.tile-md .tile-name{font-size:15.5px!important;line-height:1.42!important}
+html body .tile-grid .tile-section.tile-lg,
+html body .tile-grid .tile-section.tile-md{grid-column:auto!important;min-height:0!important;height:112px!important}
+
+@media(max-width:1199px){
+  html body .tile-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:480px){
+  html body .tile-grid{grid-template-columns:1fr!important}
+  html body .tile-grid .tile-section{height:auto!important;min-height:96px!important}
+}
+
+/* ---- 模考 facts 的竖分隔线：和数字块同高，不再半截 ---- */
+html body.exam-page #quizCardFacts .quiz-card-facts,
+html body.exam-page .quiz-card-facts{align-items:stretch!important}
+html body.exam-page .quiz-card-facts .quiz-fact{display:flex!important;flex-direction:column!important;justify-content:flex-start!important}
+
+/* ---- 模考主卡：上下内距对称 ---- */
+html body.exam-page .mock-main-card{padding:32px 34px!important}
+html body.exam-page .mock-card-copy #btnStart{margin-top:24px!important}
+
+/* ---- 抽查卡：撤掉半截竖线，靠留白分栏 ---- */
+html body.exam-page:not(.is-mock) .quiz-scope{border-left:0!important;padding-left:0!important}
+html body.exam-page:not(.is-mock) .mock-main-card{grid-template-columns:minmax(0,1fr) 288px!important;column-gap:48px!important}
+html body.exam-page:not(.is-mock) .quiz-scope{grid-area:scope!important}
+html body.exam-page:not(.is-mock) .mock-card-copy{grid-area:copy!important}
+html body.exam-page:not(.is-mock) #introOptions{grid-area:opts!important}
+html body.exam-page:not(.is-mock) .mock-main-card{grid-template-areas:"copy scope" "opts scope"!important}
+html body.exam-page:not(.is-mock) .quiz-scope-h{display:block!important;font-size:11.5px!important;letter-spacing:.12em!important;
+  color:#9aa6b8!important;font-weight:700!important;margin:0 0 14px!important}
+html body.exam-page:not(.is-mock) .quiz-scope li{gap:10px!important;padding:5px 0!important}
+
+/* ---- 错题回顾：右上「返回」跟模考页同口径，不再是实心蓝块 ---- */
+body.shell-wrong #backPractice{display:inline-flex!important;align-items:center!important;background:transparent!important;
+  border:0!important;box-shadow:none!important;color:#64748b!important;font-size:13px!important;font-weight:600!important;
+  padding:6px 2px!important;min-height:0!important;border-radius:0!important}
+body.shell-wrong #backPractice:hover{color:#1d4ed8!important;background:transparent!important;text-decoration:none}
+body.shell-wrong #backPractice::before{content:"← "}
+body.shell-wrong .page-head{align-items:center!important}
+
+/* ---- 记录页空态：别把一句话摊进 976 宽的盒子 ---- */
+body.shell-history .hist-empty{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+body.shell-history .hist-list>.hist-empty{border:1px solid #e6ebf3!important;background:#fff!important;border-radius:16px!important;
+  padding:44px 32px!important;box-shadow:0 1px 2px rgba(15,23,42,.04)!important;display:flex!important;flex-direction:column!important;
+  align-items:center!important;gap:10px!important;text-align:center!important}
+body.shell-history .hist-list>.hist-empty .he-t{font-size:20px!important;font-weight:700!important;color:#12233f!important;line-height:1.3}
+body.shell-history .hist-list>.hist-empty .he-d{font-size:13.5px!important;color:#7b8798!important;line-height:1.7;max-width:46ch;margin:0}
+body.shell-history .hist-list>.hist-empty .btn{margin-top:10px!important}
+
+/* ---- 侧栏尾部（返回 + 设置）与导航项同节奏 ---- */
+html body .rail-tail{margin-top:2px!important;gap:2px!important}
+html body .site-rail .rail-sep{margin:12px 8px!important}
+html body .site-rail .td-acct-btn.rail-settings{padding:10px 12px!important;border-radius:9px!important;height:auto!important;
+  min-height:0!important;font-size:14px!important}
+
+/* ---- 真题练习右上装饰圆环：和内容无关，桌面也撤 ---- */
+body.shell-drill .hero-deco{display:none!important}
+
+/* 抽查卡铺满整行：右侧考点栏在卡内，别再让卡片只占 670 → 右边空 300 */
+html body.exam-page:not(.is-mock) .mock-grid{grid-template-columns:minmax(0,1fr)!important}
+html body.exam-page:not(.is-mock) .mock-main-card{width:100%!important}
+html body.exam-page:not(.is-mock) .mock-main-card{grid-template-columns:minmax(0,1fr) 300px!important}
+/* 竖排数字块：去掉行高的额外留白，分隔线才和字顶/字底对齐 */
+html body.exam-page .quiz-card-facts .quiz-fact b{line-height:1!important}
+html body.exam-page .quiz-card-facts .quiz-fact{gap:4px!important}
+
+/* 抽查卡栅格：显式落位，别靠 auto-placement（会莫名缩成 140 宽、贴到右边缘） */
+html body.exam-page:not(.is-mock) .mock-main-card{grid-template-columns:minmax(0,1fr) 300px!important;
+  grid-template-areas:"copy scope" "opts opts"!important;column-gap:48px!important}
+html body.exam-page:not(.is-mock) .mock-card-copy{grid-area:copy!important}
+html body.exam-page:not(.is-mock) #introOptions{grid-area:opts!important}
+html body.exam-page:not(.is-mock) .quiz-scope{grid-area:scope!important;display:block!important;width:auto!important;
+  max-width:none!important;margin:0!important;align-self:start!important;justify-self:stretch!important}
+html body.exam-page:not(.is-mock) .quiz-scope ul{margin:0!important}
+/* 数字块的竖分隔线只跟内容等高，别再拉长到行高 */
+html body.exam-page .quiz-card-facts .quiz-fact{align-self:flex-start!important}
+html body.exam-page:not(.is-mock) .quiz-scope{grid-column:2/3!important;grid-row:1/2!important}
+
+/* 抽查卡：改用 flex 两栏（grid 被历史规则搅成三列，1fr 只分到 257）；
+   copy 自适应、考点固定 300、组卷范围整行 */
+html body.exam-page:not(.is-mock) .mock-main-card{display:flex!important;flex-wrap:wrap!important;
+  align-items:flex-start!important;column-gap:48px!important;row-gap:0!important}
+html body.exam-page:not(.is-mock) .mock-card-copy{flex:1 1 0!important;min-width:0!important;width:auto!important}
+html body.exam-page:not(.is-mock) .quiz-scope{flex:0 0 300px!important;width:300px!important;min-width:300px!important;
+  margin:0!important;grid-area:auto!important}
+html body.exam-page:not(.is-mock) #introOptions{flex:0 0 100%!important;width:100%!important;margin-top:0!important}
+
+/* ============ 抽查卡：单栏纵向排布（两栏留白太空，撤栏改行） ============ */
+html body.exam-page:not(.is-mock) .mock-main-card{display:flex!important;flex-direction:column!important;
+  flex-wrap:nowrap!important;align-items:stretch!important;gap:0!important}
+html body.exam-page:not(.is-mock) .mock-card-copy{order:1!important;flex:0 0 auto!important;width:100%!important}
+html body.exam-page:not(.is-mock) .quiz-scope{order:2!important;flex:0 0 auto!important;width:100%!important;min-width:0!important;
+  margin:0!important;padding:0!important;border:0!important;display:block!important}
+html body.exam-page:not(.is-mock) #introOptions{order:3!important;flex:0 0 auto!important;width:100%!important;margin-top:0!important}
+/* 考点：两列流动，不再是靠右的窄条 */
+html body.exam-page:not(.is-mock) .quiz-scope{display:flex!important;flex-direction:column!important;
+  border-top:1px solid #eff3f8!important;margin-top:26px!important;padding-top:18px!important}
+html body.exam-page:not(.is-mock) .quiz-scope-h{margin:0 0 12px!important}
+html body.exam-page:not(.is-mock) .quiz-scope ul{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px 40px!important}
+html body.exam-page:not(.is-mock) .quiz-scope li{display:flex!important;align-items:center!important;gap:9px!important;
+  font-size:12.5px!important;color:#55637a!important}
+html body.exam-page:not(.is-mock) .exam-special-panel{margin-top:20px!important}
+
+/* 数字块：撤掉竖分隔线（历史规则里它总被拉成 60px，和字底对不上），靠 40px 留白分块 */
+html body.exam-page .quiz-card-facts .quiz-fact{border-right:0!important;padding-right:0!important;margin-right:40px!important}
+html body.exam-page .quiz-card-facts .quiz-fact:last-child{margin-right:0!important}
+html body.exam-page:not(.is-mock) .mock-main-card>*{width:100%!important;max-width:none!important}
+html body.exam-page:not(.is-mock) .quiz-scope ul{width:100%!important}
+html body.exam-page:not(.is-mock) .exam-special-panel{width:100%!important}
+html body.exam-page:not(.is-mock) .exam-special-chips{width:100%!important}
+body.shell-history .hist-list>.hist-empty .he-d{max-width:62ch!important}

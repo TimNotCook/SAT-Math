@@ -192,7 +192,11 @@
     var results = (load(RESULTS) || []).filter(function (r) { return isRec(r) && !finishedFlag(r.void); }).sort(byDateDesc);
     var abandoned = (load(ABANDONED) || []).filter(function (r) { return isRec(r) && unfinishedFlag(r.finished); }).sort(byDateDesc);
     if (!results.length && !abandoned.length) {
-      box.innerHTML = '<div class="hist-empty">还没有模考或抽查记录。去<a href="exam.html?mode=mock" style="color:var(--blue-strong)">做一次模考</a>，交卷后这里会出现成绩、错题与补强报告。</div>';
+      box.innerHTML = '<div class="hist-empty">' +
+        '<div class="he-t">还没有模考或抽查记录</div>' +
+        '<p class="he-d">做完一次模考或抽查，交卷后成绩、错题和补强报告都会出现在这里。</p>' +
+        '<a class="btn primary" href="exam.html?mode=mock">去做一次模考</a>' +
+        '</div>';
       return;
     }
     /* 未做完的排在最上面，之后按时间倒序混排已交卷记录 */

@@ -129,6 +129,9 @@
     if (total >= 10) return 'tile-md';
     return 'tile-sm';
   }
+  function stateLabel(state){
+    return state === 'is-done' ? '已完成' : state === 'is-active' ? '进行中' : '未开始';
+  }
   function sectionTile(s) {
     var st = A.stats(s);
     var saved = A.secState(s, false) || {};
@@ -147,7 +150,7 @@
       (done ? ' data-result="1"' : '') + '>' +
       '<span class="tile-code">' + esc(s) + '</span>' +
       '<span class="tile-name">' + esc(name) + '</span>' +
-      '<span class="tile-dot ' + state + '" aria-hidden="true"></span></a>';
+      '<span class="tile-state ' + state + '">' + stateLabel(state) + '</span></a>';
   }
   function rowsHtml(ids) {
     return ids.map(sectionTile).join('');
@@ -170,7 +173,7 @@
       return '<a class="tile-section drill-section-row tile-sm is-new" href="jiangyi.html?b=JY' + n + '&i=1">' +
         '<span class="tile-code">JY' + n + '</span>' +
         '<span class="tile-name">讲义 JY' + n + '</span>' +
-        '<span class="tile-dot is-new" aria-hidden="true"></span></a>';
+        '<span class="tile-state is-new">未开始</span></a>';
     }).join('');
   }
   function jiangyiTiles() {
@@ -197,7 +200,7 @@
           '&s=' + encodeURIComponent(sec) + '&i=' + cur + '">' +
           '<span class="tile-code">' + esc(sec) + '</span>' +
           '<span class="tile-name">' + esc(ss.cn || sec) + '</span>' +
-          '<span class="tile-dot ' + state + '" aria-hidden="true"></span></a>';
+          '<span class="tile-state ' + state + '">' + stateLabel(state) + '</span></a>';
       }).join('');
       var g = J.groupStats(b.id);
       if (g && g.total) {
@@ -205,7 +208,7 @@
           '&s=' + encodeURIComponent(g.key) + '&i=1">' +
           '<span class="tile-code">' + esc(g.key) + '</span>' +
           '<span class="tile-name">' + esc(g.label) + '</span>' +
-          '<span class="tile-dot is-new" aria-hidden="true"></span></a>';
+          '<span class="tile-state is-new">未开始</span></a>';
       }
       html += '<div class="tile-group"><h2 class="drill-group-h">' + esc(b.cn || b.en) + '</h2><div class="tile-grid">' + rows + '</div></div>';
     });
