@@ -863,8 +863,14 @@
     if (mode === 'mock') {
       /* 官方卷只有两种合法形态：22 题（只在 Module 1）/ 44 题（两模块） */
       if (n !== per && n !== total) return fail('shape');
-      if (n === per && s.module === 2) return fail('shape');   // 模块二却没有模块一的卷：不可重建
       if (s.m1Size != null && Number(s.m1Size) !== per) return fail('m1');
+      /* 22 题只能停在模块一，44 题只能是已进模块二；反过来都是无法重建的形态。
+         旧存档/云端合并里的 module 可能是字符串 "2"，先归一化再判，否则 44 题
+         会被当成模块一，只显示前 22 题。 */
+      const mod = Number(s.module) === 2 ? 2 : 1;
+      if (n === per && mod !== 1) return fail('shape');   // 模块二却没有模块一的卷：不可重建
+      if (n === total && mod !== 2) return fail('shape');  // 44 题却标模块一：再进模块二会重复拼卷
+      s.module = mod;
       m1 = per;
       /* 22 题且仍在模块一：m2Options 既要存在，也要每个候选题都是合法实例。
          只查 Array.isArray 不够——云端合并/旧版本可能塞进 null 或字符串，进入

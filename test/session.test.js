@@ -77,6 +77,22 @@ describe('parseSession：单元抽查存档不得跨单元恢复', () => {
   });
 });
 
+describe('parseSession：模考卷面长度与模块必须对得上', () => {
+  test('44 题却标模块一 → 过期，绝不再进模块二重复拼卷', () => {
+    const s = baseSave({ paper: paper(44), module: 1, m2Options: null });
+    const r = C.parseSession(s, { mode: 'mock', isQuestionId: () => true });
+    assert.equal(r.status, 'expired');
+    assert.equal(r.reason, 'shape');
+  });
+  test('44 题、module 是字符串 "2" → 归一化后仍可恢复', () => {
+    const s = baseSave({ paper: paper(44), module: '2', m2Options: null });
+    const r = C.parseSession(s, { mode: 'mock', isQuestionId: () => true });
+    assert.equal(r.status, 'ok');
+    assert.equal(r.session.module, 2);
+    assert.equal(r.session.m1Size, PER);
+  });
+});
+
 describe('parseSession：m2Options 里的候选题必须是合法实例', () => {
   test('hard 里夹 null → 整份存档判过期，绝不拼进卷面', () => {
     const s = baseSave();

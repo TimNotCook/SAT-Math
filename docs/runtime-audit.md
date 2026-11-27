@@ -406,3 +406,13 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`tools/verify_quiz_unit.mjs` 种一场 Unit 1、24 题、模块一进行中的抽查存档，再进 Unit 2 点 Start；旧代码恢复出 `unitId=1`、24/24 题不属于 Unit 2，新代码 `unitId=2`、28 题全部属于 Unit 2、0 异常。`test/session.test.js` +2 条（跨单元 → `expired/unit`，同单元仍 `ok`）。
 
 回归：`node --test` 320/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。
+
+## 第 32 条：44 题却标模块一 → 模块一计时到点就崩在 enterModule2（2026-11-27）
+
+`parseSession` 只按卷面长度 22/44 放行，不看 `module`。旧存档或云端合并留下「44 题 + `module:1` + `m2Options:null`」时，恢复后只显示前 22 题，模块一倒计时一到，`enterModule2()` 去取 `S.m2Options[path]`，直接 `Cannot read properties of null (reading 'easy')`；更隐蔽的是 `module` 被写成字符串 `"2"`，会被当成模块一，44 题只显示前一半。
+
+修法：模考存档先归一化 `module`（`Number(...)===2`），22 题必须停在模块一、44 题必须已在模块二，反向形态一律判 `expired/shape`；44 题 + 字符串 `"2"` 归一化后正常恢复。
+
+验证：`tools/verify_paper_shape.mjs` 种 44 题、`module:1`、`m2Options:null`、模块一已超时的存档，点 Start；旧代码抛 `reading 'easy'`，新代码判过期后重开 22 题模块一卷、0 异常、正文 381 字。`test/session.test.js` +2 条（44 题标模块一 → `shape`；字符串 `"2"` → 正常 `ok` 且 `m1Size=22`）。
+
+回归：`node --test` 322/0；`verify_junk` 11×7；`verify_exam_timeout` 13/13。
