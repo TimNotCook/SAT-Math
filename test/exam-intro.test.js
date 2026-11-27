@@ -64,3 +64,14 @@ test('模考屏：is-mock 分支必须有 enNav，且覆盖侧栏五条中文', 
   assert.ok(html.includes("'← 返回真题练习':'← Back to Practice'"), 'rail-back 也要英文化');
   assert.ok(html.includes("rail.setAttribute('aria-label','Site navigation')"), '侧栏 aria-label 也要英文');
 });
+
+/* 模考屏 100% 英文（docs/UI-COPY.md v1.2）不只管页内文案：浏览器标签标题会出现在
+   任务切换器、分享卡片上，html lang 决定屏幕阅读器用哪种音读。两者原本都留在中文。 */
+test('模考屏：is-mock 分支要把标题和 lang 一起切成英文', () => {
+  const html = read('exam.html');
+  assert.ok(html.includes('document.title="SAT Math Prep · Practice Test"'),
+    '模考模式必须改英文标题，别让「抽查与模考」露出标签页');
+  assert.ok(/document\.documentElement\.lang="en"/.test(html), '模考模式必须把 html lang 切成 en');
+  // 抽查模式（mode=quiz）走同一页但不进 is-mock，标题应仍是中文
+  assert.ok(/<title>SAT Math Prep · 抽查与模考<\/title>/.test(html), '抽查模式的中文标题要保留');
+});
