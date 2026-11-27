@@ -1197,7 +1197,8 @@
        成绩页日期会变成 —。数字字符串先转时间戳，其他交给 Date 解析。 */
     /* date 可能是 null/0（旧存档/云端合并）：new Date(null) 会显示 1970 年。
        数字字符串先按时间戳；ISO 字符串才交给 Date 解析；空/0 一律显示「—」。 */
-    const dateNum = Number(r.date);
+    /* true/false 的 Number() 是 1/0：旧记录日期是布尔时也会落进 1970。 */
+    const dateNum = typeof r.date === 'boolean' ? NaN : Number(r.date);
     const dateRaw = typeof r.date === 'string' ? r.date.trim() : '';
     const dateObj = Number.isFinite(dateNum) && dateNum > 0
       ? new Date(dateNum)

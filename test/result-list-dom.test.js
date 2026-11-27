@@ -75,5 +75,6 @@ test('成绩页：date 为 null/0 时不显示 1970 年假时间', () => {
   assert.match(seg, /const dateObj = Number\.isFinite\(dateNum\) && dateNum > 0/, '日期没有先排除 null/0');
   assert.ok(!/new Date\(Number\.isFinite\(dateNum\) && dateNum > 0 \? dateNum : r\.date\)/.test(seg),
     '仍在 new Date(null) 兜底，会显示 1970');
+  assert.match(seg, /typeof r\.date === 'boolean'/, '布尔日期仍会被 Number 成 1970');
   assert.match(seg, /const dateTxt = !dateObj || isNaN/, '空日期应显示 —');
 });
