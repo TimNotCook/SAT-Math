@@ -53,6 +53,13 @@ test('marks 值是字符串 false 时归一成布尔 false，不显示成已标�
   assert.strictEqual(A.toggleMark('1.1', 'TD-11-01'), true, 'false 标记再点一次应该变成已标记');
 });
 
+test('cursor 超过板块题数时夹到最后一题，续做链接不再写「第 1000 题」', () => {
+  const { A } = boot({ sections: { '1.1': { answers: {}, cursor: 999, marks: {}, completed: false } } });
+  const n = A.CATALOG['1.1'].length;
+  const st = A.secState('1.1', false);
+  assert.equal(st.cursor, Math.max(0, n - 1), 'cursor 超界没有夹到最后一题');
+});
+
 test('cursor 是对象/NaN/负数时归一成 0，不把练习页带进空题', () => {
   for (const cursor of [{ x: 1 }, NaN, -5, 'junk', null]) {
     const { A } = boot({ sections: { '1.1': { answers: {}, cursor, marks: {}, completed: false } } });

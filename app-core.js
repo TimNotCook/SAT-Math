@@ -270,7 +270,11 @@
        drill 直接做 cursor + 1 拼 URL，'3'+1 会变成 31，对象则变成
        [object Object]1——把用户带到不存在的题。这里归一到非负整数。 */
     var cur = Number(s.cursor);
-    s.cursor = Number.isFinite(cur) && cur >= 0 ? Math.floor(cur) : 0;
+    /* 只挡住 NaN/对象还不够：旧版/云端合并可能留下 cursor=999，练习页的
+       「继续上次练习 · 第 1000 题」和 ?i=1000 都会指向不存在的位置，
+       真实页面却夹在最后一题，文案与落点对不上。夹到本板块最后一题。 */
+    var curMax = Math.max(0, (CATALOG[id] || []).length - 1);
+    s.cursor = Number.isFinite(cur) && cur >= 0 ? Math.min(Math.floor(cur), curMax) : 0;
     return s;
   }
   function secState(id, create) {

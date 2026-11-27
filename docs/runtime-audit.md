@@ -636,3 +636,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 同时修正两套成绩页体检夹具：`verify_result_degrade` 和 `verify_result_given` 过去用 `detail: []` / 只有 1 条 detail 的 result，在第 68 条判据下已属非法存档；前者变成假红（成绩页不进），后者变成假绿（只查文本、结果页根本没出现）。现改为逐题对齐的 44/22 条 detail，并让 `verify_result_given` 断言真的进了成绩页。
 
 验证：新增「hard/easy 候选与 Module 1 重名 → 过期」回归，旧代码放行失败，新代码拒绝；全量 `node --test` 498/0；`verify_junk` 11×7；`verify_flows` 16/16；`verify_result_degrade` 降级可见；`verify_result_given` 成绩页可见且无 `[object Object]`。
+
+## 第 70 条：旧存档 cursor=999，续做链接写「第 1000 题」但真实落点是最后一题（2026-11-27）
+
+`app-core secIn()` 已把 cursor 的对象/NaN/负数归一成 0，但没有按板块题数夹上界。旧版/云端合并留下 `cursor: 999` 时，练习卡片和「继续上次练习」仍会拼出 `?i=1000`、文案写「第 1000 题」；`drill.js readLocation()` 又把 `i` 夹回 1..题数，实际打开的是最后一题。学生看到的题号与落点对不上，还会误以为进度丢了。修法：`secIn` 按 `CATALOG[id].length - 1` 夹上界；空板块为 0。验证：新增「cursor 999 夹到最后一题」回归，旧代码保持 999 失败，新代码通过；全量 `node --test` 499/0；`verify_junk` 11×7；`verify_flows` 16/16。
