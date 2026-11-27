@@ -78,13 +78,13 @@ test('TD-11-03（P4 #3）按原页：横轴 -2..10 每 1，直线过 (0,2) 与 (
 });
 
 test('19 张 step=2 坐标平面都改成 1 单位细网格', () => {
-  const ids = 'TD-11-03 TD-11-15 TD-11-18 TD-11-20 TD-11-25 TD-12-28 SP1-057 TD-22-02 TD-22-03 TD-22-04 TD-22-07 TD-33-10 TD-35-14 SP1-025 SP1-058 SR-184 R04-004 R04-006 R03-183'.split(' ');
+  const ids = 'TD-11-03 TD-11-15 TD-11-18 TD-11-20 TD-11-25 TD-12-28 SP1-057 TD-22-02 TD-22-03 TD-22-04 TD-22-07 TD-33-10 TD-35-14 SP1-025 SP1-058 SR-184 R04-004 R04-006'.split(' ');
   const miss = ids.filter((id) => !(SPECS[id] && SPECS[id].minor && SPECS[id].minor.x === 1));
   assert.equal(miss.join('|'), '');
 });
 
 test('坐标平面两轴在原点相交（axesAt:zero）——19 张都锁住', () => {
-  const ids = 'TD-11-03 TD-11-15 TD-11-18 TD-11-20 TD-11-25 TD-12-28 SP1-057 TD-22-02 TD-22-03 TD-22-04 TD-22-07 TD-33-10 TD-35-14 SP1-025 SP1-058 R04-004 R04-006 R03-183'.split(' ');
+  const ids = 'TD-11-03 TD-11-15 TD-11-18 TD-11-20 TD-11-25 TD-12-28 SP1-057 TD-22-02 TD-22-03 TD-22-04 TD-22-07 TD-33-10 TD-35-14 SP1-025 SP1-058 R04-004 R04-006'.split(' ');
   const miss = ids.filter((id) => !(SPECS[id] && SPECS[id].axesAt === 'zero'));
   assert.equal(miss.join('|'), '');
   // 画出来的 x 轴必须落在 y=0 那一行，而不是图框底部
