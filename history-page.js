@@ -14,7 +14,14 @@
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 
   var BANK = (window.TD_BANK && window.TD_BANK.questions) || [];
-  function byId(id) { return BANK.find(function (q) { return q.id === id; }) || null; }
+  /* 讲义成绩记录存的是 JY1-… 题号，不在 TD_BANK；记录页原来 byId 查不到，
+     旧讲义错题行只能印「正确 —」。横向补一份讲义题库（history.html 已加载
+     data/jiangyi.js），不动 TD_BANK 本身。 */
+  var JY_BANK = window.JY_BANK || [];
+  function byId(id) {
+    return BANK.find(function (q) { return q.id === id; })
+      || JY_BANK.find(function (q) { return q.id === id; }) || null;
+  }
 
   /* 数据指纹：只比长度会漏掉「同条数但内容被云端覆盖」的情况（长度一样、分数变了）。
      整串滚 hash，O(n) 但返回定长，几 KB 的档案每 1.5s 算一次毫无压力。 */
@@ -107,7 +114,10 @@
          旧版记录页会印「正确 —」，等于把正确答案吞掉。按 answer → value →
          q.value → q.values 逐级兜底，历史记录也能补出正确答案。 */
       var corr = txt(d.answer) || txt(d.value);
-      if (!corr && q && q.type === 'grid') corr = txt(q.value) || (Array.isArray(q.values) ? q.values.join(', ') : '');
+      /* 旧讲义 detail 没有 answer，且讲义题不在 TD_BANK：按题号回查题库
+         （含 JY_BANK）补正确答案，MCQ 和 grid 都要补。 */
+      if (!corr && q) corr = txt(q.answer) ||
+        (q.type === 'grid' ? (txt(q.value) || (Array.isArray(q.values) ? q.values.join(', ') : '')) : '');
       var ans = '你的答案 <b>' + esc(txt(d.given) || '—') + '</b> · 正确 <i>' + esc(corr || '—') + '</i>';
       return '<div class="hist-wrong-row"><span class="hist-wrong-id">' + esc(did) + '</span>' +
         '<span class="hist-wrong-stem" title="' + esc(stem) + '">' + esc(stem) + '</span>' +

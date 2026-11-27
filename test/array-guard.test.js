@@ -393,3 +393,22 @@ test('导入错题：readOnly 是字符串 "false" 时不能当只读卡', () =>
   assert.match(src, /isTrueFlag\(it\.readOnly\)/, 'readOnly 必须做真值归一');
   assert.ok(!/!!it\.readOnly/.test(src), '!! 会把字符串 false 当只读');
 });
+
+test('记录页：旧讲义成绩 detail 缺 answer 时回查 JY 题库补正确答案', () => {
+  const jyWin = {};
+  new Function('window', fs.readFileSync(path.join(ROOT, 'data/jiangyi.js'), 'utf8'))(jyWin);
+  const q = (jyWin.JY_BANK || []).find(x => x && x.answer);
+  assert.ok(q, '讲义题库没有带答案的题');
+  const store = { tdsat_exam_suite_results_v1: JSON.stringify([{
+    mode: 'jiangyi', date: 1700000000000, total: 1, correct: 0,
+    detail: [{ id: q.id, given: 'B', correct: false, type: q.type }],
+  }]) };
+  let threw = null, els = null;
+  try { els = boot(['data/jiangyi.js', 'data/questions.js', 'history-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '讲义旧成绩打崩记录页：' + (threw && threw.message));
+  const html = els && els.histList ? els.histList.innerHTML : '';
+  assert.ok(!/正确 <i>—<\/i>/.test(html), '旧讲义错题行仍显示「正确 —」');
+  assert.ok(html.indexOf(escHtml(q.answer)) >= 0, '记录页没有用 JY 题库补出正确答案');
+  function escHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+});
