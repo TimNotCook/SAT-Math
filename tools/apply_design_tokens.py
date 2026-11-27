@@ -14,11 +14,12 @@ SOURCES = [
     "tools/archive-theme.css",
     "tools/practice-theme.css",
     "tools/mock-theme.css",
+    "tools/result-practice-theme.css",
 ]
 # 每页一份 theme：study(抽查开场) / question(模考答题) / intro(开场标题层) /
-# result(成绩) / catalog(练习首页+讲义) / archive(错题·记录空态) /
-# practice(真题练习答题页) / mock(模考开场)。
-# 19: 模考开场 Total 行去蓝。
+# result(模考成绩) / catalog(练习首页+讲义) / archive(错题·记录空态) /
+# practice(真题答题页) / mock(模考开场) / result-practice(板块结果)。
+# 20: 新增板块结果页，并修模考左栏底板。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
