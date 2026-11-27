@@ -1355,3 +1355,28 @@ html body.exam-page:not(.is-mock) .quiz-scope ul{width:100%!important}
 html body.exam-page:not(.is-mock) .exam-special-panel{width:100%!important}
 html body.exam-page:not(.is-mock) .exam-special-chips{width:100%!important}
 body.shell-history .hist-list>.hist-empty .he-d{max-width:62ch!important}
+
+/* =====================================================================
+   视觉口径对齐参考站（洋葱学园那类学习站）：胶囊主按钮、去掉彩虹圆点、
+   空态给一张线稿插画；不动字号体系和灰白底，避免翻车
+   ===================================================================== */
+
+/* 主按钮：胶囊形，比 11px 圆角更像「学习站的开始键」 */
+html body .btn.primary,html body.exam-page #btnStart,html body .empty-panel .btn.primary,
+html body .hist-empty .btn{height:46px!important;padding:0 28px!important;border-radius:999px!important;
+  font-size:14px!important;font-weight:700!important;letter-spacing:.01em;display:inline-flex!important;
+  align-items:center!important;justify-content:center!important;line-height:1!important}
+html body .btn.primary:hover,html body.exam-page #btnStart:hover{filter:brightness(.97)}
+html body .btn.primary:focus-visible,html body.exam-page #btnStart:focus-visible{outline:2px solid #9dc0ff!important;outline-offset:3px}
+
+/* 单元切换：撤掉四个彩色圆点（蓝/紫/橙/绿没有语义，只会显廉价） */
+html body.exam-page .quiz-tab .qt-dot{display:none!important}
+html body.exam-page .quiz-tab{justify-content:center!important;gap:0!important}
+html body.exam-page .quiz-tab .qt-code{font-size:11.5px!important;font-weight:700!important;color:#93a1b5!important;margin-right:6px!important}
+html body.exam-page .quiz-tab.on .qt-code{color:#2563eb!important}
+html body.exam-page .quiz-tab .qt-name{font-size:13.5px!important;font-weight:600!important;color:#3c4a5e!important}
+html body.exam-page .quiz-tab.on .qt-name{font-weight:700!important;color:#1d4ed8!important}
+
+/* 空态插画：一张纸 / 一页题的线稿，只用浅蓝描边，不做图标牌 */
+html body .empty-panel,html body .hist-empty{gap:0!important}
+html body .empty-panel .empty-art,html body .hist-empty .empty-art{margin:0 0 6px!important}
