@@ -147,7 +147,7 @@ const PROFILES = [
   /* K：导入错题的展示字段全是对象（第 28 条）。不能把 [object Object] 端给用户。 */
   ['K-import-objects', [
     ['tdsat_imported_wrong_v1', JSON.stringify({ items: [
-      { key: 'ob:1', stem: 'Test', choices: { A: { x: 1 } }, type: 'mcq', answer: { x: 1 }, given: { y: 2 }, topic: { x: 1 }, source: { x: 1 }, importedAt: { x: 1 } }
+      { key: 'ob:1', stem: 'Test', choices: { A: { x: 1 } }, type: 'mcq', answer: { x: 1 }, given: { y: 2 }, topic: { x: 1 }, source: { x: 1 }, importedAt: { x: 1 }, readOnly: true, matchId: { x: 1 } }
     ] })],
   ]],
   /* I：导入错题历史记录里 given 是对象/数字（第 26 条）。分析环节不能 .trim() 崩页。 */

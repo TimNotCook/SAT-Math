@@ -238,8 +238,8 @@ function importedGroupHtml(){
   if(!list.length)return '';
   var nRO=list.filter(function(it){return it.readOnly;}).length;
   return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 独立记录<span>'+list.length+' 道 · 其中 '+nRO+' 道已匹配题库（只读）</span></h2>'+list.map(function(it,i){
-    var ro=!!it.readOnly,bankQ=null;
-    if(ro&&it.matchId){for(var s=0;s<A.SECS.length&&!bankQ;s++){bankQ=(A.CATALOG[A.SECS[s]]||[]).find(function(x){return x.id===it.matchId;})||null;}}
+    var ro=!!it.readOnly,impMatch=plainText(it.matchId),bankQ=null;
+    if(ro&&impMatch){for(var s=0;s<A.SECS.length&&!bankQ;s++){bankQ=(A.CATALOG[A.SECS[s]]||[]).find(function(x){return x.id===impMatch;})||null;}}
     var impStem=plainText(it.stem),impTopic=plainText(it.topic),impAnswer=plainText(it.answer),
         impValue=plainText(it.value),impType=plainText(it.type),impSource=plainText(it.source);
     var q=bankQ
@@ -253,7 +253,7 @@ function importedGroupHtml(){
       '<p class="wrong-stem">'+mathfmt(plainText(q.stem).trim()||'题干文字暂缺。')+'</p>'+
       '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
       '<div class="cause-box"><b>'+esc(a.title)+'</b><p>'+esc(a.detail)+'</p></div>'+
-      '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">'+(ro?('该题已有作答记录（'+esc(it.matchId||'')+'），按只增不改原则未写入'):'未在题库中找到对应题目，无法进入抽查抽题')+'</span></div></article>';
+      '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">'+(ro?('该题已有作答记录（'+esc(impMatch)+'），按只增不改原则未写入'):'未在题库中找到对应题目，无法进入抽查抽题')+'</span></div></article>';
   }).join('')+'</section>';
 }
  function renderHero(){
