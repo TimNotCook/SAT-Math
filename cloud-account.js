@@ -49,13 +49,15 @@
   /* ---------- preferences（外观，只存这台设备） ---------- */
   var PREFS_KEY = 'tdsat_prefs_v1';
   var prefs = { fontScale: 'normal', compact: false, calcUnit: false };
+  /* 偏好也可能是字符串 'false'：!! 会把它当开启，紧凑布局/计算器单位被误开。 */
+  function isTrueFlag(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
   function loadPrefs() {
     try {
       var raw = localStorage.getItem(PREFS_KEY);
       if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') {
         prefs.fontScale = p.fontScale || 'normal';
-        prefs.calcUnit = !!p.calcUnit;
-        prefs.compact = !!p.compact;
+        prefs.calcUnit = isTrueFlag(p.calcUnit);
+        prefs.compact = isTrueFlag(p.compact);
       } }
     } catch (e) { console.warn('读取外观偏好失败', e); }
   }
