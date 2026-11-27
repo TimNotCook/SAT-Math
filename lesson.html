@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>讲义 1.1 · 线性方程与函数图像</title>
+<title>讲义 · 线性方程与函数</title>
 <style>
   :root{
     --paper:#f7f6f2; --ink:#20242b; --ink2:#4a4f57; --sub:#8d9199; --faint:#a8acb4;
@@ -19,16 +19,20 @@
   .bar-k{font-size:11px;letter-spacing:.16em;color:var(--faint);font-weight:600}
   .bar-a{font-size:12.5px;color:var(--sub);text-decoration:none}
   .bar-a:hover{color:var(--ink)}
-  .wrap{max-width:720px;margin:0 auto;padding:56px 24px 96px}
+  .wrap{max-width:720px;margin:0 auto;padding:52px 24px 96px}
 
   .kicker{font-size:11px;letter-spacing:.16em;color:var(--faint);font-weight:600;margin:0 0 14px}
-  h1{font-size:36px;line-height:1.25;letter-spacing:-.015em;font-weight:650;margin:0 0 14px}
+  h1{font-size:34px;line-height:1.28;letter-spacing:-.015em;font-weight:650;margin:0 0 14px}
   .lead{font-size:16px;color:var(--ink2);margin:0 0 22px;max-width:34em;text-wrap:pretty}
-  .meta{display:flex;gap:28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;margin:0 0 44px}
+  .meta{display:flex;gap:28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;margin:0 0 18px}
   .meta div{font-size:11.5px;color:var(--sub)}
-  .meta b{display:block;font-size:20px;font-weight:600;color:var(--ink);line-height:1.3;font-variant-numeric:tabular-nums}
+  .meta b{display:block;font-size:19px;font-weight:600;color:var(--ink);line-height:1.4;font-variant-numeric:tabular-nums}
+  .toc{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 40px}
+  .toc a{font-size:11.5px;color:var(--sub);text-decoration:none;padding:4px 9px;border:1px solid transparent;border-radius:2px;font-variant-numeric:tabular-nums}
+  .toc a:hover{background:#f1ece0;color:var(--ink)}
+  .toc a.on{border-color:#e0d7c4;background:#faf6ec;color:var(--ink);font-weight:600}
 
-  section{margin:0 0 44px}
+  section{margin:0 0 42px}
   .h{display:flex;gap:14px;align-items:baseline;margin:0 0 16px}
   .num{font-size:11px;letter-spacing:.14em;color:var(--faint);font-weight:600;min-width:22px}
   h2{font-size:20px;font-weight:650;letter-spacing:-.01em;margin:0}
@@ -37,144 +41,118 @@
   ul{margin:0 0 14px;padding:0;list-style:none}
   ul li{position:relative;padding-left:20px;margin:0 0 10px;font-size:15px;color:var(--ink2);max-width:38em}
   ul li:before{content:"";position:absolute;left:2px;top:.72em;width:5px;height:1px;background:#c9ccd2}
-
-  .eq{font-family:"SF Pro Display","Helvetica Neue",Georgia,serif;font-size:19px;color:var(--ink);
-    padding:2px 0;margin:0 0 14px;letter-spacing:.01em}
-
-  .diagram{border:1px solid var(--line);background:#fbfaf7;border-radius:2px;padding:18px 10px 8px;margin:0 0 10px}
-  .diagram svg{display:block;width:100%;height:auto}
-  .cap{font-size:11.5px;color:var(--sub);margin:0 0 20px}
-
-  .eg{background:var(--sand);border-radius:2px;padding:20px 22px;margin:0 0 16px}
-  .eg-k{font-size:10.5px;letter-spacing:.14em;color:#a08a5e;font-weight:600;margin:0 0 8px}
-  .eg p{margin:0 0 10px;color:#4a4237}
-  .eg .step{padding-left:18px;margin:0 0 8px;font-size:14.5px;color:#4a4237}
-  .eg .step:before{content:"";position:absolute;left:0;top:.72em;width:5px;height:1px;background:#c9b48a}
-  .eg .step{position:relative}
-
   .warn li:before{background:#d8c39a;width:6px}
   .check{background:#fff;border:1px solid var(--line);border-radius:2px;padding:18px 20px}
   .check li{padding-left:22px}
   .check li:before{content:"□";left:0;top:0;width:auto;height:auto;background:none;color:var(--faint);font-size:14px}
+  .eq{font-family:"SF Pro Display","Helvetica Neue",Georgia,serif;font-size:19px;color:var(--ink);padding:2px 0;margin:0 0 14px;letter-spacing:.01em}
+  .diagram{border:1px solid var(--line);background:#fbfaf7;border-radius:2px;padding:18px 10px 8px;margin:0 0 10px}
+  .diagram svg{display:block;width:100%;height:auto}
+  .cap{font-size:11.5px;color:var(--sub);margin:0 0 20px}
+  .eg{background:var(--sand);border-radius:2px;padding:18px 20px;margin:0 0 16px}
+  .eg-k{font-size:10.5px;letter-spacing:.14em;color:#a08a5e;font-weight:600;margin:0 0 8px}
+  .eg p{margin:0 0 8px;color:#4a4237;font-size:14.5px}
+  .eg p.step{padding-left:18px;position:relative}
+  .eg p.step:before{content:"";position:absolute;left:0;top:.72em;width:5px;height:1px;background:#c9b48a}
 
-  .go{border-top:1px solid var(--line);padding-top:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
-  .go-t{font-size:13px;color:var(--sub);max-width:26em}
-  .btn{display:inline-flex;align-items:center;height:42px;padding:0 22px;border-radius:8px;background:var(--blue);color:#fff;
-    font-size:13.5px;font-weight:600;text-decoration:none;border:1px solid var(--blue)}
+  .go{border-top:1px solid var(--line);padding-top:26px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+  .go-l{display:flex;gap:18px;font-size:12.5px}
+  .go-l a{color:var(--sub);text-decoration:none}
+  .go-l a:hover{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;height:42px;padding:0 22px;border-radius:8px;background:var(--blue);color:#fff;font-size:13.5px;font-weight:600;text-decoration:none;border:1px solid var(--blue)}
   .btn:hover{filter:brightness(1.05)}
+  .empty{font-size:14px;color:var(--sub)}
 
   @media (max-width:560px){
-    .wrap{padding:36px 20px 72px}
-    h1{font-size:28px}
+    .wrap{padding:34px 20px 72px}
+    h1{font-size:27px}
     .meta{gap:20px}
-    .meta b{font-size:17px}
-    .eg{padding:16px 16px}
+    .meta b{font-size:16px}
+    .eg{padding:16px}
     .go{flex-direction:column;align-items:flex-start}
   }
 </style>
 </head>
 <body>
 <div class="bar"><div class="bar-in">
-  <span class="bar-k">SAT MATH · 讲义 1.1</span>
+  <span class="bar-k" id="barK">SAT MATH · 讲义</span>
   <a class="bar-a" href="jiangyi.html">← 回到讲义</a>
 </div></div>
-
 <div class="wrap">
-  <p class="kicker">UNIT 1 · 线性方程与函数</p>
-  <h1>线性方程与函数图像</h1>
-  <p class="lead">一条直线，就是一道一次方程拍的照片。看懂照片上那两个数字，方程你也就同时看懂了。</p>
-  <div class="meta">
-    <div><b>2</b>个关键数字</div>
-    <div><b>9</b>道本节题</div>
-    <div><b>p6–12</b>原书页码</div>
-  </div>
-
-  <section>
-    <div class="h"><span class="num">01</span><h2>两个数字就够了</h2></div>
-    <p>所有直线都能写成同一副样子：</p>
-    <p class="eq">y = m x + b</p>
-    <ul>
-      <li><b>m 叫斜率</b>，是这条线的爬升速度：每向右走一步，它抬高多少。m = 3 就是"右一格、上三格"；m = −0.5 就是"右一格、下半格"。</li>
-      <li><b>b 叫 y 截距</b>，是它出发时站在哪：x = 0 时线在竖向轴上那个位置。</li>
-    </ul>
-    <p>换个说法：b 是出发时你站的高度，m 是你每走一步的抬升速度。站得高不高和走得快不快，是两件互不相干的事——这正是它能被拆成两个数字的原因。</p>
-  </section>
-
-  <section>
-    <div class="h"><span class="num">02</span><h2>图和式，来回读</h2></div>
-    <div class="diagram">
-      <svg viewBox="0 0 420 226" role="img" aria-label="直线 y=x+1 的图像，标注截距与斜率三角">
-        <g stroke="#e2ded4" stroke-width="1" fill="none">
-          <path d="M60 196H392"/><path d="M60 196V26"/>
-        </g>
-        <g fill="#a8acb4" font-size="9.5" font-family="inherit">
-          <text x="98" y="212">1</text><text x="140" y="212">2</text><text x="182" y="212">3</text><text x="224" y="212">4</text><text x="266" y="212">5</text>
-          <text x="44" y="179">1</text><text x="44" y="153">2</text><text x="44" y="127">3</text><text x="44" y="101">4</text><text x="44" y="75">5</text>
-        </g>
-        <!-- y = x + 1 ：x 单位 42px，y 单位 26px，原点 (60,196) -->
-        <line x1="18" y1="196" x2="312" y2="14" stroke="#20242b" stroke-width="1.6"/>
-        <circle cx="60" cy="170" r="3.2" fill="#20242b"/>
-        <text x="72" y="187" font-size="10.5" fill="#8d9199">b = 1</text>
-        <g stroke="#c9b48a" stroke-width="1.2" stroke-dasharray="4 4">
-          <path d="M102 144h42"/><path d="M144 144v-26"/>
-        </g>
-        <circle cx="144" cy="118" r="2.6" fill="#20242b"/>
-        <text x="108" y="159" font-size="9.5" fill="#a08a5e">向右 1</text>
-        <text x="152" y="130" font-size="9.5" fill="#a08a5e">向上 m</text>
-        <text x="300" y="40" font-size="11" fill="#8d9199">y = x + 1</text>
-      </svg>
-    </div>
-    <p class="cap">虚线三角就是在读 m：先向右一格，再看要抬高多少格。</p>
-    <ul>
-      <li><b>图 → 式：</b>挑两个好读的点，m = (y₂ − y₁) / (x₂ − x₁)，再把其中一个点代回去求 b。</li>
-      <li><b>式 → 图：</b>先在竖向轴上点出 b，再按 m 走一格落第二个点，两点连成线。</li>
-      <li><b>x 截距：</b>让 y = 0 解出 x，得到 −b / m。它是线穿过<b>横向</b>轴的位置，和 b 是两个不同的点。</li>
-    </ul>
-  </section>
-
-  <section>
-    <div class="h"><span class="num">03</span><h2>两道例题，看怎么读</h2></div>
-
-    <div class="eg">
-      <p class="eg-k">例 1 · 从图读出式子</p>
-      <p>直线经过 (0, 3) 和 (4, 7)，求它的方程与 x 截距。</p>
-      <p class="step">先算斜率：m = (7 − 3) / (4 − 0) = 1。意思是右一格、上一格。</p>
-      <p class="step">(0, 3) 就在竖向轴上，所以 b = 3，不用再算。</p>
-      <p class="step">方程 y = x + 3。令 y = 0 得 x = −3，x 截距是 −3，图上确实在原点左边三格。</p>
-    </div>
-
-    <div class="eg">
-      <p class="eg-k">例 2 · 一般式先变形</p>
-      <p>把 3x + 2y = 12 读成一条直线。</p>
-      <p class="step">先孤立 y：2y = −3x + 12，两边除以 2。</p>
-      <p class="step">得 y = −1.5x + 6：m = −1.5（右一格、下 1.5 格），b = 6。</p>
-      <p class="step">x 截距 = −6 / (−1.5) = 4。代回原式验证：3·4 + 2·0 = 12，对。</p>
-    </div>
-  </section>
-
-  <section>
-    <div class="h"><span class="num">04</span><h2>三个最常被扣分的地方</h2></div>
-    <ul class="warn">
-      <li><b>把 x 截距当成 b。</b>b 在竖向轴上，x 截距在横向轴上，数值常常互为相反数。题问哪个，答哪个。</li>
-      <li><b>斜率符号反了。</b>(y₂ − y₁) / (x₂ − x₁) 上下顺序必须一致；只颠倒一处就整体变号，图上会从"上坡"变成"下坡"。</li>
-      <li><b>平行当成同一条。</b>"与 y = 3x − 1 平行且过 (2, 5)"：5 = 6 + b 得 b = −1，算出来就是 y = 3x − 1，与原线完全重合。平行只保证 m 相同，b 得另算。</li>
-    </ul>
-  </section>
-
-  <section>
-    <div class="h"><span class="num">05</span><h2>落笔前的一分钟检查</h2></div>
-    <ul class="check">
-      <li>我交上去的是 y = mx + b 的形状，不是 x = …</li>
-      <li>m 的符号和图像一致：左低右高就是正的。</li>
-      <li>题目问的是 y 截距还是 x 截距，我答的是同一个吗。</li>
-      <li>如果是应用题，单位有没有跟着数字一起写。</li>
-    </ul>
-  </section>
-
+  <p class="kicker" id="kick"></p>
+  <h1 id="ttl"></h1>
+  <p class="lead" id="lead"></p>
+  <div class="meta" id="meta"></div>
+  <div class="toc" id="toc"></div>
+  <div id="body"></div>
   <div class="go">
-    <p class="go-t">读到这里，这一节的 9 道题基本都能落笔了。做题时允许回头翻这一页。</p>
-    <a class="btn" href="jiangyi.html">去做 1.1 的题</a>
+    <div class="go-l" id="goL"></div>
+    <a class="btn" id="goBtn" href="jiangyi.html">回到讲义做题</a>
   </div>
 </div>
+<script src="data/lessons-a.js"></script>
+<script src="data/lessons-b.js"></script>
+<script>
+(function () {
+  var S = Object.assign({}, window.LESSONS_A || {}, window.LESSONS_B || {});
+  var q = new URLSearchParams(location.search);
+  var sec = q.get('sec') || '1.1';
+  var keys = Object.keys(S).sort();
+  if (!S[sec]) sec = keys[0] || '';
+
+  function md(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  }
+  function block(b) {
+    if (b.t === 'h') return '<div class="h"><span class="num">' + b.n + '</span><h2>' + md(b.v) + '</h2></div>';
+    if (b.t === 'p') return '<p>' + md(b.v) + '</p>';
+    if (b.t === 'eq') return '<p class="eq">' + md(b.v) + '</p>';
+    if (b.t === 'cap') return '<p class="cap">' + md(b.v) + '</p>';
+    if (b.t === 'svg') return '<div class="diagram">' + b.v + '</div>';
+    if (b.t === 'ul') return '<ul class="' + (b.cls || '') + '">' + b.v.map(function (i) { return '<li>' + md(i) + '</li>'; }).join('') + '</ul>';
+    if (b.t === 'eg') {
+      var head = b.k ? '<p class="eg-k">' + md(b.k) + '</p>' : '';
+      return '<div class="eg">' + head + b.v.map(function (i) { return '<p class="step">' + md(i) + '</p>'; }).join('') + '</div>';
+    }
+    return '';
+  }
+
+  if (!sec || !S[sec]) {
+    document.getElementById('ttl').textContent = '这一节还没有正文';
+    document.getElementById('body').innerHTML = '<p class="empty">讲义正文正在补写，先去做这一节的题。</p>';
+    return;
+  }
+
+  var L = S[sec], idx = keys.indexOf(sec);
+  document.title = '讲义 ' + sec + ' · ' + L.cn;
+  document.getElementById('barK').textContent = 'SAT MATH · 讲义 ' + sec;
+  document.getElementById('kick').textContent = L.kicker || '';
+  document.getElementById('ttl').textContent = L.cn;
+  document.getElementById('lead').textContent = L.lead || '';
+  document.getElementById('meta').innerHTML = (L.meta || []).map(function (m) {
+    return '<div><b>' + m[0] + '</b>' + m[1] + '</div>';
+  }).join('');
+  document.getElementById('toc').innerHTML = keys.map(function (k) {
+    return '<a href="lesson.html?sec=' + k + '"' + (k === sec ? ' class="on"' : '') + '>' + k + '</a>';
+  }).join('');
+
+  var groups = [], cur = null;
+  (L.blocks || []).forEach(function (b) {
+    if (b.t === 'h') { cur = [b]; groups.push(cur); }
+    else if (cur) cur.push(b);
+    else { cur = [b]; groups.push(cur); }
+  });
+  document.getElementById('body').innerHTML = groups.map(function (g) {
+    return g[0].t === 'h' ? '<section>' + g.map(block).join('') + '</section>' : g.map(block).join('');
+  }).join('');
+
+  var prev = keys[idx - 1], next = keys[idx + 1], links = [];
+  if (prev) links.push('<a href="lesson.html?sec=' + prev + '">← ' + prev + '</a>');
+  if (next) links.push('<a href="lesson.html?sec=' + next + '">' + next + ' →</a>');
+  document.getElementById('goL').innerHTML = links.join('');
+  document.getElementById('goBtn').textContent = '去做 ' + sec + ' 的题';
+})();
+</script>
 </body>
 </html>
