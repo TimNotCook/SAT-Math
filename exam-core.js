@@ -860,10 +860,14 @@
       if (n === per && s.module === 2) return fail('shape');   // 模块二却没有模块一的卷：不可重建
       if (s.m1Size != null && Number(s.m1Size) !== per) return fail('m1');
       m1 = per;
-      if (!s.m2Options || !Array.isArray(s.m2Options.hard) || !Array.isArray(s.m2Options.easy)) {
-        /* 22 题且仍在模块一：没有 m2Options 就无法在交卷时补齐 44 题 */
-        if (n === per) return fail('m2-options');
-      }
+      /* 22 题且仍在模块一：m2Options 既要存在，也要每个候选题都是合法实例。
+         只查 Array.isArray 不够——云端合并/旧版本可能塞进 null 或字符串，进入
+         模块二 concat 后 renderQuestion 会在 cur().id 上崩，提前判存档过期更安全。 */
+      const instOk = x => !!x && typeof x === 'object' &&
+        typeof x.uid === 'string' && !!x.uid && isBank(x.id);
+      const optsOk = !!s.m2Options && Array.isArray(s.m2Options.hard) && Array.isArray(s.m2Options.easy) &&
+        s.m2Options.hard.every(instOk) && s.m2Options.easy.every(instOk);
+      if (n === per && !optsOk) return fail('m2-options');
     } else {
       m1 = n;
     }

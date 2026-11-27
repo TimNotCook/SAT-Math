@@ -385,3 +385,14 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 验证：`verify_junk` 升级为 7 页（新增 `exam.html?mode=quiz&unit=1.1` 并点击 Start），断言无异常、正文 ≥200 字、落库卷面全部属于 Unit 1 且答案覆盖 paper；旧代码复现 `(d.items||[]).forEach is not a function`、`(h.detail||[]).forEach is not a function`、`reading 'locked'` 三条异常，新代码 10 套脏值 × 7 页全绿。
 
 回归：`node --test` 309/0（`unitWrongIds` 新增 null/非数组 detail 单测、`persist` 同卷闸门静态守卫）；`verify_junk` 10×7；`bump_assets.py` PASS `b7d6c31456f6`。
+
+## 第 30 条：m2Options 里夹 null/字符串 → 模考进模块二就白屏（2026-11-27）
+
+`parseSession` 对 22 题、还在模块一的模考存档只检查 `m2Options.hard/easy` **是不是数组**，不检查数组里的条目。云端合并或旧版本写进 `hard:[null]`、`easy:['junk']` 时存档仍判合法，恢复后一进模块二：
+`S.paper = S.paper.concat(S.m2Options[path])` 把 null 拼进卷面 → `S.answers[x.uid]`、`renderQuestion` 的 `cur().id` 连续崩，模考整页白掉；更坏的情况是字符串恰好凑成 uid，旧答案会被记到不存在的题上。
+
+修法：`parseSession` 对 22 题模考的 `hard/easy` 逐项校验——必须是对象、`uid` 非空字符串、`id` 确实在题库里；任一不合法就整份存档判 `m2-options` 过期并走留档/新卷流程，绝不把脏候选拼进卷面。
+
+验证：`tools/verify_m2` 复核用合法 22 题卷 + `m2Options:{hard:[null],easy:['junk']}`、模块一已超时；旧代码点 Start 后抛 `Cannot read properties of undefined (reading 'id')`，新代码 0 异常、停在模块一，存档不再续进模块二。`test/session.test.js` +3 条（hard 夹 null、easy 夹字符串均判 `expired`，正常候选仍 `ok`）。
+
+回归：`node --test` 316/0（session 19/19）；`verify_junk` 11×7；`verify_exam_timeout` 13/13、`verify_flows` 16/16。

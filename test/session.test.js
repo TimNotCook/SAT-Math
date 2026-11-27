@@ -57,6 +57,27 @@ function baseSave(over) {
   }, over || {});
 }
 
+describe('parseSession：m2Options 里的候选题必须是合法实例', () => {
+  test('hard 里夹 null → 整份存档判过期，绝不拼进卷面', () => {
+    const s = baseSave();
+    s.m2Options.hard = [null, ...paper(3, 2)];
+    const r = C.parseSession(s, { mode: 'mock' });
+    assert.equal(r.status, 'expired');
+    assert.equal(r.reason, 'm2-options');
+    assert.equal(r.session, null);
+  });
+  test('easy 里夹字符串题号 → 同样判过期', () => {
+    const s = baseSave();
+    s.m2Options.easy = ['junk'];
+    const r = C.parseSession(s, { mode: 'mock' });
+    assert.equal(r.status, 'expired');
+  });
+  test('正常 hard/easy 候选仍可恢复', () => {
+    const r = C.parseSession(baseSave(), { mode: 'mock' });
+    assert.equal(r.status, 'ok');
+  });
+});
+
 describe('parseSession：能重建就重建', () => {
   test('旧存档缺 m1Size / moduleEndsAt（22 题，模块一）→ 补齐为 22', () => {
     const s = baseSave();
