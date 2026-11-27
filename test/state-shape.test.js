@@ -151,3 +151,12 @@ test('wrongLog 裸字符串保留，对象 v/空值是坏记录直接删掉', ()
   assert.equal(st.wrongLog['TD-11-03'], undefined);
   assert.equal(Object.keys(st.wrongLog).length, 1);
 });
+
+test('refreshVerdict 在答案记录缺失时不 TypeError，空作答把旧判分清零', () => {
+  const { A, store } = boot({ sections: { '1.1': { answers: { 'TD-11-01': { v: 'B', correct: true } }, marks: {}, wrongLog: {} } } });
+  assert.strictEqual(A.refreshVerdict('1.1', 'TD-11-99', 'A'), false, '缺答案记录应该安全返回 false');
+  assert.doesNotThrow(() => A.refreshVerdict('1.1', 'TD-11-01', ''), '空作答刷新判分不应崩');
+  assert.strictEqual(A.refreshVerdict('1.1', 'TD-11-01', ''), false, '清空答案后旧 correct 应清零');
+  const disk = JSON.parse(store.tdsat_app_v1);
+  assert.strictEqual(disk.sections['1.1'].answers['TD-11-01'].correct, false, '空作答没把磁盘里的旧 correct 清零');
+});

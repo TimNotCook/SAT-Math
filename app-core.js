@@ -398,11 +398,17 @@
      Used by the result page so a verdict refresh never round-trips a stale
      whole-state snapshot. */
   function refreshVerdict(id, qid, given) {
-    return mutateSection(id, function (st, D) {
+    /* 原条件少一层括号：`!q || !a || 有答案` 一旦 a 不存在就会去写 a.correct，
+       TypeError 直接把成绩页打崩。而且空作答时反而跳过了清零，旧的 correct
+       会留在记录里。这里拆成显式两步：缺题/缺记录只返回 false，有作答才判分，
+       没作答一律记为 false。 */
+    return mutateSection(id, function (st) {
       var q = (CATALOG[id] || []).find(function (x) { return x.id === qid; });
       var a = st.answers[qid];
-      if (!q || !a || a.v != null && String(a.v).trim() !== '') a.correct = isCorrect(q, a.v);
-      return a ? a.correct : false;
+      if (!q || !a) return false;
+      var answered = a.v != null && String(a.v).trim() !== '';
+      a.correct = answered ? isCorrect(q, a.v) : false;
+      return a.correct;
     });
   }
   function setCursor(id, i) { mutateSection(id, function (st) { st.cursor = i; }); }

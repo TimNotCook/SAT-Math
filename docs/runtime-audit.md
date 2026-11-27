@@ -664,3 +664,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 75 条：旧成绩记录缺 correct/total，记录页把 detail 里算得出来的 50% 显示成 0%（2026-11-27）
 
 `history-page` 的成绩条/详情原来只读 `rec.correct` / `rec.total`，缺字段或 null 时一律按 0 渲染。旧版/云端合并可能只保留 `detail`，于是页头显示 0%、详情「答对 0/2」，展开的错题行却明确一题对、一题错；学生看到的是自相矛盾的假成绩。修法：新增 `scoreParts(rec)`，`total` 缺失/<=0 时用 detail 条数，`correct` 缺失时按 detail 的 `correct` 计数；`grade`、`scoreLabel`、`titleOf`、`resultBody` 统一走它。验证：新增「缺 correct/total 时从 detail 现算」回归，旧代码 0% 失败，新代码 50% 且答对 1/2；全量 `node --test` 504/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 76 条：`refreshVerdict()` 少括号，缺答案记录时成绩页 TypeError；空作答又不清旧判分（2026-11-27）
+
+`app-core` 的 `if (!q || !a || a.v != null && ...) a.correct = ...` 少了外层括号：答案记录被并发清掉/旧存档缺条目时，`!a` 为真反而进入分支去读 `a.v`，抛 `Cannot read properties of undefined`，`drill.js gradeSection()` 整页成绩直接崩。反过来，用户把答案清空时条件为假，旧的 `correct:true` 留在磁盘里，统计继续算答对。修成缺题/缺记录安全返回 false，有作答才判分、空作答显式清零。验证：新增回归「缺记录不 TypeError + 空作答清零」，旧代码在 `a.v` 处失败，新代码通过；全量见下。
