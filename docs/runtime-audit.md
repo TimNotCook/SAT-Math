@@ -672,3 +672,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 77 条：记录页对「correct > total」「total < detail 条数」照单全收，显示 150% 假成绩（2026-11-27）
 
 成绩记录来自云端合并/旧版/手工导入，`total`、`correct` 和 `detail` 可能互相矛盾。`scoreParts` 原来只在字段缺失时补算，`total:2/correct:3` 这种记录会直接算出 150%，绿点+「答对 3 / 2」，学生看到的是不可能的成绩。修成：detail 是逐题证据，`total` 小于 detail 条数时以 detail 为准；`correct` 缺失/负数/大于 total 时，有明细按明细计数，没有明细才夹到 0..total。验证：新增 `total:2, correct:3, detail:[对,错]` 回归，旧代码显示 150% 失败，新代码 50%、答对 1/2。
+
+## 第 78 条：模考记录 `estimate.scaled` 越界，记录页显示「999 / 800」并标绿（2026-11-27）
+
+官方换算分只可能是 200–800，但云端合并/旧版/手工导入会把 `estimate.scaled` 写成 999、0 或字符串。`grade`/`scoreLabel` 原来直接 `num()` 后使用，999 会被标成绿色「999 / 800」，0 会被标红「0 / 800」，都不是有效成绩。新增 `scaledOf()` 只接受 200–800，越界当作没有 estimate，退回逐题正确率。验证：新增 `scaled:999` 回归，旧代码显示 999/800 失败，新代码退回 50%。

@@ -105,9 +105,15 @@
   /* 分数越高越绿、越低越红、中间橙；未做完灰。
      模考用 200–800 分：≥700 绿、≥550 橙、其余红。
      抽查 / 讲义没有换算分，用正确率同阈值（≥85% / ≥60%）。 */
+  /* 官方模考换算分只有 200–800。云端/旧版写进 0、999、字符串时照单全收会
+     显示「999 / 800」还标绿；超出范围就当没有 estimate，退回正确率。 */
+  function scaledOf(rec) {
+    var n = num(asObj(rec && rec.estimate).scaled);
+    return n != null && n >= 200 && n <= 800 ? n : null;
+  }
   function grade(rec) {
     if (abandonedRecord(rec)) return 'void';
-    var est = asObj(rec.estimate), scaled = num(est.scaled);
+    var scaled = scaledOf(rec);
     if (txt(rec.mode) === 'mock' && scaled != null) {
       return scaled >= 700 ? 'good' : scaled >= 550 ? 'mid' : 'bad';
     }
@@ -117,7 +123,7 @@
   }
   function scoreLabel(rec) {
     if (abandonedRecord(rec)) return '未做完';
-    var est = asObj(rec.estimate), scaled = num(est.scaled);
+    var scaled = scaledOf(rec);
     if (txt(rec.mode) === 'mock' && scaled != null) return scaled + ' / 800';
     var sc = scoreParts(rec);
     return Math.round(sc.total ? sc.correct / sc.total * 100 : 0) + '%';

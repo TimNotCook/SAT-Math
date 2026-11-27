@@ -367,6 +367,22 @@ test('记录页：correct 大于 total / total 小于 detail 时夹成可信分�
   assert.ok(/答对 <b>1 \/ 2<\/b>/.test(html), '坏 correct 没有回落到明细题数');
 });
 
+test('记录页：模考 scaled 超出 200–800 时不当真，不显示「999 / 800」', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1700000000000, mode: 'mock', total: 2, correct: 1,
+      estimate: { scaled: 999 },
+      detail: [{ id: 'TD-11-01', correct: true }, { id: 'TD-11-02', correct: false }],
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '坏 scaled 记录打崩记录页：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(!/999 \/ 800/.test(html), '越界 scaled 仍显示成 999 / 800');
+  assert.ok(/50%/.test(html), '越界 scaled 没有退回明细正确率');
+});
+
 test('记录页：void 作废档案不能当正式成绩显示 0 分和整卷错题', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([{
