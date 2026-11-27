@@ -522,3 +522,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `history-page.js wrongRows()` 对 `detail` 也只做 `d && !isRight(d.correct)`：`5`、`'junk'` 的 `correct` 是 undefined，`!isRight(undefined)` 为 true，于是被当成错题行渲染，id、你的答案、正确答案全是「—」；`resultBody` 里的「错题（N）」也把坏值算进去。云端合并或半截导入的 detail 只要混进一个原始值，页面就多一条假错题。
 
 修法：detail 条目只认普通对象（`isDetail(d)`），`wrongRows` 和错题计数共用同一个过滤口径；有效错题为零时落「本次全部答对」。验证：真实 `history-page.js`，记录 `detail:[5,'junk',null]`，旧代码画出 2 条 `hist-wrong-row`、错题数 2，新代码 0 条并显示「本次全部答对」。`test/array-guard.test.js` 新代码 21/21。全量 `node --test` 348/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 47 条：成绩页 `detail/report` 里混入数组条目——结果页出现 Q? / — / ✗ 的幽灵行（2026-11-27）
+
+`exam.js renderResult()` / `renderResultList()` 用 `d && typeof d === 'object'` 过滤 detail，`units/topics/priority` 也一样。数组的 `typeof` 也是 object，`[ ... ]` 会通过过滤：结果页把它当一条错题渲染成 `Q?`、你的答案「—」、正确「—」、`✗`，补强区块也会多出空白单元/考点行。云端合并或半截导入把 detail 条目写成数组就会复现。
+
+修法：新增 `isRec = v => v && typeof v === 'object' && !Array.isArray(v)`，`detail0`、`allD`、`weaknessReport` 聚合、`units/topics/priority` 全部改走 `isRec`；`mergedState` 的 detail 过滤也排除数组。验证：静态回归锁住旧过滤式不再出现、`filter(isRec)` 至少 6 处；`test/array-guard.test.js` 新代码 22/22。全量 `node --test` 349/0；`verify_junk` 11×7；`verify_flows` 16/16。

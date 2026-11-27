@@ -249,6 +249,13 @@ test('exam.js 成绩页对残缺 result 降级：estimate/report 缺失也不白
   assert.ok(!/rep\.(units|topics|priority)\./.test(s), 'renderResult 还在裸取 report 的数组字段');
 });
 
+test('exam.js 成绩页过滤 detail/report 里的数组条目，不画 Q?/— 幽灵行', () => {
+  const s = fs.readFileSync(path.join(ROOT, 'exam.js'), 'utf8');
+  assert.ok(/const isRec = v => !!v && typeof v === 'object' && !Array\.isArray\(v\)/.test(s), 'exam.js 缺少普通对象判定器');
+  assert.ok(!/asArr\(r\.detail\)\.filter\(d => d && typeof d === 'object'\)/.test(s), 'detail 还接受数组条目');
+  assert.ok((s.match(/filter\(isRec\)/g) || []).length >= 6, 'detail/report 的条目没有统一走 isRec');
+});
+
 test('bump_assets.py 拒绝在任何带冲突标记的文件上跑', () => {
   const s = fs.readFileSync(path.join(ROOT, 'bump_assets.py'), 'utf8');
   assert.ok(/def assert_no_conflict_markers\(\)/.test(s), 'bump_assets 缺冲突标记闸门');
