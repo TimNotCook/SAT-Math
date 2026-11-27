@@ -543,8 +543,11 @@
        x=0 / y=0 line whenever 0 is inside that range, which is how the book
        prints a coordinate plane (axes cross at the origin, arrows at both
        ends). Used by the shaded-inequality figures. */
-    var zy = (o.axesAt === 'zero' && y.min < 0 && y.max > 0) ? 0 : null;
-    var zx = (o.axesAt === 'zero' && x.min < 0 && x.max > 0) ? 0 : null;
+    /* 书里的坐标平面永远是两轴在原点相交：只要 0 落在范围内就把轴挪到 0，
+       只有显式写 axesAt:'border' 的统计图（直方图/频数图那种底下贴边的）
+       才把轴留在外框。 */
+    var zy = (o.axesAt === 'border') ? null : ((y.min < 0 && y.max > 0) ? 0 : null);
+    var zx = (o.axesAt === 'border') ? null : ((x.min < 0 && x.max > 0) ? 0 : null);
     var axYv = zy != null ? zy : y.min;   // data-y of the horizontal axis
     var axXv = zx != null ? zx : x.min;   // data-x of the vertical axis
     out.push('<line x1="' + PX(x.min).toFixed(1) + '" y1="' + PY(axYv).toFixed(1) +
