@@ -1673,3 +1673,18 @@ html body.exam-page:has(#stage-answer:not([hidden])) .exam-context-left{justify-
 #clockLabel{font-size:10.5px!important;line-height:1.1!important;color:#8b9bb2!important;letter-spacing:.02em!important}
 
 html body.exam-page:has(#stage-answer:not([hidden])) .exam-context-left .drill-context-title{font-size:14px!important;font-weight:600!important;letter-spacing:.01em!important}
+
+/* 暗色下 landing 入口磁贴的“当前项”标题实测是 #1d4ed8（app.css 里那条
+   浅底蓝字 !important），落在深底磁贴只有 2.95:1，16px 板块名糊掉；按主题提亮。 */
+html[data-theme="dark"] body .entry-tile-grid .entry-tile.on b{color:#8fb2ff!important}
+html[data-theme="dark"] body .entry-tile-grid .entry-tile.on .entry-arrow{color:#8fb2ff!important}
+
+/* 暗色磁贴的状态字（未开始/进行中/已完成）是为白底设计的灰蓝，
+   11.5px 落在 #1c1c1e 上只有 3.99:1；按状态各自的语义色提亮。 */
+html[data-theme="dark"] body .tile-grid .tile-state{color:#8b9bb2!important}
+html[data-theme="dark"] body .tile-grid .tile-state.is-active{color:#7aa2ff!important}
+html[data-theme="dark"] body .tile-grid .tile-state.is-done{color:#4ade80!important}
+
+/* 讲义页四张板块卡在 390/320 下被 900px 的两列断点接管，每格只剩约 140px，
+   标题被 nowrap+ellipsis 截成“问题解决…”“几何与三…”。窄屏直接单列。 */
+@media (max-width:520px){body.jy-page #jyBoardCards{grid-template-columns:1fr}}
