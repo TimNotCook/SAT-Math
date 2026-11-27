@@ -18,6 +18,7 @@ SOURCES = [
     "tools/reference-sheet-theme.css",
     "tools/mock-theme.css",
     "tools/result-practice-theme.css",
+    "tools/result-practice-refine.css",
     "tools/result-rail-base.css",
     "tools/canvas-base.css",
     "tools/notes-theme.css",
@@ -26,11 +27,11 @@ SOURCES = [
     "tools/history-card-theme.css",
     "tools/mobile-theme.css",
 ]
-# 19 份：抽测开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
+# 20 份：抽测开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
 # 目录+讲义 / 错题·记录空态 / 真题答题页 / 题目导航修正 /
-# 公式参考纸 / 模考开场 / 板块结果 / 结果页底座 / 画布兜底 /
-# 讲义首页 / 讲义做题页 / 记录·错题页头 / 记录页空态卡 / 手机端。
-# 45: 公式列对齐成一条线。
+# 公式参考纸 / 模考开场 / 板块结果 / 板块结果收口 / 结果页底座 /
+# 画布兜底 / 讲义首页 / 讲义做题页 / 记录·错题页头 / 记录页空态卡 / 手机端。
+# 46: 板块结果答案改行内。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
