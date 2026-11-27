@@ -231,6 +231,9 @@
     if (!isPlainObject(s.answers)) s.answers = {};
     if (!isPlainObject(s.marks)) s.marks = {};
     if (!isPlainObject(s.wrongLog)) s.wrongLog = {};
+    /* submitted 也可能是字符串 'false'：练习页 !!
+       会把它当已交卷，点小节直接跳成绩页。 */
+    s.submitted = isRightFlag(s.submitted);
     /* 作答记录本身也可能是字符串/数组，或 {v:{x:1}} 这类对象值：drill 把对象
        直接塞进 input.value 会显示 [object Object]，统计又按「非空」算已作答。
        与 exam parseSession 同一口径：容器坏值重建，v 只留字符串/有限数字。 */

@@ -111,3 +111,10 @@ test('answers 是字符串时仍能写入作答，并修复成对象', () => {
   const disk = JSON.parse(store.tdsat_app_v1);
   assert.equal(disk.sections['1.1'].answers['TD-11-01'].v, 'A');
 });
+
+
+test('板块 submitted 是字符串 "false" 时归一成布尔 false', () => {
+  const { A } = boot({ sections: { '1.1': { answers: {}, cursor: 0, marks: {}, submitted: 'false' } } });
+  const st = A.secState('1.1', true);
+  assert.equal(st.submitted, false);
+});
