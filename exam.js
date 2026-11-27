@@ -1275,7 +1275,7 @@
       return `<div class="rev-item ${okFlag ? 'ok' : 'no'}">
       <div class="badge">${okFlag ? '✓' : '✗'}</div>
       <div class="body"><div class="ttl">Q${esc(dPos)}${OFFICIAL ? '' : ' · ' + esc(dTopic)}
-        <span class="tiny muted">${meta}${d.from === 'wrong' ? (OFFICIAL ? ' · Previously missed' : ' · 历史错题') : ''}${d.marked ? (OFFICIAL ? ' · Marked' : ' · 曾标记') : ''}</span></div>
+        <span class="tiny muted">${meta}${d.from === 'wrong' ? (OFFICIAL ? ' · Previously missed' : ' · 历史错题') : ''}${isRightFlag(d.marked) ? (OFFICIAL ? ' · Marked' : ' · 曾标记') : ''}</span></div>
         <div class="sub">${OFFICIAL ? '' : esc(dSource) + ' · '}${OFFICIAL ? 'Time ' : '用时 '}${fmt(dSeconds * 1000)}</div>
         <div class="ans"><span>${OFFICIAL ? 'Your answer' : '你的答案'} <b style="color:${okFlag ? 'var(--ok)' : 'var(--bad)'}">${esc(dGiven || '—')}</b></span>
           <span>${OFFICIAL ? 'Correct answer' : '正确答案'} <b>${esc(dAnswer || '—')}</b></span></div>
