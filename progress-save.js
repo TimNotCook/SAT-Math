@@ -85,10 +85,13 @@
     if (version !== VERSION)
       return { status: 'version-mismatch', found: version, expected: VERSION, savedAt: savedAt };
     var p = d.position;
-    if (!p.sec || !A.CATALOG[p.sec])
+    /* 旧存档的 position.sec 可能还是迁移前的板块 id（2.6.T17 等）：
+       不 resolveSec 会把它判成「板块已不存在」，老存档永远恢复不了。 */
+    var psec = p.sec && A.resolveSec ? A.resolveSec(p.sec) : p.sec;
+    if (!psec || !A.CATALOG[psec])
       return { status: 'corrupt', reason: '存档指向的板块已不存在' };
     var pn = Number(p.n);
-    if (!isFinite(pn) || Math.floor(pn) !== pn || pn < 1 || pn > (A.CATALOG[p.sec].length || 1))
+    if (!isFinite(pn) || Math.floor(pn) !== pn || pn < 1 || pn > (A.CATALOG[psec].length || 1))
       return { status: 'corrupt', reason: '存档的题目位置超出范围' };
 
     // summary from the archive itself, not from live state
@@ -105,7 +108,7 @@
     });
     return {
       status: 'ok', version: version, savedAt: savedAt,
-      position: { sec: p.sec, n: pn },
+      position: { sec: psec, n: pn },
       summary: {
         total: total, answered: answered, unanswered: total - answered, correct: correct,
         percent: total ? Math.round(answered / total * 100) : 0
@@ -243,8 +246,11 @@
 
     Object.keys(d.sections).forEach(function (sid) {
       var snap = d.sections[sid] || {};
-      if (!A.CATALOG[sid]) return;        // unknown section: ignore, never inject
-      var cur = live.sections[sid];
+      /* 旧存档的 section key 可能也是迁移前 id：先归一再合并，别让老存档的
+         作答因为「未知板块」被整段丢掉。 */
+      var sidN = A.resolveSec ? A.resolveSec(sid) : sid;
+      if (!A.CATALOG[sidN]) return;        // unknown section: ignore, never inject
+      var cur = live.sections[sidN];
       if (!cur || typeof cur !== 'object' || Array.isArray(cur)) cur = { answers: {}, marks: {}, cursor: 0 };
       /* 本机 answers/marks 也可能是字符串（旧版/云端覆盖）：只判 undefined/数组
          会漏掉字符串，恢复合并时 cur.answers[qid]= 直接 TypeError 或静默丢答案。 */
@@ -298,7 +304,7 @@
         cur.submitted = true;
         if (snap.submittedAt) cur.submittedAt = snap.submittedAt;
       }
-      live.sections[sid] = cur;
+      live.sections[sidN] = cur;
     });
     live.last = { sec: st.position.sec, qid: null, ts: Date.now() };
     localStorage.setItem(LIVE, JSON.stringify(live));

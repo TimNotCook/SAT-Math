@@ -279,3 +279,24 @@ test('存档位置跟随旧板块别名归一，不再错落到第一个板块',
   assert.equal(res.status, 'ok', '存档应该能写出来：' + JSON.stringify(res));
   assert.equal(res.position.sec, '2.7.T17', '旧板块别名没有归一，存档位置错了');
 });
+
+
+test('旧板块别名的存档能通过 inspect 并恢复到新板块', () => {
+  const { A } = boot({ sections: {}, last: null }, null);
+  const alias = '2.6.T17', canonical = '2.7.T17';
+  const qid = (A.CATALOG[canonical] || [])[0] && A.CATALOG[canonical][0].id;
+  assert.ok(qid, '题库里 2.7.T17 必须有题');
+  const archive = {
+    producer: 'tdsat-bluebook', version: 1, savedAt: 1700000000000,
+    position: { sec: alias, n: 1 },
+    sections: { [alias]: { answers: { [qid]: { v: 'A', ts: 9 } }, marks: {}, wrongLog: {} } },
+  };
+  const { SAVE } = boot({ sections: {}, last: null }, archive);
+  const ins = SAVE.inspect();
+  assert.equal(ins.status, 'ok', '旧板块别名的存档被判 corrupt：' + JSON.stringify(ins));
+  assert.equal(ins.position.sec, canonical);
+  const { SAVE: S2, store } = boot({ sections: {}, last: null }, archive);
+  assert.ok(S2.restore().ok);
+  const live = JSON.parse(store[LIVE_KEY]);
+  assert.equal(live.sections[canonical].answers[qid].v, 'A', '旧板块 key 的作答没有搬进新板块');
+});
