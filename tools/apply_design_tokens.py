@@ -3,8 +3,8 @@
 用法：python3 tools/apply_design_tokens.py
 
 2026-11-28：整体回退到原来的主题（"改回原来的主题"）。
-当前 SOURCES 只挂一份极小的收尾补丁 tools/hide-topics.css（下线结果页「具体知识点」面板），
-主体仍是原始底座（淡奶白 + 蓝图蓝 + 白玻璃卡）。
+当前 SOURCES 只挂一份极小的收尾补丁 tools/hide-topics.css（下线结果页「知识点总结」面板，
+并收起因此空掉的「薄弱点报告」标题），主体仍是原始底座（淡奶白 + 蓝图蓝 + 白玻璃卡）。
 纸面 / 沙色那套覆盖层仍整段移除：要恢复，把下面注释里的 23 份按原顺序填回 SOURCES，
 再推一次本文件即可，脚本幂等、按 marker 整段替换（marker 会从 tools/study-theme.css 首行回来）。
 """
