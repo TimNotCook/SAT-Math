@@ -475,10 +475,14 @@
         for (var i = 0; i < muts.length; i++) {
           var m = muts[i];
           if (m.type === 'characterData') translateTextNode(m.target);
+          else if (m.type === 'attributes') translateAttrs(m.target);
           else for (var j = 0; j < m.addedNodes.length; j++) walk(m.addedNodes[j]);
         }
       });
-      obs.observe(document.body, { childList: true, subtree: true, characterData: true });
+      obs.observe(document.body, {
+        childList: true, subtree: true, characterData: true,
+        attributes: true, attributeFilter: ['placeholder', 'title', 'aria-label', 'alt']
+      });
       /* <title> 由各页脚本随时改写（每换一节就换标题），单独盯 head：
          英文模式下标题一出现中文就翻，切回中文后由页面自己写回原文。 */
       try {
