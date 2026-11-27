@@ -200,9 +200,12 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
    loadArr('tdsat_exam_suite_results_v1').forEach(function(r){if(!r||typeof r!=='object')return;var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':r.mode==='jiangyi'?'讲义复习':'考试练习';
      /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(isTrueFlag(r.void))return;
      if(r.mode==='jiangyi'&&!window.TD_JY)return;
-     asArr(r.detail).forEach(function(d){if(!d||typeof d!=='object')return;var q=questionById(d.id);
-       if(r.mode==='jiangyi'&&!String(d.given==null?'':d.given).trim())return; /* 讲义未作答不算错题 */
-       if(!isRight(d.correct)&&stillWrong(q,d.given))add(map,q,d.given,name,r.date||0);});});
+     asArr(r.detail).forEach(function(d){if(!d||typeof d!=='object'||Array.isArray(d))return;var q=questionById(d.id);
+       var dGiven=plainText(d.given);
+       /* 空作答不是错题；对象 given 会被 String() 变成 [object Object] 后再
+          降级成空值，凭空多一张「你的答案 未作答」的幽灵卡。 */
+       if(!dGiven)return;
+       if(!isRight(d.correct)&&stillWrong(q,dGiven))add(map,q,dGiven,name,r.date||0);});});
    var legacy=load('tdsat_state_v1')||{},legacyWrong=legacy.wrong||{},legacySeen={};
    Object.keys(legacyWrong).forEach(function(id){
      var key=id+'|历史错题';

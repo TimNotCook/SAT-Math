@@ -412,3 +412,20 @@ test('记录页：旧讲义成绩 detail 缺 answer 时回查 JY 题库补正确
   assert.ok(html.indexOf(escHtml(q.answer)) >= 0, '记录页没有用 JY 题库补出正确答案');
   function escHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 });
+
+
+test('成绩 detail 的 given 是对象/空值时，错题本不生成幽灵卡', () => {
+  const store = { tdsat_exam_suite_results_v1: JSON.stringify([{
+    date: 1700000000000, mode: 'mock', total: 2, correct: 0, elapsed: 60,
+    detail: [
+      { id: 'TD-11-01', given: { x: 1 }, correct: false },
+      { id: 'TD-11-02', given: '', correct: false },
+    ], report: {},
+  }]) };
+  let threw = null, els = null;
+  try { els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '坏成绩 detail 打崩错题本：' + (threw && threw.message));
+  const html = els && els.wrongList ? els.wrongList.innerHTML : '';
+  assert.ok(!/TD-11-01|TD-11-02/.test(html), '对象/空 given 被收成幽灵错题卡');
+});
