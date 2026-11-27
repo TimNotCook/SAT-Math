@@ -6,15 +6,28 @@
 <title>讲义 · 线性方程与函数</title>
 <style>
   :root{
-    --paper:#f7f6f2; --ink:#20242b; --ink2:#4a4f57; --sub:#8d9199; --faint:#a8acb4;
-    --line:#e7e3da; --line-soft:#efece4; --sand:#f4eddf; --blue:#2563eb;
+    --bar-bg:rgba(247,246,242,.94); --paper:#f7f6f2; --ink:#20242b; --ink2:#4a4f57; --sub:#8d9199; --faint:#a8acb4;
+    --line:#e7e3da; --line-soft:#efece4; --sand:#f4eddf; --sand-ink:#4a4237;
+    --sand-k:#a08a5e; --sand-rule:#c9b48a; --card:#ffffff; --blue:#2563eb;
+  }
+  html.theme-dark{
+    --paper:#121214; --ink:#e9e9ec; --ink2:#b9b9c1; --sub:#8c8c95; --faint:#6d6d76;
+    --line:#2a2a2f; --line-soft:#232327; --sand:#211c14; --sand-ink:#cfc2a8;
+    --sand-k:#b09468; --sand-rule:#8d7a55; --card:#18181b; --blue:#3b76f0; --bar-bg:rgba(18,18,20,.92);
+  }
+  @media (prefers-color-scheme:dark){
+    html:not(.theme-light){
+      --paper:#121214; --ink:#e9e9ec; --ink2:#b9b9c1; --sub:#8c8c95; --faint:#6d6d76;
+      --line:#2a2a2f; --line-soft:#232327; --sand:#211c14; --sand-ink:#cfc2a8;
+      --sand-k:#b09468; --sand-rule:#8d7a55; --card:#18181b; --blue:#3b76f0; --bar-bg:rgba(18,18,20,.92);
+    }
   }
   *{box-sizing:border-box}
-  html{background:var(--paper)}
+  html{background:var(--paper);color-scheme:light dark}
   body{margin:0;background:var(--paper);color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
     -webkit-font-smoothing:antialiased;line-height:1.75}
-  .bar{position:sticky;top:0;z-index:5;background:rgba(247,246,242,.94);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line)}
+  .bar{position:sticky;top:0;z-index:5;background:var(--bar-bg);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line)}
   .bar-in{max-width:760px;margin:0 auto;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}
   .bar-k{font-size:11px;letter-spacing:.16em;color:var(--faint);font-weight:600}
   .bar-a{font-size:12.5px;color:var(--sub);text-decoration:none}
@@ -29,8 +42,11 @@
   .meta b{display:block;font-size:19px;font-weight:600;color:var(--ink);line-height:1.4;font-variant-numeric:tabular-nums}
   .toc{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 40px}
   .toc a{font-size:11.5px;color:var(--sub);text-decoration:none;padding:4px 9px;border:1px solid transparent;border-radius:2px;font-variant-numeric:tabular-nums}
-  .toc a:hover{background:#f1ece0;color:var(--ink)}
-  .toc a.on{border-color:#e0d7c4;background:#faf6ec;color:var(--ink);font-weight:600}
+  .toc a:hover{background:var(--line-soft);color:var(--ink)}
+  .toc a.rd{color:var(--ink)}
+  .toc a.rd:after{content:"✓";font-size:9.5px;color:var(--sand-k);margin-left:3px;vertical-align:.08em}
+  .toc-p{margin-left:auto;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;letter-spacing:.04em;align-self:center}
+  .toc a.on{border-color:var(--line);background:var(--sand);color:var(--ink);font-weight:600}
 
   section{margin:0 0 42px}
   .h{display:flex;gap:14px;align-items:baseline;margin:0 0 16px}
@@ -40,20 +56,20 @@
   p strong,b{color:var(--ink);font-weight:600}
   ul{margin:0 0 14px;padding:0;list-style:none}
   ul li{position:relative;padding-left:20px;margin:0 0 10px;font-size:15px;color:var(--ink2);max-width:38em}
-  ul li:before{content:"";position:absolute;left:2px;top:.72em;width:5px;height:1px;background:#c9ccd2}
-  .warn li:before{background:#d8c39a;width:6px}
-  .check{background:#fff;border:1px solid var(--line);border-radius:2px;padding:18px 20px}
+  ul li:before{content:"";position:absolute;left:2px;top:.72em;width:5px;height:1px;background:var(--faint);opacity:.55}
+  .warn li:before{background:var(--sand-rule);width:6px}
+  .check{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:18px 20px}
   .check li{padding-left:22px}
   .check li:before{content:"□";left:0;top:0;width:auto;height:auto;background:none;color:var(--faint);font-size:14px}
   .eq{font-family:"SF Pro Display","Helvetica Neue",Georgia,serif;font-size:19px;color:var(--ink);padding:2px 0;margin:0 0 14px;letter-spacing:.01em}
-  .diagram{border:1px solid var(--line);background:#fbfaf7;border-radius:2px;padding:18px 10px 8px;margin:0 0 10px}
+  .diagram{border:1px solid var(--line);background:var(--card);border-radius:2px;padding:18px 10px 8px;margin:0 0 10px}
   .diagram svg{display:block;width:100%;height:auto}
   .cap{font-size:11.5px;color:var(--sub);margin:0 0 20px}
   .eg{background:var(--sand);border-radius:2px;padding:18px 20px;margin:0 0 16px}
-  .eg-k{font-size:10.5px;letter-spacing:.14em;color:#a08a5e;font-weight:600;margin:0 0 8px}
-  .eg p{margin:0 0 8px;color:#4a4237;font-size:14.5px}
+  .eg-k{font-size:10.5px;letter-spacing:.14em;color:var(--sand-k);font-weight:600;margin:0 0 8px}
+  .eg p{margin:0 0 8px;color:var(--sand-ink);font-size:14.5px}
   .eg p.step{padding-left:18px;position:relative}
-  .eg p.step:before{content:"";position:absolute;left:0;top:.72em;width:5px;height:1px;background:#c9b48a}
+  .eg p.step:before{content:"";position:absolute;left:0;top:.72em;width:5px;height:1px;background:var(--sand-rule)}
 
   .go{border-top:1px solid var(--line);padding-top:26px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
   .go-l{display:flex;gap:18px;font-size:12.5px}
@@ -72,6 +88,7 @@
     .go{flex-direction:column;align-items:flex-start}
   }
 </style>
+<script>try{var t=localStorage.getItem("tdsat_theme");if(t&&/dark/i.test(t)){document.documentElement.classList.add("theme-dark")}else if(t){document.documentElement.classList.add("theme-light")}}catch(e){}</script>
 </head>
 <body>
 <div class="bar"><div class="bar-in">
@@ -152,6 +169,41 @@
   if (next) links.push('<a href="lesson.html?sec=' + next + '">' + next + ' →</a>');
   document.getElementById('goL').innerHTML = links.join('');
   document.getElementById('goBtn').textContent = '去做 ' + sec + ' 的题';
+  // —— 阅读进度：只在本地记一笔，用来在目录上打勾 ——
+  var KEY = 'lesson_read_v1';
+  function readMap() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } }
+  function paintToc() {
+    var m = readMap(), n = 0;
+    [].forEach.call(document.querySelectorAll('#toc a'), function (a) {
+      var k = a.getAttribute('href').split('=')[1];
+      if (m[k]) { a.classList.add('rd'); n++; }
+    });
+    var cnt = document.getElementById('tocCount');
+    if (!cnt) {
+      cnt = document.createElement('span');
+      cnt.id = 'tocCount'; cnt.className = 'toc-p';
+      document.getElementById('toc').appendChild(cnt);
+    }
+    cnt.textContent = '已读 ' + n + ' / ' + keys.length;
+  }
+  paintToc();
+  function markRead() {
+    var m = readMap();
+    if (!m[sec]) { m[sec] = 1; try { localStorage.setItem(KEY, JSON.stringify(m)); } catch (e) {} paintToc(); }
+  }
+  var secs = document.querySelectorAll('#body section');
+  if (secs.length && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      for (var i = 0; i < es.length; i++) { if (es[i].isIntersecting) { markRead(); io.disconnect(); break; } }
+    }, { rootMargin: '0px 0px -25% 0px' });
+    io.observe(secs[secs.length - 1]);
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '')) return;
+    if (e.key === 'ArrowRight' && next) location.href = 'lesson.html?sec=' + next;
+    if (e.key === 'ArrowLeft' && prev) location.href = 'lesson.html?sec=' + prev;
+  });
 })();
 </script>
 </body>
