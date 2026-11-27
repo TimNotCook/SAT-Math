@@ -32,6 +32,15 @@ function boot(seed) {
   return { A: sandbox.window.TD_APP, store };
 }
 
+test('板块记录本身是字符串时，secState 不崩并换成空对象', () => {
+  const { A, store } = boot({ sections: { '1.1': 'junk' } });
+  const st = A.secState('1.1', true);
+  assert.equal(typeof st, 'object');
+  assert.equal(st.answers && typeof st.answers, 'object');
+  assert.doesNotThrow(() => A.setAnswer('1.1', 'TD-11-01', 'A'));
+  assert.equal(JSON.parse(store.tdsat_app_v1).sections['1.1'].answers['TD-11-01'].v, 'A');
+});
+
 test('answers 是字符串时仍能写入作答，并修复成对象', () => {
   const { A, store } = boot({ sections: { '1.1': { answers: 'junk', marks: [], wrongLog: 'x' } } });
   const st = A.secState('1.1', true);

@@ -155,9 +155,9 @@
       var to = SECTION_ALIAS[old], src = st.sections[old];
       if (!src || !CATALOG[to]) return;
       var dst = st.sections[to];
-      if (!dst) dst = st.sections[to] = { answers: {}, cursor: 0, completed: false, marks: {} };
-      if (!dst.answers) dst.answers = {};
-      if (!dst.marks) dst.marks = {};
+      if (!isPlainObject(dst)) dst = st.sections[to] = { answers: {}, cursor: 0, completed: false, marks: {} };
+      if (!isPlainObject(dst.answers)) dst.answers = {};
+      if (!isPlainObject(dst.marks)) dst.marks = {};
       Object.keys(src.answers || {}).forEach(function (qid) {
         var nid = ALIAS[qid] || qid;
         if (src.answers[qid] && !dst.answers[nid]) dst.answers[nid] = src.answers[qid];
@@ -215,6 +215,9 @@
       st.sections[id] = { answers: {}, cursor: 0, completed: false, marks: {}, wrongLog: {} };
     }
     var s = st.sections[id];
+    /* 板块记录本身也可能是字符串/数组（旧版或云端合并）：给原始值挂
+       .answers 会在严格模式下直接 TypeError，先把整条记录换成空对象。 */
+    if (!isPlainObject(s)) s = st.sections[id] = { answers: {}, cursor: 0, completed: false, marks: {}, wrongLog: {} };
     /* 云端合并/旧版本可能把 answers / marks / wrongLog 写成字符串、数组：
        它们是真值但不是对象，setAnswer 往 answers[qid] 上写会直接 TypeError。
        读路径也统一修成普通对象，宁可丢这一段坏记录，也不能让练习页写不进答案。 */
