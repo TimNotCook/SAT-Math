@@ -109,3 +109,11 @@ test('dark 顶栏账号按钮已登录/悬停不再浅银底白字', () => {
   assert.match(css, /html\[data-theme="dark"\] \.td-acct-btn:hover,[^}]*background:rgba\(255,255,255,\.18\)!important/);
   assert.match(css, /html\[data-theme="dark"\] \.td-acct-btn\[data-on="1"\]:hover,[^}]*background:rgba\(37,99,235,\.32\)!important/);
 });
+
+test('dark 未做完成绩角标可读', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.hist-score\.void\{color:#a8a8ad!important\}/);
+});
+
+test('dark 图片导入关闭按钮文字不竖排', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.imgimp-x\{[^}]*white-space:nowrap/);
+});
