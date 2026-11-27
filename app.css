@@ -914,3 +914,13 @@ body.jy-page #jyBoardCards .entry-tile b{font-size:14.5px;font-weight:600;white-
 @media(max-width:900px){body.jy-page #jyBoardCards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 body.shell-history .hist-empty{padding:44px 24px;border:1px solid #e6ebf3;border-radius:14px;
   background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04);color:#7b8798}
+
+/* 窄屏：右上装饰圆环会压到磁贴上，收掉；三个入口保持一行三格，别留孤儿 */
+@media(max-width:999px){
+  body.shell-drill .hero-deco{display:none}
+  .entry-tile-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  body.jy-page #jyBoardCards{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+  .entry-tile-grid{grid-template-columns:1fr}
+}
