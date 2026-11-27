@@ -265,3 +265,16 @@ test('导入错题仓库 items 是字符串/数字时，错题本不崩且仍画
   assert.strictEqual(threw, null, '错题本被坏导入仓库打崩：' + (threw && threw.message));
   assert.ok(els && els.wrongList && els.wrongList.innerHTML.length > 0, '错题本没画出东西');
 });
+
+test('常规错题记录里作答是对象时，不把 [object Object] 印到「你的答案」', () => {
+  const store = {
+    tdsat_app_v1: JSON.stringify({ sections: { L1: { answers: { 'U1-01': { v: { x: 1 }, correct: false, ts: 1 } } } }, last: null }),
+  };
+  let threw = null, els = null;
+  try { els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '常规错题的对象作答打崩：' + (threw && threw.message));
+  assert.ok(els && els.wrongList && els.wrongList.innerHTML.length > 0, '常规错题没画出来');
+  assert.ok(!/\[object Object\]/.test(els.wrongList.innerHTML), '常规错题出现 [object Object]');
+  assert.ok(/未作答/.test(els.wrongList.innerHTML), '对象作答没有降级成未作答');
+});

@@ -142,10 +142,13 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
       不重复进错题本。 */
    if(q&&q.dup)return;
    if(!q||map[q.id]&&map[q.id].corrected&&source!=='单元练习')return;
+   /* 存档里的作答/来源可能是对象：直接 String() 会把 [object Object] 印到
+      「你的答案」和来源行，统一先过 plainText 降级。 */
+   var gv=plainText(given),sv=plainText(source);
    var x=map[q.id]||{q:q,attempts:0,sources:[],date:0,given:'',corrected:false};
-   x.attempts++; if(x.sources.indexOf(source)<0)x.sources.push(source);
-   if((date||0)>=x.date){x.date=date||0;x.given=given==null?'':String(given);x.source=source;}
-   if(source==='单元练习'){x.corrected=false;x.practiceWrong=true;}
+   x.attempts++; if(x.sources.indexOf(sv)<0)x.sources.push(sv);
+   if((date||0)>=x.date){x.date=date||0;x.given=gv;x.source=sv;}
+   if(sv==='单元练习'){x.corrected=false;x.practiceWrong=true;}
    map[q.id]=x;
  }
  /* 2026-11-16: 历史作答记录里的 correct 是「作答当时」按当时的答案判定的。
