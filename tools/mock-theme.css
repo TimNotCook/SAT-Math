@@ -15,7 +15,7 @@ html:not([data-theme="dark"]) body.exam-page.is-mock #stage-intro,
 html:not([data-theme="dark"]) body.exam-page.is-mock #introOptions{background:transparent!important;border:0!important;box-shadow:none!important}
 
 /* 三块真卡片；外层大卡收紧底部留白 */
-html:not([data-theme="dark"]) body.exam-page.is-mock .mock-entry{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important;padding-bottom:28px!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .mock-entry{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important;padding-bottom:22px!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .mock-main-card{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:0!important;padding:0 0 4px!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock #introParams{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:12px!important;box-shadow:none!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .mock-directions{background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important}
@@ -34,10 +34,13 @@ html:not([data-theme="dark"]) body.exam-page.is-mock #backPractice:hover{color:#
 
 /* 结构表：去蓝，回归分栏细线 + 等宽黑字 */
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-row,
-html:not([data-theme="dark"]) body.exam-page.is-mock .ms-total{display:flex!important;justify-content:space-between!important;align-items:baseline!important;gap:12px!important;padding:8px 0!important;border-bottom:1px solid #efebe2!important;font-size:12.5px!important;color:#8d9199!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .ms-total{display:flex!important;justify-content:space-between!important;align-items:baseline!important;gap:12px!important;padding:8px 0!important;border-bottom:1px solid #efebe2!important;font-size:12.5px!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .ms-row>span,
+html:not([data-theme="dark"]) body.exam-page.is-mock .ms-total>span{color:#8d9199!important;font-size:12.5px!important;font-weight:500!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-row b,
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-total b{color:#20242b!important;font-weight:600!important;font-size:12.5px!important;font-variant-numeric:tabular-nums}
-html:not([data-theme="dark"]) body.exam-page.is-mock .ms-total{border-bottom:0!important;border-top:1px solid #e7e3da!important;margin-top:2px!important;padding-top:10px!important;color:#5c6169!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .ms-total{border-bottom:0!important;border-top:1px solid #e7e3da!important;margin-top:2px!important;padding-top:10px!important}
+html:not([data-theme="dark"]) body.exam-page.is-mock .ms-total>span{color:#5c6169!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-included{margin:14px 0 0!important;padding:0!important;list-style:none!important;display:flex!important;flex-direction:column!important;gap:8px!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-included li{display:flex!important;gap:8px!important;align-items:flex-start!important;color:#5c6169!important;font-size:12.5px!important;line-height:1.5!important}
 html:not([data-theme="dark"]) body.exam-page.is-mock .ms-included svg{width:12px!important;height:12px!important;flex:none!important;margin-top:3px!important;color:#a8acb4!important;stroke:#a8acb4!important}
