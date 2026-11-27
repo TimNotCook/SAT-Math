@@ -5,7 +5,11 @@
 import io
 
 MARKER = "/* ==== study-theme v2"
-SOURCES = ["tools/study-theme.css", "tools/question-theme.css"]
+SOURCES = [
+    "tools/study-theme.css",
+    "tools/question-theme.css",
+    "tools/intro-theme.css",
+]
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
@@ -13,7 +17,8 @@ base = (src[:i] if i != -1 else src).rstrip()
 
 blocks = [io.open(f, encoding="utf-8").read().strip() for f in SOURCES]
 out = base + "\n\n" + "\n\n".join(blocks) + "\n"
-out = out.replace("\n\n\n\n", "\n\n")
+while "\n\n\n" in out:
+    out = out.replace("\n\n\n", "\n\n")
 assert out.count("{") == out.count("}"), "brace mismatch"
 io.open("glass.css", "w", encoding="utf-8").write(out)
 print("glass.css synced: %d bytes" % len(out))
