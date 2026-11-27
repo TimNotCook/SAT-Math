@@ -274,7 +274,18 @@
     if (s == null) return s;
     if (Object.prototype.hasOwnProperty.call(EN, s)) return EN[s];
     /* 含中文才做词块替换，纯英文/数字串原样返回，避免误伤题干 */
-    if (/[\u4e00-\u9fff]/.test(s)) s = phraseReplace(s);
+    if (/[\u4e00-\u9fff]/.test(s)) {
+      s = phraseReplace(s);
+      /* 「A · B · C」整串：按分隔符切开逐段查字典，标题/面包屑靠这个拼出来 */
+      if (/[\u4e00-\u9fff]/.test(s)) {
+        s = s.split(' · ').map(function (part) {
+          var k = part.trim();
+          if (Object.prototype.hasOwnProperty.call(EN, k)) return EN[k];
+          var pk = phraseReplace(k);
+          return /[\u4e00-\u9fff]/.test(pk) ? k : pk;
+        }).join(' · ');
+      }
+    }
     if (!/[\u4e00-\u9fff]/.test(s)) return s;
     for (var i = 0; i < PATS.length; i++) {
       if (PATS[i][0].test(s)) return s.replace(PATS[i][0], PATS[i][1]);
