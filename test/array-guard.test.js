@@ -86,6 +86,7 @@ test('脏存档体检脚本存在、复用 lib/chrome 与 lib/serve', () => {
   assert.ok(/H-bad-report/.test(s), 'verify_junk 缺少「成绩记录 report 错类型」画像（第 25 条）');
   assert.ok(/I-import-given/.test(s), 'verify_junk 缺少「导入错题 given 错类型」画像（第 26 条）');
   assert.ok(/J-import-stem/.test(s), 'verify_junk 缺少「导入错题 stem 错类型」画像（第 27 条）');
+  assert.ok(/K-import-objects/.test(s), 'verify_junk 缺少「导入错题展示字段全是对象」画像（第 28 条）');
 });
 
 test('导入错题 stem 是对象/数组时不崩页', () => {
@@ -102,6 +103,21 @@ test('导入错题 stem 是对象/数组时不崩页', () => {
   assert.ok(els && els.wrongList && els.wrongList.innerHTML.length > 0, '导入错题没画出卡片');
   assert.ok(/题干文字暂缺/.test(els.wrongList.innerHTML), '对象型 stem 没有落缺省文案');
 });
+test('导入错题展示字段是对象时不出 [object Object]', () => {
+  const store = {
+    tdsat_imported_wrong_v1: JSON.stringify({ items: [
+      { key: 'v1', stem: 'Test', choices: { A: { x: 1 } }, type: 'mcq', answer: { x: 1 }, given: { y: 2 }, topic: { x: 1 }, source: { x: 1 }, importedAt: { x: 1 } },
+    ] }),
+  };
+  let threw = null, els = null;
+  try { els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '导入错题脏字段打崩：' + (threw && threw.message));
+  assert.ok(els && els.wrongList && els.wrongList.innerHTML.length > 0, '导入错题没画出卡片');
+  assert.ok(!/\[object Object\]/.test(els.wrongList.innerHTML), '错题卡出现 [object Object]');
+  assert.ok(/未作答/.test(els.wrongList.innerHTML), '对象型 given 没有降级成未作答');
+});
+
 
 test('成绩记录里 detail 是对象、条目是 null 时，错题本与记录页都不崩', () => {
   const store = {

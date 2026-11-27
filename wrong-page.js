@@ -12,6 +12,13 @@
    if(typeof v==='object')return'';
    return String(v);
  }
+
+ function plainChoices(v){
+   var out={};
+   if(Array.isArray(v)){v.forEach(function(x,i){out[String.fromCharCode(65+i)]=plainText(x);});return out;}
+   if(v&&typeof v==='object'){Object.keys(v).forEach(function(k){out[k]=plainText(v[k]);});}
+   return out;
+ }
  /* Render the question's figure (graph/table/diagram) when one is registered,
     so 错题回顾 shows the same visual as 单元练习 / 单元抽查 / 模考.
     Uses the shared window.TD_FIG.showFigure — never throws if absent. */
@@ -233,13 +240,15 @@ function importedGroupHtml(){
   return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 独立记录<span>'+list.length+' 道 · 其中 '+nRO+' 道已匹配题库（只读）</span></h2>'+list.map(function(it,i){
     var ro=!!it.readOnly,bankQ=null;
     if(ro&&it.matchId){for(var s=0;s<A.SECS.length&&!bankQ;s++){bankQ=(A.CATALOG[A.SECS[s]]||[]).find(function(x){return x.id===it.matchId;})||null;}}
+    var impStem=plainText(it.stem),impTopic=plainText(it.topic),impAnswer=plainText(it.answer),
+        impValue=plainText(it.value),impType=plainText(it.type),impSource=plainText(it.source);
     var q=bankQ
-      ?{id:bankQ.id,stem:(T[bankQ.id]||{}).stem||bankQ.stem||it.stem,choices:(T[bankQ.id]||{}).choices||{},type:bankQ.type,
-        answer:bankQ.answer,value:bankQ.value,topic:bankQ.topic||it.topic||'',section:bankQ.section,unit:bankQ.unit,no:bankQ.no}
-      :{id:'IMP-'+(it.key||i),stem:plainText(it.stem)||'题干文字暂缺。',choices:it.choices||{},type:it.type,answer:it.answer,
-        value:it.value,topic:it.topic||'',section:'导入',unit:0,no:'—'};
-    var x={q:q,given:it.given||'',attempts:1,sources:['导入错题'],date:it.importedAt||0,corrected:false},a=analysis(x);
-    return'<article class="wrong-card"><div class="wrong-card-head"><b>导入 · '+(it.source?esc(it.source):'第 '+(i+1)+' 道')+'</b><span>'+(ro?'已匹配题库 · 只读记录 · 未改动你的作答':'导入错题 · 仅错题本可见')+'</span></div>'+
+      ?{id:bankQ.id,stem:plainText((T[bankQ.id]||{}).stem||bankQ.stem||it.stem),choices:plainChoices((T[bankQ.id]||{}).choices||bankQ.choices),
+        type:bankQ.type,answer:bankQ.answer,value:bankQ.value,topic:plainText(bankQ.topic||it.topic),section:bankQ.section,unit:bankQ.unit,no:bankQ.no}
+      :{id:'IMP-'+(it.key||i),stem:impStem||'题干文字暂缺。',choices:plainChoices(it.choices),type:impType,answer:impAnswer,
+        value:impValue,topic:impTopic,section:'导入',unit:0,no:'—'};
+    var x={q:q,given:plainText(it.given),attempts:1,sources:['导入错题'],date:it.importedAt||0,corrected:false},a=analysis(x);
+    return'<article class="wrong-card"><div class="wrong-card-head"><b>导入 · '+(impSource?esc(impSource):'第 '+(i+1)+' 道')+'</b><span>'+(ro?'已匹配题库 · 只读记录 · 未改动你的作答':'导入错题 · 仅错题本可见')+'</span></div>'+
       figHtml(q)+
       '<p class="wrong-stem">'+mathfmt(plainText(q.stem).trim()||'题干文字暂缺。')+'</p>'+
       '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
