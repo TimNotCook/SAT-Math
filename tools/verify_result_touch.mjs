@@ -4,7 +4,8 @@
  * 1) 两个 CTA（Review Missed Questions / Take Another Test）在触屏上必须 ≥44px 高；
  * 2) 它们不能被 toast 或别的浮层挡住（elementFromPoint 命中的必须是按钮自己）；
  * 3) 320 窄屏不出横向滚动、按钮不越界；
- * 4) 桌面鼠标端保持原高度（不因为触屏规则变高）。
+ * 4) 成绩页题单 tab（All Questions / Incorrect Only）触屏也要 ≥44px；
+ * 5) 桌面鼠标端保持原高度（不因为触屏规则变高）。
  * 用法：node tools/verify_result_touch.mjs --base http://127.0.0.1:PORT
  */
 import { spawn } from 'node:child_process';
@@ -94,7 +95,9 @@ const READ = `(()=>{
       top:Math.round(r.top), bottom:Math.round(r.bottom), ratio,
       hitSelf: !!(hit && (hit.id===id || b.contains(hit))), hit: hit?hit.id||hit.tagName:null};
   });
-  return {vw:innerWidth, vh:innerHeight, ovfX: document.documentElement.scrollWidth>innerWidth+1, btns:out}})()`;
+  const tabs=[...document.querySelectorAll('#stage-result .exam-tabs .tab')].map(t=>{const r=t.getBoundingClientRect();
+    return {t:(t.textContent||'').trim().slice(0,14), h:Math.round(r.height), w:Math.round(r.width), l:Math.round(r.left), right:Math.round(r.right)}});
+  return {vw:innerWidth, vh:innerHeight, ovfX: document.documentElement.scrollWidth>innerWidth+1, btns:out, tabs}})()`;
 
 async function audit(ctx, label, w, h, dark) {
   const arrived = await toResult(ctx, w, h, dark);
@@ -112,6 +115,15 @@ async function audit(ctx, label, w, h, dark) {
     if (b.ratio < 4.5) bad(`${tag} ${b.id} 文字对比 ${b.ratio}:1 < 4.5`);
   }
   if (d.ovfX) bad(`${tag} 成绩页出现横向滚动`);
+  if (w < 760) {
+    for (const t of d.tabs) {
+      if (t.h < 44) bad(`${tag} 题单 tab「${t.t}」高 ${t.h}px < 44`);
+      else ok(`${tag} 题单 tab「${t.t}」热区 ${t.h}px`);
+      if (t.right > d.vw || t.l < 0) bad(`${tag} 题单 tab「${t.t}」横向出界 ${t.l}..${t.right}`);
+    }
+  } else if (d.tabs.length && d.tabs[0].h > 36) {
+    bad(`${tag} 桌面端题单 tab 被触屏规则抬到 ${d.tabs[0].h}px（应保持 34）`);
+  }
   if (w >= 760) {
     const h1 = d.btns[0] && d.btns[0].h;
     if (h1 && h1 > 44) bad(`${tag} 桌面端 CTA 被触屏规则抬高到 ${h1}px（应保持 42）`);

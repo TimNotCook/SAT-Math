@@ -1619,3 +1619,9 @@ html body .kp-row:first-child{border-top:0!important}
   }
   .bb-calc-body{min-height:180px}
 }
+
+/* 成绩页题单筛选 tab（All Questions / Incorrect Only）实测只有 34px 高，
+   触屏上比 HIG 的 44 矮一截，两个 tab 又紧挨着，容易点错。只抬成绩页这一组。 */
+@media (hover:none),(pointer:coarse){
+  html body.exam-page #stage-result .exam-tabs .tab{min-height:44px!important}
+}
