@@ -421,7 +421,7 @@
         date: Date.now(), startedAt: S.startedAt, mode: MODE, finished: false,
         module: S.module || 1, answered: answeredCount(), total: S.paper ? S.paper.length : 0,
       };
-      const i = all.findIndex(x => x && x.startedAt === rec.startedAt && x.mode === rec.mode);
+      const i = all.findIndex(x => x && C.sameTime(x.startedAt, rec.startedAt) && x.mode === rec.mode);
       if (i >= 0) all[i] = rec;
       else { all.push(rec); if (all.length > 40) all.shift(); }
       save(KEY_ABANDONED, all);
@@ -431,7 +431,7 @@
     if (startedAt == null) return;
     try {
       const all = asArr(load(KEY_ABANDONED));
-      const next = all.filter(x => !(x && x.startedAt === startedAt && x.mode === MODE));
+      const next = all.filter(x => !(x && C.sameTime(x.startedAt, startedAt) && x.mode === MODE));
       if (next.length !== all.length) save(KEY_ABANDONED, next);
     } catch (e) {}
   }

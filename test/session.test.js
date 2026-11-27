@@ -30,6 +30,14 @@ function loadCore() {
 }
 const C = loadCore();
 
+test('sameTime：数字字符串与数字视为同一次开考，布尔/空值不算', () => {
+  assert.equal(C.sameTime('1700000000000', 1700000000000), true);
+  assert.equal(C.sameTime('1700000000000', 1700000000001), false);
+  assert.equal(C.sameTime(null, 0), false);
+  assert.equal(C.sameTime(true, 1), false, '布尔 true 不能当成时间戳 1');
+  assert.equal(C.sameTime(false, 0), false);
+});
+
 test('unitWrongIds 不被 null / 非数组的 history.detail 打崩', () => {
   const bank = [{ id: 'q-a', unit: 1 }, { id: 'q-b', unit: 1 }];
   const state = {

@@ -859,6 +859,15 @@
      规则只有两条：能按官方 22/22 结构确定性重建 → ok；否则 → expired。
      绝不「猜一个看起来对的区间」：区间错了，题号和判分就是两套口径。
      ===================================================================== */
+  /* 两个时间戳是否指同一次开考：旧版/云端合并会把 startedAt 写成字符串，
+    严格 === 会把同一条未做完记录再看成新记录，历史页出现两条「未做完」，
+    交卷后清存档也只清掉其中一条。 */
+  function sameTime(a, b) {
+    if (a == null || b == null || typeof a === 'boolean' || typeof b === 'boolean') return false;
+    const x = Number(a), y = Number(b);
+    return isFinite(x) && isFinite(y) && x === y;
+  }
+
   function parseSession(saved, opts) {
     opts = opts || {};
     const per = opts.perModule || OFFICIAL.questionsPerModule;
@@ -1015,7 +1024,7 @@
   return {
     OFFICIAL, SCALE, QUIZ_TIERS, scaledScore, grade, shuffle, byId, unitName,
     parseNum: function (s) { return window.TDGrade ? window.TDGrade.parseNum(s) : null; },
-    parseSession, sessionRange, sessionTimeout,
+    parseSession, sessionRange, sessionTimeout, sameTime,
     distributeTypes, buildModule, interleave, routeModule2, buildFullPaper,
     buildPracticePool, practiceDurationSec,
     quizTier, quizPlan, weakTopicsOf, buildQuizPaper, unitWrongIds,

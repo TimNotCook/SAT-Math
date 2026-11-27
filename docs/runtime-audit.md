@@ -646,3 +646,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `exam.js salvageSession()` 在存档作废前把卷面+作答写进 `tdsat_exam_suite_results_v1` 并打 `void:true`，但 `history-page.js render()` 的 `results` 用 `!finishedFlag(r.void)` 过滤掉了这些记录；`abandoned` 又只读另一个 `tdsat_exam_suite_abandoned_v1` 键。结果就是「留档还在 localStorage 里，学生永远看不到」，误以为那一卷被静默清零。同时 `rowHtml` 只判 `finished===false`，作废记录没写 `finished`，一旦显示也会被当成正式成绩：答对 0/22、整卷 detail 全列成错题。
 
 修法：`void:true` 的记录从正式成绩列表移出、并入未做完列表（按日期倒序），状态/分数/标题统一走 `abandonedRecord = voidFlag || finished===false`；续做判定仍只看真正的会话。验证：新增「记录页 void 作废档案不能显示 0 分和整卷错题」回归，旧代码直接空态失败，新代码显示「未做完」；全量 `node --test` 500/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 72 条：作废/未做完档案按 startedAt 严格 === 去重，数字字符串会留下两条记录（2026-11-27）
+
+`exam.js archiveAbandoned()` 的 upsert 用 `x.startedAt === rec.startedAt`，`clearAbandoned()` 也用严格相等。旧版/云端合并会把 `startedAt` 存成数字字符串；同一次开考再次 pagehide 时认不出旧记录，追加一条新的，历史页出现两条「未做完」；交卷后也只清掉数字那条，字符串那条永远留着。修法：`exam-core` 新增 `sameTime()`（数字/数字字符串按数值比较，布尔/null 一律不算），`archiveAbandoned` 与 `clearAbandoned` 统一走它。验证：新增 `sameTime` 单测（字符串=数字、布尔不算）；全量 `node --test` 501/0；`verify_junk` 11×7；`verify_flows` 16/16。
