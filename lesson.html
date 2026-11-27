@@ -59,8 +59,11 @@
   ul li:before{content:"";position:absolute;left:2px;top:.72em;width:5px;height:1px;background:var(--faint);opacity:.55}
   .warn li:before{background:var(--sand-rule);width:6px}
   .check{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:18px 20px}
-  .check li{padding-left:22px}
+  .check li{padding-left:22px;cursor:pointer;transition:color .18s}
+  .check li:hover{color:var(--ink)}
   .check li:before{content:"□";left:0;top:0;width:auto;height:auto;background:none;color:var(--faint);font-size:14px}
+  .check li.on{color:var(--sub);text-decoration:line-through;text-decoration-color:var(--sand-rule)}
+  .check li.on:before{content:"☑";color:var(--sand-k)}
   .eq{font-family:"SF Pro Display","Helvetica Neue",Georgia,serif;font-size:19px;color:var(--ink);padding:2px 0;margin:0 0 14px;letter-spacing:.01em}
   .diagram{border:1px solid var(--line);background:var(--card);border-radius:2px;padding:18px 10px 8px;margin:0 0 10px}
   .diagram svg{display:block;width:100%;height:auto}
@@ -127,7 +130,7 @@
     if (b.t === 'eq') return '<p class="eq">' + md(b.v) + '</p>';
     if (b.t === 'cap') return '<p class="cap">' + md(b.v) + '</p>';
     if (b.t === 'svg') return '<div class="diagram">' + b.v + '</div>';
-    if (b.t === 'ul') return '<ul class="' + (b.cls || '') + '">' + b.v.map(function (i) { return '<li>' + md(i) + '</li>'; }).join('') + '</ul>';
+    if (b.t === 'ul') return '<ul class="' + (b.cls || '') + '">' + b.v.map(function (i, n) { return '<li' + (b.cls === 'check' ? ' data-i="' + n + '"' : '') + '>' + md(i) + '</li>'; }).join('') + '</ul>';
     if (b.t === 'eg') {
       var head = b.k ? '<p class="eg-k">' + md(b.k) + '</p>' : '';
       return '<div class="eg">' + head + b.v.map(function (i) { return '<p class="step">' + md(i) + '</p>'; }).join('') + '</div>';
@@ -169,6 +172,43 @@
   if (next) links.push('<a href="lesson.html?sec=' + next + '">' + next + ' →</a>');
   document.getElementById('goL').innerHTML = links.join('');
   document.getElementById('goBtn').textContent = '去做 ' + sec + ' 的题';
+
+  // —— 一分钟检查：点一下划掉，本节单独记 ——
+  var CKEY = 'lesson_check_v1:' + sec, cm = {};
+  try { cm = JSON.parse(localStorage.getItem(CKEY) || '{}'); } catch (e) {}
+  [].forEach.call(document.querySelectorAll('.check li'), function (li) {
+    var k = li.getAttribute('data-i');
+    if (cm[k]) li.classList.add('on');
+    li.addEventListener('click', function () {
+      if (cm[k]) { delete cm[k]; li.classList.remove('on'); }
+      else { cm[k] = 1; li.classList.add('on'); }
+      try { localStorage.setItem(CKEY, JSON.stringify(cm)); } catch (e) {}
+    });
+  });
+
+  // —— 下次打开回到上次停下的位置 ——
+  var PKEY = 'lesson_pos_v1';
+  function pMap() { try { return JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch (e) { return {}; } }
+  var holding = false, tick = 0;
+  (function () {
+    var r = pMap()[sec];
+    if (typeof r === 'number' && r > 0.03 && r < 0.95) {
+      holding = true;
+      requestAnimationFrame(function () {
+        window.scrollTo(0, r * Math.max(0, document.body.scrollHeight - window.innerHeight));
+        setTimeout(function () { holding = false; }, 150);
+      });
+    }
+  })();
+  window.addEventListener('scroll', function () {
+    if (holding) return;
+    clearTimeout(tick);
+    tick = setTimeout(function () {
+      var h = Math.max(1, document.body.scrollHeight - window.innerHeight);
+      var m = pMap(); m[sec] = Math.min(1, (window.scrollY || 0) / h);
+      try { localStorage.setItem(PKEY, JSON.stringify(m)); } catch (e) {}
+    }, 260);
+  }, { passive: true });
   // —— 阅读进度：只在本地记一笔，用来在目录上打勾 ——
   var KEY = 'lesson_read_v1';
   function readMap() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } }
