@@ -8,10 +8,10 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.supabase.in; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>SAT Math Prep · 讲义复习</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=3a462c4c4075">
-  <link rel="stylesheet" href="bluebook.css?v=3a462c4c4075">
-  <link rel="stylesheet" href="glass.css?v=3a462c4c4075">
-  <script src="theme.js?v=3a462c4c4075"></script>
+  <link rel="stylesheet" href="app.css?v=a8385643906f">
+  <link rel="stylesheet" href="bluebook.css?v=a8385643906f">
+  <link rel="stylesheet" href="glass.css?v=a8385643906f">
+  <script src="theme.js?v=a8385643906f"></script>
   <style>
     .jy-board-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0 8px}
     .jy-board-card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);text-align:left;cursor:pointer;transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
@@ -166,15 +166,15 @@
   <!-- 讲义页与真题题库隔离：不加载 data/questions.js（560K），只给 app-core 一个空题库，
        这样导航栏仍由 app-core 单一来源渲染，讲义进度也不会碰到教材 CATALOG。 -->
   <script>window.TD_BANK = window.TD_BANK || { units: [], questions: [] };</script>
-  <script src="grade-core.js?v=3a462c4c4075" defer></script>
-  <script src="app-core.js?v=3a462c4c4075" defer></script>
-  <script src="data/jiangyi.js?v=3a462c4c4075" defer></script>
-  <script src="data/jiangyi_figures.js?v=3a462c4c4075" defer></script>
-  <script src="choice-figures.js?v=3a462c4c4075" defer></script>
-  <script src="jiangyi-core.js?v=3a462c4c4075" defer></script>
-  <script src="jiangyi-page.js?v=3a462c4c4075" defer></script>
+  <script src="grade-core.js?v=a8385643906f" defer></script>
+  <script src="app-core.js?v=a8385643906f" defer></script>
+  <script src="data/jiangyi.js?v=a8385643906f" defer></script>
+  <script src="data/jiangyi_figures.js?v=a8385643906f" defer></script>
+  <script src="choice-figures.js?v=a8385643906f" defer></script>
+  <script src="jiangyi-core.js?v=a8385643906f" defer></script>
+  <script src="jiangyi-page.js?v=a8385643906f" defer></script>
   <!-- 账户面板：与 drill.html 同一套 Supabase 通道（配置 → 会话 → 面板），顺序不可乱。 -->
-  <script src="cloud-config.js?v=3a462c4c4075" defer></script><script src="supa-cloud.js?v=3a462c4c4075" defer></script>
-  <script src="cloud-account.js?v=3a462c4c4075" defer></script>
+  <script src="cloud-config.js?v=a8385643906f" defer></script><script src="supa-cloud.js?v=a8385643906f" defer></script>
+  <script src="cloud-account.js?v=a8385643906f" defer></script>
 </body>
 </html>
