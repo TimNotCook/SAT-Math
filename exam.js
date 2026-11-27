@@ -67,6 +67,13 @@
       if (QUIZ_COPY[t]) el.textContent = QUIZ_COPY[t];
     });
   }
+
+  const UNIT_BLURB = {
+    1: '线性方程与函数图像 · 一元一次方程 · 线性不等式 · 绝对值方程',
+    2: '比例与百分比 · 单位换算 · 统计图表 · 数据推理',
+    3: '二次函数与方程 · 指数与根式 · 多项式与因式分解',
+    4: '面积与体积 · 坐标几何 · 直角三角形 · 圆与角'
+  };
   const T = (zh, en) => (OFFICIAL ? en : zh);     // 模考层纯英文：docs/UI-COPY.md v1.1
   const UNIT_EN = { 1: 'Heart of Algebra', 2: 'Problem Solving & Data Analysis', 3: 'Advanced Math', 4: 'Geometry & Trigonometry' };
   document.querySelectorAll('.exam-modules a').forEach(a => {
@@ -533,7 +540,7 @@
       if (!n) return '';
       return '<label class="exam-special-chip' + (flags[u.id] ? ' on' : '') + '">' +
         '<input type="checkbox" data-special-unit="' + u.id + '"' + (flags[u.id] ? ' checked' : '') + '>' +
-        '<span>U' + u.id + ' 专项练习</span><small>' + n + ' 题</small></label>';
+        '<span>U' + u.id + ' 专项练习</span></label>';
     }).filter(Boolean).join('');
     host.innerHTML = '<section class="exam-special-panel">' +
       '<div class="exam-special-head">组卷范围</div>' +
@@ -606,8 +613,47 @@
           '<span class="quiz-fact"><b>' + fmt(S.durationSec * 1000) + '</b>限时</span>';
       }
       const kicker = $('introKicker');
-      if (kicker) kicker.hidden = true;
+      if (kicker) { kicker.hidden = false; kicker.textContent = '第 ' + QUIZ_UNIT + ' 单元'; }
       if (quizTitle) quizTitle.hidden = true;
+      const uu = UNITS.find(u => u.id === QUIZ_UNIT) || { cn: '' };
+      if (kicker && kicker.parentNode) {
+        let name = document.getElementById('quizUnitName');
+        if (!name) {
+          name = document.createElement('strong');
+          name.id = 'quizUnitName'; name.className = 'quiz-unit-name';
+          kicker.parentNode.insertBefore(name, kicker.nextSibling);
+        }
+        name.textContent = uu.cn;
+        let desc = document.getElementById('quizUnitDesc');
+        if (!desc) {
+          desc = document.createElement('p');
+          desc.id = 'quizUnitDesc'; desc.className = 'quiz-unit-desc';
+          if (facts && facts.parentNode) facts.parentNode.insertBefore(desc, facts);
+          else name.parentNode.insertBefore(desc, name.nextSibling);
+        }
+        desc.textContent = UNIT_BLURB[QUIZ_UNIT] || '';
+        /* 右侧「涵盖考点」：只列考点名，不显示题量 */
+        let scope = document.getElementById('quizScope');
+        const card = document.getElementById('introStartCard');
+        const copy = card && card.querySelector('.mock-card-copy');
+        if (copy && !scope) {
+          scope = document.createElement('aside');
+          scope.id = 'quizScope'; scope.className = 'quiz-scope';
+          copy.parentNode.insertBefore(scope, copy.nextSibling);
+        }
+        if (scope) {
+          const seen = [];
+          BANK.filter(q => q.unit === QUIZ_UNIT && q.topic && /^[0-9]/.test(q.topic)).forEach(q => {
+            const t = String(q.topic).replace(/^[0-9.]+\s*/, '').trim();
+            if (t && seen.indexOf(t) < 0) seen.push(t);
+          });
+          scope.innerHTML = '<span class="quiz-scope-h">涵盖考点</span><ul>' +
+            seen.slice(0, 6).map(t => '<li><i></i>' + esc(t) + '</li>').join('') + '</ul>';
+        }
+        /* 主按钮收进左栏，标题/说明/数字/按钮一条竖线下来 */
+        const btn = document.getElementById('btnStart');
+        if (copy && btn && btn.parentNode !== copy) copy.appendChild(btn);
+      }
     }
     renderSpecialOptions();
     $('clockText').textContent = fmt((official ? O.secondsPerModule : S.durationSec) * 1000);
@@ -1119,14 +1165,25 @@
       : '单元练习只统计本次正确率与错题分布，不换算 SAT 分数。';
 
     $('resUnits').innerHTML = units.map(u => {
-      const unitKey = safeText(u.unit), nm = OFFICIAL ? (UNIT_EN[unitKey] || safeText(u.name)) : safeText(u.name);
+      const unitKey = safeText(u.unit), nm = OFFICIAL ? (UNIT_EN[unitKey] || safeText(u.name)) : safeText(u.name).replace(/\s*·\s*第\s*\d+\s*题\s*$/, '');
       const rate = safeNum(u.rate) || 0, wrong = safeNum(u.wrong) || 0, n = safeNum(u.n) || 0;
       return `<div class="kp-row"><span class="nm" title="${esc(nm)}">${esc(nm || '—')}</span>
       <span class="bar"><i style="width:${Math.round((1 - rate) * 100)}%;background:${rate > .5 ? 'var(--bad)' : rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
       <span class="pct">${OFFICIAL ? 'Wrong ' : '错 '}${wrong}/${n}</span></div>`;
     }).join('') || `<div class="small muted">${OFFICIAL ? 'All correct — nothing to prioritize' : '本次全部答对，无需补强'}</div>`;
-    $('resTopics').innerHTML = topics.slice(0, 12).map(t => {
-      const nm = safeText(t.name), rate = safeNum(t.rate) || 0, wrong = safeNum(t.wrong) || 0, n = safeNum(t.n) || 0;
+    /* 同一个知识点的多道错题要合并成一行，别一行一个「· 第 N 题」 */
+    const cleanTopic = v => safeText(v).replace(/\s*·\s*第\s*\d+\s*题\s*$/, '').trim();
+    const topicAgg = [];
+    topics.forEach(t => {
+      const nm = cleanTopic(t.name) || '—';
+      let row = topicAgg.find(x => x.name === nm);
+      if (!row) { row = { name: nm, wrong: 0, n: 0 }; topicAgg.push(row); }
+      row.wrong += safeNum(t.wrong) || 0;
+      row.n += safeNum(t.n) || 0;
+    });
+    topicAgg.sort((a, b) => b.wrong - a.wrong);
+    $('resTopics').innerHTML = topicAgg.slice(0, 12).map(t => {
+      const nm = t.name, rate = t.n ? 1 - t.wrong / t.n : 0, wrong = t.wrong, n = t.n;
       return `<div class="kp-row"><span class="nm" title="${esc(nm)}">${esc(nm || '—')}</span>
       <span class="bar"><i style="width:${Math.round((1 - rate) * 100)}%;background:${rate > .5 ? 'var(--bad)' : rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
       <span class="pct">错 ${wrong}/${n}</span></div>`;
