@@ -1186,16 +1186,17 @@ html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-card-title{font-
 
 /* ==== 单元抽查开场（非模考）：从“白卡”改成纸面两栏
    卡、圆角、阴影全部拆掉，换成上、下发丝线包住的一整页卷面：
-   左栏题目量/限时 + 开始按钮，右栏涵盖考点，底部组卷范围。 */
+   左栏题目量 / 限时 + 开始按钮，右栏涵盖考点，底部组卷范围。 */
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-grid{
-  display:grid!important;grid-template-columns:minmax(0,1fr) 300px!important;gap:0!important;
-  border-top:1px solid #e7e3da!important;border-bottom:1px solid #e7e3da!important;
-  padding:28px 0 30px!important;margin:0 0 26px!important;background:transparent!important;
+  display:block!important;border-top:1px solid #e7e3da!important;border-bottom:1px solid #e7e3da!important;
+  padding:30px 0 34px!important;margin:0 0 26px!important;background:transparent!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-main-card{
-  position:relative!important;background:transparent!important;border:0!important;border-radius:0!important;
-  box-shadow:none!important;min-height:0!important;padding:0 40px 0 0!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) 320px!important;align-items:start!important;column-gap:0!important;
+  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  min-height:0!important;padding:0!important;
 }
+html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-card-copy{min-width:0!important;padding:0 40px 0 0!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-card-kicker{
   display:block!important;font-size:11px!important;font-weight:600!important;letter-spacing:.14em!important;color:#a8acb4!important;
 }
@@ -1203,27 +1204,27 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .quiz-un
   display:block!important;font-size:30px!important;font-weight:650!important;letter-spacing:-.01em!important;color:#20242b!important;margin:10px 0 0!important;line-height:1.25!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .quiz-card-facts{
-  display:flex!important;align-items:flex-start!important;gap:48px!important;margin:26px 0 0!important;
+  display:flex!important;align-items:flex-start!important;gap:52px!important;margin:26px 0 0!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .quiz-fact{
   font-size:11.5px!important;color:#8d9199!important;font-weight:500!important;line-height:1.4!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .quiz-fact b{
   display:block!important;font-size:34px!important;font-weight:600!important;color:#20242b!important;
-  letter-spacing:-.02em!important;line-height:1.15!important;font-variant-numeric:tabular-nums!important;margin:0 0 4px!important;
+  letter-spacing:-.02em!important;line-height:1.15!important;font-variant-numeric:tabular-nums!important;margin:0 0 5px!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .unit-art{display:none!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #btnStart{
-  height:40px!important;min-height:0!important;padding:0 22px!important;margin-top:26px!important;
+  height:40px!important;min-height:0!important;padding:0 22px!important;margin-top:28px!important;
   border-radius:8px!important;background:#2563eb!important;border:1px solid #2563eb!important;color:#fff!important;
   font-size:13px!important;font-weight:600!important;box-shadow:none!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope{
   background:transparent!important;border:0!important;border-left:1px solid #e7e3da!important;
-  border-radius:0!important;box-shadow:none!important;padding:0 0 0 28px!important;
+  border-radius:0!important;box-shadow:none!important;padding:0 0 0 32px!important;margin:0!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .quiz-scope-h{
-  display:block!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:#a8acb4!important;margin:0 0 12px!important;
+  display:block!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:#a8acb4!important;margin:2px 0 12px!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope li{
   font-size:12.5px!important;color:#5c6169!important;line-height:2!important;padding:0!important;margin:0!important;
@@ -1231,7 +1232,7 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizSco
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope li i{display:none!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-special-panel{
   background:transparent!important;border:0!important;border-top:1px solid #e7e3da!important;
-  border-radius:0!important;box-shadow:none!important;margin:26px 0 0!important;padding:14px 0 0!important;
+  border-radius:0!important;box-shadow:none!important;margin:30px 0 0!important;padding:14px 0 0!important;
 }
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-special-head{
   font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:#a8acb4!important;
@@ -1242,6 +1243,15 @@ html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-sp
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .exam-special-chip{
   display:inline-flex!important;align-items:center!important;gap:7px!important;font-size:12px!important;
   color:#8d9199!important;background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;
+}
+
+/* 窄屏：两栏回落成单栏，竖发丝线换成横发丝线 */
+@media (max-width:900px){
+  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-main-card{grid-template-columns:minmax(0,1fr)!important}
+  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro .mock-card-copy{padding:0!important}
+  html:not([data-theme="dark"]) body.exam-page:not(.is-mock) #stage-intro #quizScope{
+    border-left:0!important;border-top:1px solid #e7e3da!important;padding:16px 0 0!important;margin:24px 0 0!important;
+  }
 }
 
 /* ==== result-theme：成绩页按「阅卷纸」排版，不再是仪表盘 ==== */
