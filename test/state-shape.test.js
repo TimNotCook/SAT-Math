@@ -32,6 +32,16 @@ function boot(seed) {
   return { A: sandbox.window.TD_APP, store };
 }
 
+test('sections 本身是数组时归一成对象，作答能真正落库', () => {
+  const { A, store } = boot({ sections: [] });
+  const st = A.secState('1.1', true);
+  assert.equal(typeof st, 'object');
+  assert.doesNotThrow(() => A.setAnswer('1.1', 'TD-11-01', 'A'));
+  const disk = JSON.parse(store.tdsat_app_v1);
+  assert.equal(Array.isArray(disk.sections), false);
+  assert.equal(disk.sections['1.1'].answers['TD-11-01'].v, 'A');
+});
+
 test('板块记录本身是字符串时，secState 不崩并换成空对象', () => {
   const { A, store } = boot({ sections: { '1.1': 'junk' } });
   const st = A.secState('1.1', true);

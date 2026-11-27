@@ -147,7 +147,7 @@
   }
   function normalize(st) {
     if (!st || typeof st !== 'object' || Array.isArray(st)) st = {};
-    if (!st.sections || typeof st.sections !== 'object') st.sections = {};
+    if (!st.sections || typeof st.sections !== 'object' || Array.isArray(st.sections)) st.sections = {};
     if (!('last' in st)) st.last = null;
     /* 旧板块进度迁移：旧节（2.6.T17/2.6.T18/2.6/2.7）的作答按别名并进新节，
        参数（cursor/marks）只搬一份，绝不覆盖新节已有的作答。一次迁完即删旧键。 */
