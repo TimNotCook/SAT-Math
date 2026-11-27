@@ -133,3 +133,14 @@ test('板块 marks 的值是字符串 "false" 时归一成布尔 false', () => {
   const st = A.secState('1.1', true);
   assert.equal(st.marks['TD-11-01'], false);
 });
+
+
+test('wrongLog 裸字符串保留，对象 v/空值是坏记录直接删掉', () => {
+  const { A, store } = boot({ sections: { '1.1': { answers: {}, marks: {},
+    wrongLog: { 'TD-11-01': 'A', 'TD-11-02': { v: { x: 1 }, ts: 1 }, 'TD-11-03': null } } } });
+  const st = A.secState('1.1', true);
+  assert.deepEqual(st.wrongLog['TD-11-01'], { v: 'A', ts: 0 });
+  assert.equal(st.wrongLog['TD-11-02'], undefined);
+  assert.equal(st.wrongLog['TD-11-03'], undefined);
+  assert.equal(Object.keys(st.wrongLog).length, 1);
+});

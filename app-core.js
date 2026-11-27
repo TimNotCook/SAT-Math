@@ -231,6 +231,23 @@
     if (!isPlainObject(s.answers)) s.answers = {};
     if (!isPlainObject(s.marks)) s.marks = {};
     if (!isPlainObject(s.wrongLog)) s.wrongLog = {};
+    /* wrongLog 的值也可能是裸字符串（旧版），或 {v:{x:1}}、null：
+       wrong-page 只认对象且 v 是字符串/数字，其它值会被静默忽略，
+       旧版「曾经错过」的题就从错题本消失。统一归一，坏值直接删掉。 */
+    Object.keys(s.wrongLog).forEach(function (qid) {
+      var w = s.wrongLog[qid];
+      if (typeof w === 'string' || (typeof w === 'number' && isFinite(w))) {
+        w = { v: String(w), ts: 0 };
+      } else if (!isPlainObject(w)) {
+        delete s.wrongLog[qid]; return;
+      }
+      if (typeof w.v === 'string') { /* ok */ }
+      else if (typeof w.v === 'number' && isFinite(w.v)) w.v = String(w.v);
+      else { delete s.wrongLog[qid]; return; }
+      if (!String(w.v).trim()) { delete s.wrongLog[qid]; return; }
+      w.ts = Number.isFinite(Number(w.ts)) ? Number(w.ts) : 0;
+      s.wrongLog[qid] = w;
+    });
     /* marks 的值也可能是字符串 'false'：!! 会把它当已标记，题号旁出现星标。 */
     Object.keys(s.marks).forEach(function (qid) { s.marks[qid] = isRightFlag(s.marks[qid]); });
     /* submitted 也可能是字符串 'false'：练习页 !!
