@@ -1,0 +1,4 @@
+/* ==== result-rail-base：板块结果页左栏底座（铺在 html 上，才能铺满视口） ==== */
+html:has(body.drill-page #resultView:not([hidden])){background:linear-gradient(90deg,#fffdfa 0 216px,#f7f6f2 216px 100%)!important;background-attachment:fixed!important;background-repeat:no-repeat!important}
+html:not([data-theme="dark"]) body.drill-page:has(#resultView:not([hidden])){background:transparent!important}
+@media(max-width:999px){html:has(body.drill-page #resultView:not([hidden])){background:#f7f6f2!important}}
