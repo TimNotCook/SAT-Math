@@ -23,15 +23,17 @@ SOURCES = [
     "tools/canvas-base.css",
     "tools/notes-theme.css",
     "tools/notes-quiz-theme.css",
+    "tools/jy-result-theme.css",
     "tools/empty-state-theme.css",
     "tools/history-card-theme.css",
     "tools/mobile-theme.css",
 ]
-# 20 份：抽测开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
+# 21 份：抽测开场 / 模考答题 / 开场标题 / 模考成绩 / 成绩单题行 /
 # 目录+讲义 / 错题·记录空态 / 真题答题页 / 题目导航修正 /
 # 公式参考纸 / 模考开场 / 板块结果 / 板块结果收口 / 结果页底座 /
-# 画布兜底 / 讲义首页 / 讲义做题页 / 记录·错题页头 / 记录页空态卡 / 手机端。
-# 47: 未作答行不再显示正确答案。
+# 画布兜底 / 讲义首页 / 讲义做题页 / 讲义本节结果 /
+# 记录·错题页头 / 记录页空态卡 / 手机端。
+# 48: 讲义本节结果 + 选项字母。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
