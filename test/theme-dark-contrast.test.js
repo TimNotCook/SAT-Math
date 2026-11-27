@@ -45,3 +45,9 @@ test('dark 讲义页题卡白纸锁浅、上下工具条深底浅字', () => {
   assert.match(css, /html\[data-theme="dark"\] body\.jy-page \.drill-footer\{\s*background:#141416!important/);
   assert.match(css, /html\[data-theme="dark"\] body\.jy-page \.drill-footer \.btn\.primary\{/);
 });
+
+test('dark 记录页 Σ 徽标保持品牌蓝白字、讲义板块标题不再深蓝叠深灰', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.drill-select-badge\{\s*background:#2563eb!important/);
+  assert.match(css, /html\[data-theme="dark"\] \.drill-select-sigma\{color:#fff!important\}/);
+  assert.match(css, /html\[data-theme="dark"\] \.jy-board-card b\{color:#f5f5f7!important\}/);
+});
