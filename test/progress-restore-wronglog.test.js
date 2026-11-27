@@ -310,3 +310,13 @@ test('没有 last 时旧板块别名的作答也能决定存档位置', () => {
   assert.equal(res.status, 'ok', '存档应该能写出来：' + JSON.stringify(res));
   assert.equal(res.position.sec, '2.7.T17', '无 last 时旧板块作答没有决定存档位置');
 });
+
+
+test('存档 savedAt/version/position.n 是布尔时判 corrupt', () => {
+  const a1 = Object.assign(mkArchive({}), { savedAt: true });
+  assert.equal(boot({ sections: {}, last: null }, a1).SAVE.inspect().status, 'corrupt');
+  const a2 = Object.assign(mkArchive({}), { version: true });
+  assert.equal(boot({ sections: {}, last: null }, a2).SAVE.inspect().status, 'corrupt');
+  const a3 = Object.assign(mkArchive({}), { position: { sec: T.sec, n: true } });
+  assert.equal(boot({ sections: {}, last: null }, a3).SAVE.inspect().status, 'corrupt');
+});

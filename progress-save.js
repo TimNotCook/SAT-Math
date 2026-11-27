@@ -77,6 +77,10 @@
     /* version / savedAt / position.n 可能被云端合并或旧版写成数字字符串
        （"1"、"1700…"、"3"）。严格 typeof 会把其实可恢复的存档判 corrupt，
        手动恢复被永久锁死；这里统一转数字并校验，返回值也用归一后的数字。 */
+    /* 布尔不是版本/时间：version:true 会被 Number 成合法的 1，
+       savedAt:true 变成 1970，坏存档会被误判成可恢复。 */
+    if (typeof d.version === 'boolean' || typeof d.savedAt === 'boolean')
+      return { status: 'corrupt', reason: '存档版本/时间不是数字' };
     var version = Number(d.version), savedAt = Number(d.savedAt);
     if (!isFinite(version) || !d.savedAt || !isFinite(savedAt) || savedAt <= 0 ||
         !d.position || typeof d.position !== 'object' ||
@@ -91,7 +95,7 @@
     if (!psec || !A.CATALOG[psec])
       return { status: 'corrupt', reason: '存档指向的板块已不存在' };
     var pn = Number(p.n);
-    if (!isFinite(pn) || Math.floor(pn) !== pn || pn < 1 || pn > (A.CATALOG[psec].length || 1))
+    if (typeof p.n === 'boolean' || !isFinite(pn) || Math.floor(pn) !== pn || pn < 1 || pn > (A.CATALOG[psec].length || 1))
       return { status: 'corrupt', reason: '存档的题目位置超出范围' };
 
     // summary from the archive itself, not from live state
