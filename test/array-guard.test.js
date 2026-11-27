@@ -302,6 +302,21 @@ test('作答被清空、只剩 wrongLog 台账时，错题本仍然保留这道�
   assert.ok(/还没有错题记录/.test(els.wrongList.innerHTML) === false, '错题本落到空态，说明 wrongLog 没被收集');
 });
 
+test('记录页：抽查未做完档案只有 unitId 时，标题仍标出 U3', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([]),
+    tdsat_exam_suite_abandoned_v1: JSON.stringify([{
+      date: 1700000000000, startedAt: 1700000000000, mode: 'quiz', unitId: 3,
+      finished: false, answered: 5, total: 22,
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '抽查未做完记录打崩：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(/单元抽查 · U3/.test(html), '只有 unitId 的抽查标题没标出 U3');
+});
+
 test('记录页：抽查「继续这卷」必须带 unit，不能把 U3 存档带回 U1', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([]),

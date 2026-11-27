@@ -656,3 +656,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `exam.js archiveAbandoned()` 只存 `mode/module/answered/total`，不存 `unitId`；`history-page abandonedBody()` 的继续链接也固定写 `exam.html?mode=quiz`。抽查存档按 `unitId` 隔离，`exam.js` 默认 `unit=1`，于是 U3 的存档被 `parseSession` 判成 `unit` 不匹配、`salvageSession` 作废，再开一张 U1 的卷。学生点「继续这卷」实际把 U3 进度清零。修法：新归档写入 `unitId`；历史链接优先取当前会话 `sess.unitId`，老档案退回 `rec.unitId`，抽查时拼 `&unit=`；同时要求 `rec.mode === sess.mode` 才显示继续入口，防止模式错配。
 
 验证：新增「抽查继续这卷必须带 unit=3」回归，旧代码输出裸 `mode=quiz` 失败，新代码带 `&unit=3`；全量 `node --test` 502/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 74 条：抽查未做完档案只存 unitId，记录标题只认 unit，永远看不出是哪个单元（2026-11-27）
+
+`exam.js archiveAbandoned()`（第 73 条修完后）写 `unitId`，但 `history-page titleOf()` 只读 `rec.unit`。抽查的未做完记录标题永远只剩「单元抽查」，学生看不到是 U3 还是 U1；而第 73 条的继续链接已经能正确带到 U3，标题与落点对不上。修法：标题的 unit 取 `rec.unit || rec.unitId`，兼容旧记录与新记录。验证：新增「只有 unitId 时标题仍标出 U3」回归，旧代码失败，新代码显示「单元抽查 · U3」；全量 `node --test` 503/0；`verify_junk` 11×7；`verify_flows` 16/16。

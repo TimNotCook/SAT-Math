@@ -102,7 +102,10 @@
     return Math.round(total ? (correct || 0) / total * 100 : 0) + '%';
   }
   function titleOf(rec) {
-    var mode = txt(rec.mode), board = txt(rec.board), section = txt(rec.section), unit = txt(rec.unit), total = num(rec.total);
+    var mode = txt(rec.mode), board = txt(rec.board), section = txt(rec.section), total = num(rec.total);
+    /* 抽查未做完档案只写 unitId（archiveAbandoned），旧记录写 unit：
+       只读 unit 会让标题永远只剩「单元抽查」，看不出是哪个单元。 */
+    var unit = txt(rec.unit) || txt(rec.unitId);
     if (mode === 'jiangyi') return '讲义复习' + (board ? ' · ' + board : '') + (section ? ' · ' + section : '');
     if (mode === 'quiz') return '单元抽查' + (unit ? ' · U' + unit : '');
     /* 未交卷的模考只发到第一模块（22 题），写「全卷 22 题」会误导成整卷只有 22 题。 */
