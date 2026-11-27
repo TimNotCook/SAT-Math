@@ -267,12 +267,13 @@
     precision: '计算精度 / 算术失误', eqStruct: '方程形式判断', concept: '知识点概念未掌握',
     graph: '图像对应关系', blank: '未作答 / 时间分配', format: '作答格式', generic: '条件转化失误'
   };
+  function isRightFlag(v){ return v === true || v === 1 || v === 'true' || v === '1'; }
   function aggregate(detail, bank, text) {
     bank = bank || (window.TD_BANK && window.TD_BANK.questions) || [];
     text = text || window.TD_TEXT || {};
     var groups = {};
     (detail || []).forEach(function (d) {
-      if (d.correct) return;
+      if (isRightFlag(d.correct)) return;
       var q = d.q || bank.find(function (x) { return x.id === d.id; }) || d;
       var a = analyze(q, d.given, text[q.id]);
       var g = groups[a.type] || (groups[a.type] = { type: a.type, label: TYPE_LABEL[a.type] || a.type, count: 0, ids: [], fix: a.fix });

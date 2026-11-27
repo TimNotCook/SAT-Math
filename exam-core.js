@@ -7,6 +7,9 @@
   root.TD_EXAM_CORE = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
+  /* 存档/云端合并可能把布尔写成字符串：'false' 是 truthy，不能直接当答对。 */
+  const isRightFlag = v => v === true || v === 1 || v === 'true' || v === '1';
+  const isRec = v => !!v && typeof v === 'object' && !Array.isArray(v);
 
   /* =====================================================================
      OFFICIAL PARAMETERS — College Board, Digital SAT Suite Test Specifications
@@ -756,7 +759,7 @@
       const q = byId(bank, id); if (q && q.unit === unitId) ids.push(id);
     });
     (Array.isArray(state && state.history) ? state.history : []).forEach(h => (Array.isArray(h && h.detail) ? h.detail : []).forEach(d => {
-      if (!d || typeof d !== 'object' || d.correct) return;
+      if (!isRec(d) || isRightFlag(d.correct)) return;
       const q = byId(bank, d.id); if (q && q.unit === unitId) ids.push(d.id);
     }));
     return Array.from(new Set(ids));
@@ -794,10 +797,10 @@
     const ug = {}, tg = {};
     detail.forEach(d => {
       const u = ug[d.unit] || (ug[d.unit] = { unit: d.unit, n: 0, wrong: 0, ids: [] });
-      u.n++; if (!d.correct) { u.wrong++; u.ids.push(d.id); }
+      u.n++; if (!isRightFlag(d.correct)) { u.wrong++; u.ids.push(d.id); }
       const key = d.section + '|' + d.topic;
       const t = tg[key] || (tg[key] = { key, unit: d.unit, section: d.section, topic: d.topic, n: 0, wrong: 0, ids: [], seconds: 0 });
-      t.n++; t.seconds += d.seconds; if (!d.correct) { t.wrong++; t.ids.push(d.id); }
+      t.n++; t.seconds += Number(d.seconds) || 0; if (!isRightFlag(d.correct)) { t.wrong++; t.ids.push(d.id); }
     });
     const historic = (state && state.wrong) || {};
     const hScore = ids => ids.reduce((s, id) => s + ((historic[id] || {}).count || 0), 0);
@@ -833,7 +836,7 @@
     priority.sort((a, b) => (a.level.localeCompare(b.level)) || (b.wrong - a.wrong));
     return {
       units: unitRows, topics: topicRows, weakTopics: wrongOnlyTopics, priority,
-      wrongDetail: detail.filter(d => !d.correct),
+      wrongDetail: detail.filter(d => isRec(d) && !isRightFlag(d.correct)),
       correct: detail.filter(d => d.correct).length, total: detail.length
     };
   }

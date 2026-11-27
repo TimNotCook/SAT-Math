@@ -35,10 +35,10 @@ test('unitWrongIds 不被 null / 非数组的 history.detail 打崩', () => {
   const state = {
     wrong: {},
     history: [null, 5, { detail: null }, { detail: 'nope' },
-      { detail: [null, { id: 'q-a', correct: false }, { id: 'q-b', correct: true }] }],
+      { detail: [null, [], { id: 'q-a', correct: 'false' }, { id: 'q-a', correct: false }, { id: 'q-b', correct: 'true' }] }],
   };
   assert.deepStrictEqual(C.unitWrongIds(bank, state, 1), ['q-a'],
-    '只有 detail 里真正 correct:false 的题目才算单元错题');
+    '只有 detail 里真正 correct:false（含字符串 "false"）的题目才算单元错题');
 });
 
 const PER = C.OFFICIAL.questionsPerModule;          // 22
