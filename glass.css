@@ -1178,14 +1178,16 @@ html:not([data-theme="dark"]) body.drill-page .site-rail a:hover{background:#faf
 html:not([data-theme="dark"]) body.drill-page .site-rail a[aria-current]{background:transparent!important;color:#20242b!important;box-shadow:inset 2px 0 0 #20242b!important;font-weight:600!important}
 html:not([data-theme="dark"]) body.drill-page .site-rail .rail-sep{background:#efebe2!important}
 
-/* 顶部三个入口：从大卡片改回安静的分段行，当前项用 2px 墨线 */
-html:not([data-theme="dark"]) body.drill-page .entry-tile-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;border-top:1px solid #e7e3da!important;border-bottom:1px solid #e7e3da!important;margin:0 0 28px!important}
-html:not([data-theme="dark"]) body.drill-page .entry-tile{position:relative!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:15px 2px!important;transform:none!important}
-html:not([data-theme="dark"]) body.drill-page .entry-tile b{font-size:13px!important;font-weight:500!important;color:#8d9199!important;letter-spacing:.01em!important}
-html:not([data-theme="dark"]) body.drill-page .entry-tile .entry-arrow{display:none!important}
-html:not([data-theme="dark"]) body.drill-page .entry-tile:hover b{color:#20242b!important}
-html:not([data-theme="dark"]) body.drill-page .entry-tile.on b{color:#20242b!important;font-weight:600!important}
-html:not([data-theme="dark"]) body.drill-page .entry-tile.on::after{content:""!important;position:absolute!important;left:0!important;right:auto!important;width:56px!important;bottom:-1px!important;height:2px!important;background:#20242b!important}
+/* 顶部三个入口：从大卡片改回安静的分段行，当前项用 2px 墨线。
+   只限真题练习首页（body.drill-page:not(.jy-page)）——讲义复习页的板块卡
+   是 #jyBoardCards .entry-tile，需要保留卡片外观与选中态，不能一并拍平。 */
+html:not([data-theme="dark"]) body.drill-page:not(.jy-page) .entry-tile-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;border-top:1px solid #e7e3da!important;border-bottom:1px solid #e7e3da!important;margin:0 0 28px!important}
+html:not([data-theme="dark"]) body.drill-page:not(.jy-page) .entry-tile{position:relative!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:15px 2px!important;transform:none!important}
+html:not([data-theme="dark"]) body.drill-page:not(.jy-page) .entry-tile b{font-size:13px!important;font-weight:500!important;color:#8d9199!important;letter-spacing:.01em!important}
+html:not([data-theme="dark"]) body.drill-page:not(.jy-page) .entry-tile .entry-arrow{display:none!important}
+html:not([data-theme="dark"]) body.drill-page:not(.jy-page) .entry-tile:hover b{color:#20242b!important}
+html:not([data-theme="dark"]) body.drill-page:not(.jy-page) .entry-tile.on b{color:#20242b!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.drill-page:not(.jy-page) .entry-tile.on::after{content:""!important;position:absolute!important;left:0!important;right:auto!important;width:56px!important;bottom:-1px!important;height:2px!important;background:#20242b!important}
 
 /* 板块磁贴：米白纸面卡片 */
 html:not([data-theme="dark"]) body.drill-page #boardPanel .tile-section,
