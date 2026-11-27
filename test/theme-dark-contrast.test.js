@@ -56,3 +56,9 @@ test('dark 账号面板主按钮保持品牌蓝白字，neutral 按钮透明浅�
   assert.match(css, /html\[data-theme="dark"\] \.td-acct-btn2\{\s*background:#2563eb!important/);
   assert.match(css, /html\[data-theme="dark"\] \.td-acct-btn2\[data-neutral="1"\]\{/);
 });
+
+test('dark 逐题结果行/答案框不再浅灰底叠浅银字', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.drill-result-row,\s*html\[data-theme="dark"\] \.rev-item\{/);
+  assert.match(css, /html\[data-theme="dark"\] \.drill-result-row \.drill-result-answers>div\{/);
+  assert.match(css, /background:rgba\(255,107,107,\.12\)!important/);
+});
