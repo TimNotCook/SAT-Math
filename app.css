@@ -968,6 +968,17 @@ html body.exam-page:has(#stage-answer:not([hidden])) .crossout-toggle.is-on,
 html body.exam-page:has(#stage-answer:not([hidden])) .crossout-toggle:focus-visible{opacity:1}
 html body.exam-page:has(#stage-answer:not([hidden])) .crossout-toggle:hover{color:#64748b!important}
 
+/* 2026-11-27 触屏实测：上面这条规则把模考页的 ✕ 常态 opacity:0，只靠 hover 显形。
+   但 iPad / 手机是 (hover:none)，hover 永不触发 —— 实测 390×760 触屏模拟下
+   四个 ✕ 全是 opacity:0（可见但看不见），用户既发现不了「划掉」这个功能，
+   又会在选项右缘那条 24px 的盲区上误触，把选项划掉却不明白发生了什么。
+   触屏/笔设备改为常显，并把颜色从 #b0b9c6 提到 #8a94a3（白卡上 3.0:1）。
+   桌面鼠标端保持原来的克制：默认隐形、hover 才露出来。 */
+@media (hover:none),(pointer:coarse){
+  html body.exam-page:has(#stage-answer:not([hidden])) .crossout-toggle{opacity:1;color:#8a94a3!important}
+  html body.exam-page:has(#stage-answer:not([hidden])) .crossout-toggle.is-on{color:#4b5563!important}
+}
+
 /* 底栏 */
 html body.exam-page:has(#stage-answer:not([hidden])) .drill-footer{height:64px!important;border-top:1px solid #e9edf4!important;background:#fff!important}
 html body.exam-page:has(#stage-answer:not([hidden])) .drill-footer-inner{max-width:992px!important;margin:0 auto!important;padding:0!important;height:64px!important;align-items:center!important}
