@@ -9,9 +9,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.supabase.in https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
   <title>SAT Math Prep · 抽查与模考</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=b498593fa754">
-  <link rel="stylesheet" href="bluebook.css?v=b498593fa754">
-  <link rel="stylesheet" href="glass.css?v=b498593fa754"><script src="theme.js?v=b498593fa754"></script>
+  <link rel="stylesheet" href="app.css?v=bbf18912b218">
+  <link rel="stylesheet" href="bluebook.css?v=bbf18912b218">
+  <link rel="stylesheet" href="glass.css?v=bbf18912b218"><script src="theme.js?v=bbf18912b218"></script>
   <style>#questionNav{z-index:68!important}body.is-mock .mainnav,body.is-mock .bankpill{display:none}body.is-mock .mock-hide{display:none}</style>
 </head>
 <body class="exam-page protected site-shell shell-exam">
@@ -38,7 +38,19 @@
         if(p.textContent.indexOf('选项缺失')>=0) p.textContent="Options unavailable: the choices for this question could not be read from the source, so it cannot be answered.";});
     }
     enChoices();
-    new MutationObserver(enChoices).observe(document.body,{childList:true,subtree:true});});})();</script>
+    /* 侧栏在模考开场页按 4267128 保留可见（免得侧栏凭空消失），文案必须跟模考屏同语言，
+       否则开场页会整条露中文。整串精确匹配，改完即不再命中，天然幂等。 */
+    function enNav(){
+      var rail=document.querySelector('.site-rail');if(!rail)return;
+      var map={'真题练习':'Practice','单元抽查':'Unit Quiz','错题回顾':'Wrong Answers','模考记录':'Test Records','模考':'Mock Test','← 返回真题练习':'← Back to Practice'};
+      Array.prototype.forEach.call(rail.querySelectorAll('a'),function(a){
+        var t=(a.textContent||'').trim();
+        if(map[t]&&a.textContent!==map[t]) a.textContent=map[t];
+      });
+      if(rail.getAttribute('aria-label')==='全站导航') rail.setAttribute('aria-label','Site navigation');
+    }
+    enNav();
+    new MutationObserver(function(){enChoices();enNav();}).observe(document.body,{childList:true,subtree:true});});})();</script>
   <script>/* 侧栏高亮跟着模式走：抽查落在「单元抽查」，模考落在「模考」——别让抽查页高亮假模考 */
   (function(){var q=/[?&]mode=quiz/.test(location.search);var want=q?'单元抽查':'模考';var rail=document.querySelector('.site-rail');if(!rail)return;
     Array.prototype.forEach.call(rail.querySelectorAll('a'),function(a){if((a.textContent||'').trim()===want)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});})();</script>
@@ -254,23 +266,23 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/questions.js?v=b498593fa754" defer></script>
-  <script src="data/text.js?v=b498593fa754" defer></script>
-  <script src="data/figures.js?v=b498593fa754" defer></script>
-  <script src="data/figure_crops.js?v=b498593fa754" defer></script>
-  <script src="data/choice_crops.js?v=b498593fa754" defer></script>
-  <script src="app-ui.js?v=b498593fa754" defer></script>
-  <script src="figures.js?v=b498593fa754" defer></script>
-  <script src="choice-figures.js?v=b498593fa754" defer></script>
-  <script src="crossout.js?v=b498593fa754" defer></script>
+  <script src="data/questions.js?v=bbf18912b218" defer></script>
+  <script src="data/text.js?v=bbf18912b218" defer></script>
+  <script src="data/figures.js?v=bbf18912b218" defer></script>
+  <script src="data/figure_crops.js?v=bbf18912b218" defer></script>
+  <script src="data/choice_crops.js?v=bbf18912b218" defer></script>
+  <script src="app-ui.js?v=bbf18912b218" defer></script>
+  <script src="figures.js?v=bbf18912b218" defer></script>
+  <script src="choice-figures.js?v=bbf18912b218" defer></script>
+  <script src="crossout.js?v=bbf18912b218" defer></script>
 
-  <script src="grade-core.js?v=b498593fa754" defer></script>
-  <script src="exam-core.js?v=b498593fa754" defer></script>
-  <script src="analysis.js?v=b498593fa754" defer></script>
-  <script src="scratch-pad.js?v=b498593fa754" defer></script>
-  <script src="exam.js?v=b498593fa754" defer></script>
-  <script src="cloud-config.js?v=b498593fa754" defer></script><script src="supa-cloud.js?v=b498593fa754" defer></script>
-  <script src="cloud-account.js?v=b498593fa754" defer></script>
+  <script src="grade-core.js?v=bbf18912b218" defer></script>
+  <script src="exam-core.js?v=bbf18912b218" defer></script>
+  <script src="analysis.js?v=bbf18912b218" defer></script>
+  <script src="scratch-pad.js?v=bbf18912b218" defer></script>
+  <script src="exam.js?v=bbf18912b218" defer></script>
+  <script src="cloud-config.js?v=bbf18912b218" defer></script><script src="supa-cloud.js?v=bbf18912b218" defer></script>
+  <script src="cloud-account.js?v=bbf18912b218" defer></script>
   <script>/* 保险：核心脚本（grade-core / exam-core / exam.js）任一没跑完，页面会变成「Start 点不动」的死页。
      这里在 load 后做一次体检：缺 grade-core 就先自动重载一次（只用 sessionStorage 记一次，防死循环）；
      仍缺就明确提示 + 按钮换成 Reload，不装作正常。 */
