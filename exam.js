@@ -543,10 +543,11 @@
       /* Directions 收成 details 可展开条；完整 Bluebook 原文仍在答题页左上角 Directions 弹窗里。 */
     } else {
       $('introDirections').hidden = true;
-      $('introUnitPick').innerHTML = '<div class="quiz-units" role="group" aria-label="选择单元">' +
-        UNITS.map(u => `<button type="button" class="quiz-unit${u.id === QUIZ_UNIT ? ' on' : ''}" data-unit="${u.id}" aria-pressed="${u.id === QUIZ_UNIT}">` +
-          `<span class="qu-code">U${u.id}</span><span class="qu-name">${esc(u.cn)}</span>` +
-          (u.id === QUIZ_UNIT ? '<span class="qu-tick" aria-hidden="true">✓</span>' : '') + '</button>').join('') + '</div>';
+      /* 单元选择做成一条分段控件（洋葱学园那类学习站的做法），
+         不再用四张占满半屏的卡：一行就能扫完，也少一层大盒子 */
+      $('introUnitPick').innerHTML = '<div class="quiz-tabs" role="tablist" aria-label="选择单元">' +
+        UNITS.map(u => `<button type="button" role="tab" class="quiz-tab${u.id === QUIZ_UNIT ? ' on' : ''}" data-unit="${u.id}" aria-selected="${u.id === QUIZ_UNIT}">` +
+          `<span class="qt-dot" aria-hidden="true"></span><span class="qt-code">U${u.id}</span><span class="qt-name">${esc(u.cn)}</span></button>`).join('') + '</div>';
       $('introUnitPick').querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => {
         QUIZ_UNIT = +b.dataset.unit;
         /* Choosing another unit starts a clean paper; drop any saved session so

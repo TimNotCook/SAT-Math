@@ -809,138 +809,95 @@ body.exam-page:has(#stage-intro.active) .td-acct-btn{display:none!important}
 .tile-group{display:block;margin-bottom:18px}
 .tile-group .drill-group-h{margin:0 0 10px!important}
 
-/* ---- 单元抽查开场页 v2 ---- 参考洋葱学园那类学习站的排版：大圆角、彩色单元卡、
-   主卡只放「题量 / 时限 + 一个主按钮」，不再有 FULL MOCK 这种英文 kicker、也不重复标题 */
-body.shell-exam:not(.is-mock) .mock-entry{max-width:1120px;padding-top:26px}
-body.shell-exam:not(.is-mock) .page-head{border-bottom:0!important;padding-bottom:0!important}
-body.shell-exam:not(.is-mock) #introTitle{font-size:34px;letter-spacing:-.01em}
-
-.quiz-units{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:8px 0 18px}
-.quiz-unit{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;
-  padding:16px 16px 18px;border:1px solid #e8ecf3;border-radius:16px;background:#fff;text-align:left;
-  cursor:pointer;transition:transform .16s var(--ease),border-color .16s var(--ease),box-shadow .16s var(--ease)}
-.quiz-unit:hover{transform:translateY(-2px);border-color:#cfdcf7;box-shadow:0 8px 18px rgba(15,23,42,.06)}
-.quiz-unit.on{border-color:#2563eb;background:linear-gradient(180deg,#eff5ff 0%,#fff 78%);box-shadow:0 10px 22px rgba(37,99,235,.12)}
-.quiz-unit:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
-.qu-code{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:99px;
-  background:#f1f5f9;color:#64748b;font-size:11px;font-weight:800;letter-spacing:.06em}
-.quiz-unit.on .qu-code{background:#2563eb;color:#fff}
-.qu-name{font-size:15px;font-weight:700;line-height:1.35;color:#0f172a}
-.qu-tick{position:absolute;right:13px;top:13px;width:20px;height:20px;border-radius:50%;
-  background:#2563eb;color:#fff;font-size:12px;line-height:20px;text-align:center;font-weight:700}
-@media(max-width:900px){.quiz-units{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:520px){.quiz-units{grid-template-columns:1fr}}
-
-.mock-card-copy{display:flex;flex-direction:column;gap:10px;min-width:0}
-.quiz-card-facts{display:flex;align-items:baseline;gap:22px;flex-wrap:wrap}
-.quiz-fact{font-size:13px;color:#64748b}
-.quiz-fact b{font-size:26px;font-weight:800;color:#0f172a;margin-right:4px;font-variant-numeric:tabular-nums}
-body.shell-exam:not(.is-mock) .mock-main-card{min-height:124px!important;border-radius:16px!important}
-body.shell-exam:not(.is-mock) #introParams{display:none!important}
-
-/* 组卷范围：从「四个复选框」收成一行浅色胶囊 */
-body.shell-exam:not(.is-mock) .exam-special-panel{margin-top:16px;padding:16px 18px;border:1px solid #e8ecf3;border-radius:16px;background:#fff}
-body.shell-exam:not(.is-mock) .exam-special-head{font-size:12px;font-weight:800;letter-spacing:.05em;color:#64748b}
-body.shell-exam:not(.is-mock) .exam-special-chips{margin-top:10px;gap:10px}
-body.shell-exam:not(.is-mock) .exam-special-chip{padding:8px 14px;border-radius:99px;background:#f8fafc;border-color:#e8ecf3!important;font-weight:600}
-body.shell-exam:not(.is-mock) .exam-special-chip.on{background:#eff5ff;border-color:#2563eb!important;color:#1d4ed8}
-
-/* 组卷范围胶囊：原生复选框收进胶囊里，别让它另画一个方框 */
-body.shell-exam:not(.is-mock) .exam-special-chip{position:relative;gap:8px;padding-left:34px}
-body.shell-exam:not(.is-mock) .exam-special-chip input{position:absolute;left:12px;top:50%;width:16px;height:16px;margin:-8px 0 0;appearance:none;
-  border:1.5px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer}
-body.shell-exam:not(.is-mock) .exam-special-chip input:checked{background:#2563eb;border-color:#2563eb}
-body.shell-exam:not(.is-mock) .exam-special-chip input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
-  border:2px solid #fff;border-top:0;border-left:0;transform:rotate(42deg)}
-body.shell-exam:not(.is-mock) .exam-special-chip input:focus-visible{outline:2px solid #93b4f5;outline-offset:2px}
-
-/* 覆盖 GLASS 层给组卷胶囊的乳白底 + 毛玻璃，换成实心浅色胶囊 */
-body.shell-exam:not(.is-mock) .exam-special-chip{background:#f8fafc!important;border:1px solid #e8ecf3!important;border-radius:99px!important;
-  box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;color:#334155!important;padding:8px 14px 8px 34px!important}
-body.shell-exam:not(.is-mock) .exam-special-chip.on{background:#eff5ff!important;border-color:#2563eb!important;color:#1d4ed8!important}
-body.shell-exam:not(.is-mock) .exam-special-chip input[type="checkbox"]{appearance:none!important;-webkit-appearance:none!important;border:1.5px solid #cbd5e1!important;background:#fff!important}
-body.shell-exam:not(.is-mock) .exam-special-chip input[type="checkbox"]:checked{background:#2563eb!important;border-color:#2563eb!important}
-
-/* 单元卡加一条彩色侧条 + 彩色编号，四张卡各自有色相，一眼能分单元 */
-.quiz-unit{overflow:hidden}
-.quiz-unit::after{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;border-radius:0 3px 3px 0;background:#dbeafe;transition:background-color .16s var(--ease)}
-.quiz-unit[data-unit="1"]::after,.quiz-unit[data-unit="1"] .qu-code{background:#dbeafe;color:#1d4ed8}
-.quiz-unit[data-unit="2"]::after,.quiz-unit[data-unit="2"] .qu-code{background:#ede9fe;color:#6d28d9}
-.quiz-unit[data-unit="3"]::after,.quiz-unit[data-unit="3"] .qu-code{background:#d1fae5;color:#047857}
-.quiz-unit[data-unit="4"]::after,.quiz-unit[data-unit="4"] .qu-code{background:#ffedd5;color:#c2410c}
-.quiz-unit.on::after,.quiz-unit.on .qu-code{background:#2563eb;color:#fff}
-body.shell-exam:not(.is-mock) .mock-main-card{background:linear-gradient(135deg,#f8fbff 0%,#fff 62%)!important;border:1px solid #e3ebf9!important;box-shadow:0 10px 26px rgba(37,99,235,.06)!important}
-
-/* 开考后（答题/交卷页）仍进考场模式：隐藏侧栏，避免挤占 Bluebook 版面；
-   开场页与结果页保留侧栏 */
-body.exam-page:has(#stage-answer:not([hidden])) .site-rail{display:none!important}
-@media(min-width:1000px){body.exam-page:has(#stage-answer:not([hidden])){padding-left:0!important}}
-
-/* 单元卡收紧：内容垂直居中，别在名字下面留一大片空 */
-.quiz-unit{justify-content:center;min-height:84px;padding:14px 16px;gap:6px}
-
-/* ---- 抽查开场页 v3：把间距、字号、内距、对齐统一成一套（v2 是临时版） ---- */
-body.exam-page:has(#stage-intro.active){background:#f7f9fc}
-body.shell-exam:not(.is-mock) .mock-entry{max-width:1120px!important;padding:30px 28px 56px!important}
-body.shell-exam:not(.is-mock) #introTitle{font-size:31px!important;font-weight:800;letter-spacing:-.015em;margin:0 0 22px}
-.quiz-units{gap:14px!important;margin:0 0 20px!important}
-.quiz-unit{border-radius:14px!important;border:1px solid #e9edf4;background:#fff;padding:13px 16px!important;min-height:76px;
-  justify-content:center;gap:5px;box-shadow:0 1px 2px rgba(15,23,42,.03)}
-.quiz-unit::after{display:none!important}
-.quiz-unit:hover{border-color:#d7e3fa;box-shadow:0 8px 18px rgba(15,23,42,.06);transform:translateY(-1px)}
-.quiz-unit.on{border-color:#2563eb!important;background:#fff;box-shadow:0 0 0 2px rgba(37,99,235,.10),0 8px 20px rgba(37,99,235,.08)}
-.qu-code{height:19px;padding:0 8px;border-radius:6px;font-size:10.5px;letter-spacing:.09em}
-.qu-name{font-size:14.5px;font-weight:700;color:#12233f}
-.qu-tick{right:12px;top:12px;width:18px;height:18px;font-size:11px;line-height:18px}
-
-body.shell-exam:not(.is-mock) .mock-main-card{min-height:108px!important;border-radius:16px!important;border:1px solid #e9edf4!important;
-  background:#fff!important;padding:20px 24px!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important}
-.quiz-card-facts{gap:0!important;align-items:center!important}
-.quiz-fact{display:inline-flex;align-items:baseline;gap:7px;font-size:12.5px;color:#7b8798;font-weight:600}
-.quiz-fact b{font-size:28px;font-weight:800;color:#0f172a;letter-spacing:-.01em}
-.quiz-fact+.quiz-fact{margin-left:26px;padding-left:26px;border-left:1px solid #e9edf4}
-body.shell-exam:not(.is-mock) #btnStart{min-width:168px!important;min-height:46px;border-radius:10px;font-size:15px;font-weight:700;letter-spacing:.01em}
-
-body.shell-exam:not(.is-mock) .exam-special-panel{margin-top:20px!important;padding:18px 20px!important;border-radius:16px!important;
-  border:1px solid #e9edf4!important;background:#fff!important;box-shadow:0 6px 18px rgba(15,23,42,.03)!important}
-body.shell-exam:not(.is-mock) .exam-special-head{font-size:11.5px!important;font-weight:800!important;color:#7b8798!important;letter-spacing:.09em!important}
-body.shell-exam:not(.is-mock) .exam-special-chips{margin-top:14px!important;gap:10px!important}
-body.shell-exam:not(.is-mock) .exam-special-chip{height:34px!important;padding:0 14px 0 33px!important;border-radius:99px!important;
-  border:1px solid #e9edf4!important;background:#f9fbfd!important;font-size:13px!important;font-weight:600!important;color:#334155!important;gap:8px!important}
-body.shell-exam:not(.is-mock) .exam-special-chip small{font-size:11.5px!important;font-weight:600;color:#94a3b8!important}
-body.shell-exam:not(.is-mock) .exam-special-chip input[type="checkbox"]{left:12px!important;top:50%!important;width:15px!important;height:15px!important;
-  margin:-7.5px 0 0!important;border-radius:5px!important;border:1.5px solid #cbd5e1!important;background:#fff!important}
-body.shell-exam:not(.is-mock) .exam-special-chip.on{background:#f2f7ff!important;border-color:#bfd5fb!important;color:#1d4ed8!important}
-@media(max-width:900px){
-  body.shell-exam:not(.is-mock) .mock-entry{padding:20px 16px 40px!important}
-  .quiz-fact+.quiz-fact{margin-left:18px;padding-left:18px}
-}
-@media(max-width:520px){
-  .quiz-units{grid-template-columns:1fr!important}
-  .quiz-card-facts{flex-wrap:wrap;gap:10px!important}
-  .quiz-fact+.quiz-fact{margin:0;padding:0;border:0}
-  body.shell-exam:not(.is-mock) .mock-main-card{flex-direction:column!important;align-items:flex-start!important;gap:14px}
-  body.shell-exam:not(.is-mock) #btnStart{width:100%}
-}
-
-/* ---- 开场页（模考 + 抽查）统一卡片语言：同底色、同圆角、同阴影、同内距 ---- */
-body.exam-page:has(#stage-intro.active){background:#f6f8fb!important}
-.quiz-unit.on{box-shadow:0 0 0 1px #2563eb,0 6px 16px rgba(37,99,235,.10)!important}
-.mock-entry .mock-stats{gap:14px!important}
-.mock-entry .mock-stats .stat-card{min-height:92px!important;padding:16px 20px!important;border-radius:14px!important;
-  border:1px solid #e9edf4!important;background:#fff!important;box-shadow:0 1px 2px rgba(15,23,42,.03)!important}
-.mock-entry .mock-stats .stat-card b{font-size:26px!important;font-weight:800;letter-spacing:-.01em;color:#0f172a!important}
-.mock-entry .mock-stats .stat-card span{font-size:11.5px!important;font-weight:700;letter-spacing:.07em;color:#8a94a6!important}
-.mock-entry #introDirections{margin-top:20px!important;border-radius:14px!important;border:1px solid #e9edf4!important;background:#fff!important;box-shadow:0 1px 2px rgba(15,23,42,.03)!important}
-.mock-entry .mock-directions summary{padding:16px 20px!important;font-weight:700;color:#334155}
-
-/* bluebook 给 html 写死了白底，body 只画到内容高度，所以底灰会断在半路 */
-html:has(body.exam-page:has(#stage-intro.active)){background:#f6f8fb!important}
+/* ============================================================
+   开场页（单元抽查 / 模考）— 一块浅灰画布 + 一张白卡
+   参照洋葱学园一类学习站：浅灰底、白卡、蓝色主按钮、彩色小标签、分段选择
+   ============================================================ */
+html:has(body.exam-page:has(#stage-intro.active)),
+body.exam-page:has(#stage-intro.active){background:#f5f7fb!important}
 body.exam-page:has(#stage-intro.active){min-height:100vh}
+html:has(body.exam-page:has(#stage-intro.active)) body{background:#f5f7fb!important}
 
-/* 抽查页在窄屏也会露出 rail 的「返回真题练习」，hero 那颗英文 Back to Practice 不能同时出现 */
+body.exam-page:has(#stage-intro.active) .mock-entry{max-width:1040px!important;padding:28px 26px 56px!important}
+body.exam-page:has(#stage-intro.active) #introTitle{font-size:30px!important;font-weight:800;letter-spacing:-.02em;margin:0 0 18px}
+body.exam-page:has(#stage-intro.active) .page-head{border-bottom:0!important;padding-bottom:0!important}
+body.exam-page:has(#stage-intro.active) #backPractice{min-height:38px;border-radius:9px;font-size:13px;padding:0 16px}
+
+/* 分段控件：四个单元一条，选中格白底蓝字 */
+.quiz-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:5px;margin:0 0 14px;
+  background:#eceff6;border:1px solid #e4e9f1;border-radius:12px;grid-auto-rows:44px}
+.quiz-tab{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 12px;
+  border:0;border-radius:9px;background:transparent;cursor:pointer;color:#64748b;
+  height:44px;min-height:0;line-height:1;font-size:14px;font-weight:700;transition:background-color .14s,color .14s,box-shadow .14s}
+.quiz-tab:hover{color:#1f2937}
+.quiz-tab:focus-visible{outline:2px solid #93b4f5;outline-offset:1px}
+.quiz-tab.on{background:#fff;color:#1d4ed8;box-shadow:0 1px 3px rgba(15,23,42,.10)}
+.qt-code{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#94a3b8}
+/* 单元色点的色值（只在标签里点一颗，不做大面积彩色） */
+.quiz-tab[data-unit="1"] .qt-dot{background:#2563eb}
+.quiz-tab[data-unit="2"] .qt-dot{background:#7c5cff}
+.quiz-tab[data-unit="3"] .qt-dot{background:#d97706}
+.quiz-tab[data-unit="4"] .qt-dot{background:#0d9488}
+.qt-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;opacity:.85}
+
+.quiz-tab.on .qt-code{color:#2563eb}
+.qt-name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:900px){.quiz-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* 主卡：参数 + 主按钮 + 专项开关，全装在同一张卡里 */
+body.exam-page:has(#stage-intro.active) .mock-main-card{display:flex!important;flex-wrap:wrap;align-items:center!important;
+  justify-content:space-between!important;gap:16px;min-height:0!important;padding:20px 24px!important;
+  border:1px solid #e6ebf3!important;border-radius:14px!important;background:#fff!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.04)!important;row-gap:0}
+.mock-card-copy{display:flex;flex-direction:column;gap:10px;min-width:0}
+.quiz-card-facts{display:flex;flex-wrap:wrap;align-items:center;gap:0}
+.quiz-fact{display:inline-flex;align-items:baseline;gap:7px;font-size:12.5px;color:#7b8798;font-weight:600}
+.quiz-fact b{font-size:27px;font-weight:800;color:#0f172a;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.quiz-fact+.quiz-fact{margin-left:22px;padding-left:22px;border-left:1px solid #e9edf4}
+body.exam-page:has(#stage-intro.active) #btnStart{min-width:160px;min-height:44px;border-radius:10px;
+  font-size:14.5px;font-weight:700;letter-spacing:.01em}
+#introOptions{flex:0 0 100%;width:100%}
+#introOptions:empty{display:none}
+body.exam-page:has(#stage-intro.active) #introParams{display:none!important}
+
+/* 专项开关：卡内隔一条细线，胶囊再轻一点 */
+body.exam-page:has(#stage-intro.active) .exam-special-panel{margin:14px 0 0!important;padding:14px 0 0!important;
+  border:0!important;border-top:1px solid #edf1f7!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+body.exam-page:has(#stage-intro.active) .exam-special-head{font-size:11px!important;font-weight:800!important;color:#94a3b8!important;letter-spacing:.1em!important}
+body.exam-page:has(#stage-intro.active) .exam-special-chips{margin-top:10px!important;gap:8px!important}
+body.exam-page:has(#stage-intro.active) .exam-special-chip{height:32px!important;padding:0 12px 0 31px!important;border-radius:9px!important;
+  border:1px solid #e6ebf3!important;background:#f8fafd!important;color:#475569!important;
+  font-size:13px!important;font-weight:600!important;gap:8px!important;box-shadow:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+body.exam-page:has(#stage-intro.active) .exam-special-chip small{font-size:11px!important;font-weight:600!important;color:#94a3b8!important}
+body.exam-page:has(#stage-intro.active) .exam-special-chip input[type="checkbox"]{left:11px!important;top:50%!important;
+  width:15px!important;height:15px!important;margin:-7.5px 0 0!important;border-radius:4px!important;
+  border:1.5px solid #b8c4d4!important;background:#fff!important;appearance:none!important;-webkit-appearance:none!important}
+body.exam-page:has(#stage-intro.active) .exam-special-chip input[type="checkbox"]:checked{background:#2563eb!important;border-color:#2563eb!important}
+body.exam-page:has(#stage-intro.active) .exam-special-chip input[type="checkbox"]:checked::after{content:"";position:absolute;
+  left:4px;top:1px;width:4px;height:8px;border:2px solid #fff;border-top:0;border-left:0;transform:rotate(42deg)}
+body.exam-page:has(#stage-intro.active) .exam-special-chip.on{background:#f2f7ff!important;border-color:#c3d8fb!important;color:#1d4ed8!important}
+
+/* 抽查页的返回入口只留 rail 里的中文那颗，hero 那颗英文的常驻隐藏 */
 body.exam-page:not(.is-mock) #backPractice{display:none!important}
-body.shell-exam:not(.is-mock) .exam-special-chip input[type="checkbox"]{border-color:#b8c4d4!important}
 
-/* 模考页右边已有 Back to Practice，rail 里那颗中文返回就别再出现（窄屏 rail 变成顶部条时同理） */
+/* 模考页右上有 Back to Practice，rail 里那颗中文返回就不重复 */
 body.exam-page.is-mock .site-rail .rail-back{display:none!important}
+
+@media(max-width:900px){
+  body.exam-page:has(#stage-intro.active) .mock-entry{padding:20px 16px 40px!important}
+  body.exam-page:has(#stage-intro.active) .exam-special-chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  body.exam-page:has(#stage-intro.active) .exam-special-chip{width:100%;justify-content:flex-start}
+}
+/* 错题页也铺同一块灰底，卡片白了才看得出层次 */
+html:has(body.shell-wrong){background:#f5f7fb!important}
+body.shell-wrong{background:#f5f7fb!important;min-height:100vh}
+body.shell-wrong .site-rail{background:#fff}
+body.shell-wrong .empty-panel{border:1px solid #e6ebf3!important;border-radius:14px!important;background:#fff!important;box-shadow:0 1px 2px rgba(15,23,42,.04)!important}
+@media(max-width:560px){
+  .quiz-fact+.quiz-fact{margin-left:16px;padding-left:16px}
+  body.exam-page:has(#stage-intro.active) .mock-main-card{flex-direction:column!important;align-items:stretch!important;gap:14px}
+  body.exam-page:has(#stage-intro.active) #btnStart{width:100%}
+  .quiz-tabs{grid-auto-rows:40px}
+  .quiz-tab{height:40px;padding:0 8px;gap:6px;font-size:13px}
+}
