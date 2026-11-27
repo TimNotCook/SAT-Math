@@ -80,6 +80,26 @@ test('作答记录的值是对象/数组时归一成空串，练习页不再显�
   assert.equal(st.answers['TD-11-03'].v, '3');
 });
 
+test('迁移旧板块时目标 wrongLog 是字符串/数组，历史错题也不丢', () => {
+  const probe = boot({ sections: {} });
+  const old = '2.6', to = probe.A.sectionAliases[old];
+  assert.ok(to && probe.A.CATALOG[to], '2.6 的别名目标必须存在');
+  const qid = probe.A.CATALOG[to][0].id;
+  let threw = null;
+  try {
+    const seedy = { sections: {
+      [to]: { answers: {}, marks: {}, wrongLog: 'junk' },
+      [old]: { answers: {}, marks: {}, wrongLog: { [qid]: { v: 'A', ts: 1 } } },
+    } };
+    const { A, store } = boot(seedy);
+    assert.doesNotThrow(() => A.setAnswer(to, qid, 'A'));
+    const disk = JSON.parse(store.tdsat_app_v1);
+    assert.ok(disk.sections[to].wrongLog[qid], '迁移后的 wrongLog 没落库');
+    assert.equal(A.secState(to, false).wrongLog[qid].v, 'A');
+  } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '目标 wrongLog 是字符串时迁移把页面打崩：' + (threw && threw.message));
+});
+
 test('answers 是字符串时仍能写入作答，并修复成对象', () => {
   const { A, store } = boot({ sections: { '1.1': { answers: 'junk', marks: [], wrongLog: 'x' } } });
   const st = A.secState('1.1', true);

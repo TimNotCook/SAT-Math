@@ -552,3 +552,9 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 `app-core.js nav()` 拼导航时写成 `class="' + (...) + '>'`，少了一个闭合双引号；实际输出 `<a ... class="on> aria-current="page">`。浏览器会把 `on> aria-current=` 当成 class 值，当前页的 `a.on` 高亮失效，`aria-current` 也不是属性，读屏软件读不到「当前页」。
 
 修法：把 class 值单独用一层引号闭合：`class="' + (...) + '"' + (active ? ' aria-current="page"' : '') + '>'`。验证：vm 里跑真实 `app-core.js nav('drill')`，旧输出含 `class="on>`，新输出为合法的 `class="on" aria-current="page"`；`test/nav.test.js` 7/7。全量 `node --test` 372/0；`verify_junk` 11×7；`verify_flows` 16/16。
+
+## 第 52 条：迁移旧板块时目标 wrongLog 是字符串/数组，错题台账丢失或页面 TypeError（2026-11-27）
+
+`app-core.js normalize()` 迁移旧节 `wrongLog` 时只保证 `dst.answers`、`dst.marks` 是对象，没检查 `dst.wrongLog`。目标板块的 `wrongLog` 是 `'junk'` 时，strict mode 下 `dst.wrongLog[qid] = ...` 直接 `Cannot create property ... on string`，整页加载崩；是数组时属性写进数组自定义键，`JSON.stringify` 后只剩 `[]`，旧错题蒸发。
+
+修法：迁移前把 `dst.wrongLog` 归成普通对象，源 `src.wrongLog` 只接受普通对象。验证：旧节 `2.6` → `2.7.T23`，目标 `wrongLog:'junk'`，旧代码 TypeError，新代码可写回且 `R03-361` 记录落库；`test/state-shape.test.js` 8/8。全量 `node --test` 375/0；`verify_junk` 11×7；`verify_flows` 16/16。

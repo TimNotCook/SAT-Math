@@ -158,6 +158,11 @@
       if (!isPlainObject(dst)) dst = st.sections[to] = { answers: {}, cursor: 0, completed: false, marks: {} };
       if (!isPlainObject(dst.answers)) dst.answers = {};
       if (!isPlainObject(dst.marks)) dst.marks = {};
+      if (!isPlainObject(dst.answers)) dst.answers = {};
+      if (!isPlainObject(dst.marks)) dst.marks = {};
+      /* wrongLog 也可能是字符串/数组：直接给字符串挂属性在 strict mode 会
+         TypeError，给数组挂属性 JSON.stringify 时会丢，旧错题台账整批蒸发。 */
+      if (!isPlainObject(dst.wrongLog)) dst.wrongLog = {};
       Object.keys(src.answers || {}).forEach(function (qid) {
         var nid = ALIAS[qid] || qid;
         if (src.answers[qid] && !dst.answers[nid]) dst.answers[nid] = src.answers[qid];
@@ -171,7 +176,7 @@
       /* dst.wrongLog 可能是字符串/数组（云端合并/旧版）：直接往原始值上挂属性
          在严格模式会 TypeError，整次写盘失败。先归一成普通对象。 */
       if (!isPlainObject(dst.wrongLog)) dst.wrongLog = {};
-      Object.keys(src.wrongLog || {}).forEach(function (qid) {
+      Object.keys(isPlainObject(src.wrongLog) ? src.wrongLog : {}).forEach(function (qid) {
         var nid = ALIAS[qid] || qid;
         if (!dst.wrongLog[nid]) dst.wrongLog[nid] = src.wrongLog[qid];
       });
