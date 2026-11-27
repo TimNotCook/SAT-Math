@@ -151,10 +151,8 @@
      Start/测试 button is clicked, so a page load, refresh or module switch can
      never show answer / review / submit / result content on the main screen. */
   let resumeStage = null, startClicked = false;
-  /* 有存档但校验不过时置位：开场页要明说「存档已过期」，不能默默吞掉。 */
+  /* 开场页不放任何提示条：存档作废、模块切换、恢复进度一律静默处理。 */
   let sessionExpired = false;
-  /* 开场页顶部的说明条（存档作废 / 模块一自动切换都走这里，不另开弹窗）。 */
-  let introNote = '';
   /* Snapshot of the session as last observed on disk. Writes re-read the disk
      and replay only locally changed fields on top of it, so a stale tab can
      never erase answers/results another tab just saved under the same key. */
@@ -207,9 +205,6 @@
     /* Explicit Start click: this is the ONLY trigger that reveals test content. */
     startClicked = true;
     sessionExpired = false;
-    introNote = '';
-    const expiredNotice = $('introNotice');
-    if (expiredNotice) expiredNotice.hidden = true;
     /* 已交卷的会话不能再被 Start 拉回答题视图：答题区是锁定态，进去只会看到
        「题都在、全灰、不能答」的残影，而成绩页才是唯一正确落点。 */
     if (S && S.finished && S.result) {
@@ -313,70 +308,11 @@
 
   function voidRecords() { return asArr(load(KEY_RESULTS)).filter(r => r && r.void); }
 
-  function exportSalvage() {
-    const list = voidRecords();
-    if (!list.length) return;
-    const payload = {
-      exportedAt: new Date().toISOString(),
-      note: OFFICIAL
-        ? 'SAT Math Prep · unsaved test record (paper and answers kept before voiding; never graded)'
-        : 'SAT Math Prep · 未交卷档案（作废前的卷面与作答，未参与判分）',
-      records: list
-    };
-    try {
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      a.href = url; a.download = 'sat-math-salvage-' + stamp + '.json';
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      toast(OFFICIAL ? 'Exported ' + list.length + ' unsaved record(s)'
-        : '已导出 ' + list.length + ' 卷未交卷档案');
-    } catch (e) { console.warn('导出未交卷档案失败', e); }
-  }
-
-  function renderSalvage() {
-    const host = $('introSalvage');
-    if (!host) return;
-    const list = voidRecords();
-    if (!list.length) { host.hidden = true; host.innerHTML = ''; return; }
-    const last = list[list.length - 1];
-    host.hidden = false;
-    const rawWhen = safeNum(last.date) ?? safeText(last.date);
-    const whenObj = new Date(rawWhen), whenOk = !isNaN(whenObj.getTime());
-    const answered = safeNum(last.answered) ?? 0, total = safeNum(last.total) ?? 0;
-    if (OFFICIAL) {
-      const when = whenOk ? whenObj.toLocaleString('en-US') : '—';
-      host.innerHTML = '<div class="exam-salvage-head">Unsaved test · ' + list.length + '</div>' +
-        '<div class="exam-salvage-row">Latest: ' + when + ' · answered ' + answered + '/' + total +
-        ' · reason: ' + reasonText(last.reason) + '</div>' +
-        '<button type="button" class="btn slim" id="btnExportSalvage">Export unsaved record (JSON)</button>';
-    } else {
-      const modeName = OFFICIAL ? 'Mock Test' : (last.mode === 'mock' ? '模考' : (last.mode === 'quiz' ? '单元抽查' : '练习'));
-      host.innerHTML = OFFICIAL
-        ? '<div class="exam-salvage-head">Unsaved test records · ' + list.length + '</div>' +
-          '<div class="exam-salvage-row">Latest: ' + (whenOk ? whenObj.toLocaleString('en-US') : '—') +
-          ' · ' + modeName + ' · answered ' + answered + '/' + total +
-          ' · reason: ' + reasonText(last.reason) + '</div>' +
-          '<button type="button" class="btn slim" id="btnExportSalvage">Export unsaved record (JSON)</button>'
-        : '<div class="exam-salvage-head">未交卷记录 · 共 ' + list.length + ' 卷</div>' +
-          '<div class="exam-salvage-row">最近：' + (whenOk ? whenObj.toLocaleString('zh-CN') : '—') +
-          ' · ' + modeName + ' · 已答 ' + answered + '/' + total +
-          ' · 作废原因：' + reasonText(last.reason) + '</div>' +
-          '<button type="button" class="btn slim" id="btnExportSalvage">导出未交卷档案（JSON）</button>';
-    }
-    $('btnExportSalvage').addEventListener('click', exportSalvage);
-  }
-
   /* 运行中结构异常（理论上不可达）：同样走留档 + 重置，不给错数。 */
   function runtimeVoid() {
     salvageSession(S, 'runtime');
     try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
     sessionExpired = true;
-    introNote = OFFICIAL
-      ? 'This test’s saved data was damaged. Its paper and your answers were kept and can be exported below; a new test starts now.'
-      : '本卷结构异常，已留存卷面与作答，可在下方导出；现在开始一份新卷。';
     resumeStage = null;
     adopt(newSession()); renderIntro(); setStage('intro');
   }
@@ -444,35 +380,20 @@
       if (timeout === 'module1') {
         enterModule2();
         resumeStage = 'answer';
-        const left = fmt(Math.max(0, S.moduleEndsAt - Date.now()));
-        introNote = OFFICIAL
-          ? 'Module 1 time is up. You are now in Module 2 (' + left + ' remaining).'
-          : 'Module 1 时间已到，已自动进入 Module 2（本模块剩余 ' + left + '）。';
       }
-      /* 刷新/重进时静默恢复，学生会以为进度丢了或计时重置；明确告诉他
-         计时一直在走、点 Start 就接着上次继续。模块一超时已自带说明，不覆盖。 */
-      if (!introNote && s.startedAt && !s.finished) {
-        introNote = OFFICIAL
-          ? 'Your saved test was restored. The clock kept running while you were away — tap Start to resume where you left off.'
-          : '已恢复上次进度。计时没有暂停，点「开始抽测」接着做。';
-      }
+      /* 刷新/重进静默恢复：点 Start 直接接着上次继续，不在开场页塞说明文字。 */
       showStage('intro');           // also hides the timer group
       renderIntro();
       /* Do not write the stored remaining time while on the start page:
          the countdown is revealed only by the Start click. */
       return true;
     }
-    /* 存档存在但无法按官方结构重建：留档 → 作废 → 明示，按新卷开考 */
+    /* 存档存在但无法按官方结构重建：静默作废，直接给新卷。
+       开场页预生成、还没开考的存档（没有 startedAt / 还停在 intro）不入留档。 */
     if (saved && saved.mode === MODE) {
-      const rec = salvageSession(saved, fixed.reason);
+      const started = Number(saved.startedAt) > 0 && saved.stage && saved.stage !== 'intro';
+      if (started) salvageSession(saved, fixed.reason);
       try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
-      sessionExpired = true;
-      const kept = rec ? ((safeNum(rec.answered) ?? 0) + '/' + (safeNum(rec.total) ?? 0)) : '';
-      introNote = OFFICIAL
-        ? 'This saved test could not be restored (' + reasonText(fixed.reason) + '). Its paper and answers were kept' +
-          (kept ? ' (' + kept + ' answered)' : '') + ' and can be exported below; a new test starts now.'
-        : '存档已过期（' + reasonText(fixed.reason) + '），已留存卷面与作答' +
-          (kept ? '（已答 ' + kept + '）' : '') + '，可在下方导出；现在开始一份新卷。';
     }
     resumeStage = null;
     adopt(newSession()); renderIntro(); setStage('intro'); return false;
@@ -590,17 +511,9 @@
 
   function renderIntro() {
     const official = MODE === 'mock';
-    const notice = $('introNotice');
-    if (notice) {
-      const fallback = OFFICIAL ? 'This saved test has expired. Start a new test.' : '存档已过期，请重新开始';
-      const msg = introNote || (sessionExpired ? fallback : '');
-      notice.hidden = !msg;
-      notice.textContent = msg;
-      notice.classList.toggle('exam-note-warn', !!sessionExpired);
-    }
-    renderSalvage();
+    /* introNotice 只留启动失败那条兜底（见 exam.html 的 load 体检），正常流程不写。 */
     const introMod = official && S && S.module === 2 ? 2 : 1;
-    $('introTitle').textContent = official ? '模考' : '单元抽查';
+    $('introTitle').textContent = official ? 'Practice Test' : '单元抽查';
     const quizTitle = $('introQuizTitle');
     if (quizTitle) quizTitle.hidden = official;
     $('btnStart').textContent = resumeStage === 'result'
@@ -908,6 +821,9 @@
      this tab actually changed on top of it. A stale tab clicking Start can no
      longer erase the answers / score report another tab just persisted. */
   const persist = () => {
+    /* 开场页还没开考：不落盘。否则每次打开模考都会在本地写一条 startedAt=0 的
+       「坏存档」，下次刷新就触发一次无谓的作废流程（以前还会在页面上弹提示）。 */
+    if (S && S.stage === 'intro' && !S.startedAt) return;
     const disk = load(KEY_SESSION);
     let base = null;
     try { base = JSON.parse(BASE); } catch (e) { console.warn('解析会话快照失败', e); }

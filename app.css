@@ -781,3 +781,24 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{margin-block:0!importan
 
 /* 错题本空态：只留主卡，别把四个 0 并排摆出来 */
 .stat-grid.stat-grid-empty{grid-template-columns:minmax(0,1fr)!important}
+
+/* =====================================================================
+   模考开场页 v2 —— ① 开场页不出现悬浮「设置」（会和 Back 抢同一块角）
+   ② 主卡改一行式（kicker 左 / Start 右），不再是一张 168px 空盒子
+   ③ 页头右侧动作区固定一行，窄屏按钮换行不叠字
+   ===================================================================== */
+.mock-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+body.exam-page:has(#stage-intro.active) .td-acct-btn{display:none!important}
+.mock-main-card{flex-direction:row!important;align-items:center!important;justify-content:space-between!important;
+  gap:16px!important;min-height:104px!important;padding:20px 24px!important}
+.mock-main-card .btn{align-self:center!important;min-width:168px!important;min-height:48px!important;font-size:15px!important}
+.mock-main-card .exam-card-kicker{line-height:1.2}
+@media(max-width:520px){
+  .mock-main-card{flex-direction:column!important;align-items:flex-start!important;min-height:0!important}
+  .mock-main-card .btn{width:100%!important}
+}
+
+
+/* 模考开场页：主卡一行式（FULL MOCK 左 / Start 右），下面三张参数卡同一行；
+   .mock-grid 只是结构包装，不参与排版 */
+.mock-grid{display:contents}

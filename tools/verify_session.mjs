@@ -158,8 +158,9 @@ const base = await freshSave();
   broken.answers[firstUid] = Object.assign({}, broken.answers[firstUid] || {}, { v: 'B', marked: true });
   await loadSave(broken);
   const s3 = await stages();
-  check('broken', '明示存档无法恢复', s3.noticeShown && /could not be restored|存档已过期/.test(strip(s3.notice)), s3.notice);
-  check('broken', '开始页出现留档面板', s3.salvageShown, s3.salvageShown ? 'shown' : 'hidden');
+  /* 总监口径：开场页不出现任何「存档坏了/已过期」提示，也不给导出面板——静默作废重开。 */
+  check('broken', '开始页不弹存档提示', !s3.noticeShown, s3.notice || '(hidden)');
+  check('broken', '开始页没有留档/导出面板', !s3.salvageShown, s3.salvageShown ? 'shown' : 'hidden');
   const recs = JSON.parse((await ev(`localStorage.getItem(${JSON.stringify(RK)})`)) || '[]');
   const voidRec = recs.filter(r => r && r.void).pop();
   check('broken', 'results 里有 void 记录', !!voidRec, voidRec ? '已答 ' + voidRec.answered + '/' + voidRec.total + ' · ' + voidRec.reason : 'none');
@@ -226,7 +227,8 @@ const base = await freshSave();
   m1.endsAt = Date.now() + 30 * 60 * 1000;
   await loadSave(m1);
   const s6 = await stages();
-  check('timeout-m1', '开始页明示已进 Module 2', s6.noticeShown && /Module 2/.test(strip(s6.notice)), s6.notice);
+  /* 模块一超时不再往开场页写说明条（开场页零提示），只靠 toast；这里断言开场页是干净的。 */
+  check('timeout-m1', '开始页不写说明条', !s6.noticeShown, s6.notice || '(hidden)');
   check('timeout-m1', '没有把题目直接摊开', !s6.answer && s6.intro, s6.answer ? 'answer' : 'intro');
   check('timeout-m1', '开始页参数条也显示 Module 2', /Module 2 of 2/.test(strip(s6.params)), s6.params);
   await shot('timeout-m1-intro');

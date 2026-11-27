@@ -43,9 +43,10 @@ test('成绩合并跳过对象题号，不制造假错题', () => {
 });
 
 
-test('未交卷恢复条对对象日期/答题数降级，不出现 Invalid Date', () => {
-  const seg = js.slice(js.indexOf('function renderSalvage'), js.indexOf('function runtimeVoid'));
-  assert.match(seg, /safeNum\(last\.date\)/, '恢复条还在直接 new Date(last.date)');
-  assert.match(seg, /answered = safeNum\(last\.answered\)/, '恢复条还在直接拼对象作答数');
-  assert.ok(!/new Date\(last\.date\)\.toLocaleString/.test(seg), '恢复条还有裸日期转换');
+test('未交卷导出面板已整体移除，开场页不再有 salvage 区块', () => {
+  const html = readFileSync(resolve(ROOT, 'exam.html'), 'utf8');
+  assert.ok(!/introSalvage/.test(html), 'exam.html 不得再有 introSalvage 面板');
+  assert.ok(!/btnExportSalvage/.test(js), 'exam.js 不得再有导出按钮');
+  /* 静默作废仍然要留档：results 里的 void 记录这条账不能删。 */
+  assert.match(js, /salvageSession\(saved, fixed\.reason\)/, '存档作废仍要写 void 记录');
 });

@@ -297,6 +297,14 @@ function importedGroupHtml(){
  }
  function render(){
    renderHero();
+   /* 全库 0 条错题：整页只留一句空状态，别拿四张 0 卡 + 筛选条 + 薄弱点凑版面 */
+   var totallyEmpty=!all.length;
+   ['overview','unitFilter','weakPanel','resultCount'].forEach(function(id){var e=document.getElementById(id);if(!e)return;
+     /* hidden 属性会被 .wrong-overview{display:grid} 这类类规则压回可见，这里直接改 display */
+     if(id==='unitFilter'){if(e.parentElement)e.parentElement.style.display=totallyEmpty?'none':'';}
+     else if(e.style)e.style.display=totallyEmpty?'none':'';
+   });
+   var heroGrid=document.getElementById('wrongHero'); if(heroGrid&&heroGrid.style&&totallyEmpty)heroGrid.style.display='none';
    var rows=activeUnit?all.filter(function(x){return x.q.unit===activeUnit;}):all;
    var byTopic={};rows.forEach(function(x){if(x.corrected)return;var k=topic(x.q);byTopic[k]=(byTopic[k]||0)+1;});
    var weak=Object.keys(byTopic).map(function(k){return{k:k,n:byTopic[k]};}).sort(function(a,b){return b.n-a.n;});

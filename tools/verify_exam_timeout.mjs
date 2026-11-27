@@ -132,7 +132,8 @@ await ev(`(function(){var k='${KEY_SESSION}';var s=JSON.parse(localStorage.getIt
   s.moduleEndsAt=now-1000; s.endsAt=now+4000; localStorage.setItem(k,JSON.stringify(s)); })()`);
 await goto(`${BASE}/exam.html?mode=mock`, 'Module1 到点');
 const introNote = await ev(`(function(){var n=document.getElementById('introNotice');return n&&!n.hidden?n.textContent.trim():'';})()`);
-check('Module 1 到点后开始页明示已进入 Module 2', /Module 2/i.test(introNote), introNote.slice(0, 90));
+/* 开场页零提示：Module 1 到点后不该再往页面上写说明条（模块信息靠参数条与 toast）。 */
+check('Module 1 到点后开始页不写说明条', introNote === '', introNote.slice(0, 90));
 const stage2 = await startExam();
 const s2 = await ev(`(function(){var s=JSON.parse(localStorage.getItem('${KEY_SESSION}')||'null');return s?{paper:s.paper.length,module:s.module,finished:s.finished,endsIn:Math.round((s.endsAt-Date.now())/1000)}:null;})()`);
 check('点 Start 后进答题视图且卷面补齐 44 题（Module 2）', stage2 === 'stage-answer' && s2 && s2.paper === 44 && s2.module === 2, JSON.stringify({ stage2, s2 }));
