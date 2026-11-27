@@ -809,8 +809,9 @@
       const sectionKey = d.section == null || typeof d.section === 'object' ? '' : String(d.section);
       const u = ug[unitKey] || (ug[unitKey] = { unit: unitKey, n: 0, wrong: 0, ids: [] });
       u.n++; if (!isRightFlag(d.correct)) { u.wrong++; u.ids.push(d.id); }
-      /* topic 在云端/旧记录里可能是数字或对象：直接 .replace 会把成绩页打崩。 */
-      const topic = d.topic == null ? '' : String(d.topic);
+      /* topic 在云端/旧记录里可能是数字或对象：直接 .replace 会把成绩页打崩，
+         对象字符串化还会让报告标题变成 [object Object]。 */
+      const topic = d.topic == null || typeof d.topic === 'object' ? '' : String(d.topic);
       const key = sectionKey + '|' + topic;
       const t = tg[key] || (tg[key] = { key, unit: unitKey, section: sectionKey, topic, n: 0, wrong: 0, ids: [], seconds: 0 });
       t.n++; t.seconds += Number(d.seconds) || 0; if (!isRightFlag(d.correct)) { t.wrong++; t.ids.push(d.id); }
