@@ -143,6 +143,22 @@ for (const [w, h, tag] of [[375, 812, '375'], [320, 568, '320']]) {
   check(tag, '错题卡片在视口内', !!(card && card.right <= card.vw + 1), card ? `右边界 ${card.right} / 视口 ${card.vw}` : '没有卡片');
   check(tag, '错题页无横向溢出', ov3 && ov3.sw <= ov3.vw + 1, `${ov3.sw} / ${ov3.vw}`);
   if (card && card.right > card.vw + 1) check(tag, '卡片内部溢出元素', false, JSON.stringify(card.tailOverflow));
+  /* 你的答案 / 正确答案两栏：长小数、带逗号的千分位最容易被挤成竖排或截断 */
+  const cmp = await ev(`(()=>{const rows=document.querySelectorAll('#wrongList .answer-compare');
+    if(!rows.length) return {n:0, bad:[]};
+    const bad=[]; rows.forEach(row=>{
+      Array.prototype.forEach.call(row.children, cell=>{
+        const r=cell.getBoundingClientRect();
+        if(r.right>innerWidth+1) bad.push({why:'越界',txt:cell.innerText.slice(0,20)});
+        Array.prototype.forEach.call(cell.querySelectorAll('b'), b=>{
+          const cs=getComputedStyle(b);
+          if(cs.overflow==='hidden'&&b.scrollWidth>b.clientWidth+2)
+            bad.push({why:'截断',txt:b.innerText.slice(0,20),sw:b.scrollWidth,cw:b.clientWidth});
+        });
+      });
+    });
+    return {n:rows.length, bad:bad.slice(0,3), minW:Math.min.apply(null, Array.prototype.map.call(rows[0].children,c=>Math.round(c.getBoundingClientRect().width)))};})()`);
+  check(tag, '答案对比两栏不被挤爆/截断', !!(cmp && cmp.bad.length === 0), cmp ? `${cmp.n} 组，窄栏 ${cmp.minW}px，问题 ${JSON.stringify(cmp.bad)}` : '没有答案对比');
   await shot(tag + '-wrong');
 
   /* ---------- 4. 模考开始页：Start 热区 ---------- */
@@ -237,6 +253,30 @@ for (const [w, h, tag] of [[375, 812, '375'], [320, 568, '320']]) {
   check(tag, '记录页文字没有被截断', Array.isArray(clipped) && clipped.length === 0, JSON.stringify(clipped));
   if (ov7 && ov7.sw > ov7.vw + 1) check(tag, '记录页溢出元素', false, JSON.stringify(await offenders()));
   await shot(tag + '-history');
+
+  /* ---------- 7b. 键盘可达：热区改 44px 之后，Tab 键还得能走到选项和下一题 ---------- */
+  await goto(`${BASE}/drill.html?sec=1.1&i=1`);
+  for (let i = 0; i < 60; i++) {
+    const ok = await ev(`!!document.querySelector('#answerArea .drill-choice')`);
+    if (ok) break;
+    await sleep(150);
+  }
+  await ev(`document.body.focus()`);
+  const order = [];
+  for (let k = 0; k < 24; k++) {
+    await send('Input.dispatchKeyEvent', { type: 'rawKeyDown', windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 9, key: 'Tab', code: 'Tab' });
+    await send('Input.dispatchKeyEvent', { type: 'keyUp', windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 9, key: 'Tab', code: 'Tab' });
+    await sleep(120);
+    const cur = await ev(`(()=>{const a=document.activeElement; if(!a||a===document.body) return null;
+      return (a.id?'#'+a.id:a.className&&typeof a.className==='string'?'.'+a.className.trim().split(/\s+/)[0]:a.tagName).slice(0,24);})()`);
+    if (!cur) continue;
+    if (order[order.length - 1] !== cur) order.push(cur);
+  }
+  const reach = order.join(' > ');
+  check(tag, 'Tab 能走到选项（键盘用户可选答案）', order.some(x => x.includes('drill-choice')), reach.slice(0, 120));
+  check(tag, 'Tab 能走到 Next（键盘用户可翻页）', order.some(x => x.includes('#btnNext') || x.includes('drill-next')), reach.slice(0, 120));
+  const trapped = order.length >= 24 && new Set(order).size <= 2;
+  check(tag, '没有把焦点困在同一个元素（Tab 死循环）', !trapped, `${order.length} 步 / ${new Set(order).size} 个不同元素`);
 
   /* ---------- 8. 模考成绩页：窄屏下结果表格不许横滑出屏 ---------- */
   const SK = 'tdsat_exam_suite_session_v1';

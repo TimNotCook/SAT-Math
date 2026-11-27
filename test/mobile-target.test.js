@@ -36,4 +36,8 @@ test('verify_mobile 验收器存在且用统一 Chrome/profile/静态服务', ()
   assert.match(s, /from '\.\/lib\/serve\.mjs'/, '必须复用 lib/serve.mjs');
   assert.match(s, /tempProfile\('vm-'\)/, 'profile 必须走 tempProfile 自清理');
   assert.ok(!/python3[^\n]*http\.server/.test(s), '禁止用 python3 -m http.server');
+  /* 覆盖范围别被悄悄缩水：键盘可达 + 答案对比两栏 + 成绩指标区 */
+  assert.match(s, /Input\.dispatchKeyEvent/, '缺 Tab 键键盘可达检查');
+  assert.match(s, /answer-compare/, '缺「你的答案/正确答案」两栏检查');
+  assert.match(s, /#resKV|resKV/, '缺成绩指标区检查');
 });
