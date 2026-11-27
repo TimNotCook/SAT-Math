@@ -19,13 +19,15 @@ SOURCES = [
     "tools/canvas-base.css",
     "tools/notes-theme.css",
     "tools/notes-quiz-theme.css",
+    "tools/empty-state-theme.css",
 ]
 # 每页一份 theme：study(抽查开场) / question(模考答题) / intro(开场标题层) /
 # result(模考成绩) / catalog(练习首页+讲义) / archive(错题·记录空态) /
 # practice(真题答题页) / mock(模考开场) / result-practice(板块结果) /
 # result-rail-base(结果页左栏底座) / canvas-base(画布兜底) /
-# notes-theme(讲义首页目录卡) / notes-quiz-theme(讲义做题页+本节结果)。
-# 26: 讲义做题页。
+# notes-theme(讲义首页目录卡) / notes-quiz-theme(讲义做题页+本节结果) /
+# empty-state-theme(记录/错题空态)。
+# 27: 空态。
 
 src = io.open("glass.css", encoding="utf-8").read()
 i = src.find(MARKER)
