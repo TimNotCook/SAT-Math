@@ -1130,3 +1130,8 @@ html body.exam-page:has(#stage-answer:not([hidden])) .exam-context>.exam-context
 html body.exam-page:has(#stage-answer:not([hidden])) .drill-questionbar-inner{width:100%!important;max-width:992px!important;margin:0 auto!important;padding:0!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .drill-questionbar-inner{position:relative!important}
 html:not([data-theme="dark"]) body.exam-page:not(.is-mock) .drill-questionbar-inner::after{content:"";position:absolute;left:0;bottom:-1px;height:2px;width:var(--q-progress,0%);background:#20242b;transition:width .2s ease}
+
+/* ==== intro-theme：开场页标题层级（页名降级、单元名当主标题） ==== */
+html:not([data-theme="dark"]) body.exam-page #stage-intro #introTitle{font-size:12px!important;font-weight:600!important;letter-spacing:.16em!important;color:#a8acb4!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .mock-entry-head{margin-bottom:26px!important}
+html:not([data-theme="dark"]) body.exam-page #stage-intro .exam-card-title{font-size:30px!important;font-weight:650!important;letter-spacing:-.01em!important}
