@@ -62,3 +62,8 @@ test('dark 逐题结果行/答案框不再浅灰底叠浅银字', () => {
   assert.match(css, /html\[data-theme="dark"\] \.drill-result-row \.drill-result-answers>div\{/);
   assert.match(css, /background:rgba\(255,107,107,\.12\)!important/);
 });
+
+test('dark 错题卡片标题不再深蓝叠深玻璃', () => {
+  assert.match(css, /html\[data-theme="dark"\] \.wrong-card-head b\{color:#f5f5f7!important\}/);
+  assert.match(css, /html\[data-theme="dark"\] \.exam-panel h2\{color:var\(--ink\)!important\}/);
+});

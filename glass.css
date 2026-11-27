@@ -716,3 +716,10 @@ html[data-theme="dark"] .drill-result-row .drill-result-answers>div:last-child{
   background:rgba(52,199,89,.12)!important;
   border-color:rgba(52,199,89,.38)!important;
 }
+
+/* ==================== 暗黑主题：错题卡片标题 ====================
+   .wrong-card 本身在暗色下已是深玻璃卡，但 .wrong-card-head b 仍写死
+   color:var(--navy)=#0f2744 → 深蓝标题叠深灰卡，错题的「小节 · 第 N 题」
+   几乎读不出来。标题统一浅银；exam-panel h2 的 navy 也一并兜底。 */
+html[data-theme="dark"] .wrong-card-head b{color:#f5f5f7!important}
+html[data-theme="dark"] .exam-panel h2{color:var(--ink)!important}
