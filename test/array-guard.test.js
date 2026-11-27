@@ -363,3 +363,9 @@ test('记录页：priority 条目是数组时不能画出一条字段全「—�
   assert.ok(!/hist-prio-row/.test(els.histList.innerHTML), '数组 priority 被画成了补强行');
   assert.ok(/暂无补强建议/.test(els.histList.innerHTML), '没有有效 priority 时应显示空态');
 });
+
+test('错题本正确答案为数字 0 时不能被 q.answer||\'\' 吞成未作答', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'wrong-page.js'), 'utf8');
+  assert.ok(!/String\(q\.answer\|\|''\)/.test(src), 'stillWrong 还在用 String(q.answer||\'\')');
+  assert.match(src, /q\.answer!=null\?q\.answer:\(q\.value!=null/, 'analysis 的正确答案回退应显式判 null');
+});

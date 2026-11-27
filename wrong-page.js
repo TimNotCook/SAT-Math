@@ -177,7 +177,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
    if(A.isCorrect)return !A.isCorrect(q,given);
    var g=String(given==null?'':given).trim();
    if(!g)return true;
-   if(q.type==='mcq')return g.toUpperCase()!==String(q.answer||'').trim().toUpperCase();
+   if(q.type==='mcq'){var av=q.answer==null?q.value:q.answer;return g.toUpperCase()!==String(av==null?'':av).trim().toUpperCase();}
    var a=num(g),b=num(q.value);
    return !(a!==null&&b!==null&&Math.abs(a-b)<=Math.max(Math.abs(b)*.01,1e-9));
  }
@@ -204,7 +204,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
      if(Object.prototype.hasOwnProperty.call(legacyWrong,id)&&!legacySeen[key]){
        var old=legacyWrong[id]||{},q=questionById(id);
        legacySeen[key]=true;
-       var lg=old.given||old.v||old.answer||'';
+       var lg=plainText(old.given)||plainText(old.v)||plainText(old.answer)||'';
        if(stillWrong(q,lg))add(map,q,lg,'历史错题',old.last||old.ts||old.date||0);
      }
    });
@@ -227,7 +227,8 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
  function analysis(x){
    /* 导入错题是历史 JSON / 云端合并来的：given 可能是对象/数字（旧导入器逐字
       存了原始字段），不能直接 .trim()，否则整页错题本在分析阶段就崩。 */
-   var q=x.q,g=String(x.given==null?'':x.given).trim(),correct=String(q.answer||'').trim(),tp=topic(q);
+   var q=x.q,g=String(x.given==null?'':x.given).trim(),
+       correct=String(q.answer!=null?q.answer:(q.value!=null?q.value:'')).trim(),tp=topic(q);
    if(window.TD_ANALYSIS){
      var a=window.TD_ANALYSIS.analyze(q,g,(window.TD_TEXT||{})[q.id]);
      return{title:a.title,detail:a.cause+' 改进方向：'+a.fix};
@@ -250,7 +251,9 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
    return{title:'选项判断错误 · '+tp,detail:'你选择了 '+g+'，正确答案是 '+correct+'。错因集中在该知识点的条件转换或公式应用；重练时请写出每个条件对应的数学关系。'};
  }
  var REVIEW={1:'回顾等式变形、斜率截距与函数代入。',2:'回顾部分与总体、百分比、比例及单位。',3:'回顾函数结构、方程等价变形与图像关系。',4:'回顾几何公式、三角比、角度弧度和单位。'};
- function answerLabel(x,right){var q=x.q,v=right?String(q.answer==null?q.value:q.answer||''):x.given;
+ function answerLabel(x,right){var q=x.q,v;
+   /* 0 是合法 grid 答案：q.answer||'' 会把数字 0 吞成空串，正确答案变成「未作答」。 */
+   if(right){var raw=q.answer==null?q.value:q.answer;v=raw==null?'':String(raw);}else v=x.given;
    if(!v)return'未作答';if(q.type==='mcq'){var t=choiceText(q,v);return v+(t?' · '+t:'');}return v;}
  function drillLink(q){
    if(window.TD_JY&&q&&q.origin==='jiangyi'){
