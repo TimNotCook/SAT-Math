@@ -242,12 +242,26 @@
   }
   /* 首次登录一个已有档案的账号时，把本机"无主"做题记录并入该档案，
      保证一条都不丢；冲突以本机为准。切换账号（owner 是别的 uid）不走这里。 */
+  /* 「一锅端」键：整份对象是同一台设备上的同一次会话/同一个存档，
+     逐字段深合并只会拼出半张卷子（paper 并集、answers 交错、stage 打架）。
+     这类键按时间戳整份取新，绝不拼接。 */
+  var ATOMIC_KEYS = { 'tdsat_exam_suite_session_v1': 'startedAt', 'tdsat_progress_save_v1': 'savedAt' };
+  function pickAtomic(localRaw, cloudRaw, stampKey) {
+    var lo = null, co = null;
+    try { lo = JSON.parse(localRaw); } catch (e) {}
+    try { co = JSON.parse(cloudRaw); } catch (e) {}
+    if (!co || typeof co !== 'object') return localRaw;
+    if (!lo || typeof lo !== 'object') return cloudRaw;
+    var lt = Number(lo[stampKey]) || 0, ct = Number(co[stampKey]) || 0;
+    return ct > lt ? cloudRaw : localRaw;   // 平手取本机，和深合并的本地优先一致
+  }
   function mergeLocalWithCloud(cloudPayload) {
     var local = snapshot();
     var out = canon(cloudPayload);
     Object.keys(local).forEach(function (k) {
       if (!(k in out)) { out[k] = local[k]; return; }
       if (out[k] === local[k]) return;
+      if (ATOMIC_KEYS[k]) { out[k] = pickAtomic(local[k], out[k], ATOMIC_KEYS[k]); return; }
       try {
         var lo = JSON.parse(local[k]), co = JSON.parse(out[k]);
         out[k] = JSON.stringify(deepMerge(lo, co));
@@ -967,7 +981,7 @@
      便于 tools / 单测在无账号环境里验证「坏存档不覆盖好存档」这类不变量。 */
   try {
     window.TD_CLOUD_MERGE = { canon: canon, deepMerge: deepMerge, mergeLocalWithCloud: mergeLocalWithCloud,
-      mergeArrays: mergeArrays, itemSig: itemSig };
+      mergeArrays: mergeArrays, itemSig: itemSig, pickAtomic: pickAtomic, ATOMIC_KEYS: ATOMIC_KEYS };
   } catch (e) { console.warn('合并诊断钩子注册失败', e); }
 
   function boot() {

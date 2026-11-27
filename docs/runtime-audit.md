@@ -270,3 +270,23 @@ CHROME_BIN=/usr/bin/chromium node tools/verify_exam_timeout.mjs     # Linux / CI
 验证：`test/cloud-merge.test.js` 3 条（vm 跑真实 `cloud-account.js`，只取钩子）——本机坏/云端好保留云端、云端坏/本机好保留本机、两边都好按 ts 深合并。用「旧代码 + 只补钩子」复现：`坏的本机存档覆盖了云端好数据` 1 红；新代码 3 绿。
 
 回归：`node --test` 全量全绿；`verify_junk` 3×6、`verify_flows` 16/16、`verify_mobile` 50/50、`verify_runtime` 六页 0 异常。
+
+## 第 19 条：两台设备的模考会话被逐字段深合并，拼出「半张卷子」（2026-11-27）
+
+`mergeLocalWithCloud()` 对所有 `tdsat_*` 键一律 `deepMerge`。会话（`tdsat_exam_suite_session_v1`）和显式存档（`tdsat_progress_save_v1`）是「整份状态」，不是可合并的字段集合：
+
+用真实 `mergeLocalWithCloud` 复现（设备 A：`startedAt=1000`、2 题卷面、答 1 题；设备 B：`startedAt=2000`、3 题卷面、已交卷）：
+
+```
+paper: [A,B,C,D,E]      ← 两台设备的卷面取并集，5 道题
+answers: {A,C,D}        ← 两张卷的作答交错
+startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段/时间/结果互相打架
+```
+
+落回 exam.html 就是一叠对不上的题号与答案，`repairSaved()` 只能当结构异常整卷作废（用户白丢一次模考），最坏是判分错。存档同理：`position` 取一边、`sections` 取另一边，恢复出来的落点是错的。
+
+修法：加 `ATOMIC_KEYS`（会话按 `startedAt`、存档按 `savedAt`），这类键整份取新、平手取本机，绝不逐字段合并；其余键（作答台账、马克、成绩仓库）仍按原规则深合并/并集。
+
+验证：`test/cloud-merge.test.js` 加 3 条（会话不拼接取新、本机更新保留本机、存档按 `savedAt` 整份取新）。去掉 `ATOMIC_KEYS` 分支复现 3 红（`会话被逐字段拼成了半张卷子`），恢复后 6 绿。
+
+回归：`node --test` 全量全绿；`verify_junk` 3×6、`verify_flows` 16/16、`verify_session` 22/22、`verify_acct_entry` 26/26。
