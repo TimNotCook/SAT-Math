@@ -1,0 +1,35 @@
+/* ==== jy-result-theme：讲义“本节结果”(#jyResult) 与做题页选项字母收口 ==== */
+
+/* 1) 选项字母：不管是 .drill-choice-letter 还是别的命名，只认 class 含 choice-letter */
+html:not([data-theme="dark"]) body.jy-page #jyQuiz [class*="choice-letter"]{width:24px!important;height:24px!important;min-width:24px!important;border:1px solid #e2ddd1!important;border-radius:50%!important;background:transparent!important;color:#5c6169!important;font-size:12px!important;font-weight:600!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;margin-right:4px!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.jy-page #jyQuiz [class*="choice-text"]{font-size:15px!important;color:#20242b!important}
+
+/* 2) 本节结果：一张阅卷纸 */
+html:not([data-theme="dark"]) body.jy-page #jyResult{background:#f7f6f2!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-inner{max-width:880px!important;margin:0 auto!important;padding:56px 24px 96px!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult h1{font-size:26px!important;font-weight:600!important;letter-spacing:-.01em!important;color:#20242b!important;margin:0 0 22px!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult h1::before{content:"SECTION NOTES";display:block!important;font-size:9.5px!important;font-weight:600!important;letter-spacing:.18em!important;color:#a8acb4!important;margin:0 0 8px!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-summary{display:grid!important;grid-template-columns:232px minmax(0,1fr)!important;background:#fffdfa!important;border:1px solid #e7e3da!important;border-radius:10px!important;box-shadow:none!important;overflow:hidden!important;margin:0 0 22px!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-score{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:2px!important;padding:22px 24px!important;border-right:1px solid #efebe2!important;background:transparent!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-score-label{font-size:10px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#a8acb4!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-score strong{font-size:46px!important;font-weight:600!important;letter-spacing:-.03em!important;line-height:1.1!important;color:#20242b!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-score-sub{font-size:12px!important;color:#8d9199!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-tallies{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;margin:0!important;padding:0!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-tallies div{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:2px!important;padding:22px 8px!important;border-left:1px solid #efebe2!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-tallies div:first-child{border-left:0!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-tallies dt{font-size:10px!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:#a8acb4!important;font-weight:600!important;order:2}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-tallies dd{margin:0!important;font-size:22px!important;font-weight:600!important;color:#20242b!important;order:1;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-list{border:0!important;background:transparent!important;box-shadow:none!important;margin:0!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-row{padding:16px 2px 18px!important;border-bottom:1px solid #efebe2!important;background:transparent!important;box-shadow:none!important;border-radius:0!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-num{font-size:12px!important;font-weight:600!important;color:#8d9199!important;font-variant-numeric:tabular-nums!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-stem{font-size:14px!important;line-height:1.68!important;color:#20242b!important;max-width:72ch!important;margin:6px 0 8px!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-answers{display:flex!important;gap:32px!important;align-items:baseline!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-answers>div{display:flex!important;align-items:baseline!important;gap:8px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-answers span{font-size:9.5px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#a8acb4!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-answers b{font-size:14px!important;font-weight:700!important;color:#20242b!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-row.is-right .drill-result-state{color:#2f6b4f!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-row.is-wrong .drill-result-state{color:#b5533b!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .drill-result-state{font-size:11.5px!important;font-weight:600!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult #jyResultBack,
+html:not([data-theme="dark"]) body.jy-page #jyResult .btn{height:36px!important;min-height:0!important;padding:0 16px!important;border-radius:8px!important;font-size:12.5px!important;font-weight:600!important;box-shadow:none!important;border:1px solid #e7e3da!important;background:transparent!important;color:#5c6169!important}
+html:not([data-theme="dark"]) body.jy-page #jyResult .btn.primary{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
