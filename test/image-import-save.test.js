@@ -20,3 +20,8 @@ test('撤销导入和手动单题导入也会提示写盘失败', () => {
   assert.match(JS, /savedOne[\s\S]*?刷新后这道题可能丢失/, '手动导入写盘失败仍只显示已导入');
 });
 
+
+test('引擎预取把四个真实文件都算进 6.8MB 进度，错误响应不冒充下载字节', () => {
+  assert.match(JS, /'vendor\/tesseract\/tesseract\.min\.js'[\s\S]*'vendor\/tesseract\/worker\.min\.js'[\s\S]*tesseract-core-simd-lstm\.wasm\.js[\s\S]*eng\.traineddata\.gz/, '预取清单漏了 tesseract.min.js / worker.min.js，进度永远停在 6.6/6.8MB');
+  assert.match(JS, /if \(!r\.ok\) return 0;/, '404/500 仍把错误页字节算成下载进度');
+});

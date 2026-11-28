@@ -854,3 +854,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 124 条：撤销导入写盘失败后，界面显示“撤了”，下次自动保存却把删除写进盘（2026-11-28）
 
 `undoLast()` 先从内存删掉导入记录，再 `A.save()`；写盘失败时只在提示后面补一句“刷新后可能回滚”，但 `lastAdded` 已被清空、撤销按钮消失，内存里的删除还留着。用户之后任何一次自动保存都会把这批删除正式写盘——刷新并不会回滚，反而永久生效，且没法再点撤销。修成：删除前快照 `removed`；`A.save()` 失败就把这 N 条作答按快照放回内存、保留 `lastAdded` 和撤销按钮，提示“清空间后再点一次重试”，只有写盘成功才清批。验证：`test/image-import-save.test.js` 守住恢复路径；全量 642/0；`verify_flows` 16/16。
+
+## 第 125 条：引擎预取只下 2/4 个文件，进度永远停 6.6/6.8MB；404 错误页也被算成下载量（2026-11-28）
+
+`d6cba62c` 新增的 `prefetchEngine()` 把 `ENGINE_TOTAL` 按内核+语言包+`tesseract.min.js`+`worker.min.js` 四个文件算成 6.8MB，但 `ENGINE_FILES` 只预取了后两个大文件（3.9MB+2.95MB），进度最多到 6.6/6.8MB，随后加载脚本时数字卡住不动，看起来又像卡死。另外 `fetch()` 对 404/500 也 resolve，原来直接把错误页 body 字节加进 `got`，网络坏时反而显示“下载很快”。修成：把 `tesseract.min.js`、`worker.min.js` 也放进预取清单（顺便让后续 `<script>` 走缓存）；`!r.ok` 直接不计字节。验证：新增静态守卫锁四文件清单与 `r.ok` 校验；全量 646/0；`verify_flows` 16/16。

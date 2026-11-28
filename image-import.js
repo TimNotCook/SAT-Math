@@ -669,6 +669,8 @@
      并行能省掉一次完整往返；顺便报出真实 MB 和预计剩余时间。
      只在 SW 已接管时做（否则预取的文件 worker 不认，等于白下 6.8MB）。 */
   var ENGINE_FILES = [
+    ['vendor/tesseract/tesseract.min.js', 123724],
+    ['vendor/tesseract/worker.min.js', 66995],
     ['vendor/tesseract/tesseract-core-simd-lstm.wasm.js', 3938657],
     ['vendor/tesseract/eng.traineddata.gz', 2952873]
   ];
@@ -687,6 +689,8 @@
     report();
     var jobs = ENGINE_FILES.map(function (f) {
       return fetch(f[0], { cache: 'force-cache' }).then(function (r) {
+        /* 404/500 也会 resolve，不能拿错误页的字节数冒充“下载进度”；不 ok 就不计数。 */
+        if (!r.ok) return 0;
         var rd = r.body && r.body.getReader ? r.body.getReader() : null;
         if (!rd) { got += f[1]; report(); return 1; }
         function pump() {
