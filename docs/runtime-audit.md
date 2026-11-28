@@ -806,3 +806,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 112 条：本地快照读不到时仍做整份替换，会把看不见的本机进度清掉（2026-11-28）
 
 `applyPayload()` 用 `snapshot() || {}` 取本机旧档。第 109 条把 `snapshot()` 的读失败改成了 `null`，但这里 `null || {}` 又变回空对象：随后清空本机 `tdsat_*`、写云端档案，返回成功。Safari 禁用站点数据、存储部分不可用时，用户看不见的本机作答被云端空档案直接覆盖，且没有任何提示。修成：`snapshot()` 返回 `null` 时在清空任何键之前拒绝整份替换，返回 false，本机原样保留。验证：注入 `length/getItem` 抛错，旧代码 `applyPayload` 返回 true 并把 `tdsat_app_v1` 写成云端空档，新代码返回 false 且本机值不变；全量 627/0；`verify_flows` 16/16。
+
+## 第 113 条：草稿已应用但 removeItem 被禁用，旧草稿留在本地等下次重放（2026-11-28）
+
+`clearDraft()` 在删掉某个账号的槽后，若没有剩余草稿就调用 `localStorage.removeItem(DRAFT_KEY)`。某些浏览器策略下 `setItem` 可用但 `removeItem` 抛错，`catch` 只 `console.warn`，函数没有返回值；`applyDraft()` 仍认为“应用并清理成功”，旧草稿原样留在 `tdprofile_draft_v1`，下次登录会把已经应用过的旧载荷再盖回本机，覆盖这期间的新作答。修成：`clearDraft()` 返回布尔；`removeItem` 失败时用 `setItem` 写一个空槽 `{v:2,items:{}}` 兜底（旧载荷不再可读），只有两层写入都失败才返回 false。验证：注入 `removeItem` 抛错而 `setItem` 可用，旧代码 `clearDraft` 返回 undefined、草稿原样保留，新代码返回 true 且槽内载荷为空；全量 630/0；`verify_flows` 16/16。

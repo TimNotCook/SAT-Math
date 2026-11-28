@@ -20,7 +20,7 @@ function boot(seed, opts) {
     localStorage: {
       getItem: k => { if (opts.throwRead) throw new Error('storage blocked'); return k in store ? store[k] : null; },
       setItem: (k, v) => { if (opts.throwWrite) throw new Error('storage denied'); store[k] = String(v); },
-      removeItem: k => { delete store[k]; },
+      removeItem: k => { if (opts.throwRemove) throw new Error('remove denied'); delete store[k]; },
       key: i => Object.keys(store)[i] || null,
       get length() { if (opts.throwRead) throw new Error('storage blocked'); return Object.keys(store).length; },
     },
@@ -217,6 +217,14 @@ test('本地存储不可写时整份替换失败，不先删掉本机进度', ()
   const ok = M.applyPayload({ tdsat_app_v1: JSON.stringify({ sections: {} }) });
   assert.strictEqual(ok, false, '写不进去却报告成功');
   assert.strictEqual(store.tdsat_app_v1, local, '写入失败前已经把本机进度删了');
+});
+
+test('removeItem 被禁用但 setItem 可用时，清除草稿仍成功且不留旧载荷', () => {
+  const draft = { v: 2, items: { uA: { payload: { tdsat_app_v1: '{}' }, ts: 1 } } };
+  const { M, store } = boot({ tdprofile_draft_v1: JSON.stringify(draft) }, { throwRemove: true });
+  assert.equal(M.clearDraft('uA'), true, '清除草稿失败却没有返回值，调用方无法知道旧草稿还在');
+  const left = JSON.parse(store.tdprofile_draft_v1);
+  assert.deepStrictEqual(left.items, {}, '旧草稿槽没有清空，下次登录会重放');
 });
 
 test('本机快照读不到时 applyPayload 拒绝整份替换，不清本地进度', () => {

@@ -221,8 +221,16 @@
       var items = draftsFromRaw(localStorage.getItem(DRAFT_KEY));
       if (uid) delete items[uid]; else items = {};
       if (Object.keys(items).length) localStorage.setItem(DRAFT_KEY, JSON.stringify({ v: 2, items: items }));
-      else localStorage.removeItem(DRAFT_KEY);
-    } catch (e) { console.warn('清除草稿失败', e); }
+      else {
+        try { localStorage.removeItem(DRAFT_KEY); }
+        catch (e) {
+          /* 某些实现 removeItem 被禁用但 setItem 可用：留一个空槽也比留旧草稿好，
+             否则下次登录会把已经应用过的旧草稿再盖回本机。 */
+          localStorage.setItem(DRAFT_KEY, JSON.stringify({ v: 2, items: {} }));
+        }
+      }
+      return true;
+    } catch (e) { console.warn('清除草稿失败', e); return false; }
   }
   /* 应用一份云端/草稿档案：统一加抑制同步，并把成功/失败返回给调用方。
      账号分支必须看这个返回值，不能“调用完就当打开了”。 */
