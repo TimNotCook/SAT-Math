@@ -32,3 +32,8 @@ test('多题拆分与常规导入共用同一个撤销批次，不会一道各�
   assert.match(JS, /salvageMulti[\s\S]*?beginBatch\(\);[\s\S]*?importSingle\(c\.id, true\)/, '多题拆分没有共用一个撤销批次');
   assert.match(JS, /salvageMulti\(\)[\s\S]*?importChecked\(true\)/, '常规导入仍会清掉多题拆分刚记下的批次');
 });
+
+test('一张图拆多题的写盘失败会一路传到最终提示，不再只报“已写入”', () => {
+  assert.match(JS, /function salvageMulti\(\)[\s\S]*?localWriteFailed = false[\s\S]*?localWriteFailed = true[\s\S]*?return \{ added: added, localWriteFailed: localWriteFailed \}/, 'salvageMulti 没有收集单题写盘失败');
+  assert.match(JS, /salvageSaveFailed[\s\S]*?本机进度写入失败/, '最终提示没有把拆题写盘失败带上');
+});

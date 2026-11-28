@@ -1265,7 +1265,7 @@
     return segs.length >= 2 ? segs : [];
   }
   function salvageMulti() {
-    var added = 0;
+    var added = 0, localWriteFailed = false;
     /* 一张图拆出来的多道题属于同一次导入，撤销要一起撤：这里只开一个批次，
        后面 importSingle 不要再各开各的，否则“撤销本次”只能撤掉最后一道。 */
     beginBatch();
@@ -1285,10 +1285,13 @@
         var tg = autoGate(rc, sg);
         if (tg.pass && numOk && !seen[rc[0].id]) { seen[rc[0].id] = 1; hits.push(rc[0]); }
       });
-      hits.forEach(function (c) { var r = importSingle(c.id, true); if (r && r.added) added++; });
+      hits.forEach(function (c) {
+        var r = importSingle(c.id, true);
+        if (r && r.added) { added++; if (r.localWriteFailed) localWriteFailed = true; }
+      });
       if (hits.length) { p.salvaged = hits.length; p.salvageIds = hits.map(function (c) { return c.id; }); }
     });
-    return added;
+    return { added: added, localWriteFailed: localWriteFailed };
   }
 
   function recognizeAll(images) {
@@ -1405,8 +1408,10 @@
       var fail = pages.length - ok;
       // 全自动：识别结束后立即写入错题本，不等待任何用户操作
       /* 先把"一张图里多道短题"拆开抢救一遍，再走常规导入 */
-      var salvaged = 0;
-      try { salvaged = salvageMulti(); } catch (e) { console.warn('拆多题失败', e); }
+      var salvageRes = null;
+      try { salvageRes = salvageMulti(); } catch (e) { console.warn('拆多题失败', e); }
+      var salvaged = salvageRes && salvageRes.added ? salvageRes.added : 0;
+      var salvageSaveFailed = !!(salvageRes && salvageRes.localWriteFailed);
       var res = null;
       try { res = importChecked(true); } catch (e) { console.warn('导入错题失败', e); }
       var added = (res && res.added ? res.added : 0) + salvaged;
@@ -1421,7 +1426,7 @@
       if (skipped) msg += '；' + skipped + ' 道因已有作答被跳过';
       if (!added && dups && !fail && !unmatched) msg = '这些题已经在错题本里了（' + dups + ' 道，没有重复写入）';
       if (!added && !fail && !skipped && !unmatched && !dups) msg = '未能匹配到题库题目，本次未导入';
-      if (res && res.localWriteFailed) msg += '；但本机进度写入失败，刷新后已导入记录可能丢失，请清理存储空间后重试';
+      if ((res && res.localWriteFailed) || salvageSaveFailed) msg += '；但本机进度写入失败，刷新后已导入记录可能丢失，请清理存储空间后重试';
       if (fail || unmatched) msg += '　→ 已把最可能的几道题列在下面，点一道直接导入。';
       // 有没认准的块：拿它读到的字自动搜一遍题库，把候选直接摆出来，
       // 用户不用自己想关键词——这一步是"识别不出来"时最快的出路。

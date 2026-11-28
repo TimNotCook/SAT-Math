@@ -862,3 +862,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 126 条：一张图拆多题时每道各开一个撤销批次，最后“撤销本次”只能撤掉最后一道（2026-11-28）
 
 `2914a811` 的 `salvageMulti()` 逐题调用 `importSingle()`，而 `importSingle()` 内部每次 `beginBatch()` 都把 `lastAdded` 清空；随后 `recognizeAll` 又调 `importChecked()` 再清一次。结果一张图拆出 3 道并写入 3 道后，撤销按钮只能撤最后一道，前两道永久留在错题本；常规导入与拆题导入也各自成批，一个按钮管不到整张图。修成：拆题入口只 `beginBatch()` 一次，`importSingle(qid, keepBatch)` 与 `importChecked(keepBatch)` 支持沿用当前批次；`recognizeAll` 先拆题、再 `importChecked(true)`，整张图的拆题+常规导入共用一个撤销批次。验证：新增静态守卫锁 `keepBatch` 传参链；全量 647/0；`verify_flows` 16/16。
+
+## 第 127 条：一张图拆多题时单题写盘失败被吞，最终仍报“已自动写入 N 道”（2026-11-28）
+
+`salvageMulti()` 逐题 `importSingle()` 只取了 `added`，把每个返回值里的 `localWriteFailed` 丢掉；`recognizeAll` 最终用 `res.localWriteFailed` 只检查常规导入。若拆题命中 2 道但本机写盘失败，而常规导入没有新增（`importChecked` 提前返回、根本不 `save`），最终提示只会说“已自动识别并写入错题回顾：2 道”，刷新后两道全没。修成：`salvageMulti` 汇总 `localWriteFailed` 并返回对象；`recognizeAll` 把拆题与常规两路的失败合并，任一失败都追加“本机进度写入失败，刷新后可能丢失”。验证：新增静态守卫锁收集与合并路径；全量 650/0；`verify_flows` 16/16。
