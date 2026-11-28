@@ -302,13 +302,14 @@
     var answeredRaw = num(rec.answered);
     var answeredN = answeredRaw == null ? 0 : Math.max(0, Math.floor(answeredRaw));
     if (sc.total > 0) answeredN = Math.min(answeredN, sc.total);
-    var html = '<div class="hist-kv"><span>状态 <b>未做完</b></span>' +
-      '<span>已答 <b>' + numTxt(answeredN) + ' / ' + numTxt(sc.total) + '</b></span>' +
-      '<span>中断时间 <b>' + fmtDate(rec.date) + '</b></span></div>';
+    var en = isEn();
+    var html = '<div class="hist-kv"><span>' + (en ? 'Status ' : '状态 ') + '<b>' + (en ? 'Unfinished' : '未做完') + '</b></span>' +
+      '<span>' + (en ? 'Answered ' : '已答 ') + '<b>' + numTxt(answeredN) + ' / ' + numTxt(sc.total) + '</b></span>' +
+      '<span>' + (en ? 'Interrupted ' : '中断时间 ') + '<b>' + fmtDate(rec.date) + '</b></span></div>';
     if (resumable) {
       html += '<div class="hist-continue"><a class="btn primary" href="' + resumeHref + '">继续这卷</a></div>';
     } else {
-      html += '<div class="hist-continue" style="color:var(--sub);font-size:12.5px">存档已失效（会话已被覆盖），仅供查看。</div>';
+      html += '<div class="hist-continue" style="color:var(--sub);font-size:12.5px">' + (en ? 'Archive expired (the session was replaced). View only.' : '存档已失效（会话已被覆盖），仅供查看。') + '</div>';
     }
     return html;
   }

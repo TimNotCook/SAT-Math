@@ -22,3 +22,10 @@ test('标题按单词换行，不把 submitted 拆成两截', () => {
   assert.ok(!/\.hist-title\{[^}]*overflow-wrap:anywhere/.test(block[0]),
     '标题不能用 overflow-wrap:anywhere');
 });
+
+test('未做完卡片的正文标签跟随语言，不再把中文前缀和日期拼在一行', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'history-page.js'), 'utf8');
+  assert.match(js, /en \? 'Status ' : '状态 '/, '状态标签没有英文分支');
+  assert.match(js, /en \? 'Interrupted ' : '中断时间 '/, '中断时间标签没有英文分支');
+  assert.match(js, /en \? 'Archive expired/, '存档失效提示没有英文分支');
+});
