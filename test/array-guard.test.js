@@ -618,3 +618,20 @@ test('图片导入撤销只覆盖最近一批，不是整页生命周期', () =>
   assert.ok(checked.indexOf('beginBatch()') > -1, 'importChecked 开始前没有清空上一批撤销清单');
   assert.ok(single.indexOf('beginBatch()') > -1, 'importSingle 写入前没有清空上一批撤销清单');
 });
+
+test('记录页：单元抽查 total 被写成 999 时封顶 30，不印 0 / 999', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1700000000000, mode: 'quiz', finished: true, total: 999, correct: 0,
+      detail: [], report: {},
+    }]),
+  };
+  const els = boot(['history-page.js'], store).els;
+  assert.ok(/0 \/ 30/.test(els.histList.innerHTML), '抽查 999 没有被封顶到 30');
+  assert.ok(!/999/.test(els.histList.innerHTML), '记录页仍印出 999 题');
+});
+
+test('成绩页：抽查 total 999 也按明细/30 封顶', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'exam.js'), 'utf8');
+  assert.match(src, /MODE === 'quiz' && total > 30/, '成绩页没有抽查 30 题封顶');
+});

@@ -113,7 +113,11 @@
     /* 官方模考整卷只有 44 题：旧版/云端把 total 写成 999 时，记录条会印
        「官方模考 · 全卷 999 题」，正确率也被 999 的分母稀释成个位数。
        有逐题明细时已按明细兜底；没有明细也不能信任超过 44 的题数。 */
-    if (txt(rec && rec.mode) === 'mock' && total > 44) total = 44;
+    var mode = txt(rec && rec.mode);
+    if (mode === 'mock' && total > 44) total = 44;
+    /* 单元抽查的卷长上限是 30（QUIZ_TIERS T3/T4）。云端/旧版把 total 写成 999 时，
+       记录页会印「答对 0 / 999」；有逐题明细就按明细条数，没明细按 30 封顶。 */
+    if (mode === 'quiz' && total > 30) total = detail.length ? Math.min(30, detail.length) : 30;
     var counted = detail.length ? detail.filter(function (d) { return isRight(d.correct); }).length : null;
     var correct = countNum(rec && rec.correct);
     /* correct 缺失、负数或大于 total 都是坏值：有逐题明细就按明细数，没有就夹到 0..total。

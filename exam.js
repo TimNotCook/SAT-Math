@@ -1192,6 +1192,8 @@
     /* 官方模考整卷只有 44 题：旧版/云端把 total 写成 999 时，成绩页会印
        「30 / 999」并把正确率稀释成个位数。记录页已封顶，结果页同一口径。 */
     if (MODE === 'mock' && total > 44) total = 44;
+    /* 单元抽查卷长上限 30（QUIZ_TIERS T3/T4）；total 999 的旧记录同样按明细/30 封顶。 */
+    if (MODE === 'quiz' && total > 30) total = detail0.length ? Math.min(30, detail0.length) : 30;
     const rCorrect = countNum(r.correct);
     const correct = rCorrect != null ? Math.max(0, Math.min(total, rCorrect)) : detail0.filter(d => isRightFlag(d.correct)).length;
     const rElapsed = safeNum(r.elapsed);
