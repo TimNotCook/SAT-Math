@@ -615,7 +615,7 @@
      原来每次识别都 createWorker + terminate，等于每贴一张图就重走一遍内核初始化
      （语言包 2.9MB 解压 + wasm 编译），再快也要 2~4 秒，还得反复吃网络。
      现在页面打开后在空闲时就把引擎建好、语言包读进内存，贴图只跑 recognize。 */
-  var OCR_W = null, OCR_WARM = null, OCR_READY = false;
+  var OCR_W = null, OCR_WARM = null, OCR_READY = false, TESS_FAST = 0;
 
   function createWorkerAt(T, mi, onProgress) {
     var m = TESS_MIRRORS[mi];
@@ -654,14 +654,30 @@
           createWorkerAt(T, mi, onProgress),
           new Promise(function (_, reject) {
             t = setTimeout(function () {
-              var e = new Error('镜像加载超时');
+              var e = new Error('镜像 ' + (mi + 1) + ' 加载超时');
               e.error = { code: 'local_stage_timeout' };
               reject(e);
-            }, 12000);
+            }, 15000);
           })
         ]).then(function (w) { clearTimeout(t); return w; }, function (e) { clearTimeout(t); throw e; });
       }
-      return bounded(0).catch(function () { return bounded(1).catch(function () { return bounded(2); }); });
+      /* 三个镜像同时起步抢第一个能用的：中国网络下 GitHub Pages / jsdelivr / unpkg
+         谁快谁慢完全看运气，串行试等于把最坏情况叠成 3 倍等待（36 秒以上）。
+         并发抢跑后最坏也就 15 秒，而且通常 1~3 秒就有赢家。 */
+      var tries = [0, 1, 2].map(function (mi) {
+        return bounded(mi).then(function (w) { return { w: w, mi: mi }; });
+      });
+      return Promise.all(tries.map(function (p) { return p.catch(function (e) { return { err: e }; }); }))
+        .then(function (all) {
+          var win = all.filter(function (x) { return x && x.w; })[0];
+          all.forEach(function (x) { if (x && x.w && x.w !== win.w) { try { x.w.terminate(); } catch (e) {} } });
+          if (!win) {
+            var msgs = all.map(function (x) { return x && x.err ? ((x.err && x.err.message) || String(x.err)) : '失败'; });
+            throw new Error(msgs.join(' / '));
+          }
+          TESS_FAST = win.mi;
+          return win.w;
+        });
     }).then(function (w) {
       OCR_W = w; OCR_READY = true;
       // 单题截图是"一整块文字"，按单块版面分析比默认的全页分析准
@@ -671,6 +687,12 @@
       OCR_WARM = null; OCR_READY = false;
       ENGINE_LAST_ERR = (e && e.message) || String(e);
       diag();
+      /* 引擎彻底起不来时别让人干等：直接告诉他有条不依赖引擎的路。 */
+      try {
+        if (!document.getElementById('imgImportPanel').hidden) {
+          status('本地识别引擎这次没起来（' + ENGINE_LAST_ERR + '）。不用等它，把题干文字贴到上面的框里点「用文字导入」，一样能配题写库。');
+        }
+      } catch (e2) {}
       throw e;
     });
     return OCR_WARM;
