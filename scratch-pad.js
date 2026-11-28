@@ -15,9 +15,12 @@
     var st = document.createElement('style');
     st.id = STYLE_ID;
     st.textContent = [
-      '.mist-layer{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:0;transition:opacity .14s ease;',
+      /* 关着的时候只把透明度压到 0，画布和工具条其实还在版面里：读屏软件照样念
+         「清空 / 完成」，脚本抽 innerText 也会在每一页页尾捡到这两颗按钮。
+         补一个 visibility 收干净，打开时再放出来。 */
+      '.mist-layer{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .14s ease,visibility .14s',
       '  background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}',
-      '.mist-layer.show{opacity:1}',
+      '.mist-layer.show{opacity:1;visibility:visible}',
       /* 关闭状态下画布/工具条一律不接事件，避免隐形画布拦截页面、吞掉首笔 */
       '.mist-layer:not(.show) .mist-canvas,.mist-layer:not(.show) .mist-toolbar,.mist-layer:not(.show) .mist-hint{pointer-events:none!important}',
       '.mist-canvas{position:fixed;inset:0;pointer-events:auto;touch-action:none;cursor:crosshair}',

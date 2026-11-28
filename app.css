@@ -1501,7 +1501,7 @@ html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:1
 @media(max-width:360px){
   /* 标题列 86px 只放得下 5 个字，「线性方程与不等式应用题」11 字被切成三行；
      行号列 52px 对「1.1」太宽，收到 44px，标题列变 94px，正好两行。 */
-  html body .tile-grid>.tile-section.drill-section-row.drill-section-row{grid-template-columns:44px minmax(0,1fr) auto!important}
+  /* 列宽交给文件末尾那条两行式规则统一处理，这里只留状态圆点的收缩。 */
   /* 320 状态列「未开始」占 36px，标题只剩 94px，「线性不等式与图像」仍会断成
      「线性不等 / 式与图像」。窄屏把状态收成 8px 圆点：未开始灰、进行中蓝、已完成绿，
      文案留在无障碍树里，标题列回到 122px，7 字标题整行放完。 */
@@ -2006,14 +2006,29 @@ body.shell-wrong .wrong-toolbar .small.muted:not(#importFeedback){display:none!i
     align-items:center!important;
   }
   html body .tile-grid>.tile-section.drill-section-row .tile-code{
-    grid-area:code!important;grid-column:auto!important;grid-row:auto!important;
+    grid-area:code!important;
   }
   html body .tile-grid>.tile-section.drill-section-row .tile-name{
-    grid-area:name!important;grid-column:1/-1!important;grid-row:auto!important;
+    grid-area:name!important;
+    /* 英文标题比中文长一倍，放开到 3 行会出现一行高一行矮的锯齿；
+       收到 2 行，超长的用省略号收尾，整列看起来是齐的。 */
+    display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+    overflow:hidden;
   }
   html body .tile-grid>.tile-section.drill-section-row .tile-state,
   html body .tile-grid>.tile-section.drill-section-row .tile-empty-badge{
-    grid-area:state!important;grid-column:auto!important;grid-row:auto!important;
+    grid-area:state!important;
     justify-self:end!important;align-self:center!important;
   }
+}
+
+/* 英文卡标题行数在 1 和 2 之间跳，高度就差一条；给标题区预留两行的位置，
+   一路看下去是一列齐的。中文标题基本都是一行，不参与。 */
+html[data-lang="en"] .site-shell .tile-grid>.tile-section.drill-section-row .tile-name{
+  min-height:2.7em;
+}
+
+/* 320 的窄屏再给英文一点余地：字号收到 14，长标题也能塞进两行。 */
+@media(max-width:360px){
+  html body .tile-grid>.tile-section.drill-section-row .tile-name{font-size:14px!important;line-height:1.35!important}
 }

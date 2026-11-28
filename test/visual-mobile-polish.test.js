@@ -13,6 +13,7 @@ import { dirname, resolve } from 'node:path';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(resolve(ROOT, 'app.css'), 'utf8');
 const examjs = readFileSync(resolve(ROOT, 'exam.js'), 'utf8');
+const scratch = readFileSync(resolve(ROOT, 'scratch-pad.js'), 'utf8');
 const bluebook = readFileSync(resolve(ROOT, 'bluebook.css'), 'utf8');
 
 test('讲义四列收紧内边距/字号，长板块名不再省略', () => {
@@ -50,7 +51,8 @@ test('320 空态卡收窄左右内边距，记录页标题不再拆成「…抽�
 });
 test('320/390 首页板块行标题两行均分，不把「方程」拆开、不留单字「题」', () => {
   assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row \.tile-name\{text-wrap:balance!important;padding-right:0!important\}/);
-  assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row\.drill-section-row\{grid-template-columns:44px minmax\(0,1fr\) auto!important\}/);
+  /* 44px 三列已撤，交回文件末尾的两行式区域。 */
+  assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row\{/);
 });
 
 test('320 首页状态列收成三态圆点，标题列回到 122px', () => {
@@ -81,4 +83,28 @@ test('320 题号换行后不把「·」孤零零留在第二行行首', () => {
   assert.ok(!/<span class="rev-qno"><span class="rev-sep">[^<]*<\/span>/.test(examjs), '知识点名后面不要重复拼题号');
   assert.match(app, /html body \.rev-topic \.rev-qno \.rev-sep\{display:none!important\}/);
   assert.match(app, /html body \.rev-line1 \.rev-q\{display:none!important\}/);
+});
+
+test('首页窄屏板块卡改成两行式：编号与状态一行、标题独占一行', () => {
+  /* 390 下三段（编号｜标题｜状态）挤一起，英文长标题被压成 4–5 行、卡片高低不齐。
+     改成 "code state" / "name name" 两行，标题拿到整行宽度。 */
+  assert.match(app, /grid-template-areas:"code state" "name name"!important/);
+  assert.match(app, /grid-template-columns:auto minmax\(0,1fr\)!important/);
+});
+
+test('窄屏标题限两行、英文预留两行高度，卡片高度不再一高一矮', () => {
+  assert.match(app, /-webkit-line-clamp:2/);
+  assert.match(app, /html\[data-lang="en"\] \.site-shell \.tile-grid>\.tile-section\.drill-section-row \.tile-name\{\s*min-height:2\.7em/);
+});
+
+test('别再用三列 columns 抢两行式区域：area 被 grid-column:auto 顶掉会掉回三行', () => {
+  assert.ok(!/\.drill-section-row\.drill-section-row\{grid-template-columns:44px/.test(app), '320 的三列定义已删，交回两行式');
+  assert.ok(!/grid-area:state!important;grid-column:auto!important/.test(app), 'grid-area 后面不能再跟 grid-column:auto');
+});
+
+test('草稿纸关着的时候不留隐形按钮噪音', () => {
+  /* 只压 opacity 的话画布和工具条还在版面里，读屏会念「清空 / 完成」，
+     innerText 也会在每页页尾捡到这两颗按钮。 */
+  assert.match(scratch, /\.mist-layer\{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:0;visibility:hidden;/);
+  assert.match(scratch, /\.mist-layer\.show\{opacity:1;visibility:visible\}/);
 });
