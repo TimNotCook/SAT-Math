@@ -57,10 +57,7 @@
   function modeOf(rec) { return txt(rec && rec.mode).trim().toLowerCase(); }
   /* detail.correct 可能是布尔、1/0、'true'/'false'（云端旧结构）。只认明确的
      真值，否则 'false' 会被当成答对，整条错题行从记录里消失。 */
-  /* 云端/手工导入有时把布尔写成 'True'/'FALSE'（Python 风格）：严格小写比较会把
-     答对的题当成错题、把未交卷当成已出分。字符串标志先去空白再小写。 */
-  function flagKey(v) { return typeof v === 'string' ? v.trim().toLowerCase() : v; }
-  function isRight(v) { v = flagKey(v); return v === true || v === 1 || v === 'true' || v === '1'; }
+  function isRight(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
   function num(v) {
     /* 布尔不是数字：true 会被 Number 成 1，旧记录里 total/correct/elapsed 是布尔时
        会算出假的 100% 或 1 分钟。日期除外，fmtDate 已单独挡 true/false。 */
@@ -215,16 +212,12 @@
   }
   /* 旧存档/云端合并可能把布尔写成字符串：'false' 是 truthy，会把未交卷的卷
      误判成已出分；'true' 又会让还能继续的卷显示「存档已失效」。 */
-  function finishedFlag(v) { v = flagKey(v); return v === true || v === 'true' || v === 1 || v === '1'; }
-  function unfinishedFlag(v) { v = flagKey(v); return v === false || v === 'false' || v === 0 || v === '0'; }
+  function finishedFlag(v) { return v === true || v === 'true' || v === 1 || v === '1'; }
+  function unfinishedFlag(v) { return v === false || v === 'false' || v === 0 || v === '0'; }
   /* 作废/中断档案用 void:true 标记，且旧版 salvage 记录根本没写 finished。
      只判 finished===false 会把它当正式成绩：答对 0/22、整卷 22 题全进错题，
      还把「继续这卷」藏掉。void 一律按未做完处理。 */
-  function voidFlag(rec) {
-    if (!rec) return false;
-    var v = flagKey(rec.void);
-    return v === true || v === 'true' || v === 1 || v === '1';
-  }
+  function voidFlag(rec) { return !!rec && (rec.void === true || rec.void === 'true' || rec.void === 1 || rec.void === '1'); }
   function abandonedRecord(rec) { return voidFlag(rec) || unfinishedFlag(rec && rec.finished); }
   function abandonedBody(rec) {
     var sess = readSession();

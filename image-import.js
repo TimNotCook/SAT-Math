@@ -1188,6 +1188,7 @@
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked,
+    selfTest: selfTest,
     search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,
     cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
@@ -1203,6 +1204,30 @@
       return recognizeAll(files);
     }
   };
+  /* 一键自检：不看用户环境也能知道这台机器到底哪一环不行。
+     自己造一张"x+3=10 what is x"的图，跑完整识别链路，报耗时与结果。 */
+  function selfTest() {
+    var btn = $('imgimpSelfTest'); if (btn) btn.disabled = true;
+    var t0 = Date.now();
+    var cv = document.createElement('canvas'); cv.width = 900; cv.height = 180;
+    var cx = cv.getContext('2d');
+    cx.fillStyle = '#fff'; cx.fillRect(0, 0, 900, 180);
+    cx.fillStyle = '#222'; cx.font = '24px Georgia';
+    cx.fillText('If x + 3 = 10, what is the value of x ?', 30, 70);
+    cx.fillText('A) 3    B) 7    C) 10    D) 13', 30, 120);
+    var url = cv.toDataURL('image/png');
+    var e0 = ocrEnv();
+    status('自检中：内核 ' + (e0.wasm ? 'wasm✓' : 'wasm✗') + ' 缓存 ' + (e0.sw ? 'sw✓' : 'sw✗') + '，正在识别测试图…');
+    ocrBest(url, state.model).then(function (r) {
+      var sec = ((Date.now() - t0) / 1000).toFixed(1);
+      status('自检通过：' + sec + ' 秒，认到「' + String(r.ocr.stem).slice(0, 60) + '」，匹配分 '
+        + (r.score ? (r.score * 100).toFixed(0) : '0') + '%（这一条只是演示图，不会写进错题本）');
+    }, function (e) {
+      var sec = ((Date.now() - t0) / 1000).toFixed(1);
+      status('自检失败：' + sec + ' 秒 · ' + ((e && e.message) || e) + '（这不是你的错，把这句话发我就行）');
+    }).then(function () { if (btn) btn.disabled = false; });
+  }
+
   function on(id, ev, fn) { var el = $(id); if (el) el.addEventListener(ev, fn); }
   on('btnImgImport', 'click', function () { window.TD_IMG_IMPORT.open(); });
   /* 打开错题页就悄悄把识别引擎备好，别等用户贴图才开始下载 */
@@ -1214,6 +1239,7 @@
   on('imgimpCloudSignIn', 'click', cloudSignIn);
   on('imgimpSearchGo', 'click', finderSearch);
   on('imgimpUndo', 'click', undoLast);
+  on('imgimpSelfTest', 'click', selfTest);
   var inpSearch = $('imgimpSearch');
   if (inpSearch) {
     inpSearch.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); finderSearch(); } });

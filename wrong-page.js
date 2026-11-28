@@ -13,13 +13,9 @@
    return String(v);
  }
  /* 成绩档案里的 correct 可能是布尔、1/0 或字符串；只把明确真值当答对。 */
- function flagKey(v){return typeof v==='string'?v.trim().toLowerCase():v;}
- function isRight(v){v=flagKey(v);return v===true||v===1||v==='true'||v==='1';}
- function isWrong(v){v=flagKey(v);return v===false||v===0||v==='false'||v==='0';}
- function isTrueFlag(v){v=flagKey(v);return v===true||v===1||v==='true'||v==='1';}
- /* 旧版/云端/手工导入会把成绩模式写成 'MOCK'/'QUIZ'：错题来源和讲义守卫
-    仍按严格小写比较时，模考错题只能显示成「考试练习」，大小写卷也被当成新类型。 */
- function modeOf(r){return typeof r.mode==='string'?r.mode.trim().toLowerCase():'';}
+ function isRight(v){return v===true||v===1||v==='true'||v==='1';}
+ function isWrong(v){return v===false||v===0||v==='false'||v==='0';}
+ function isTrueFlag(v){return v===true||v===1||v==='true'||v==='1';}
 
  function plainChoices(v){
    var out={};
@@ -109,7 +105,7 @@ function importData(data){
   var items=Array.isArray(data)?data:asArr(data.items||data.questions||data.records||data.wrong);
   if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
   var store=readImport();if(!Array.isArray(store.items))store.items=[];
-  var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0,localWriteFailed=false,pending=[];
+  var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0;
   /* 旧存档/云端合并可能把 items 写成 [null, ...]：先剔掉非对象条目，
      否则下一次导入在 x.key 处直接 TypeError，整次导入失败。 */
   store.items=store.items.filter(function(x){return x&&typeof x==='object';});
@@ -129,12 +125,11 @@ function importData(data){
            仅作为只读记录追加展示，原作答数据原封不动。 */
         rec.readOnly=true;readOnly++;
       }else{
-        /* 该题此前没有任何作答记录：先入待写队列，等错题仓库落盘成功后再
-           改动本机作答。旧实现边遍历边 A.save()，随后 writeImport 失败时
-           抛错——错题仓库没写成，用户看到「导入失败」，本机却已经多了这批
-           导入错题，重试还会被判成「已有作答仅只读」，数据状态对不上。 */
-        pending.push({ sec: m.sec, qid: m.q.id, given: it.given });
-        written++;
+        /* 该题此前没有任何作答记录：新增一条导入错题（纯追加）。 */
+        var st=A.secState(m.sec,true);
+        st.answers[m.q.id]={v:it.given,correct:false,ts:now,importSrc:IMPORT_MARK};
+        st.completed=A.stats(m.sec).completed;
+        A.save();written++;
       }
     }
     if(!rec.matchId)created++;
@@ -143,15 +138,7 @@ function importData(data){
   store.title=plainText(pick(data.title,store.title))||'导入错题';
   store.importedAt=now;
   if(!writeImport(store))throw new Error('localStorage 写入失败');
-  /* 仓库写成功后再落本机作答：失败路径一个答案都不写，重试时仍按「新增」处理。 */
-  pending.forEach(function(x){
-    var st=A.secState(x.sec,true);
-    st.answers[x.qid]={v:x.given,correct:false,ts:now,importSrc:IMPORT_MARK};
-    st.completed=A.stats(x.sec).completed;
-    if(!A.save())localWriteFailed=true;
-  });
   var msg='已导入 '+added+' 道：新增错题 '+written+' 道 · 已有作答仅只读展示 '+readOnly+' 道（未改动）· 未匹配 '+created+' 道';
-  if(localWriteFailed)msg+='；错题仓库已保存，但本机作答写入失败，刷新后这些题可能不计入进度，请清理存储空间后重试';
   all=collect();render();feedback(msg);
   return{added:added,written:written,readOnly:readOnly,created:created,message:msg};
 }
@@ -210,9 +197,9 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
        else if(wl&&typeof wl==='object'&&!Array.isArray(wl)&&
          (typeof wl.v==='string'||typeof wl.v==='number')&&String(wl.v).trim()&&stillWrong(q,wl.v))
          add(map,q,wl.v,src,wl.ts||0);});});
-   loadArr('tdsat_exam_suite_results_v1').forEach(function(r){if(!r||typeof r!=='object')return;var mode=modeOf(r);var name=mode==='quiz'?'单元抽查':mode==='mock'?'模考':mode==='jiangyi'?'讲义复习':'考试练习';
+   loadArr('tdsat_exam_suite_results_v1').forEach(function(r){if(!r||typeof r!=='object')return;var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':r.mode==='jiangyi'?'讲义复习':'考试练习';
      /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(isTrueFlag(r.void))return;
-     if(mode==='jiangyi'&&!window.TD_JY)return;
+     if(r.mode==='jiangyi'&&!window.TD_JY)return;
      asArr(r.detail).forEach(function(d){if(!d||typeof d!=='object'||Array.isArray(d))return;var q=questionById(d.id);
        var dGiven=plainText(d.given);
        /* 空作答不是错题；对象 given 会被 String() 变成 [object Object] 后再

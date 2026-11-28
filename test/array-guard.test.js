@@ -442,20 +442,6 @@ test('记录页：模考 total 被写成 999 时按 44 题封顶，不显示「�
   assert.ok(/答对 <b>44 \/ 44<\/b>/.test(html), '44/999 的分母没有按 44 题收敛');
 });
 
-test('记录页：finished/correct 是 Python 风格大写字符串时也按布尔处理', () => {
-  const one = (finished, correct) => ({ date: 1700000000000, mode: 'mock', finished, total: 2, correct,
-    detail: [{ id: 'TD-11-01', correct: 'True' }, { id: 'TD-11-02', correct: 'False' }] });
-  let els = boot(['history-page.js'], { tdsat_exam_suite_results_v1: JSON.stringify([one('False', 1)]) }).els;
-  const unfinished = String(els.histList.innerHTML);
-  assert.ok(/未交卷/.test(unfinished), 'finished:"False" 被当成已交卷，没有显示未交卷');
-  assert.ok(!/全卷 2 题/.test(unfinished), 'finished:"False" 的记录仍被印成正式成绩');
-
-  els = boot(['history-page.js'], { tdsat_exam_suite_results_v1: JSON.stringify([one('True', 1)]) }).els;
-  const finished = String(els.histList.innerHTML);
-  assert.ok(/50%/.test(finished), 'correct:"True" 没有按答对计数，正确率算错');
-  assert.ok((finished.match(/hist-wrong-row/g) || []).length === 1, '大写 correct 让错题行数量错误');
-});
-
 test('记录页：void 作废档案不能当正式成绩显示 0 分和整卷错题', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([{

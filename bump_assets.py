@@ -165,6 +165,9 @@ def main():
             changed.append(name)
     if stamp_sw(v):
         changed.append('sw.js')
+    # 版本哨兵：任何页面都能拿它检查自己是不是旧版（含已开了很久、不会自己刷新的标签页）
+    io.open(os.path.join(ROOT, 'version.json'), 'w', encoding='utf-8').write(
+        '{"v":"%s","t":%d}\n' % (v, int(__import__('time').time())))
     print('asset version:', v)
     print('updated files :', changed if changed else 'none (already current)')
     print('sw cache       :', sw_version())

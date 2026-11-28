@@ -12,7 +12,7 @@
    导航请求 network-first 失败时（弱网/VPN 抖动）会整站回退到旧版页面。
    升版触发 activate 全量清缓存，旧构建自愈。 */
 var ENGINE_CACHE = 'satmath-engine-v1';   /* 识别引擎单独一个缓存，升版不清，避免每次部署都重下 6.8MB */
-var VERSION = 'satmath-842b09134c99';
+var VERSION = 'satmath-ba21e8c92194';
 
 /* 从本 SW 自身路径推导站点基路径（兼容 GitHub Pages 子路径，如 /SAT-Math/） */
 var BASE = self.location.pathname.replace(/\/sw\.js$/, '/');
@@ -36,6 +36,17 @@ self.addEventListener('activate', function (e) {
       }));
     }).then(function () { return self.clients.claim(); })
   );
+  /* 升版时把"开着但没刷新"的错题页拉一次新版：改的东西推上去了，
+     用户那个标签页却还在跑几小时前的旧代码——识别面板就在这一页，最容易中招。 */
+  e.waitUntil(self.clients.matchAll({ type: 'window' }).then(function (cs) {
+    var tag = VERSION.replace('satmath-', '');
+    cs.forEach(function (c) {
+      try {
+        if (!/wrong\.html/.test(c.url) || /[?&]v=/.test(c.url)) return;
+        c.navigate(c.url.split('#')[0] + (c.url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + tag);
+      } catch (err) {}
+    });
+  }));
 });
 
 self.addEventListener('message', function (e) {
