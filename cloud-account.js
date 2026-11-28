@@ -1308,6 +1308,10 @@
       '.td-acct-input{font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line-strong,#bcd0e8);',
       'border-radius:6px;color:var(--ink,#12233f);background:var(--paper,#fff);width:100%;box-sizing:border-box}',
       '.td-acct-input:focus{outline:2px solid var(--blue-soft,#e8f0fe);border-color:var(--blue,#2563eb)}',
+      /* iOS Safari 对 font-size <16px 的输入框会在聚焦时自动放大页面。
+         注册表单本来就在浮层里，一放大就错位、密码框还可能跑到键盘下面。
+         窄屏把输入字号抬到 16px，视觉上只大一点，换来键盘弹出不跳版。 */
+      '@media(max-width:520px){.td-acct-input{font-size:16px!important}}',
       '.td-acct-btn2{font:inherit;font-size:13px;font-weight:600;padding:9px 14px;border-radius:6px;cursor:pointer;',
       'border:1px solid var(--blue,#2563eb);background:var(--blue,#2563eb);color:#fff;white-space:nowrap}',
       '.td-acct-btn2[data-neutral="1"]{background:transparent;color:var(--ink,#12233f);border-color:var(--line-strong,#bcd0e8)}',

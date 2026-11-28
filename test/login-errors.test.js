@@ -289,3 +289,8 @@ test('重发确认邮件有 60 秒冷却，撞号切登录时不会继承“等�
   const signup = acct.slice(acct.indexOf('async function doSignUpPwd'), acct.indexOf('async function doSendLink'));
   assert.match(signup, /needConfirm = \(e\.code === 'auth\/email-confirm-required'\)/, '撞号后仍继承等确认标记');
 });
+
+test('手机上账号输入框至少 16px，避免 iOS 聚焦自动放大浮层', () => {
+  assert.match(acct, /@media\(max-width:520px\)\{\.td-acct-input\{font-size:16px!important\}\}/,
+    '窄屏输入框又低于 16px，iOS 会缩放');
+});
