@@ -640,9 +640,14 @@
        里 blob Worker 常被直接拦掉，表现就是"卡在启动本地识别、一直不出字"。
        我们的 worker.min.js 就在同源 vendor/ 下，直接按 URL 加载就不依赖 blob；
        万一某个环境反过来只认 blob，再退回去试一次。 */
-    return T.createWorker('eng', 1, opts(false)).catch(function (e) {
+    /* 哪个先试取决于镜像是否同源：跨域镜像（jsdelivr/unpkg）用脚本 URL 造 Worker
+       必然被浏览器拦（"cannot be accessed from origin"），那条尝试纯属白等还把
+       错误写进诊断行，让人以为坏了。所以跨域直接走 blob，同源才先走脚本 URL。 */
+    var sameOrigin = false;
+    try { sameOrigin = (new URL(m.worker, location.href)).origin === location.origin; } catch (e) { }
+    return T.createWorker('eng', 1, opts(sameOrigin ? false : true)).catch(function (e) {
       ENGINE_LAST_ERR = (e && e.message) || String(e);
-      return T.createWorker('eng', 1, opts(true));
+      return T.createWorker('eng', 1, opts(sameOrigin ? true : false));
     });
   }
 
@@ -740,6 +745,9 @@
       });
     }).then(function (w) {
       OCR_W = w; OCR_READY = true;
+      /* 起来了就把中间那些失败尝试从诊断行抹掉：同源/跨域某个镜像试失败很常见，
+         留着"上次错误"只会让人以为引擎坏了。 */
+      ENGINE_LAST_ERR = '';
       // 单题截图是"一整块文字"，按单块版面分析比默认的全页分析准
       try { w.setParameters({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1' }); } catch (e) { console.warn('设置识别参数失败', e); }
       return w;
