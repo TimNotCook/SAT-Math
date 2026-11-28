@@ -26,9 +26,19 @@
     return null;
   }
   var SNAP_PREFIX = 'tdsat_';
-  // 不同步到云端的本机键：外观偏好，以及登录会话（access/refresh token 绝不能进档案，
-  // 否则既泄露到云端，又会在 applyPayload 清空 tdsat_* 时把刚登录的会话一起删掉 → 刷新退登录）。
-  var NO_SYNC = { 'tdsat_prefs_v1': 1, 'tdsat_auth_v1': 1 };
+  // 不同步到云端的本机键：
+  // - 外观偏好（prefs / 主题 / 语言）：这是「这台设备」的显示选择，不该被别的设备改掉；
+  // - 登录会话（access/refresh token 绝不能进档案，否则既泄露到云端，
+  //   又会在 applyPayload 清空 tdsat_* 时把刚登录的会话一起删掉 → 刷新退登录）；
+  // - 重置密码标记：这是「这次点击」的临时状态。之前它跟着档案同步，
+  //   在另一台设备登录时会凭空冒出一句「已经通过重置链接登录」，吓得人以为账号出问题；
+  // - 启动重试计数 / 写盘探针：纯本机诊断键。
+  var NO_SYNC = {
+    'tdsat_prefs_v1': 1, 'tdsat_auth_v1': 1,
+    'tdsat_lang': 1, 'tdsat_theme': 1,
+    'tdsat_recovery_v1': 1, 'tdsat_boot_retry_v1': 1, 'tdsat_write_probe__': 1,
+    '__tdsat_write_probe__': 1
+  };
   var PROFILE_KEY = 'tdprofile_v1';
   var DRAFT_KEY = 'tdprofile_draft_v1';
   var DEFAULT_NICK = '同学';

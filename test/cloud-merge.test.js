@@ -284,3 +284,28 @@ test('切号前的草稿保存必须检查返回值，写失败不能继续清�
   assert.match(SRC, /if \(!saveDraft\(prof\.owner, snapshot\(\)\)\) \{[\s\S]*?已取消切换/,
     '切号前草稿写失败仍继续，A 的未同步增量会被清掉');
 });
+
+test('本机状态键（重置标记 / 主题 / 语言）不进同步快照', () => {
+  const { M } = boot({ tdsat_recovery_v1: '1', tdsat_theme: 'dark', tdsat_lang: 'en',
+    tdsat_app_v1: JSON.stringify({ sections: {} }) });
+  const snap = M.snapshot();
+  assert.ok(snap, '快照读不出来');
+  ['tdsat_recovery_v1', 'tdsat_theme', 'tdsat_lang'].forEach(k => {
+    assert.equal(Object.prototype.hasOwnProperty.call(snap, k), false, k + ' 被当成学习进度同步了');
+  });
+  assert.ok(Object.prototype.hasOwnProperty.call(snap, 'tdsat_app_v1'), '真正的进度键被漏掉了');
+});
+
+test('云端档案里带了本机状态键时，不许写进这台设备', () => {
+  const { M, store } = boot({ tdsat_theme: 'light', tdsat_lang: 'zh',
+    tdsat_app_v1: JSON.stringify({ sections: { '1.1': { answers: {} } } }) });
+  M.applyPayload({
+    tdsat_recovery_v1: '1', tdsat_theme: 'dark', tdsat_lang: 'en',
+    tdsat_app_v1: JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', ts: 1 } } } } }),
+  });
+  assert.equal(store.tdsat_recovery_v1, undefined, '别台设备的重置标记被搬进来了（会误报「刚通过重置链接登录」）');
+  assert.equal(store.tdsat_theme, 'light', '这台设备的主题被别台设备改掉了');
+  assert.equal(store.tdsat_lang, 'zh', '这台设备的语言被别台设备改掉了');
+  assert.ok(store.tdsat_app_v1.indexOf('U1-01') >= 0, '真正的进度没写进来');
+});
+

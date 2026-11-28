@@ -14,9 +14,12 @@ const path = require('node:path');
 const SRC = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
 
 test('tdsat_auth_v1 不在档案同步范围（NO_SYNC 白名单含它）', () => {
-  const line = SRC.split('\n').find(l => l.includes('var NO_SYNC'));
-  assert.ok(line, '应能找到 NO_SYNC 定义');
-  assert.ok(/tdsat_auth_v1/.test(line), 'NO_SYNC 必须包含 tdsat_auth_v1，否则令牌会被同步/被清掉');
+  const at = SRC.indexOf('var NO_SYNC');
+  assert.ok(at >= 0, '应能找到 NO_SYNC 定义');
+  /* 定义可能跨行写（后来还加进了主题/语言/重置标记），取整块对象再查键，
+     别再按单行匹配——否则一换行测试就误报「白名单里没有」，把人带偏。 */
+  const block = SRC.slice(at, SRC.indexOf('};', at));
+  assert.ok(/tdsat_auth_v1/.test(block), 'NO_SYNC 必须包含 tdsat_auth_v1，否则令牌会被同步/被清掉');
 });
 
 test('快照与回写只在 SNAP_PREFIX 内挑键，且统一排除 NO_SYNC', () => {
