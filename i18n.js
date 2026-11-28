@@ -183,13 +183,10 @@
     '综合': 'Mixed',
     '历史错题': 'Past wrong answers',
     '复习': 'Review',
-    '未作答 / 时间分配': 'Unanswered / time management',
     '作答格式或数值转换': 'Answer format or conversion',
-    '符号判断错误': 'Sign error',
     '倒数或比例关系混淆': 'Reciprocal or ratio mix-up',
     '倍数关系错误': 'Factor error',
     '计算精度不足': 'Rounding too early',
-    '计算或公式应用错误': 'Calculation or formula error',
     '符号或方向判断错误': 'Sign or direction error',
     '倒数关系混淆': 'Reciprocal mix-up',
     '选项判断错误 · ': 'Choice error · ',
@@ -440,6 +437,34 @@
     '按单元筛选': 'Filter by unit',
     '题目信息': 'Question info',
     '本节成绩': 'Section score',
+    /* 记录页「未做完档案」的继续入口：此前只有 exam.js 的官方卷态走
+       'Continue test'，history 页这颗按钮是硬编码中文，英文模式下裸露。 */
+    '继续这卷': 'Continue this test',
+    /* 错因标题：错题页 .cause-box 首行是「错因 · topic」拼装串，
+       t() 按 ' · ' 切开逐段查本表，所以这里只放不带 topic 的那半句。 */
+    '未作答 / 时间分配': 'Unanswered / time management',
+    '作答格式': 'Answer format',
+    '符号判断错误': 'Sign error',
+    '整体符号 / 移项错误': 'Overall sign / transposition error',
+    '斜率符号错误': 'Slope sign error',
+    '截距符号错误': 'Intercept sign error',
+    '截距计算错误': 'Intercept calculation error',
+    '斜率计算错误': 'Slope calculation error',
+    '倒数 / 比例混淆': 'Reciprocal / ratio confusion',
+    '倍数 / 单位换算错误': 'Multiple / unit conversion error',
+    '倍数与单位换算': 'Multiple and unit conversion',
+    '计算精度 / 算术失误': 'Precision / arithmetic error',
+    '图像对应关系判断错误': 'Graph matching error',
+    '图像对应关系': 'Graph matching',
+    '指数 / 变量位置混淆': 'Exponent / variable position confusion',
+    '增长率底数 / 周期换算错误': 'Growth base / period conversion error',
+    '方程形式判断错误': 'Equation form error',
+    '方程形式判断': 'Equation form',
+    '计算或公式应用错误': 'Calculation or formula error',
+    '数值判断错误': 'Value error',
+    '概念判断错误': 'Concept error',
+    '知识点概念未掌握': 'Concept not mastered',
+    '条件转化失误': 'Condition handling error',
   };
 
   /* 带数字的句子：模板字符串拼出来的是一个整体文本节点，靠模式匹配 */

@@ -149,3 +149,22 @@ test('「第 N / M 题」这类拼接计数在英文模式下要翻（讲义题�
   assert.strictEqual(i18n.t('第 1 题'), 'Question 1');
   assert.strictEqual(i18n.t('第 3 空'), 'Blank 3');
 });
+
+test('英文模式下错题页错因标题与「继续这卷」不能留中文', () => {
+  const i18n = require(path.join(ROOT, 'i18n.js'));
+  /* .cause-box 首行是「错因 · topic」拼装串，靠 ' · ' 拆分 + 字典翻转 */
+  assert.strictEqual(i18n.t('数值判断错误 · 1.1 Linear Equations and Graphs'),
+    'Value error · 1.1 Linear Equations and Graphs');
+  assert.strictEqual(i18n.t('概念判断错误 · 2.3 Quadratic Functions'),
+    'Concept error · 2.3 Quadratic Functions');
+  assert.strictEqual(i18n.t('计算或公式应用错误 · 1.2 Solving Linear Equations'),
+    'Calculation or formula error · 1.2 Solving Linear Equations');
+  assert.strictEqual(i18n.t('方程形式判断错误 · 2.1 Exponents'),
+    'Equation form error · 2.1 Exponents');
+  /* 不带 topic 的固定标题走整串字典 */
+  assert.strictEqual(i18n.t('符号判断错误'), 'Sign error');
+  assert.strictEqual(i18n.t('未作答 · 时间分配'), 'Unanswered · time management');
+  assert.strictEqual(i18n.t('倍数 / 单位换算错误'), 'Multiple / unit conversion error');
+  /* 记录页「继续这卷」按钮 */
+  assert.strictEqual(i18n.t('继续这卷'), 'Continue this test');
+});
