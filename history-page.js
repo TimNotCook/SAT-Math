@@ -26,11 +26,16 @@
   /* 数据指纹：只比长度会漏掉「同条数但内容被云端覆盖」的情况（长度一样、分数变了）。
      整串滚 hash，O(n) 但返回定长，几 KB 的档案每 1.5s 算一次毫无压力。 */
   function fp() {
-    var raw = String(localStorage.getItem(RESULTS) || '') + '\u0001' +
-              String(localStorage.getItem(ABANDONED) || '');
-    var h = 0;
-    for (var i = 0; i < raw.length; i++) h = (h * 31 + raw.charCodeAt(i)) | 0;
-    return raw.length + ':' + h;
+    /* Safari 无痕/禁用站点数据时，localStorage.getItem 本身会抛 SecurityError。
+       这里没包 try 的话，render() 第一行就崩，记录页永远停在占位；
+       load() 已有降级，指纹读不到就返回稳定空指纹，让页面照常画空态。 */
+    try {
+      var raw = String(localStorage.getItem(RESULTS) || '') + '\u0001' +
+                String(localStorage.getItem(ABANDONED) || '');
+      var h = 0;
+      for (var i = 0; i < raw.length; i++) h = (h * 31 + raw.charCodeAt(i)) | 0;
+      return raw.length + ':' + h;
+    } catch (e) { return '0:0'; }
   }
 
   /* 只认数组：这两条键被写成对象（旧版/云端覆盖）时，后面 .filter/.sort 会抛错，

@@ -22,12 +22,12 @@ function fakeEl() {
   };
 }
 
-function boot(files, store) {
+function boot(files, store, opts) {
   const els = {};
   const sandbox = {
     console,
     localStorage: {
-      getItem: k => (k in store ? store[k] : null),
+      getItem: k => { if (opts && opts.throwRead) throw new Error('storage denied'); return (k in store ? store[k] : null); },
       setItem: (k, v) => { store[k] = String(v); },
       removeItem: k => { delete store[k]; },
     },
@@ -66,6 +66,13 @@ test('记录页：date 为 null/0 时不显示 1970 年，缺时间显示「—�
   const els = boot(['history-page.js'], store).els;
   assert.ok(!/1970/.test(els.histList.innerHTML), 'null/0 的 date 被画成了 1970 年');
   assert.ok((els.histList.innerHTML.match(/—/g) || []).length >= 2, '缺时间没有显示「—」');
+});
+
+test('记录页：localStorage 读取被拒（隐私模式）时不崩页，落到空态', () => {
+  let threw = null, box = null;
+  try { box = boot(['history-page.js'], {}, { throwRead: true }).els.histList; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '存储被拒时记录页崩了：' + (threw && threw.message));
+  assert.ok(box && /还没有模考或抽查记录/.test(box.innerHTML), '存储被拒时没有落到空态');
 });
 
 test('记录页：成绩仓库是对象时不崩页，落到「还没有记录」占位', () => {

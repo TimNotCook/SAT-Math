@@ -688,3 +688,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 82 条：模考记录 `total` 被写成 999 时，记录条印成「全卷 999 题」（2026-11-28）
 
 旧版/云端/手工导入可能把 `total` 写成 999。第 77 条只处理了 `total` 小于明细条数，没有处理反向：记录页会显示「官方模考 · 全卷 999 题」，`correct:44` 也被 999 的分母稀释成 4%，与 44 条逐题明细矛盾。官方模考整卷固定 44 题，`scoreParts()` 对 mock 记录把 `total` 封顶到 44；`total` 较小（如未交卷 22 题）不受影响，有明细时仍先按明细兜底。验证：新增 `total:999, correct:44, detail:44` 回归，旧代码「全卷 999 题」失败，新代码「全卷 44 题 / 答对 44 / 44」通过。
+
+## 第 83 条：Safari 无痕/禁用站点数据时，记录页指纹读取第一个抛错（2026-11-28）
+
+记录页 `render()` 第一行是 `fp()`，它直接 `localStorage.getItem` 两次、没有 try。Safari 无痕或「阻止所有 Cookie」时，`getItem` 本身抛 `SecurityError`，页面在画列表前就崩，用户只看到占位；而 `load()` 明明已有降级。修成指纹读取包 try，读不到返回稳定 `0:0`，页面照常进入空态，不清数据、不假装有记录。验证：boot 注入 `getItem` 抛错的 localStorage，旧代码抛 `storage denied` 失败，新代码不抛并渲染「还没有模考或抽查记录」。
