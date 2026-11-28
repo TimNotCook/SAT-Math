@@ -27,6 +27,7 @@ test('核心界面词都有英文：导航、按钮、设置、模考', () => {
     '重试失败项': 'Retry failed items',
     '登录云端账号': 'Sign in',
     '前往': 'Go',
+    '敲几个词或数字，比如 4x 或 slope': 'Search keywords, e.g. 4x',
     '查看本题': 'View question',
     '继续练习本板块': 'Continue this section',
     '返回板块列表': 'Back to sections',

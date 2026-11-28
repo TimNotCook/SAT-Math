@@ -47,11 +47,12 @@
     '板块结果': 'Section result',
     '查看本题': 'View question',
     '前往': 'Go',
+    '敲几个词或数字，比如 4x 或 slope': 'Search keywords, e.g. 4x',
     '两种用法：': 'Two ways: ',
     '贴图': 'paste an image',
-    '让引擎自动认字配题；': 'let the engine read it and match a question; ',
-    '懒等': 'in a hurry?',
-    '就在下面搜框里敲题干里的几个词或数字，直接点题导入。导入只增不改，不会动你已有的作答记录。': 'type a few words or numbers from the question into the search box below and pick one to import. Import only adds records; your existing answers stay untouched.',
+    '让引擎自动认字配题；': ' to let the engine read it and match a question; ',
+    '懒等': 'in a hurry? ',
+    '就在下面搜框里敲题干里的几个词或数字，直接点题导入。导入只增不改，不会动你已有的作答记录。': ' type a few words or numbers from the question into the search box below and pick one to import. Import only adds records; your existing answers stay untouched.',
     '贴图走本地引擎，首次要下载约 7MB 组件（十几秒），之后有缓存；登录云端账号可换成更准的模型。': 'Images are read by a local engine (about 7 MB the first time, then cached). Sign in to use the more accurate cloud model.',
     '云端账号：检测中…': 'Cloud account: checking…',
     '云端账号：未登录 · 本地识别可用，登录后精度更高': 'Cloud account: signed out · local OCR works; sign in for better accuracy',
@@ -419,9 +420,9 @@
     '粘贴题干文字导入': 'Paste the question text to import',
     '按题干关键词查题': 'Find a question by keyword',
     '图认不出？把题干文字复制/打进来（英文原文最准），点右边按钮同样能配题导入。':
-      'Image not readable? Paste the question text — the original English works best — then use the button on the right.',
+      'Image not readable? Paste the question text here.',
     '等不及？敲题干里的几个词或数字，比如 4x 24x 36 或 slope':
-      'In a hurry? Type a few words or numbers from the question, e.g. 4x 24x 36 or slope',
+      'Search keywords, e.g. 4x',
     '不用贴图，自己造一张测试图跑一遍，确认这台机器能不能识别':
       'No screenshot needed: build a test image and check whether this device can read it',
     '只删掉本次导入写进去的记录，不动你原来的作答':

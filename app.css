@@ -1860,3 +1860,18 @@ html body .entry-tile-grid .jy-board-card .jy-card-meta{
 @media(max-width:400px){
   html[lang="en"] .site-rail .rail-brand{flex:0 0 100%}
 }
+
+/* 图片导入面板：textarea/搜索框原本吃浏览器默认 cols 宽度，手机上窄成一条；改成整行。 */
+.imgimp-text-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+#imgimpText { flex: 1 1 100%; width: 100%; min-height: 88px; resize: vertical; box-sizing: border-box; }
+.imgimp-finder-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+#imgimpSearch { flex: 1 1 160px; min-width: 0; }
+
+/* 英文界面的图片导入面板：说明段落太长，直接收起来，只留操作区。 */
+[data-i18n-en="1"] .imgimp-head p,
+[data-i18n-en="1"] .imgimp-note { display: none; }
+
+/* 面板右上角「关闭」在窄屏被挤成竖排单字；按钮不许换行，标题让位。 */
+.imgimp-x { white-space: nowrap; flex: 0 0 auto; }
+.imgimp-head > div { min-width: 0; }
+#imgimpSearch { flex: 1 1 100%; }
