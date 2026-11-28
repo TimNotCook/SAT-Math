@@ -881,11 +881,18 @@
     var s = String(v || '').trim();
     return s.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
   }
+  /* 和 supa-cloud 的 pwProblem 同一个口径：Supabase/bcrypt 限 72 字节。 */
+  function pwBytes(v) {
+    var s = String(v || '');
+    try { if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(s).length; }
+    catch (e) { /* 极老浏览器兜底 */ }
+    try { return encodeURIComponent(s).replace(/%[A-F0-9]{2}/g, 'x').length; } catch (e) { return s.length; }
+  }
 
   async function doSetPassword(pw, pw2) {
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     if (!pw || pw.length < 8) { setError('密码至少 8 位。'); return; }
-    if (pw.length > 72) { setError('密码最多 72 位，请删短一点再试。'); return; }
+    if (pwBytes(pw) > 72) { setError('密码太长了，请删短一点再试（中文和表情占的空间更多）。'); return; }
     if (pw2 !== undefined && pw !== pw2) { setError('两次输入的新密码不一致，请重新确认。'); return; }
     if (!SB || !SB.setPassword) { setError('登录模块未加载，请刷新页面重试。'); return; }
     var ok = false;
@@ -953,7 +960,7 @@
       return;
     }
     if (pw.length < 8) { setError('密码至少 8 位。'); if (ui && ui.pw) ui.pw.focus(); return; }
-    if (pw.length > 72) { setError('密码最多 72 位，请删短一点再试。'); if (ui && ui.pw) ui.pw.focus(); return; }
+    if (pwBytes(pw) > 72) { setError('密码太长了，请删短一点再试（中文和表情占的空间更多）。'); if (ui && ui.pw) ui.pw.focus(); return; }
     if (ui && ui.pw2 && pw !== pw2) {
       setError('两次输入的密码不一致，请重新确认。');
       ui.pw2.focus();

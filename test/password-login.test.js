@@ -245,14 +245,14 @@ describe('注册错误优先认稳定错误码，不依赖英文文案', () => {
 test('密码超过 72 位 → 本地 400，不发请求（Supabase 的 bcrypt 硬上限）', async () => {
   const calls = [];
   const { SB } = loadModule(async (url) => { calls.push(url); return makeRes(200, sessionBody('x')); });
-  await assert.rejects(() => SB.signUpPassword('tim@example.com', 'a'.repeat(73)), e => e.status === 400 && /最多 72 位/.test(e.message));
+  await assert.rejects(() => SB.signUpPassword('tim@example.com', 'a'.repeat(73)), e => e.status === 400 && /太长/.test(e.message));
   assert.equal(calls.length, 0);
 });
 test('注册/改密输入框限长 72，别让用户先贴进去再被服务端拒', () => {
   const acct = fs.readFileSync(path.join(ROOT, 'cloud-account.js'), 'utf8');
   assert.match(acct, /pwSign\.input\.maxLength = 72/);
   assert.match(acct, /pwField\.input\.maxLength = 72/);
-  assert.match(acct, /pw\.length > 72/);
+  assert.match(acct, /pwBytes\(pw\) > 72/);
 });
 
 test('邮箱超过 254 位 → 本地 400，登录/找回都不发请求', async () => {
@@ -301,4 +301,14 @@ test('重发确认邮件：POST /auth/v1/resend，type=signup，手机号本地�
   assert.equal(r.body.email, 'tim@example.com');
   await assert.rejects(() => SB.resendConfirmation('13800138000'), e => e.status === 400);
   assert.equal(calls.filter(c => c.url.endsWith('/auth/v1/resend')).length, 1, '手机号不该重发确认邮件');
+});
+
+test('密码上限按 72 字节算：25 个汉字（75 字节）不能注册，72 个 ASCII 可以', async () => {
+  const calls = [];
+  const { SB } = loadModule(async (url) => { calls.push(String(url)); return makeRes(200, sessionBody('uid-72')); });
+  await assert.rejects(() => SB.signUpPassword('byte@example.com', '密'.repeat(25)),
+    e => e.status === 400 && /太长/.test(e.message));
+  assert.equal(calls.length, 0, '超字节密码仍发了注册请求');
+  const r = await SB.signUpPassword('ascii@example.com', 'a'.repeat(72));
+  assert.equal(r.uid, 'uid-72');
 });

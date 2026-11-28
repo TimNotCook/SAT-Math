@@ -414,7 +414,7 @@
     '确认邮件已重新发送到 {email}；几分钟内没收到就翻一下垃圾箱。': 'Confirmation email resent to {email}. If it doesn’t arrive in a few minutes, check your spam folder.',
     '这个账号是手机号，收不到确认邮件。': 'This account is a phone number and can’t receive confirmation emails.',
     '邮箱格式不正确，请检查后再重发。': 'That email address is invalid. Check it and resend.',
-    '密码最多 72 位，请删短一点再试。': 'A password can be at most 72 characters. Please shorten it and try again.',
+    '密码太长了，请删短一点再试（中文和表情占的空间更多）。': 'That password is too long — please shorten it and try again (Chinese characters and emoji take more space).',
     '请先填写邮箱或手机号。': 'Enter your email or phone number first.',
     '请先填写邮箱。': 'Enter your email first.',
     '请输入密码。': 'Enter your password first.',

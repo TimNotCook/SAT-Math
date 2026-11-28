@@ -336,10 +336,19 @@
   /* 下限 8 位是产品规则；上限 72 位是 Supabase/GoTrue 的密码硬上限（bcrypt
      只吃 72 字节）。不拦的话，用户把很长一段贴进来，服务端要么直接拒、
      要么截断，界面上只会看到一句莫名其妙的错误。 */
+  /* bcrypt 的上限是 72 **字节**，不是 72 个字符。一个汉字/表情在 UTF-8 里占
+     3 个字节，72 个汉字就是 216 字节，服务端要么拒、要么静默截断到前 72 字节，
+     用户下次拿同一串密码登录却对不上。这里按字节算。 */
+  function pwBytes(v) {
+    var s = String(v || '');
+    try { if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(s).length; }
+    catch (e) { /* 极老浏览器兜底 */ }
+    try { return encodeURIComponent(s).replace(/%[A-F0-9]{2}/g, 'x').length; } catch (e) { return s.length; }
+  }
   function pwProblem(v) {
     var n = String(v || '').length;
     if (n < 8) return '密码至少 8 位。';
-    if (n > 72) return '密码最多 72 位，请删短一点再试。';
+    if (pwBytes(v) > 72) return '密码太长了，请删短一点再试（中文和表情占的空间更多）。';
     return '';
   }
 
