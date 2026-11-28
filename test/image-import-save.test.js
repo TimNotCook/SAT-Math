@@ -15,11 +15,8 @@ test('自动导入检查 A.save() 返回值，并把失败写进结果与提示'
 });
 
 test('撤销导入和手动单题导入也会提示写盘失败', () => {
-  assert.match(JS, /savedUndo[\s\S]*?刷新后这次撤销可能回滚/, '撤销成功后写盘失败仍显示已撤销');
+  assert.match(JS, /removed\.push[\s\S]*?savedUndo = A\.save\(\)[\s\S]*?st2\.answers\[x\.q\] = x\.a/, '撤销写盘失败后没有把内存里的导入记录恢复');
+  assert.match(JS, /撤销没有生效[\s\S]*?再点一次/, '撤销写盘失败仍显示已撤销');
   assert.match(JS, /savedOne[\s\S]*?刷新后这道题可能丢失/, '手动导入写盘失败仍只显示已导入');
 });
 
-test('三个镜像并发时首个成功立刻返回，不再等慢镜像全部 settle', () => {
-  assert.doesNotMatch(JS, /Promise\.all\(tries/, '还在用 Promise.all 等三个镜像全部完成');
-  assert.match(JS, /settled = true;[\s\S]*?resolve\(w\);/, '首个成功没有立刻 resolve');
-});

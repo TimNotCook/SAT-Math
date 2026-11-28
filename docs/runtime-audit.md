@@ -849,4 +849,8 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 
 ## 第 123 条：三个镜像并发却用 Promise.all 等最慢的，快镜像赢了也要干等 15 秒（2026-11-28）
 
-`632fa0d` 把识别引擎三个镜像改成并发抢跑，但收口是 `Promise.all(tries.map(...))`：`Promise.all` 要等**所有**镜像都 resolve/reject 才返回，哪怕第 1 秒 GitHub Pages 已经成功，只要另一个镜像还在下载/超时，识别仍要等到第 15 秒；“1~3 秒就有赢家”只体现在赢了但没被用。修成手动 first-win：任一镜像成功立刻 `resolve`，并把随后才成功的 worker `terminate()`，全部失败才 reject 并保留三条错误信息。验证：新增静态守卫禁止回到 `Promise.all(tries)`；全量 643/0；`verify_flows` 16/16。
+`632fa0d` 把识别引擎三个镜像改成并发抢跑，但收口是 `Promise.all(tries.map(...))`：`Promise.all` 要等**所有**镜像都 resolve/reject 才返回，哪怕第 1 秒 GitHub Pages 已经成功，只要另一个镜像还在下载/超时，识别仍要等到第 15 秒；“1~3 秒就有赢家”只体现在赢了但没被用。修成手动 first-win：任一镜像成功立刻 `resolve`，并把随后才成功的 worker `terminate()`，全部失败才 reject 并保留三条错误信息。验证：新增静态守卫禁止回到 `Promise.all(tries)`；全量 643/0；`verify_flows` 16/16。 后续 `ee3dd374` 把并发三 worker 改成探测排序+单 worker（避免三个 wasm 内核抢内存），本条 first-win 修复被上游方案取代，仅留档。
+
+## 第 124 条：撤销导入写盘失败后，界面显示“撤了”，下次自动保存却把删除写进盘（2026-11-28）
+
+`undoLast()` 先从内存删掉导入记录，再 `A.save()`；写盘失败时只在提示后面补一句“刷新后可能回滚”，但 `lastAdded` 已被清空、撤销按钮消失，内存里的删除还留着。用户之后任何一次自动保存都会把这批删除正式写盘——刷新并不会回滚，反而永久生效，且没法再点撤销。修成：删除前快照 `removed`；`A.save()` 失败就把这 N 条作答按快照放回内存、保留 `lastAdded` 和撤销按钮，提示“清空间后再点一次重试”，只有写盘成功才清批。验证：`test/image-import-save.test.js` 守住恢复路径；全量 642/0；`verify_flows` 16/16。

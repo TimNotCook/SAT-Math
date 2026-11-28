@@ -996,19 +996,35 @@
   }
   function undoLast() {
     if (!A || !lastAdded.length) { status('没有可撤销的导入'); return 0; }
-    var n = 0;
+    var n = 0, removed = [];
     lastAdded.forEach(function (qid) {
       var hit = findQ(qid); if (!hit) return;
       var st = A.secState(hit.sec, false);
       var a = st && st.answers[hit.q.id];
-      if (a && a.importSrc === MARK) { delete st.answers[hit.q.id]; st.completed = A.stats(hit.sec).completed; n++; }
+      if (a && a.importSrc === MARK) {
+        removed.push({ sec: hit.sec, q: hit.q.id, a: a });
+        delete st.answers[hit.q.id]; st.completed = A.stats(hit.sec).completed; n++;
+      }
     });
-    lastAdded = [];
     var savedUndo = true;
-    if (n) { savedUndo = A.save(); refreshHost(); }
+    if (n) {
+      savedUndo = A.save();
+      /* 写盘失败时内存里已经删掉了，但盘上还是导入记录；这时把内存也恢复，
+         撤销按钮保留，用户再点一次就能重试，避免“看起来撤了、下次自动保存又写回去”。 */
+      if (!savedUndo) {
+        removed.forEach(function (x) {
+          var st2 = A.secState(x.sec, true);
+          if (st2) { st2.answers[x.q] = x.a; st2.completed = A.stats(x.sec).completed; }
+        });
+      }
+    }
+    if (!n || savedUndo) lastAdded = [];
+    refreshHost();
     showUndo();
-    var undoMsg = n ? ('已撤销本次导入的 ' + n + ' 道（只删掉导入记录，不动你原来的作答）') : '这些题已被你动过，撤销时没有删除任何作答';
-    if (n && !savedUndo) undoMsg += '；但本机进度写入失败，刷新后这次撤销可能回滚';
+    var undoMsg = n
+      ? (savedUndo ? ('已撤销本次导入的 ' + n + ' 道（只删掉导入记录，不动你原来的作答）')
+        : ('撤销没有生效：本机进度写入失败，已恢复这 ' + n + ' 道导入记录。清出存储空间后再点一次「撤销本次」重试。'))
+      : '这些题已被你动过，撤销时没有删除任何作答';
     status(undoMsg);
     return n;
   }
