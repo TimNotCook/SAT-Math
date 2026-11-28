@@ -91,6 +91,21 @@
          .replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 65248); })
          .replace(/(\d),(\d{3})(?!\d)/g, '$1$2');   /* 千分位合并：1,200 → 1200，不再被拆成 1 和 200 */
     s = s.toLowerCase();
+    /* OCR 把数字认成同形字母是最高频的错误：S↔5、l↔1、O↔0、g↔9、B↔8。
+       不修就会把 "= l0" 读成字母 l o，数字指纹直接崩，题匹配到别的题目上去。
+       只在"混着数字的 token"里改，以及 l/o/s 单独成词时改，避免把 value / line 这类单词改坏。 */
+    s = s.split(' ').map(function (t) {
+      if (!t) return t;
+      if (!/\d/.test(t)) {
+        var core = t.replace(/[^a-z|]/g, '');   /* "IO," / "lO." 这种带标点的也认 */
+        if (core === 'l' || core === '|') return '1';
+        if (core === 'o') return '0';
+        if (core === 's') return '5';
+        if (core === 'io' || core === 'lo') return '10';
+        return t;
+      }
+      return t.replace(/l/g, '1').replace(/o/g, '0').replace(/s/g, '5').replace(/g/g, '9').replace(/b/g, '8');
+    }).join(' ');
     s = s.replace(/\\(?:dfrac|tfrac|frac|sqrt|left|right|quad|qquad|text|mathrm|operatorname|cdot|times|div|pm|le|ge|ne|approx|pi|theta|alpha|beta|gamma|circ|degree|overline|hat)\b/g, ' ');
     s = s.replace(/[{}$_~]/g, ' ');   /* 不再连 ^ 一起抹掉：x^2 与 x2 要分得开 */
     s = s.replace(/[−–—]/g, '-');
