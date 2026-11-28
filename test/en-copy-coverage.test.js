@@ -60,3 +60,15 @@ test('抽查成绩页：模式标题/日期/题号位置按界面语言出', () 
   assert.ok(s.includes("toLocaleString(EN ? 'en-US' : 'zh-CN')"), '成绩页日期又只认 OFFICIAL');
   assert.match(s, /EN_LANG\(\) \? \('Question ' \+ pos \+ ' of ' \+ total\)/, '做题页题号又变成只认 OFFICIAL');
 });
+
+test('记录页时间跟界面语言走，别在英文界面印中文日期格式', () => {
+  const s = read('history-page.js');
+  assert.ok(s.includes("isEn() ? 'en-US' : 'zh-CN'"), '记录页时间没跟界面语言走');
+  assert.ok(!s.includes("toLocaleString('zh-CN'"), '记录页把 zh-CN 又写死了');
+});
+
+test('窄屏排版：成绩页 meta 可折行、320 主标题不折成两行', () => {
+  const css = read('app.css');
+  assert.ok(/@media \(max-width:430px\)\{[\s\S]{0,200}\.rev-meta\{white-space:normal/.test(css), '窄屏成绩页 meta 又被写回 nowrap');
+  assert.ok(/@media \(max-width:360px\)\{[\s\S]{0,160}site-shell h1\{font-size:26px/.test(css), '320 主标题字号守卫丢了');
+});

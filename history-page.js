@@ -100,10 +100,14 @@
     /* 数组的 toString 是空串，new Date([]) 会变成 1970-01-01；云端合并/旧版
        把日期写成 []/对象时，记录页会出现「1970 年交卷」的假时间。 */
     if (typeof t === 'object' && !(t instanceof Date)) return '—';
+    /* 记录时间跟界面语言走：英文界面里冒出「2026/11/28 18:48:10」就是中英混排。
+       中文习惯 24 小时制，英文用系统默认的 12 小时制（带 AM/PM）。 */
+    var loc = isEn() ? 'en-US' : 'zh-CN';
+    var opts = isEn() ? undefined : { hour12: false };
     var n = num(t);
-    if (n != null) return n > 0 ? new Date(n).toLocaleString('zh-CN', { hour12: false }) : '—';
+    if (n != null) return n > 0 ? new Date(n).toLocaleString(loc, opts) : '—';
     var d = new Date(t);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleString('zh-CN', { hour12: false });
+    return isNaN(d.getTime()) ? '—' : d.toLocaleString(loc, opts);
   }
   function fmtDur(sec) {
     var n = num(sec);

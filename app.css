@@ -1590,6 +1590,12 @@ html body .rev-topic{font-size:16px!important;font-weight:650!important;color:#1
 html body .rev-meta{margin-left:auto!important;font-size:12px!important;color:#7b8ba1!important;white-space:nowrap!important}
 /* 窄屏：结果页每条的 meta（"1.1 · Q5 · 2 points · Marked · Previously missed"）允许折行并占满一行，
    否则 nowrap + margin-left:auto 会把 320/375 宽的页面整体撑出横向滚动条 */
+/* 320 宽：32px 的页面主标题（"Wrong Answers"）只够 1.4 行，会断成 "Wrong / Answers" 两行，
+   缩到 26px 正好一行；361px 以上保持原样。 */
+@media (max-width:360px){
+  html body.site-shell h1{font-size:26px!important;line-height:1.25!important}
+}
+
 @media (max-width:430px){
   html body .rev-meta{white-space:normal!important;margin-left:0!important;flex:1 1 100%!important;line-height:1.5!important}
 }
