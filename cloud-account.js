@@ -1463,7 +1463,8 @@
       [pwSign, pwSign2].forEach(function (f) {
         f.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSignUpPwd(); });
       });
-      b.appendChild(el('p', 'td-acct-note', '手机号账号没有短信验证，建议用邮箱注册。'));
+      b.appendChild(el('p', 'td-acct-note',
+        '注册成功会自动登录。新账号请用邮箱注册；手机号注册需要短信验证，暂未开放，已有手机号账号可以直接登录。'));
       return;
     }
 

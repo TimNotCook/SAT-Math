@@ -355,6 +355,14 @@
     var pw = String(password || '');
     if (!id.phone && !validEmail(mail)) throw errOf(400, { msg: '邮箱或手机号格式不正确，请检查后再试。' });
     rejectInternalMail(id);
+    /* 手机号注册没有短信验证：谁都能输入任意号码占号，真正号码主人之后
+       反而注册不了、也找不回密码。这不是正常软件该有的注册入口；在接入
+       短信验证前只保留已有手机号账号的登录。 */
+    if (id.phone) {
+      var ce = errOf(400, { msg: '手机号注册需要短信验证，当前暂未开通；请用邮箱注册。已有手机号账号可以直接登录。' });
+      ce.code = 'auth/phone-signup-closed';
+      throw ce;
+    }
     if (!validPw(pw)) throw errOf(400, { msg: '密码至少 6 位。' });
     var body = { email: mail, password: pw };
     if (name) body.data = { display_name: String(name).slice(0, 24) };
