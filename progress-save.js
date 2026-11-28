@@ -34,7 +34,7 @@
     /* 存档/live 里的 answers[qid] 可能是旧版写下的裸字符串或数字；只读 a.v
        会把它们全算成未作答，摘要显示 0/…，但恢复时又能恢复出来。 */
     if (typeof a === 'string' || (typeof a === 'number' && isFinite(a))) return String(a).trim() !== '';
-    if (!a || a.v == null || typeof a.v === 'object' || typeof a.v === 'function') return false;
+    if (!a || a.v == null || typeof a.v === 'boolean' || typeof a.v === 'object' || typeof a.v === 'function') return false;
     return String(a.v).trim() !== '';
   }
 

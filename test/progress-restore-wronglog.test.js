@@ -320,3 +320,12 @@ test('存档 savedAt/version/position.n 是布尔时判 corrupt', () => {
   const a3 = Object.assign(mkArchive({}), { position: { sec: T.sec, n: true } });
   assert.equal(boot({ sections: {}, last: null }, a3).SAVE.inspect().status, 'corrupt');
 });
+
+test('进度存档摘要不把 v 是布尔/对象的坏作答算成已答', () => {
+  const archive = mkArchive({});
+  archive.sections[T.sec].answers = { [T.qid]: { v: true, correct: true }, 'bad-object': { v: { x: 1 }, correct: false } };
+  const { SAVE } = boot({ sections: {}, last: null }, archive);
+  const st = SAVE.inspect();
+  assert.equal(st.status, 'ok', '坏作答不应让整份存档失效：' + JSON.stringify(st));
+  assert.equal(st.summary.answered, 0, '布尔/对象 v 被算成已答，恢复后却是空白');
+});
