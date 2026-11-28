@@ -15,7 +15,7 @@
  /* 成绩档案里的 correct 可能是布尔、1/0 或字符串；只把明确真值当答对。 */
  function flagKey(v){return typeof v==='string'?v.trim().toLowerCase():v;}
  function isRight(v){v=flagKey(v);return v===true||v===1||v==='true'||v==='1';}
- function isWrong(v){return v===false||v===0||v==='false'||v==='0';}
+ function isWrong(v){v=flagKey(v);return v===false||v===0||v==='false'||v==='0';}
  function isTrueFlag(v){v=flagKey(v);return v===true||v===1||v==='true'||v==='1';}
 
  function plainChoices(v){

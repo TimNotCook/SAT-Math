@@ -8,7 +8,8 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   /* 存档/云端合并可能把布尔写成字符串：'false' 是 truthy，不能直接当答对。 */
-  const isRightFlag = v => v === true || v === 1 || v === 'true' || v === '1';
+  const flagKey = v => (typeof v === 'string' ? v.trim().toLowerCase() : v);
+  const isRightFlag = v => { v = flagKey(v); return v === true || v === 1 || v === 'true' || v === '1'; };
   const isRec = v => !!v && typeof v === 'object' && !Array.isArray(v);
 
   /* =====================================================================
@@ -862,7 +863,7 @@
     return {
       units: unitRows, topics: topicRows, weakTopics: wrongOnlyTopics, priority,
       wrongDetail: detail.filter(d => isRec(d) && !isRightFlag(d.correct)),
-      correct: detail.filter(d => d.correct).length, total: detail.length
+      correct: detail.filter(d => isRightFlag(d.correct)).length, total: detail.length
     };
   }
 

@@ -26,7 +26,8 @@
   var VERSION = 1;
   var PRODUCER = 'tdsat-bluebook';
   /* 旧存档可能把 correct 写成字符串：'false' 是 truthy，不能算答对。 */
-  function isRightFlag(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
+  function flagKey(v) { return typeof v === 'string' ? v.trim().toLowerCase() : v; }
+  function isRightFlag(v) { v = flagKey(v); return v === true || v === 1 || v === 'true' || v === '1'; }
   /* 存档摘要只统计真实可恢复的作答：v 是对象/数组时 String() 会得到
      "[object Object]"，旧实现把这种坏记录算成「已答」，恢复后却是空白。 */
   function hasAnswer(a) {

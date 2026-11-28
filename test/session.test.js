@@ -431,3 +431,15 @@ test('weaknessReport：秒数为 Infinity/布尔时平均用时仍是有限数�
   );
   rep.topics.forEach(t => assert.equal(Number.isFinite(t.avgSeconds), true, '平均用时不是有限数字: ' + t.avgSeconds));
 });
+
+test('weaknessReport：correct 是 Python 风格 "True"/"False" 时按布尔计对错', () => {
+  const rep = C.weaknessReport(
+    [{ id: 'Q1', unit: 1, section: '1.1', topic: 1, correct: 'True', seconds: 10 },
+     { id: 'Q2', unit: 1, section: '1.1', topic: 1, correct: 'False', seconds: 10 }],
+    [{ id: 1, cn: '代数' }], { wrong: {} }
+  );
+  assert.equal(rep.units[0].n, 2, '题数不对');
+  assert.equal(rep.units[0].wrong, 1, '"True" 被当成错题，或 "False" 被当成对题');
+  assert.equal(rep.correct, 1, 'correct 计数没有按布尔口径');
+  assert.equal(rep.wrongDetail.length, 1, 'wrongDetail 没只收 "False" 那道');
+});

@@ -109,7 +109,7 @@
   /* 题数/答对数是计数：小数（22.5）会让成绩页印「10 / 22.5」；当坏值，走明细兜底。 */
   const countNum = v => { const n = safeNum(v); return n != null && n >= 0 && Math.floor(n) === n ? n : null; };
   const isRightFlag = v => (v = flagKey(v), v === true || v === 1 || v === 'true' || v === '1');
-  const isWrongFlag = v => v === false || v === 0 || v === 'false' || v === '0';
+  const isWrongFlag = v => (v = flagKey(v), v === false || v === 0 || v === 'false' || v === '0');
   /* Rendered stem, used only for diagnostic feature detection. The exam core
      stays DOM-free; it never changes the text shown to the student. */
   const stemOf = q => {

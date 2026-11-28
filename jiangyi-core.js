@@ -35,7 +35,8 @@
 (function () {
   'use strict';
   /* 旧存档/云端可能把 correct 写成字符串 'false'：truthy 会被算成答对。 */
-  function isRightFlag(v){ return v === true || v === 1 || v === 'true' || v === '1'; }
+  function flagKey(v){ return typeof v === 'string' ? v.trim().toLowerCase() : v; }
+  function isRightFlag(v){ v = flagKey(v); return v === true || v === 1 || v === 'true' || v === '1'; }
   /* 题库侧实际结构（be7b955 起）：window.JY_SECTIONS + window.JY_BANK；
      早期文档里的 TD_JIANGYI{units,questions} 保留兼容，两种都能吃。 */
   var DATA = window.JY_BANK

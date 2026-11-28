@@ -355,8 +355,10 @@
   }
   /* 旧档案/云端合并可能把 correct 存成字符串或 1/0；只认明确真值，避免
      'false' 被 truthy 当成答对。 */
-  function isRightFlag(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
-  function isWrongFlag(v) { return v === false || v === 0 || v === 'false' || v === '0'; }
+  /* 云端/手工导入可能把布尔写成 Python 风格 'True'/'FALSE'：先 trim+小写。 */
+  function flagKey(v) { return typeof v === 'string' ? v.trim().toLowerCase() : v; }
+  function isRightFlag(v) { v = flagKey(v); return v === true || v === 1 || v === 'true' || v === '1'; }
+  function isWrongFlag(v) { v = flagKey(v); return v === false || v === 0 || v === 'false' || v === '0'; }
   function computeStats(id, src) {
     id = resolveSec(id);
     var qs = CATALOG[id] || [], st = secIn(src, id, false) || { answers: {}, cursor: 0 };

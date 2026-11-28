@@ -584,3 +584,14 @@ test('错题本 plainText 不把布尔写成 true/false 文案', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'wrong-page.js'), 'utf8');
   assert.match(src, /typeof v==='object'\|\|typeof v==='boolean'/, 'plainText 缺少布尔排除');
 });
+
+test('常规错题记录 correct 是 Python 风格 "False" 时仍进错题本', () => {
+  const store = {
+    tdsat_app_v1: JSON.stringify({ sections: { '1.1': { answers: { 'TD-11-01': { v: 'A', correct: 'False', ts: 1 } } } }, last: null }),
+  };
+  let threw = null, els = null;
+  try { els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '大写 False 打崩错题本：' + (threw && threw.message));
+  assert.ok(els && /TD-11-01|1\.1/.test(els.wrongList.innerHTML), 'correct:"False" 的错题没有进错题本');
+});
