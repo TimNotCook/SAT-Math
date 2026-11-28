@@ -147,6 +147,15 @@
   function matchStem(query, topN) { return matchQuestion(query, '', topN); }
   /* 自动导入门禁：强综合分且明显领先第二名，或数字指纹极强时直通。
      返回 {pass, reason}。 */
+  /* 题干里混进选项行时，选项的数字（4/6/8/10）会污染"数字指纹"，把本来能对上
+     的题误判成"数字不符"。识别不出选项字母时最容易发生。这里从第一个 A)/A) 样式的
+     选项标记处截断，只拿题干部分的数字去校验。 */
+  function stripChoices(text) {
+    var t = String(text || '');
+    var m = t.match(/(?:^|[\s\n])(A|a)\s*[)\.]\s/);
+    return m && m.index > 20 ? t.slice(0, m.index) : t;
+  }
+
   function autoGate(cands, queryStem) {
     if (!cands || !cands.length) return { pass: false, reason: 'no-candidate' };
     var t = cands[0], r = cands[1];
@@ -1146,7 +1155,7 @@
     if (t.length < 8) { status('文字太短，至少贴半句题干（8 个字符以上）。'); return 0; }
     var recalled = matchQuestion(t, '', 8);
     if (!recalled.length) { status('题库里没找到像这道题的，换个说法或只贴题干里的关键词。'); finderRender([], t); return 0; }
-    var qn = numbers(norm(t)), c0 = numbers(norm(recalled[0].stem || ''));
+    var qn = numbers(norm(stripChoices(t))), c0 = numbers(norm(recalled[0].stem || ''));
     var agree = numScore(qn, c0);
     var numOk = qn.length >= 2 ? agree >= 0.85 : (qn.length === 1 ? agree >= 0.6 : true);
     var tg = autoGate(recalled, t);
@@ -1379,7 +1388,7 @@
             status('正在比对 ' + bankCands.length + ' 道候选题…');
             // 第二步：双模型判别式投票（不一致/低置信 → 跳过）
             return discriminate(discriminateMessages(p.dataUrl, bankCands), bankCands, state.model).then(function (verdict) {
-              var chosen = null, qNums = numbers(norm(stemTxt));
+              var chosen = null, qNums = numbers(norm(stripChoices(stemTxt)));
               if (verdict && verdict.idx >= 1 && verdict.idx <= bankCands.length) {
                 var cand = bankCands[verdict.idx - 1];
                 // 第三步：独立数字指纹校验——OCR 题干的数字必须和候选题干数字吻合。
