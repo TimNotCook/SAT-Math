@@ -399,3 +399,11 @@ test('同账号两台设备都动过：先按 ts 合并再推，不许本机整�
   assert.match(SRC, /if \(cloudChangedToo\)[\s\S]{0,300}?if \(!applyArchive\(bothMerged\)\)/,
     '合并结果应用失败时没有退出，可能把半份状态推上云');
 });
+
+test('登出前先与云端合并再推送，不拿旧本机冲掉另一台设备的进度', () => {
+  const SRC = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
+  assert.match(SRC, /async function doSignOut\(\)[\s\S]{0,900}?mergeLocalWithCloud\(outCloud\)/,
+    'doSignOut 仍然直接 silentPush 本机，可能整份覆盖云端');
+  assert.match(SRC, /outMerged[\s\S]{0,2000}?saveBase\(snapshot\(\), prof\.owner\)/,
+    '登出合流后没有固定游客增量基线，游客记录仍可能被并错账号');
+});

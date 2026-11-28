@@ -1009,6 +1009,18 @@
   async function doSignOut() {
     setBusy(true);
     var cleared = true;
+    /* 登出前先跟云端对一次账：本机可能停在旧状态，直接 silentPush 整份本机
+       会把另一台设备刚做的题冲掉。先按 ts 合并，再推合并结果。 */
+    try {
+      var outArchive = await auth().getArchive();
+      var outCloud = outArchive && outArchive.payload ? canon(outArchive.payload) : null;
+      if (outCloud && Object.keys(outCloud).length) {
+        var outMerged = mergeLocalWithCloud(outCloud);
+        if (hashOf(outMerged) !== localHash() && !applyArchive(outMerged)) {
+          console.warn('登出前合并云端档案失败，保留本机进度');
+        }
+      }
+    } catch (e) { /* 离线/读不到云端：保持本机，下面照常尝试推送 */ }
     try { await silentPush(); } catch (e) { /* 离线时下次登录会补 */ }
     /* 登出的这一刻，本机内容都算"已归属当前账号"（没推上去的会留在它自己的
        草稿里）。这里固定一次基线：之后游客再做的才叫无主增量，登录别的账号
