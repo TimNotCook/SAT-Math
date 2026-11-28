@@ -1,0 +1,106 @@
+diff --git a/docs/runtime-audit.md b/docs/runtime-audit.md
+index 1625710..5024c34 100644
+--- a/docs/runtime-audit.md
++++ b/docs/runtime-audit.md
+@@ -1149,3 +1149,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
+ ## 第 191 条：退出登录后，上一个人的邮箱和“重置面板已开过”留给下一个人（2026-11-28）
+ 
+ `pwdEmail` / `otpEmail` 在退出时没清，登录页的 `seed` 会把上一个人的邮箱预填出来；共享设备上等于把账号标识留给下一个人。`recoveryOpened` 和 `sessionStorage.tdsat_recovery_opened` 也没清，下一个人从重置链接回来时会被误判成“这个标签页已经自动开过面板”，停在首页找不到设密码的入口。现在退出时把两个邮箱、`recoveryOpened` 和会话标记一起清掉。验证：`login-errors` 锁住四处清理；全量 787/0。
++
++## 第 192 条：邮件链接回跳时 token 可能留在地址栏（2026-11-28）
++
++邮件链接和重置链接把 `access_token` / `refresh_token` 放在 `location.hash` 回跳。代码用 `history.replaceState` 清地址，但失败时只有一句“老浏览器兜底”注释，实际什么都没做；隐私模式或受限 WebView 抛 `SecurityError` 时，token 会留在地址栏、浏览器历史和用户能复制的地方。现在清地址走 `scrubHash()`：先 `replaceState`，不行就把 `location.hash` 置空，再不行才 `location.replace(clean)` 重载；成功回跳和失效链接回跳都走同一条路。验证：`otp-login` 模拟 `replaceState` 抛错，断言 hash 被清空；全量 789/0。
+diff --git a/supa-cloud.js b/supa-cloud.js
+index 1138e95..7a41bdb 100644
+--- a/supa-cloud.js
++++ b/supa-cloud.js
+@@ -168,6 +168,15 @@
+     if (m.indexOf('access_denied') >= 0 || m.indexOf('cancel') >= 0) return '登录链接已被取消，请重新发送登录邮件。';
+     return '登录链接没有完成，请重新发送登录邮件。';
+   }
++  /* 回跳地址栏里带着 access/refresh token，必须立刻擦掉。replaceState 在
++     部分老浏览器/隐私模式会抛 SecurityError；只剩一句“兜底”注释时 token
++     会留在地址栏和浏览器历史里。逐级退到改 hash、再退到 replace 重载。 */
++  function scrubHash() {
++    var clean = location.pathname + location.search;
++    try { history.replaceState(null, '', clean); return; } catch (e) { /* 试下一级 */ }
++    try { location.hash = ''; return; } catch (e) { /* 试下一级 */ }
++    try { if (location.replace) location.replace(clean); } catch (e) { /* 已尽力 */ }
++  }
+   function takeAuthNotice() {
+     try {
+       var n = sessionStorage.getItem(AUTH_NOTICE_KEY);
+@@ -186,7 +195,7 @@
+       if (bp) {
+         var raw = bp.get('error_description') || bp.get('error') || '';
+         try { sessionStorage.setItem(AUTH_NOTICE_KEY, authNoticeText(raw)); } catch (e) { /* 存储不可写就算了 */ }
+-        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* 老浏览器兜底 */ }
++        scrubHash();
+       }
+       return false;
+     }
+@@ -211,7 +220,7 @@
+       expiresAt: expiresAt,
+       user: {}
+     });
+-    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* 老浏览器兜底 */ }
++    scrubHash();
+     return true;
+   }
+   function toUser(u) {
+diff --git a/test/otp-login.test.js b/test/otp-login.test.js
+index 568b937..200b5e0 100644
+--- a/test/otp-login.test.js
++++ b/test/otp-login.test.js
+@@ -151,9 +151,11 @@ describe('报错映射', () => {
+ });
+ 
+ describe('magic link 回调：hash 会话接住', () => {
+-  function loadHashModule(hash, fetchStub) {
++  function loadHashModule(hash, fetchStub, opts) {
++    opts = opts || {};
+     const store = {};
+     const cleared = [];
++    const loc = opts.location || { hash, pathname: '/SAT-Math/drill.html', search: '' };
+     const sandbox = {
+       console, JSON, Math, String, Number, Array, Object, Date, isFinite,
+       setTimeout, clearTimeout,
+@@ -165,8 +167,8 @@
+         setItem: (k, v) => { store[k] = String(v); },
+         removeItem: k => { delete store[k]; }
+       },
+-      location: { hash, pathname: '/SAT-Math/drill.html', search: '' },
+-      history: { replaceState: (_, __, url) => cleared.push(url) },
++      location: loc,
++      history: opts.history || { replaceState: (_, __, url) => cleared.push(url) },
+       fetch: fetchStub
+     };
+     sandbox.window = sandbox;
+@@ -175,7 +177,7 @@
+     };
+     vm.createContext(sandbox);
+     vm.runInContext(SRC, sandbox, { filename: 'supa-cloud.js' });
+-    return { SB: sandbox.TDSUPA, store, cleared };
++    return { SB: sandbox.TDSUPA, store, cleared, location: loc };
+   }
+ 
+   test('hash 带 access_token/refresh_token/expires_at → 落 localStorage，清掉 hash，/user 补全档案', async () => {
+@@ -199,6 +201,18 @@
+     assert.equal(got.email, 'hash@example.com');
+   });
+ 
++  test('replaceState 被浏览器拒绝时，仍要把 token 从地址栏的 hash 里擦掉', async () => {
++    const hash = '#access_token=tk-secret&refresh_token=rt-secret&expires_in=3600&type=magiclink';
++    const loc = { hash, pathname: '/SAT-Math/drill.html', search: '' };
++    const { SB } = loadHashModule(hash, async (url) => {
++      if (url.endsWith('/auth/v1/user')) return makeRes(200, { id: 'uid-hash', email: 'hash@example.com' });
++      return makeRes(404, {});
++    }, { location: loc, history: { replaceState() { throw new Error('SecurityError'); } } });
++    SB.onState(() => {});
++    await new Promise(r => setTimeout(r, 30));
++    assert.equal(loc.hash, '', 'replaceState 失败后 token 还留在地址栏');
++  });
++
+   test('hash 里没有 access_token → 不写会话，也不清 hash', async () => {
+     const { SB, store, cleared } = loadHashModule('#foo=bar', async () => makeRes(404, {}));
+     await new Promise(r => setTimeout(r, 30));
