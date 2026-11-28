@@ -5,33 +5,42 @@ on:
     paths: [ 'patches/apply.patch' ]
 permissions:
   contents: write
+  actions: write
 jobs:
   apply:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: git apply --index patches/apply.patch
-      - run: python3 bump_assets.py
-      - id: test
+      - name: 应用补丁
+        run: git apply --index patches/apply.patch
+      - name: 重刷资源版本
+        run: python3 bump_assets.py
+      - name: 全量测试
+        id: test
         continue-on-error: true
         run: |
           node --test test/*.test.js > /tmp/t.log 2>&1
           echo $? > /tmp/rc
-      - run: |
-          if [ "$(cat /tmp/rc)" != "0" ]; then
-            git config user.name "satmath-bot"
-            git config user.email "bot@satmath.local"
-            git checkout -b ci-log
-            { echo "rc=$(cat /tmp/rc)"; sed -n '1,80p' /tmp/t.log; } > ci-log.txt
-            git add ci-log.txt
-            git commit -m "ci-log: apply-patch 测试未通过"
-            git push -f origin ci-log
-            exit 1
-          fi
-      - run: |
+      - name: 测试失败留日志
+        if: steps.test.outcome == 'failure'
+        run: |
+          git config user.name "satmath-bot"
+          git config user.email "bot@satmath.local"
+          git checkout -b ci-log
+          { echo "rc=$(cat /tmp/rc 2>/dev/null)"; sed -n '1,120p' /tmp/t.log; } > ci-log.txt
+          git add ci-log.txt
+          git commit -m "ci-log: apply-patch 测试未通过"
+          git push -f origin ci-log
+          exit 1
+      - name: 提交并触发 Pages 发布
+        run: |
           git rm -q patches/apply.patch
           git config user.name "satmath-bot"
           git config user.email "bot@satmath.local"
           git add -A
           git commit -m "chore(apply-patch): 应用补丁并重刷资源版本"
           git push origin HEAD:main
+          # GITHUB_TOKEN 的 push 不会自动触发下游工作流，显式派发。
+          gh workflow run pages-deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}
