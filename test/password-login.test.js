@@ -190,3 +190,13 @@ describe('手机号当账号：同一个号码必须折成同一个登录标识'
     assert.equal(calls.length, 0);
   });
 });
+
+describe('邮件链接不能发到手机号', () => {
+  test('手机号走 sendOtp → 400，一个请求都不发', async () => {
+    const calls = [];
+    const { SB } = loadModule(async (url) => { calls.push(url); return makeRes(200, {}); });
+    await assert.rejects(() => (SB.sendMagicLink || SB.sendOtp)('13800138000'),
+      e => e.status === 400 && /手机号/.test(e.message || ''));
+    assert.equal(calls.length, 0, '不能对着收不到信的假域名发信');
+  });
+});

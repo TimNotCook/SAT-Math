@@ -585,6 +585,13 @@
       'color:var(--navy,#12233f)!important;background:var(--wash,#eef4fd)!important}',
       '.td-acct-icon-btn[data-on="1"],.appbar-inner .td-acct-icon-btn[data-on="1"]{',
       'color:#51648a!important;background:transparent!important}',
+      /* 已登录时别把侧栏「设置」整块刷成实心蓝：glass/bluebook 对 [data-on="1"] 写了蓝底，
+         特异性比这里高，必须用四段选择器压回去，保持和未登录时一样的安静样式。 */
+      'html:not([data-theme="dark"]) .site-rail .td-acct-btn.rail-settings[data-on="1"]{',
+      'background:rgba(255,255,255,.5)!important;color:var(--navy,#0f2744)!important}',
+      'html:not([data-theme="dark"]) .site-rail .td-acct-btn.rail-settings[data-on="1"]:hover{',
+      'background:#f3f7fc!important;color:#1d4ed8!important}',
+      '.drill-context-right .td-acct-btn.ctx-settings[data-on="1"]{background:transparent!important;color:#51648a!important}',
       '.td-acct-layer{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;',
       'background:var(--veil,rgba(18,35,63,.45));padding:20px}',
       '.td-acct-layer[data-open="1"]{display:flex}',

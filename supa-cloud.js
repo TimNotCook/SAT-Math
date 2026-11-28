@@ -282,7 +282,7 @@
       if (d.length === 11 && d.charAt(0) === '1') d = '86' + d;
       return { email: 'p' + d + '@p.satmath.app', phone: true };
     }
-    return { email: s.toLowerCase(), phone: false };
+    return { email: s, phone: false };
   }
 
   async function signUpPassword(email, password, name) {
@@ -331,7 +331,11 @@
   // 发送登录邮件：create_user=true，首次输入邮箱即自动建档（后端 disable_signup:false）。
   // 当前后端默认邮件模板回的是 magic link（点链接回站带 hash 会话），不是数字码。
   async function sendOtp(email) {
-    var mail = String(email || '').trim();
+    var id = idToEmail(email);
+    var mail = id.email;
+    /* 手机号折出来的 p86…@p.satmath.app 只是账号标识，那个域名收不到信；
+       在这里挡住，否则会假装发出、用户永远等不到邮件。 */
+    if (id.phone) throw errOf(400, { msg: '手机号请用密码登录，登录邮件只发到邮箱。' });
     if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送登录邮件。' });
     var body = { email: mail, create_user: true };
     /* 显式带 redirect_to：否则后端按后台 Site URL 回跳，可能落到站点根、丢掉
