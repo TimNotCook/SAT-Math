@@ -51,6 +51,9 @@
   var JY_ARROW = '<svg class="entry-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
   /* 界面当前语言：英文模式下卡片别拼出「0/6 节」这种中英混排。 */
   function isEn() { var i = window.TDI18n; return !!(i && i.get && i.get() === 'en'); }
+  /* 讲义结果页一直是中文硬编码：英文界面答完一节，结果页会突然整页中文
+     （结果/题答对/错题/你的答案）。这里统一按界面语言出。 */
+  function TT(zh, en) { return isEn() ? en : zh; }
   function renderBoards() {
     var list = J.allStats();
     els.jyBoardCards.innerHTML = list.map(function (st) {
@@ -249,7 +252,7 @@
        以前会把整板块 49 题当成“本节”交掉，写一条 0/49 的垃圾记录，
        错题页立刻多出几十条「未答」错题。先退回板块页，别写。 */
     if (!boardId || !section) {
-      jyToast('先选一个小节再交'); if (boardId) openBoard(boardId); return;
+      jyToast(TT('先选一个小节再交', 'Pick a section before submitting')); if (boardId) openBoard(boardId); return;
     }
     var qs = J.questionsOf(boardId, section);
     var total = qs.length, unanswered = 0;
@@ -258,10 +261,11 @@
       var v = a && (typeof a.v === 'string' || typeof a.v === 'number') ? String(a.v).trim() : '';
       if (!v) unanswered++;
     });
-    if (unanswered && !window.confirm('还有 ' + unanswered + ' 题没答（共 ' + total + ' 题），交了按错算，本节答案也会锁定。确定交？')) return;
+    if (unanswered && !window.confirm(TT('还有 ' + unanswered + ' 题没答（共 ' + total + ' 题），交了按错算，本节答案也会锁定。确定交？',
+      unanswered + ' of ' + total + ' questions are blank; they count as wrong and this section will be locked. Submit anyway?'))) return;
     var rec = J.submitSection(boardId, section);
     if (rec) renderResult(rec);
-    else jyToast('成绩保存失败：本地存储不可写，请清理空间后重试');
+    else jyToast(TT('成绩保存失败：本地存储不可写，请清理空间后重试', 'Could not save: local storage is full or blocked. Clear some space and try again.'));
   });
 
   /* ---------- 结果 ---------- */
@@ -269,20 +273,20 @@
     var b = J.board(rec.board);
     els.jyResultTitle.textContent = (section === J.TB_GROUP.key
       ? J.TB_GROUP.label
-      : section + ' ' + ((J.declared(b.unit, section) || {}).cn || '')) + ' · 结果';
+      : section + ' ' + ((J.declared(b.unit, section) || {}).cn || '')) + TT(' · 结果', ' · Results');
     els.jyResultAccuracy.textContent = (rec.total ? Math.round(rec.correct / rec.total * 100) : 0) + '%';
-    els.jyResultFraction.textContent = rec.correct + ' / ' + rec.total + ' 题答对';
+    els.jyResultFraction.textContent = rec.correct + ' / ' + rec.total + TT(' 题答对', ' correct');
     var wrong = rec.detail.filter(function (d) { return !d.correct; });
     els.jyResultWrong.innerHTML = wrong.length
-      ? '<h2 class="drill-group-h">错题（' + wrong.length + '）</h2>' + wrong.map(function (d) {
+      ? '<h2 class="drill-group-h">' + TT('错题（' + wrong.length + '）', 'Missed (' + wrong.length + ')') + '</h2>' + wrong.map(function (d) {
           var q = J.BY_ID[d.id];
           return '<div class="jy-result-row"><span class="s">' + esc(J.sourceLabel(q)) + '</span>' +
-            '<span>你的答案 <b>' + esc(d.given || '未答') + '</b> · 正确答案 <b>' + esc(q.answer) + '</b></span></div>';
+            '<span>' + TT('你的答案 ', 'Your answer ') + '<b>' + esc(d.given || TT('未答', 'blank')) + '</b>' + TT(' · 正确答案 ', ' · Correct answer ') + '<b>' + esc(q.answer) + '</b></span></div>';
         }).join('')
-      : '<p class="jy-empty">本节全对。</p>';
+      : '<p class="jy-empty">' + TT('本节全对。', 'All correct in this section.') + '</p>';
     els.jyResultBack.href = '#';
     els.jyResultBack.onclick = function (e) { e.preventDefault(); openBoard(boardId); };
-    title('讲义复习 · ' + section + ' 结果');
+    title(TT('讲义复习 · ' + section + ' 结果', 'Practice · Section ' + section + ' results'));
     show('jyResult');
   }
 
