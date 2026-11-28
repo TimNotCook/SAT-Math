@@ -64,3 +64,13 @@ test('验证码输入框是 6 位、数字键盘、一次性验证码语义', ()
   assert.match(ACCOUNT, /maxLength\s*=\s*6/, '最多 6 位');
   assert.match(ACCOUNT, /one-time-code/, '自动填充语义');
 });
+
+test('验证码只认发送时的邮箱，改了邮箱明确提示重发', () => {
+  const send = ACCOUNT.slice(ACCOUNT.indexOf('async function doSendCode'), ACCOUNT.indexOf('async function doVerifyCode'));
+  assert.match(send, /await SB\.sendEmailCode\(email\);[\s\S]*?otpEmail = email;/,
+    'otpEmail 必须在发送成功后记录，失败不能覆盖上一个有效地址');
+  const verify = ACCOUNT.slice(ACCOUNT.indexOf('async function doVerifyCode'), ACCOUNT.indexOf('async function saveNickname'));
+  assert.match(verify, /email !== otpEmail/, '改了邮箱没有拦住');
+  assert.match(verify, /重新获取/, '改了邮箱要提示重新获取');
+  assert.match(verify, /verifyOtp\(otpEmail \|\| email/, '校验必须用发码时的邮箱');
+});

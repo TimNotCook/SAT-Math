@@ -694,8 +694,10 @@
     if (!SB || !SB.codeReady || !SB.codeReady()) { setError('验证码通道尚未启用，请用密码或邮件链接登录。'); return; }
     try {
       setBusy(true); setError('');
-      otpEmail = email;
       await SB.sendEmailCode(email);
+      /* 发送成功后才记“码发给谁”；失败时保留上一个有效地址，避免把
+         一次限流失败误当成已发到新邮箱。 */
+      otpEmail = email;
       codeSent = true;
       startOtpCooldown();
       renderBody(); // 重绘会把状态栏重置成「未登录」，所以提示必须写在它之后
@@ -707,11 +709,17 @@
   async function doVerifyCode() {
     var email = readEmail(), code = readCode();
     if (!email) { setError('请先填写邮箱。'); return; }
+    /* 验证码只对发送时那个邮箱有效。邮箱框是可编辑的，只改邮箱不重发码
+       会让 verifyOtp 去校验一个从没收到码的地址，用户只看到“验证码错误”。 */
+    if (otpEmail && email !== otpEmail) {
+      setError('验证码已发到 ' + otpEmail + '；要换邮箱请重新获取。');
+      return;
+    }
     if (code.length !== 6) { setError('请输入邮件里的 6 位数字验证码。'); return; }
     if (!SB || !SB.verifyOtp) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
       setBusy(true); setError('');
-      await SB.verifyOtp(email, code);
+      await SB.verifyOtp(otpEmail || email, code);
       setStatus('登录成功，正在读取你的学习档案…', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); renderBody(); }
