@@ -1131,7 +1131,7 @@
     for (let i = lo; i <= hi; i++) {
       const inst = S.paper[i], q = byId(inst.id), a = S.answers[inst.uid], locked = isLocked(inst.uid);
       const crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(q.id) : [];
-      const ctl = locked ? `<b>${esc(a.v || '—')}</b> <span class="tiny muted">${OFFICIAL ? 'Locked' : '已锁定'}</span>`
+      const ctl = locked ? `<b>${esc(safeText(a.v) || '—')}</b> <span class="tiny muted">${OFFICIAL ? 'Locked' : '已锁定'}</span>`
         : q.type === 'mcq'
           ? `<div class="miniopts">${optLetters(q.id).map(L => `<button class="${a.v === L ? 'on' : ''}" data-uid="${esc(inst.uid)}" data-l="${L}">${L}</button>`).join('')}</div>`
           : `<input class="gridmini editable" data-uid="${esc(inst.uid)}" value="${esc(safeText(a.v))}" placeholder="${OFFICIAL ? 'Enter answer' : '输入答案'}">`;

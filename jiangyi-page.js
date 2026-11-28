@@ -160,7 +160,7 @@
       els.jyFigure.innerHTML = '<img src="' + esc(fk) + '" alt="题目配图（矢量重画）" loading="lazy" ' +
         'onerror="this.outerHTML=\'<span class=&quot;drill-choice-placeholder&quot;>图形暂缺</span>\'">';
     } else { els.jyFigure.hidden = true; els.jyFigure.innerHTML = ''; }
-    var saved = J.answerOf(q.id), val = saved ? String(saved.v || '') : '';
+    var saved = J.answerOf(q.id), val = saved && (typeof saved.v === 'string' || typeof saved.v === 'number') ? String(saved.v) : '';
     if (q.type === 'mcq') {
       var cts = choiceTablesOf(q);
       els.jyAnswerArea.innerHTML = '<div class="drill-choices" role="group" aria-label="答案选项">' +
@@ -255,7 +255,7 @@
     var total = qs.length, unanswered = 0;
     qs.forEach(function (q) {
       var a = J.answerOf(q.id);
-      var v = a && a.v != null ? String(a.v).trim() : '';
+      var v = a && (typeof a.v === 'string' || typeof a.v === 'number') ? String(a.v).trim() : '';
       if (!v) unanswered++;
     });
     if (unanswered && !window.confirm('还有 ' + unanswered + ' 题没答（共 ' + total + ' 题），交了按错算，本节答案也会锁定。确定交？')) return;

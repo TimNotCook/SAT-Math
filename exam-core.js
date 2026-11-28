@@ -788,7 +788,9 @@
   function scoreSession(questions, answers) {
     return questions.map((q, i) => {
       const a = answers[q.id] || {};
-      const given = a.v == null ? '' : String(a.v);
+      /* 作答值是对象/数组/布尔时按空答处理：旧实现 String() 一下就把
+         "[object Object]" 写进成绩单和错题本。 */
+      const given = (typeof a.v === 'string' || (typeof a.v === 'number' && Number.isFinite(a.v))) ? String(a.v) : '';
       const ok = grade(q, given);
       return {
         pos: i + 1, id: q.id, unit: q.unit, section: q.section, topic: q.topic,
