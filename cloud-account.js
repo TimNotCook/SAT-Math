@@ -971,6 +971,10 @@
     setBusy(true);
     var cleared = true;
     try { await silentPush(); } catch (e) { /* 离线时下次登录会补 */ }
+    /* 登出的这一刻，本机内容都算"已归属当前账号"（没推上去的会留在它自己的
+       草稿里）。这里固定一次基线：之后游客再做的才叫无主增量，登录别的账号
+       时只把这部分带过去，不会把 A 没同步完的答案串给 B。 */
+    saveBase(snapshot(), prof.owner);
     try { cleared = await auth().signOut(); } catch (e) { cleared = false; }
     user = null; nickname = '';
     // owner 保持原 uid：本机副本仍属于该账号，登录别的账号时才会切档。
