@@ -1,0 +1,33 @@
+name: one-shot-fix-conflict
+on:
+  push:
+    branches: [ main ]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: contains(github.event.head_commit.message, 'one-shot-fix-conflict')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: 去掉 exam.js 里误提交的冲突标记
+        run: |
+          python3 - <<'PY'
+import io,re
+p='exam.js'
+s=io.open(p,encoding='utf-8').read()
+s=re.sub(r'<<<<<<< HEAD\n(.*?)=======\n.*?>>>>>>> [^\n]*\n', r'\1', s, count=1, flags=re.S)
+io.open(p,'w',encoding='utf-8').write(s)
+PY
+          node --check exam.js
+      - name: 重刷资源版本并删掉本工作流
+        run: |
+          python3 bump_assets.py
+          rm -f .github/workflows/one-shot-fix-conflict.yml
+          git config user.name "satmath-bot"
+          git config user.email "bot@satmath.local"
+          git add -A
+          git commit -m "fix(exam): 清掉误提交的 git 冲突标记，恢复 exam 页脚本；资源版本重刷"
+          git push origin HEAD:main

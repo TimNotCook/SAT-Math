@@ -11,7 +11,20 @@ concurrency:
   group: pages
   cancel-in-progress: false
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 语法与关键守卫
+        run: |
+          node --check exam.js
+          node --check drill.js
+          node --test test/conflict-markers.test.js test/version-sync.test.js test/assets.test.js
   build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
