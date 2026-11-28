@@ -1827,3 +1827,10 @@ body.shell-wrong .wrong-toolbar.is-quiet{
 @media(max-width:640px){
   html body.shell-wrong .site-rail .rail-back{display:none!important}
 }
+
+/* 窄屏顶栏是横向 wrap，.rail-tail:has(.rail-back){margin-left:auto} 会把「设置」
+   单独顶到行末，和第二行的「模考 / 模考记录」之间裂出一大块空白（错题页已把
+   rail-back 收掉，:has 仍然命中）。窄屏一律取消自动左边距，让它接在导航后面。 */
+@media(max-width:640px){
+  html body .rail-tail{margin-left:0!important}
+}
