@@ -109,6 +109,17 @@
     var d = new Date(t);
     return isNaN(d.getTime()) ? '—' : d.toLocaleString(loc, opts);
   }
+
+  /* 卡片标题旁的日期：只到分钟、不带年份和秒。
+     「11/28/2026, 7:16:19 PM」在 320 宽会把 PM 挤到第二行，而年份在记录页几乎没人看。 */
+  function fmtStamp(t) {
+    if (t == null || t === '' || typeof t === 'object') return '—';
+    var loc = isEn() ? 'en-US' : 'zh-CN';
+    var n = num(t);
+    var d = n != null ? new Date(n) : new Date(t);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleString(loc, { month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: !isEn() ? false : true });
+  }
   function fmtDur(sec) {
     var n = num(sec);
     if (n == null || n < 0) return '—';
@@ -193,7 +204,7 @@
      再拼一遍模式名就成了「单元抽查 · 单元抽查」「官方模考 · 模考」。
      日期始终保留；模式名只在标题没提到时才追加。 */
   function subtitleOf(rec) {
-    var date = fmtDate(rec.date);
+    var date = fmtStamp(rec.date);
     var modeTxt = MODE_NAME[modeOf(rec)] || txt(rec.mode) || '记录';
     return titleOf(rec).indexOf(modeTxt) >= 0 ? date : date + ' · ' + modeTxt;
   }
@@ -204,7 +215,10 @@
        只判 `d && !isRight` 会把它渲染成一条 id/答案全是「—」的幽灵错题行。 */
     var wrong = asArr(detail).filter(function (d) { return isDetail(d) && !isRight(d.correct); });
     if (!wrong.length) return '<div class="hist-empty">本次全部答对。</div>';
-    return '<div class="hist-wrong">' + wrong.map(function (d) {
+    /* 320 宽下 19 条错题能铺满两屏多，还把内部题号（TD-13-05）摆在每行最前面。
+       只列前 4 条，其余给一条「去错题回顾」的出口；题号一律不露，题干本身就是身份。 */
+    var shown = wrong.slice(0, 4), more = wrong.length - shown.length;
+    return '<div class="hist-wrong">' + shown.map(function (d) {
       var did = txt(d.id) || '—', q = byId(did) || {};
       var stemRaw = (txt(q.stem) || txt(d.topic) || did).replace(/\s+/g, ' ').trim();
       var stem = (isEn() ? enSource(stemRaw) : stemRaw).slice(0, 90);
@@ -217,19 +231,35 @@
       if (!corr && q) corr = txt(q.answer) ||
         (q.type === 'grid' ? (txt(q.value) || (Array.isArray(q.values) ? q.values.join(', ') : '')) : '');
       var ans = '你的答案 <b>' + esc(txt(d.given) || '—') + '</b> · 正确 <i>' + esc(corr || '—') + '</i>';
-      return '<div class="hist-wrong-row"><span class="hist-wrong-id">' + esc(did) + '</span>' +
+      return '<div class="hist-wrong-row">' +
         '<span class="hist-wrong-stem" title="' + esc(stem) + '">' + esc(stem) + '</span>' +
         '<span class="hist-wrong-ans">' + ans + '</span></div>';
-    }).join('') + '</div>';
+    }).join('') + (more > 0
+      ? '<a class="hist-more" href="wrong.html">' + (isEn() ? '+ ' + more + ' more in Wrong Answers' : '还有 ' + more + ' 条，去错题回顾看') + '</a>'
+      : '') + '</div>';
+  }
+  /* 「Missed 1 of 1 here, about 1s each.」里的「每题 1 秒」对判断毫无帮助，
+     只占宽度；统一剥掉，中英都处理。 */
+  function trimReason(r) {
+    var raw = String(r || '');
+    var out = raw
+      .replace(/[,，]?\s*about\s+[\d.]+\s*s\s+each\.?/gi, '.')
+      .replace(/[,，、]?\s*平均(每题|每道|用时)\s*[\d.]+\s*秒[。]?/g, '。')
+      .replace(/\.\s*\./g, '.')
+      .trim();
+    /* 整句只有「平均用时 N 秒」时剥完只剩一个句号，那就原样留着 */
+    return out.replace(/^[，。、,.\s]+$/, '') ? out : raw;
   }
   function prioRows(report) {
     var prio = asArr(asObj(report).priority).filter(isDetail);
     if (!prio.length) return '<div class="hist-empty">暂无补强建议。</div>';
     return '<div class="hist-prio">' + prio.slice(0, 5).map(function (p) {
       var ids = asArr(p && p.wrongIds).map(txt).filter(Boolean);
+      /* 这里原来会跟着印「→ Drill this skill; questions to redo: TD-13-05」和
+         「（错题：TD-13-05、TD-12-02…）」——同一串内部题号出现两三遍，句子还长。
+         一块只留「补什么」和「为什么」两句，指向哪里由上面的错题卡负责。 */
       return '<div class="hist-prio-row"><b>' + esc(txt(p.name) || '—') + '</b>' +
-        '<small>' + esc(txt(p.reason)) + (txt(p.action) ? ' → ' + esc(txt(p.action)) : '') +
-        (ids.length ? (isEn() ? ' (missed: ' + esc(ids.join(', ')) + ')' : '（错题：' + esc(ids.join('、')) + '）') : '') + '</small></div>';
+        '<small>' + esc(trimReason(txt(p.reason))) + '</small></div>';
     }).join('') + '</div>';
   }
 
@@ -289,7 +319,6 @@
 
   function resultBody(rec) {
     var html = '<div class="hist-kv">' +
-      '<span>交卷时间 <b>' + fmtDate(rec.date) + '</b></span>' +
       '<span>答对 <b>' + numTxt(scoreParts(rec).correct) + ' / ' + numTxt(scoreParts(rec).total) + '</b></span>' +
       /* 讲义复习没有计时（elapsed 恒为 0），印「用时 0 秒」像没跑起来。 */
       (modeOf(rec) === 'jiangyi' ? '' : '<span>用时 <b>' + fmtDur(rec.elapsed) + '</b></span>') +

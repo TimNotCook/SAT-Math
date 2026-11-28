@@ -592,7 +592,10 @@ body.shell-drill .drill-board-panel{display:block!important}
 .hist-kv b{color:var(--ink)}
 .hist-sec{margin-top:12px;font-size:12.5px;font-weight:800;color:var(--sub);letter-spacing:.04em}
 .hist-wrong{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.hist-wrong-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--wash);font-size:13px}
+.hist-wrong-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--wash);font-size:13px}
+/* 记录卡里「还有 N 条」的出口：一行小字链接，别做成按钮 */
+.hist-more{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--blue-strong);text-decoration:none}
+.hist-more:hover{text-decoration:underline}
 .hist-wrong-id{font-variant-numeric:tabular-nums;font-weight:700;color:var(--blue-strong);white-space:nowrap}
 .hist-wrong-stem{min-width:0;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hist-wrong-ans{color:var(--sub);white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -697,7 +700,7 @@ body.shell-drill .hero-tiles h1{font-size:32px!important;font-weight:800!importa
 /* 记录页错题行：桌面上题干单行省略 + title 悬浮提示；手机上既没 hover 又只有 120px 宽，
    题干会被截成「ax + by = b In the equation ab」这种半句。窄屏改成两行截断、答案另起一行。 */
 @media(max-width:640px){
-  .hist-wrong-row{grid-template-columns:auto minmax(0,1fr)}
+  .hist-wrong-row{grid-template-columns:minmax(0,1fr)}
   .hist-wrong-stem{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .hist-wrong-ans{grid-column:1 / -1}
 }

@@ -92,3 +92,14 @@ test('导入面板不再摆系统说明书与内核诊断行', () => {
   assert.ok(!html.includes('首次要下载约 7MB'), '7MB 下载说明又写回来了');
   assert.ok(!/错题记录只增不改/.test(html), '工具条上的「只增不改」说明又回来了');
 });
+
+test('记录页：错题不印内部题号、只列前 4 条、建议不带长串 id 与「每题 N 秒」', () => {
+  const js = read('history-page.js');
+  assert.ok(!js.includes('class="hist-wrong-id"'), '记录页又把内部题号（TD-xx）印出来了');
+  assert.ok(js.includes('wrong.slice(0, 4)'), '错题列表又全量铺开');
+  assert.ok(js.includes('hist-more'), '缺「还有 N 条」的出口');
+  assert.ok(!js.includes('txt(p.action)'), '补强建议又拼回 Drill this skill 长句');
+  assert.ok(!js.includes("ids.join(', ')"), '又拼回「(missed: TD-…）」题号串');
+  assert.ok(js.includes('function trimReason'), '缺时间噪音剥离');
+  assert.ok(js.includes('function fmtStamp'), '卡头日期没走短格式');
+});
