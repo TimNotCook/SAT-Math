@@ -1717,3 +1717,8 @@ html body.exam-page .quiz-tab .qt-name{white-space:normal!important;line-height:
 @media (hover:none),(pointer:coarse){
   html body.exam-page #backPractice{min-height:44px!important;display:inline-flex!important;align-items:center!important}
 }
+
+/* 轻提示固定定位只写了 left:50%，没有右侧约束，浏览器把可用宽度算成半个视口：
+   320 下气泡只有 160px，长句（"Copying or pasting test content is not allowed…"）
+   被挤成一坨窄条、看着像被右侧切掉。显式给 max-content + 视口上限。 */
+html body #toast#toast{width:max-content;max-width:min(560px,calc(100vw - 32px))}
