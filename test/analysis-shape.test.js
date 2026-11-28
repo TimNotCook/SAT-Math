@@ -21,3 +21,11 @@ test('aggregate 不把 correct:"false" 的题目当成已答对而跳过', () =>
   const groups = AN.aggregate([{ id: 'q-a', correct: 'false', given: 'B' }], [{ id: 'q-a', type: 'mcq', answer: 'A' }], {});
   assert.ok(groups.length >= 1, '字符串 false 的错题被漏掉');
 });
+
+test('aggregate 把 correct:"True" 当已答对跳过，不误算成错题', () => {
+  const groups = AN.aggregate(
+    [{ id: 'q-b', correct: 'True', given: 'A' }],
+    [{ id: 'q-b', type: 'mcq', answer: 'A' }], {}
+  );
+  assert.equal(groups.length, 0, '大写 True 的答对题被算成错题');
+});

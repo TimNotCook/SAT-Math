@@ -267,7 +267,8 @@
     precision: '计算精度 / 算术失误', eqStruct: '方程形式判断', concept: '知识点概念未掌握',
     graph: '图像对应关系', blank: '未作答 / 时间分配', format: '作答格式', generic: '条件转化失误'
   };
-  function isRightFlag(v){ return v === true || v === 1 || v === 'true' || v === '1'; }
+  function flagKey(v){ return typeof v === 'string' ? v.trim().toLowerCase() : v; }
+  function isRightFlag(v){ v = flagKey(v); return v === true || v === 1 || v === 'true' || v === '1'; }
   function aggregate(detail, bank, text) {
     bank = bank || (window.TD_BANK && window.TD_BANK.questions) || [];
     text = text || window.TD_TEXT || {};

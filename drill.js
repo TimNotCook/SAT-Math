@@ -5,7 +5,8 @@
   'use strict';
   var A = window.TD_APP, U = window.TD_UI;
   /* 云端/旧版可能把 submitted 写成字符串 'false'：truthy 会让练习页直接跳成绩页。 */
-  function isTrueFlag(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
+  function flagKey(v) { return typeof v === 'string' ? v.trim().toLowerCase() : v; }
+  function isTrueFlag(v) { v = flagKey(v); return v === true || v === 1 || v === 'true' || v === '1'; }
   /* 加载失败兜底：题库或核心脚本缺失时给出明确的"刷新重试"横幅，
      绝不让页面停留在静默空白（所有视图保持 hidden）。 */
   function fatalLoadError() {

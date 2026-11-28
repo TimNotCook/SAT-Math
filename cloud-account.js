@@ -55,7 +55,8 @@
   var PREFS_KEY = 'tdsat_prefs_v1';
   var prefs = { fontScale: 'normal', compact: false, calcUnit: false };
   /* 偏好也可能是字符串 'false'：!! 会把它当开启，紧凑布局/计算器单位被误开。 */
-  function isTrueFlag(v) { return v === true || v === 1 || v === 'true' || v === '1'; }
+  function flagKey(v) { return typeof v === 'string' ? v.trim().toLowerCase() : v; }
+  function isTrueFlag(v) { v = flagKey(v); return v === true || v === 1 || v === 'true' || v === '1'; }
   function loadPrefs() {
     try {
       var raw = localStorage.getItem(PREFS_KEY);

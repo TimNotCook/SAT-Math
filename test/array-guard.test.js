@@ -595,3 +595,17 @@ test('常规错题记录 correct 是 Python 风格 "False" 时仍进错题本', 
   assert.strictEqual(threw, null, '大写 False 打崩错题本：' + (threw && threw.message));
   assert.ok(els && /TD-11-01|1\.1/.test(els.wrongList.innerHTML), 'correct:"False" 的错题没有进错题本');
 });
+
+test('练习统计：correct 是 "True" 时算答对，"False" 时算答错', () => {
+  const store = {
+    tdsat_app_v1: JSON.stringify({ sections: { '1.1': { answers: {
+      'TD-11-01': { v: 'C', correct: 'True', ts: 1 },
+      'TD-11-02': { v: 'A', correct: 'False', ts: 2 },
+    } } }, last: null }),
+  };
+  const box = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js'], store);
+  const stats = box.sandbox.window.TD_APP.stats('1.1');
+  assert.equal(stats.answered, 2, '两道题没有都算已答');
+  assert.equal(stats.correct, 1, '大写 True 没有被算成答对');
+  assert.equal(stats.wrong, 1, '大写 False 没有被算成答错');
+});
