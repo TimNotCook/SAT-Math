@@ -644,6 +644,25 @@
     });
   }
 
+  /* 探测：只取每个镜像 tesseract.min.js 的首字节耗时，按快慢排队。
+     mode:'no-cors' 的 CDN 也能拿到时间戳，拿不到就当最慢。 */
+  function probeOrder() {
+    var t0 = Date.now();
+    var probes = TESS_MIRRORS.map(function (m) {
+      return fetch(m.script, { cache: 'force-cache', mode: 'no-cors' })
+        .then(function () { return Date.now() - t0; })
+        .catch(function () { return 1e9; });
+    });
+    return Promise.race([
+      Promise.all(probes),
+      new Promise(function (res) { setTimeout(function () { res([1e9, 1e9, 1e9]); }, 1200); })
+    ]).then(function (times) {
+      return times.map(function (t, i) { return { i: i, t: t }; })
+        .sort(function (a, b) { return a.t - b.t; })
+        .map(function (x) { return x.i; });
+    });
+  }
+
   function warmOcr(onProgress) {
     if (OCR_W) return Promise.resolve(OCR_W);
     if (OCR_WARM) return OCR_WARM;
@@ -661,28 +680,16 @@
           })
         ]).then(function (w) { clearTimeout(t); return w; }, function (e) { clearTimeout(t); throw e; });
       }
-      /* 三个镜像同时起步抢第一个能用的：中国网络下 GitHub Pages / jsdelivr / unpkg
-         谁快谁慢完全看运气，串行试等于把最坏情况叠成 3 倍等待（36 秒以上）。
-         Promise.all 会等所有镜像都 settle，哪怕第 1 秒已经有一个成功；这里
-         改成首个成功立刻 resolve，后来才成功的 worker 直接 terminate。 */
-      var tries = [0, 1, 2].map(function (mi) { return bounded(mi); });
-      return new Promise(function (resolve, reject) {
-        var left = tries.length, settled = false, errs = [];
-        tries.forEach(function (p, mi) {
-          p.then(function (w) {
-            if (settled) { try { w.terminate(); } catch (e) {} return; }
-            settled = true;
-            TESS_FAST = mi;
-            resolve(w);
-          }, function (e) {
-            errs[mi] = (e && e.message) || String(e);
-            left--;
-            if (!settled && left === 0) {
-              settled = true;
-              reject(new Error(errs.join(' / ')));
-            }
-          });
-        });
+      /* 镜像顺序不能写死：中国网络下 GitHub Pages / jsdelivr / unpkg 谁快谁慢看运气。
+         但也不能同时起三个 Worker —— 实测三个 wasm 内核抢内存/线程会把唯一本该成功的
+         本地内核饿死，冷启动 60 秒还不就绪。所以先花几百毫秒探一下谁响应快，
+         再只建一个 Worker，按探测顺序回落。 */
+      return probeOrder().then(function (order) {
+        function step(k) {
+          if (k >= order.length) throw new Error('三个镜像都没起来');
+          return bounded(order[k]).catch(function (e) { return step(k + 1); });
+        }
+        return step(0);
       });
     }).then(function (w) {
       OCR_W = w; OCR_READY = true;
@@ -702,6 +709,12 @@
       throw e;
     });
     return OCR_WARM;
+  }
+
+  /* 诊断行每 2 秒自己刷新：引擎是在后台异步就绪的，不刷新人就永远看着
+     「未就绪」——这也是之前误判「卡住」的来源。 */
+  if (!window.__imgimpDiagTimer) {
+    window.__imgimpDiagTimer = setInterval(function () { try { diag(); } catch (e) {} }, 2000);
   }
 
   function engineWarmInBackground() {
