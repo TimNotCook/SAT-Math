@@ -180,3 +180,17 @@ test('applyArchive 把 applyPayload 的失败返回给账号分支，不静默�
   assert.strictEqual(M.applyArchive({ tdsat_app_v1: JSON.stringify({ sections: { '1.1': {} } }) }), false);
   assert.strictEqual(store.tdsat_app_v1, local, '失败时动了本机进度');
 });
+
+test('新账号清空本机时 applyArchive({}) 写失败也返回 false，不假装已清档', () => {
+  const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: true, ts: 3 } } } } });
+  const { M, store } = boot({ tdsat_app_v1: local }, { throwWrite: true });
+  assert.strictEqual(M.applyArchive({}), false, '本地存储不可写却报告清档成功');
+  assert.strictEqual(store.tdsat_app_v1, local, '失败时不清档，避免把 A 的进度推给 B');
+});
+
+test('账号分支的推送结果必须被检查，失败不能把指纹记成本地已同步', () => {
+  const SRC = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
+  assert.match(SRC, /var draftPushed = await silentPush\(\);[\s\S]*?if \(!draftPushed\)/, '草稿合并后没有检查推送结果');
+  assert.match(SRC, /var mergedPushed = await silentPush\(\);[\s\S]*?if \(!mergedPushed\)/, '并集回传失败仍会被当已同步');
+  assert.match(SRC, /if \(!applyArchive\(\{\}\)\)/, '新账号清档失败没有退出，存在跨账号推送风险');
+});

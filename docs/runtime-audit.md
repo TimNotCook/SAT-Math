@@ -736,6 +736,10 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 
 第 93 条让 `applyPayload` 在本地存储不可写时返回 `false`，但 `afterSignIn` 的两个账号分支都没看返回值。同一账号分支照样 `prof.lastSynced = localHash()` 并提示「已打开你在其他设备上的进度」——本机实际没变，云端哈希被记成本地已同步，后续不再重试。切换账号分支更严重：失败后仍把 `prof.owner` 改成新账号，并在 `merged` 为真时 `silentPush()`，等于用 A 的本机进度覆盖 B 的云端档案。修成统一走 `applyArchive(payload)` 并检查返回值：同账号失败只警告、不动 `lastSynced`；切号失败则 `signOut()` 退出这次登录、保留本机进度、绝不跨账号推送。验证：新增 `applyArchive` 写失败回归，返回 false 且本机原值保留；全量 589/0。
 
-## 第 95 条：练习进度 cursor 是小数时，打开练习页直接空白（2026-11-28）
+## 第 95 条：练习页四路 cursor 拼接统一取整（防御性加固，2026-11-28）
 
-`drill.js readLocation()` 直接把存档里的 `cursor` 塞进数组下标：云端/旧版写成 `1.5` 时，`questions[1.5]` 是 `undefined`，`currentQuestion()` 返回 null，练习页一打开就是空白。同页的单元卡片、专项“继续上次练习”和“继续上次练习 · 第 N 题”也都直接拼 `cursor + 1`，会生成 `2.5` 的链接和错位题号。修成统一 `cursorIndex(st)`：`Number` 后 `Math.floor`，非有限数按 0，再夹 `0..len-1`；四处入口全部改用该函数。验证：新增游标回归 2 条，旧代码无 `cursorIndex` 且裸拼 `st.cursor + 1` 断言失败；全量 589/0；`verify_flows` 16/16。
+`app-core.secIn()` 已经把 `cursor` 归一到非负整数；但 `drill.js` 仍在自己的单元卡片、专项“继续上次练习”、`继续上次练习 · 第 N 题` 和 `readLocation()` 四处直接拼 `cursor + 1` / 当下标，等于把安全边界交给上游。本次把取整口径收进 `cursorIndex(st)`（`Number` + `Math.floor` + 夹 `0..len-1`），四处入口统一走它，防止未来旁路 `secState` 或换存储层时再次出现 `2.5` 题号/空题。验证：新增静态回归 2 条，锁住 `cursorIndex` 与四处调用；全量 589/0；`verify_flows` 16/16。
+
+## 第 96 条：云端 push 失败仍把 lastSynced 记成本地哈希，下一台设备永远等不到增量（2026-11-28）
+
+`afterSignIn` 有三条分支在 `silentPush()` 失败时仍写指纹：草稿合并分支 `await silentPush(); prof.lastSynced = localHash()`；切号并集分支先 `prof.lastSynced = localHash()` 再 `if (merged) await silentPush()`；新账号清档分支则完全不看 `applyArchive({})` 的返回值。前两条让本机误以为云端已同步，下次登录 `lh === lastSynced` 直接跳过推送，草稿/并集增量只留在这台设备；第三条在本地存储不可写时会把 A 的本机进度推给 B 的空档案。修成草稿/并集分支检查 push 返回值，失败时保留云端旧哈希并提示“联网后自动重试”；新账号清档失败则 `signOut()` 退出本次登录、本机进度不动。验证：新增 `applyArchive({})` 写失败回归与三条静态守卫；全量 593/0；`verify_flows` 16/16。

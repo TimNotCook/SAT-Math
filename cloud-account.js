@@ -440,8 +440,18 @@
         renderBody();
         return;
       }
-      await silentPush();
-      prof.lastSynced = localHash(); saveProf();
+      /* 草稿已经合并到本机，但写回云端失败时不能把 lastSynced 记成本地哈希：
+         否则下次登录会以为云端已同步，草稿增量永远不再上传。 */
+      var draftPushed = await silentPush();
+      prof.owner = uid;
+      if (!draftPushed) {
+        saveProf();
+        setStatus('本地暂存已合并到本机，但暂时无法写回云端，联网后会自动重试', 'warn');
+        renderBody();
+        reloadSoon('正在打开你的学习档案…');
+        return;
+      }
+      saveProf();
       renderBody();
       reloadSoon('正在打开你的学习档案…');
       return;
@@ -492,8 +502,22 @@
           renderBody();
           return;
         }
-        prof.owner = uid; prof.lastSynced = localHash(); saveProf();
-        if (merged) await silentPush();  // 把并集回传该账号
+        prof.owner = uid; saveProf();
+        if (merged) {
+          /* 并集写回云端失败时，lastSynced 只能停在云端旧哈希；否则本地会
+             被误认为已经同步，另一台设备永远收不到这次并集。 */
+          var mergedPushed = await silentPush();
+          if (!mergedPushed) {
+            prof.lastSynced = cloudHash || '';
+            saveProf();
+            setStatus('云端档案已合并到本机，但暂时无法写回云端，联网后会自动重试', 'warn');
+            renderBody();
+            reloadSoon('正在打开你的学习档案…');
+            return;
+          }
+        } else {
+          prof.lastSynced = localHash(); saveProf();
+        }
         renderBody();
         reloadSoon('正在打开你的学习档案…');
         return;
@@ -504,8 +528,16 @@
         setStatus(ok2 ? '已为你建立专属学习档案' : '暂时无法保存进度，联网后会自动重试', ok2 ? 'ok' : 'warn');
       } else {
         // 新账号、本机副本属于别的账号 → 干净起点，不串档
-        suppress = true;
-        try { applyPayload({}); } finally { suppress = false; }
+        /* applyPayload({}) 在本地存储不可写/只读时会返回 false；旧实现不看
+           返回值，照样把 owner 改成新账号并 silentPush，等于用 A 的本机进度
+           覆盖 B 的空档案。失败就退出这次登录，本机进度原样保留。 */
+        if (!applyArchive({})) {
+          try { await A.signOut(); } catch (e) { /* 本地会话已清不掉就只保留本机 */ }
+          user = null; nickname = '';
+          setStatus('本机存储不可写，已退出该账号；本机进度未受影响', 'warn');
+          renderBody();
+          return;
+        }
         prof.owner = uid; prof.lastSynced = localHash(); saveProf();
         await silentPush();
         renderBody();
