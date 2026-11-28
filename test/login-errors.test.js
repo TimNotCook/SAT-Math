@@ -281,3 +281,11 @@ test('邮箱未确认时登录页给“重发确认邮件”入口，而不是�
   const resend = acct.slice(acct.indexOf('async function doResendConfirm'), acct.indexOf('async function doSignUpPwd'));
   assert.match(resend, /SB\.resendConfirmation\(email\)/, '重发没走底层接口');
 });
+
+test('重发确认邮件有 60 秒冷却，撞号切登录时不会继承“等确认”状态', () => {
+  const resend = acct.slice(acct.indexOf('async function doResendConfirm'), acct.indexOf('async function doSignUpPwd'));
+  assert.match(resend, /startConfirmCooldown\(\)/, '重发成功没开冷却');
+  assert.match(resend, /syncConfirmBtn\(\)/, 'finally 没按冷却恢复按钮');
+  const signup = acct.slice(acct.indexOf('async function doSignUpPwd'), acct.indexOf('async function doSendLink'));
+  assert.match(signup, /needConfirm = \(e\.code === 'auth\/email-confirm-required'\)/, '撞号后仍继承等确认标记');
+});

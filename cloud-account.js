@@ -68,6 +68,8 @@
   var pwdEmail = '';
   var loginMode = 'password';   // password | link | code | reset
   var needConfirm = false;      // 上次登录被“邮箱未确认”挡住，登录页给重发入口
+  var confirmCooldown = 0;      // 重发确认信也走 60 秒冷却，别一着急连点五封
+  var confirmTimer = null;
   var recoveryOpened = false;   // 重置链接回来只自动开一次面板
   var codeSent = false;
   var pwdBusy = false;
@@ -850,6 +852,26 @@
     ui.otpSendBtn.disabled = busy || otpCooldown > 0;
     ui.otpSendBtn.textContent = sendBtnLabel();
   }
+  function confirmBtnLabel() {
+    return confirmCooldown > 0
+      ? trTpl('重新发送 ({seconds}s)', { seconds: confirmCooldown })
+      : '没收到确认邮件？重新发送';
+  }
+  function syncConfirmBtn() {
+    if (!ui || !ui.resendConfirmBtn) return;
+    ui.resendConfirmBtn.disabled = busy || confirmCooldown > 0;
+    ui.resendConfirmBtn.textContent = confirmBtnLabel();
+  }
+  function startConfirmCooldown() {
+    confirmCooldown = 60;
+    if (confirmTimer) { clearInterval(confirmTimer); confirmTimer = null; }
+    confirmTimer = setInterval(function () {
+      confirmCooldown -= 1;
+      if (confirmCooldown < 0) confirmCooldown = 0;
+      if (confirmCooldown <= 0) { clearInterval(confirmTimer); confirmTimer = null; }
+      syncConfirmBtn();
+    }, 1000);
+  }
 
   function readEmail() { return ui && ui.email ? ui.email.value.trim() : ''; }
   function readPw() { return ui && ui.pw ? ui.pw.value : ''; }
@@ -908,10 +930,11 @@
     try {
       setBusy(true); setError('');
       await SB.resendConfirmation(email);
+      startConfirmCooldown();
       renderBody();
       setStatus(trTpl('确认邮件已重新发送到 {email}；几分钟内没收到就翻一下垃圾箱。', { email: email }), 'ok');
     } catch (e) { setError(friendlyError(e, email)); }
-    finally { setBusy(false); }
+    finally { setBusy(false); syncConfirmBtn(); }
   }
   async function doSignUpPwd() {
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
@@ -964,7 +987,7 @@
         /* 提示里写「直接点登录」，注册页却没有登录按钮；把面板切回登录，
            用户输密码就能进，不必再找返回键。 */
         pwdEmail = email; loginMode = 'password';
-        if (e.code === 'auth/email-confirm-required') needConfirm = true;
+        needConfirm = (e.code === 'auth/email-confirm-required');
       }
     }
     finally { setBusy(false); renderBody(); }
@@ -1432,7 +1455,7 @@
 
   function renderAccountTab() {
     var b = ui.body;
-    ui.email = null; ui.otpSendBtn = null; ui.pw = null; ui.pw2 = null; ui.code = null;
+    ui.email = null; ui.otpSendBtn = null; ui.resendConfirmBtn = null; ui.pw = null; ui.pw2 = null; ui.code = null;
     if (user) {
       var p = el('div', 'td-prof');
       var initial = (displayName().trim().charAt(0) || defaultNick()).toUpperCase();
@@ -1683,6 +1706,9 @@
       resendConfirm.type = 'button';
       resendConfirm.setAttribute('data-busy', '1');
       resendConfirm.onclick = doResendConfirm;
+      ui.resendConfirmBtn = resendConfirm;
+      resendConfirm.textContent = confirmBtnLabel();
+      if (confirmCooldown > 0) resendConfirm.disabled = true;
       b.appendChild(resendConfirm);
     }
 
