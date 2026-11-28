@@ -13,9 +13,19 @@
    return String(v);
  }
  /* 成绩档案里的 correct 可能是布尔、1/0 或字符串；只把明确真值当答对。 */
- function isRight(v){return v===true||v===1||v==='true'||v==='1';}
- function isWrong(v){return v===false||v===0||v==='false'||v==='0';}
- function isTrueFlag(v){return v===true||v===1||v==='true'||v==='1';}
+ /* 布尔在存档里出现过 True/False、"1"/"0" 这些写法（Python 导出、旧版本），
+    统一归一化再判，别让大写 False 漏进错题本。 */
+ function boolOf(v){
+   if(v===true||v===1)return true;
+   if(v===false||v===0)return false;
+   if(typeof v==='string'){var s=v.trim().toLowerCase();
+     if(s==='true'||s==='1')return true;
+     if(s==='false'||s==='0')return false;}
+   return null;
+ }
+ function isRight(v){return boolOf(v)===true;}
+ function isWrong(v){return boolOf(v)===false;}
+ function isTrueFlag(v){return boolOf(v)===true;}
 
  function plainChoices(v){
    var out={};
@@ -106,6 +116,7 @@ function importData(data){
   if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
   var store=readImport();if(!Array.isArray(store.items))store.items=[];
   var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0;
+  var pending=[];
   /* 旧存档/云端合并可能把 items 写成 [null, ...]：先剔掉非对象条目，
      否则下一次导入在 x.key 处直接 TypeError，整次导入失败。 */
   store.items=store.items.filter(function(x){return x&&typeof x==='object';});
@@ -125,11 +136,11 @@ function importData(data){
            仅作为只读记录追加展示，原作答数据原封不动。 */
         rec.readOnly=true;readOnly++;
       }else{
-        /* 该题此前没有任何作答记录：新增一条导入错题（纯追加）。 */
-        var st=A.secState(m.sec,true);
-        st.answers[m.q.id]={v:it.given,correct:false,ts:now,importSrc:IMPORT_MARK};
-        st.completed=A.stats(m.sec).completed;
-        A.save();written++;
+        /* 该题此前没有任何作答记录：新增一条导入错题（纯追加）。
+           先记在内存里，等错题仓库真的写盘成功再落本机进度——
+           否则仓库写失败时，本机已经多了一条用户没见过的作答。 */
+        pending.push({sec:m.sec,q:m.q.id,v:it.given});
+        written++;
       }
     }
     if(!rec.matchId)created++;
@@ -138,7 +149,15 @@ function importData(data){
   store.title=plainText(pick(data.title,store.title))||'导入错题';
   store.importedAt=now;
   if(!writeImport(store))throw new Error('localStorage 写入失败');
+  var localWriteFailed=false;
+  pending.forEach(function(x){
+    var st=A.secState(x.sec,true);
+    st.answers[x.q]={v:x.v,correct:false,ts:now,importSrc:IMPORT_MARK};
+    st.completed=A.stats(x.sec).completed;
+  });
+  if(pending.length){try{if(!A.save())localWriteFailed=true;}catch(e){localWriteFailed=true;}}
   var msg='已导入 '+added+' 道：新增错题 '+written+' 道 · 已有作答仅只读展示 '+readOnly+' 道（未改动）· 未匹配 '+created+' 道';
+  if(localWriteFailed)msg='错题仓库已保存，但本机作答写入失败（这些题刷新后会从本机进度里消失）';
   all=collect();render();feedback(msg);
   return{added:added,written:written,readOnly:readOnly,created:created,message:msg};
 }
@@ -197,9 +216,9 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
        else if(wl&&typeof wl==='object'&&!Array.isArray(wl)&&
          (typeof wl.v==='string'||typeof wl.v==='number')&&String(wl.v).trim()&&stillWrong(q,wl.v))
          add(map,q,wl.v,src,wl.ts||0);});});
-   loadArr('tdsat_exam_suite_results_v1').forEach(function(r){if(!r||typeof r!=='object')return;var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':r.mode==='jiangyi'?'讲义复习':'考试练习';
+   loadArr('tdsat_exam_suite_results_v1').forEach(function(r){if(!r||typeof r!=='object')return;var md=String(r.mode==null?'':r.mode).trim().toLowerCase();var name=md==='quiz'?'单元抽查':md==='mock'?'模考':md==='jiangyi'?'讲义复习':'考试练习';
      /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(isTrueFlag(r.void))return;
-     if(r.mode==='jiangyi'&&!window.TD_JY)return;
+     if(md==='jiangyi'&&!window.TD_JY)return;
      asArr(r.detail).forEach(function(d){if(!d||typeof d!=='object'||Array.isArray(d))return;var q=questionById(d.id);
        var dGiven=plainText(d.given);
        /* 空作答不是错题；对象 given 会被 String() 变成 [object Object] 后再
