@@ -9,6 +9,11 @@
    return;
  }
  var esc=A.esc,T=window.TD_TEXT||{};
+ /* 错题页过去只做中文：英文界面一旦有错题，就会露出「显示 12 道 · 含历史错题与已订正记录」
+    「第 5 题」「你的答案」这些中文。这里统一按界面语言出文案。 */
+ function isEn(){try{return !!(window.TDI18n&&window.TDI18n.get&&window.TDI18n.get()==='en');}catch(e){return false;}}
+ function TT(zh,en){return isEn()?en:zh;}
+ function unitName(u){return esc(isEn()?(u.en||u.cn):u.cn);}
  /* Render ^{...} superscripts as real <sup> (same typography as the exam pages). */
  function mathfmt(s){var e=String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
    return e.replace(/\^\{([^{}]*)\}/g,'<sup>$1</sup>');}
@@ -334,22 +339,22 @@ function importedGroupHtml(){
   var list=asArr(readImport().items).filter(function(it){return it&&typeof it==='object'&&!Array.isArray(it)&&(!it.matchId||isTrueFlag(it.readOnly));});
   if(!list.length)return '';
   var nRO=list.filter(function(it){return isTrueFlag(it.readOnly) && bankFor(plainText(it.matchId));}).length;
-  return'<section class="wrong-unit" id="importedNewGroup"><h2>导入错题 · 独立记录<span>'+list.length+' 道 · 其中 '+nRO+' 道已匹配题库（只读）</span></h2>'+list.map(function(it,i){
+  return'<section class="wrong-unit" id="importedNewGroup"><h2>'+TT('导入错题 · 独立记录','Imported · kept separate')+'<span>'+TT(list.length+' 道 · 其中 '+nRO+' 道已匹配题库（只读）', list.length+' · '+nRO+' matched to the bank, read-only')+'</span></h2>'+list.map(function(it,i){
     var impMatch=plainText(it.matchId),itemKey=plainText(it.key),bankQ=bankFor(impMatch),ro=isTrueFlag(it.readOnly)&&!!bankQ;
     var impStem=plainText(it.stem),impTopic=plainText(it.topic),impAnswer=plainText(it.answer),
         impValue=plainText(it.value),impType=plainText(it.type),impSource=plainText(it.source);
     var q=bankQ
       ?{id:bankQ.id,stem:plainText((T[bankQ.id]||{}).stem||bankQ.stem||it.stem),choices:plainChoices((T[bankQ.id]||{}).choices||bankQ.choices),
         type:bankQ.type,answer:bankQ.answer,value:bankQ.value,topic:plainText(bankQ.topic||it.topic),section:bankQ.section,unit:bankQ.unit,no:bankQ.no}
-      :{id:'IMP-'+(itemKey||i),stem:impStem||'题干文字暂缺。',choices:plainChoices(it.choices),type:impType,answer:impAnswer,
+      :{id:'IMP-'+(itemKey||i),stem:impStem||TT('题干文字暂缺。','Question text unavailable.'),choices:plainChoices(it.choices),type:impType,answer:impAnswer,
         value:impValue,topic:impTopic,section:'导入',unit:0,no:'—'};
     var x={q:q,given:plainText(it.given),attempts:1,sources:['导入错题'],date:it.importedAt||0,corrected:false},a=analysis(x);
-    return'<article class="wrong-card"><div class="wrong-card-head"><b>导入 · '+(impSource?esc(impSource):'第 '+(i+1)+' 道')+'</b><span>'+(ro?'已匹配题库 · 只读记录 · 未改动你的作答':'导入错题 · 仅错题本可见')+'</span></div>'+
+    return'<article class="wrong-card"><div class="wrong-card-head"><b>'+TT('导入 · ','Imported · ')+(impSource?esc(impSource):TT('第 '+(i+1)+' 道','#'+(i+1)))+'</b><span>'+TT(ro?'已匹配题库 · 只读记录 · 未改动你的作答':'导入错题 · 仅错题本可见', ro?'Matched to the bank · read-only · answer untouched':'Imported · visible here only')+'</span></div>'+
       figHtml(q)+
-      '<p class="wrong-stem">'+mathfmt(plainText(q.stem).trim()||'题干文字暂缺。')+'</p>'+
-      '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
+      '<p class="wrong-stem">'+mathfmt(plainText(q.stem).trim()||TT('题干文字暂缺。','Question text unavailable.'))+'</p>'+
+      '<div class="answer-compare"><div><span>'+TT('你的答案','Your answer')+'</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>'+TT('正确答案','Correct answer')+'</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
       '<div class="cause-box"><b>'+esc(a.title)+'</b><p>'+esc(a.detail)+'</p></div>'+
-      '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">'+(ro?('该题已有作答记录（'+esc(impMatch)+'），按只增不改原则未写入'):'未在题库中找到对应题目，无法进入抽查抽题')+'</span></div></article>';
+      '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><span class="small muted">'+TT(ro?('该题已有作答记录（'+esc(impMatch)+'），按只增不改原则未写入'):'未在题库中找到对应题目，无法进入抽查抽题', ro?('This question already has an attempt ('+esc(impMatch)+'); nothing was overwritten.'):'Not found in the bank, so it cannot be used in quizzes.')+'</span></div></article>';
   }).join('')+'</section>';
 }
  /* 统计卡（待订正 / 已订正 / 涉及单元 / 今日新增）按 Tim 的要求整块下线：
@@ -380,20 +385,20 @@ function importedGroupHtml(){
    var byTopic={};rows.forEach(function(x){if(x.corrected)return;var k=topic(x.q);byTopic[k]=(byTopic[k]||0)+1;});
    var weak=Object.keys(byTopic).map(function(k){return{k:k,n:byTopic[k]};}).sort(function(a,b){return b.n-a.n;});
    document.getElementById('overview').innerHTML=A.UNITS.map(function(u){var n=all.filter(function(x){return x.q.unit===u.id&&!x.corrected;}).length;
-     return'<button class="unit-stat'+(activeUnit===u.id?' on':'')+'" data-unit="'+u.id+'"><span>UNIT '+u.id+'</span><b>'+n+'</b><small>'+esc(u.cn)+'</small></button>';}).join('');
-   document.getElementById('unitFilter').innerHTML='<button class="filter-btn'+(!activeUnit?' on':'')+'" data-unit="0">全部错题</button>'+A.UNITS.map(function(u){return'<button class="filter-btn'+(activeUnit===u.id?' on':'')+'" data-unit="'+u.id+'">UNIT '+u.id+'</button>';}).join('');
-   document.getElementById('resultCount').textContent='显示 '+rows.length+' 道 · 含历史错题与已订正记录';
-   document.getElementById('weakPanel').innerHTML=weak.length?'<div><h2>优先补强</h2><p>'+weak.slice(0,3).map(function(w,i){return'<span class="weak-topic"><b>'+(i+1)+'</b> '+esc(w.k)+' · '+w.n+' 道错题</span>';}).join('')+'</p><small>'+esc(REVIEW[activeUnit||weak.length&&rows.find(function(x){return topic(x.q)===weak[0].k;}).q.unit]||REVIEW[1])+'</small></div>':'<div><h2>薄弱点</h2><p class="muted">当前范围没有待订正错题。</p></div>';
+     return'<button class="unit-stat'+(activeUnit===u.id?' on':'')+'" data-unit="'+u.id+'"><span>UNIT '+u.id+'</span><b>'+n+'</b><small>'+unitName(u)+'</small></button>';}).join('');
+   document.getElementById('unitFilter').innerHTML='<button class="filter-btn'+(!activeUnit?' on':'')+'" data-unit="0">'+TT('全部错题','All mistakes')+'</button>'+A.UNITS.map(function(u){return'<button class="filter-btn'+(activeUnit===u.id?' on':'')+'" data-unit="'+u.id+'">UNIT '+u.id+'</button>';}).join('');
+   document.getElementById('resultCount').textContent=TT('显示 '+rows.length+' 道 · 含历史错题与已订正记录','Showing '+rows.length+' · past and corrected records included');
+   document.getElementById('weakPanel').innerHTML=weak.length?'<div><h2>'+TT('优先补强','Focus here')+'</h2><p>'+weak.slice(0,3).map(function(w){return'<span class="weak-topic">'+esc(w.k)+' · '+w.n+TT(' 道错题',' missed')+'</span>';}).join('')+'</p><small>'+esc(REVIEW[activeUnit||weak.length&&rows.find(function(x){return topic(x.q)===weak[0].k;}).q.unit]||REVIEW[1])+'</small></div>':'<div><h2>'+TT('薄弱点','Weak spots')+'</h2><p class="muted">'+TT('当前范围没有待订正错题。','Nothing to fix in this range.')+'</p></div>';
    var importedHtml=importedGroupHtml();
-   if(!rows.length){document.getElementById('wrongList').innerHTML='<div class="empty-panel"><svg class="empty-art" width="112" height="96" viewBox="0 0 112 96" fill="none" aria-hidden="true"><rect x="30" y="10" width="52" height="66" rx="11" fill="#f4f9ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="M42 30h28M42 41h28M42 52h17" stroke="#dde9f9" stroke-width="1.6"/><circle cx="78" cy="68" r="17" fill="#eaf2ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="m71 68 4.6 4.6L85 63" stroke="#4d84ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><h2>'+(all.length?'该单元暂无错题记录':(importedHtml?'题库里还没有错题':'还没有错题记录'))+'</h2><p>'+(importedHtml?'下面是你导入的错题；做真题或抽查答错的题也会记到这里。':'完成真题练习、单元抽查或模考后，错题会自动汇总到这里。')+'</p><a class="btn primary" href="drill.html">开始真题练习</a></div>'+importedHtml;return;}
+   if(!rows.length){document.getElementById('wrongList').innerHTML='<div class="empty-panel"><svg class="empty-art" width="112" height="96" viewBox="0 0 112 96" fill="none" aria-hidden="true"><rect x="30" y="10" width="52" height="66" rx="11" fill="#f4f9ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="M42 30h28M42 41h28M42 52h17" stroke="#dde9f9" stroke-width="1.6"/><circle cx="78" cy="68" r="17" fill="#eaf2ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="m71 68 4.6 4.6L85 63" stroke="#4d84ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><h2>'+(all.length?TT('该单元暂无错题记录','No mistakes in this unit yet'):(importedHtml?'题库里还没有错题':'还没有错题记录'))+'</h2><p>'+(importedHtml?'下面是你导入的错题；做真题或抽查答错的题也会记到这里。':'完成真题练习、单元抽查或模考后，错题会自动汇总到这里。')+'</p><a class="btn primary" href="drill.html">开始真题练习</a></div>'+importedHtml;return;}
    var html='';A.UNITS.forEach(function(u){var list=rows.filter(function(x){return x.q.unit===u.id;});if(!list.length)return;
-     html+='<section class="wrong-unit"><h2>UNIT '+u.id+' · '+esc(u.cn)+'<span>'+list.length+' 道</span></h2>'+list.map(function(x){var q=x.q,a=analysis(x),sec=q.section||'L'+q.unit;
-       return'<article class="wrong-card'+(x.corrected?' corrected':'')+'"><div class="wrong-card-head"><b>'+esc((q.origin==='jiangyi'&&window.TD_JY)?window.TD_JY.sourceLabel(q):(sec+' · 第 '+(q.no||'—')+' 题'))+'</b><span>'+esc(x.sources.join(' / '))+(x.attempts>1?' · '+x.attempts+' 次记录':'')+(x.corrected?' · 已在练习中订正':'')+'</span></div>'+
+     html+='<section class="wrong-unit"><h2>UNIT '+u.id+' · '+esc(u.cn)+'<span>'+list.length+TT(' 道',' missed')+'</span></h2>'+list.map(function(x){var q=x.q,a=analysis(x),sec=q.section||'L'+q.unit;
+       return'<article class="wrong-card'+(x.corrected?' corrected':'')+'"><div class="wrong-card-head"><b>'+esc((q.origin==='jiangyi'&&window.TD_JY)?window.TD_JY.sourceLabel(q):TT(sec+' · 第 '+(q.no||'—')+' 题', sec+' · Q'+(q.no||'—')))+'</b><span>'+esc(x.sources.join(' / '))+((x.attempts>1)?TT(' · '+x.attempts+' 次记录',' · '+x.attempts+' attempts'):'')+(x.corrected?TT(' · 已在练习中订正',' · corrected in practice'):'')+'</span></div>'+
        figHtml(q)+
-       '<p class="wrong-stem">'+mathfmt(plainText((T[q.id]||{}).stem||q.stem||'题干文字暂缺。').trim())+'</p>'+
-       '<div class="answer-compare"><div><span>你的答案</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>正确答案</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
+       '<p class="wrong-stem">'+mathfmt(plainText((T[q.id]||{}).stem||q.stem||TT('题干文字暂缺。','Question text unavailable.')).trim())+'</p>'+
+       '<div class="answer-compare"><div><span>'+TT('你的答案','Your answer')+'</span><b class="your-answer">'+mathfmt(answerLabel(x,false))+'</b></div><div><span>'+TT('正确答案','Correct answer')+'</span><b>'+mathfmt(answerLabel(x,true))+'</b></div></div>'+
        '<div class="cause-box"><b>'+esc(a.title)+'</b><p>'+esc(a.detail)+'</p></div>'+
-       '<div class="wrong-card-foot"><span>薄弱点：'+esc(topic(q))+'</span><a class="btn sm" href="'+drillLink(q)+'">回到本题重练</a></div></article>';}).join('')+'</section>';});
+       '<div class="wrong-card-foot"><span>'+TT('薄弱点：','Weak spot: ')+esc(topic(q))+'</span><a class="btn sm" href="'+drillLink(q)+'">'+TT('回到本题重练','Redo this question')+'</a></div></article>';}).join('')+'</section>';});
    document.getElementById('wrongList').innerHTML=html+importedHtml;
  }
  window.TD_IMPORT_WRONG={importData:importData,importText:function(t){return importData(JSON.parse(t));},
