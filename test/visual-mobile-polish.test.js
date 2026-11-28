@@ -68,3 +68,8 @@ test('320「继续上次练习」允许折行，不再截断小节名', () => {
 test('320 成绩报告题号不被拆成「第」与「1 题」两截', () => {
   assert.match(app, /html body \.rev-topic \.rev-qno\{white-space:nowrap!important\}/);
 });
+
+test('320 成绩报告标题缩到 14px、题号独立成行', () => {
+  assert.match(app, /@media\(max-width:360px\)\{\s*html body \.rev-topic\{font-size:14px!important/);
+  assert.match(app, /html body \.rev-topic \.rev-qno\{display:block!important/);
+});
