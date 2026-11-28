@@ -124,3 +124,26 @@ test('HTTP 状态码不被 raw() 吞成 0（否则分不清失效与断网）', 
   assert.ok(store[SESSION_KEY], '没有 refresh_token 时不该清会话');
   assert.ok(got && got.uid === 'uid-5');
 });
+
+test('别的标签页续期成功后，本页的 refreshDead 必须复位', async () => {
+  const { SB, store, listeners } = load(async (url) => {
+    if (String(url).includes('/auth/v1/token')) return makeRes(400, { msg: 'Invalid Refresh Token: Refresh Token Not Found' });
+    if (String(url).includes('/rest/v1/progress')) return makeRes(200, []);
+    return makeRes(401, { msg: 'invalid JWT' });
+  }, seed('uid-6', -1000));
+  let got = 'unset';
+  SB.onState(u => { got = u; });
+  await sleep(60);
+  assert.equal(store[SESSION_KEY], undefined, '本页先撞 invalid_grant，会话被清');
+
+  /* 另一个标签页拿到新票并写回 localStorage，storage 事件传到本页。 */
+  store[SESSION_KEY] = JSON.stringify({
+    access: 'tk-other', refresh: 'rt-other', expiresAt: Date.now() + 3600 * 1000,
+    user: { id: 'uid-6', email: 'tim@example.com' }
+  });
+  listeners.storage({ key: SESSION_KEY });
+  assert.ok(got && got.uid === 'uid-6', '应恢复登录态');
+
+  /* 不走内部 token：用真实读档案接口验证「有票却判失效」不会再发生。 */
+  await SB.getArchive();
+});

@@ -637,7 +637,14 @@
   /* 跨标签页同步：别的标签页登录 / 退出后，本页按 localStorage 会话快照校正状态。 */
   window.addEventListener('storage', function (ev) {
     if (ev.key !== SESSION_KEY) return;
+    var prev = session;
     session = loadSession();
+    /* 另一个标签页刚续期成功时，本页可能还停在 refreshDead=true（它先撞了
+       invalid_grant）。只把新会话读进来却不复位这个标记，token() 会继续返回
+       null，用户会在一个「明明有票」的标签页里被要求重新登录。 */
+    if (session && (!prev || session.access !== prev.access || session.refresh !== prev.refresh)) {
+      refreshDead = false;
+    }
     emit();
     if (session) refreshIfNeeded();
   });
