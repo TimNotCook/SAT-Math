@@ -10,22 +10,6 @@ index cebdc0a..8f81a3b 100644
      '交卷': 'Submit',
      '检查': 'Check',
      '已锁定': 'Locked',
-     '未作答': 'Unanswered',
-     '已作答': 'Answered',
-     '未答': 'Unanswered',
-     '正确': 'Correct',
-     '错误': 'Incorrect',
-     '第一空': 'Blank 1',
-     '第二空': 'Blank 2',
-     '答案选项': 'Answer choices',
-     '输入答案': 'Enter answer',
-     '填写答案': 'Enter answer',
-     '题干文字暂缺。': 'Question text is missing.',
-     '查看图形答案 · Show graph answer': 'Show graph answer',
-     '已保存到此设备': 'Saved on this device',
-     '作答自动保存': 'Answers save automatically',
-     '存档异常 · 自动备份已接管': 'Save error · backup took over',
-     '刷新重试': 'Refresh and retry',
 diff --git a/test/i18n.test.js b/test/i18n.test.js
 index cc0b16b..db82eda 100644
 --- a/test/i18n.test.js
