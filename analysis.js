@@ -126,8 +126,112 @@
     return res;
   }
 
+  /* ---------- 英文模式：错因说明整段换成英文 ----------
+     中文分支一字不动（错题回顾页是冻结区，中文文案不能被改），
+     这里只在 lang=en 时把 analyze 产出的 cause/fix 换掉。
+     标题由 i18n 的字典负责，不在这里重复。 */
+  function isEn() {
+    try {
+      var g = typeof window !== 'undefined' ? window : globalThis;
+      return !!(g && g.localStorage && g.localStorage.getItem('tdsat_lang') === 'en');
+    } catch (e) { return false; }
+  }
+
+  /* 类型级改进建议的英文版，和 TYPE_FIX 一一对应 */
+  var TYPE_FIX_EN = {
+    sign: 'Flip every sign when moving terms, dropping parentheses, or multiplying/dividing by a negative; then plug the result back in and confirm both sides match.',
+    reciprocal: 'Decide clearly which value is the numerator and which is the denominator; for proportions cross-multiply a/b=c/d into ad=bc; slope is rise over run, so keep Δy on top.',
+    factor: 'Check whether the slip is a percentage (×100), a unit conversion (×10/×1000), or a scale factor; area scales with the square of the side length.',
+    precision: 'Work step by step and do not round early; round only at the final step as the question asks, then plug the answer back in.',
+    format: 'Fill-ins accept only a number or a fraction: integers as is, fractions as a/b — no units, words, or extra spaces.',
+    eqStruct: 'Rewrite both sides in standard form (y=mx+b or the original structure), check slope/intercept/base/exponent term by term, and substitute a known point to solve the unknown.',
+    concept: 'Translate each condition into an equation, apply the matching formula with every transformation written out, and plug the result back in instead of guessing.'
+  };
+
+  /* 按中文标题前缀匹配，返回 [英文 cause, 英文 fix]；没有匹配就返回 null 走原文。
+     标题的后半截是 topic，不参与匹配。 */
+  function enText(title, q, given, text) {
+    var t = String(title || '');
+    var correct = String(q.answer == null ? (q.value == null ? '' : q.value) : q.answer).trim();
+    var gt = given ? choiceText(q, given, text) : '';
+    var ct = correct ? choiceText(q, correct, text) : '';
+    var chosen = given + (gt ? ' (' + gt + ')' : '');
+    var right = correct + (ct ? ' (' + ct + ')' : '');
+    function p(pfx) { return t.indexOf(pfx) === 0; }
+
+    if (p('未作答 · 时间分配')) return [
+      'No answer was recorded — the item was likely skipped, or earlier questions used up the allotted time.',
+      'Spend the first 10 seconds deciding whether to commit; if there is no path after 90 seconds, flag it and move on.'];
+    if (p('作答格式或数值转换')) return [
+      'Your input was “' + given + '”. Fill-ins accept only a number or a fraction (e.g., 12 or 3/4) — remove units, words, or stray spaces.',
+      'Use the form the question asks for: integer, decimal, or fraction a/b — no units or words.'];
+    if (p('符号判断错误')) return [
+      'Your value has the opposite sign of the correct answer — a sign flip slipped when moving terms, dropping parentheses, or setting the direction.',
+      TYPE_FIX_EN.sign];
+    if (p('倒数或比例关系混淆') || p('倒数关系混淆')) return [
+      'Your value is the reciprocal of the correct answer — the numerator and denominator got swapped.',
+      TYPE_FIX_EN.reciprocal];
+    if (p('倍数 / 单位换算错误')) return [
+      'Your answer differs from the correct one by a factor (often ×2, ×10, ×100, or ×0.1) — common with percentages, scaling, or unit conversion.',
+      TYPE_FIX_EN.factor];
+    if (p('计算精度 / 算术失误')) return [
+      'Your value is close but misses the grading tolerance — rounding happened mid-way, or the last arithmetic step slipped.',
+      TYPE_FIX_EN.precision];
+    if (p('整体符号 / 移项错误')) return [
+      'Both the slope and the intercept signs are flipped — signs slipped when moving terms or multiplying both sides.',
+      'When multiplying both sides by a negative, flip every term; after rewriting as y=mx+b, check each sign.'];
+    if (p('斜率符号错误')) return [
+      'The intercept is right but the slope sign is flipped — check the rise/fall direction or the coefficient sign.',
+      'Read the slope sign off the graph, then substitute a point to confirm the coefficient.'];
+    if (p('截距符号错误')) return [
+      'The slope is right but the intercept sign is flipped — the constant term was not negated when moved.',
+      'A constant term changes sign when moved; check the y-intercept by substituting x=0.'];
+    if (p('截距计算错误')) return [
+      'The slope matches but the intercept is wrong — a known point was not substituted to solve for b.',
+      'Once the slope is set, substitute the known point into y=mx+b and solve for b.'];
+    if (p('斜率计算错误')) return [
+      'The intercept matches but the slope is wrong — the rise over run was flipped or miscounted.',
+      'Slope m=Δy/Δx — use two clear points on the graph and keep rise over run.'];
+    if (p('指数 / 变量位置混淆')) return [
+      'The exponent or the variable position got swapped (e.g., q/4 written as 4q, x⁴ as 4^x).',
+      'Check base, exponent, and variable position term by term; keep the period out of the exponent numerator.'];
+    if (p('增长率底数 / 周期换算错误')) return [
+      'The base or the period conversion is off (e.g., annual vs. quarterly rate, or the exponent period).',
+      'Unify the time unit first: an annual rate becomes a per-period rate via (1+r)^(periods) — do not just change the base.'];
+    if (p('方程形式判断错误')) return [
+      'Your expression has a different structure: slope, intercept, base, or exponent does not line up with the correct one.',
+      TYPE_FIX_EN.eqStruct];
+    if (p('图像对应关系判断错误')) return [
+      'This item has a figure; the choices differ in ways you can only see by matching them against the graph, not by reading the text.',
+      'Mark intercepts, intersections, and the trend on scratch paper, narrow the choices, then pick — do not go by memory.'];
+    if (p('计算或公式应用错误')) return [
+      'Your value (' + given + ') does not match the correct answer (' + (q.value != null ? q.value : correct) + ') — the conditions were translated or the formula applied incorrectly.',
+      TYPE_FIX_EN.concept];
+    if (p('数值判断错误')) return [
+      'You chose ' + chosen + '; the correct answer is ' + right + '. The conditions were translated or the formula applied incorrectly.',
+      TYPE_FIX_EN.concept];
+    if (p('概念判断错误')) return [
+      'You chose ' + chosen + '; the correct answer is ' + right + '. The conditions behind this concept were not fully worked out.',
+      TYPE_FIX_EN.concept];
+    return null;
+  }
+
   /* ---------- 主分析 ---------- */
+  /* 对外入口：中文结果照旧，英文模式只替换 cause/fix 两段说明。 */
   function analyze(q, given, text) {
+    var r = analyzeZh(q, given, text);
+    if (r && isEn()) {
+      var id = (q || {}).id;
+      var textObj = text || (window.TD_TEXT || {})[id] || {};
+      var givenStr = (given == null || typeof given === 'object' || typeof given === 'function')
+        ? '' : String(given).trim();
+      var en = enText(r.title, q || {}, givenStr, textObj);
+      if (en) { r.cause = en[0]; r.fix = en[1]; }
+    }
+    return r;
+  }
+
+  function analyzeZh(q, given, text) {
     q = q || {};
     /* 成绩记录/云端合并里的作答可能是对象或数组：String({}) 会得到
        "[object Object]"，被误判成「写了答案但概念没掌握」，而结果页显示的是空答案。
