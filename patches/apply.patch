@@ -1,32 +1,18 @@
 diff --git a/image-import.js b/image-import.js
-index 9825808..b59ee93 100644
+index 9825808..5f1b96e 100644
 --- a/image-import.js
 +++ b/image-import.js
-@@ -57,3 +57,3 @@
-      盖在用户真正的导入进度上，人会以为自己的题在反复重试，或者干脆以为卡住了。 */
--  var SILENT = false, LAST_TIMING = '';
-+  var SILENT = false, LAST_TIMING = '', PREP_MS = 0;
-   var RESULT_AT = 0;   // 上一次"有结论"的时间（导入成功/没找到/跳过这种），用来给进度消息让位。
-@@ -516,3 +516,8 @@
+@@ -514,7 +514,12 @@
+         W = Math.max(1, Math.round(W * sc)); H = Math.max(1, Math.round(H * sc));
+         var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
          var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H); cx.drawImage(img, 0, 0, W, H);
 -        res({ url: cv.toDataURL('image/jpeg', 0.82), thumb: cv.toDataURL('image/jpeg', 0.5), w: W, h: H });
-+        /* 缩略图以前是拿这张 2600 宽的大画布整张再编一次 JPEG 0.5：界面只显示 60×60 的小图，
++        /* 缩略图以前是拿这张 2600 宽的大画布整张再编一次 JPEG：界面只显示 60×60 的小图，
 +           这一步纯属白烧 80–120ms（整页 2400×3200 实测）。改成从 360 宽的小画布出图。 */
 +        var tv = document.createElement('canvas'), tw = Math.min(360, W);
 +        tv.width = tw; tv.height = Math.max(1, Math.round(H * tw / W));
 +        tv.getContext('2d').drawImage(cv, 0, 0, tv.width, tv.height);
 +        res({ url: cv.toDataURL('image/jpeg', 0.82), thumb: tv.toDataURL('image/jpeg', 0.55), w: W, h: H });
        };
-@@ -1836,4 +1841,6 @@
-         status('正在准备第 ' + (i + 1) + ' / ' + images.length + ' 张…');
-+        var _tPrep = Date.now();
-         return compressImage(f).then(function (img) {
-           return splitBands(img.url).then(function (bands) {
-+            PREP_MS = Date.now() - _tPrep;
-             bands.forEach(function (b, j) {
-@@ -1979,3 +1986,4 @@
-               p.msAll = Date.now() - tOcr;
--              LAST_TIMING = 'OCR ' + ((p.msOcr || 0) / 1000).toFixed(1) + 's · 对照 ' + (p.msMatch || 0) + 'ms · 合计 ' + ((p.msAll || 0) / 1000).toFixed(1) + 's';
-+              /* 耗时拆开写：准备（解码+压缩+切块）/ 识别 / 对照 / 合计，哪一段慢一眼能看出来。 */
-+              LAST_TIMING = '准备 ' + PREP_MS + 'ms · 识别 ' + ((p.msOcr || 0) / 1000).toFixed(2) + 's · 对照 ' + (p.msMatch || 0) + 'ms · 合计 ' + ((p.msAll || 0) / 1000).toFixed(1) + 's';
-               renderRows(); progress(p.i, pages.length);
+       img.onerror = function () { URL.revokeObjectURL(url); rej(new Error('图片读取失败')); };
+       img.src = url;
