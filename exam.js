@@ -596,9 +596,13 @@
     $('introTitle').textContent = official ? 'Practice Test' : '单元抽查';
     const quizTitle = $('introQuizTitle');
     if (quizTitle) quizTitle.hidden = official;
+    /* 刷新/重进是「接着考」不是「开新卷」：按钮得说人话。
+       写 Start 的话，人点下去才发现计时还在跑、题号没归零，会以为系统出错。 */
     $('btnStart').textContent = resumeStage === 'result'
       ? (official ? 'View Score Report' : '查看成绩报告')
-      : (official ? 'Start' : '开始抽测');
+      : resumeStage
+        ? (official ? 'Continue test' : '继续这卷')
+        : (official ? 'Start' : '开始抽测');
 
     if (official) {
       $('introUnitPick').innerHTML = '';

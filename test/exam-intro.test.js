@@ -100,3 +100,8 @@ test('模考开场页：模块参数按当前模块显示，不再固定写死�
   assert.ok(/Number\(S\.module\)\s*===\s*2/.test(js), '模块格要按 S.module 取 1 / 2');
   assert.ok(/of 2 modules/.test(js), '文案要能读出「第几个模块 of 2」');
 });
+
+test('刷新重进时开始按钮写「继续这卷」，不冒充开新卷', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'exam.js'), 'utf8');
+  assert.match(js, /resumeStage\s*\?\s*\(official \? 'Continue test' : '继续这卷'\)/, '重进态的按钮文案没改');
+});
