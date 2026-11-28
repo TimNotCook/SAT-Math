@@ -183,3 +183,10 @@ test('注册邮箱框是 email 类型，明显格式错在本地就拦，不白�
   assert.match(fn, /!looksLikeEmail\(email\)/, '注册前没检查邮箱格式');
   assert.match(fn, /邮箱格式不正确/, '格式错没给可行动提示');
 });
+
+test('注册回车顺序是邮箱→密码→确认→提交，不会在确认格空着时就报不一致', () => {
+  const seg = acct.slice(acct.indexOf("var pwSign = field('设置密码'"), acct.indexOf("b.appendChild(el('p', 'td-acct-note', '注册完直接登录。'))"));
+  assert.match(seg, /emSign\.input\.addEventListener\('keydown'[\s\S]{0,120}pwSign\.input\.focus\(\)/, '邮箱格回车没把焦点送到密码格');
+  assert.match(seg, /pwSign\.input\.addEventListener\('keydown'[\s\S]{0,120}pwSign2\.input\.focus\(\)/, '密码格回车没送到确认格');
+  assert.match(seg, /pwSign2\.input\.addEventListener\('keydown'[\s\S]{0,120}doSignUpPwd\(\)/, '确认格回车没提交');
+});

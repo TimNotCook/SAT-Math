@@ -1389,10 +1389,13 @@
         pwSave.setAttribute('data-neutral', '1');
         pwSave.type = 'button'; pwSave.setAttribute('data-busy', '1');
         pwSave.onclick = function () { doSetPassword(pwField.input.value, pw2Field.input.value); };
-        [pwField, pw2Field].forEach(function (f) {
-          f.input.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') doSetPassword(pwField.input.value, pw2Field.input.value);
-          });
+        /* 改密和注册一样分两步：第一格回车先跳确认格，别在还没填确认时
+           就提交出一句“两次不一致”。确认格回车才真正保存。 */
+        pwField.input.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') { e.preventDefault(); pw2Field.input.focus(); }
+        });
+        pw2Field.input.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') doSetPassword(pwField.input.value, pw2Field.input.value);
         });
         pwRow.appendChild(pwSave);
         b.appendChild(pwRow);
@@ -1544,8 +1547,16 @@
       backSign.onclick = function () { pwdEmail = readEmail() || pwdEmail; loginMode = 'password'; setError(''); renderBody(); };
       b.appendChild(backSign);
 
-      [pwSign, pwSign2].forEach(function (f) {
-        f.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSignUpPwd(); });
+      /* 回车顺序：邮箱 → 密码 → 确认密码 → 提交。原来在「设置密码」格一回车
+         就提交，确认格还空着，立刻弹“两次输入的密码不一致”，像是用户填错。 */
+      emSign.input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); pwSign.input.focus(); }
+      });
+      pwSign.input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); pwSign2.input.focus(); }
+      });
+      pwSign2.input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') doSignUpPwd();
       });
       b.appendChild(el('p', 'td-acct-note', '注册完直接登录。'));
       return;
