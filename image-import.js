@@ -970,6 +970,31 @@
   /* ---------------- 手动定位（不依赖 OCR） ----------------
      识别慢/识别不出时的兜底：用户敲题干里的几个词或数字，直接在题库里找，
      点一下就把这道题写进错题回顾。零组件、零等待。 */
+  /* 贴文字导入：完全不经过 OCR。图认不出、引擎起不来、照片太糊，
+     只要能把题干文字复制/打进来，照样能精确配题并写入。
+     用的仍是同一套匹配 + 数字指纹门禁，不是另一套松标准。 */
+  function importByText(text) {
+    var t = String(text || '').replace(/\s+/g, ' ').trim();
+    if (t.length < 8) { status('文字太短，至少贴半句题干（8 个字符以上）。'); return 0; }
+    var recalled = matchQuestion(t, '', 8);
+    if (!recalled.length) { status('题库里没找到像这道题的，换个说法或只贴题干里的关键词。'); finderRender([], t); return 0; }
+    var qn = numbers(norm(t)), c0 = numbers(norm(recalled[0].stem || ''));
+    var agree = numScore(qn, c0);
+    var numOk = qn.length >= 2 ? agree >= 0.85 : (qn.length === 1 ? agree >= 0.6 : true);
+    var tg = autoGate(recalled, t);
+    var list = recalled.map(function (c) {
+      return { id: c.id, sec: c.sec, no: c.no, stem: c.stem || '' };
+    });
+    if (tg.pass && numOk) {
+      importSingle(recalled[0].id);
+      return 1;
+    }
+    status('文字最像的是 ' + (recalled[0].sec || '') + ' · #' + recalled[0].no +
+      '（' + Math.round(recalled[0].score * 100) + '%），但没到自动写入的把握，下面点一下即导入。');
+    finderRender(list, t);
+    return 0;
+  }
+
   function finderRender(list, query) {
     var host = $('imgimpFinder'); if (!host) return;
     if (!query) { host.hidden = true; host.innerHTML = ''; return; }
@@ -1225,6 +1250,11 @@
         $('imgimpSearch').value = kw;
         try { finderSearch(); } catch (e) { console.warn('自动搜题失败', e); }
       }
+      /* 同时把认出来的原文字填进"贴文字导入"框：认错一两个字符时，
+         他改一个字再点按钮，比重新贴图快得多。 */
+      if (miss && $('imgimpText') && !$('imgimpText').value) {
+        $('imgimpText').value = String(miss.ocr.stem).slice(0, 600);
+      }
       status(msg);
       renderRows();
       return { total: pages.length, ok: ok, fail: fail, added: added, skipped: skipped };
@@ -1266,7 +1296,7 @@
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked,
-    selfTest: selfTest,
+    selfTest: selfTest, importByText: importByText,
     search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,
     cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
@@ -1316,6 +1346,9 @@
   on('btnImgRetry', 'click', function () { window.TD_IMG_IMPORT.retryFailed(); });
   on('imgimpCloudSignIn', 'click', cloudSignIn);
   on('imgimpSearchGo', 'click', finderSearch);
+  on('imgimpTextGo', 'click', function () {
+    var ta = $('imgimpText'); importByText(ta ? ta.value : '');
+  });
   on('imgimpUndo', 'click', undoLast);
   on('imgimpSelfTest', 'click', selfTest);
   var inpSearch = $('imgimpSearch');
