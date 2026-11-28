@@ -853,19 +853,30 @@
         score: g.wrong * 5 + rate * 14 + hScore(g.ids) * 2.5 + ((g.n ? g.seconds / g.n : 0) > 95 ? 2 : 0)
       });
     }).sort((a, b) => b.score - a.score || b.wrong - a.wrong);
+    /* 补强报告的文字会一起存进成绩记录，所以生成时就得按当前界面语言出，
+       不能等渲染再翻（历史页只回放记录里的字符串）。 */
+    const EN_UI = !!(typeof window !== 'undefined' && window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en');
     const wrongOnlyTopics = topicRows.filter(t => t.wrong > 0);
     const priority = [];
     unitRows.filter(u => u.wrong > 0).slice(0, 3).forEach((u, i) => priority.push({
       level: 'P' + i, type: 'unit', key: u.name, name: u.name,
       wrong: u.wrong, total: u.n, rate: u.rate, wrongIds: u.ids,
-      reason: '本单元错 ' + u.wrong + '/' + u.n + ' 题，错误率 ' + Math.round(u.rate * 100) + '%',
-      action: '优先补强单元：先重做对应错题，再按下列知识点顺序复习'
+      reason: EN_UI
+        ? ('Missed ' + u.wrong + ' of ' + u.n + ' in this unit (' + Math.round(u.rate * 100) + '% wrong).')
+        : ('本单元错 ' + u.wrong + '/' + u.n + ' 题，错误率 ' + Math.round(u.rate * 100) + '%'),
+      action: EN_UI
+        ? 'Start with this unit: redo its wrong answers, then review the topics below in order.'
+        : '优先补强单元：先重做对应错题，再按下列知识点顺序复习'
     }));
     wrongOnlyTopics.slice(0, 8).forEach((t, i) => priority.push({
       level: 'P' + Math.min(2, Math.floor(i / 3)), type: 'topic', key: t.key, name: t.name,
       wrong: t.wrong, total: t.n, rate: t.rate, wrongIds: t.ids,
-      reason: '知识点错 ' + t.wrong + '/' + t.n + ' 题，平均用时 ' + t.avgSeconds + ' 秒',
-      action: '按知识点专项练习，对应错题：' + t.ids.join('、')
+      reason: EN_UI
+        ? ('Missed ' + t.wrong + ' of ' + t.n + ' here, about ' + t.avgSeconds + 's each.')
+        : ('知识点错 ' + t.wrong + '/' + t.n + ' 题，平均用时 ' + t.avgSeconds + ' 秒'),
+      action: EN_UI
+        ? ('Drill this skill; questions to redo: ' + t.ids.join(', '))
+        : ('按知识点专项练习，对应错题：' + t.ids.join('、'))
     }));
     priority.sort((a, b) => (a.level.localeCompare(b.level)) || (b.wrong - a.wrong));
     return {

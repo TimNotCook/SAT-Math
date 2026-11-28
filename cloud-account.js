@@ -1530,7 +1530,6 @@
     var em = field('邮箱或手机号', 'text', '邮箱或手机号', 'username');
     if (seed) em.input.value = seed;
     ui.email = em.input;
-    b.appendChild(el('div', 'td-acct-who', '邮箱 / 手机号 + 密码'));
     b.appendChild(em.box);
 
     var pw = field('密码', 'password', '至少 6 位', 'current-password');
@@ -1624,12 +1623,11 @@
     sw.onclick = function () { prefs.compact = !prefs.compact; savePrefs(); renderBody(); };
     r2.appendChild(sw); b.appendChild(r2);
 
-    b.appendChild(el('p', 'td-acct-note', '外观偏好保存在这台设备，刷新后依然有效。'));
   }
 
   function renderLanguageTab() {
     var b = ui.body;
-    var r = row('语言', '切换后立即生效，做题内容本身不受影响。');
+    var r = row('语言');
     var seg = el('div', 'td-set-seg');
     var get = (window.TDI18n && window.TDI18n.get) ? window.TDI18n.get : function () { return 'zh'; };
     var cur = get();
@@ -1662,7 +1660,6 @@
       renderBody();
     };
     r0.appendChild(sw); b.appendChild(r0);
-    b.appendChild(el('p', 'td-acct-note', '只有单元练习受这个开关控制：专项训练、单元抽查与模考始终显示计算器。设置保存在这台设备。'));
   }
 
   /* 说明页按当前界面语言直接出整句：节点里混着换行和数字时，

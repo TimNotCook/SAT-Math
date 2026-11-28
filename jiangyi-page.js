@@ -308,5 +308,15 @@
     }
     renderBoards();
   }
+  /* 切语言时重绘当前视图：板块卡的「0/6 节 / 0/6 sections」是 JS 拼出来的，
+     i18n 只翻 DOM 现成文本，认不出这串要连单位一起换，切到英文会留下「节」。 */
+  window.addEventListener('td-lang-change', function () {
+    if (!window.TD_JY) return;
+    try {
+      if (els.jyBoards && !els.jyBoards.hidden) { renderBoards(); return; }
+      if (els.jySections && !els.jySections.hidden) { openBoard(boardId); return; }
+      if (els.jyQuiz && !els.jyQuiz.hidden) { renderQ(); }
+    } catch (e) {}
+  });
   boot();
 })();

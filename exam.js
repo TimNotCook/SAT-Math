@@ -1300,8 +1300,11 @@
       : (dateRaw && !Number.isFinite(dateNum) ? new Date(dateRaw) : null);
     const dateTxt = !dateObj || isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(OFFICIAL ? 'en-US' : 'zh-CN');
     $('resTitle').textContent = OFFICIAL ? 'Score Report' : modeTxt + ' · 成绩报告';
+    /* 抽查页在英文界面下同样要全英文：原来的分支只看 OFFICIAL（官方模考），
+       于是英文界面的抽查成绩页会漏出一句「手动交卷 · 答案已锁定」。 */
+    const EN_UI = OFFICIAL || !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en');
     $('resSub').textContent = dateTxt + ' · ' +
-      (OFFICIAL
+      (EN_UI
         ? ((isTrueFlag(r.auto) ? 'Auto-submitted when time expired' : 'Submitted manually') + ' · Answers locked' +
            (MODE === 'mock' ? ' · Module 2 path: ' + (r.path === 'hard' ? 'harder' : r.path === 'easy' ? 'easier' : 'not reached') : ''))
         : ((isTrueFlag(r.auto) ? '计时归零自动交卷' : '手动交卷') + ' · 答案已锁定' +
@@ -1314,7 +1317,7 @@
     const rawVal = rawN == null ? null : Math.max(0, Math.min(44, rawN));
     const rawTxt = (rawVal == null ? '—' : rawVal) + ' / 44';
     applyQuizCopy();
-    $('resScoreLabel').textContent = isMock ? T('预估 SAT 数学分数 · 200–800', 'Estimated SAT Math Score · 200–800') : '本次练习正确率';
+    $('resScoreLabel').textContent = isMock ? T('预估 SAT 数学分数 · 200–800', 'Estimated SAT Math Score · 200–800') : T('本次练习正确率', 'Accuracy');
     $('resScore').innerHTML = isMock
       ? (scaled == null ? '—' : scaled) + '<small> / 800</small>'
       : pct + '<small>%</small>';
@@ -1366,17 +1369,17 @@
       const nm = t.name, rate = t.n ? 1 - t.wrong / t.n : 0, wrong = t.wrong, n = t.n;
       return `<div class="kp-row"><span class="nm" title="${esc(nm)}">${esc(nm || '—')}</span>
       <span class="bar"><i style="width:${Math.round((1 - rate) * 100)}%;background:${rate > .5 ? 'var(--bad)' : rate > 0 ? 'var(--warn)' : 'var(--ok)'}"></i></span>
-      <span class="pct">错 ${wrong}/${n}</span></div>`;
+      <span class="pct">${T('错 ','Wrong ')}${wrong}/${n}</span></div>`;
     }).join('');
     $('resPriority').innerHTML = priority.map(p => {
       const level = safeText(p.level).toLowerCase();
       return `<div class="prio-item">
       <span class="prio-lv${level ? ' ' + esc(level) : ''}">${esc(safeText(p.level) || '—')}</span>
-      <div style="flex:1"><b>${esc(safeText(p.name) || '—')}</b> <span class="tiny muted">${p.type === 'unit' ? '单元' : '知识点'}</span>
+      <div style="flex:1"><b>${esc(safeText(p.name) || '—')}</b> <span class="tiny muted">${p.type === 'unit' ? T('单元', 'Unit') : T('知识点', 'Skill')}</span>
         <div class="small muted" style="margin-top:2px">${esc(safeText(p.reason))}</div>
         <div class="tiny" style="margin-top:3px;color:var(--blue-strong)">${esc(safeText(p.action))}</div>
-        <div class="tiny muted" style="margin-top:3px">对应错题：${esc(asArr(p.wrongIds).map(safeText).filter(Boolean).join('、')) || '—'}</div></div></div>`;
-    }).join('') || '<div class="small muted">本次无错题</div>';
+        <div class="tiny muted" style="margin-top:3px">${T('对应错题：','Questions to redo: ')}${esc(asArr(p.wrongIds).map(safeText).filter(Boolean).join(T('、', ', '))) || '—'}</div></div></div>`;
+    }).join('') || `<div class="small muted">${T('本次无错题','No wrong answers this time')}</div>`;
     /* result-priority: 把「复习优先级」移到分数之前——先给下一步，再给数字。DOM 层移动，阅读顺序一致 */
     (function(){var st=document.getElementById('stage-result');if(!st)return;var sc=st.querySelector('.exam-score-panel'),pr=st.querySelector('.exam-priority-panel');if(sc&&pr&&sc.parentNode&&pr.parentNode===sc.parentNode&&pr.nextElementSibling!==sc){sc.parentNode.insertBefore(pr,sc);}})();
     renderTypeSummary();

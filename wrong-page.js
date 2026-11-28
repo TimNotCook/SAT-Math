@@ -409,4 +409,7 @@ function importedGroupHtml(){
      if(!all.length){ all=collect(); if(all.length) render(); }
    },600);
  });
+ /* 切语言重画一次：错因说明是渲染时按当时的语言拼好的字符串，
+   不重画的话切到英文仍留着上一轮的中文诊断。 */
+ window.addEventListener('td-lang-change',function(){ try{ all=collect(); render(); }catch(e){} });
 })();
