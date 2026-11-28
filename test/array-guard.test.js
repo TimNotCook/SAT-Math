@@ -28,7 +28,7 @@ function boot(files, store, opts) {
     console,
     localStorage: {
       getItem: k => { if (opts && opts.throwRead) throw new Error('storage denied'); return (k in store ? store[k] : null); },
-      setItem: (k, v) => { store[k] = String(v); },
+      setItem: (k, v) => { if (opts && opts.throwWriteKey === k) throw new Error('storage denied'); store[k] = String(v); },
       removeItem: k => { delete store[k]; },
     },
     location: { search: '', hash: '', pathname: '/', href: '', replaceState() {}, assign() {} },
@@ -171,6 +171,13 @@ test('导入错题展示字段是对象时不出 [object Object]', () => {
   assert.ok(/未作答/.test(els.wrongList.innerHTML), '对象型 given 没有降级成未作答');
   assert.ok(!/其中 1 道已匹配题库/.test(els.wrongList.innerHTML), 'matchId 无效却宣称已匹配题库');
 });
+test('导入错题仓库写盘失败时，不先把作答写进本机进度', () => {
+  const store = {};
+  const { sandbox } = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store, { throwWriteKey: 'tdsat_imported_wrong_v1' });
+  assert.throws(() => sandbox.TD_IMPORT_WRONG.importData({ items: [{ id: 'U1-01', given: 'B' }] }), /localStorage 写入失败/);
+  assert.strictEqual(store.tdsat_app_v1, undefined, '错题仓库没写成，本机却已经写入了导入作答');
+});
+
 test('导入流程 normalizeItem 不把对象字段写成 [object Object]', () => {
   const store = {};
   const { els, sandbox } = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store);

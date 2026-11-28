@@ -109,7 +109,7 @@ function importData(data){
   var items=Array.isArray(data)?data:asArr(data.items||data.questions||data.records||data.wrong);
   if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
   var store=readImport();if(!Array.isArray(store.items))store.items=[];
-  var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0;
+  var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0,pending=[];
   /* 旧存档/云端合并可能把 items 写成 [null, ...]：先剔掉非对象条目，
      否则下一次导入在 x.key 处直接 TypeError，整次导入失败。 */
   store.items=store.items.filter(function(x){return x&&typeof x==='object';});
@@ -129,11 +129,12 @@ function importData(data){
            仅作为只读记录追加展示，原作答数据原封不动。 */
         rec.readOnly=true;readOnly++;
       }else{
-        /* 该题此前没有任何作答记录：新增一条导入错题（纯追加）。 */
-        var st=A.secState(m.sec,true);
-        st.answers[m.q.id]={v:it.given,correct:false,ts:now,importSrc:IMPORT_MARK};
-        st.completed=A.stats(m.sec).completed;
-        A.save();written++;
+        /* 该题此前没有任何作答记录：先入待写队列，等错题仓库落盘成功后再
+           改动本机作答。旧实现边遍历边 A.save()，随后 writeImport 失败时
+           抛错——错题仓库没写成，用户看到「导入失败」，本机却已经多了这批
+           导入错题，重试还会被判成「已有作答仅只读」，数据状态对不上。 */
+        pending.push({ sec: m.sec, qid: m.q.id, given: it.given });
+        written++;
       }
     }
     if(!rec.matchId)created++;
@@ -142,6 +143,13 @@ function importData(data){
   store.title=plainText(pick(data.title,store.title))||'导入错题';
   store.importedAt=now;
   if(!writeImport(store))throw new Error('localStorage 写入失败');
+  /* 仓库写成功后再落本机作答：失败路径一个答案都不写，重试时仍按「新增」处理。 */
+  pending.forEach(function(x){
+    var st=A.secState(x.sec,true);
+    st.answers[x.qid]={v:x.given,correct:false,ts:now,importSrc:IMPORT_MARK};
+    st.completed=A.stats(x.sec).completed;
+    A.save();
+  });
   var msg='已导入 '+added+' 道：新增错题 '+written+' 道 · 已有作答仅只读展示 '+readOnly+' 道（未改动）· 未匹配 '+created+' 道';
   all=collect();render();feedback(msg);
   return{added:added,written:written,readOnly:readOnly,created:created,message:msg};

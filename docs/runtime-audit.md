@@ -781,3 +781,6 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 
 `doSendCode` 在发码前就记 `otpEmail`，`doVerifyCode` 又用 `readEmail()` 当前值调 `verifyOtp`。用户收到 A 邮箱的验证码后随手把邮箱框改成 B，Supabase 对 B+旧码当然返回错误，界面只显示「验证码错误」，看不出是邮箱变了。修成发送成功后才记 `otpEmail`；校验前发现当前邮箱与发码邮箱不一致，直接提示「验证码已发到 A；要换邮箱请重新获取」，校验也改用 `otpEmail`。验证：新增 4 条静态回归锁住发送后记录、邮箱变更拦截、提示文案和 verifyOtp 地址；全量 611/0；`verify_flows` 16/16。
 
+## 第 106 条：导入错题仓库写盘失败时，本机进度已经先被写脏（2026-11-28）
+
+`wrong-page.js importData()` 边遍历 items 边对匹配到的新题执行 `A.save()`，最后才 `writeImport(store)`。配额满/只读存储让错题仓库写失败时函数抛「localStorage 写入失败」，用户看到导入失败，但本机 `tdsat_app_v1` 里已经写进这批“导入错题”；重试时这些题又会被判成「已有作答仅只读」，导入计数和实际状态对不上。修成先把新作答放进 `pending`，错题仓库整份写成功后才逐条落本机，失败路径一个答案都不写。验证：注入 `tdsat_imported_wrong_v1` 写入抛错，旧代码抛错后本机已有答案，新代码抛错后 `tdsat_app_v1` 仍为空；全量 612/0。
