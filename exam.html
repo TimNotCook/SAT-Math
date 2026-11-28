@@ -9,9 +9,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'">
   <title>SAT Math Prep · 抽查与模考</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="app.css?v=5b35ab7e3816">
-  <link rel="stylesheet" href="bluebook.css?v=5b35ab7e3816">
-  <link rel="stylesheet" href="glass.css?v=5b35ab7e3816"><script src="theme.js?v=5b35ab7e3816"></script><script src="i18n.js?v=5b35ab7e3816"></script>
+  <link rel="stylesheet" href="app.css?v=3f12685c5ffd">
+  <link rel="stylesheet" href="bluebook.css?v=3f12685c5ffd">
+  <link rel="stylesheet" href="glass.css?v=3f12685c5ffd"><script src="theme.js?v=3f12685c5ffd"></script><script src="i18n.js?v=3f12685c5ffd"></script>
   <style>#questionNav{z-index:68!important}body.is-mock .mainnav,body.is-mock .bankpill{display:none}body.is-mock .mock-hide{display:none}</style>
 </head>
 <body class="exam-page protected site-shell shell-exam">
@@ -266,46 +266,63 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/questions.js?v=5b35ab7e3816" defer></script>
-  <script src="data/text.js?v=5b35ab7e3816" defer></script>
-  <script src="data/figures.js?v=5b35ab7e3816" defer></script>
-  <script src="data/figure_crops.js?v=5b35ab7e3816" defer></script>
-  <script src="data/choice_crops.js?v=5b35ab7e3816" defer></script>
-  <script src="app-ui.js?v=5b35ab7e3816" defer></script>
-  <script src="figures.js?v=5b35ab7e3816" defer></script>
-  <script src="choice-figures.js?v=5b35ab7e3816" defer></script>
-  <script src="crossout.js?v=5b35ab7e3816" defer></script>
+  <script src="data/questions.js?v=3f12685c5ffd" defer></script>
+  <script src="data/text.js?v=3f12685c5ffd" defer></script>
+  <script src="data/figures.js?v=3f12685c5ffd" defer></script>
+  <script src="data/figure_crops.js?v=3f12685c5ffd" defer></script>
+  <script src="data/choice_crops.js?v=3f12685c5ffd" defer></script>
+  <script src="app-ui.js?v=3f12685c5ffd" defer></script>
+  <script src="figures.js?v=3f12685c5ffd" defer></script>
+  <script src="choice-figures.js?v=3f12685c5ffd" defer></script>
+  <script src="crossout.js?v=3f12685c5ffd" defer></script>
 
-  <script src="grade-core.js?v=5b35ab7e3816" defer></script>
-  <script src="exam-core.js?v=5b35ab7e3816" defer></script>
-  <script src="analysis.js?v=5b35ab7e3816" defer></script>
-  <script src="scratch-pad.js?v=5b35ab7e3816" defer></script>
-  <script src="exam.js?v=5b35ab7e3816" defer></script>
-  <script src="cloud-config.js?v=5b35ab7e3816" defer></script><script src="supa-cloud.js?v=5b35ab7e3816" defer></script>
-  <script src="cloud-account.js?v=5b35ab7e3816" defer></script>
-  <script>/* 保险：核心脚本（grade-core / exam-core / exam.js）任一没跑完，页面会变成「Start 点不动」的死页。
-     这里在 load 后做一次体检：缺 grade-core 就先自动重载一次（只用 sessionStorage 记一次，防死循环）；
-     仍缺就明确提示 + 按钮换成 Reload，不装作正常。 */
-  window.addEventListener('load', function () {
+  <script src="grade-core.js?v=3f12685c5ffd" defer></script>
+  <script src="exam-core.js?v=3f12685c5ffd" defer></script>
+  <script src="analysis.js?v=3f12685c5ffd" defer></script>
+  <script src="scratch-pad.js?v=3f12685c5ffd" defer></script>
+  <script src="exam.js?v=3f12685c5ffd" defer></script>
+  <script src="cloud-config.js?v=3f12685c5ffd" defer></script><script src="supa-cloud.js?v=3f12685c5ffd" defer></script>
+  <script src="cloud-account.js?v=3f12685c5ffd" defer></script>
+  <script>/* 保险：核心脚本（grade-core / exam-core / exam.js）任一没跑完，页面会变成「Start 点不动」的死页；
+     题库（data/questions.js，747KB）在弱网下单独失败时更糟：exam.js 里 TD_BANK 为空直接崩，
+     Start 照样能点、点了毫无反应，用户只看到一张「正常」的开场页。
+     这里做一次体检：缺任何一块就先自动重载一次（只用 sessionStorage 记一次，防死循环）；
+     仍缺就明确提示 + 按钮换成 Reload，不装作正常。弱网下 load 可能永远不触发，12 秒再独立复查一次。 */
+  window.addEventListener('load', function () { bootCheck(); });
+  setTimeout(function () { bootCheck(); }, 12000);
+  function bootCheck() {
     var key = 'tdsat_boot_retry_v1';
     var hasCore = !!window.__TD_EXAM__, hasGrade = !!window.TDGrade;
-    if (hasCore && hasGrade) { try { sessionStorage.removeItem(key); } catch (e) {} return; }
-    if ((!hasCore || !hasGrade) && !sessionStorage.getItem(key)) {
+    var hasBank = !!(window.TD_BANK && window.TD_BANK.questions && window.TD_BANK.questions.length);
+    if (hasCore && hasGrade && hasBank) { try { sessionStorage.removeItem(key); } catch (e) {} return; }
+    if (!sessionStorage.getItem(key)) {
       try { sessionStorage.setItem(key, '1'); } catch (e) {}
       location.reload();
       return;
     }
+    var en = true;
+    try { en = !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en'); } catch (e) {}
     var btn = document.getElementById('btnStart');
     if (btn) { btn.textContent = 'Reload'; btn.disabled = false; btn.onclick = function () { location.reload(); }; }
     var note = document.getElementById('introNotice');
     if (note) {
       note.hidden = false;
-      note.textContent = hasCore
-        ? 'The grader did not load. Tap Reload to try again.'
-        : 'This page could not finish loading. Tap Reload to try again.';
+      if (!hasCore && !hasGrade && !hasBank) {
+        note.textContent = en
+          ? 'This page could not finish loading. Tap Reload to try again.'
+          : '这个页面没有加载完整。点 Reload 重试。';
+      } else if (!hasBank) {
+        note.textContent = en
+          ? 'The question bank did not load (network dropped or cache is incomplete). Tap Reload to try again.'
+          : '题库没有加载成功（网络中断或缓存不完整）。点 Reload 重试。';
+      } else {
+        note.textContent = en
+          ? 'The grader did not load. Tap Reload to try again.'
+          : '判分脚本没有加载完成。点 Reload 重试。';
+      }
     }
-    try { console.error('[exam] core scripts did not finish loading', { hasCore: hasCore, hasGrade: hasGrade }); } catch (e) {}
-  });
+    try { console.error('[exam] boot check failed', { hasCore: hasCore, hasGrade: hasGrade, hasBank: hasBank }); } catch (e) {}
+  }
   </script>
 </body>
 </html>
