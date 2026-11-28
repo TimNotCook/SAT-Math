@@ -1,6 +1,14 @@
 (function(){
  'use strict';
- var A=window.TD_APP,esc=A.esc,T=window.TD_TEXT||{};
+ var A=window.TD_APP;
+ /* 题库/核心脚本没出来（弱网、缓存旧资源）时别让整页崩成一张白纸：
+    给一句能照做的提示，口径与 index/drill 的降级文案一致。 */
+ if(!A){
+   var emptyHost=document.getElementById('wrongList');
+   if(emptyHost){emptyHost.innerHTML='<div class="empty-panel"><h2>题目数据没有加载成功</h2><p>通常是网络中断或浏览器缓存了旧资源导致的。请先刷新页面重试；若仍失败，请强制刷新（Mac：Cmd+Shift+R）清掉旧缓存后再试。</p></div>';}
+   return;
+ }
+ var esc=A.esc,T=window.TD_TEXT||{};
  /* Render ^{...} superscripts as real <sup> (same typography as the exam pages). */
  function mathfmt(s){var e=String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
    return e.replace(/\^\{([^{}]*)\}/g,'<sup>$1</sup>');}
