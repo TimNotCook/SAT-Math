@@ -225,7 +225,7 @@
       var ids = asArr(p && p.wrongIds).map(txt).filter(Boolean);
       return '<div class="hist-prio-row"><b>' + esc(txt(p.name) || '—') + '</b>' +
         '<small>' + esc(txt(p.reason)) + (txt(p.action) ? ' → ' + esc(txt(p.action)) : '') +
-        (ids.length ? '（错题：' + esc(ids.join('、')) + '）' : '') + '</small></div>';
+        (ids.length ? (isEn() ? ' (missed: ' + esc(ids.join(', ')) + ')' : '（错题：' + esc(ids.join('、')) + '）') : '') + '</small></div>';
     }).join('') + '</div>';
   }
 

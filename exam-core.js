@@ -108,7 +108,24 @@
     return a;
   }
   const byId = (bank, id) => bank.find(q => q.id === id);
-  const unitName = (units, u) => { const x = (units || []).find(v => v.id === u); return x ? 'U' + u + ' ' + x.cn : 'U' + u; };
+  /* 英文界面生成补强报告时，单元名和知识点名也要出英文：这些字符串会
+     直接存进成绩记录，历史页只回放，渲染时再翻就晚了（还会中英混排）。 */
+  const UNIT_EN = { 1: 'Heart of Algebra', 2: 'Problem Solving & Data Analysis', 3: 'Advanced Math', 4: 'Geometry & Trigonometry' };
+  const enUi = () => !!(typeof window !== 'undefined' && window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en');
+  const enWord = (zh) => {
+    try {
+      var i18n = typeof window !== 'undefined' ? window.TDI18n : null;
+      if (i18n && i18n.t) { var out = i18n.t(zh); if (out && out !== zh) return out; }
+    } catch (e) { /* 翻不出来就退回中文 */ }
+    return zh;
+  };
+  const unitName = (units, u) => {
+    const x = (units || []).find(v => v.id === u);
+    /* 抽查页没有 UNIT 目录（units 为空）时也别只剩一个「U1」：
+       英文界面用固定映射，中文界面保持原样。 */
+    if (!x) return enUi() && UNIT_EN[u] ? 'U' + u + ' ' + UNIT_EN[u] : 'U' + u;
+    return 'U' + u + ' ' + (enUi() ? (UNIT_EN[u] || enWord(x.cn)) : x.cn);
+  };
 
   /* =====================================================================
      Diagnostic paper design — College-Board-inspired, deliberately fair
@@ -850,14 +867,14 @@
     const topicRows = Object.values(tg).map(g => {
       const rate = g.n ? g.wrong / g.n : 0;
       return Object.assign({}, g, {
-        name: g.section + ' ' + g.topic.replace(/^\d+\.\d+\s*/, ''), rate,
+        name: g.section + ' ' + (enUi() ? enWord(g.topic.replace(/^\d+\.\d+\s*/, '')) : g.topic.replace(/^\d+\.\d+\s*/, '')), rate,
         avgSeconds: g.n ? Math.round(g.seconds / g.n) : 0,
         score: g.wrong * 5 + rate * 14 + hScore(g.ids) * 2.5 + ((g.n ? g.seconds / g.n : 0) > 95 ? 2 : 0)
       });
     }).sort((a, b) => b.score - a.score || b.wrong - a.wrong);
     /* 补强报告的文字会一起存进成绩记录，所以生成时就得按当前界面语言出，
        不能等渲染再翻（历史页只回放记录里的字符串）。 */
-    const EN_UI = !!(typeof window !== 'undefined' && window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en');
+    const EN_UI = enUi();
     const wrongOnlyTopics = topicRows.filter(t => t.wrong > 0);
     const priority = [];
     unitRows.filter(u => u.wrong > 0).slice(0, 3).forEach((u, i) => priority.push({
