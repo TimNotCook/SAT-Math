@@ -58,7 +58,7 @@ test('发过重置链接后按钮进 60 秒冷却，不许连点', () => {
 
 test('设好新密码后清掉 recovery 标记', () => {
   const seg = acct.slice(acct.indexOf('async function doSetPassword'));
-  assert.ok(/clearRecovery/.test(seg.slice(0, 400)), '设密码后没清标记');
+  assert.ok(/clearRecovery/.test(seg.slice(0, 700)), '设密码后没清标记');
 });
 
 test('设置面板能按 Esc 关，关掉焦点回到入口', () => {

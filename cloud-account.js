@@ -170,7 +170,7 @@
     /* 手机号可能带国家码、空格、横线、括号：面板里填 +1 (415) 555-0123
        也是合法输入。先只放过电话字符，再按数字个数判断，别把它误判成
        邮箱，否则密码错误提示会叫用户去查邮箱。 */
-    if (!/^\+?[\d(][\d\s().-]*$/.test(s)) return false;
+    if (!/^\+?\s*[\d(][\d\s().-]*$/.test(s)) return false;
     var digits = s.replace(/[^\d]/g, '');
     return digits.length >= 7 && digits.length <= 15;
   }
@@ -683,9 +683,10 @@
   function readEmail() { return ui && ui.email ? ui.email.value.trim() : ''; }
   function readPw() { return ui && ui.pw ? ui.pw.value : ''; }
 
-  async function doSetPassword(pw) {
+  async function doSetPassword(pw, pw2) {
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     if (!pw || pw.length < 6) { setError('密码至少 6 位。'); return; }
+    if (pw2 !== undefined && pw !== pw2) { setError('两次输入的新密码不一致，请重新确认。'); return; }
     if (!SB || !SB.setPassword) { setError('登录模块未加载，请刷新页面重试。'); return; }
     var ok = false;
     try {
@@ -1176,14 +1177,18 @@
       }
       if (SB && SB.setPassword) {
         var pwField = field('登录密码', 'password', '至少 6 位，设好后可换设备登录', 'new-password');
-        var pwRow = el('div', 'td-nick-row');
-        pwRow.appendChild(pwField.box);
-        var pwSave = el('button', 'td-acct-btn2 td-nick-save', '保存密码');
+        var pw2Field = field('确认新密码', 'password', '再输一次', 'new-password');
+        b.appendChild(pwField.box);
+        b.appendChild(pw2Field.box);
+        var pwRow = el('div', 'td-acct-actions');
+        var pwSave = el('button', 'td-acct-btn2 td-acct-btn--wide', '保存密码');
         pwSave.setAttribute('data-neutral', '1');
         pwSave.type = 'button'; pwSave.setAttribute('data-busy', '1');
-        pwSave.onclick = function () { doSetPassword(pwField.input.value); };
-        pwField.input.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') doSetPassword(pwField.input.value);
+        pwSave.onclick = function () { doSetPassword(pwField.input.value, pw2Field.input.value); };
+        [pwField, pw2Field].forEach(function (f) {
+          f.input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') doSetPassword(pwField.input.value, pw2Field.input.value);
+          });
         });
         pwRow.appendChild(pwSave);
         b.appendChild(pwRow);
@@ -1231,7 +1236,7 @@
       backReset.onclick = function () { loginMode = 'password'; setError(''); renderBody(); };
       b.appendChild(backReset);
       b.appendChild(el('p', 'td-acct-note',
-        '重置链接只发到邮箱。'));
+        '重置链接只发到邮箱。手机号账号没有短信重置；如果还处于登录状态，请在设置里改密码。'));
       return;
     }
 

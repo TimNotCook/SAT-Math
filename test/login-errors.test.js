@@ -146,3 +146,15 @@ test('没归一的服务端原文不直接甩给用户，只留一句可行动�
   assert.match(msg, /操作失败，请稍后重试/);
   assert.doesNotMatch(msg, /Database error/);
 });
+
+test('国家码和号码之间带空格也按手机号提示，不误判成邮箱', () => {
+  const { friendlyError } = accountFns();
+  assert.match(friendlyError({ code: 'auth/invalid-credential' }, '+ (86) 138-0013-8000'), /手机号或密码不对/);
+});
+
+test('设置新密码也要确认，尤其手机号账号输错就再也登不回来', () => {
+  assert.match(acct, /确认新密码/, '设置密码没有确认栏');
+  const fn = acct.slice(acct.indexOf('async function doSetPassword'), acct.indexOf('function loginSuccess'));
+  assert.match(fn, /pw2 !== undefined && pw !== pw2/, '两次新密码不一致没拦住');
+  assert.match(fn, /两次输入的新密码不一致/, '没有给用户明确提示');
+});
