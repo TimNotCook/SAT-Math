@@ -1847,3 +1847,16 @@ html body .entry-tile-grid .jy-board-card .jy-card-meta{
   margin-left:auto;font-size:12px;font-weight:600;color:var(--sub,#5b6b85);
   font-variant-numeric:tabular-nums;white-space:nowrap;
 }
+
+/* 窄屏导航收紧：英文标签（Wrong Answers / Test History）14px 会顶成三行，
+   把字重与内边距略收，中英都稳定两行，不额外加第二排菜单。 */
+@media(max-width:640px){
+  .site-rail{padding:8px 10px;gap:2px}
+  .site-rail .rail-brand{font-size:13px;padding:6px 8px 10px}
+  .site-rail a{padding:7px 9px;font-size:12.5px}
+}
+/* 370 出头的小屏 + 英文：英文标签比中文长，品牌占掉半行会剩一项孤零零折行。
+   让品牌独占一行，其余 6 项排成两行（3+3），看着是整齐的三行而不是 2+1。 */
+@media(max-width:400px){
+  html[lang="en"] .site-rail .rail-brand{flex:0 0 100%}
+}
