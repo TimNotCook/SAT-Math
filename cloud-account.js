@@ -807,6 +807,22 @@
     setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
     setError(''); setBusy(false); renderBody();
   }
+  /* 从「重置密码」链接回来的：直接把设置面板打开在账户页，
+     否则人点了邮件里的按钮只看到首页，根本不知道去哪儿设新密码。
+     只在这个标签页里开一次——没设密码就走开的人，之后每次翻页不该被弹窗拦。 */
+  function openRecoveryOnce() {
+    if (recoveryOpened || !ui) return;
+    if (!SB || !SB.recoveryPending || !SB.recoveryPending() || !user) return;
+    try {
+      if (sessionStorage.getItem('tdsat_recovery_opened') === '1') return;
+      sessionStorage.setItem('tdsat_recovery_opened', '1');
+    } catch (e) { /* 存储不可用就按每次开 */ }
+    recoveryOpened = true;
+    activeTab = 'account';
+    ui.layer.setAttribute('data-open', '1');
+    renderBody();
+  }
+
   function onState(u) {
     var was = user;
     user = u || null;
@@ -814,14 +830,7 @@
       if (ui) ui.btn.setAttribute('data-on', '1');
       if (!was || was.uid !== user.uid) afterSignIn();
       else renderBody();
-      /* 从「重置密码」链接回来的：直接把设置面板打开在账户页，
-         否则人点了邮件里的按钮只看到首页，根本不知道去哪儿设新密码。 */
-      if (!recoveryOpened && SB && SB.recoveryPending && SB.recoveryPending() && ui) {
-        recoveryOpened = true;
-        activeTab = 'account';
-        ui.layer.setAttribute('data-open', '1');
-        renderBody();
-      }
+      openRecoveryOnce();
     } else {
       nickname = '';
       if (ui) ui.btn.setAttribute('data-on', '0');
@@ -1515,12 +1524,7 @@
     renderBody();
     /* cloud 模块有可能在注册 onState 之前就把「已登录」抛过一次，
        这时 onState 收不到首次状态，重置链接回来的面板就没人开。 */
-    if (SB && SB.recoveryPending && SB.recoveryPending() && user && ui) {
-      recoveryOpened = true;
-      activeTab = 'account';
-      ui.layer.setAttribute('data-open', '1');
-      renderBody();
-    }
+    openRecoveryOnce();
     if (SB && typeof SB.onState === 'function') SB.onState(function (u) { onState(u); });
     startAutoSave();
   }

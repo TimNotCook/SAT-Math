@@ -36,9 +36,18 @@ test('面板上有「忘记密码」入口和重置页', () => {
 });
 
 test('从重置链接回来会自动把面板打开在账户页', () => {
-  assert.ok(/recoveryOpened/.test(acct), '没有「只自动开一次」的守卫');
-  const seg = acct.slice(acct.indexOf('function onState'));
-  assert.ok(/recoveryPending/.test(seg.slice(0, 900)), 'onState 里没检查 recovery 标记');
+  assert.ok(/function openRecoveryOnce/.test(acct), '缺 openRecoveryOnce');
+  assert.ok(acct.split('function openRecoveryOnce').length === 2, 'openRecoveryOnce 被重复定义');
+  const seg = acct.slice(acct.indexOf('function openRecoveryOnce'));
+  assert.ok(/recoveryPending/.test(seg.slice(0, 400)), 'openRecoveryOnce 里没检查 recovery 标记');
+  assert.ok(/tdsat_recovery_opened/.test(seg.slice(0, 400)), '没有「每个标签页只开一次」的存储守卫');
+  assert.ok(/openRecoveryOnce\(\);/.test(acct.slice(acct.indexOf('function boot'))), 'boot 里没调 openRecoveryOnce');
+  assert.ok(/openRecoveryOnce\(\);/.test(acct.slice(acct.indexOf('function onState')), acct.indexOf('function onState') + 900), 'onState 里没调 openRecoveryOnce');
+});
+
+test('设完密码清掉标签页守卫，下次重置还能自动开', () => {
+  const seg = cloud.slice(cloud.indexOf('function clearRecovery'));
+  assert.ok(/tdsat_recovery_opened/.test(seg.slice(0, 200)), 'clearRecovery 没清 sessionStorage 守卫');
 });
 
 test('发过重置链接后按钮进 60 秒冷却，不许连点', () => {

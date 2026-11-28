@@ -379,6 +379,7 @@
   }
   function clearRecovery() {
     try { localStorage.removeItem(RECOVER_KEY); } catch (e) { /* 忽略 */ }
+    try { sessionStorage.removeItem('tdsat_recovery_opened'); } catch (e) { /* 忽略 */ }
   }
 
   /* ---------- 邮箱登录 ---------- */
