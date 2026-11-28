@@ -358,7 +358,7 @@
      setPassword 覆盖旧密码，全程不需要自定义 SMTP。 */
   async function sendRecovery(email) {
     var id = idToEmail(email);
-    if (id.phone) throw errOf(400, { msg: '手机号账号收不到重置邮件，请直接用密码登录。' });
+    if (id.phone) throw errOf(400, { msg: '手机号账号收不到邮件；重置只能用邮箱注册的账号。' });
     if (!validEmail(id.email)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送重置链接。' });
     var body = { email: id.email };
     var path = '/auth/v1/recover';
