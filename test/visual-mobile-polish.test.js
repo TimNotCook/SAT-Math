@@ -101,3 +101,10 @@ test('草稿纸关着的时候不留隐形按钮噪音', () => {
   assert.match(scratch, /\.mist-layer\{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:0;visibility:hidden;/);
   assert.match(scratch, /\.mist-layer\.show\{opacity:1;visibility:visible\}/);
 });
+
+test('逐题回顾不再印仓库单元号 U1/U2，改印单元名', () => {
+  /* 学生看不懂 U2；英文用 UNIT_EN、中文用 UNIT_CN 的单元名。 */
+  assert.match(examjs, /const UNIT_CN = \{ 1: '代数核心', 2: '问题解决与数据分析', 3: '高等数学', 4: '几何与三角' \}/);
+  assert.ok(!/'U' \+ dUnit/.test(examjs), '逐题回顾 meta 不要再拼 U 号');
+  assert.ok(!/qt-code">U\$\{u\.id\}/.test(examjs), '单元折叠条不要 U 号前缀');
+});

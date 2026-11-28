@@ -92,6 +92,13 @@
      原来只看 OFFICIAL，英文界面的抽查成绩页会被迫回中文（拼接句 i18n 兜不住）。 */
   const T = (zh, en) => (OFFICIAL || !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en')) ? en : zh;
   const UNIT_EN = { 1: 'Heart of Algebra', 2: 'Problem Solving & Data Analysis', 3: 'Advanced Math', 4: 'Geometry & Trigonometry' };
+  /* 「U2」是仓库里的单元号，学生看不懂；逐题回顾和单元折叠条都换成单元名。 */
+  const UNIT_CN = { 1: '代数核心', 2: '问题解决与数据分析', 3: '高等数学', 4: '几何与三角' };
+  function unitName(raw) {
+    const k = String(raw || '').replace(/[^0-9]/g, '');
+    if (!k) return '';
+    return (document.documentElement.getAttribute('data-lang') === 'en' ? UNIT_EN : UNIT_CN)[k] || '';
+  }
   document.querySelectorAll('.exam-modules a').forEach(a => {
     const on = a.dataset.module === MODE;
     a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page');
@@ -700,7 +707,7 @@
          不再用四张占满半屏的卡：一行就能扫完，也少一层大盒子 */
       $('introUnitPick').innerHTML = '<div class="quiz-tabs" role="tablist" aria-label="选择单元">' +
         UNITS.map(u => `<button type="button" role="tab" class="quiz-tab${u.id === QUIZ_UNIT ? ' on' : ''}" data-unit="${u.id}" aria-selected="${u.id === QUIZ_UNIT}">` +
-          `<span class="qt-dot" aria-hidden="true"></span><span class="qt-code">U${u.id}</span><span class="qt-name">${esc(u.cn)}</span></button>`).join('') + '</div>';
+          `<span class="qt-dot" aria-hidden="true"></span><span class="qt-name">${esc(u.cn)}</span></button>`).join('') + '</div>';
       $('introUnitPick').querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => {
         QUIZ_UNIT = +b.dataset.unit;
         /* Choosing another unit starts a clean paper; drop any saved session so
@@ -1437,7 +1444,8 @@
           dAnswer = safeText(bankQ.value) || (Array.isArray(bankQ.values) ? bankQ.values.join(', ') : '');
       }
       const okFlag = isRightFlag(d.correct);
-      const meta = 'U' + dUnit + ' · ' + (dType === 'grid' ? (EN ? 'Grid-in' : '填空') : (EN ? 'Multiple choice' : '选择'));
+      const dUnitName = unitName(dUnit);
+      const meta = (dUnitName ? dUnitName + ' · ' : '') + (dType === 'grid' ? (EN ? 'Grid-in' : '填空') : (EN ? 'Multiple choice' : '选择'));
       const ptsTxt = dPoints == null ? '—' : (EN ? dPoints + ' pt' : dPoints + ' 分');
       /* 题号已经在 Q${dPos} 上报过一次了，知识点名后面再拖「· 第 12 题」只是噪音。 */
       const topicNameHtml = (raw) => esc(String(raw || '—').replace(/\s*·\s*第\s*\d+\s*题$/, ''));
