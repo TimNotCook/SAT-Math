@@ -38,6 +38,11 @@
     clearTimeout(jyToast._t);
     jyToast._t = setTimeout(function () { t.classList.remove('show'); }, 2600);
   }
+  /* 答题写盘失败不能在界面上假装已保存：答案还在内存里，刷新就丢。 */
+  function commitAnswer(q, v) {
+    commitAnswer(q, v);
+    if (J.saveFailed && J.saveFailed()) jyToast('答案保存失败：本地存储不可写，刷新后本题会丢失');
+  }
 
   /* ---------- 四个子板块 ---------- */
   var JY_ARROW = '<svg class="entry-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
@@ -173,7 +178,7 @@
         }).join('') + '</div>';
       els.jyAnswerArea.querySelectorAll('[data-choice]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          J.answerQ(q, btn.dataset.choice); J.setCursor(boardId, section, index);
+          commitAnswer(q, btn.dataset.choice);
           renderQ();
         });
       });
@@ -190,7 +195,7 @@
       var boxes = els.jyAnswerArea.querySelectorAll('.jyGridInput');
       function commitMulti() {
         var v = [].slice.call(boxes).map(function (n) { return n.value.trim(); }).join(', ');
-        J.answerQ(q, v); J.setCursor(boardId, section, index);
+        commitAnswer(q, v);
       }
       document.getElementById('jyGridSet').addEventListener('click', function () { commitMulti(); renderQ(); });
       boxes.forEach(function (n) {
@@ -201,7 +206,7 @@
         'aria-label="填写答案" placeholder="填写答案" value="' + esc(val) + '">' +
         '<button class="btn primary" type="button" id="jyGridSet">确定</button></div>';
       var input = document.getElementById('jyGridInput');
-      function commit() { J.answerQ(q, input.value); J.setCursor(boardId, section, index); }
+      function commit() { commitAnswer(q, input.value); }
       document.getElementById('jyGridSet').addEventListener('click', function () { commit(); renderQ(); });
       input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { commit(); renderQ(); } });
     }

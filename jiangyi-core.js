@@ -203,7 +203,8 @@
     else a.v = '';
     if (typeof a.ts !== 'number' || !isFinite(a.ts)) a.ts = 0;
   });
-  function save() { write(KEY, S); }
+  var lastSaveFailed = false;
+  function save() { var ok = write(KEY, S); lastSaveFailed = !ok; return ok; }
   function answerOf(qid) { return S.answers[qid] || null; }
   function answerQ(q, v) {
     var correct = window.TDGrade ? window.TDGrade.isCorrect(q, v) : false;
@@ -211,6 +212,7 @@
     save();
     return correct;
   }
+  function saveFailed() { return lastSaveFailed; }
   function clearQ(qid) { delete S.answers[qid]; save(); }
   function setCursor(boardId, section, i) {
     S.last = { board: boardId, section: section, i: i }; S.cursor = i; save();
@@ -324,6 +326,7 @@
   }
 
   window.TD_JY = {
+    saveFailed: saveFailed,
     ALL: ALL, BY_ID: BY_ID, boards: boards, board: board, sectionsOf: sectionsOf,
     TB_GROUP: TB_GROUP, groupQuestions: groupQuestions, groupStats: groupStats,
     questionsOf: questionsOf, sourceLabel: sourceLabel, declared: declared,

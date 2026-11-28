@@ -94,3 +94,16 @@ test('讲义 submitted 是字符串 "false" 时不当作已交卷', () => {
   const J = boot(store).TD_JY;
   assert.equal(J.submittedOf('1.1'), null);
 });
+
+test('讲义答题写盘失败时向外报失败，页面不假装已保存', () => {
+  const store = { tdsat_jiangyi_v1: JSON.stringify({ answers: {}, submitted: {}, cursor: 0 }) };
+  const J = boot(store, { throwWriteKey: 'tdsat_jiangyi_v1' }).TD_JY;
+  const { q } = firstBoardSection(J);
+  let threw = null;
+  try { J.answerQ(q, 'A'); } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '写盘失败时答题直接抛异常：' + (threw && threw.message));
+  assert.equal(J.saveFailed(), true, '写盘失败后核心状态仍报成功');
+  const page = fs.readFileSync(path.join(ROOT, 'jiangyi-page.js'), 'utf8');
+  assert.match(page, /J\.saveFailed\(\)/, '页面从未检查 saveFailed，用户会以为答案已保存');
+  assert.match(page, /答案保存失败[^']*刷新后本题会丢失/, '页面没有写盘失败的用户提示');
+});

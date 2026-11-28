@@ -838,3 +838,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 
 `jiangyi-core.js submitSection()` 先 `write(RESULTS_KEY, all)` 不看返回值，再把 `S.submitted[section]` 标成已完成并 `save()`。配额满/只读存储让成绩仓库写失败时，结果页照样显示本次成绩，记录页却因为没有 results 记录永远看不到这一条；本节磁贴还显示完成，用户以为成绩已存。修成 `if (!write(RESULTS_KEY, all)) return null;`，失败时 submitted 和答案都不动；`jiangyi-page.js` 交卷处理拿到 null 时不再回列表，提示「成绩保存失败：本地存储不可写，请清理空间后重试」。验证：注入 `tdsat_exam_suite_results_v1` 写入抛错，旧代码返回交卷记录并把 submitted 标成完成，断言失败；新代码返回 null、submitted 仍为 `{}`，通过；全量 640/0。
 
+
+## 第 121 条：讲义答题写盘失败仍把答案留在内存里假装已保存（2026-11-28）
+
+`jiangyi-core.js` 的 `save()` 一直调用 `write(KEY,S)` 却不看返回值，`answerQ()` 和 `setCursor()` 写完就渲染：配额满/只读存储/无痕模式下，答案只进了内存，页面照常显示已选选项，刷新或换页即消失；用户没有任何提示，还会以为复习记录已经保存。第 120 条只修了交卷成绩仓库，没有覆盖普通答题路径。修成 `save()` 返回成功与否并记 `lastSaveFailed`，对外暴露 `TD_JY.saveFailed()`；`jiangyi-page.js` 三个答题入口统一走 `commitAnswer()`，写完检查 `saveFailed()`，失败提示「答案保存失败：本地存储不可写，刷新后本题会丢失」。验证：注入 `tdsat_jiangyi_v1` 写入抛错，`answerQ()` 不抛异常且 `saveFailed()` 为 true，页面源码必须检查 `saveFailed()` 并出现该提示；全量 641/0。
