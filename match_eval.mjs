@@ -14,7 +14,7 @@
  */
 import { spawn } from 'child_process';
 const BASE = process.argv[2] || 'https://timnotcook.github.io/SAT-Math';
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME = process.env.CHROME_BIN || '/usr/local/bin/chromium';
 const PORT = 9400 + Math.floor(Math.random() * 80);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
