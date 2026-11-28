@@ -80,10 +80,20 @@ for(const p of PAGES){
   results.push({name:p.name,pass,checks,resources:resources.length,badRes,errors:errs.slice(0,5)});
 }
 // 交互验证：设置面板可开
-await c.send('Page.navigate',{url:BASE+'/wrong.html'});await sleep(3000);
+await c.send('Page.navigate',{url:BASE+'/wrong.html'});
+// 线上 Pages 偶发慢个一两秒，固定 3s 会让断言偶发报「找不到设置按钮」。等 DOM 真正就绪。
+for(let i=0;i<30;i++){await sleep(500);
+  const r=await c.send('Runtime.evaluate',{expression:"document.readyState==='complete' && !!document.querySelector('.td-set-tab, .td-acct-layer, button')",returnByValue:true});
+  if(r?.result?.value)break;
+}
+await sleep(1000);
 const inter=await c.send('Runtime.evaluate',{expression:`(async()=>{
-  const btns=[...document.querySelectorAll('button')];
-  const b=btns.find(x=>x.getAttribute('aria-label')==='设置'||x.textContent.trim()==='设置');
+  let b=null;
+  for(let i=0;i<20;i++){
+    b=[...document.querySelectorAll('button')].find(x=>x.getAttribute('aria-label')==='设置'||x.textContent.trim()==='设置');
+    if(b)break;
+    await new Promise(r=>setTimeout(r,300));
+  }
   if(!b)return JSON.stringify({ok:false,why:'no settings button'});
   b.click();await new Promise(r=>setTimeout(r,300));
   const panel=document.querySelector('.td-acct-layer');
