@@ -1,0 +1,50 @@
+diff --git a/supa-cloud.js b/supa-cloud.js
+index 6705094..b7994eb 100644
+--- a/supa-cloud.js
++++ b/supa-cloud.js
+@@ -637,7 +637,14 @@
+   /* 跨标签页同步：别的标签页登录 / 退出后，本页按 localStorage 会话快照校正状态。 */
+   window.addEventListener('storage', function (ev) {
+     if (ev.key !== SESSION_KEY) return;
++    var prev = session;
+     session = loadSession();
++    /* 另一个标签页刚续期成功时，本页可能还停在 refreshDead=true（它先撞了
++       invalid_grant）。只把新会话读进来却不复位这个标记，token() 会继续返回
++       null，用户会在一个「明明有票」的标签页里被要求重新登录。 */
++    if (session && (!prev || session.access !== prev.access || session.refresh !== prev.refresh)) {
++      refreshDead = false;
++    }
+     emit();
+     if (session) refreshIfNeeded();
+   });
+diff --git a/test/session-resilience.test.js b/test/session-resilience.test.js
+index a6d8752..11eab7e 100644
+--- a/test/session-resilience.test.js
++++ b/test/session-resilience.test.js
+@@ -124,3 +124,26 @@ test('HTTP 状态码不被 raw() 吞成 0（否则分不清失效与断网）',
+   assert.ok(store[SESSION_KEY], '没有 refresh_token 时不该清会话');
+   assert.ok(got && got.uid === 'uid-5');
+ });
++
++test('别的标签页续期成功后，本页的 refreshDead 必须复位', async () => {
++  const { SB, store, listeners } = load(async (url) => {
++    if (String(url).includes('/auth/v1/token')) return makeRes(400, { msg: 'Invalid Refresh Token: Refresh Token Not Found' });
++    if (String(url).includes('/rest/v1/progress')) return makeRes(200, []);
++    return makeRes(401, { msg: 'invalid JWT' });
++  }, seed('uid-6', -1000));
++  let got = 'unset';
++  SB.onState(u => { got = u; });
++  await sleep(60);
++  assert.equal(store[SESSION_KEY], undefined, '本页先撞 invalid_grant，会话被清');
++
++  /* 另一个标签页拿到新票并写回 localStorage，storage 事件传到本页。 */
++  store[SESSION_KEY] = JSON.stringify({
++    access: 'tk-other', refresh: 'rt-other', expiresAt: Date.now() + 3600 * 1000,
++    user: { id: 'uid-6', email: 'tim@example.com' }
++  });
++  listeners.storage({ key: SESSION_KEY });
++  assert.ok(got && got.uid === 'uid-6', '应恢复登录态');
++
++  /* 不走内部 token：用真实读档案接口验证「有票却判失效」不会再发生。 */
++  await SB.getArchive();
++});
