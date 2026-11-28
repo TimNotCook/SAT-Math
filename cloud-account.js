@@ -1333,14 +1333,25 @@
     b.appendChild(el('p', 'td-acct-note', '只有单元练习受这个开关控制：专项训练、单元抽查与模考始终显示计算器。设置保存在这台设备。'));
   }
 
+  /* 说明页按当前界面语言直接出整句：节点里混着换行和数字时，
+     逐词替换的词典翻不动，英文模式下会剩半句中文。 */
+  function langEn() {
+    return !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en');
+  }
+
   function renderAboutTab() {
     var b = ui.body;
+    var en = langEn();
     b.appendChild(el('div', 'td-acct-who', 'SAT Math'));
-    var bank = (window.TD_BANK && window.TD_BANK.questions) ? window.TD_BANK.questions.length : 0;
-    b.appendChild(el('p', 'td-acct-note',
-      '真题练习 · 单元抽查 · 错题回顾 · 模考\n题库 ' + bank + ' 题。'));
-    b.appendChild(el('p', 'td-acct-note',
-      '登录后每位用户都有独立的学习档案，进度自动保存、自动跟随。\n登录完全自愿，不登录也能使用全部功能。'));
+    b.appendChild(el('p', 'td-acct-note', en
+      ? 'Practice · Unit Quiz · Wrong Answers · Mock Test'
+      : '真题练习 · 单元抽查 · 错题回顾 · 模考'));
+    b.appendChild(el('p', 'td-acct-note', en
+      ? 'Each signed-in user gets a separate study profile; progress saves and follows automatically.'
+      : '登录后每位用户都有独立的学习档案，进度自动保存、自动跟随。'));
+    b.appendChild(el('p', 'td-acct-note', en
+      ? 'Signing in is optional — every feature works without an account.'
+      : '登录完全自愿，不登录也能使用全部功能。'));
   }
 
   function renderBody() {
@@ -1532,6 +1543,12 @@
 
   function boot() {
     loadProf();
+    /* 模考页是英文 Bluebook 界面（exam.html 里把 lang 直接设成 en），
+       设置面板跟着英文，不然同一个屏幕上「Settings」配一屏中文。 */
+    var mockPage = !!(document.body && document.body.classList.contains('is-mock'));
+    if (mockPage && window.TDI18n && window.TDI18n.force) {
+      try { window.TDI18n.force('en'); } catch (e) { console.warn('模考页强制英文失败', e); }
+    }
     exposeNotify();
     var btn = buildUI();
     mountButton(btn);

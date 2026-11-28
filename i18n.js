@@ -319,6 +319,65 @@
     '草稿板：在题目上涂画标记、写草稿，答案可直接填写': 'Scratch pad: draw on the question and take notes; answers can be typed directly',
     '题目工具': 'Question tools',
     '全站导航': 'Site navigation',
+
+    /* 设置面板 · 账户（登录 / 注册 / 重置 / 已登录） */
+    '保存密码': 'Save password',
+    '已经通过重置链接登录，在下面设一个新密码就完成重置。': 'You are signed in through the reset link. Set a new password below to finish resetting.',
+    '登录密码': 'Password',
+    '至少 6 位，设好后可换设备登录': 'At least 6 characters; lets you sign in on other devices',
+    '设好密码后，换设备可以直接用邮箱或手机号 + 密码登录，不必等邮件。':
+      'Once a password is set you can sign in on another device with email or phone + password, no email needed.',
+    '账号模块未能加载，做题与进度照常保存，不受影响。':
+      'The account module did not load. Practice and progress still save as usual.',
+    '重置密码': 'Reset password',
+    '注册时用的邮箱': 'The email you signed up with',
+    '发送重置链接': 'Send reset link',
+    '返回登录': 'Back to sign in',
+    '重置链接只发到邮箱。': 'The reset link is sent by email only.',
+    '改用邮箱 / 手机号 + 密码登录': 'Use email / phone + password',
+    '邮件里的按钮只能用一次，几分钟内有效；收不到就去垃圾箱翻一下。':
+      'The button in the email works once and expires in a few minutes; check spam if it does not arrive.',
+    '邮箱验证码': 'Email code',
+    '验证码': 'Code',
+    '邮件里的 6 位数字': '6-digit code from the email',
+    '验证码就在邮件正文里，有效期 1 小时；收不到先去垃圾箱翻一下。':
+      'The code is in the email body and is valid for 1 hour; check spam first.',
+    '邮箱或手机号': 'Email or phone',
+    '邮箱 / 手机号 + 密码': 'Email / phone + password',
+    '密码': 'Password',
+    '至少 6 位': 'At least 6 characters',
+    '忘记密码？': 'Forgot password?',
+    '登录': 'Sign in',
+    '注册新账号': 'Create an account',
+    '改用邮箱链接登录': 'Use email link instead',
+    '改用邮箱验证码登录': 'Use email code instead',
+    '第一次用这个账号，先点「注册新账号」，会自动建好学习档案，之前做过的题一并带上。':
+      'First time here? Tap “Create an account” — your profile is created automatically, with the questions you have already done.',
+    '登录成功，正在读取你的学习档案…': 'Signed in, loading your profile…',
+    '手机号或密码不对。还没有账号就点「注册新账号」。':
+      'Wrong phone number or password. New here? Tap “Create an account”.',
+    '邮箱或密码不对。还没有账号就点「注册新账号」。':
+      'Wrong email or password. New here? Tap “Create an account”.',
+    '这个账号是手机号，收不到重置邮件。': 'This account is a phone number, so it cannot receive reset email.',
+    '手机号请用密码登录，登录邮件只发到邮箱。': 'Phone accounts sign in with a password; sign-in email only goes to email addresses.',
+    '邮箱格式不正确，请检查后再试。': 'That email does not look right, please check it.',
+    '这个邮箱已经注册过了，直接点「登录」。': 'This email is already registered — tap “Sign in”.',
+    '操作太频繁了，等一分钟再试。': 'Too many attempts. Wait a minute and try again.',
+    '网络异常，请检查连接后重试。': 'Network problem. Check your connection and try again.',
+    '登录服务返回异常，请刷新页面后重试。': 'The sign-in service returned an error. Refresh and try again.',
+    '登录链接已失效或邮件有误，请重新发送登录邮件。': 'That sign-in link has expired or the email is wrong. Send a new one.',
+    '密码至少 6 位。': 'A password needs at least 6 characters.',
+    '请先填写邮箱或手机号。': 'Enter your email or phone number first.',
+    '请输入密码。': 'Enter your password first.',
+    '登录模块未加载，请刷新页面重试。': 'The sign-in module is not loaded. Refresh and try again.',
+
+    /* 设置面板 · 练习 / 关于 */
+    '打开后，单元练习答题页也会显示计算器按钮；关闭则只有专项训练、单元抽查与模考可用。':
+      'When on, the calculator also appears in Unit Practice; when off it is available only in Targeted Practice, Unit Quiz and Mock Test.',
+    '登录后每位用户都有独立的学习档案，进度自动保存、自动跟随。':
+      'Each signed-in user gets a separate study profile; progress saves and follows automatically.',
+    '登录完全自愿，不登录也能使用全部功能。':
+      'Signing in is optional — every feature works without an account.',
   };
 
   /* 带数字的句子：模板字符串拼出来的是一个整体文本节点，靠模式匹配 */
@@ -350,7 +409,9 @@
       'Imported $1: $2 new, $3 read-only (existing answers), $4 unmatched'],
   ];
 
+  var FORCED_LANG = null;
   function getLang() {
+    if (FORCED_LANG) return FORCED_LANG;
     try {
       var v = localStorage.getItem(KEY);
       if (v === 'en' || v === 'zh') return v;
@@ -533,7 +594,19 @@
     return s;
   }
 
-  var api = { t: t, get: getLang, set: setLang, apply: applyAll, order: EN };
+  /* 单页强制语言：模考页是英文 Bluebook 界面，设置面板也要跟着英文，
+     但用户全站的偏好不能被这一次改动。 */
+  function force(lang) {
+    FORCED_LANG = (lang === 'en') ? 'en' : 'zh';
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('lang', FORCED_LANG === 'en' ? 'en' : 'zh-CN');
+      document.documentElement.setAttribute('data-lang', FORCED_LANG);
+      if (FORCED_LANG === 'en') { applyAll(); watch(); }
+    }
+    return FORCED_LANG;
+  }
+
+  var api = { t: t, get: getLang, set: setLang, apply: applyAll, order: EN, force: force };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   global.TDI18n = api;

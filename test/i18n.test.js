@@ -91,3 +91,26 @@ test('设置里有「语言」页签，并接到 TDI18n.set', () => {
   assert.match(src, /TDI18n\.set/);
   assert.match(src, /function renderLanguageTab/);
 });
+
+test('i18n 支持「只这一页强制英文」，且不写用户偏好', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'i18n.js'), 'utf8');
+  assert.match(src, /function force\(lang\)/, '缺 force');
+  assert.match(src, /force: force/, 'force 没导出');
+  const seg = src.slice(src.indexOf('function force(lang)'), src.indexOf('var api ='));
+  assert.ok(seg.indexOf('localStorage.setItem') < 0, 'force 不能写 localStorage，否则会把全站语言改掉');
+});
+
+test('模考页把设置面板拉成英文，不再「Settings 配一屏中文」', () => {
+  const acct = fs.readFileSync(path.join(ROOT, 'cloud-account.js'), 'utf8');
+  const seg = acct.slice(acct.indexOf('function boot()'));
+  assert.match(seg, /is-mock/, 'boot 里没判断模考页');
+  assert.match(seg, /TDI18n\.force\('en'\)/, '模考页没强制英文');
+});
+
+test('「关于」页不印题库题量，且整句按语言出', () => {
+  const acct = fs.readFileSync(path.join(ROOT, 'cloud-account.js'), 'utf8');
+  const seg = acct.slice(acct.indexOf('function renderAboutTab'), acct.indexOf('function renderBody'));
+  assert.ok(seg.indexOf('题库') < 0, '关于页又出现了题库题量');
+  assert.match(seg, /langEn\(\)/, '关于页没按语言分支');
+});
+
