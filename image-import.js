@@ -972,6 +972,29 @@
     else setTimeout(go, 2500);
   }
 
+  /* 选项行解析：真实卷面上题干下面一定跟着 A) B) C) D) 四个选项。
+     以前本地识别只把整块文字塞进 stem，选项信息全丢了——匹配时少了"选项指纹"
+     这一路证据，题干被截断/糊掉一半的题就更容易被相似题抢走。
+     这里按 A→B→C→D 顺序认标记（至少 3 个才算数），切出 stem 和 choices。 */
+  function splitChoicesText(t) {
+    var s = String(t || '');
+    var re = /(?:^|[\s\.\)])([A-D])\s*[\)\.:]\s*/g, m, marks = [];
+    while ((m = re.exec(s))) marks.push({ k: m[1], i: m.index, e: re.lastIndex });
+    var want = 'ABCD', seq = [];
+    for (var i = 0; i < marks.length; i++) {
+      if (marks[i].k === want.charAt(seq.length)) seq.push(marks[i]);
+    }
+    if (seq.length < 3) return { stem: s, choices: {} };
+    var ch = {}, ok = true;
+    for (var j = 0; j < seq.length; j++) {
+      var end = j + 1 < seq.length ? seq[j + 1].i : s.length;
+      var v = s.slice(seq[j].e, end).replace(/\s+/g, ' ').replace(/^[\)\.:]\s*/, '').trim();
+      if (v.length < 1 || v.length > 80) { ok = false; break; }
+      ch[seq[j].k] = v;
+    }
+    if (!ok) return { stem: s, choices: {} };
+    return { stem: s.slice(0, seq[0].i).trim(), choices: ch };
+  }
   function localOcr(dataUrl) {
     var timer;
     var work = acquireWorker(function (msg) { status(msg); }).then(function (slot) {
@@ -982,7 +1005,8 @@
         var raw = String((out && out.data && out.data.text) || '').replace(/\s+/g, ' ').trim();
         var conf = out && out.data && isFinite(out.data.confidence) ? out.data.confidence / 100 : 0.6;
         if (raw.length < 8) throw new Error('本地识别未读到有效文字');
-        return { stem: raw, type: 'mcq', choices: {}, confidence: Math.max(0.5, Math.min(0.95, conf)), _model: 'tesseract-local' };
+        var sp = splitChoicesText(raw);
+        return { stem: sp.stem, type: 'mcq', choices: sp.choices, confidence: Math.max(0.5, Math.min(0.95, conf)), _model: 'tesseract-local' };
       }, function (e) {
         // 引擎状态可能已坏（内存/线程异常），丢掉重来，下次自动重建
         try { w.terminate(); } catch (e2) { console.warn('重置识别引擎失败', e2); }
