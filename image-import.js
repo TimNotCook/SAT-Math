@@ -1220,6 +1220,45 @@
     });
   }
 
+  /* 拍糊/虚焦专用：**先把图放大、再锐化**（顺序反了就救不回来）。
+     糊掉的笔画在 1x 下梯度已经没了，直接锐化只会放大噪声；先插值放到 2x，
+     笔画边界重新有"斜坡"，再用中心 5 的 3×3 卷积把斜坡掰回台阶，Tesseract 才切得开。
+     保留彩色、不做直方图拉伸——实测灰阶+拉伸反而把细笔画的弱边缘抹掉。 */
+  function deblurImage(dataUrl, targetW) {
+    return new Promise(function (res) {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var tw = targetW || 2200;
+          var sc = Math.max(1, Math.min(2.4, tw / Math.max(1, img.width)));
+          var W = Math.round(img.width * sc), H = Math.round(img.height * sc);
+          var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+          var cx = cv.getContext('2d');
+          cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
+          cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
+          cx.drawImage(img, 0, 0, W, H);
+          if (sc > 1.05) {
+            var d = cx.getImageData(0, 0, W, H), px = d.data;
+            var src = new Uint8ClampedArray(px);
+            for (var y = 1; y < H - 1; y++) {
+              for (var x = 1; x < W - 1; x++) {
+                var i4 = (y * W + x) * 4;
+                for (var c = 0; c < 3; c++) {
+                  var v = 5 * src[i4 + c] - src[i4 - 4 + c] - src[i4 + 4 + c] - src[i4 - W * 4 + c] - src[i4 + W * 4 + c];
+                  px[i4 + c] = v < 0 ? 0 : (v > 255 ? 255 : v);
+                }
+              }
+            }
+            cx.putImageData(d, 0, 0);
+          }
+          res(cv.toDataURL('image/jpeg', 0.92));
+        } catch (e) { res(null); }
+      };
+      img.onerror = function () { res(null); };
+      img.src = dataUrl;
+    });
+  }
+
   function scaleImage(dataUrl, scale, gray) {
     return new Promise(function (res) {
       var img = new Image();
@@ -1256,7 +1295,7 @@
       return r.length ? r[0].score : 0;
     }
     function run(url, tag) {
-      status(tag === 'base' ? '正在识别文字…' : (tag === 'zoom' ? '字有点小，放大后再认一次…'
+      status(tag === 'deblur' ? '字糊了，先放大再锐化…' : tag === 'base' ? '正在识别文字…' : (tag === 'zoom' ? '字有点小，放大后再认一次…'
         : (tag === 'invert' ? '像是深色背景，取反后再认一次…' : '照片偏灰/拍歪了，先压平打正再认…')));
       return ocrImage(url, model).then(function (ocr) {
         /* 计分用"题干 + 选项"整段文字：只拿题干算会把本来够高的分压下去，
@@ -1268,8 +1307,18 @@
         return sc;
       }, function () { return -1; });
     }
+    /* 先跑"放大再锐化"这一遍：它比后面那些灰阶/二值化便宜，而且拍糊的图只有它能救。
+       第一遍就已经很像题库的不用跑。 */
+    function deblurPass() {
+      return deblurImage(dataUrl).then(function (v) {
+        if (!v) return best;
+        return run(v, 'deblur').then(function (s) { return s >= 0.62 ? best : null; });
+      });
+    }
     return run(dataUrl, 'base').then(function (sc) {
-      if (sc >= 0.62 || quick) return best;   // 多块/已经慢了：只认一遍，别为一道题耗十几秒
+      if (sc >= 0.62 || quick) return best;
+      return deblurPass().then(function (done) {
+      if (done) return best;   // 多块/已经慢了：只认一遍，别为一道题耗十几秒
       return scaleImage(dataUrl, 1.6).then(function (v) {
         if (!v) return best;
         return run(v, 'zoom').then(function (sc2) {
@@ -1334,6 +1383,7 @@
           return photoPass();
         });
       });
+      });   // deblurPass
     }).then(function (r) {
       if (!r || !r.ocr) throw new Error('本地识别未读到有效文字');
       return r;
