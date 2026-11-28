@@ -1,0 +1,12 @@
+diff --git a/i18n.js b/i18n.js
+index cebdc0a..8f81a3b 100644
+--- a/i18n.js
++++ b/i18n.js
+@@ -39,6 +39,7 @@
+     '标记本题': 'Mark this question',
+     '取消标记': 'Unmark',
+     '完成本板块': 'Finish section',
++    '完成本板块并查看结果': 'Finish section and view results',
+     '交卷': 'Submit',
+     '检查': 'Check',
+     '已锁定': 'Locked',
