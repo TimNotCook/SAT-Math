@@ -844,6 +844,20 @@
     });
   }
 
+  /* 从识别文本里挑关键词：长词（更可能是题目专属名词）+ 题干里的数字。
+     停用词和短词全部滤掉，避免把 "what is the value of" 这类通用串拿去搜，
+     搜出来全是题干句式相近的无关题。 */
+  var STOPWORDS = ('the a an and or of to in on at for with that this is are was were be been from as by it its what which how many value given above following about ' +
+    'if then when than more less each every per total number numbers equation equations graph shown figure table line lines slope intercept point points').split(' ');
+  function pickKeywords(stem) {
+    var words = String(stem || '').toLowerCase().replace(/[^a-z0-9.]+/g, ' ').split(' ').filter(Boolean);
+    var keep = words.filter(function (w) { return w.length >= 4 && STOPWORDS.indexOf(w) < 0 && !/^[0-9.]+$/.test(w); })
+      .sort(function (a, b) { return b.length - a.length; }).slice(0, 4);
+    var nums = String(stem || '').match(/[0-9][0-9,.]*/g) || [];
+    nums = nums.filter(function (n) { return n.replace(/[,.]/g, '').length >= 2; }).slice(0, 3);
+    return keep.concat(nums).join(' ').slice(0, 80);
+  }
+
   function finderSearch() {
     var inp = $('imgimpSearch'); if (!inp) return 0;
     var q = String(inp.value || '').trim();
@@ -1033,7 +1047,15 @@
       if (skipped) msg += '；' + skipped + ' 道因已有作答被跳过';
       if (!added && dups && !fail && !unmatched) msg = '这些题已经在错题本里了（' + dups + ' 道，没有重复写入）';
       if (!added && !fail && !skipped && !unmatched && !dups) msg = '未能匹配到题库题目，本次未导入';
-      if (fail || unmatched) msg += '　→ 等不及的话，直接在下面的搜索框敲题干里的几个词/数字，点题即导入。';
+      if (fail || unmatched) msg += '　→ 已把最可能的几道题列在下面，点一道直接导入。';
+      // 有没认准的块：拿它读到的字自动搜一遍题库，把候选直接摆出来，
+      // 用户不用自己想关键词——这一步是"识别不出来"时最快的出路。
+      var miss = pages.filter(function (p) { return !p.qid && p.ocr && p.ocr.stem; })[0];
+      if (miss && $('imgimpSearch')) {
+        var kw = pickKeywords(miss.ocr.stem);
+        $('imgimpSearch').value = kw;
+        try { finderSearch(); } catch (e) { console.warn('自动搜题失败', e); }
+      }
       status(msg);
       renderRows();
       return { total: pages.length, ok: ok, fail: fail, added: added, skipped: skipped };
