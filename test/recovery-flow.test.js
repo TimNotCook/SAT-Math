@@ -35,6 +35,12 @@ test('面板上有「忘记密码」入口和重置页', () => {
   assert.ok(/doSendReset/.test(acct), '没接 doSendReset');
 });
 
+test('从重置链接回来会自动把面板打开在账户页', () => {
+  assert.ok(/recoveryOpened/.test(acct), '没有「只自动开一次」的守卫');
+  const seg = acct.slice(acct.indexOf('function onState'));
+  assert.ok(/recoveryPending/.test(seg.slice(0, 900)), 'onState 里没检查 recovery 标记');
+});
+
 test('设好新密码后清掉 recovery 标记', () => {
   const seg = acct.slice(acct.indexOf('async function doSetPassword'));
   assert.ok(/clearRecovery/.test(seg.slice(0, 400)), '设密码后没清标记');

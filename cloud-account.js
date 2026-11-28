@@ -45,7 +45,8 @@
   var otpSent = false;
   var otpEmail = '';
   var pwdEmail = '';
-  var loginMode = 'password';   // password | link | code
+  var loginMode = 'password';   // password | link | code | reset
+  var recoveryOpened = false;   // 重置链接回来只自动开一次面板
   var codeSent = false;
   var pwdBusy = false;
   var otpCooldown = 0;
@@ -784,6 +785,14 @@
       if (ui) ui.btn.setAttribute('data-on', '1');
       if (!was || was.uid !== user.uid) afterSignIn();
       else renderBody();
+      /* 从「重置密码」链接回来的：直接把设置面板打开在账户页，
+         否则人点了邮件里的按钮只看到首页，根本不知道去哪儿设新密码。 */
+      if (!recoveryOpened && SB && SB.recoveryPending && SB.recoveryPending() && ui) {
+        recoveryOpened = true;
+        activeTab = 'account';
+        ui.layer.setAttribute('data-open', '1');
+        renderBody();
+      }
     } else {
       nickname = '';
       if (ui) ui.btn.setAttribute('data-on', '0');
