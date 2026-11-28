@@ -245,6 +245,12 @@
     /* 交本节会把没答的题按错计入成绩、并锁死本节答案（和交卷一个道理）。
        一题没答时尤其要拦一下：点了「交本节」就直接拿到 0 分 + 满屏错题，
        人以为系统坏了。 */
+    /* 没进到某个小节就点交卷（板块页/URL 恢复失败时按钮仍可能被触发）：
+       以前会把整板块 49 题当成“本节”交掉，写一条 0/49 的垃圾记录，
+       错题页立刻多出几十条「未答」错题。先退回板块页，别写。 */
+    if (!boardId || !section) {
+      jyToast('先选一个小节再交'); if (boardId) openBoard(boardId); return;
+    }
     var qs = J.questionsOf(boardId, section);
     var total = qs.length, unanswered = 0;
     qs.forEach(function (q) {
