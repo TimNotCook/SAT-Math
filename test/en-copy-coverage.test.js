@@ -112,3 +112,23 @@ test('板块标题永不出 undefined：旧编号 2.6 也报得出名字', () =>
   assert.ok(/list\[0\]\[?.*section/.test(core) || core.includes('list[0] && list[0].section'), '缺按首题 section 找回真名的逻辑');
   assert.ok(core.includes("\\d\\.\\d\\.T"), '专项板块 id（2.7.T23）没去编号');
 });
+
+test('成绩页/做题页 body 不能因为 :has() 变成 flex 横排（会整页横向溢出）', () => {
+  const css = read('app.css');
+  assert.ok(!/body\.site-shell:has\(#(questionView|resultView)[^)]*\)\s*\{/.test(css),
+    'body 又被 :has() 挂上 {display:flex}，做题/成绩页在手机上会横向铺开');
+  assert.ok(!/body\.site-shell:has\(#resultView[^\n]*\) #appnav\{display:block/.test(css),
+    '成绩页又把顶部导航拉回来，和侧栏重复一遍同样的链接');
+});
+
+test('「改进方向：」前缀不能写死中文：英文界面要换成 How to improve', () => {
+  const css = read('app.css');
+  assert.ok(css.includes('html[data-lang=\"en\"] .cause-box .fix::before'), '缺英文前缀');
+  const wp = read('wrong-page.js');
+  assert.ok(!wp.includes("' 改进方向：'"), '错题页又自己拼了一遍中文前缀');
+});
+
+test('记录页剥时间噪音的正则要吃下「平均用时 N 秒」', () => {
+  const js = read('history-page.js');
+  assert.ok(/平均\(每题\|每道\|用时\)/.test(js), '正则只认「平均每 N 秒」，认不出「平均用时」');
+});

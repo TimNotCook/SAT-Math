@@ -7,15 +7,25 @@ const path = require('path');
 
 const JS = fs.readFileSync(path.join(__dirname, '..', 'image-import.js'), 'utf8');
 
+<<<<<<< HEAD
 test('自动导入检查 APP().save() 返回值，并把失败写进结果与提示', () => {
   assert.match(JS, /var localWriteFailed = !APP\(\)\.save\(\);[\s\S]*?本机进度写入失败/,
     'importChecked 仍把 APP().save() 当永远成功');
+=======
+test('自动导入检查 A.save() 返回值，并把失败写进结果与提示', () => {
+  assert.match(JS, /var localWriteFailed = !(?:A|APP\(\))\.save\(\);[\s\S]*?本机进度写入失败/,
+    'importChecked 仍把 A.save() 当永远成功');
+>>>>>>> f9c6d7e (fix(layout): 成绩/做题页 body 被 :has() 挂成 flex 横排导致整页横向溢出；成绩页双导航；英文成绩页「改进方向」中文前缀)
   assert.match(JS, /res && res\.localWriteFailed[\s\S]*?本机进度写入失败/,
     '识别结束的汇总消息没有带上写盘失败提示');
 });
 
 test('撤销导入和手动单题导入也会提示写盘失败', () => {
+<<<<<<< HEAD
   assert.match(JS, /removed\.push[\s\S]*?savedUndo = APP\(\)\.save\(\)[\s\S]*?st2\.answers\[x\.q\] = x\.a/, '撤销写盘失败后没有把内存里的导入记录恢复');
+=======
+  assert.match(JS, /removed\.push[\s\S]*?savedUndo = (?:A|APP\(\))\.save\(\)[\s\S]*?st2\.answers\[x\.q\] = x\.a/, '撤销写盘失败后没有把内存里的导入记录恢复');
+>>>>>>> f9c6d7e (fix(layout): 成绩/做题页 body 被 :has() 挂成 flex 横排导致整页横向溢出；成绩页双导航；英文成绩页「改进方向」中文前缀)
   assert.match(JS, /撤销没有生效[\s\S]*?再点一次/, '撤销写盘失败仍显示已撤销');
   assert.match(JS, /savedOne[\s\S]*?刷新后这道题可能丢失/, '手动导入写盘失败仍只显示已导入');
 });

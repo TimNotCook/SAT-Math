@@ -288,7 +288,7 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
      var a=window.TD_ANALYSIS.analyze(q,g,(window.TD_TEXT||{})[q.id]);
      /* 英文模式下 TD_ANALYSIS 已把 cause/fix 换成英文，只剩连接词要跟着换。 */
      var en=false;try{en=localStorage.getItem('tdsat_lang')==='en'}catch(e){}
-     return{title:a.title,detail:a.cause+(en?' How to improve: ':' 改进方向：')+a.fix};
+     return{title:a.title,detail:a.cause+' '+a.fix.replace(/^[\s:：]*/, '')};
    }
    if(!g)return{title:'未作答 / 时间分配',detail:'本次没有留下答案。先识别题型与已知条件，再检查是否因耗时过长而跳过。'};
    if(q.type==='grid'){
