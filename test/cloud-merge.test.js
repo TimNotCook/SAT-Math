@@ -219,6 +219,14 @@ test('本地存储不可写时整份替换失败，不先删掉本机进度', ()
   assert.strictEqual(store.tdsat_app_v1, local, '写入失败前已经把本机进度删了');
 });
 
+test('本机快照读不到时 applyPayload 拒绝整份替换，不清本地进度', () => {
+  const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: true, ts: 10 } } } } });
+  const { M, store } = boot({ tdsat_app_v1: local }, { throwRead: true });
+  const ok = M.applyPayload({ tdsat_app_v1: JSON.stringify({ sections: {} }) });
+  assert.equal(ok, false, '读不到本机快照仍返回成功');
+  assert.equal(store.tdsat_app_v1, local, '看不见的本机进度被云端空档案覆盖');
+});
+
 test('applyArchive 把 applyPayload 的失败返回给账号分支，不静默当成功', () => {
   const local = JSON.stringify({ sections: {} });
   const { M, store } = boot({ tdsat_app_v1: local }, { throwWrite: true });

@@ -803,3 +803,6 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 111 条：交卷成绩写盘失败被静默吞掉，页面照常显示成绩（2026-11-28）
 
 `exam.js` 的 `save(k,v)` 在 `localStorage.setItem` 抛错时只 `console.warn`，不返回成败；交卷分支 `save(KEY_RESULTS, all)` 后直接 `renderResult()`，配额满/只读存储时页面照常显示这次成绩，刷新后成绩消失，用户以为已经保存。修成 `save` 返回布尔，交卷分支接住 `resultSaved`，失败时 `toast('成绩保存失败：本地存储不可写，刷新后这次成绩可能丢失')`（自动交卷的英文提示之后仍会补这条）。验证：静态回归要求 `save` 有 `return ok`、交卷处接住 `resultSaved` 并提示失败，旧代码在「save 没有返回写入成败」处失败；全量 628/0。
+## 第 112 条：本地快照读不到时仍做整份替换，会把看不见的本机进度清掉（2026-11-28）
+
+`applyPayload()` 用 `snapshot() || {}` 取本机旧档。第 109 条把 `snapshot()` 的读失败改成了 `null`，但这里 `null || {}` 又变回空对象：随后清空本机 `tdsat_*`、写云端档案，返回成功。Safari 禁用站点数据、存储部分不可用时，用户看不见的本机作答被云端空档案直接覆盖，且没有任何提示。修成：`snapshot()` 返回 `null` 时在清空任何键之前拒绝整份替换，返回 false，本机原样保留。验证：注入 `length/getItem` 抛错，旧代码 `applyPayload` 返回 true 并把 `tdsat_app_v1` 写成云端空档，新代码返回 false 且本机值不变；全量 627/0；`verify_flows` 16/16。

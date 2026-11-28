@@ -271,7 +271,14 @@
       try { v = localStorage.getItem(k); } catch (e) { console.warn('读取本地存储失败', e); }
       if (v != null) keep[k] = v;
     }
-    var cur = snapshot() || {}, failed = false;
+    var cur = snapshot();
+    if (cur == null) {
+      /* 读不到本机快照 ≠ 本机是空档案：此时无法知道哪些键会被覆盖，
+         整份替换会把看不见的本机进度永久清掉。直接拒绝，保留原状。 */
+      console.warn('本地快照不可读，拒绝整份替换');
+      return false;
+    }
+    var failed = false;
     Object.keys(cur).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) { console.warn('清除本地存储失败', e); } });
     Object.keys(clean).forEach(function (key) {
       try { if (typeof clean[key] === 'string') localStorage.setItem(key, clean[key]); }
