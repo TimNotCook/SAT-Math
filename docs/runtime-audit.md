@@ -1077,3 +1077,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 173 条：改密码后其他设备还能继续用旧会话（2026-11-28）
 
 `setPassword` 只 `PUT /auth/v1/user` 换当前设备的密码，别的设备上偷来的 refresh token 还能继续续期，改密码等于只改了一半。现在改密成功后补一次 `POST /auth/v1/logout?scope=others`，踢掉除当前会话外的所有会话；这一步失败不回滚密码、也不谎报失败，只记日志。验证：`password-login` 断言改密后发出 scope=others 且带当前 token；全量 739/0。
+
+## 第 174 条：重复邮箱被 Supabase 返回成“假 user”，界面却让人去等确认邮件（2026-11-28）
+
+开了邮箱确认后，Supabase 对已存在的邮箱常返回一个 `identities: []` 的假 user，不发信也不报 already exists。原逻辑把任何“没有 access_token 但有 user”都当成注册成功待确认，用户会一直等一封不会来的确认邮件。现在先认 `identities` 为空数组为已注册，抛 `auth/email-already-in-use`，界面切回登录并提示直接登录；真正待确认的 user（identities 非空）仍走确认提示。验证：`password-login` 模拟假 user，断言已注册且只发一次 signup；全量 740/0。

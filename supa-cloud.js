@@ -405,6 +405,14 @@
           pe.code = 'auth/phone-signup-no-session';
           throw pe;
         }
+        /* Supabase 开了邮箱确认后，重复邮箱会返回一个 identities 为空的
+           假 user，既不发确认邮件，也不报 already exists。把它当成“注册成功
+           等确认”，用户会一直等一封不会来的信。 */
+        if (Array.isArray(r.user.identities) && r.user.identities.length === 0) {
+          var ee = errOf(400, { msg: '这个邮箱已经注册过了，直接点「登录」。' });
+          ee.code = 'auth/email-already-in-use';
+          throw ee;
+        }
         var ne = errOf(400, { msg: '注册成功，但还需要去邮箱点确认链接；确认后再回来登录。' });
         ne.code = 'auth/email-confirm-required';
         throw ne;

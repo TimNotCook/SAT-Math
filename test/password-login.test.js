@@ -276,3 +276,14 @@ test('改密后踢掉其他设备的会话，当前设备不被踢', async () =>
   assert.ok(kick, '改密后没有踢其他设备');
   assert.equal(kick.auth, 'Bearer tk-live', '踢会话没带当前 token');
 });
+
+test('重复邮箱返回 identities 为空的假 user，要识别成已注册而不是等确认', async () => {
+  const calls = [];
+  const { SB } = loadModule(async (url) => {
+    calls.push(String(url));
+    return makeRes(200, { user: { id: 'uid-x', email: 'tim@example.com', identities: [] } });
+  });
+  await assert.rejects(() => SB.signUpPassword('tim@example.com', 'satmath123'),
+    e => e.code === 'auth/email-already-in-use' && /已经注册/.test(e.message));
+  assert.equal(calls.filter(u => u.includes('/auth/v1/signup')).length, 1);
+});
