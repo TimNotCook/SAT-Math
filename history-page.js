@@ -100,6 +100,10 @@
        以 detail 条数为准，别显示「答对 20 / 2」这种不可能的分数。 */
     if (detail.length && (total == null || total <= 0 || total < detail.length)) total = detail.length;
     if (total == null || total <= 0) total = detail.length;
+    /* 官方模考整卷只有 44 题：旧版/云端把 total 写成 999 时，记录条会印
+       「官方模考 · 全卷 999 题」，正确率也被 999 的分母稀释成个位数。
+       有逐题明细时已按明细兜底；没有明细也不能信任超过 44 的题数。 */
+    if (txt(rec && rec.mode) === 'mock' && total > 44) total = 44;
     var counted = detail.length ? detail.filter(function (d) { return isRight(d.correct); }).length : null;
     var correct = countNum(rec && rec.correct);
     /* correct 缺失、负数或大于 total 都是坏值：有逐题明细就按明细数，没有就夹到 0..total。

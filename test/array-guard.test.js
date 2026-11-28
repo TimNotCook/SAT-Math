@@ -397,6 +397,23 @@ test('记录页：模考记录没有 total/detail 时标题写全卷 44 题，�
   assert.ok(!/全卷 0 题/.test(html), '模考标题仍写成全卷 0 题');
 });
 
+test('记录页：模考 total 被写成 999 时按 44 题封顶，不显示「全卷 999 题」', () => {
+  const detail = Array.from({ length: 44 }, (_, i) => ({ id: 'TD-11-' + String(i + 1).padStart(2, '0'), correct: true }));
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1700000000000, mode: 'mock', total: 999, correct: 44,
+      estimate: { scaled: 700 }, detail,
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, 'total=999 的模考记录打崩记录页：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(!/全卷 999 题/.test(html), '坏 total 仍把整卷印成 999 题');
+  assert.ok(/全卷 44 题/.test(html), '模考没有按官方 44 题封顶');
+  assert.ok(/答对 <b>44 \/ 44<\/b>/.test(html), '44/999 的分母没有按 44 题收敛');
+});
+
 test('记录页：void 作废档案不能当正式成绩显示 0 分和整卷错题', () => {
   const store = {
     tdsat_exam_suite_results_v1: JSON.stringify([{
