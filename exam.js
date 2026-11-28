@@ -381,7 +381,8 @@
     const now = Date.now();
     /* 作废记录要跟着卷面归属走：Unit 2 页面捡到 Unit 1 的旧卷时，
        留档不能把这张卷记成 Unit 2，否则云端档案里的单元归属是错的。 */
-    const savedUnit = session.mode === 'quiz' && Number(session.unitId) > 0 ? Number(session.unitId) : QUIZ_UNIT;
+    const savedModeNorm = String(session.mode == null ? '' : session.mode).trim().toLowerCase();
+    const savedUnit = savedModeNorm === 'quiz' && Number(session.unitId) > 0 ? Number(session.unitId) : QUIZ_UNIT;
     const rec = {
       date: now, mode: session.mode || MODE, unit: savedUnit, sub: null,
       module: session.module || 1, path: session.path || null, auto: false,
@@ -502,7 +503,10 @@
     }
     /* 存档存在但无法按官方结构重建：静默作废，直接给新卷。
        开场页预生成、还没开考的存档（没有 startedAt / 还停在 intro）不入留档。 */
-    if (saved && saved.mode === MODE) {
+    /* 云端合并/旧版会把 mode 写成 'MOCK'/'QUIZ'：严格比较会把它当成「别的模式」，
+       既不清理也不留档，用户一点 Start 新会话就把这张卷覆盖掉。 */
+    const sameSavedMode = v => String(v == null ? '' : v).trim().toLowerCase() === String(MODE).trim().toLowerCase();
+    if (saved && sameSavedMode(saved.mode)) {
       const started = Number(saved.startedAt) > 0 && saved.stage && saved.stage !== 'intro';
       const canClear = started ? salvageThenClear(saved, fixed.reason) : true;
       if (canClear) {

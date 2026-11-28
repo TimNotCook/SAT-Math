@@ -897,3 +897,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 135 条：留档写失败后仍让用户点 Start，新会话把唯一一份原卷覆盖掉（2026-11-28）
 
 `salvageThenClear()` 写盘失败时只弹一句「原会话已保留」并返回 false，但 `runtimeVoid()` 和 `recoverInvalid()` 照样 `adopt(newSession())`、回到开场页。原会话确实还在 `KEY_SESSION` 里，可用户一点 Start，`persist()` 就用新卷覆盖它——「保留」只保到下一次点击，35 分钟卷面还是丢。修成新增 `preserveSession` 锁：留档失败时置位；`startSession()` 在开新卷前先查 `KEY_SESSION`，原会话还在就提示「清出空间后刷新重试」并拒绝开始；原会话被手动清掉才放行。验证：静态回归锁 Start 拦截与两处置位；全量 662/0。
+
+## 第 136 条：坏存档 mode 写成大写时被当成「别的模式」，不留档还让新卷覆盖原卷（2026-11-28）
+
+`recoverInvalid()` 用 `saved.mode === MODE` 判断要不要走 `salvageThenClear()`；云端合并或旧版把 mode 写成 `'MOCK'/'QUIZ'` 时条件为假，直接跳过清理与留档，接着 `adopt(newSession())` 回开场页。用户一点 Start，`persist()` 就把唯一一份原卷覆盖，成绩仓库里连一条「这卷作废」都没有。修成比较前统一 `trim().toLowerCase()`；同时 `salvageSession()` 的 unit 归属也按归一 mode 判断，大写 `'QUIZ'` 留档继续沿用 `session.unitId`，不会错记到当前单元。验证：静态回归锁 `sameSavedMode` 与 unit 归一；全量 663/0。

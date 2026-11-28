@@ -712,3 +712,10 @@ test('留档写盘失败后不能开新卷覆盖唯一原会话', () => {
   assert.match(exam, /salvageThenClear\(S, 'runtime'\)[\s\S]*?preserveSession = true/, 'runtimeVoid 留档失败后没有锁住原会话');
   assert.match(exam, /const canClear = started[\s\S]*?preserveSession = true/, 'recoverInvalid 留档失败后没有锁住原会话');
 });
+
+test('大写 mode 的坏存档也要被留档清理，不能当成“别的模式”放过', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const exam = fs.readFileSync(path.join(__dirname, '..', 'exam.js'), 'utf8');
+  assert.match(exam, /const sameSavedMode = v =>[\s\S]*?if \(saved && sameSavedMode\(saved\.mode\)\)/, 'recoverInvalid 仍按大小写严格比较 mode');
+  assert.match(exam, /savedModeNorm === 'quiz'[\s\S]*?Number\(session\.unitId\)/, '大写 QUIZ 留档没有沿用原 unitId');
+});
