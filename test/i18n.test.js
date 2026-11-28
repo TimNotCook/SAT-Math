@@ -114,3 +114,12 @@ test('「关于」页不印题库题量，且整句按语言出', () => {
   assert.match(seg, /langEn\(\)/, '关于页没按语言分支');
 });
 
+
+test('英文模式下没设昵称时显示 Student，不是中文「同学」', () => {
+  const acc = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
+  assert.ok(/function defaultNick\(\)/.test(acc), '缺 defaultNick');
+  const seg = acc.slice(acc.indexOf('function defaultNick'));
+  assert.ok(/TDI18n\.get\(\) === 'en'/.test(seg.slice(0, 300)), '没按界面语言切换默认昵称');
+  assert.ok(seg.slice(0, 300).indexOf("return 'Student'") >= 0, '英文默认昵称还不是 Student');
+  assert.ok(/function displayName\(\) { return nickname \|\| defaultNick\(\); }/.test(acc), 'displayName 还在用固定的「同学」');
+});

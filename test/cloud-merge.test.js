@@ -274,7 +274,9 @@ test('账号分支的推送结果必须被检查，失败不能把指纹记成�
   const SRC = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
   assert.match(SRC, /var draftPushed = await silentPush\(\);[\s\S]*?if \(!draftPushed\)/, '草稿合并后没有检查推送结果');
   assert.match(SRC, /var mergedPushed = await silentPush\(\);[\s\S]*?if \(!mergedPushed\)/, '并集回传失败仍会被当已同步');
-  assert.match(SRC, /if \(!applyArchive\(\{\}\)\)/, '新账号清档失败没有退出，存在跨账号推送风险');
+  /* 新账号分支现在会把"游客增量"当起点（applyArchive(guestAdd || {})）；
+     无增量时等号同旧语义：清档失败必须退出，不能把 A 的进度推给 B。 */
+  assert.match(SRC, /if \(!applyArchive\(guestAdd \|\| \{\}\)\)/, '新账号清档失败没有退出，存在跨账号推送风险');
 });
 
 test('切号前的草稿保存必须检查返回值，写失败不能继续清掉 A 的本机进度', () => {
@@ -309,3 +311,83 @@ test('云端档案里带了本机状态键时，不许写进这台设备', () =>
   assert.ok(store.tdsat_app_v1.indexOf('U1-01') >= 0, '真正的进度没写进来');
 });
 
+
+/* —— 登出后以游客身份做的题，登录任何账号都必须跟过去 ——
+   事故面：本机副本还属于 A，A 登出后游客做了 4.1，接着登录 B。
+   旧实现的切号分支直接 target = cloudPayload(B)，4.1 被"刷新"掉，
+   用户看到的就是"未登录时的记录登录后没了"。 */
+test('游客增量只取基线之后新做的题，不把 A 的旧记录带进 B', () => {
+  const base = {
+    tdsat_app_v1: JSON.stringify({ sections: {
+      '2.1': { answers: { 'TD-21-01': { v: 'A', correct: true, ts: 100 } } },
+      '3.1': { answers: { 'TD-31-01': { v: 'B', correct: false, ts: 100 } } },
+    } }),
+  };
+  const local = {
+    tdsat_app_v1: JSON.stringify({ sections: {
+      '2.1': { answers: { 'TD-21-01': { v: 'A', correct: true, ts: 100 } } },
+      '3.1': { answers: { 'TD-31-01': { v: 'B', correct: false, ts: 100 } } },
+      '4.1': { answers: { 'TD-41-01': { v: 'C', correct: true, ts: 900 } } },
+    } }),
+  };
+  const { M } = boot(local);
+  const d = M.guestDelta(base, local);
+  const out = JSON.parse(d.tdsat_app_v1).sections;
+  assert.deepStrictEqual(Object.keys(out), ['4.1'], '增量里混进了已同步的旧记录，会串到别的账号');
+  assert.deepStrictEqual(out['4.1'].answers['TD-41-01'], { v: 'C', correct: true, ts: 900 });
+});
+
+test('游客增量并进 B 的档案：B 原有的记录不丢，游客的题也在', () => {
+  const base = { tdsat_app_v1: JSON.stringify({ sections: { '2.1': { answers: { 'TD-21-01': { v: 'A', correct: true, ts: 100 } } } } }) };
+  const local = { tdsat_app_v1: JSON.stringify({ sections: {
+    '2.1': { answers: { 'TD-21-01': { v: 'A', correct: true, ts: 100 } } },
+    '4.1': { answers: { 'TD-41-01': { v: 'C', correct: true, ts: 900 } } },
+  } }) };
+  const { M } = boot(local);
+  const cloudB = { tdsat_app_v1: JSON.stringify({ sections: { '1.1': { answers: { 'TD-11-01': { v: 'D', correct: false, ts: 300 } } } } }) };
+  const delta = M.guestDelta(base, local);
+  const merged = JSON.parse(M.mergeIntoPayload(cloudB, delta).tdsat_app_v1).sections;
+  assert.deepStrictEqual(Object.keys(merged).sort(), ['1.1', '4.1']);
+  assert.deepStrictEqual(merged['1.1'].answers['TD-11-01'], { v: 'D', correct: false, ts: 300 }, 'B 自己的记录被增量顶掉了');
+  assert.deepStrictEqual(merged['4.1'].answers['TD-41-01'], { v: 'C', correct: true, ts: 900 });
+});
+
+test('登出后重做同一题：游客的新答案按 ts 胜出并进档案', () => {
+  const base = { tdsat_app_v1: JSON.stringify({ sections: { '1.1': { answers: { 'TD-11-01': { v: 'C', correct: false, ts: 100 } } } } }) };
+  const local = { tdsat_app_v1: JSON.stringify({ sections: { '1.1': { answers: { 'TD-11-01': { v: 'A', correct: true, ts: 700 } } } } }) };
+  const { M } = boot(local);
+  const delta = M.guestDelta(base, local);
+  const out = JSON.parse(M.mergeIntoPayload(base, delta).tdsat_app_v1);
+  assert.deepStrictEqual(out.sections['1.1'].answers['TD-11-01'], { v: 'A', correct: true, ts: 700 });
+});
+
+test('基线之后才出现的快照键（讲义/错题本等）整份带进新账号', () => {
+  const base = { tdsat_app_v1: JSON.stringify({ sections: {} }) };
+  const local = {
+    tdsat_app_v1: JSON.stringify({ sections: {} }),
+    tdsat_jy_v1: JSON.stringify({ done: ['1.1'], ts: 500 }),
+  };
+  const { M } = boot(local);
+  const delta = M.guestDelta(base, local);
+  assert.ok(delta && delta.tdsat_jy_v1, '游客新写的键没被算进增量');
+  const out = M.mergeIntoPayload({}, delta);
+  assert.strictEqual(out.tdsat_jy_v1, local.tdsat_jy_v1);
+});
+
+test('没有基线时返回 null，交给原有的登录分支，不凭空造增量', () => {
+  const { M } = boot({ tdsat_app_v1: JSON.stringify({ sections: {} }) });
+  assert.strictEqual(M.guestDelta(null, { tdsat_app_v1: JSON.stringify({ sections: {} }) }), null);
+  assert.strictEqual(M.guestDelta(undefined, {}), null);
+});
+
+test('基线与本机一字不差时没有增量：切号仍是干净起点', () => {
+  const same = { tdsat_app_v1: JSON.stringify({ sections: {} }) };
+  const { M } = boot(same);
+  assert.strictEqual(M.guestDelta(same, same), null);
+});
+
+test('本机快照读不出来时不写基线，避免拿半份状态当基线', () => {
+  const { M } = boot({}, { throwRead: true });
+  assert.strictEqual(M.saveBase(null), false);
+  assert.strictEqual(M.loadBase(), null);
+});

@@ -349,6 +349,15 @@
     '忘记密码？': 'Forgot password?',
     '登录': 'Sign in',
     '注册新账号': 'Create an account',
+    '设置密码': 'Choose a password',
+    '确认密码': 'Confirm password',
+    '再输一次': 'Type it again',
+    '确认新密码': 'Confirm new password',
+    '注册并登录': 'Create account and sign in',
+    '手机号账号没有短信验证，建议用邮箱注册。': 'Phone accounts have no SMS verification — email is recommended.',
+    '重置链接只发到邮箱。手机号账号没有短信重置；如果还处于登录状态，请在设置里改密码。':
+      'Reset links go to email only. Phone accounts can change the password after signing in.',
+
     '改用邮箱链接登录': 'Use email link instead',
     '改用邮箱验证码登录': 'Use email code instead',
     '登录成功，正在读取你的学习档案…': 'Signed in, loading your profile…',

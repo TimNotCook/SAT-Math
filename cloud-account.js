@@ -41,7 +41,18 @@
   };
   var PROFILE_KEY = 'tdprofile_v1';
   var DRAFT_KEY = 'tdprofile_draft_v1';
+  /* 登出前最后一次"已确认写进云端"的本机状态。登录别的账号时拿它做基线，
+     只有基线之后以游客身份改动过的部分才是"无主增量"，不会被整份替换掉。 */
+  var BASE_KEY = 'tdprofile_base_v1';
   var DEFAULT_NICK = '同学';
+  /* 没设昵称时显示什么：跟着界面语言走。英文界面里冒出一个「同学」，
+     读起来像漏翻的半截中文；已经存过昵称的用户不受影响（那是人家自己的名字）。 */
+  function defaultNick() {
+    try {
+      if (window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en') return 'Student';
+    } catch (e) { /* 语言模块没加载就按中文 */ }
+    return DEFAULT_NICK;
+  }
 
   var user = null;
   var nickname = '';
@@ -152,7 +163,7 @@
     for (var i = 0; i < nodes.length; i++) nodes[i].disabled = !!on;
   }
   // 界面上的名称：只用昵称，绝不回退到邮箱。
-  function displayName() { return nickname || DEFAULT_NICK; }
+  function displayName() { return nickname || defaultNick(); }
 
   // 设置齿轮图标（内联 SVG，无需外部图标字体）
   function setBtnIcon(btn) {
@@ -453,6 +464,84 @@
     return out;
   }
 
+  /* ---------- 登出后的"游客增量"：与最后一次已同步基线做差分 ---------- */
+  function loadBase() {
+    try {
+      var raw = localStorage.getItem(BASE_KEY);
+      if (!raw) return null;
+      var o = JSON.parse(raw);
+      if (!o || typeof o !== 'object' || !isPlainPayload(o.payload)) return null;
+      return o;
+    } catch (e) { return null; }
+  }
+  function saveBase(payload, owner) {
+    try {
+      if (!isPlainPayload(payload) || !Object.keys(payload).length) return false;
+      localStorage.setItem(BASE_KEY, JSON.stringify({ owner: owner || '', ts: Date.now(), payload: payload }));
+      return true;
+    } catch (e) { console.warn('保存同步基线失败', e); return false; }
+  }
+  function clearBase() { try { localStorage.removeItem(BASE_KEY); } catch (e) { /* 忽略 */ } }
+
+  /* 只取"基线里没有 / 比基线新"的部分；返回 undefined 表示这份子树没有增量。 */
+  function diffTree(base, local) {
+    if (local === undefined) return undefined;
+    if (base === undefined) return local;
+    if (isPlainObj(local) && isPlainObj(base)) {
+      var lt = stampNum(local.ts), bt = stampNum(base.ts);
+      if (lt != null && bt != null) return lt > bt ? local : undefined;
+      var out = {}, any = false;
+      Object.keys(local).forEach(function (k) {
+        var d = diffTree(base[k], local[k]);
+        if (d !== undefined) { out[k] = d; any = true; }
+      });
+      return any ? out : undefined;
+    }
+    if (Array.isArray(local) && Array.isArray(base)) {
+      var seen = {};
+      base.forEach(function (x) { seen[itemSig(x)] = 1; });
+      var extra = local.filter(function (x) { return !seen[itemSig(x)]; });
+      return extra.length ? extra : undefined;
+    }
+    if (local === base) return undefined;
+    return local;
+  }
+  /* 整份存档的增量：基线缺失时返回 null（无从判断，交给原有分支）。 */
+  function guestDelta(basePayload, localPayload) {
+    if (!isPlainPayload(basePayload) || !isPlainPayload(localPayload)) return null;
+    var out = {}, any = false;
+    Object.keys(localPayload).forEach(function (k) {
+      if (!(k in basePayload)) { out[k] = localPayload[k]; any = true; return; }
+      if (localPayload[k] === basePayload[k]) return;
+      try {
+        var lo = JSON.parse(localPayload[k]), bo = JSON.parse(basePayload[k]);
+        var d = diffTree(bo, lo);
+        if (d !== undefined) { out[k] = JSON.stringify(d); any = true; }
+      } catch (e) { out[k] = localPayload[k]; any = true; }
+    });
+    return any ? out : null;
+  }
+  /* 把增量并进目标档案（增量那侧按 ts 较新胜出；目标独有内容原样保留）。 */
+  function mergeIntoPayload(target, add) {
+    var out = canon(target || {});
+    if (!isPlainPayload(add)) return out;
+    Object.keys(add).forEach(function (k) {
+      var raw = add[k];
+      if (typeof raw !== 'string') return;
+      if (!(k in out)) { out[k] = raw; return; }
+      if (out[k] === raw) return;
+      if (ATOMIC_KEYS[k]) { out[k] = pickAtomic(raw, out[k], ATOMIC_KEYS[k]); return; }
+      try {
+        out[k] = JSON.stringify(deepMerge(JSON.parse(raw), JSON.parse(out[k])));
+      } catch (e) {
+        var addOk = true;
+        try { JSON.parse(raw); } catch (e2) { addOk = false; }
+        out[k] = addOk ? raw : out[k];
+      }
+    });
+    return out;
+  }
+
   function reloadSoon(msg) {
     setStatus(msg || '正在打开你的学习档案…', 'ok');
     setTimeout(function () { location.reload(); }, 550);
@@ -472,6 +561,8 @@
       prof.owner = user.uid;
       prof.lastSynced = h;
       saveProf();
+      /* 这一步写成功了，云端此刻 = snap：把它记成"游客增量"的基线。 */
+      saveBase(snap, user.uid);
       return true;
     } catch (e) {
       return false;
@@ -519,7 +610,7 @@
     /* 昵称：档案 > Auth displayName > 默认「同学」；首次自动建档，永不显示邮箱。 */
     var cloudNick = archive && archive.nickname ? archive.nickname : '';
     nickname = cloudNick || (user && user.displayName) || '';
-    if (!nickname) nickname = DEFAULT_NICK;
+    if (!nickname) nickname = defaultNick();
     try { user._nick = nickname; } catch (e) { console.warn('写入昵称未生效', e); }
     if (cloudNick !== nickname) {
       try { await A.updateNickname(nickname); } catch (e) { /* 下次登录会重试 */ }
@@ -529,6 +620,12 @@
     var cloudPayload = archive && archive.payload ? canon(archive.payload) : null;
     var cloudHash = cloudPayload && Object.keys(cloudPayload).length ? hashOf(cloudPayload) : '';
     var lh = localHash();
+
+    /* 登出后以游客身份做的题：与「最后一次确认写进云端」的本机基线比差，
+       得到这段无主的增量。登录任何账号都先把它并进去——以前切号分支直接整份
+       换成该账号的档案，游客记录就这么被"刷新"掉了。 */
+    var baseRec = loadBase();
+    var guestAdd = baseRec ? guestDelta(baseRec.payload, snapshot() || {}) : null;
 
     /* 回到旧账号时，先恢复"登出后以游客身份做题"留下的增量，保证零丢失。 */
     var draft = loadDraft(uid);
@@ -600,6 +697,7 @@
         // 该账号已有档案 → 切过去。首次登录且本机有"无主"进度时先并入，避免丢题。
         var target = (fresh && Object.keys(snapshot() || {}).length)
           ? mergeLocalWithCloud(cloudPayload) : cloudPayload;
+        if (guestAdd) target = mergeIntoPayload(target, guestAdd);
         // canon()/mergeLocalWithCloud() 每次返回新对象，引用比较永远为真；
         // 改为内容指纹比对，只有真的发生了合并（内容有差异）才回传，避免无谓覆盖。
         var merged = hashOf(target) !== cloudHash;
@@ -638,11 +736,12 @@
         prof.owner = uid; saveProf();
         setStatus(ok2 ? '已为你建立专属学习档案' : '暂时无法保存进度，联网后会自动重试', ok2 ? 'ok' : 'warn');
       } else {
-        // 新账号、本机副本属于别的账号 → 干净起点，不串档
-        /* applyPayload({}) 在本地存储不可写/只读时会返回 false；旧实现不看
+        // 新账号、本机副本属于别的账号 → 干净起点，不串档；
+        // 唯一例外：登出后当游客做的那部分要跟着这次登录走，不能被清掉。
+        /* applyPayload 在本地存储不可写/只读时会返回 false；旧实现不看
            返回值，照样把 owner 改成新账号并 silentPush，等于用 A 的本机进度
            覆盖 B 的空档案。失败就退出这次登录，本机进度原样保留。 */
-        if (!applyArchive({})) {
+        if (!applyArchive(guestAdd || {})) {
           try { await A.signOut(); } catch (e) { /* 本地会话已清不掉就只保留本机 */ }
           user = null; nickname = '';
           setStatus('本机存储不可写，已退出该账号；本机进度未受影响', 'warn');
@@ -1163,7 +1262,7 @@
     ui.email = null; ui.otpSendBtn = null; ui.pw = null; ui.pw2 = null; ui.code = null;
     if (user) {
       var p = el('div', 'td-prof');
-      var initial = (displayName().trim().charAt(0) || DEFAULT_NICK).toUpperCase();
+      var initial = (displayName().trim().charAt(0) || defaultNick()).toUpperCase();
       p.appendChild(el('div', 'td-prof-av', initial));
       var info = el('div');
       info.appendChild(el('div', 'td-prof-name', displayName()));
@@ -1353,8 +1452,7 @@
       [pwSign, pwSign2].forEach(function (f) {
         f.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSignUpPwd(); });
       });
-      b.appendChild(el('p', 'td-acct-note',
-        '注册成功会自动登录。手机号账号没有短信验证，忘记密码只能先登录再在设置里改；常用的话建议用邮箱注册。'));
+      b.appendChild(el('p', 'td-acct-note', '手机号账号没有短信验证，建议用邮箱注册。'));
       return;
     }
 
@@ -1701,7 +1799,9 @@
     window.TD_CLOUD_MERGE = { canon: canon, deepMerge: deepMerge, mergeLocalWithCloud: mergeLocalWithCloud,
       mergeArrays: mergeArrays, itemSig: itemSig, pickAtomic: pickAtomic, ATOMIC_KEYS: ATOMIC_KEYS,
       isPlainPayload: isPlainPayload, applyPayload: applyPayload, applyArchive: applyArchive, applyDraft: applyDraft,
-      saveDraft: saveDraft, loadDraft: loadDraft, clearDraft: clearDraft, snapshot: snapshot, localHash: localHash };
+      saveDraft: saveDraft, loadDraft: loadDraft, clearDraft: clearDraft, snapshot: snapshot, localHash: localHash,
+      BASE_KEY: BASE_KEY, loadBase: loadBase, saveBase: saveBase, clearBase: clearBase,
+      diffTree: diffTree, guestDelta: guestDelta, mergeIntoPayload: mergeIntoPayload };
   } catch (e) { console.warn('合并诊断钩子注册失败', e); }
 
   function boot() {

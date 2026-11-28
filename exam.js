@@ -1496,8 +1496,13 @@
   $('btnBackAnswer').addEventListener('click', () => { setStage('answer'); renderAll(); window.scrollTo(0, 0); });
   $('btnSubmit').addEventListener('click', () => { accumulateTime(); renderSubmit(); setStage('submit'); });
   $('btnGoSubmit').addEventListener('click', () => { renderSubmit(); setStage('submit'); });
+<<<<<<< HEAD
   /* 官方模考里这个按钮是 Keep Reviewing（回检查页）；练习/抽查里它写的是
      「返回继续答题」，那就要真的回到题目，不能把人丢到检查页。 */
+=======
+  /* 官方模考里这个按钮是 Keep Reviewing（回到检查页）；练习/抽查里它写的是
+     「返回继续答题」，那就必须真的回到题目，不能把人丢到检查页。 */
+>>>>>>> 06412fa (fix(i18n): 英文模式注册/重置子面板不再整段中文，默认昵称显示 Student)
   $('btnSubBack').addEventListener('click', () => {
     if (OFFICIAL) { renderReview(); setStage('review'); }
     else { setStage('answer'); renderAll(); }
