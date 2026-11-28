@@ -837,7 +837,14 @@
       pwdEmail = email;
       await SB.signUpPassword(email, pw);
       loginSuccess('账号已建立，正在读取你的学习档案…');
-    } catch (e) { setError(friendlyError(e, email)); }
+    } catch (e) {
+      setError(friendlyError(e, email));
+      /* 账号已经建好、只差邮件确认：把面板切回登录，确认完直接点登录；
+         留在注册页会让人以为没注册成功又点一次。 */
+      if (e && e.code === 'auth/email-confirm-required') {
+        pwdEmail = email; loginMode = 'password';
+      }
+    }
     finally { setBusy(false); renderBody(); }
   }
 

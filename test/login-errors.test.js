@@ -164,3 +164,10 @@ test('supa-cloud 自己抛的中文校验提示要原样展示，英文内部错
   assert.equal(friendlyError({ message: '密码至少 6 位。' }), '密码至少 6 位。');
   assert.match(friendlyError({ message: 'Database error saving new user' }), /操作失败，请稍后重试/);
 });
+
+test('待确认注册后切回登录页，避免用户以为没注册又点一次', () => {
+  const fn = acct.slice(acct.indexOf('async function doSignUpPwd'), acct.indexOf('async function doSendLink'));
+  assert.match(fn, /auth\/email-confirm-required/, '没识别待确认错误');
+  assert.match(fn, /loginMode = 'password'/, '没切回登录页');
+  assert.match(fn, /pwdEmail = email/, '没保留账号');
+});
