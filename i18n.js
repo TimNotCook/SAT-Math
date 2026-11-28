@@ -479,6 +479,15 @@
       'Code sent to {email}. Enter the 6-digit code below; check spam if it does not arrive.',
     '验证码已发到 {email}；要换邮箱请重新获取。':
       'Code sent to {email}. To use another email, request a new code.',
+    '重新发送 ({seconds}s)': 'Resend in {seconds}s',
+    '获取验证码': 'Get code',
+    '重新获取': 'Resend code',
+    '重新获取 ({seconds}s)': 'Resend code in {seconds}s',
+    '已为你建立专属学习档案': 'Your study profile is ready.',
+    '已打开你在其他设备上的进度': 'Opened the progress from your other device.',
+    '这个手机号已经注册过了，直接点「登录」。': 'This phone number is already registered — tap “Sign in”.',
+    '账号已建立，正在读取你的学习档案…': 'Account created. Loading your study profile…',
+    '验证码不对或已过期，请重新获取。': 'The code is wrong or has expired. Request a new one.',
 
     /* 设置面板 · 练习 / 关于 */
     '打开后，单元练习答题页也会显示计算器按钮；关闭则只有专项训练、单元抽查与模考可用。':

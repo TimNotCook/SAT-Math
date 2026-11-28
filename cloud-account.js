@@ -796,8 +796,8 @@
 
   /* ---------- 登录动作（邮件链接） ---------- */
   function sendBtnLabel() {
-    if (otpCooldown > 0) return '重新发送 (' + otpCooldown + 's)';
-    return otpSent ? '重新发送' : '发送登录邮件';
+    if (otpCooldown > 0) return trTpl('重新发送 ({seconds}s)', { seconds: otpCooldown });
+    return trText(otpSent ? '重新发送' : '发送登录邮件');
   }
 
   function startOtpCooldown() {
@@ -930,13 +930,13 @@
   }
 
   function resetBtnLabel() {
-    if (otpCooldown > 0) return '重新发送 (' + otpCooldown + 's)';
-    return '发送重置链接';
+    if (otpCooldown > 0) return trTpl('重新发送 ({seconds}s)', { seconds: otpCooldown });
+    return trText('发送重置链接');
   }
 
   function codeBtnLabel() {
-    if (otpCooldown > 0) return '重新获取 (' + otpCooldown + 's)';
-    return codeSent ? '重新获取' : '获取验证码';
+    if (otpCooldown > 0) return trTpl('重新获取 ({seconds}s)', { seconds: otpCooldown });
+    return trText(codeSent ? '重新获取' : '获取验证码');
   }
 
   function syncCodeBtn() {
