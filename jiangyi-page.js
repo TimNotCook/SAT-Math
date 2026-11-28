@@ -233,6 +233,17 @@
   els.jyBackList.addEventListener('click', function (e) { e.preventDefault(); openBoard(boardId); });
   els.jySubmit.addEventListener('click', function () {
     if (!J) { J = window.TD_JY; if (!J) { jyToast('讲义数据还在加载，稍等一下'); return; } }
+    /* 交本节会把没答的题按错计入成绩、并锁死本节答案（和交卷一个道理）。
+       一题没答时尤其要拦一下：点了「交本节」就直接拿到 0 分 + 满屏错题，
+       人以为系统坏了。 */
+    var qs = J.questionsOf(boardId, section);
+    var total = qs.length, unanswered = 0;
+    qs.forEach(function (q) {
+      var a = J.answerOf(q.id);
+      var v = a && a.v != null ? String(a.v).trim() : '';
+      if (!v) unanswered++;
+    });
+    if (unanswered && !window.confirm('还有 ' + unanswered + ' 题没答（共 ' + total + ' 题），交了按错算，本节答案也会锁定。确定交？')) return;
     var rec = J.submitSection(boardId, section);
     if (rec) renderResult(rec);
     else jyToast('成绩保存失败：本地存储不可写，请清理空间后重试');

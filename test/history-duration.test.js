@@ -35,3 +35,7 @@ test('缺失或不合法的时间仍是破折号', () => {
   assert.equal(fmtDur(-3), '—');
   assert.equal(fmtDur('abc'), '—');
 });
+
+test('讲义复习记录不印「用时 0 秒」——它本来就没有计时', () => {
+  assert.ok(/modeOf\(rec\) === 'jiangyi' \? '' : '<span>用时/.test(src), '讲义记录仍会印用时');
+});

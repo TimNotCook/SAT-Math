@@ -267,7 +267,8 @@
     var html = '<div class="hist-kv">' +
       '<span>交卷时间 <b>' + fmtDate(rec.date) + '</b></span>' +
       '<span>答对 <b>' + numTxt(scoreParts(rec).correct) + ' / ' + numTxt(scoreParts(rec).total) + '</b></span>' +
-      '<span>用时 <b>' + fmtDur(rec.elapsed) + '</b></span>' +
+      /* 讲义复习没有计时（elapsed 恒为 0），印「用时 0 秒」像没跑起来。 */
+      (modeOf(rec) === 'jiangyi' ? '' : '<span>用时 <b>' + fmtDur(rec.elapsed) + '</b></span>') +
       (modeOf(rec) === 'mock' && Object.keys(asObj(rec.estimate)).length ? (function(){var rp=rawParts(rec);return '<span>原始分 <b>' + esc(numTxt(rp.raw)) + ' / ' + rp.max + '</b></span>';})() +
         '<span>自适应路径 <b>' + (txt(asObj(rec.estimate).path) === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
       '</div>';

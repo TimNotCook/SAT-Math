@@ -80,3 +80,11 @@ test('数据自检不会把练习册来源判成讲义 source 违规', () => {
   const issues = J.audit().filter(x => x.rule === 'source' || x.rule === 'source-textbook');
   assert.strictEqual(issues.length, 0, JSON.stringify(issues));
 });
+
+test('交本节前先把没答的题点出来，别让人一键拿到 0 分满屏错题', () => {
+  const page = fs.readFileSync(path.join(ROOT, 'jiangyi-page.js'), 'utf8');
+  const seg = page.slice(page.indexOf("els.jySubmit.addEventListener"), page.indexOf("els.jySubmit.addEventListener") + 1200);
+  assert.ok(/unanswered/.test(seg), '交本节没统计未答题数');
+  assert.ok(/window\.confirm\(/.test(seg), '未答时没有二次确认');
+  assert.ok(/没答/.test(seg) && /按错算/.test(seg), '确认文案没说清后果');
+});
