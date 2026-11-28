@@ -137,53 +137,5 @@
   <!-- 账户面板：与 drill.html 同一套 Supabase 通道（配置 → 会话 → 面板），顺序不可乱。 -->
   <script src="cloud-config.js?v=247dadd2d04b" defer></script><script src="supa-cloud.js?v=247dadd2d04b" defer></script>
   <script src="cloud-account.js?v=247dadd2d04b" defer></script>
-  <!-- 讲义正文入口：小节列表里出现 1.1 时，在其上方插入一条「讲解」行；切到别的板块自动移除。
-       只看“该节是否存在”，不碰任何做题逻辑；样式页内自托管，不影响其他页。 -->
-  <script>
-    (function () {
-      var SEC = '1.1', N = 6, SECS = ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6'];
-      var CSS = '<style id="lessonEntryStyle">' +
-        '#lessonEntry{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:0;margin:0 0 14px;padding:13px 0;border:1px solid #d2e0f1;border-radius:10px;background:#eef4fd;text-decoration:none}' +
-        '#lessonEntry:hover{background:#e3edfd;border-color:#bcd0e8}' +
-        '#lessonEntry .le-k{font-size:10.5px;letter-spacing:.1em;color:#1d4ed8;font-weight:700;white-space:nowrap;padding-left:18px}' +
-        '#lessonEntry .le-t{font-size:14px;color:#12233f;font-weight:600}' +
-        '#lessonEntry .le-a{font-size:12px;color:#2563eb;font-weight:700;white-space:nowrap;padding-right:18px}' +
-        '@media (max-width:560px){#lessonEntry{grid-template-columns:minmax(0,1fr) auto;padding:13px 16px}#lessonEntry .le-k{display:none}}' +
-        '</style>';
-      function fill(a) {
-        var m = {};
-        try { m = JSON.parse(localStorage.getItem('lesson_read_v1') || '{}'); } catch (e) {}
-        var n = 0, go = null;
-        for (var i = 0; i < SECS.length; i++) {
-          if (m[SECS[i]]) n++; else if (!go) go = SECS[i];
-        }
-        a.href = 'lesson.html?sec=' + (go || SEC);
-        a.innerHTML = '<span class="le-k">讲解</span><span class="le-t">线性方程与函数 · 6 节</span>' +
-          '<span class="le-a">' + (n ? '已读 ' + n + ' / ' + N + ' · 继续 →' : '从 1.1 开始读 →') + '</span>';
-      }
-      function inject() {
-        var list = document.getElementById('jySectionList');
-        var view = document.getElementById('jySections');
-        if (!list || !view || view.hidden) return;
-        var entry = document.getElementById('lessonEntry');
-        var row = list.querySelector('[data-sec="' + SEC + '"]');
-        if (!row) { if (entry) entry.parentNode.removeChild(entry); return; }
-        if (entry) { fill(entry); return; }
-        if (!document.getElementById('lessonEntryStyle')) document.head.insertAdjacentHTML('beforeend', CSS);
-        var a = document.createElement('a');
-        a.id = 'lessonEntry';
-        fill(a);
-        list.parentNode.insertBefore(a, list);
-      }
-      var timer = null;
-      try {
-        new MutationObserver(function () { clearTimeout(timer); timer = setTimeout(inject, 50); })
-          .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['hidden'] });
-      } catch (e) {}
-      window.addEventListener('DOMContentLoaded', inject);
-      setTimeout(inject, 900);
-      setTimeout(inject, 2500);
-    })();
-  </script>
 </body>
 </html>
