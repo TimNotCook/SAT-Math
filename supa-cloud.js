@@ -57,6 +57,9 @@
     if (low.indexOf('invalid login credentials') >= 0) e.code = 'auth/invalid-credential';
     else if (low.indexOf('email not confirmed') >= 0) e.code = 'auth/email-not-confirmed';
     else if (low.indexOf('user already registered') >= 0 || low.indexOf('already been registered') >= 0) e.code = 'auth/email-already-in-use';
+    else if (low.indexOf('signups not allowed') >= 0 || low.indexOf('signup is disabled') >= 0) e.code = 'auth/signup-disabled';
+    else if (low.indexOf('password should be at least') >= 0 || low.indexOf('password is too short') >= 0 || low.indexOf('weak password') >= 0) e.code = 'auth/weak-password';
+    else if (low.indexOf('invalid email') >= 0 || low.indexOf('validate email') >= 0) e.code = 'auth/invalid-email';
     else if (low.indexOf('email rate limit') >= 0 || low.indexOf('too many') >= 0 || low.indexOf('security purposes') >= 0) e.code = 'auth/too-many-requests';
     else if (low.indexOf('token has expired') >= 0 || low.indexOf('invalid') >= 0 && low.indexOf('token') >= 0) e.code = 'auth/invalid-code';
     else if (status === 0 || low.indexOf('failed to fetch') >= 0 || low.indexOf('network') >= 0) e.code = 'auth/network-request-failed';

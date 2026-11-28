@@ -177,6 +177,8 @@
   function friendlyError(e, account) {
     var c = e && e.code, m = e && e.message;
     if (c === 'auth/invalid-email') return '邮箱格式不正确，请检查后再试。';
+    if (c === 'auth/weak-password') return '密码太短或强度不够，换一个更长一点的密码再试。';
+    if (c === 'auth/signup-disabled') return '当前暂未开放新账号注册，请稍后再试。';
     if (c === 'auth/invalid-credential') {
       return (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。';
     }

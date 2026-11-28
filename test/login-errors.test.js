@@ -109,3 +109,12 @@ test('注册成功但待邮箱确认时，提示去点确认链接而不是再�
   const { friendlyError } = accountFns();
   assert.match(friendlyError({ code: 'auth/email-confirm-required' }), /邮箱还没有验证/);
 });
+
+test('注册错误码：弱密码/停注册/非法邮箱给中文提示，不甩英文原文', () => {
+  const { friendlyError } = accountFns();
+  assert.match(friendlyError({ code: 'auth/weak-password' }), /密码太短|强度不够/);
+  assert.match(friendlyError({ code: 'auth/signup-disabled' }), /暂未开放新账号注册/);
+  assert.match(friendlyError({ code: 'auth/invalid-email' }), /邮箱格式不正确/);
+  assert.match(cloud, /password should be at least/, '没把 GoTrue 弱密码错误归一');
+  assert.match(cloud, /signups not allowed/, '没把停注册错误归一');
+});

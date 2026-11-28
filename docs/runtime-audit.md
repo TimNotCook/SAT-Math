@@ -921,3 +921,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 2. `signUpPassword()` 遇到后端要求邮箱确认（signup 返回 user 但没有 access_token）时，旧提示是「注册没有返回登录态，请直接点『登录』试试」。账号其实已经建好，用户点登录只会撞上「邮箱未验证」，再点注册又撞号。现在识别 `r.user` 后给出 `auth/email-confirm-required`，提示「注册成功，但还需要去邮箱点确认链接；确认后再回来登录」，`friendlyError()` 同步认这个码。
 
 验证：`test/login-errors.test.js` 新增内部伪邮箱拦截（六个入口）与待确认注册提示两条用例；全量 675/0，`verify_flows` 16/16。
+
+## 第 138 条：注册失败还是甩英文技术错误：弱密码、停注册、非法邮箱没归一（2026-11-28）
+
+`errOf()` 只归一了「已注册」「限流」「未验证」等少数码。注册时 GoTrue 返回 `Password should be at least 6 characters`、`Signups not allowed for this instance`、`Unable to validate email address: invalid format` 会原样作为 `Error.message` 抛到面板，用户看到的是英文技术句。现在补 `auth/weak-password`、`auth/signup-disabled`、`auth/invalid-email` 三个码，`friendlyError()` 分别给「密码太短或强度不够」「当前暂未开放新账号注册」「邮箱格式不正确」的中文下一步。验证：`login-errors` 锁错误归一与中文提示；全量回归。
