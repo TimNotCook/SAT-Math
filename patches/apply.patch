@@ -1,0 +1,51 @@
+diff --git a/app.css b/app.css
+index edc3cda..a3e12cb 100644
+--- a/app.css
++++ b/app.css
+@@ -1942,3 +1942,19 @@ html body .entry-tile-grid .jy-board-card .jy-card-meta{
+    把错题工具栏里的说明 span 写回旧长句。这里按结构收掉工具栏内的纯说明，
+    只留反馈区 #importFeedback —— 无论 HTML 被回写几次，用户都看不到那段长文案。 */
+ body.shell-wrong .wrong-toolbar .small.muted:not(#importFeedback){display:none!important}
++
++/* 320 的「继续上次练习」原来单行省略号：完整文案 296px，卡片只有 232px，
++   「1.1 线性方程与函数图像 第 1 题」被截成「…与函…」，用户看不出是哪一节。
++   拿掉 nowrap，允许折两行，13px 收到 12.5px；卡片最多增高一行，不再丢信息。 */
++@media(max-width:360px){
++  html body .drill-resume.drill-resume{
++    display:block!important;
++    white-space:normal!important;
++    overflow:visible!important;
++    text-overflow:clip!important;
++    font-size:12.5px!important;
++    line-height:1.45!important;
++    padding:9px 12px!important;
++    max-width:100%!important;
++  }
++}
+diff --git a/docs/runtime-audit.md b/docs/runtime-audit.md
+index 436a148..9c0dd02 100644
+--- a/docs/runtime-audit.md
++++ b/docs/runtime-audit.md
+@@ -1028,3 +1028,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
+ ## 第 161 条：320 首页状态列吃掉标题宽度，「线性不等式与图像」断成「线性不等 / 式与图像」（2026-11-28）
+ 
+ 行号列收到 44px 后，标题列只有 94px，但右侧「未开始」还占 36px；7 个字的「线性不等式与图像」正好放不下，`balance` 把它断成 4/3，切在「不等式」中间；「线性与指数关系」「概率与条件概率」也一样。320 把状态列收成 8px 圆点：未开始灰、进行中蓝、已完成绿，文本仍留在无障碍树；标题列回到 122px，7 字标题整行放完，11 字的「线性方程与不等式应用题」仍是两行，但不再因为状态列白丢 36px。验证：本地 320 标题盒宽 122px，「线性不等式与图像」单行；`visual-mobile-polish` 第 8 条锁住圆点三态。
++
++## 第 162 条：320「继续上次练习」把小节名截成「…与函…」（2026-11-28）
++
++已做过一节练习后，首页顶部会出现「继续上次练习 · 1.1 线性方程与函数图像 第 1 题」，完整文案约 296px；320 屏卡片只有 232px，`bluebook.css` 的 `white-space:nowrap` 把它截成「…与函…」，用户看不出上次停在哪一节，只有点进去才知道。窄屏改为允许折两行、字号 13→12.5px、内边距收到 9px 12px，卡片最多高一行；390 仍是单行完整显示。验证：本地 320 两行完整、390 单行完整；`visual-mobile-polish` 第 9 条锁住折行规则。
+diff --git a/test/visual-mobile-polish.test.js b/test/visual-mobile-polish.test.js
+index 93e82ed..d0f7d68 100644
+--- a/test/visual-mobile-polish.test.js
++++ b/test/visual-mobile-polish.test.js
+@@ -58,3 +58,9 @@ test('320 首页状态列收成三态圆点，标题列回到 122px', () => {
+   assert.match(app, /\.tile-state\.tile-state\.is-active::after\{background:#2563eb\}/);
+   assert.match(app, /\.tile-state\.tile-state\.is-done::after\{background:#16a34a\}/);
+ });
++
++test('320「继续上次练习」允许折行，不再截断小节名', () => {
++  assert.match(app, /html body \.drill-resume\.drill-resume\{/);
++  assert.match(app, /white-space:normal!important/);
++  assert.match(app, /text-overflow:clip!important/);
++});
+
