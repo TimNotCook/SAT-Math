@@ -351,8 +351,7 @@
     '注册新账号': 'Create an account',
     '改用邮箱链接登录': 'Use email link instead',
     '改用邮箱验证码登录': 'Use email code instead',
-    '第一次用这个账号，先点「注册新账号」，会自动建好学习档案，之前做过的题一并带上。':
-      'First time here? Tap “Create an account” — your profile is created automatically, with the questions you have already done.',
+    '还没有账号？点「注册新账号」就行。': 'No account yet? Tap “Create an account”.',
     '登录成功，正在读取你的学习档案…': 'Signed in, loading your profile…',
     '手机号或密码不对。还没有账号就点「注册新账号」。':
       'Wrong phone number or password. New here? Tap “Create an account”.',

@@ -1240,8 +1240,7 @@
       b.appendChild(toCode);
     }
 
-    b.appendChild(el('p', 'td-acct-note',
-      '第一次用这个账号，先点「注册新账号」，会自动建好学习档案，之前做过的题一并带上。'));
+    b.appendChild(el('p', 'td-acct-note', '还没有账号？点「注册新账号」就行。'));
   }
 
   function row(label, desc) {
