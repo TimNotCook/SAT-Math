@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: git apply --index patches/apply.patch
-      - run: node --test test/*.test.js
       - run: python3 bump_assets.py
+      - run: node --test test/*.test.js
       - run: |
           git rm -q patches/apply.patch
           git config user.name "satmath-bot"
