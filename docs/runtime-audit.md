@@ -692,3 +692,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 83 条：Safari 无痕/禁用站点数据时，记录页指纹读取第一个抛错（2026-11-28）
 
 记录页 `render()` 第一行是 `fp()`，它直接 `localStorage.getItem` 两次、没有 try。Safari 无痕或「阻止所有 Cookie」时，`getItem` 本身抛 `SecurityError`，页面在画列表前就崩，用户只看到占位；而 `load()` 明明已有降级。修成指纹读取包 try，读不到返回稳定 `0:0`，页面照常进入空态，不清数据、不假装有记录。验证：boot 注入 `getItem` 抛错的 localStorage，旧代码抛 `storage denied` 失败，新代码不抛并渲染「还没有模考或抽查记录」。
+
+## 第 84 条：Python 风格 `'True'/'False'` 被当成普通字符串，未交卷记录被印成 0 分成绩（2026-11-28）
+
+云端/手工导入的 JSON 可能把布尔写成大写字符串 `"True"`/`"False"`。`history-page.js` 的 `finishedFlag`/`unfinishedFlag`/`isRight`/`voidFlag` 只认全小写，`finished:"False"` 会被当已交卷，显示“全卷 2 题 / 0%”，而不是“未交卷”；`detail.correct:"True"` 也会被算成错题。修成所有字符串标志先 `trim().toLowerCase()` 再判；`wrong-page.js` 与 `exam.js` 的同名标志同步对齐。验证：新增大写 `finished` / `detail.correct` 回归，旧代码“未交卷”断言失败，新代码显示未交卷、50%、1 条错题行；全量 561/0。

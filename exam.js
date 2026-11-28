@@ -96,7 +96,9 @@
      只判 typeof 会画出一行空字段的幽灵记录。 */
   const isRec = v => !!v && typeof v === 'object' && !Array.isArray(v);
   /* void 标记可能是字符串 'false'：truthy 会把有效成绩整条藏掉。 */
-  const isTrueFlag = v => v === true || v === 1 || v === 'true' || v === '1';
+  /* 布尔标志可能是字符串 'True'/'FALSE'（旧版/手工导入）：先 trim+小写再判。 */
+  const flagKey = v => (typeof v === 'string' ? v.trim().toLowerCase() : v);
+  const isTrueFlag = v => (v = flagKey(v), v === true || v === 1 || v === 'true' || v === '1');
   /* 存档来自旧版本/云端合并：对象字段不能直接拼进模板或当数字算。 */
   const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' ? '' : String(v));
   /* 布尔不是数字：true 会被 Number 成 1，旧 detail 的 seconds/points 是布尔时
@@ -106,7 +108,7 @@
   const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' || (typeof v === 'string' && !v.trim()) ? null : (isFinite(Number(v)) ? Number(v) : null));
   /* 题数/答对数是计数：小数（22.5）会让成绩页印「10 / 22.5」；当坏值，走明细兜底。 */
   const countNum = v => { const n = safeNum(v); return n != null && n >= 0 && Math.floor(n) === n ? n : null; };
-  const isRightFlag = v => v === true || v === 1 || v === 'true' || v === '1';
+  const isRightFlag = v => (v = flagKey(v), v === true || v === 1 || v === 'true' || v === '1');
   const isWrongFlag = v => v === false || v === 0 || v === 'false' || v === '0';
   /* Rendered stem, used only for diagnostic feature detection. The exam core
      stays DOM-free; it never changes the text shown to the student. */
