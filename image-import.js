@@ -477,7 +477,22 @@
               var li = 0, ri = 0, k;
               for (k = 0; k < gx0; k++) if (colInk[k]) li++;
               for (k = gx1; k < cw; k++) if (colInk[k]) ri++;
-              if (li > cw * 0.06 && ri > cw * 0.06) {
+              /* 两道打字保险：左右各自至少要有 3 行文字，才可能是真的双栏排版。
+                 只有一行题干时，句子中间那个空格在竖直方向看也是"整列空白"，
+                 不加这道锁会把一整行题从中间劈开，两半都匹配不上（实测
+                 "If 2(x - 5) + 3(x - 5)" / "10, what is the value of x - 5 ?" 被劈成两块）。 */
+              /* 数"文字行数"（连续的墨迹横带），不是数像素行：只有一行题干时左右各只有 1 带。 */
+              var bandL = 0, bandR = 0, prevL = false, prevR = false, inL, inR;
+              for (y = 0; y < ch; y += 2) {
+                inL = inR = false;
+                for (x = 0; x < gx0; x += 2) { i = (y * cw + x) * 4; if (px[i] < 205) { inL = true; break; } }
+                for (x = gx1; x < cw; x += 2) { i = (y * cw + x) * 4; if (px[i] < 205) { inR = true; break; } }
+                if (inL && !prevL) bandL++;
+                if (inR && !prevR) bandR++;
+                prevL = inL; prevR = inR;
+              }
+              var looksTwoCol = bandL >= 3 && bandR >= 3;
+              if (looksTwoCol && li > cw * 0.06 && ri > cw * 0.06) {
                 var xL = Math.max(1, Math.round(gx0 / sc)), xR = Math.min(W - 1, Math.round(gx1 / sc));
                 var half = function (sx, sw) {
                   var c2 = document.createElement('canvas'); c2.width = sw; c2.height = H;
@@ -1549,7 +1564,7 @@
     getModel: function () { return state.model; },
     getModelChain: function () { return MODEL_CHAIN.slice(); },
     lastModel: function () { return pages.length && pages[pages.length - 1].ocr ? pages[pages.length - 1].ocr._model || '' : ''; },
-    getState: function () { return pages.map(function (p) { return { i: p.i, qid: p.qid, sec: p.qid ? (findQ(p.qid) || {}).sec : '', checked: p.checked, cands: p.cands.length, ocr: !!p.ocr, error: p.error, score: p.cands[0] ? +p.cands[0].score.toFixed(3) : 0, gate: p.gate || '', skipReason: p.skipReason || '', matchInfo: p.matchInfo || null, ocrStem: p.ocr ? String(p.ocr.stem || '').slice(0, 160) : '', candIds: (p.cands || []).slice(0, 5).map(function (c) { return c.id; }) }; }); },
+    getState: function () { return pages.map(function (p) { return { i: p.i, qid: p.qid, sec: p.qid ? (findQ(p.qid) || {}).sec : '', checked: p.checked, cands: p.cands.length, ocr: !!p.ocr, error: p.error, score: p.cands[0] && typeof p.cands[0].score === 'number' ? +p.cands[0].score.toFixed(3) : 0, gate: p.gate || '', skipReason: p.skipReason || '', matchInfo: p.matchInfo || null, ocrStem: p.ocr ? String(p.ocr.stem || '').slice(0, 160) : '', candIds: (p.cands || []).slice(0, 5).map(function (c) { return c.id; }) }; }); },
     debugSetPages: function (list) { pages = (list || []).map(function (p, i) { return { i: p.i || i + 1, qid: p.qid || '', checked: p.checked !== false, cands: p.cands || [], ocr: p.ocr || null, thumb: '', dataUrl: '', error: '' }; }); renderRows(); return pages.length; },
     isBusy: function () { return busy; },
     retryFailed: function () {
@@ -1686,6 +1701,26 @@
       status('从粘贴的文字里找这道题…');
       importByText(txt);
     }
+  });
+  /* 从访达/桌面把截图拖进页面（不是精确落到虚线框里）也应该触发相同的识别流程。
+     以前只有 dropzone 有 drop 事件，拖到页面其它位置浏览器会直接把图片当文件"打开"，
+     页面跳走，人只会觉得"这功能没反应"。 */
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    document.addEventListener(ev, function (e) {
+      var has = e.dataTransfer && [].slice.call(e.dataTransfer.types || []).indexOf('Files') > -1;
+      if (has) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }
+    });
+  });
+  document.addEventListener('drop', function (e) {
+    var files = e.dataTransfer && e.dataTransfer.files;
+    if (!files || !files.length) return;
+    var imgs = [].slice.call(files).filter(function (f) { return /^image\//.test(f.type) || /\.(png|jpe?g|webp|gif|bmp|heic)$/i.test(f.name || ''); });
+    if (!imgs.length) return;
+    e.preventDefault();
+    var dz2 = $('imgDropZone');
+    if (dz2 && dz2.contains(e.target)) return;   /* 落在虚线框里已由它自己处理，别再识别一遍 */
+    if (dz2) dz2.classList.remove('is-dragover');
+    acceptFiles(imgs);
   });
   var sel = $('imgimpModel');
   if (sel) { sel.value = state.model; sel.addEventListener('change', function () { state.model = sel.value; }); }
