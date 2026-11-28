@@ -15,14 +15,23 @@ const ROOT = path.join(__dirname, '..');
 function boot(seed, opts) {
   opts = opts || {};
   const store = Object.assign({}, seed);
+  const ctl = { setCalls: 0, lengthCalls: 0 };
   const sandbox = {
     console,
     localStorage: {
       getItem: k => { if (opts.throwRead) throw new Error('storage blocked'); return k in store ? store[k] : null; },
-      setItem: (k, v) => { if (opts.throwWrite) throw new Error('storage denied'); store[k] = String(v); },
+      setItem: (k, v) => {
+        ctl.setCalls++;
+        if (opts.throwWrite || (opts.writeFailAt && ctl.setCalls >= opts.writeFailAt)) throw new Error('storage denied');
+        store[k] = String(v);
+      },
       removeItem: k => { if (opts.throwRemove) throw new Error('remove denied'); delete store[k]; },
       key: i => Object.keys(store)[i] || null,
-      get length() { if (opts.throwRead) throw new Error('storage blocked'); return Object.keys(store).length; },
+      get length() {
+        ctl.lengthCalls++;
+        if (opts.throwRead || (opts.readFailAtLength && ctl.lengthCalls >= opts.readFailAtLength)) throw new Error('storage blocked');
+        return Object.keys(store).length;
+      },
     },
     location: { pathname: '/', href: '', reload() {} },
     document: {
@@ -39,7 +48,7 @@ function boot(seed, opts) {
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'cloud-account.js'), 'utf8'), sandbox);
-  return { M: sandbox.window.TD_CLOUD_MERGE, store };
+  return { M: sandbox.window.TD_CLOUD_MERGE, store, ctl };
 }
 
 test('本机是半截 JSON、云端完好 → 保留云端，不把坏值推回去', () => {
@@ -225,6 +234,18 @@ test('removeItem 被禁用但 setItem 可用时，清除草稿仍成功且不留
   assert.equal(M.clearDraft('uA'), true, '清除草稿失败却没有返回值，调用方无法知道旧草稿还在');
   const left = JSON.parse(store.tdprofile_draft_v1);
   assert.deepStrictEqual(left.items, {}, '旧草稿槽没有清空，下次登录会重放');
+});
+
+test('写到一半失败且回滚时读盘也失败，半成品云端键仍会被清掉', () => {
+  const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: true, ts: 10 } } } } });
+  const { M, store } = boot({ tdsat_app_v1: local }, { writeFailAt: 3, readFailAtLength: 2 });
+  const ok = M.applyPayload({
+    tdsat_app_v1: JSON.stringify({ sections: {} }),
+    tdsat_extra_v1: JSON.stringify({ half: true })
+  });
+  assert.equal(ok, false, '写一半失败仍返回成功');
+  assert.equal(store.tdsat_app_v1, local, '本机旧档没有回滚');
+  assert.equal(store.tdsat_extra_v1, undefined, '回滚读盘失败时把半成品云端键留在本机');
 });
 
 test('本机快照读不到时 applyPayload 拒绝整份替换，不清本地进度', () => {

@@ -286,6 +286,9 @@
       console.warn('本地快照不可读，拒绝整份替换');
       return false;
     }
+    /* 先记下这次可能写到的键：回滚时即使 snapshot() 中途读失败，也能把这些
+       半成品键删掉，不会留下一份“云端写了一半 + 本机旧档”的混合状态。 */
+    var written = Object.keys(clean).concat(Object.keys(keep));
     var failed = false;
     Object.keys(cur).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) { console.warn('清除本地存储失败', e); } });
     Object.keys(clean).forEach(function (key) {
@@ -297,7 +300,9 @@
     });
     if (failed) {
       /* 写到一半失败（例如配额在复制大档案时才满）：把刚才的旧快照写回去，
-         不让“恢复”变成半份新档 + 半份空档。 */
+         不让“恢复”变成半份新档 + 半份空档。written 不依赖再次读盘，
+         读失败时也不会留下半成品键。 */
+      written.forEach(function (key) { try { localStorage.removeItem(key); } catch (e) {} });
       try { Object.keys(snapshot()).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) {} }); } catch (e) {}
       Object.keys(cur).forEach(function (key) { try { localStorage.setItem(key, cur[key]); } catch (e) { console.warn('回滚本地存储失败', e); } });
       Object.keys(keep).forEach(function (key) { try { localStorage.setItem(key, keep[key]); } catch (e) { console.warn('回滚本地存储失败', e); } });

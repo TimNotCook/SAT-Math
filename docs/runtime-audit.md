@@ -814,3 +814,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 114 条：答题会话写盘失败仍把内存快照改成「已落盘」，后续增量补不回来（2026-11-28）
 
 `exam.js persist()` 末尾 `save(KEY_SESSION, out); adopt(out);` 不检查保存结果。配额满/只读存储时 `save()` 被 catch 吞掉（只 console.warn），`adopt(out)` 却把 `S` 和 `BASE` 都改成 `out`；下一次 persist 的差异比较基于这个没落盘的 BASE，认为答案已经在盘上，后续作答也补不回去，刷新直接丢整场进度且页面没有提示。修成 `const sessionSaved = save(...)`：失败时不 adopt，保留上次真正落盘的 BASE，只提示一次「答题进度保存失败：本地存储不可写，刷新后可能丢失」，返回 false；成功才 adopt 并重置提示标记。验证：静态回归要求 persist 接住 sessionSaved、失败路径提示并 return false，旧代码在「persist 没接住 save 结果」失败；全量 631/0。
+
+## 第 115 条：写一半失败、回滚时又读不到盘，云端半成品键留在本机（2026-11-28）
+
+`applyPayload()` 的失败回滚先用 `snapshot()` 列出当前键再逐个删除。写入进行到一半配额才满时会走到回滚；如果此时 `localStorage.length/key()` 也开始抛错（无痕/站点数据被禁用的常见组合），`snapshot()` 返回 `null`，`Object.keys(null)` 在 try 里被吞掉，回滚只把旧 `cur` 写回去，**已经写进去的前半份云端键没有删掉**，本机留下「半份云端新档 + 本机旧档」的混合状态。修成写之前先记下 `written`（clean+keep 的全部键），回滚不依赖再次读盘，先按 `written` 删干净再恢复旧档。验证：注入第 3 次 setItem 失败、第 2 次 length 读取失败的组合，旧代码留下 `tdsat_extra_v1` 半成品键，新代码回滚后旧档不变且多余键为 undefined；全量 632/0；`verify_flows` 16/16。
