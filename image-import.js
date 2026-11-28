@@ -13,7 +13,24 @@
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { return A.esc(s); }
-  function status(msg) { var el = $('imgimpStatus'); if (el) el.textContent = msg || ''; }
+  var ENGINE_LAST_ERR = '';
+  function ocrEnv() {
+    var wasm = false;
+    try { wasm = typeof WebAssembly !== 'undefined' && typeof WebAssembly.instantiate === 'function'; } catch (e) {}
+    var sw = false;
+    try { sw = !!(navigator.serviceWorker && navigator.serviceWorker.controller); } catch (e) {}
+    return { wasm: wasm, sw: sw };
+  }
+  // 面板底部那行小字：出问题时不用描述症状，看这一行就能定位
+  function diag() {
+    var el = $('imgimpDiag'); if (!el) return;
+    var e = ocrEnv();
+    el.textContent = '内核 ' + (e.wasm ? 'wasm✓' : 'wasm✗ 这台浏览器不支持本地识别') +
+      ' · 缓存 ' + (e.sw ? 'sw✓' : 'sw✗ 首贴要现下 7MB') +
+      ' · 引擎 ' + (OCR_READY ? '就绪' : '未就绪') +
+      (ENGINE_LAST_ERR ? ' · 上次错误：' + ENGINE_LAST_ERR : '');
+  }
+  function status(msg) { var el = $('imgimpStatus'); if (el) el.textContent = msg || ''; diag(); }
   function progress(n, total) { var el = $('imgimpBar'); if (el) el.style.width = (total ? Math.round(n / total * 100) : 0) + '%'; }
 
   /* ---------------- 本地匹配器（与题库自测 top1 93% / top3 99%） ---------------- */
@@ -586,6 +603,8 @@
       return w;
     }).catch(function (e) {
       OCR_WARM = null; OCR_READY = false;
+      ENGINE_LAST_ERR = (e && e.message) || String(e);
+      diag();
       throw e;
     });
     return OCR_WARM;
@@ -774,7 +793,8 @@
     var thumb = p.thumb ? '<img src="' + p.thumb + '" alt="第 ' + p.i + ' 张截图">' : '<span class="imgimp-thumb-ph">图片</span>';
     var cross = p.ocr && p.ocr._cross ? (p.ocr._agree ? ' · 双模型一致' : ' · 双模型有分歧') : '';
     var conf = p.ocr && p.ocr.confidence ? '<small class="muted">OCR ' + Math.round(p.ocr.confidence * 100) + '%' + esc(cross) + '</small>' : '';
-    var stem = p.ocr ? esc(String(p.ocr.stem).slice(0, 180)) : (p.error ? esc(p.error) : '正在识别…');
+    var stem = p.ocr ? esc(String(p.ocr.stem).slice(0, 180))
+      : (p.error ? esc(p.error) + '<small class="muted"> · 图认不出也别放弃这题：把题干里 2–3 个词或数字敲进上面的搜框，一样能导</small>' : '正在识别…');
     var matched = '', picks = '';
     if (p.qid) {
       var c = cand.filter(function (x) { return x.id === p.qid; })[0] || {};
@@ -1023,6 +1043,10 @@
     var c2 = Promise.resolve();
     pages.forEach(function (p, idx) {
       c2 = c2.then(function () {
+        if (!ocrEnv().wasm) {
+          p.error = '这台浏览器的内核禁用了 WebAssembly，本地识别起不来';
+          return;
+        }
         status('正在识别第 ' + p.i + ' / ' + pages.length + ' 块…');
         // 多种预处理各认一遍，取"跟题库最对得上"的那一版，不迷信 OCR 自己的置信度
         return ocrBest(p.dataUrl, state.model).then(function (bestRes) {
@@ -1155,8 +1179,10 @@
   window.TD_IMG_IMPORT = {
     open: function () {
       $('imgImportPanel').hidden = false; $('btnImgImport').setAttribute('aria-expanded', 'true');
+      diag();
       ensureCloudSession(function () { });
       prewarm();
+      if (!ocrEnv().wasm) status('这台浏览器不支持本地识别内核；把题干里几个词敲进下面的搜框，照样能查题导入。');
     },
     prewarm: prewarm,
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
