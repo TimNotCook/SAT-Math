@@ -60,3 +60,18 @@ test('设好新密码后清掉 recovery 标记', () => {
   const seg = acct.slice(acct.indexOf('async function doSetPassword'));
   assert.ok(/clearRecovery/.test(seg.slice(0, 400)), '设密码后没清标记');
 });
+
+test('设置面板能按 Esc 关，关掉焦点回到入口', () => {
+  assert.ok(/function closePanel/.test(acct), '缺 closePanel');
+  assert.ok(/e\.key === 'Escape'/.test(acct), '没有 Esc 监听');
+  assert.ok(/if \(ui\.btn && ui\.btn\.focus\) ui\.btn\.focus\(\)/.test(acct), '关掉没把焦点还给入口按钮');
+});
+
+test('密码登错的提示跟着账号类型走（手机号别说成邮箱）', () => {
+  assert.ok(/function isPhoneAccount/.test(acct), '缺 isPhoneAccount');
+  const seg = acct.slice(acct.indexOf('function friendlyError'), acct.indexOf('function loadProf'));
+  assert.ok(seg.indexOf("isPhoneAccount(account) ? '手机号' : '邮箱'") >= 0, 'invalid-credential 没有区分手机号/邮箱');
+  assert.ok(/friendlyError\(e, email\)/.test(acct), '登录失败没把输入的账号传给 friendlyError');
+  assert.ok(!/第一次用这个邮箱请点/.test(acct), '旧的「第一次用这个邮箱」措辞还在');
+});
+

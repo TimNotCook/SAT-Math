@@ -155,10 +155,13 @@
       '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>' + label + '</span>';
     btn.setAttribute('aria-label', label); btn.title = label;
   }
-  function friendlyError(e) {
+  function isPhoneAccount(v) { return /^\+?[\d][\d\s-]{5,}$/.test(String(v || '').trim()); }
+  function friendlyError(e, account) {
     var c = e && e.code, m = e && e.message;
     if (c === 'auth/invalid-email') return '邮箱格式不正确，请检查后再试。';
-    if (c === 'auth/invalid-credential') return '邮箱或密码不对。第一次用这个邮箱请点「注册新账号」。';
+    if (c === 'auth/invalid-credential') {
+      return (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。还没有账号就点「注册新账号」。';
+    }
     if (c === 'auth/email-already-in-use') return '这个邮箱已经注册过了，直接点「登录」。';
     if (c === 'auth/invalid-code' || c === 'auth/email-not-confirm') return '登录链接已失效或邮件有误，请重新发送登录邮件。';
     if (c === 'auth/too-many-requests') return '操作太频繁了，等一分钟再试。';
@@ -670,7 +673,7 @@
       pwdEmail = email;
       await SB.signInPassword(email, pw);
       setStatus('登录成功，正在读取你的学习档案…', 'ok');
-    } catch (e) { setError(friendlyError(e)); }
+    } catch (e) { setError(friendlyError(e, email)); }
     finally { setBusy(false); renderBody(); }
   }
 
@@ -823,6 +826,14 @@
     renderBody();
   }
 
+  /* 面板只有一条关闭路径：X、点遮罩、按 Esc 都走这里，
+     关掉之后焦点回到入口按钮，键盘用户不会掉到页面开头。 */
+  function closePanel() {
+    if (!ui || !ui.layer) return;
+    ui.layer.setAttribute('data-open', '0');
+    if (ui.btn && ui.btn.focus) ui.btn.focus();
+  }
+
   function onState(u) {
     var was = user;
     user = u || null;
@@ -973,7 +984,7 @@
     head.appendChild(el('h2', '', '设置'));
     var x = el('button', 'td-acct-x', '×');
     x.type = 'button'; x.setAttribute('aria-label', '关闭');
-    x.onclick = function () { layer.setAttribute('data-open', '0'); };
+    x.onclick = function () { closePanel(); };
     head.appendChild(x);
     panel.appendChild(head);
     // 标签栏：账户 / 外观 / 关于
@@ -992,7 +1003,10 @@
     var body = el('div');
     panel.appendChild(status); panel.appendChild(err); panel.appendChild(body);
     layer.appendChild(panel);
-    layer.addEventListener('click', function (e) { if (e.target === layer) layer.setAttribute('data-open', '0'); });
+    layer.addEventListener('click', function (e) { if (e.target === layer) closePanel(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && layer.getAttribute('data-open') === '1') { e.preventDefault(); closePanel(); }
+    });
     document.body.appendChild(layer);
 
     var btn = el('button', 'td-acct-btn td-acct-icon-btn');
