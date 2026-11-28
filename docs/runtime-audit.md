@@ -810,3 +810,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 113 条：草稿已应用但 removeItem 被禁用，旧草稿留在本地等下次重放（2026-11-28）
 
 `clearDraft()` 在删掉某个账号的槽后，若没有剩余草稿就调用 `localStorage.removeItem(DRAFT_KEY)`。某些浏览器策略下 `setItem` 可用但 `removeItem` 抛错，`catch` 只 `console.warn`，函数没有返回值；`applyDraft()` 仍认为“应用并清理成功”，旧草稿原样留在 `tdprofile_draft_v1`，下次登录会把已经应用过的旧载荷再盖回本机，覆盖这期间的新作答。修成：`clearDraft()` 返回布尔；`removeItem` 失败时用 `setItem` 写一个空槽 `{v:2,items:{}}` 兜底（旧载荷不再可读），只有两层写入都失败才返回 false。验证：注入 `removeItem` 抛错而 `setItem` 可用，旧代码 `clearDraft` 返回 undefined、草稿原样保留，新代码返回 true 且槽内载荷为空；全量 630/0；`verify_flows` 16/16。
+
+## 第 114 条：答题会话写盘失败仍把内存快照改成「已落盘」，后续增量补不回来（2026-11-28）
+
+`exam.js persist()` 末尾 `save(KEY_SESSION, out); adopt(out);` 不检查保存结果。配额满/只读存储时 `save()` 被 catch 吞掉（只 console.warn），`adopt(out)` 却把 `S` 和 `BASE` 都改成 `out`；下一次 persist 的差异比较基于这个没落盘的 BASE，认为答案已经在盘上，后续作答也补不回去，刷新直接丢整场进度且页面没有提示。修成 `const sessionSaved = save(...)`：失败时不 adopt，保留上次真正落盘的 BASE，只提示一次「答题进度保存失败：本地存储不可写，刷新后可能丢失」，返回 false；成功才 adopt 并重置提示标记。验证：静态回归要求 persist 接住 sessionSaved、失败路径提示并 return false，旧代码在「persist 没接住 save 结果」失败；全量 631/0。

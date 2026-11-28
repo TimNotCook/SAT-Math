@@ -35,6 +35,13 @@ test('成绩落盘失败要提示，不能静默当已保存', () => {
   assert.match(js, /if \(!resultSaved\) toast\('成绩保存失败/, '成绩写失败没有可见提示');
 });
 
+test('答题会话写盘失败不许假装已落盘', () => {
+  const js = read('exam.js');
+  assert.match(js, /const sessionSaved = save\(KEY_SESSION, out\)/, 'persist 没接住 save 结果');
+  assert.match(js, /if \(!sessionSaved\)[\s\S]*?toast\('答题进度保存失败/, '会话写失败没有提示');
+  assert.match(js, /if \(!sessionSaved\)[\s\S]*?return false;/, '写失败后仍 adopt 了没落盘的 out');
+});
+
 test('模考页：核心脚本没加载完时要有可见兜底，而不是死页', () => {
   const html = read('exam.html');
   assert.ok(html.includes('tdsat_boot_retry_v1'), 'load 后必须检查核心脚本是否就绪，并只自动重载一次');

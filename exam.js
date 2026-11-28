@@ -225,6 +225,7 @@
      and replay only locally changed fields on top of it, so a stale tab can
      never erase answers/results another tab just saved under the same key. */
   let BASE = 'null';
+  let sessionSaveWarned = false;
   const snap = x => { try { return String(JSON.stringify(x)); } catch (e) { return 'null'; } };
   function adopt(next) { S = next; BASE = snap(S); }
 
@@ -1047,8 +1048,21 @@
         out.answers = merged;
       }
     }
-    save(KEY_SESSION, out);
+    const sessionSaved = save(KEY_SESSION, out);
+    if (!sessionSaved) {
+      /* 写盘失败别 adopt：旧实现在这里把内存 BASE 改成没落盘的 out，
+         下一次差异比较以为已经在盘上，后续改动永远补不回去。保留上次
+         真正落盘的 BASE，下一次 persist 会重新把这批增量带上；同时只提示一次，
+         避免每答一题弹一次。 */
+      if (!sessionSaveWarned) {
+        sessionSaveWarned = true;
+        toast('答题进度保存失败：本地存储不可写，刷新后可能丢失');
+      }
+      return false;
+    }
+    sessionSaveWarned = false;
     adopt(out);   // memory mirrors the disk value that is now current
+    return true;
   };
 
   /* =====================================================================
