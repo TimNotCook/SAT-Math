@@ -212,3 +212,17 @@ describe('邮件链接不能发到手机号', () => {
     assert.equal(calls.length, 0, '不能对着收不到信的假域名发信');
   });
 });
+
+describe('面板上的账号打码', () => {
+  const { SB } = loadModule(async () => makeRes(200, sessionBody('x')));
+  test('手机号：8613800138000 → 138****8000', () => {
+    assert.equal(SB.maskAccount('p8613800138000@p.satmath.app'), '138****8000');
+  });
+  test('邮箱：tim@example.com → ti***@example.com', () => {
+    assert.equal(SB.maskAccount('tim@example.com'), 'ti***@example.com');
+  });
+  test('空值不炸', () => {
+    assert.equal(SB.maskAccount(''), '');
+    assert.equal(SB.maskAccount(null), '');
+  });
+});

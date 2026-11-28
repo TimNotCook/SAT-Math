@@ -647,6 +647,8 @@
       '.td-otp-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}',
       '.td-otp-row .td-acct-field{flex:1;margin-bottom:0}',
       '.td-otp-send{white-space:nowrap;height:36px;padding:0 12px;font-size:13px}',
+      '.td-nick-row+.td-acct-note{margin-top:8px}',
+      '.td-acct-note+.td-nick-row{margin-top:14px}',
       '.td-acct-note{font-size:12px;color:var(--sub,#51648a);line-height:1.6;margin:14px 0 0}',
       '.td-acct-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}',
       '.td-acct-who{font-size:13px;font-weight:600;margin-bottom:4px;word-break:break-all}',
@@ -753,7 +755,8 @@
       p.appendChild(el('div', 'td-prof-av', initial));
       var info = el('div');
       info.appendChild(el('div', 'td-prof-name', displayName()));
-      info.appendChild(el('div', 'td-prof-sub', '你的专属学习档案'));
+      var acct = (SB && SB.maskAccount && user.email) ? SB.maskAccount(user.email) : '';
+      info.appendChild(el('div', 'td-prof-sub', acct || '你的专属学习档案'));
       p.appendChild(info);
       b.appendChild(p);
 
@@ -778,6 +781,7 @@
         var pwRow = el('div', 'td-nick-row');
         pwRow.appendChild(pwField.box);
         var pwSave = el('button', 'td-acct-btn2 td-nick-save', '保存密码');
+        pwSave.setAttribute('data-neutral', '1');
         pwSave.type = 'button'; pwSave.setAttribute('data-busy', '1');
         pwSave.onclick = function () { doSetPassword(pwField.input.value); };
         pwField.input.addEventListener('keydown', function (e) {

@@ -317,6 +317,24 @@
   }
 
   /* 已登录状态改密码：换设备登录、忘了邮件链接都能靠它自救 */
+  /* 面板上显示「你是哪个账号」：手机号打码成 138****8000，邮箱打码成 ti***@x.com。
+     不做登录用，只做识别，所以不放进任何同步字段。 */
+  function maskAccount(v) {
+    var s = String(v || '').trim();
+    var m = s.match(/^p(\d+)@p\.satmath\.app$/);
+    if (m) {
+      var d = m[1];
+      if (d.length === 13 && d.indexOf('86') === 0) d = d.slice(2);
+      return d.length >= 7 ? d.slice(0, 3) + '****' + d.slice(-4) : d;
+    }
+    var at = s.indexOf('@');
+    if (at > 0) {
+      var a = s.slice(0, at), b = s.slice(at + 1);
+      return a.slice(0, Math.min(2, a.length)) + '***@' + b;
+    }
+    return s;
+  }
+
   async function setPassword(password) {
     var pw = String(password || '');
     if (!validPw(pw)) throw errOf(400, { msg: '密码至少 6 位。' });
@@ -399,6 +417,7 @@
     sendMagicLink: sendOtp,
     signUpPassword: signUpPassword,
     signInPassword: signInPassword,
+    maskAccount: maskAccount,
     setPassword: setPassword,
     verifyOtp: verifyOtp,
 
