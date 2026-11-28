@@ -1434,7 +1434,9 @@
     }
 
     if (loginMode === 'signup') {
-      var emSign = field('邮箱或手机号', 'text', '邮箱或手机号', 'username');
+      /* 手机号注册暂未开放（要短信验证），注册框就只写邮箱：
+         摆一个「邮箱或手机号」再弹「暂未开通」等于假入口。 */
+      var emSign = field('邮箱', 'text', '邮箱', 'username');
       if (seed) emSign.input.value = seed;
       ui.email = emSign.input;
       b.appendChild(el('div', 'td-acct-who', '注册新账号'));
@@ -1463,8 +1465,7 @@
       [pwSign, pwSign2].forEach(function (f) {
         f.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSignUpPwd(); });
       });
-      b.appendChild(el('p', 'td-acct-note',
-        '注册成功会自动登录。新账号请用邮箱注册；手机号注册需要短信验证，暂未开放，已有手机号账号可以直接登录。'));
+      b.appendChild(el('p', 'td-acct-note', '注册完直接登录。'));
       return;
     }
 

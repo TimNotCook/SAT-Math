@@ -356,8 +356,7 @@
     '确认新密码': 'Confirm new password',
     '注册并登录': 'Create account and sign in',
     '手机号账号没有短信验证，建议用邮箱注册。': 'Phone accounts have no SMS verification — email is recommended.',
-    '注册成功会自动登录。新账号请用邮箱注册；手机号注册需要短信验证，暂未开放，已有手机号账号可以直接登录。':
-      'Your account is ready and you are signed in. New accounts should use email; phone sign-up needs SMS verification and is not available yet. Existing phone accounts can still sign in.',
+    '注册完直接登录。': 'You are signed in right after signing up.',
     '重置链接只发到邮箱。手机号账号没有短信重置；如果还处于登录状态，请在设置里改密码。':
       'Reset links go to email only. Phone accounts can change the password after signing in.',
 
