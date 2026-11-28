@@ -1,33 +1,66 @@
-diff --git a/cloud-account.js b/cloud-account.js
-index 42e66a9..ba38f4e 100644
---- a/cloud-account.js
-+++ b/cloud-account.js
-@@ -184,7 +184,13 @@
-     for (var i = 0; i < nodes.length; i++) { nodes[i].disabled = !!on; }
-   }
-   // 界面上的名称：只用昵称，绝不回退到邮箱。
--  function displayName() { return nickname || defaultNick(); }
-+  function displayName() {
-+    var n = String(nickname || '').trim();
-+    /* 旧版自动建档把默认昵称写死成「同学」并同步到云端；英文界面不能把它当成
-+       用户自己起的名字显示（头像首字也会变成「同」）。等于默认值就当没设过。 */
-+    if (!n || n === DEFAULT_NICK) return defaultNick();
-+    return n;
-+  }
+diff --git a/app.css b/app.css
+index 6711d3b..babc303 100644
+--- a/app.css
++++ b/app.css
+@@ -1469,6 +1469,19 @@ html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:1
+   /* 320 卡内只剩 214px，「Math · Practice Test」24px 要 233px，会在 Practice 后断行。
+      21px 只需 204px，整句一行，也不再压住下面的副标题。 */
+   html body.exam-page.is-mock #mockCardTitle{font-size:21px!important;line-height:1.25!important}
++  /* 讲义一列卡在 320 只有 232px，右侧还有 0/7 节和箭头，「问题解决与数据分析」
++     只能拿到 113px，14.5px 的 131px 放不下就被截成省略号。窄屏改成两行折行，
++     卡高 80px 仍装得下（两行 36px），不再牺牲板块名。 */
++  html body.jy-page #jyBoardCards .entry-tile b{white-space:normal!important;overflow:visible!important;
++    text-overflow:clip!important;line-height:1.25!important;word-break:normal!important;text-wrap:balance!important;min-width:0!important;flex:1 1 auto!important}
++  /* 空态卡 320 宽 232px，左右各 32/20px 的内边距把正文压到 168/192px：
++     记录页标题「还没有模考或抽查记录」要 200px，被拆成「…抽查 / 记录」；
++     错题页说明也被挤成三行、末行只剩「里。」。窄屏收内边距，标题回一行。 */
++  html body.shell-history .hist-list>.hist-empty{padding-left:12px!important;padding-right:12px!important}
++  html body .empty-panel{padding-left:12px!important;padding-right:12px!important}
++  /* 208px 正文宽度下，记录页说明会剩「里。」这种两字孤行；text-wrap:pretty 把前一行
++     的断点往回挪一个字，三行仍三行，但不再出现两字孤行。 */
++  html body .empty-panel p,html body .hist-empty .he-d{text-wrap:pretty}
+ }
  
-   // 设置齿轮图标（内联 SVG，无需外部图标字体）
-   function setBtnIcon(btn) {
-diff --git a/test/i18n.test.js b/test/i18n.test.js
-index 0108dd1..e852771 100644
---- a/test/i18n.test.js
-+++ b/test/i18n.test.js
-@@ -136,7 +136,7 @@ test('英文模式下没设昵称时显示 Student，不是中文「同学」',
-   const seg = acc.slice(acc.indexOf('function defaultNick'));
-   assert.ok(/TDI18n\.get\(\) === 'en'/.test(seg.slice(0, 300)), '没按界面语言切换默认昵称');
-   assert.ok(seg.slice(0, 300).indexOf("return 'Student'") >= 0, '英文默认昵称还不是 Student');
--  assert.ok(/function displayName\(\) { return nickname \|\| defaultNick\(\); }/.test(acc), 'displayName 还在用固定的「同学」');
-+  assert.ok(/n === DEFAULT_NICK/.test(acc) && /return defaultNick\(\)/.test(acc), 'displayName 没把默认「同学」当归未设');
+ /* 抽查开场左栏右侧那块空白：放一张本单元的浅色线稿，不做标签也不写字 */
+diff --git a/docs/runtime-audit.md b/docs/runtime-audit.md
+index 10b865d..19d252d 100644
+--- a/docs/runtime-audit.md
++++ b/docs/runtime-audit.md
+@@ -1001,3 +1001,15 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
+ ## 第 154 条：320 模考卡标题「Math · Practice Test」在 Practice 后断行（2026-11-28）
+ 
+ 320 卡内标题可用宽度只有 214px，24px 字号量出来要 233px，浏览器在单词间断成「Math · Practice / Test」，下半句孤零零一行。`max-width:360px` 把 `#mockCardTitle` 降到 21px（实测 204px 可单行）、行高 1.25；390 及以上仍是 24px。验证：本地 320 标题单行；`visual-mobile-polish` 新增第 4 条断言；全量 711/0。
++
++## 第 155 条：320 讲义一列卡「问题解决与数据分析」被截成省略号（2026-11-28）
++
++1440 四列修好后，320 一列卡仍被截：卡宽 232px，右侧 `0/7 节` 和箭头占掉固定宽度，标题只剩 113px，而 14.5px 的 9 个字要 131px，于是 `nowrap + ellipsis` 变成「问题解决与数…」。窄屏改成允许折行、`min-width:0`、`flex:1 1 auto`，卡高 80px 装两行（36px）；再用 `text-wrap:balance` 把断点匀成「问题解决与 / 数据分析」。验证：本地 320 标题两行、`scrollWidth` 113 = 盒宽，无省略号；`visual-mobile-polish` 第 5 条锁住。
++
++## 第 156 条：320 空态卡内边距吃宽度，记录页标题拆成「…抽查 / 记录」（2026-11-28）
++
++320 记录页空态卡宽 232px，左右 32px 内边距后正文只剩 168px，`还没有模考或抽查记录` 要 200px，被拆成两行，第二行只有「记录」两个字；错题页 20px 内边距也把说明挤成三行，末行只剩「里。」。窄屏把记录页内边距收到 12px（正文 208px），标题回一行；错题页同样收窄，说明回到两行。验证：本地 320 标题单行，错题说明两行无孤字；`visual-mobile-polish` 第 6 条锁住两个选择器。
++
++## 第 157 条：320 空态说明最后一行只剩「里。」（2026-11-28）
++
++内边距收窄后记录页说明仍是三行，但断点把「这里。」丢到最后一行，视觉上像被切掉。窄屏给 `.he-d` / `.empty-panel p` 加 `text-wrap:pretty`，让浏览器把前一行的断点往回挪一个字，三行不变、末行变成「这里。」三个字，不再出现两字孤行。验证：本地 320 截图末行「这里。」；`visual-mobile-polish` 断言 `text-wrap:pretty`。
+diff --git a/test/visual-mobile-polish.test.js b/test/visual-mobile-polish.test.js
+index 21cc951..c7250c2 100644
+--- a/test/visual-mobile-polish.test.js
++++ b/test/visual-mobile-polish.test.js
+@@ -35,4 +35,15 @@ test('手机模考卡三个数字等分成一行，320 不再把「of 2 modules
+ 
+ test('320 模考卡标题 21px 单行，不在 Practice 后断开', () => {
+   assert.match(app, /html body\.exam-page\.is-mock #mockCardTitle\{font-size:21px!important;line-height:1\.25!important\}/);
++});
++
++test('320 讲义一列卡的长板块名允许两行，不再截成省略号', () => {
++  assert.match(app, /html body\.jy-page #jyBoardCards \.entry-tile b\{white-space:normal!important;overflow:visible!important;/);
++  assert.match(app, /text-overflow:clip!important;line-height:1\.25!important;word-break:normal!important;text-wrap:balance!important/);
++});
++
++test('320 空态卡收窄左右内边距，记录页标题不再拆成「…抽查 / 记录」', () => {
++  assert.match(app, /html body\.shell-history \.hist-list>\.hist-empty\{padding-left:12px!important;padding-right:12px!important\}/);
++  assert.match(app, /html body \.empty-panel\{padding-left:12px!important;padding-right:12px!important\}/);
++  assert.match(app, /html body \.empty-panel p,html body \.hist-empty \.he-d\{text-wrap:pretty\}/);
  });
- 
- test('「第 N / M 题」这类拼接计数在英文模式下要翻（讲义题号/页脚/结果分数）', () => {
+\ No newline at end of file
 
