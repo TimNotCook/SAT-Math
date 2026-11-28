@@ -8,12 +8,12 @@ const path = require('path');
 const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
-function boot(store) {
+function boot(store, opts) {
   const sandbox = {
     console,
     localStorage: {
       getItem: k => (k in store ? store[k] : null),
-      setItem: (k, v) => { store[k] = String(v); },
+      setItem: (k, v) => { if (opts && opts.throwWriteKey === k) throw new Error('storage denied'); store[k] = String(v); },
       removeItem: k => { delete store[k]; },
     },
     setTimeout: () => 1, clearTimeout() {},
@@ -60,6 +60,18 @@ test('讲义交卷 detail 带正确答案，记录页不再显示「正确 —�
   const d = rec.detail.find(x => x.id === q.id);
   assert.ok(d, '交卷记录缺少题目');
   assert.ok(stripText(d.answer), 'detail.answer 为空，记录页会显示「正确 —」');
+});
+
+test('讲义交卷成绩仓库写失败时不标完成、不假装交卷成功', () => {
+  const store = { tdsat_jiangyi_v1: JSON.stringify({ answers: {}, submitted: {}, cursor: 0 }) };
+  const J = boot(store, { throwWriteKey: 'tdsat_exam_suite_results_v1' }).TD_JY;
+  const { b, s } = firstBoardSection(J);
+  let threw = null, rec = 'sentinel';
+  try { rec = J.submitSection(b, s); } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '成绩写失败时交卷抛异常：' + (threw && threw.message));
+  assert.strictEqual(rec, null, '成绩仓库没写成却返回了交卷记录');
+  const state = JSON.parse(store.tdsat_jiangyi_v1);
+  assert.deepStrictEqual(state.submitted, {}, '成绩没写成却把本节标成已完成');
 });
 
 test('讲义成绩仓库不是数组时交卷不崩，记录仍写入数组', () => {

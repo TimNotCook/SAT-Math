@@ -833,3 +833,8 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 119 条：站点哨兵提交把数据健壮性修复回退，四个回归测试直接变红（2026-11-28）
 
 上游 `4f08d4f fix(site): 版本哨兵+错题页自动换新…` 在改 `wrong.html`/SW 的同时，把 `exam.js`、`history-page.js`、`wrong-page.js` 整份覆盖成旧版本：`flagKey()` 的 `'True'/'FALSE'` 归一、`countOf()` 的错题次数防拼接、`wrong-page.importData()` 的“先写仓库再写本机作答”全部消失，`modeOf(rec)` 也没了；`test/array-guard.test.js` 里对应 14 条回归被一起删掉。结果四个测试直接变红（大写 MOCK 来源、`"False"` 仍进错题本、仓库写失败仍先写本机、导入失败提示），线上错题页会重新出现这些已修过的 bug。修成从 `c612437` 恢复 `exam.js`、`history-page.js` 与回归测试；`wrong-page.js` 由上游 `f99f97d` 用 `boolOf`+先写仓库后写本机等价恢复，取其版本；重新 `bump_assets` 让版本哈希对齐。验证：恢复后全量 639/0；`verify_flows` 16/16；线上页面稍后复核。
+
+## 第 120 条：讲义交卷成绩仓库写失败仍把本节标完成，记录页永远缺这条成绩（2026-11-28）
+
+`jiangyi-core.js submitSection()` 先 `write(RESULTS_KEY, all)` 不看返回值，再把 `S.submitted[section]` 标成已完成并 `save()`。配额满/只读存储让成绩仓库写失败时，结果页照样显示本次成绩，记录页却因为没有 results 记录永远看不到这一条；本节磁贴还显示完成，用户以为成绩已存。修成 `if (!write(RESULTS_KEY, all)) return null;`，失败时 submitted 和答案都不动；`jiangyi-page.js` 交卷处理拿到 null 时不再回列表，提示「成绩保存失败：本地存储不可写，请清理空间后重试」。验证：注入 `tdsat_exam_suite_results_v1` 写入抛错，旧代码返回交卷记录并把 submitted 标成完成，断言失败；新代码返回 null、submitted 仍为 `{}`，通过；全量 640/0。
+

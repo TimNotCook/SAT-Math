@@ -229,7 +229,8 @@
   els.jySubmit.addEventListener('click', function () {
     if (!J) { J = window.TD_JY; if (!J) { jyToast('讲义数据还在加载，稍等一下'); return; } }
     var rec = J.submitSection(boardId, section);
-    if (rec) renderResult(rec); else openBoard(boardId);
+    if (rec) renderResult(rec);
+    else jyToast('成绩保存失败：本地存储不可写，请清理空间后重试');
   });
 
   /* ---------- 结果 ---------- */

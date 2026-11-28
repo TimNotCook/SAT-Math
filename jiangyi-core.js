@@ -273,7 +273,11 @@
     var all = read(RESULTS_KEY);
     if (!Array.isArray(all)) all = [];
     all.push(rec); if (all.length > 40) all.shift();
-    write(RESULTS_KEY, all);
+    /* 成绩仓库写失败就别把本节标完成：旧实现先写 results 不看返回值，再
+       把 submitted 落盘。结果页能显示这次成绩，记录页却因为 results 没写而
+       永远缺这一条，用户以为成绩保存了。失败直接返回 null，让页面留在原处
+       提示重试；submitted 和答案都不动。 */
+    if (!write(RESULTS_KEY, all)) return null;
     S.submitted[section] = { at: rec.date, correct: correct, total: qs.length };
     save();
     return rec;
