@@ -357,7 +357,7 @@
     '保存密码': 'Save password',
     '已经通过重置链接登录，在下面设一个新密码就完成重置。': 'You are signed in through the reset link. Set a new password below to finish resetting.',
     '登录密码': 'Password',
-    '至少 6 位，设好后可换设备登录': 'At least 6 characters; lets you sign in on other devices',
+    '至少 8 位，设好后可换设备登录': 'At least 8 characters; lets you sign in on other devices',
     '设好密码后，换设备可以直接用邮箱或手机号 + 密码登录，不必等邮件。':
       'Once a password is set you can sign in on another device with email or phone + password, no email needed.',
     '账号模块未能加载，做题与进度照常保存，不受影响。':
@@ -378,7 +378,7 @@
     '邮箱或手机号': 'Email or phone',
     '邮箱 / 手机号 + 密码': 'Email / phone + password',
     '密码': 'Password',
-    '至少 6 位': 'At least 6 characters',
+    '至少 8 位': 'At least 8 characters',
     '忘记密码？': 'Forgot password?',
     '登录': 'Sign in',
     '注册新账号': 'Create an account',
@@ -405,7 +405,7 @@
     '网络异常，请检查连接后重试。': 'Network problem. Check your connection and try again.',
     '登录服务返回异常，请刷新页面后重试。': 'The sign-in service returned an error. Refresh and try again.',
     '登录链接已失效或邮件有误，请重新发送登录邮件。': 'That sign-in link has expired or the email is wrong. Send a new one.',
-    '密码至少 6 位。': 'A password needs at least 6 characters.',
+    '密码至少 8 位。': 'A password needs at least 8 characters.',
     '请先填写邮箱或手机号。': 'Enter your email or phone number first.',
     '请先填写邮箱。': 'Enter your email first.',
     '请输入密码。': 'Enter your password first.',

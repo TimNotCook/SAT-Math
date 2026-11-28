@@ -6,7 +6,7 @@
  * 完全不经过邮件。规则：
  *   1. signUpPassword(邮箱, 密码) → POST /auth/v1/signup，body { email, password }，拿会话落库；
  *   2. signInPassword(邮箱, 密码) → POST /auth/v1/token?grant_type=password；
- *   3. 邮箱格式错 / 密码短于 6 位 → 400，且一个请求都不发；
+ *   3. 邮箱格式错 / 密码短于 8 位 → 400，且一个请求都不发；
  *   4. 账密不对 → 错误码 auth/invalid-credential（UI 靠它提示「第一次请先注册」）；
  *   5. 已登录改密码 → PUT /auth/v1/user，body { password }；
  *   6. 会话结构与 magic link 完全一致（tdsat_auth_v1，access/refresh/expiresAt/user）。
@@ -80,10 +80,10 @@ describe('注册：密码通道不经过邮件', () => {
     assert.ok(saved.expiresAt > Date.now(), '过期时间应取 expires_in 减缓冲');
   });
 
-  test('密码短于 6 位 → 400，且不发请求', async () => {
+  test('密码短于 8 位 → 400，且不发请求', async () => {
     const calls = [];
     const { SB } = loadModule(async (url) => { calls.push(url); return makeRes(200, sessionBody('x')); });
-    await assert.rejects(() => SB.signUpPassword('tim@example.com', '123'), e => e.status === 400);
+    await assert.rejects(() => SB.signUpPassword('tim@example.com', '1234567'), e => e.status === 400);
     assert.equal(calls.length, 0);
   });
 

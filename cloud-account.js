@@ -849,7 +849,7 @@
 
   async function doSetPassword(pw, pw2) {
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
-    if (!pw || pw.length < 6) { setError('密码至少 6 位。'); return; }
+    if (!pw || pw.length < 8) { setError('密码至少 8 位。'); return; }
     if (pw2 !== undefined && pw !== pw2) { setError('两次输入的新密码不一致，请重新确认。'); return; }
     if (!SB || !SB.setPassword) { setError('登录模块未加载，请刷新页面重试。'); return; }
     var ok = false;
@@ -889,7 +889,7 @@
     var pw2 = ui && ui.pw2 ? ui.pw2.value : '';
     if (!email) { setError(loginMode === 'signup' ? '请先填写邮箱。' : '请先填写邮箱或手机号。'); return; }
     if (loginMode === 'signup' && !looksLikeEmail(email)) { setError('邮箱格式不正确，请检查后再试。'); return; }
-    if (pw.length < 6) { setError('密码至少 6 位。'); return; }
+    if (pw.length < 8) { setError('密码至少 8 位。'); return; }
     if (ui && ui.pw2 && pw !== pw2) { setError('两次输入的密码不一致，请重新确认。'); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
@@ -1393,7 +1393,7 @@
           '已经通过重置链接登录，在下面设一个新密码就完成重置。'));
       }
       if (SB && SB.setPassword) {
-        var pwField = field('登录密码', 'password', '至少 6 位，设好后可换设备登录', 'new-password');
+        var pwField = field('登录密码', 'password', '至少 8 位，设好后可换设备登录', 'new-password');
         var pw2Field = field('确认新密码', 'password', '再输一次', 'new-password');
         b.appendChild(pwField.box);
         b.appendChild(pw2Field.box);
@@ -1540,7 +1540,7 @@
       b.appendChild(el('div', 'td-acct-who', '注册新账号'));
       b.appendChild(emSign.box);
 
-      var pwSign = field('设置密码', 'password', '至少 6 位', 'new-password');
+      var pwSign = field('设置密码', 'password', '至少 8 位', 'new-password');
       ui.pw = pwSign.input;
       b.appendChild(pwSign.box);
 
@@ -1580,7 +1580,7 @@
     ui.email = em.input;
     b.appendChild(em.box);
 
-    var pw = field('密码', 'password', '至少 6 位', 'current-password');
+    var pw = field('密码', 'password', '密码', 'current-password');
     ui.pw = pw.input;
     b.appendChild(pw.box);
 

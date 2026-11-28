@@ -333,7 +333,7 @@
   }
 
   /* ---------- 邮箱 / 手机号 + 密码（不依赖邮件投递，注册即可用） ---------- */
-  function validPw(v) { return String(v || '').length >= 6; }
+  function validPw(v) { return String(v || '').length >= 8; }
 
   /* 手机号当账号用：去掉空格/横线，补国家码，再折成项目内部的登录标识。
      规则：11 位且以 1 开头按中国大陆手机号，统一补 86，
@@ -381,7 +381,7 @@
       ce.code = 'auth/phone-signup-closed';
       throw ce;
     }
-    if (!validPw(pw)) throw errOf(400, { msg: '密码至少 6 位。' });
+    if (!validPw(pw)) throw errOf(400, { msg: '密码至少 8 位。' });
     var body = { email: mail, password: pw };
     if (name) body.data = { display_name: String(name).slice(0, 24) };
     var r = await raw('/auth/v1/signup', {
@@ -440,7 +440,7 @@
 
   async function setPassword(password) {
     var pw = String(password || '');
-    if (!validPw(pw)) throw errOf(400, { msg: '密码至少 6 位。' });
+    if (!validPw(pw)) throw errOf(400, { msg: '密码至少 8 位。' });
     var tk = await token();
     await raw('/auth/v1/user', {
       method: 'PUT', headers: authHeaders(tk),
