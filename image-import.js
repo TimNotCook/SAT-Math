@@ -381,6 +381,54 @@
       img.src = url;
     });
   }
+  /* 一张截屏里常有 3~5 道题并排/竖排。整块喂给 OCR 会把几道题的题干糊成一锅（数字互相串），
+     匹配自然不稳、认不出来。这里按"横向空白带"把图切成一块一块，每块当成一道题分别识别。
+     切不动（单题大图、有题图/表格）就原样整张走老流程，不改变原有行为。 */
+  function splitBands(dataUrl) {
+    return new Promise(function (res) {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var W = img.width, H = img.height, sc = Math.min(1, 980 / W);
+          var cw = Math.max(1, Math.round(W * sc)), ch = Math.max(1, Math.round(H * sc));
+          var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+          var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cw, ch); cx.drawImage(img, 0, 0, cw, ch);
+          var px = cx.getImageData(0, 0, cw, ch).data;
+          var ink = [], i, x, y;
+          for (y = 0; y < ch; y++) {
+            var n = 0;
+            for (x = 0; x < cw; x++) {
+              i = (y * cw + x) * 4;
+              if (px[i] < 205 || px[i + 1] < 205 || px[i + 2] < 205) { n++; if (n > 6) break; }
+            }
+            ink.push(n > 6);   // 这一行有字
+          }
+          // 找空白带：连续 >= 18 行没有字，就当成一道题的分界
+          var blocks = [], start = -1, blank = 0;
+          for (y = 0; y < ch; y++) {
+            if (ink[y]) { if (start < 0) start = y; blank = 0; }
+            else if (start >= 0) { blank++; if (blank >= 18) { blocks.push([start, y - blank]); start = -1; blank = 0; } }
+          }
+          if (start >= 0) blocks.push([start, ch - 1]);
+          blocks = blocks.filter(function (b) { return b[1] - b[0] >= 10; });
+          // 顶端若是一小行标题（"Questions 12-15"、页码），把它并进第一块，避免多出一道假题
+          if (blocks.length > 1 && blocks[0][1] - blocks[0][0] < ch * 0.04) { blocks[1] = [blocks[0][0], blocks[1][1]]; blocks.shift(); }
+          if (blocks.length < 2 || blocks.length > 6) return res([{ url: dataUrl }]);
+          var out = blocks.map(function (b) {
+            var y0 = Math.max(0, Math.round(b[0] / sc) - 8), y1 = Math.min(H, Math.round(b[1] / sc) + 8);
+            var hh = y1 - y0; if (hh < 30) return null;
+            var c2 = document.createElement('canvas'); c2.width = W; c2.height = hh;
+            var x2 = c2.getContext('2d'); x2.fillStyle = '#fff'; x2.fillRect(0, 0, W, hh);
+            x2.drawImage(img, 0, y0, W, hh, 0, 0, W, hh);
+            return { url: c2.toDataURL('image/jpeg', 0.85), thumb: c2.toDataURL('image/jpeg', 0.5) };
+          }).filter(Boolean);
+          res(out.length >= 2 ? out : [{ url: dataUrl }]);
+        } catch (e) { res([{ url: dataUrl }]); }
+      };
+      img.onerror = function () { res([{ url: dataUrl }]); };
+      img.src = dataUrl;
+    });
+  }
   // 视觉模型自动 fallback 链：全部来自当前应用 enabled + supportsImages 的真实模型 ID，
   // 免费/低倍率且视觉能力强的排前面。任一模型未授权/限流/额度不足/网关错误，自动尝试下一个。
   var MODEL_CHAIN = [
@@ -844,15 +892,35 @@
   function recognizeAll(images) {
     if (busy || !images || !images.length) return Promise.resolve(null);
     busy = true;
-    pages = images.map(function (f, i) { return { i: i + 1, file: f, thumb: '', dataUrl: '', ocr: null, cands: [], qid: '', checked: false, error: '' }; });
-    renderRows(); progress(0, pages.length);
-    var chain = Promise.resolve();
+    pages = []; renderRows(); progress(0, 1);
+    var prep = Promise.resolve();
+    images.forEach(function (f, i) {
+      prep = prep.then(function () {
+        status('正在准备第 ' + (i + 1) + ' / ' + images.length + ' 张…');
+        return compressImage(f).then(function (img) {
+          return splitBands(img.url).then(function (bands) {
+            bands.forEach(function (b, j) {
+              pages.push({ i: pages.length + 1, file: f,
+                label: (images.length > 1 ? '第 ' + (i + 1) + ' 张 · ' : '') + (bands.length > 1 ? '第 ' + (j + 1) + ' 块' : ''),
+                thumb: b.thumb || img.thumb, dataUrl: b.url,
+                ocr: null, cands: [], qid: '', checked: false, error: '' });
+            });
+            renderRows();
+          });
+        }).catch(function (e) {
+          pages.push({ i: pages.length + 1, file: f, label: '', thumb: '', dataUrl: '', ocr: null, cands: [], qid: '', checked: false, error: errText(e) });
+          renderRows();
+        });
+      });
+    });
+    // 切块是异步的，必须等 pages 填好再排队识别（否则循环跑在空数组上，全部记成"识别失败"）
+    var chain = prep.then(function () {
+    progress(0, pages.length);
+    var c2 = Promise.resolve();
     pages.forEach(function (p, idx) {
-      chain = chain.then(function () {
-        status('正在识别第 ' + p.i + ' / ' + pages.length + ' 张…');
-        return compressImage(p.file).then(function (img) {
-          p.thumb = img.thumb; p.dataUrl = img.url; renderRows();
-          return ocrImage(img.url, state.model).then(function (ocr) {
+      c2 = c2.then(function () {
+        status('正在识别第 ' + p.i + ' / ' + pages.length + ' 块…');
+        return ocrImage(p.dataUrl, state.model).then(function (ocr) {
             p.ocr = ocr;
             var stemTxt = String(ocr.stem || '').trim();
             var choicesTxt = ocr.choices ? Object.keys(ocr.choices).map(function (k) { return ocr.choices[k]; }).join(' ') : '';
@@ -865,7 +933,7 @@
             });
             status('正在比对 ' + bankCands.length + ' 道候选题…');
             // 第二步：双模型判别式投票（不一致/低置信 → 跳过）
-            return discriminate(discriminateMessages(img.url, bankCands), bankCands, state.model).then(function (verdict) {
+            return discriminate(discriminateMessages(p.dataUrl, bankCands), bankCands, state.model).then(function (verdict) {
               var chosen = null, qNums = numbers(norm(stemTxt));
               if (verdict && verdict.idx >= 1 && verdict.idx <= bankCands.length) {
                 var cand = bankCands[verdict.idx - 1];
@@ -907,12 +975,13 @@
               p.ocr.stem = stemTxt;
               renderRows(); progress(p.i, pages.length);
             });
-          });
         }).catch(function (e) {
           p.error = errText(e); p.ocr = null; p.cands = []; p.qid = ''; p.checked = false;
           renderRows(); progress(p.i, pages.length);
         });
       });
+    });
+    return c2;
     });
     return chain.then(function () {
       busy = false;
@@ -951,7 +1020,7 @@
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked,
-    search: finderSearch, importSingle: importSingle, undoLast: undoLast,
+    search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,
     cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
     getModel: function () { return state.model; },
