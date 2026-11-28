@@ -1199,7 +1199,7 @@
     const priority = asArr(rep.priority).filter(isRec);
     /* 估分可能被旧版/云端写成 999/0/负数：结果页直接印成「999 / 800」。
        只接受官方 200–800 区间，越界的当「—」，与记录页同一口径。 */
-    const scaledRaw = safeNum(est.scaled);
+    const scaledRaw = countNum(est.scaled);
     const scaled = scaledRaw != null && scaledRaw >= 200 && scaledRaw <= 800 ? scaledRaw : null;
     const pct = total ? Math.round(correct / total * 100) : 0;
     const modeTxt = MODE_NAME[safeText(r.mode)] || safeText(r.mode) || '模考';
@@ -1225,7 +1225,7 @@
     const isMock = MODE === 'mock';
     /* 原始分上限固定 44（模考和非模考都折算到 44 题）。旧记录/云端乱写
        raw=999 时，成绩页会印出「999 / 44」这种不可能的分。 */
-    const rawN = safeNum(est.raw);
+    const rawN = countNum(est.raw);
     const rawVal = rawN == null ? null : Math.max(0, Math.min(44, rawN));
     const rawTxt = (rawVal == null ? '—' : rawVal) + ' / 44';
     applyQuizCopy();

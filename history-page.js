@@ -61,6 +61,8 @@
   /* 题数/答对数只能是整数：云端/旧版写成 22.5 时，记录页会印出
      「10 / 22.5 题」。小数当坏值，交给逐题明细兜底，不硬取整。 */
   function countNum(v) { var n = num(v); return n != null && n >= 0 && Math.floor(n) === n ? n : null; }
+  /* 原始分/换算分也是整数：旧记录写 3.7 时不能印「原始分 3.7 / 44」。 */
+  function intNum(v) { var n = num(v); return n != null && Math.floor(n) === n ? n : null; }
   function numTxt(v) { var n = num(v); return n == null ? '—' : n; }
   function load(k) {
     try { var v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : []; }
@@ -120,7 +122,7 @@
   /* 官方模考换算分只有 200–800。云端/旧版写进 0、999、字符串时照单全收会
      显示「999 / 800」还标绿；超出范围就当没有 estimate，退回正确率。 */
   function scaledOf(rec) {
-    var n = num(asObj(rec && rec.estimate).scaled);
+    var n = intNum(asObj(rec && rec.estimate).scaled);
     return n != null && n >= 200 && n <= 800 ? n : null;
   }
   function grade(rec) {
@@ -229,7 +231,7 @@
   /* 原始分只可能是 0–44（SCALE/estimateScore 都按 44 题折算）。旧记录
      乱写 999 时，记录页会显示「原始分 999 / 44」这种不可能的分。 */
   function rawParts(rec) {
-    var n = num(asObj(rec && rec.estimate).raw);
+    var n = intNum(asObj(rec && rec.estimate).raw);
     return { raw: n == null ? null : Math.max(0, Math.min(44, n)), max: 44 };
   }
 
