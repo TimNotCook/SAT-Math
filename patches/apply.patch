@@ -1,0 +1,43 @@
+diff --git a/i18n.js b/i18n.js
+index 6366a94..32cf9d3 100644
+--- a/i18n.js
++++ b/i18n.js
+@@ -69,6 +69,10 @@
+     '已作答': 'Answered',
+     '未答': 'Unanswered',
+     '正确': 'Correct',
++    '· 正确': '· Correct',
++    '原始分': 'Raw score',
++    '自适应路径': 'Adaptive path',
++    '暂无补强建议。': 'No focused review suggestions yet.',
+     '错误': 'Incorrect',
+     '第一空': 'Blank 1',
+     '第二空': 'Blank 2',
+@@ -588,6 +592,13 @@
+     [/^(\d+) 题，$/, '$1 questions, '],
+     [/^已导入 (\d+) 道：新增错题 (\d+) 道 · 已有作答仅只读展示 (\d+) 道（未改动）· 未匹配 (\d+) 道$/,
+       'Imported $1: $2 new, $3 read-only (existing answers), $4 unmatched'],
++    /* 记录页成绩卡：标题/原始分/自适应路径/正确答案都是脚本拼出来的整串，
++       字典按整串永远命中不了，按模式翻。 */
++    [/^官方模考 · 全卷 (\d+) 题$/, 'Official Mock · Full test, $1 questions'],
++    [/^官方模考 · 未交卷$/, 'Official Mock · Not submitted'],
++    [/^原始分 (.+) \/ (\d+)$/, 'Raw score $1 / $2'],
++    [/^自适应路径 (.+)$/, 'Adaptive path $1'],
++    [/ · 正确 (.+)$/, ' · Correct $1'],
+   ];
+ 
+   var FORCED_LANG = null;
+diff --git a/test/i18n.test.js b/test/i18n.test.js
+index 343bf30..0108dd1 100644
+--- a/test/i18n.test.js
++++ b/test/i18n.test.js
+@@ -26,6 +26,9 @@ test('核心界面词都有英文：导航、按钮、设置、模考', () => {
+     '在题库里找': 'Find in the bank',
+     '重试失败项': 'Retry failed items',
+     '登录云端账号': 'Sign in',
++    '原始分': 'Raw score',
++    '自适应路径': 'Adaptive path',
++    '暂无补强建议。': 'No focused review suggestions yet.',
+     '错题记录只增不改：导入仅追加记录，不修改、不删除任何已有错题与作答。': 'Wrong answers only grow: imports only append records; nothing you already answered is modified or deleted.',
+     '前往': 'Go',
+     '敲几个词或数字，比如 4x 或 slope': 'Search keywords, e.g. 4x',
