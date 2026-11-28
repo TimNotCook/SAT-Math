@@ -11,7 +11,8 @@
    v1→v2（2026-11-23）：v1 从未升过版，历史旧构建资源在缓存里永久滞留；
    导航请求 network-first 失败时（弱网/VPN 抖动）会整站回退到旧版页面。
    升版触发 activate 全量清缓存，旧构建自愈。 */
-var VERSION = 'satmath-f4fdd3a98538';
+var ENGINE_CACHE = 'satmath-engine-v1';   /* 识别引擎单独一个缓存，升版不清，避免每次部署都重下 6.8MB */
+var VERSION = 'satmath-29f148104244';
 
 /* 从本 SW 自身路径推导站点基路径（兼容 GitHub Pages 子路径，如 /SAT-Math/） */
 var BASE = self.location.pathname.replace(/\/sw\.js$/, '/');
@@ -30,7 +31,7 @@ self.addEventListener('activate', function (e) {
   try { e.waitUntil(warmOcr()); } catch (err) { console.warn('预载识别引擎失败', err); }
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (k) { return k !== VERSION; }).map(function (k) {
+      return Promise.all(keys.filter(function (k) { return k !== VERSION && k !== ENGINE_CACHE; }).map(function (k) {
         return caches.delete(k);
       }));
     }).then(function () { return self.clients.claim(); })
@@ -53,11 +54,11 @@ function warmOcr() {
     BASE + 'vendor/tesseract/eng.traineddata.gz'
   ];
   return Promise.all(files.map(function (u) {
-    return caches.match(u).then(function (m) {
+    return caches.open(ENGINE_CACHE).then(function (c) { return c.match(u); }).then(function (m) {
       if (m) return true;
       return fetch(u).then(function (res) {
         if (!res || !res.ok) return false;
-        return caches.open(VERSION).then(function (c) { return c.put(u, res.clone()); }).then(function () { return true; });
+        return caches.open(ENGINE_CACHE).then(function (c) { return c.put(u, res.clone()); }).then(function () { return true; });
       }).catch(function () { return false; });
     });
   })).then(function (r) { return r.every(Boolean); });
@@ -99,7 +100,7 @@ self.addEventListener('fetch', function (e) {
      用户看到的就是"每次用都先等十几秒"。SW 缓存不看过期时间，下一份就一直在。
      只存这一套文件，别把整个 vendor/（含 pdf.js 等）都钉死，免得更新资源时被旧缓存挡住。 */
   if (/\/vendor\/tesseract\//.test(url.pathname)) {
-    e.respondWith(cacheFirst(req));
+    e.respondWith(cacheFirstIn(ENGINE_CACHE, req));
     return;
   }
 
@@ -138,6 +139,18 @@ function offlineNotice() {
     '<p style="margin:0"><a href="' + BASE + 'drill.html" style="color:#1d4ed8;font-weight:600">先去练习页（已离线可用）</a></p>' +
     '</body></html>';
   return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+}
+
+function cacheFirstIn(name, req) {
+  return caches.open(name).then(function (c) {
+    return c.match(req).then(function (m) {
+      if (m) return m;
+      return fetch(req).then(function (res) {
+        if (res && res.ok) c.put(req, res.clone());
+        return res;
+      });
+    });
+  });
 }
 
 function cacheFirst(req) {
