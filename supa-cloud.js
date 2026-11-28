@@ -418,7 +418,7 @@
            假 user，既不发确认邮件，也不报 already exists。把它当成“注册成功
            等确认”，用户会一直等一封不会来的信。 */
         if (Array.isArray(r.user.identities) && r.user.identities.length === 0) {
-          var ee = errOf(400, { msg: '这个邮箱已经注册过了，直接点「登录」。' });
+          var ee = errOf(400, { msg: '这个邮箱已经注册过了。设过密码就直接登录；没设过密码，用下面的「改用邮箱链接登录」或「忘记密码」。' });
           ee.code = 'auth/email-already-in-use';
           throw ee;
         }

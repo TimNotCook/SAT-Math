@@ -404,7 +404,7 @@
     '这个账号是手机号，收不到重置邮件。': 'This account is a phone number, so it cannot receive reset email.',
     '手机号请用密码登录，登录邮件只发到邮箱。': 'Phone accounts sign in with a password; sign-in email only goes to email addresses.',
     '邮箱格式不正确，请检查后再试。': 'That email does not look right, please check it.',
-    '这个邮箱已经注册过了，直接点「登录」。': 'This email is already registered — tap “Sign in”.',
+    '这个邮箱已经注册过了。设过密码就直接登录；没设过密码，用下面的「改用邮箱链接登录」或「忘记密码」。': 'That email is already registered. If you set a password, sign in; if not, use “Email link sign-in” or “Forgot password” below.',
     '操作太频繁了，等一分钟再试。': 'Too many attempts. Wait a minute and try again.',
     '网络异常，请检查连接后重试。': 'Network problem. Check your connection and try again.',
     '登录服务返回异常，请刷新页面后重试。': 'The sign-in service returned an error. Refresh and try again.',

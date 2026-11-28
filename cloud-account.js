@@ -235,9 +235,15 @@
         : (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。';
     }
     if (c === 'auth/email-already-in-use') {
+      if (isPhoneAccount(account)) {
+        return en ? 'That phone number is already registered — just tap Sign in.'
+          : '这个手机号已经注册过了，直接点「登录」。';
+      }
+      /* 邮箱账号可能是当年用邮件链接建的，根本没设过密码；只说“点登录”
+         会把人卡在密码框里。给出“有密码/没密码”两条实际可走的路。 */
       return en
-        ? (isPhoneAccount(account) ? 'That phone number' : 'That email') + ' is already registered — just tap Sign in.'
-        : (isPhoneAccount(account) ? '这个手机号' : '这个邮箱') + '已经注册过了，直接点「登录」。';
+        ? 'That email is already registered. If you set a password, sign in; if not, use “Email link sign-in” or “Forgot password” below.'
+        : '这个邮箱已经注册过了。设过密码就直接登录；没设过密码，用下面的「改用邮箱链接登录」或「忘记密码」。';
     }
     /* supa-cloud 把 GoTrue 的 Email not confirmed 归一成带 -ed 的码；
        这里原来只认少一个 ed 的拼写，用户会直接看到英文技术错误。 */

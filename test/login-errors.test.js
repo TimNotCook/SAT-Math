@@ -322,3 +322,11 @@ test('退出登录的成功/警告提示写在 renderBody 之后，不被“未�
   assert.ok(out.indexOf('renderBody()') < out.indexOf('if (cleared === false) setStatus'),
     '状态提示写在重绘之前，会被“未登录”覆盖');
 });
+
+test('撞号提示不再只叫用户“点登录”：没有密码的邮箱也能走邮件链接或找回', () => {
+  const { friendlyError } = accountFns();
+  const zh = friendlyError({ code: 'auth/email-already-in-use' }, 'you@example.com');
+  assert.match(zh, /没设过密码/, '没告诉邮件链接用户怎么进');
+  assert.match(zh, /改用邮箱链接登录/, '没指向现成的邮件链接入口');
+  assert.match(zh, /忘记密码/, '没指向找回密码');
+});
