@@ -16,6 +16,7 @@
     '专项复习': 'Targeted Review',
     '单元抽查': 'Unit Quiz',
     '错题回顾': 'Wrong Answers',
+    '错题记录只增不改：导入仅追加记录，不修改、不删除任何已有错题与作答。': 'Wrong answers only grow: imports only append records; nothing you already answered is modified or deleted.',
     '模考': 'Mock Test',
     '模考记录': 'Test History',
     '讲义复习': 'Lecture Review',
