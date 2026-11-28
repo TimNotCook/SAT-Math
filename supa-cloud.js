@@ -366,7 +366,9 @@
          再点一次注册只会撞号；必须告诉用户去点确认邮件，而不是“点登录试试”。 */
       if (r && r.user) {
         if (id.phone) {
-          throw errOf(400, { msg: '手机号注册没有直接登录成功；这个号码没有可收确认邮件的邮箱，请稍后重试，或改用邮箱注册。' });
+          var pe = errOf(400, { msg: '手机号注册没有直接登录成功；这个号码没有可收确认邮件的邮箱，请稍后重试，或改用邮箱注册。' });
+          pe.code = 'auth/phone-signup-no-session';
+          throw pe;
         }
         var ne = errOf(400, { msg: '注册成功，但还需要去邮箱点确认链接；确认后再回来登录。' });
         ne.code = 'auth/email-confirm-required';

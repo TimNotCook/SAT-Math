@@ -158,3 +158,9 @@ test('设置新密码也要确认，尤其手机号账号输错就再也登不�
   assert.match(fn, /pw2 !== undefined && pw !== pw2/, '两次新密码不一致没拦住');
   assert.match(fn, /两次输入的新密码不一致/, '没有给用户明确提示');
 });
+
+test('supa-cloud 自己抛的中文校验提示要原样展示，英文内部错误才收成通用句', () => {
+  const { friendlyError } = accountFns();
+  assert.equal(friendlyError({ message: '密码至少 6 位。' }), '密码至少 6 位。');
+  assert.match(friendlyError({ message: 'Database error saving new user' }), /操作失败，请稍后重试/);
+});

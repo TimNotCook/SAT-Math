@@ -180,6 +180,7 @@
     if (c === 'auth/weak-password') return '密码太短或强度不够，换一个更长一点的密码再试。';
     if (c === 'auth/same-password') return '新密码不能和旧密码一样，换一个再保存。';
     if (c === 'auth/signup-disabled') return '当前暂未开放新账号注册，请稍后再试。';
+    if (c === 'auth/phone-signup-no-session') return '手机号注册没有直接登录成功；这个号码没有可收确认邮件的邮箱，请稍后重试，或改用邮箱注册。';
     if (c === 'auth/invalid-credential') {
       return (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。';
     }
@@ -203,8 +204,10 @@
       return '登录链接已失效或邮件有误，请重新发送登录邮件。';
     }
     if (lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return '登录服务暂时连不上，请检查网络后重试。';
-    /* 未归一的 Supabase 原文可能是英文甚至“Database error saving new user”
-       这类内部信息；正常软件只给用户一句可行动的提示，细节留给控制台。 */
+    /* supa-cloud 自己抛的校验提示是中文，必须原样给用户；未归一的 Supabase
+       原文可能是英文甚至“Database error saving new user”这类内部信息，才收成
+       一句可行动的提示，细节留给控制台。 */
+    if (/[\u4e00-\u9fa5]/.test(String(m || ''))) return m;
     if (m) { try { console.warn('账号操作失败：', m); } catch (e) {} }
     return '操作失败，请稍后重试。';
   }
