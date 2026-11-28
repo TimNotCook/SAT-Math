@@ -6,6 +6,15 @@
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
 
+  /* 界面语言：只有「官方模考」和「英文界面」才把工具条强制成 Bluebook 英文。
+     练习页在中文界面里若也强制英文，就会出现「Reference / 退出 / 作答自动保存」
+     这种中英混排（2026-11-28 巡检发现）。 */
+  function langEn() {
+    try { return !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en'); } catch (e) { return false; }
+  }
+  function officialMock() { return /[?&]mode=mock(&|$|\b)/.test(location.search); }
+  function forceEn() { return officialMock() || langEn(); }
+
   /* 题号导航必须高于答案区（答案区 z-index:65），否则选项卡片会盖住弹层；
      仍低于草稿画布(70)与草稿工具栏(71)，不会挡住书写工具。 */
   function injectNavLayer() {
@@ -73,7 +82,7 @@
       exitBtn.type = 'button';
       exitBtn.className = 'bb-tool';
       exitBtn.id = 'btnBbExit';
-      exitBtn.innerHTML = EXIT_ICON + '<span>退出</span>';
+      exitBtn.innerHTML = EXIT_ICON + '<span>' + (forceEn() ? 'Exit' : '退出') + '</span>';
       if (oldRef) {
         oldRef.classList.add('bb-tool');
         var icon = oldRef.querySelector('svg');
@@ -96,12 +105,22 @@
       });
     }
 
-    setText($('markLabel'), 'Mark for Review');
+    /* 草稿 / 参考表两个静态标签按语言走：中文界面里原来是硬编码的 Scratch / Reference，
+       和旁边的「退出 / 作答自动保存」并排就是中英混排。 */
+    if (!forceEn()) {
+      var sb = $('btnScratch');
+      var rs = $('btnReference');
+      if (sb) { var sp = sb.querySelector('span'); if (sp) sp.textContent = '草稿'; }
+      if (rs) { var rp = rs.querySelector('span'); if (rp) rp.textContent = '公式参考'; }
+    }
+    setText($('markLabel'), forceEn() ? 'Mark for Review' : '标记');
     dressFooter();
   }
 
   function dressFooter() {
-    // drill.js rewrites the mark label to Chinese on each render; keep official wording.
+    // 英文界面/官方模考：drill.js 每次渲染会写回中文，这里持续拉回 Bluebook 英文；
+    // 中文界面的练习页则保持 drill.js 的中文，不再整片翻成英文。
+    if (!forceEn()) return;
     var ml = $('markLabel');
     if (ml && (ml.textContent === '标记' || ml.textContent === '已标记')) {
       var btn = $('btnMark');
