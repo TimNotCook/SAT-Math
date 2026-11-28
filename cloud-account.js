@@ -194,6 +194,7 @@
     if (c === 'auth/weak-password') return '密码太短或强度不够，换一个更长一点的密码再试。';
     if (c === 'auth/same-password') return '新密码不能和旧密码一样，换一个再保存。';
     if (c === 'auth/signup-disabled') return '当前暂未开放新账号注册，请稍后再试。';
+    if (c === 'auth/phone-signup-closed') return '手机号注册需要短信验证，当前暂未开通；请改用邮箱注册。已有手机号账号可以直接登录。';
     if (c === 'auth/phone-signup-no-session') return '手机号注册没有直接登录成功；这个号码没有可收确认邮件的邮箱，请稍后重试，或改用邮箱注册。';
     if (c === 'auth/invalid-credential') {
       return (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。';
@@ -855,7 +856,10 @@
       setError(friendlyError(e, email));
       /* 账号已经建好、只差邮件确认：把面板切回登录，确认完直接点登录；
          留在注册页会让人以为没注册成功又点一次。 */
-      if (e && e.code === 'auth/email-confirm-required') {
+      if (e && (e.code === 'auth/email-confirm-required' ||
+                e.code === 'auth/email-already-in-use')) {
+        /* 提示里写「直接点登录」，注册页却没有登录按钮；把面板切回登录，
+           用户输密码就能进，不必再找返回键。 */
         pwdEmail = email; loginMode = 'password';
       }
     }

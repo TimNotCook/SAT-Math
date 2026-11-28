@@ -114,6 +114,7 @@ test('注册错误码：弱密码/停注册/非法邮箱给中文提示，不甩
   const { friendlyError } = accountFns();
   assert.match(friendlyError({ code: 'auth/weak-password' }), /密码太短|强度不够/);
   assert.match(friendlyError({ code: 'auth/signup-disabled' }), /暂未开放新账号注册/);
+  assert.match(friendlyError({ code: 'auth/phone-signup-closed' }), /手机号注册需要短信验证.*改用邮箱/);
   assert.match(friendlyError({ code: 'auth/invalid-email' }), /邮箱格式不正确/);
   assert.match(cloud, /password should be at least/, '没把 GoTrue 弱密码错误归一');
   assert.match(cloud, /signups not allowed/, '没把停注册错误归一');
@@ -165,9 +166,10 @@ test('supa-cloud 自己抛的中文校验提示要原样展示，英文内部错
   assert.match(friendlyError({ message: 'Database error saving new user' }), /操作失败，请稍后重试/);
 });
 
-test('待确认注册后切回登录页，避免用户以为没注册又点一次', () => {
+test('待确认或已注册的邮箱，注册失败后切回登录页', () => {
   const fn = acct.slice(acct.indexOf('async function doSignUpPwd'), acct.indexOf('async function doSendLink'));
   assert.match(fn, /auth\/email-confirm-required/, '没识别待确认错误');
+  assert.match(fn, /auth\/email-already-in-use/, '已注册还留在注册页，提示里的「点登录」找不到按钮');
   assert.match(fn, /loginMode = 'password'/, '没切回登录页');
   assert.match(fn, /pwdEmail = email/, '没保留账号');
 });
