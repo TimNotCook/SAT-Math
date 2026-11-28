@@ -64,3 +64,7 @@ test('320「继续上次练习」允许折行，不再截断小节名', () => {
   assert.match(app, /white-space:normal!important/);
   assert.match(app, /text-overflow:clip!important/);
 });
+
+test('320 成绩报告题号不被拆成「第」与「1 题」两截', () => {
+  assert.match(app, /html body \.rev-topic \.rev-qno\{white-space:nowrap!important\}/);
+});

@@ -1587,6 +1587,9 @@ html body .rev-line1{display:flex!important;align-items:baseline!important;gap:1
 html body .rev-q{font-size:12.5px!important;font-weight:700!important;color:#2563eb!important;
   font-variant-numeric:tabular-nums!important;letter-spacing:.04em!important}
 html body .rev-topic{font-size:16px!important;font-weight:650!important;color:#12233f!important;letter-spacing:-.01em!important}
+/* 320 结果行标题只剩 184px：「…第 1 题」会把「第」丢在行末、题号单独另起一行，
+   像被截断。题号拆成独立 span 并禁止内部换行，换行只落在题号前的空格。 */
+html body .rev-topic .rev-qno{white-space:nowrap!important}
 html body .rev-meta{margin-left:auto!important;font-size:12px!important;color:#7b8ba1!important;white-space:nowrap!important}
 /* 窄屏：结果页每条的 meta（"1.1 · Q5 · 2 points · Marked · Previously missed"）允许折行并占满一行，
    否则 nowrap + margin-left:auto 会把 320/375 宽的页面整体撑出横向滚动条 */

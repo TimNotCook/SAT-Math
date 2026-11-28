@@ -1081,3 +1081,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 174 条：重复邮箱被 Supabase 返回成“假 user”，界面却让人去等确认邮件（2026-11-28）
 
 开了邮箱确认后，Supabase 对已存在的邮箱常返回一个 `identities: []` 的假 user，不发信也不报 already exists。原逻辑把任何“没有 access_token 但有 user”都当成注册成功待确认，用户会一直等一封不会来的确认邮件。现在先认 `identities` 为空数组为已注册，抛 `auth/email-already-in-use`，界面切回登录并提示直接登录；真正待确认的 user（identities 非空）仍走确认提示。验证：`password-login` 模拟假 user，断言已注册且只发一次 signup；全量 740/0。
+
+## 第 175 条：320 成绩报告逐题标题把「第」丢在行末、题号另起一行（2026-11-28）
+
+成绩报告每行标题是「1.5 线性不等式与图像 · 第 1 题」，320 下 `.rev-topic` 只有 184px，浏览器按中文任意断行，第一行落到「…图像 · 第」，第二行只剩「1 题」，看起来像标题被截断。把「第 N 题」拆成独立的 `.rev-qno` 并 `white-space:nowrap`，浏览器只能在题号前的空格换行：标题名一行、题号一整段第二行；1440 不受影响仍同线。验证：本地 320 结果为「1.5 线性不等式与图像」/「· 第 1 题」；`visual-mobile-polish` 第 10 条锁住 nowrap。

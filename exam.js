@@ -1426,6 +1426,11 @@
       const okFlag = isRightFlag(d.correct);
       const meta = 'U' + dUnit + ' · ' + (dType === 'grid' ? (EN ? 'Grid-in' : '填空') : (EN ? 'Multiple choice' : '选择'));
       const ptsTxt = dPoints == null ? '—' : (EN ? dPoints + ' pt' : dPoints + ' 分');
+      const topicNameHtml = (raw) => {
+        const t = raw || '—';
+        const m = t.match(/^(.*?)\s*·\s*(第\s*\d+\s*题)$/);
+        return m ? esc(m[1]) + '<span class="rev-qno"> · ' + esc(m[2]) + '</span>' : esc(t);
+      };
       let causeHtml = '';
       if (!okFlag && AN && !EN) causeHtml = `<div class="rev-cause">错因 · ${esc(AN.analyze(bankQ, dGiven, (window.TD_TEXT || {})[did]).title)}`;
       if (!okFlag && dHint && !EN) causeHtml += (causeHtml ? '<br>' : '<div class="rev-cause">') + '提示 · ' + esc(dHint);
@@ -1435,7 +1440,7 @@
       <div class="rev-main">
         <div class="rev-line1">
           <b class="rev-q">Q${esc(dPos)}</b>
-          <span class="rev-topic">${EN ? '' : esc(dTopic || '—')}</span>
+          <span class="rev-topic">${EN ? '' : topicNameHtml(dTopic)}</span>
           <span class="rev-meta">${meta} · ${ptsTxt}${isRightFlag(d.marked) ? (EN ? ' · Marked' : ' · 曾标记') : ''}${d.from === 'wrong' ? (EN ? ' · Previously missed' : ' · 历史错题') : ''}</span>
         </div>
         <div class="rev-line2">${EN ? '' : esc(dSource) + ' · '}${EN ? 'Time ' : '用时 '}${fmt(dSeconds * 1000)}${crossed.length ? (EN ? ' · Crossed out ' : ' · 已划掉 ') + crossed.join(', ') : ''}</div>
