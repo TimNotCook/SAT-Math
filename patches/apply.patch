@@ -1,0 +1,14 @@
+diff --git a/image-import.js b/image-import.js
+index b4d1222..c62974a 100644
+--- a/image-import.js
++++ b/image-import.js
+@@ -1889,4 +1889,8 @@
+                    所以补一条：分数 ≥0.92 就认（0.92 以上已不是"句式相似"，是整句逐字对上）。 */
++                /* 只认出半句、一个数字都没读到，而候选题自己带数字：这种"句式对上"最危险
++                   （实测真实手机条件下 SR-099 被写成 TD-33-16，0.65 分就自动写进去了）。
++                   数字是判断题的唯一硬证据，没读到就一律转人工。 */
++                var noNumGuard = !(qNums.length === 0 && c0Nums.length >= 2);
+                 var visualGate = !visual || recalled[0].score >= 0.92 || (recalled[0].score >= 0.75 && tg.margin >= 0.25);
+-                if ((tg.pass && recalled[0] && numGate && visualGate) || (visual && csGate)) {
++                if ((tg.pass && recalled[0] && numGate && visualGate && noNumGuard) || (visual && csGate)) {
+                   chosen = bankCands[0];
