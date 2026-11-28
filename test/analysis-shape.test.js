@@ -29,3 +29,10 @@ test('aggregate 把 correct:"True" 当已答对跳过，不误算成错题', () 
   );
   assert.equal(groups.length, 0, '大写 True 的答对题被算成错题');
 });
+
+test('错因标题不重复题号尾巴（中英两种 topic 写法）', () => {
+  for (const topic of ['1.1 Linear Equations · Question 3', '1.1 一次方程 · 第 3 题']) {
+    const r = AN.analyze({ type: 'mcq', topic, answer: 'B' }, 'A', {});
+    assert.ok(!/Question\s*\d+|第\s*\d+\s*题/.test(r.title), `错因标题残留题号：${r.title}`);
+  }
+});

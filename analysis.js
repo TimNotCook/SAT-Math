@@ -239,7 +239,10 @@
     given = (given == null || typeof given === 'object' || typeof given === 'function') ? '' : String(given).trim();
     text = text || (window.TD_TEXT || {})[q.id] || {};
     var correct = String(q.answer == null ? '' : q.answer).trim();
-    var topic = String(q.topic || ''), section = String(q.section || ''), stem = String(text.stem || q.stem || '');
+    /* 题库 topic 常带「· 第 3 题」/「· Question 3」的逐题尾巴；错因标题里
+       再拼一次题号只是噪音，且 320 宽会把标题换行成三行。先剥掉。 */
+    var topic = String(q.topic || '').replace(/\s*·\s*(?:Question|第)\s*\d+\s*(?:题)?$/i, ''),
+        section = String(q.section || ''), stem = String(text.stem || q.stem || '');
     var fix = sectionFix(section, topic, stem);
 
     /* 未作答 */
