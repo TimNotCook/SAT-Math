@@ -996,7 +996,10 @@
     const lo = inModule2 ? m1 : 0;
     const hi = (inModule2 ? n : m1) - 1;
     const idx = Number(s.idx);
-    s.idx = Math.min(Math.max(Number.isFinite(idx) ? idx : lo, lo), Math.max(lo, hi));
+    /* idx 必须是整数：云端/旧版写成 1.5 时 paper[1.5] 是 undefined，
+       恢复后 renderQuestion 会在 cur().id 上崩。先取整再夹区间。 */
+    const idxInt = Number.isFinite(idx) ? Math.floor(idx) : lo;
+    s.idx = Math.min(Math.max(idxInt, lo), Math.max(lo, hi));
     /* 云端/旧版可能把布尔存成字符串：'false' 是 truthy，会把未交的卷锁死。 */
     s.finished = isRightFlag(s.finished);
     s.locked = isRightFlag(s.locked);
