@@ -91,3 +91,14 @@ test('Tab 在面板内首尾回绕，不会落到后台页面', () => {
   assert.ok(/panelFocusables\(\)/.test(seg), 'Tab 处理没取面板内可聚焦元素');
   assert.ok(/e\.preventDefault\(\); last\.focus\(\)/.test(seg) && /e\.preventDefault\(\); first\.focus\(\)/.test(seg), '缺首尾回绕');
 });
+
+test('登录页不再把「注册新账号」这句话在按钮下面重复一遍', () => {
+  assert.ok(!acct.includes('还没有账号？点「注册新账号」就行。'), '按钮下方还有重复的注册提示');
+});
+
+test('主按钮是胶囊实心强调蓝，且暗色下不会变成白板', () => {
+  var seg = acct.slice(acct.indexOf('.td-acct-primary{'), acct.indexOf('.td-acct-linkbtn{'));
+  assert.ok(/border-radius:999px/.test(seg), '主按钮还不是胶囊');
+  assert.ok(/background:#2563eb/.test(seg), '主按钮没跟站内 #btnStart 同一套强调蓝');
+  assert.ok(seg.indexOf('background:var(--blue,') < 0, '主按钮跟了 --blue 变量：暗色主题里它是近白色，会白底白字');
+});

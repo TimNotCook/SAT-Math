@@ -109,7 +109,7 @@
     '正在打开你的学习档案…': 'Opening your study profile…',
     '进度已自动保存': 'Progress saved automatically',
     '暂时无法保存进度，联网后会自动重试': 'Cannot save right now; will retry when online',
-    '做题进度会自动保存，换设备或重新登录后接着练，不需要任何手动操作。': 'Progress saves automatically, so you can continue on another device or after signing in again.',
+    '进度自动保存，换设备登录后接着练。': 'Progress saves automatically — pick it up on another device.',
 
     /* 模考 */
     'SAT 数学全真模考': 'SAT Math Full Mock Test',
@@ -351,7 +351,6 @@
     '注册新账号': 'Create an account',
     '改用邮箱链接登录': 'Use email link instead',
     '改用邮箱验证码登录': 'Use email code instead',
-    '还没有账号？点「注册新账号」就行。': 'No account yet? Tap “Create an account”.',
     '登录成功，正在读取你的学习档案…': 'Signed in, loading your profile…',
     '手机号或密码不对。': 'Wrong phone number or password.',
     '邮箱或密码不对。': 'Wrong email or password.',

@@ -1016,9 +1016,15 @@
       '.td-acct-btn2:disabled{opacity:.55;cursor:default}',
       '.td-acct-btn--wide{width:100%;margin-bottom:10px}',
       '.td-acct-actions--stack{flex-direction:column;gap:8px}',
-      '.td-acct-primary{background:var(--blue,#2563eb)!important;border-color:var(--blue,#2563eb)!important;color:#fff!important}',
-      '.td-acct-primary:hover{background:#1d4ed8!important;border-color:#1d4ed8!important}',
-      '.td-acct-primary:disabled{opacity:.55!important}',
+      /* 主按钮跟站内 #btnStart 同一套语言：实心强调蓝、胶囊、按下有反馈。
+         唯一要注意的是暗色主题把 --blue 换成了近白色，所以这里写死强调蓝，
+         不跟着主题变量走，否则暗色下会变成一块白板配白字。 */
+      '.td-acct-primary{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;',
+      'border-radius:999px!important;min-height:44px!important;padding:11px 18px!important;font-weight:650!important;',
+      'box-shadow:0 1px 3px rgba(37,99,235,.16)!important}',
+      '.td-acct-primary:hover{background:#1d4ed8!important;border-color:#1d4ed8!important;box-shadow:0 4px 14px rgba(37,99,235,.24)!important}',
+      '.td-acct-primary:active{transform:translateY(1px)}',
+      '.td-acct-primary:disabled{opacity:.55!important;box-shadow:none!important}',
       '.td-acct-linkbtn{display:block;margin:10px 0 0;padding:0;border:0;background:transparent;color:#2563eb;font:inherit;font-size:12.5px;font-weight:600;text-align:left;cursor:pointer}',
       '.td-acct-linkbtn:hover{text-decoration:underline}',
       '.td-otp-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}',
@@ -1201,8 +1207,7 @@
       out.type = 'button'; out.setAttribute('data-neutral', '1'); out.setAttribute('data-busy', '1');
       out.onclick = doSignOut;
       acts.appendChild(out); b.appendChild(acts);
-      b.appendChild(el('p', 'td-acct-note',
-        '做题进度会自动保存，换设备或重新登录后接着练，不需要任何手动操作。'));
+      b.appendChild(el('p', 'td-acct-note', '进度自动保存，换设备登录后接着练。'));
       return;
     }
 
@@ -1388,7 +1393,6 @@
       b.appendChild(toCode);
     }
 
-    b.appendChild(el('p', 'td-acct-note', '还没有账号？点「注册新账号」就行。'));
   }
 
   function row(label, desc) {
