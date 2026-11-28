@@ -678,6 +678,32 @@
   }
   function refreshHost() { var h = window.TD_IMPORT_WRONG; if (h && h.refresh) h.refresh(); }
 
+  /* 最近一次导入的记录 id：识别偶有认错题，得留一条后悔药，一键撤回本次写入。 */
+  var lastAdded = [];
+  function rememberAdd(qid) {
+    if (lastAdded.indexOf(qid) < 0) lastAdded.push(qid);
+    showUndo();
+  }
+  function showUndo() {
+    var b = $('imgimpUndo');
+    if (b) b.hidden = !lastAdded.length;
+  }
+  function undoLast() {
+    if (!A || !lastAdded.length) { status('没有可撤销的导入'); return 0; }
+    var n = 0;
+    lastAdded.forEach(function (qid) {
+      var hit = findQ(qid); if (!hit) return;
+      var st = A.secState(hit.sec, false);
+      var a = st && st.answers[hit.q.id];
+      if (a && a.importSrc === MARK) { delete st.answers[hit.q.id]; st.completed = A.stats(hit.sec).completed; n++; }
+    });
+    lastAdded = [];
+    if (n) { A.save(); refreshHost(); }
+    showUndo();
+    status(n ? ('已撤销本次导入的 ' + n + ' 道（只删掉导入记录，不动你原来的作答）') : '这些题已被你动过，撤销时没有删除任何作答');
+    return n;
+  }
+
   function importChecked() {
     if (!A) return { added: 0, message: '题库未就绪' };
     var conflicts = [], now = Date.now(), added = 0, alreadys = 0;
@@ -694,6 +720,7 @@
       var st = A.secState(hit.sec, true); if (!st) return;
       st.answers[hit.q.id] = { v: '', correct: false, ts: now, importSrc: MARK };
       st.completed = A.stats(hit.sec).completed;
+      rememberAdd(hit.q.id);
       added++;
     });
     var msg = added ? ('已导入 ' + added + ' 道图片错题（仅新增记录）') : '这批图里的题没有新东西可写';
@@ -794,6 +821,7 @@
     if (!st) return { added: 0 };
     st.answers[hit.q.id] = { v: '', correct: false, ts: Date.now(), importSrc: MARK };
     st.completed = A.stats(hit.sec).completed;
+    rememberAdd(hit.q.id);
     A.save(); refreshHost();
     status('已导入 ' + hit.sec + ' · #' + hit.q.no + '（点上面「在题库里找」还能继续加）。');
     return { added: 1 };
@@ -918,7 +946,7 @@
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked,
-    search: finderSearch, importSingle: importSingle,
+    search: finderSearch, importSingle: importSingle, undoLast: undoLast,
     cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
     getModel: function () { return state.model; },
@@ -940,6 +968,7 @@
   on('btnImgRetry', 'click', function () { window.TD_IMG_IMPORT.retryFailed(); });
   on('imgimpCloudSignIn', 'click', cloudSignIn);
   on('imgimpSearchGo', 'click', finderSearch);
+  on('imgimpUndo', 'click', undoLast);
   var inpSearch = $('imgimpSearch');
   if (inpSearch) {
     inpSearch.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); finderSearch(); } });
