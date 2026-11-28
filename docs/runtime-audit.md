@@ -1149,3 +1149,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 191 条：退出登录后，上一个人的邮箱和“重置面板已开过”留给下一个人（2026-11-28）
 
 `pwdEmail` / `otpEmail` 在退出时没清，登录页的 `seed` 会把上一个人的邮箱预填出来；共享设备上等于把账号标识留给下一个人。`recoveryOpened` 和 `sessionStorage.tdsat_recovery_opened` 也没清，下一个人从重置链接回来时会被误判成“这个标签页已经自动开过面板”，停在首页找不到设密码的入口。现在退出时把两个邮箱、`recoveryOpened` 和会话标记一起清掉。验证：`login-errors` 锁住四处清理；全量 787/0。
+
+## 第 192 条：邮件链接回跳时 token 可能留在地址栏（2026-11-28）
+
+邮件链接和重置链接把 `access_token` / `refresh_token` 放在 `location.hash` 回跳。代码用 `history.replaceState` 清地址，但失败时只有一句“老浏览器兜底”注释，实际什么都没做；隐私模式或受限 WebView 抛 `SecurityError` 时，token 会留在地址栏、浏览器历史和用户能复制的地方。现在清地址走 `scrubHash()`：先 `replaceState`，不行就把 `location.hash` 置空，再不行才 `location.replace(clean)` 重载；成功回跳和失效链接回跳都走同一条路。验证：`otp-login` 模拟 `replaceState` 抛错，断言 hash 被清空；全量 789/0。

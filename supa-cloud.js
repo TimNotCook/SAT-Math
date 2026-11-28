@@ -168,6 +168,15 @@
     if (m.indexOf('access_denied') >= 0 || m.indexOf('cancel') >= 0) return '登录链接已被取消，请重新发送登录邮件。';
     return '登录链接没有完成，请重新发送登录邮件。';
   }
+  /* 回跳地址栏里带着 access/refresh token，必须立刻擦掉。replaceState 在
+     部分老浏览器/隐私模式会抛 SecurityError；只剩一句“兜底”注释时 token
+     会留在地址栏和浏览器历史里。逐级退到改 hash、再退到 replace 重载。 */
+  function scrubHash() {
+    var clean = location.pathname + location.search;
+    try { history.replaceState(null, '', clean); return; } catch (e) { /* 试下一级 */ }
+    try { location.hash = ''; return; } catch (e) { /* 试下一级 */ }
+    try { if (location.replace) location.replace(clean); } catch (e) { /* 已尽力 */ }
+  }
   function takeAuthNotice() {
     try {
       var n = sessionStorage.getItem(AUTH_NOTICE_KEY);
@@ -186,7 +195,7 @@
       if (bp) {
         var raw = bp.get('error_description') || bp.get('error') || '';
         try { sessionStorage.setItem(AUTH_NOTICE_KEY, authNoticeText(raw)); } catch (e) { /* 存储不可写就算了 */ }
-        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* 老浏览器兜底 */ }
+        scrubHash();
       }
       return false;
     }
@@ -211,7 +220,7 @@
       expiresAt: expiresAt,
       user: {}
     });
-    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* 老浏览器兜底 */ }
+    scrubHash();
     return true;
   }
   function toUser(u) {

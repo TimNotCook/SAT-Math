@@ -151,9 +151,11 @@ describe('报错映射', () => {
 });
 
 describe('magic link 回调：hash 会话接住', () => {
-  function loadHashModule(hash, fetchStub) {
+  function loadHashModule(hash, fetchStub, opts) {
+    opts = opts || {};
     const store = {};
     const cleared = [];
+    const loc = opts.location || { hash, pathname: '/SAT-Math/drill.html', search: '' };
     const sandbox = {
       console, JSON, Math, String, Number, Array, Object, Date, isFinite,
       setTimeout, clearTimeout,
@@ -165,8 +167,8 @@ describe('magic link 回调：hash 会话接住', () => {
         setItem: (k, v) => { store[k] = String(v); },
         removeItem: k => { delete store[k]; }
       },
-      location: { hash, pathname: '/SAT-Math/drill.html', search: '' },
-      history: { replaceState: (_, __, url) => cleared.push(url) },
+      location: loc,
+      history: opts.history || { replaceState: (_, __, url) => cleared.push(url) },
       fetch: fetchStub
     };
     sandbox.window = sandbox;
@@ -175,7 +177,7 @@ describe('magic link 回调：hash 会话接住', () => {
     };
     vm.createContext(sandbox);
     vm.runInContext(SRC, sandbox, { filename: 'supa-cloud.js' });
-    return { SB: sandbox.TDSUPA, store, cleared };
+    return { SB: sandbox.TDSUPA, store, cleared, location: loc };
   }
 
   test('hash 带 access_token/refresh_token/expires_at → 落 localStorage，清掉 hash，/user 补全档案', async () => {
@@ -197,6 +199,18 @@ describe('magic link 回调：hash 会话接住', () => {
     assert.equal(cleared[0], '/SAT-Math/drill.html');
     assert.equal(got.uid, 'uid-hash');
     assert.equal(got.email, 'hash@example.com');
+  });
+
+  test('replaceState 被浏览器拒绝时，仍要把 token 从地址栏的 hash 里擦掉', async () => {
+    const hash = '#access_token=tk-secret&refresh_token=rt-secret&expires_in=3600&type=magiclink';
+    const loc = { hash, pathname: '/SAT-Math/drill.html', search: '' };
+    const { SB } = loadHashModule(hash, async (url) => {
+      if (url.endsWith('/auth/v1/user')) return makeRes(200, { id: 'uid-hash', email: 'hash@example.com' });
+      return makeRes(404, {});
+    }, { location: loc, history: { replaceState() { throw new Error('SecurityError'); } } });
+    SB.onState(() => {});
+    await new Promise(r => setTimeout(r, 30));
+    assert.equal(loc.hash, '', 'replaceState 失败后 token 还留在地址栏');
   });
 
   test('hash 里没有 access_token → 不写会话，也不清 hash', async () => {
