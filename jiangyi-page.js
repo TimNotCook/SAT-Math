@@ -40,8 +40,11 @@
   }
   /* 答题写盘失败不能在界面上假装已保存：答案还在内存里，刷新就丢。 */
   function commitAnswer(q, v) {
-    commitAnswer(q, v);
+    /* 这里原来直接再调一次自己（无限递归 → 点选项只换来一个栈溢出），
+       讲义做题等于点不动。真正的落盘交给 TD_JY.answerQ，返回值是判对错结果。 */
+    var correct = J.answerQ(q, v);
     if (J.saveFailed && J.saveFailed()) jyToast('答案保存失败：本地存储不可写，刷新后本题会丢失');
+    return correct;
   }
 
   /* ---------- 四个子板块 ---------- */
