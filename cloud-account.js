@@ -898,6 +898,18 @@
       await SB.signUpPassword(email, pw);
       loginSuccess('账号已建立，正在读取你的学习档案…');
     } catch (e) {
+      /* 注册请求断网/超时是最尴尬的状态：服务端可能已经建好号，但响应没回来。
+         这时如果只报“网络异常”，用户再点一次会撞号、被切去登录，等于白填。
+         先用同一组邮箱密码试一次登录：号真建好了就直接进；没建好再报原错误。 */
+      var netFail = e && (e.status === 0 || !e.code) &&
+        /网络|连不上|较慢|超时/.test(String(e.message || ''));
+      if (netFail && SB && SB.signInPassword) {
+        try {
+          await SB.signInPassword(email, pw);
+          loginSuccess('账号已建立，正在读取你的学习档案…');
+          return;
+        } catch (e2) { /* 号没建成或密码不对：保留原来的网络错误，别改成“密码错误” */ }
+      }
       setError(friendlyError(e, email));
       /* 账号已经建好、只差邮件确认：把面板切回登录，确认完直接点登录；
          留在注册页会让人以为没注册成功又点一次。 */

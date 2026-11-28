@@ -190,3 +190,11 @@ test('注册回车顺序是邮箱→密码→确认→提交，不会在确认�
   assert.match(seg, /pwSign\.input\.addEventListener\('keydown'[\s\S]{0,120}pwSign2\.input\.focus\(\)/, '密码格回车没送到确认格');
   assert.match(seg, /pwSign2\.input\.addEventListener\('keydown'[\s\S]{0,120}doSignUpPwd\(\)/, '确认格回车没提交');
 });
+
+test('注册请求断网超时后，用同一组账密确认是否其实已建号', () => {
+  const fn = acct.slice(acct.indexOf('async function doSignUpPwd'), acct.indexOf('async function doSendLink'));
+  assert.match(fn, /e\.status === 0/, '没识别断网/超时');
+  assert.match(fn, /SB\.signInPassword\(email, pw\)/, '没做一次登录确认');
+  assert.match(fn, /return;/, '确认登录成功后没有直接结束，仍会报网络错误');
+  assert.match(fn, /catch \(e2\)/, '确认登录失败没兜住，会把“密码错误”盖到网络错误上');
+});
