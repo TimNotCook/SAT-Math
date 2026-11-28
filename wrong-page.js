@@ -17,6 +17,9 @@
  function isRight(v){v=flagKey(v);return v===true||v===1||v==='true'||v==='1';}
  function isWrong(v){v=flagKey(v);return v===false||v===0||v==='false'||v==='0';}
  function isTrueFlag(v){v=flagKey(v);return v===true||v===1||v==='true'||v==='1';}
+ /* 旧版/云端/手工导入会把成绩模式写成 'MOCK'/'QUIZ'：错题来源和讲义守卫
+    仍按严格小写比较时，模考错题只能显示成「考试练习」，大小写卷也被当成新类型。 */
+ function modeOf(r){return typeof r.mode==='string'?r.mode.trim().toLowerCase():'';}
 
  function plainChoices(v){
    var out={};
@@ -198,9 +201,9 @@ function topic(q){return String(q.topic||'').replace(/\s*·\s*第\s*\d+\s*题\s*
        else if(wl&&typeof wl==='object'&&!Array.isArray(wl)&&
          (typeof wl.v==='string'||typeof wl.v==='number')&&String(wl.v).trim()&&stillWrong(q,wl.v))
          add(map,q,wl.v,src,wl.ts||0);});});
-   loadArr('tdsat_exam_suite_results_v1').forEach(function(r){if(!r||typeof r!=='object')return;var name=r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':r.mode==='jiangyi'?'讲义复习':'考试练习';
+   loadArr('tdsat_exam_suite_results_v1').forEach(function(r){if(!r||typeof r!=='object')return;var mode=modeOf(r);var name=mode==='quiz'?'单元抽查':mode==='mock'?'模考':mode==='jiangyi'?'讲义复习':'考试练习';
      /* void = 存档作废前留的「未交卷」档案：卷面/作答已保存，但从未判分，不能算错题 */if(isTrueFlag(r.void))return;
-     if(r.mode==='jiangyi'&&!window.TD_JY)return;
+     if(mode==='jiangyi'&&!window.TD_JY)return;
      asArr(r.detail).forEach(function(d){if(!d||typeof d!=='object'||Array.isArray(d))return;var q=questionById(d.id);
        var dGiven=plainText(d.given);
        /* 空作答不是错题；对象 given 会被 String() 变成 [object Object] 后再

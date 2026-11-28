@@ -273,6 +273,20 @@ test('成绩记录里 detail 是对象、条目是 null 时，错题本与记录
   assert.strictEqual(threw, null, '记录页被坏 detail 打崩：' + (threw && threw.message));
 });
 
+test('错题本：成绩模式写成大写 MOCK 时，来源仍标成模考', () => {
+  const store = { tdsat_exam_suite_results_v1: JSON.stringify([{
+    date: 1700000000000, mode: 'MOCK', total: 2, correct: 1,
+    detail: [{ id: 'U1-01', given: 'B', correct: false }],
+  }]) };
+  let threw = null, els = null;
+  try { els = boot(['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js'], store).els; }
+  catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '大写 MOCK 打崩错题本：' + (threw && threw.message));
+  const html = els && els.wrongList ? els.wrongList.innerHTML : '';
+  assert.ok(/模考/.test(html), '大写 MOCK 的模考错题没有标成模考');
+  assert.ok(!/考试练习/.test(html), '大写 MOCK 被降级成「考试练习」');
+});
+
 test('exam.js 成绩页对残缺 result 降级：estimate/report 缺失也不白屏', () => {
   const s = fs.readFileSync(path.join(ROOT, 'exam.js'), 'utf8');
   assert.ok(/const est = asObj\(r.estimate\), rep = asObj\(r.report\)/.test(s),
