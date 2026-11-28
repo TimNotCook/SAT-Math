@@ -262,3 +262,17 @@ test('邮箱超过 254 位 → 本地 400，登录/找回都不发请求', async
   await assert.rejects(() => SB.signInPassword(long, 'satmath123'), e => e.status === 400 && /邮箱或手机号格式不正确/.test(e.message));
   assert.equal(calls.length, 0);
 });
+
+test('改密后踢掉其他设备的会话，当前设备不被踢', async () => {
+  const seed = { access: 'tk-live', refresh: 'rt-live', expiresAt: Date.now() + 3600e3, user: { id: 'uid-live' } };
+  const calls = [];
+  const { SB } = loadModule(async (url, opts) => {
+    if (opts.method === 'GET') return makeRes(200, seed.user);
+    calls.push({ url: String(url), method: opts.method, auth: opts.headers.Authorization });
+    return makeRes(200, {});
+  }, seed);
+  await SB.setPassword('newpass123');
+  const kick = calls.find(c => c.method === 'POST' && c.url.includes('/auth/v1/logout?scope=others'));
+  assert.ok(kick, '改密后没有踢其他设备');
+  assert.equal(kick.auth, 'Bearer tk-live', '踢会话没带当前 token');
+});

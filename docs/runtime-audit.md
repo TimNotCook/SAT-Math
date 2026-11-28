@@ -1073,3 +1073,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 172 条：账号面板开着，背后页面还能跟着滚（2026-11-28）
 
 面板是 `position:fixed` 浮层，但打开时没锁 body 滚动。手机上在注册表单里一划，底下的首页/题目跟着走，关掉面板后人已经不在原位；面板滚到顶/底还会把滚动链传给背景。现在 `openPanel()` 锁 `body.overflow`，`closePanel()` 恢复原值，面板本身加 `overscroll-behavior:contain`。邮件链接失效回站原来绕开 `openPanel` 直接显示层，也改成走同一条路，顺带补上焦点。验证：`login-errors` 锁住打开/关闭/邮件回站三条路径；全量 736/0。
+
+## 第 173 条：改密码后其他设备还能继续用旧会话（2026-11-28）
+
+`setPassword` 只 `PUT /auth/v1/user` 换当前设备的密码，别的设备上偷来的 refresh token 还能继续续期，改密码等于只改了一半。现在改密成功后补一次 `POST /auth/v1/logout?scope=others`，踢掉除当前会话外的所有会话；这一步失败不回滚密码、也不谎报失败，只记日志。验证：`password-login` 断言改密后发出 scope=others 且带当前 token；全量 739/0。

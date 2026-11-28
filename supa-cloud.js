@@ -456,6 +456,14 @@
       method: 'PUT', headers: authHeaders(tk),
       body: JSON.stringify({ password: pw }), timeout: 20000
     });
+    /* 改完密码只换当前这台设备不够：别的设备上旧的 refresh token 还能续，
+       密码等于白改。Supabase 的 scope=others 会踢掉除当前会话外的所有会话；
+       这一步失败不回滚密码，也不能让用户以为没改成，只记日志下次再说。 */
+    try {
+      await raw('/auth/v1/logout?scope=others', {
+        method: 'POST', headers: authHeaders(tk), body: '{}', timeout: 15000
+      });
+    } catch (e) { try { console.warn('revoke other sessions failed:', e && e.message); } catch (e2) {} }
     return true;
   }
 
