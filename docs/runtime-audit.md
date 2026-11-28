@@ -977,3 +977,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 148 条：英文模式下注册错误突然掉回中文，词条守卫只查了标签没查报错（2026-11-28）
 
 `account-i18n-coverage` 原来只静态扫描 `el('tag', cls, '中文')`，账号面板的标签都翻译了，但注册/登录/改密的报错是另一条路径：`friendlyError()` 直接 `return` 中文，`setError('...')` 直接写中文，`supa-cloud` 的 `msg` 还会原样透传。英文模式下，注册撞号、弱密码、停注册、手机号关闭、邮箱待确认、两次密码不一致全变成中文，和整页英文混在一起。现在补齐 16 条 `friendlyError`/`setError` 词条和 12 条云端校验提示词条；守卫同步扩到 `friendlyError` 的 `return`、`setError()` 字面量、`supa-cloud.js` 的 `msg:` 字面量，下次新增中文报错会直接红。验证：`account-i18n-coverage` 通过；全量 704/0，`verify_flows` 16/16。
+
+## 第 149 条：英文模式下状态栏还是中文，带邮箱的句子永远翻译不到（2026-11-28）
+
+补完报错后又发现一层：`setStatus()` 直接写 textContent，状态句没有走词典；更麻烦的是「已发送到 xx@…」「重置链接已发到 xx@…」「验证码已发到 xx@…」把邮箱拼进整句，i18n 的整句匹配不可能命中，英文模式下这些成功提示全是中文。现在 `setStatus()` / `setError()` 落 DOM 前统一过 `TDI18n.t()`，但只在 `getLang()==='en'` 时生效（`t()` 本身无条件查英文词典，中文模式直接调用会把状态栏翻成英文）；含邮箱的句子改成 `trTpl('…{email}…', {email})`：先按模板查词条、再替换邮箱。补了 14 条状态栏词条和 4 条带 `{email}` 模板；守卫扩到 `setStatus()` 与 `trTpl()` 的字面量。验证：全量 705/0，`verify_flows` 16/16。

@@ -143,13 +143,34 @@
     return out;
   }
   function localHash() { var s = snapshot(); return s == null ? null : hashOf(s); }
+  /* 状态栏/报错是动态写 textContent 的，i18n 的 MutationObserver 只能翻
+     「整句恰好有词条」的文本；含邮箱的句子永远匹配不上。这里在落 DOM 前
+     先过一次词典，动态句用 {email} 这类占位符先翻译、再替换。 */
+  function trText(s) {
+    var api = window.TDI18n;
+    var raw = String(s == null ? '' : s);
+    /* TDI18n.t 是无条件查英文词典的；中文模式必须先看 getLang，否则状态栏
+       会整片变成英文。 */
+    try {
+      if (!api || !api.t) return raw;
+      if (api.get && api.get() !== 'en') return raw;
+      return api.t(raw);
+    } catch (e) { return raw; }
+  }
+  function trTpl(tpl, vars) {
+    var out = trText(tpl);
+    var o = vars || {};
+    Object.keys(o).forEach(function (k) { out = out.split('{' + k + '}').join(String(o[k])); });
+    return out;
+  }
   function setStatus(text, kind) {
     if (!ui || !ui.status) return;
-    ui.status.textContent = text;
+    ui.status.textContent = trText(text);
     ui.status.setAttribute('data-kind', kind || 'plain');
   }
   function setError(text) {
     if (!ui || !ui.error) return;
+    text = trText(text);
     /* 先显出来再写文字：live region 在 hidden 状态下改内容不会播报，
        读屏用户提交后只会听到沉默。 */
     if (text) { ui.error.hidden = false; ui.error.textContent = text; return; }
@@ -878,7 +899,7 @@
       otpSent = true;
       startOtpCooldown();
       renderBody(); // 重绘会把状态栏重置成「未登录」，所以提示必须写在它之后
-      setStatus('已发送到 ' + email + '，点邮件里的登录按钮即可完成登录。链接只能用一次，请尽快点击（也可以在垃圾箱里找一下）。', 'ok');
+      setStatus(trTpl('已发送到 {email}，点邮件里的登录按钮即可完成登录。链接只能用一次，请尽快点击（也可以在垃圾箱里找一下）。', { email: email }), 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); syncOtpSendBtn(); }
   }
@@ -900,7 +921,7 @@
     /* 顺序不能反：未登录时 renderBody 会把状态栏重置成「未登录」，
        成功提示必须写在重绘之后，否则用户点完什么都看不到。 */
     finally { setBusy(false); renderBody(); }
-    if (ok) setStatus('重置链接已发到 ' + email + '，点邮件里的按钮就回到这里设新密码（垃圾箱也翻一下）。', 'ok');
+    if (ok) setStatus(trTpl('重置链接已发到 {email}，点邮件里的按钮就回到这里设新密码（垃圾箱也翻一下）。', { email: email }), 'ok');
   }
 
   /* ---------- 登录动作（邮箱验证码） ---------- */
@@ -938,7 +959,7 @@
       codeSent = true;
       startOtpCooldown();
       renderBody(); // 重绘会把状态栏重置成「未登录」，所以提示必须写在它之后
-      setStatus('验证码已发到 ' + email + '，收 6 位数字填到下面；没收到先翻垃圾箱。', 'ok');
+      setStatus(trTpl('验证码已发到 {email}，收 6 位数字填到下面；没收到先翻垃圾箱。', { email: email }), 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); syncCodeBtn(); }
   }
@@ -950,7 +971,7 @@
     /* 验证码只对发送时那个邮箱有效。邮箱框是可编辑的，只改邮箱不重发码
        会让 verifyOtp 去校验一个从没收到码的地址，用户只看到“验证码错误”。 */
     if (otpEmail && email !== otpEmail) {
-      setError('验证码已发到 ' + otpEmail + '；要换邮箱请重新获取。');
+      setError(trTpl('验证码已发到 {email}；要换邮箱请重新获取。', { email: otpEmail }));
       return;
     }
     if (code.length !== 6) { setError('请输入邮件里的 6 位数字验证码。'); return; }

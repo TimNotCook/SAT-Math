@@ -420,6 +420,7 @@
     '昵称不能为空。': 'Nickname cannot be empty.',
     '请先填写注册时用的邮箱。': 'Enter the email you signed up with first.',
     '请先登录。': 'Please sign in first.',
+    '请先登录': 'Please sign in first.',
     '请输入邮件里的 6 位数字验证码。': 'Enter the 6-digit code from the email.',
     '验证码通道尚未启用，请用密码或邮件链接登录。':
       'The email-code option is not enabled yet. Use password or email-link sign-in.',
@@ -438,6 +439,46 @@
     '邮箱格式不正确，请检查后再发送登录邮件。': 'That email does not look right. Check it before sending the sign-in email.',
     '邮箱格式不正确，请检查后再发送重置链接。': 'That email does not look right. Check it before sending the reset link.',
     '邮箱格式不正确，请检查后再获取验证码。': 'That email does not look right. Check it before requesting a code.',
+    '保存登录状态失败': 'Could not save the sign-in state.',
+    '昵称不能为空': 'Nickname cannot be empty.',
+    '登录已失效，需要重新登录': 'Your session has expired. Please sign in again.',
+    '登录链接已失效或已被使用，请重新发送登录邮件。':
+      'That sign-in link has expired or was already used. Send a new one.',
+    '登录链接已被取消，请重新发送登录邮件。': 'The sign-in link was cancelled. Send a new one.',
+    '登录链接没有完成，请重新发送登录邮件。': 'The sign-in link did not complete. Send a new one.',
+    '续期暂时失败，保留登录状态稍后重试':
+      'Could not refresh the session; you are still signed in. Try again later.',
+    '网络较慢：连不上登录服务，请检查网络后重试。':
+      'The connection is slow and the sign-in service cannot be reached. Check your network and try again.',
+    '云端档案内容异常，已保留本机进度，未覆盖':
+      'The cloud profile is malformed. Your local progress was kept and not overwritten.',
+    '云端档案内容异常，已退出该账号；本机进度未受影响':
+      'The cloud profile is malformed, so this account was signed out. Your local progress is unaffected.',
+    '云端档案已合并到本机，但暂时无法写回云端，联网后会自动重试':
+      'The cloud profile was merged into this device but could not be written back yet; it will retry when online.',
+    '密码已保存，下次可以用这个账号登录。': 'Password saved. You can sign in with this account next time.',
+    '当前页面已退出，但浏览器拒绝清除登录缓存；刷新后可能仍处于登录状态，请先清出空间再退出':
+      'You are signed out on this page, but the browser refused to clear the sign-in cache. A refresh may sign you back in; free some storage and sign out again.',
+    '暂时无法读取你的学习档案，这台设备上的进度不受影响':
+      'Cannot read your study profile right now. Progress on this device is unaffected.',
+    '本地暂存已合并到本机，但暂时无法写回云端，联网后会自动重试':
+      'The local draft was merged into this device but could not be written back yet; it will retry when online.',
+    '本地暂存档案形状异常，已保留未合并，本机进度不受影响':
+      'The local draft has an unexpected shape and was kept unmerged. Local progress is unaffected.',
+    '本机存储不可写，已退出该账号；本机进度未受影响':
+      'This browser storage is read-only, so the account was signed out. Local progress is unaffected.',
+    '本机存储不可写，无法暂存当前账号进度，已取消切换；本机进度未受影响':
+      'This browser storage is read-only, so the account switch was cancelled and current progress was not saved. Local progress is unaffected.',
+    '登录成功，但浏览器存储不可写；刷新后需要重新登录。':
+      'Signed in, but browser storage is read-only. You will need to sign in again after a refresh.',
+    '已发送到 {email}，点邮件里的登录按钮即可完成登录。链接只能用一次，请尽快点击（也可以在垃圾箱里找一下）。':
+      'Sent to {email}. Open the sign-in button in the email to finish. The link works once, so use it soon (check spam too).',
+    '重置链接已发到 {email}，点邮件里的按钮就回到这里设新密码（垃圾箱也翻一下）。':
+      'Reset link sent to {email}. Open the button in the email to come back and set a new password (check spam too).',
+    '验证码已发到 {email}，收 6 位数字填到下面；没收到先翻垃圾箱。':
+      'Code sent to {email}. Enter the 6-digit code below; check spam if it does not arrive.',
+    '验证码已发到 {email}；要换邮箱请重新获取。':
+      'Code sent to {email}. To use another email, request a new code.',
 
     /* 设置面板 · 练习 / 关于 */
     '打开后，单元练习答题页也会显示计算器按钮；关闭则只有专项训练、单元抽查与模考可用。':

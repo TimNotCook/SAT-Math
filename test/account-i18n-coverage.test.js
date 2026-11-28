@@ -35,8 +35,19 @@ test('账户面板直出的中文都有英文词条', () => {
     if (/[\u4e00-\u9fff]/.test(text) && !KEYS.has(text)) missing.push('error: ' + text);
     return m;
   });
-  /* supa-cloud 校验提示会原样透传到面板上；英文模式下也得有词条。 */
-  CLOUD.replace(/msg:\s*'((?:[^'\\]|\\.)*)'/g, (m, text) => {
+  /* 状态栏与动态模板也必须过词典；含邮箱的句子用 {email} 模板先翻译。 */
+  ACC.replace(/setStatus\('((?:[^'\\]|\\.)*)'/g, (m, text) => {
+    if (/[\u4e00-\u9fff]/.test(text) && !KEYS.has(text)) missing.push('status: ' + text);
+    return m;
+  });
+  ACC.replace(/trTpl\('((?:[^'\\]|\\.)*)'/g, (m, text) => {
+    if (/[\u4e00-\u9fff]/.test(text) && !KEYS.has(text)) missing.push('template: ' + text);
+    return m;
+  });
+  /* supa-cloud 的字符串不只走 msg：超时提示是 withTimeout 的第三参，
+     登录链接失败是 authNoticeText 的 return，都会印在面板/状态栏上；
+     整份文件的单引号中文字面量都要求有词条。 */
+  CLOUD.replace(/'((?:[^'\\]|\\.)*)'/g, (m, text) => {
     if (/[\u4e00-\u9fff]/.test(text) && !KEYS.has(text)) missing.push('cloud: ' + text);
     return m;
   });
