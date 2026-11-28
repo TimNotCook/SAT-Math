@@ -4,6 +4,11 @@
 (function () {
   'use strict';
   var BANK = window.TD_BANK;
+  /* 题库脚本没加载出来（弱网 / 旧缓存 / 首屏被截断）时直接退出，别注册半个 TD_APP：
+     后面的 BANK.all / BANK.questions 会连锁抛 TypeError，把真正的降级文案淹没在控制台里。
+     各页都按「window.TD_APP 缺失」走自己的提示（index/drill 的 fatalLoadError、
+     wrong 页的题库失败提示），所以这里干净退出即可。 */
+  if (!BANK) return;
   var KEY = 'tdsat_app_v1';
   var URL = new URLSearchParams(location.search);
   /* 同名记录归并表（data/aliases.js）：retired / mergedInto 的题的旧 id 指向 canonical。
@@ -11,7 +16,7 @@
   var ALIAS = window.TD_ALIAS || {};
   /* 生效池（BANK.questions）已由 data/bank-active.js 摘掉 retired / mergedInto；
      别名与旧节反推必须看全量 BANK.all，否则推不出旧板块 → 新板块的映射。 */
-  var ALLQ = BANK.all || BANK.questions;
+  var ALLQ = BANK.all || BANK.questions || [];
   var BY_ID = {};
   ALLQ.forEach(function (q) { BY_ID[q.id] = q; });
 
@@ -20,7 +25,7 @@
      Legacy 64 curated questions -> L1 ... L3 in the drill side; L4 is gone:
      Unit 4 那 9 道已迁入讲义复习 JY4「教材原题」子组（练习册 P200–207）。 ---------- */
   var CATALOG = {};
-  BANK.questions.forEach(function (q) {
+  (BANK.questions || []).forEach(function (q) {
     /* retired / mergedInto：已被裁定去重（旧录副本 / 书内重复印），不进任何板块 */
     if (q.retired || q.mergedInto) return;
     /* Unit 4 的 9 道精编原题已移交讲义复习 JY4「教材原题」子组（练习册 P200–207），
@@ -453,7 +458,7 @@
     });
     return { total: t, answered: a, correct: c, sections: SECS.length, completedSections: done,
       percent: t ? Math.round(a / t * 100) : 0,
-      accuracy: a ? Math.round(c / a * 100) : 0, bank: BANK.questions.length };
+      accuracy: a ? Math.round(c / a * 100) : 0, bank: (BANK.questions || []).length };
   }
   function wrongList() {
     var out = [];
