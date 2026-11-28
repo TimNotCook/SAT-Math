@@ -293,7 +293,7 @@ body.bb-modal-open{overflow:hidden}
 .td-save-layer{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
 .td-save-layer[hidden]{display:none!important}
 .td-save-backdrop{position:absolute;inset:0;background:var(--veil)}
-.td-save-panel{position:relative;width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-3);padding:0}
+.td-save-panel{position:relative;width:min(520px,100%);max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-3);padding:0}
 .td-save-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1px solid var(--line-soft)}
 .td-save-head h2{margin:0;font-size:18px;font-weight:700;color:var(--ink)}
 .td-save-close{border:1px solid var(--line);background:var(--paper);color:var(--sub);border-radius:var(--radius-sm);padding:6px 12px;font:inherit;font-size:12.5px;cursor:pointer}
@@ -379,9 +379,9 @@ body:has(#stage-answer:not([hidden]))::before, body:has(#stage-answer:not([hidde
 .exam-section-title{margin:32px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:15px;font-weight:700}
 .bb-modal{position:relative;width:min(720px,100%);max-height:86vh;display:flex;flex-direction:column;border-radius:var(--radius-lg);background:var(--paper);box-shadow:var(--shadow-3);overflow:hidden;border:1px solid var(--line)}
 .bb-modal-backdrop{position:absolute;inset:0;background:var(--bb-veil);backdrop-filter:blur(4px)}
-.drill-nav-panel{position:relative;width:min(580px,100%);max-height:min(700px,88vh);overflow:auto;padding:24px 26px 26px;border-radius:var(--radius-lg);background:var(--paper);box-shadow:var(--shadow-3);border:1px solid var(--line)}
+.drill-nav-panel{position:relative;width:min(580px,100%);max-height:min(700px,88vh);max-height:min(700px,88dvh);overflow:auto;padding:24px 26px 26px;border-radius:var(--radius-lg);background:var(--paper);box-shadow:var(--shadow-3);border:1px solid var(--line)}
 .drill-nav-backdrop{position:absolute;inset:0;background:var(--bb-veil);backdrop-filter:blur(4px)}
-.bb-calc-panel{position:fixed;right:28px;top:188px;z-index:75;width:min(430px,92vw);height:min(520px,calc(100vh - 260px));display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);box-shadow:var(--shadow-3);overflow:hidden}
+.bb-calc-panel{position:fixed;right:28px;top:188px;z-index:75;width:min(430px,92vw);height:min(520px,calc(100vh - 260px));height:min(520px,calc(100dvh - 260px));display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);box-shadow:var(--shadow-3);overflow:hidden}
 .bb-calc-head{min-height:48px;display:flex;align-items:center;gap:10px;padding:0 10px 0 14px;border-bottom:1px solid var(--line,#d2e0f1);background:#fff;color:var(--ink,#12233f);cursor:move;touch-action:none;box-shadow:none}
 .bb-calc-grip{position:absolute;right:0;bottom:0;width:22px;height:22px;cursor:nwse-resize;touch-action:none;z-index:6;background:linear-gradient(135deg,transparent 58%,#9aa3b2 58%,#9aa3b2 66%,transparent 66%,transparent 76%,#9aa3b2 76%,#9aa3b2 84%,transparent 84%)}
 .panel, .card, .exam-panel{transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
