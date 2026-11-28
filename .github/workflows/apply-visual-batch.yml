@@ -1,0 +1,35 @@
+name: apply-visual-batch
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-visual-batch.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Apply visual batch patch
+        run: |
+          base64 -d tools/visual-batch.patch.gz.b64 | gunzip > /tmp/visual.patch
+          git apply /tmp/visual.patch
+          node --check exam.js
+          python3 bump_assets.py
+          python3 bump_assets.py --check
+          node --test test/*.test.js
+      - name: Commit and push
+        run: |
+          rm .github/workflows/apply-visual-batch.yml tools/visual-batch.patch.gz.b64
+          git config user.name satmath-bot
+          git config user.email bot@satmath.local
+          git add -A
+          git commit -m "fix(ui): 视觉巡检第一批 + 清掉 exam.js 冲突标记"
+          git pull --rebase origin main
+          git push origin HEAD:main
