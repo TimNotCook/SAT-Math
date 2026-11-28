@@ -10,23 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      - name: 去掉 exam.js 里误提交的冲突标记
-        run: |
-          python3 - <<'PY'
-import io,re
-p='exam.js'
-s=io.open(p,encoding='utf-8').read()
-s=re.sub(r'<<<<<<< HEAD\n(.*?)=======\n.*?>>>>>>> [^\n]*\n', r'\1', s, count=1, flags=re.S)
-io.open(p,'w',encoding='utf-8').write(s)
-PY
-          node --check exam.js
-      - name: 重刷资源版本
-        run: |
-          python3 bump_assets.py
+      - run: python3 tools/fix_conflict_markers.py
+      - run: node --check exam.js
+      - run: python3 bump_assets.py
+      - run: |
           git config user.name "satmath-bot"
           git config user.email "bot@satmath.local"
-          git add -A
+          git add exam.js index.html exam.html drill.html wrong.html jiangyi.html history.html sw.js version.json
           git commit -m "fix(exam): 清掉误提交的 git 冲突标记，恢复 exam 页脚本；资源版本重刷"
           git push origin HEAD:main
