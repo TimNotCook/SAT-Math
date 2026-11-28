@@ -1,0 +1,53 @@
+diff --git a/app.css b/app.css
+index 177b84e..edc3cda 100644
+--- a/app.css
++++ b/app.css
+@@ -1492,6 +1492,20 @@ html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:1
+   /* 标题列 86px 只放得下 5 个字，「线性方程与不等式应用题」11 字被切成三行；
+      行号列 52px 对「1.1」太宽，收到 44px，标题列变 94px，正好两行。 */
+   html body .tile-grid>.tile-section.drill-section-row.drill-section-row{grid-template-columns:44px minmax(0,1fr) auto!important}
++  /* 320 状态列「未开始」占 36px，标题只剩 94px，「线性不等式与图像」仍会断成
++     「线性不等 / 式与图像」。窄屏把状态收成 8px 圆点：未开始灰、进行中蓝、已完成绿，
++     文案留在无障碍树里，标题列回到 122px，7 字标题整行放完。 */
++  html body .tile-grid>.tile-section.drill-section-row .tile-state.tile-state{
++    width:8px!important;min-width:8px!important;height:8px!important;padding:0!important;border:0!important;
++    background:transparent!important;font-size:0!important;line-height:0!important;color:transparent!important;
++    overflow:hidden!important;display:block!important;border-radius:50%!important;box-shadow:none!important;
++    justify-self:end!important;align-self:center!important;
++  }
++  html body .tile-grid>.tile-section.drill-section-row .tile-state.tile-state::after{
++    content:"";display:block;width:6px;height:6px;margin:1px;border-radius:50%;background:#cbd5e1;
++  }
++  html body .tile-grid>.tile-section.drill-section-row .tile-state.tile-state.is-active::after{background:#2563eb}
++  html body .tile-grid>.tile-section.drill-section-row .tile-state.tile-state.is-done::after{background:#16a34a}
+ }
+ 
+ /* 抽查开场左栏右侧那块空白：放一张本单元的浅色线稿，不做标签也不写字 */
+diff --git a/docs/runtime-audit.md b/docs/runtime-audit.md
+index 922ccd9..436a148 100644
+--- a/docs/runtime-audit.md
++++ b/docs/runtime-audit.md
+@@ -1024,3 +1024,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
+ ## 第 160 条：注册时在「设置密码」格一回车就报「两次密码不一致」（2026-11-28）
+ 
+ 注册表单三个输入格都绑了回车提交。用户在「设置密码」里输完按回车，确认密码还空着，立刻提交，`pw !== pw2` 直接弹出“两次输入的密码不一致”，看起来像自己填错了，实际是表单把回车当成了确认。现在回车按顺序走：邮箱格 → 聚焦密码格，密码格 → 聚焦确认密码格，确认格回车才提交；改密码面板同样处理。验证：`login-errors` 锁住三段回车顺序；全量 718/0。
++
++## 第 161 条：320 首页状态列吃掉标题宽度，「线性不等式与图像」断成「线性不等 / 式与图像」（2026-11-28）
++
++行号列收到 44px 后，标题列只有 94px，但右侧「未开始」还占 36px；7 个字的「线性不等式与图像」正好放不下，`balance` 把它断成 4/3，切在「不等式」中间；「线性与指数关系」「概率与条件概率」也一样。320 把状态列收成 8px 圆点：未开始灰、进行中蓝、已完成绿，文本仍留在无障碍树；标题列回到 122px，7 字标题整行放完，11 字的「线性方程与不等式应用题」仍是两行，但不再因为状态列白丢 36px。验证：本地 320 标题盒宽 122px，「线性不等式与图像」单行；`visual-mobile-polish` 第 8 条锁住圆点三态。
+diff --git a/test/visual-mobile-polish.test.js b/test/visual-mobile-polish.test.js
+index 93389da..93e82ed 100644
+--- a/test/visual-mobile-polish.test.js
++++ b/test/visual-mobile-polish.test.js
+@@ -51,3 +51,10 @@ test('320/390 首页板块行标题两行均分，不把「方程」拆开、不
+   assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row \.tile-name\{text-wrap:balance!important;padding-right:0!important\}/);
+   assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row\.drill-section-row\{grid-template-columns:44px minmax\(0,1fr\) auto!important\}/);
+ });
++
++test('320 首页状态列收成三态圆点，标题列回到 122px', () => {
++  assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row \.tile-state\.tile-state\{/);
++  assert.match(app, /width:8px!important;min-width:8px!important;height:8px!important/);
++  assert.match(app, /\.tile-state\.tile-state\.is-active::after\{background:#2563eb\}/);
++  assert.match(app, /\.tile-state\.tile-state\.is-done::after\{background:#16a34a\}/);
++});
+
