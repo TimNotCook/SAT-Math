@@ -2,7 +2,6 @@ name: apply-patch
 on:
   push:
     branches: [ main ]
-    paths: [ 'patches/apply.patch', 'patches/nick.patch' ]
 permissions:
   contents: write
 jobs:
@@ -11,9 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          if [ -f patches/nick.patch ]; then P=patches/nick.patch; else P=patches/apply.patch; fi
+          P=""
+          if [ -f patches/nick.patch ]; then P=patches/nick.patch; elif [ -f patches/apply.patch ]; then P=patches/apply.patch; fi
           echo "$P" > /tmp/patchpath
-          git apply --index "$P"
+          if [ -n "$P" ]; then git apply --index "$P"; fi
       - run: python3 bump_assets.py
       - id: test
         continue-on-error: true
@@ -33,9 +33,11 @@ jobs:
           fi
       - run: |
           P=$(cat /tmp/patchpath)
-          git rm -q "$P"
+          if [ -n "$P" ]; then git rm -q "$P"; fi
           git config user.name "satmath-bot"
           git config user.email "bot@satmath.local"
           git add -A
-          git commit -m "chore(apply-patch): 应用补丁并重刷资源版本"
-          git push origin HEAD:main
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(apply-patch): 应用补丁并重刷资源版本"
+            git push origin HEAD:main
+          fi
