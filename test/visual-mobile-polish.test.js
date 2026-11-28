@@ -76,7 +76,9 @@ test('320 成绩报告标题缩到 14px、题号独立成行', () => {
 });
 
 test('320 题号换行后不把「·」孤零零留在第二行行首', () => {
-  assert.match(examjs, /<span class="rev-qno"><span class="rev-sep"> · <\/span>/);
+  /* 8c6ca1d 之后知识点名不再拖「· 第 N 题」：题号只在 Q${dPos} 上出现一次，
+     拼进知识点名的 rev-qno/rev-sep 结构已删除，这里反向守住别又被拼回去。 */
+  assert.ok(!/<span class="rev-qno"><span class="rev-sep">[^<]*<\/span>/.test(examjs), '知识点名后面不要重复拼题号');
   assert.match(app, /html body \.rev-topic \.rev-qno \.rev-sep\{display:none!important\}/);
   assert.match(app, /html body \.rev-line1 \.rev-q\{display:none!important\}/);
 });

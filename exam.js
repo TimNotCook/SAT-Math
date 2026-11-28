@@ -596,7 +596,7 @@
     var narrowTop = !!(window.matchMedia && window.matchMedia('(max-width:520px)').matches);
     $('tbSection').textContent = MODE === 'mock'
       ? (narrowTop ? 'Sec 2 · M' + S.module + ': Math' : 'Section 2, Module ' + S.module + ': Math')
-      : '第 ' + QUIZ_UNIT + ' 单元';
+      : (EN_LANG() ? 'Unit ' + QUIZ_UNIT : '第 ' + QUIZ_UNIT + ' 单元');
   }
   function setStage(name) {
     S.stage = name;
@@ -1177,7 +1177,9 @@
       : (OFFICIAL ? 'Submit your answers?' : '确认交卷？');
     $('subDesc').textContent = m1
       ? 'Math · Module 1 of 2'
-      : (MODE === 'mock' ? 'Math · Module 2 of 2' : '单元抽查 · 第 ' + QUIZ_UNIT + ' 单元 · ' + (hi - lo + 1) + ' 题');
+      : (MODE === 'mock' ? 'Math · Module 2 of 2' : (EN_LANG()
+        ? 'Unit Quiz · Unit ' + QUIZ_UNIT + ' · ' + (hi - lo + 1) + ' questions'
+        : '单元抽查 · 第 ' + QUIZ_UNIT + ' 单元 · ' + (hi - lo + 1) + ' 题'));
     $('btnSubConfirm').textContent = m1
       ? (OFFICIAL ? 'Proceed to Module 2' : '进入 Module 2')
       : (OFFICIAL ? 'Submit' : '确认交卷并锁定答案');
@@ -1437,16 +1439,8 @@
       const okFlag = isRightFlag(d.correct);
       const meta = 'U' + dUnit + ' · ' + (dType === 'grid' ? (EN ? 'Grid-in' : '填空') : (EN ? 'Multiple choice' : '选择'));
       const ptsTxt = dPoints == null ? '—' : (EN ? dPoints + ' pt' : dPoints + ' 分');
-<<<<<<< HEAD
-      const topicNameHtml = (raw) => {
-        const t = raw || '—';
-        const m = t.match(/^(.*?)\s*·\s*(第\s*\d+\s*题)$/);
-        return m ? esc(m[1]) + '<span class="rev-qno"><span class="rev-sep"> · </span>' + esc(m[2]) + '</span>' : esc(t);
-      };
-=======
       /* 题号已经在 Q${dPos} 上报过一次了，知识点名后面再拖「· 第 12 题」只是噪音。 */
       const topicNameHtml = (raw) => esc(String(raw || '—').replace(/\s*·\s*第\s*\d+\s*题$/, ''));
->>>>>>> 8c6ca1d (fix(review): 模考逐题回顾不印内部来源、知识点名不再拖题号、答案长小数收窄)
       let causeHtml = '';
       if (!okFlag && AN && !EN) causeHtml = `<div class="rev-cause">错因 · ${esc(AN.analyze(bankQ, dGiven, (window.TD_TEXT || {})[did]).title)}`;
       if (!okFlag && dHint && !EN) causeHtml += (causeHtml ? '<br>' : '<div class="rev-cause">') + '提示 · ' + esc(dHint);
