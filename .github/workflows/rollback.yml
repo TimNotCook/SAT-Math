@@ -1,0 +1,58 @@
+name: rollback
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: '回到哪个提交（完整 40 位 SHA）'
+        required: true
+        type: string
+      reason:
+        description: '回滚原因 / 告警链接'
+        required: false
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: rollback
+  cancel-in-progress: false
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 校验目标提交
+        env:
+          TARGET: ${{ inputs.target_sha }}
+        run: |
+          set -euo pipefail
+          echo "$TARGET" | grep -Eq '^[0-9a-fA-F]{40}$'
+          git cat-file -e "$TARGET^{commit}"
+          git merge-base --is-ancestor "$TARGET" HEAD
+          if [ "$TARGET" = "$(git rev-parse HEAD)" ]; then
+            echo "目标就是当前 HEAD，无需回滚"; exit 1
+          fi
+      - name: 恢复目标提交的文件树
+        env:
+          TARGET: ${{ inputs.target_sha }}
+        run: |
+          set -euo pipefail
+          git read-tree -u --reset "$TARGET"
+          python3 bump_assets.py
+      - name: 回滚前必须全绿
+        run: npm test
+      - name: 提交并触发 Pages 发布
+        env:
+          TARGET: ${{ inputs.target_sha }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          set -euo pipefail
+          git config user.name "satmath-bot"
+          git config user.email "bot@satmath.local"
+          git add -A
+          git commit -m "revert: 回滚到 ${TARGET:0:7}（${REASON:-线上告警}）"
+          git push origin HEAD:main

@@ -13,3 +13,6 @@ _dark*.html
 
 # 验收脚本运行时写的临时标记（startStaticServer/临时 profile），不属于仓库
 .verify-*
+
+# pages-deploy 构建时生成的发布清单（不入库）
+/release.json

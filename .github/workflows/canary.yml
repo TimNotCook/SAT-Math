@@ -1,0 +1,36 @@
+name: canary
+on:
+  schedule:
+    # GitHub 的 cron 不保证准点，通常 2–10 分钟；60 秒级探针见 docs/reliability.md。
+    - cron: '*/2 * * * *'
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: '可选：要求线上 release.json 等于这个提交'
+        required: false
+        type: string
+  workflow_run:
+    workflows: ['pages-deploy']
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  group: canary
+  cancel-in-progress: true
+jobs:
+  canary:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 线上六页 + 发布清单 + 认证配置
+        env:
+          CANARY_BASE: https://timnotcook.github.io/SAT-Math/
+          EXPECTED_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || inputs.expected_sha || '' }}
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          # Supabase 控制台修好 mailer_autoconfirm / 手机号注册后改成 1，变成硬门禁。
+          SECURITY_STRICT: '0'
+        run: node tools/canary.mjs
