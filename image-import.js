@@ -619,6 +619,26 @@
           /* 顶端若是一小行标题（"Questions 12-15"、页码），把它并进第一块，避免多出一道假题。
              阈值按"原图 30px"算：按比例算会随图高变化，长截图时把正常短题也并掉，两题混一条。 */
           if (blocks.length > 1 && (blocks[0][1] - blocks[0][0]) < 30 * sc) { blocks[1] = [blocks[0][0], blocks[1][1]]; blocks.shift(); }
+          /* 整页扫描时页眉（"Module 1"）、页码、版权行都会各自成块，混进候选里就是假题；
+             落到页面最上/最下边缘、又只有一两行的块直接丢掉。
+             另外单行块并进下一块：一道题的上半句被切成独立块，单独认永远对不上。 */
+          var bandsOf = function (b) {
+            var n = 0, prev = false;
+            for (var yy = b[0]; yy <= b[1]; yy += 1) {
+              if (ink[yy]) { if (!prev) n++; prev = true; } else prev = false;
+            }
+            return n;
+          };
+          blocks = blocks.filter(function (b) {
+            if (bandsOf(b) <= 2 && (b[1] <= ch * 0.05 || b[0] >= ch * 0.95)) return false;
+            return true;
+          });
+          var merged = [];
+          blocks.forEach(function (b) {
+            if (bandsOf(b) <= 1 && merged.length) { merged[merged.length - 1] = [merged[merged.length - 1][0], b[1]]; }
+            else merged.push(b);
+          });
+          blocks = merged;
           if (blocks.length < 2 || blocks.length > 8) return res([{ url: dataUrl }]);
           var out = blocks.map(function (b) {
             var y0 = Math.max(0, Math.round(b[0] / sc) - 8), y1 = Math.min(H, Math.round(b[1] / sc) + 8);
