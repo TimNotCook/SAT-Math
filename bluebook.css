@@ -655,10 +655,23 @@ body.scratch-on #answerArea{position:relative;z-index:65}
   .drill-stem{font-size:17.5px}
   .drill-footer-inner{grid-template-columns:minmax(0,1fr) auto;gap:8px}
   .drill-footer-section{display:none}
-  .drill-position-button{min-width:118px}
+  /* 基础档那条 min-width:170px!important（见上方 562 行）会把这里压回 170，
+     320 窄屏下 152px 的列装不下 170，按钮就往右溢出 10px 压住「上一题」。
+     这里必须带 !important 才盖得住，同时允许按列宽收缩、多余只做省略号。 */
+  .drill-position-button{min-width:0!important;max-width:100%;padding:0 14px!important;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .drill-page-button .drill-nav-label{display:none}
   .drill-question-grid{grid-template-columns:repeat(5,44px)}
   .drill-nav-panel{padding:20px 16px 22px}
+}
+
+@media (max-width:400px) {
+  /* 560 行那条带 body:has(...) 的 padding:0 26px!important 优先级更高，
+     这里必须同样带前缀 + !important 才盖得住。 */
+  body:has(#questionView:not([hidden])) .drill-footer-inner,
+  body.exam-page:has(#stage-answer:not([hidden])) .drill-footer-inner{
+    padding-left:14px!important;padding-right:14px!important;
+  }
 }
 
 @media (max-width:900px) {
