@@ -375,10 +375,44 @@
       'Each signed-in user gets a separate study profile; progress saves and follows automatically.',
     '登录完全自愿，不登录也能使用全部功能。':
       'Signing in is optional — every feature works without an account.',
+
+    /* 无障碍 / 悬停提示（英文页面上读屏也不该念中文） */
+    '主要功能': 'Main navigation',
+    '本板块成绩': 'Section score',
+    '关闭题号弹层': 'Close the question map',
+    '题号状态说明': 'Question status legend',
+    '选择单元': 'Choose a unit',
+    '错题学习总览': 'Wrong-answer overview',
+    '关闭图片识别面板': 'Close image import',
+    '拖入图片或点击选择，也可直接粘贴': 'Drop or click to pick a screenshot, or paste it here',
+    '粘贴题干文字导入': 'Paste the question text to import',
+    '按题干关键词查题': 'Find a question by keyword',
+    '图认不出？把题干文字复制/打进来（英文原文最准），点右边按钮同样能配题导入。':
+      'Image not readable? Paste the question text — the original English works best — then use the button on the right.',
+    '等不及？敲题干里的几个词或数字，比如 4x 24x 36 或 slope':
+      'In a hurry? Type a few words or numbers from the question, e.g. 4x 24x 36 or slope',
+    '不用贴图，自己造一张测试图跑一遍，确认这台机器能不能识别':
+      'No screenshot needed: build a test image and check whether this device can read it',
+    '只删掉本次导入写进去的记录，不动你原来的作答':
+      'Removes only what this import wrote; your existing answers stay',
+    '用文字导入': 'Import from text',
+    '在题库里找': 'Find in the bank',
+    '自检': 'Self-test',
+    '撤销本次导入': 'Undo this import',
+    '上传题目截图，AI 识别文字与公式并自动匹配题库':
+      'Upload a question screenshot; AI reads the text and formulas and matches the bank',
+    '登录云端账号后才能使用云端 AI 图片识别':
+      'Sign in to the cloud account to use cloud AI image reading',
+    '错题统计': 'Wrong-answer stats',
+    '按单元筛选': 'Filter by unit',
+    '题目信息': 'Question info',
+    '本节成绩': 'Section score',
   };
 
   /* 带数字的句子：模板字符串拼出来的是一个整体文本节点，靠模式匹配 */
   var PATS = [
+    [/^划掉选项 ([A-E])$/, 'Cross out choice $1'],
+    [/^取消划掉选项 ([A-E])$/, 'Restore choice $1'],
     [/^← 返回(.+)$/, '← Back to $1'],
     [/^返回(.+)$/, 'Back to $1'],
     [/(.+) · 第 (\d+) 题$/, '$1 · Question $2'],
