@@ -10,3 +10,6 @@ _probe*.html
 _dark*.html
 *.probe.html
 *.shot.html
+
+# 验收脚本运行时写的临时标记（startStaticServer/临时 profile），不属于仓库
+.verify-*
