@@ -455,7 +455,9 @@
     if (!calcBtn) return;
     var allow = A.isSpecialSection(section) || A.isTopicSection(section) || calcUnitAllowed();
     if (calcBtn.hidden !== !allow) {
-      if (!allow && window.U && U.closeCalculator) { try { U.closeCalculator(); } catch (e) { console.warn('关闭计算器失败', e); } }
+      /* app-ui 暴露的是 window.TD_UI，不是 window.U；旧判断永远进不来，
+         切到不允许用计算器的单元练习时，已打开的计算器会留在屏幕上。 */
+      if (!allow && U && typeof U.closeCalculator === 'function') { try { U.closeCalculator(); } catch (e) { console.warn('关闭计算器失败', e); } }
       calcBtn.hidden = !allow;
     }
   }
@@ -940,7 +942,9 @@
       drillToast('本节题目尚未录入，先在题库里补题');
     }
   });
-  U.bindTools({ reference: 'btnReference', calculator: 'btnCalculator', allowCalculator: true });
+  if (U && typeof U.bindTools === 'function') {
+    U.bindTools({ reference: 'btnReference', calculator: 'btnCalculator', allowCalculator: true });
+  } else { console.warn('app-ui 未加载，练习页工具按钮暂不可用'); }
   // 计算器默认隐藏，进入题目后按板块与设置决定（单元练习可由设置开关打开）
   (function () { var c = $('btnCalculator'); if (c) c.hidden = true; })();
   applyCalcVisibility();

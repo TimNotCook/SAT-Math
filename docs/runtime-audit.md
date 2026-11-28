@@ -784,3 +784,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 106 条：导入错题仓库写盘失败时，本机进度已经先被写脏（2026-11-28）
 
 `wrong-page.js importData()` 边遍历 items 边对匹配到的新题执行 `A.save()`，最后才 `writeImport(store)`。配额满/只读存储让错题仓库写失败时函数抛「localStorage 写入失败」，用户看到导入失败，但本机 `tdsat_app_v1` 里已经写进这批“导入错题”；重试时这些题又会被判成「已有作答仅只读」，导入计数和实际状态对不上。修成先把新作答放进 `pending`，错题仓库整份写成功后才逐条落本机，失败路径一个答案都不写。验证：注入 `tdsat_imported_wrong_v1` 写入抛错，旧代码抛错后本机已有答案，新代码抛错后 `tdsat_app_v1` 仍为空；全量 612/0。
+
+## 第 106 条：练习页计算器关闭查了不存在的 window.U，工具按钮缺 app-ui 还会整页初始化中断（2026-11-28）
+
+`drill.js` 里 `applyCalcVisibility()` 判断 `window.U && U.closeCalculator`，但 app-ui.js 暴露的全局是 `window.TD_UI`，本地变量 `U` 才是它：从可用计算器的专项/模考切到不允许计算器的单元练习时，已打开的计算器不会被关掉，直接留在屏幕上。另一个同源问题在初始化末尾：`U.bindTools(...)` 没有判空，app-ui 弱网/首屏截断没加载时一抛错，后面的 `applyCalcVisibility()`、`A.nav('drill')` 和路由初始化全部不执行，整页按钮死掉（exam 页已在 6b0734d 修过同类）。修成关闭走 `U && typeof U.closeCalculator === 'function'`，`bindTools` 前判空并降级提示。验证：新增 2 条静态守卫；全量 614/0；`verify_flows` 16/16。
