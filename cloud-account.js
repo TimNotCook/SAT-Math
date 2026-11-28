@@ -185,6 +185,16 @@
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ uid: uid, payload: payload })); } catch (e) { console.warn('保存草稿失败', e); }
   }
   function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { console.warn('清除草稿失败', e); } }
+  /* 应用一份本地草稿：只有整份写回成功才清草稿。坏载荷（数组、或某个快照值
+     不是字符串）会返回 false，草稿原样保留，供后续恢复/排查。 */
+  function applyDraft(draft) {
+    if (!draft) return false;
+    var ok = false;
+    suppress = true;
+    try { ok = applyPayload(draft.payload); } finally { suppress = false; }
+    if (ok) clearDraft();
+    return ok;
+  }
 
   // 用档案内容整体替换本机副本；本机外观偏好保持不变。
   /* 档案载荷必须是普通对象：云端/本地草稿被写成数组或字符串时，
@@ -395,9 +405,15 @@
     /* 回到旧账号时，先恢复"登出后以游客身份做题"留下的增量，保证零丢失。 */
     var draft = loadDraft();
     if (draft && draft.uid === uid && isPlainPayload(draft.payload) && Object.keys(draft.payload).length) {
-      suppress = true;
-      try { applyPayload(draft.payload); } finally { suppress = false; }
-      clearDraft();
+      /* 草稿也要过 applyPayload 的整份校验。旧实现不看返回值：载荷里只要
+         有一个非字符串快照值，applyPayload 会拒绝（本机不动），这里却照样
+         clearDraft() 并 silentPush——把用户登出后以游客身份做的唯一一份
+         增量直接删掉。失败时保留草稿，不覆盖本机，也不再自动推云端。 */
+      if (!applyDraft(draft)) {
+        setStatus('本地暂存档案形状异常，已保留未合并，本机进度不受影响', 'warn');
+        renderBody();
+        return;
+      }
       await silentPush();
       prof.lastSynced = localHash(); saveProf();
       renderBody();
@@ -1172,7 +1188,7 @@
   try {
     window.TD_CLOUD_MERGE = { canon: canon, deepMerge: deepMerge, mergeLocalWithCloud: mergeLocalWithCloud,
       mergeArrays: mergeArrays, itemSig: itemSig, pickAtomic: pickAtomic, ATOMIC_KEYS: ATOMIC_KEYS,
-      isPlainPayload: isPlainPayload, applyPayload: applyPayload };
+      isPlainPayload: isPlainPayload, applyPayload: applyPayload, applyDraft: applyDraft };
   } catch (e) { console.warn('合并诊断钩子注册失败', e); }
 
   function boot() {

@@ -144,3 +144,23 @@ test('云端快照值是对象/数字/null 时整份拒绝，不先清空本机�
   assert.equal(ok, false, '非字符串快照值没有被拒绝');
   assert.equal(store.tdsat_app_v1, local, '拒绝前已经把本机进度清掉了');
 });
+
+test('坏草稿应用失败时不清草稿、不动本机进度', () => {
+  const local = JSON.stringify({ sections: { '1.1': { answers: {} } } });
+  const draft = { uid: 'u1', payload: { tdsat_app_v1: { sections: {} } } };
+  const draftRaw = JSON.stringify(draft);
+  const { M, store } = boot({ tdsat_app_v1: local, tdprofile_draft_v1: draftRaw });
+  const ok = M.applyDraft(draft);
+  assert.strictEqual(ok, false, '坏草稿被当成可应用');
+  assert.strictEqual(store.tdsat_app_v1, local, '坏草稿清了本机进度');
+  assert.strictEqual(store.tdprofile_draft_v1, draftRaw, '应用失败后草稿被删了');
+});
+
+test('好草稿应用成功后写回并清掉草稿', () => {
+  const draft = { uid: 'u1', payload: { tdsat_app_v1: JSON.stringify({ sections: {} }) } };
+  const { M, store } = boot({ tdsat_app_v1: JSON.stringify({ old: 1 }), tdprofile_draft_v1: JSON.stringify(draft) });
+  const ok = M.applyDraft(draft);
+  assert.strictEqual(ok, true);
+  assert.deepStrictEqual(JSON.parse(store.tdsat_app_v1), { sections: {} });
+  assert.strictEqual(store.tdprofile_draft_v1, undefined, '成功应用后草稿没有清掉');
+});

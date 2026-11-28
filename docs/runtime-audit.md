@@ -720,3 +720,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 90 条：进度存档把布尔/对象作答算成「已答」，恢复后却是空白（2026-11-28）
 
 `progress-save.js` 的 `hasAnswer(a)` 只挡对象/函数的 `a.v`，但 `a.v` 是布尔时 `String(true)` 非空，摘要会显示「已答 1 / …」；`v:true` 的坏记录被 `app-core` 恢复时又会归一成空串，面板与实际进度不一致。修成布尔 `v` 一律按未作答；新增 inspect 回归：布尔/对象作答的摘要计数必须为 0。验证：全量 575/0。
+
+## 第 91 条：本地草稿应用失败后仍被删除，游客增量直接蒸发（2026-11-28）
+
+`afterSignIn` 的草稿分支无条件 `clearDraft()`：`applyPayload(draft.payload)` 在快照值不是字符串时会整份拒绝（第 89 条），本机进度虽然保住了，紧接着的 `clearDraft()` 却把草稿删掉，再 `silentPush` 把本机旧进度推上云。用户登出后以游客身份做的增量只剩这一份草稿，等于被静默丢弃。修成新增 `applyDraft(draft)`：只有整份写回成功才清理草稿；失败时保留草稿、不动本机、不自动推云端，并在账号面板提示“本地暂存档案形状异常，已保留未合并”。验证：坏草稿返回 false、本机 `tdsat_app_v1` 原值不变、`tdprofile_draft_v1` 原样保留；好草稿写回并清掉；全量 577/0。
