@@ -888,8 +888,8 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 
 ## 第 133 条：记录页只隐藏残留未做完档案不补删，换一卷后同一张「继续这卷」又冒出来（2026-11-28）
 
-上一版修法只在渲染时把「当前会话已 finished 且 startedAt 对得上」的未做完档案过滤掉，没有写回存储。用户开始下一卷后 `liveSess` 换人，`finishedNow` 变 false，上一条残留档案立刻重新出现，和早已交卷的成绩条并排。修成：过滤前保留 `abandonedRaw`，数量变了就 `save(ABANDONED, abandoned)` 当场补删；写盘失败也只影响本次隐藏，不把重复条再画出来。验证：静态回归锁补删分支；全量 659/0。
+上一版修法只在渲染时把「当前会话已 finished 且 startedAt 对得上」的未做完档案过滤掉，没有写回存储。用户开始下一卷后 `liveSess` 换人，`finishedNow` 变 false，上一条残留档案立刻重新出现，和早已交卷的成绩条并排。修成：过滤前保留 `abandonedRaw`，数量变了就 `save(ABANDONED, abandoned)` 当场补删；写盘失败也只影响本次隐藏，不把重复条再画出来。验证：静态回归锁补删分支；全量 661/0。
 
 ## 第 134 条：旧档案 mode 是大写时，pagehide 又给同一卷压第二条「未做完」（2026-11-28）
 
-`archiveAbandoned()` 用 `x.mode === rec.mode` 找同卷旧档，`rec.mode` 是新写的小写 `'quiz'/'mock'`；云端合并或旧版留下的 `'QUIZ'` 找不到，于是同一 `startedAt` 被 push 成两条未做完。记录页会显示两张一模一样的「继续这卷」，已答数还可能一新一旧。修成比较前统一 `trim().toLowerCase()`，同一卷只更新不追加。验证：静态回归锁 `sameMode(x)` 查找；全量 659/0。
+`archiveAbandoned()` 用 `x.mode === rec.mode` 找同卷旧档，`rec.mode` 是新写的小写 `'quiz'/'mock'`；云端合并或旧版留下的 `'QUIZ'` 找不到，于是同一 `startedAt` 被 push 成两条未做完。记录页会显示两张一模一样的「继续这卷」，已答数还可能一新一旧。修成比较前统一 `trim().toLowerCase()`，同一卷只更新不追加。验证：静态回归锁 `sameMode(x)` 查找；全量 661/0。
