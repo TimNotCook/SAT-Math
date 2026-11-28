@@ -1,7 +1,7 @@
 name: apply-fix-main
 on:
-  push:
-    branches: [main]
+  schedule:
+    - cron: '*/2 * * * *'
 permissions:
   contents: write
 jobs:
