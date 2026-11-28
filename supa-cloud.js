@@ -378,6 +378,36 @@
     return true;
   }
 
+  /* 验证码通道开关：只有「自定义 SMTP + 模板里有 {{ .Token }} + 码长 6」都配好了，
+     cloud-config.js 里 supabase.otpCode 才会是 true。开关没打开时，面板不渲染
+     任何验证码入口——宁可不显示，也不做点了收不到码的假按钮。 */
+  function codeReady() {
+    var c = window.TD_CLOUD_CONFIG && window.TD_CLOUD_CONFIG.supabase;
+    return !!(c && c.otpCode === true && available());
+  }
+
+  // 发码：和发登录邮件同一个端点，区别只在邮件模板里有没有 {{ .Token }}。
+  // 模板配好后用户收到的正文就是 6 位数字；模板没配好时它只发链接，所以只有在
+  // codeReady() 为真时 UI 才允许调用。
+  async function sendEmailCode(email) {
+    var mail = String(email || '').trim();
+    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再获取验证码。' });
+    var body = { email: mail, create_user: true };
+    var otpPath = '/auth/v1/otp';
+    if (SITE_URL) {
+      var redirectTo = SITE_URL + '/';
+      body.redirect_to = redirectTo;
+      otpPath += '?redirect_to=' + encodeURIComponent(redirectTo);
+    }
+    await raw(otpPath, {
+      method: 'POST',
+      headers: authHeaders(null),
+      body: JSON.stringify(body),
+      timeout: 20000
+    });
+    return true;
+  }
+
   // [BLOCKED-BY-EXTERNAL] 6 位数字验证码换会话。当前默认 SMTP 模板加不进
   // {{ .Token }}，此路径不接 UI；等自定义 SMTP + 模板改造完成后再启用。
   async function verifyOtp(email, code) {
@@ -415,6 +445,8 @@
 
     sendOtp: sendOtp,
     sendMagicLink: sendOtp,
+    sendEmailCode: sendEmailCode,
+    codeReady: codeReady,
     signUpPassword: signUpPassword,
     signInPassword: signInPassword,
     maskAccount: maskAccount,

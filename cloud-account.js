@@ -45,7 +45,8 @@
   var otpSent = false;
   var otpEmail = '';
   var pwdEmail = '';
-  var loginMode = 'password';   // password | link
+  var loginMode = 'password';   // password | link | code
+  var codeSent = false;
   var pwdBusy = false;
   var otpCooldown = 0;
   var otpCountdownTimer = null;
@@ -491,7 +492,7 @@
       if (otpCooldown <= 0) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
       if (ui && ui.otpSendBtn) {
         ui.otpSendBtn.disabled = busy || otpCooldown > 0;
-        ui.otpSendBtn.textContent = sendBtnLabel();
+        ui.otpSendBtn.textContent = (loginMode === 'code' ? codeBtnLabel() : sendBtnLabel());
       }
     }, 1000);
   }
@@ -558,6 +559,51 @@
       setStatus('已发送到 ' + email + '，点邮件里的登录按钮即可完成登录。链接只能用一次，请尽快点击（也可以在垃圾箱里找一下）。', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); syncOtpSendBtn(); }
+  }
+
+  /* ---------- 登录动作（邮箱验证码） ---------- */
+  function readCode() {
+    return ui && ui.code ? String(ui.code.value || '').replace(/[^\d]/g, '').slice(0, 6) : '';
+  }
+
+  function codeBtnLabel() {
+    if (otpCooldown > 0) return '重新获取 (' + otpCooldown + 's)';
+    return codeSent ? '重新获取' : '获取验证码';
+  }
+
+  function syncCodeBtn() {
+    if (!ui || !ui.otpSendBtn) return;
+    ui.otpSendBtn.disabled = busy || otpCooldown > 0;
+    ui.otpSendBtn.textContent = codeBtnLabel();
+  }
+
+  async function doSendCode() {
+    var email = readEmail();
+    if (!email) { setError('请先填写邮箱。'); return; }
+    if (!SB || !SB.codeReady || !SB.codeReady()) { setError('验证码通道尚未启用，请用密码或邮件链接登录。'); return; }
+    try {
+      setBusy(true); setError('');
+      otpEmail = email;
+      await SB.sendEmailCode(email);
+      codeSent = true;
+      startOtpCooldown();
+      renderBody(); // 重绘会把状态栏重置成「未登录」，所以提示必须写在它之后
+      setStatus('验证码已发到 ' + email + '，收 6 位数字填到下面；没收到先翻垃圾箱。', 'ok');
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); syncCodeBtn(); }
+  }
+
+  async function doVerifyCode() {
+    var email = readEmail(), code = readCode();
+    if (!email) { setError('请先填写邮箱。'); return; }
+    if (code.length !== 6) { setError('请输入邮件里的 6 位数字验证码。'); return; }
+    if (!SB || !SB.verifyOtp) { setError('登录模块未加载，请刷新页面重试。'); return; }
+    try {
+      setBusy(true); setError('');
+      await SB.verifyOtp(email, code);
+      setStatus('登录成功，正在读取你的学习档案…', 'ok');
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); renderBody(); }
   }
 
   async function saveNickname(name) {
@@ -782,7 +828,7 @@
 
   function renderAccountTab() {
     var b = ui.body;
-    ui.email = null; ui.otpSendBtn = null; ui.pw = null;
+    ui.email = null; ui.otpSendBtn = null; ui.pw = null; ui.code = null;
     if (user) {
       var p = el('div', 'td-prof');
       var initial = (displayName().trim().charAt(0) || DEFAULT_NICK).toUpperCase();
@@ -872,6 +918,47 @@
       return;
     }
 
+    if (loginMode === 'code') {
+      var emCode = field('邮箱', 'email', 'you@example.com', 'email');
+      if (seed) emCode.input.value = seed;
+      ui.email = emCode.input;
+      b.appendChild(el('div', 'td-acct-who', '邮箱验证码'));
+      b.appendChild(emCode.box);
+
+      var sendCode = el('button', 'td-acct-btn2 td-acct-btn--wide', codeBtnLabel());
+      sendCode.type = 'button';
+      sendCode.setAttribute('data-busy', '1');
+      sendCode.setAttribute('data-neutral', '1');
+      if (otpCooldown > 0) sendCode.disabled = true;
+      sendCode.onclick = doSendCode;
+      ui.otpSendBtn = sendCode;
+      b.appendChild(sendCode);
+
+      var codeField = field('验证码', 'text', '邮件里的 6 位数字', 'one-time-code');
+      codeField.input.inputMode = 'numeric';
+      codeField.input.maxLength = 6;
+      codeField.input.autocomplete = 'one-time-code';
+      ui.code = codeField.input;
+      b.appendChild(codeField.box);
+
+      var codeRow = el('div', 'td-acct-actions');
+      var verifyBtn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', '登录');
+      verifyBtn.type = 'button'; verifyBtn.setAttribute('data-busy', '1');
+      verifyBtn.onclick = doVerifyCode;
+      codeRow.appendChild(verifyBtn);
+      b.appendChild(codeRow);
+
+      codeField.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doVerifyCode(); });
+
+      var backPwd = el('button', 'td-acct-linkbtn', '改用邮箱 / 手机号 + 密码登录');
+      backPwd.type = 'button';
+      backPwd.onclick = function () { loginMode = 'password'; setError(''); renderBody(); };
+      b.appendChild(backPwd);
+      b.appendChild(el('p', 'td-acct-note',
+        '验证码就在邮件正文里，有效期 1 小时；收不到先去垃圾箱翻一下。'));
+      return;
+    }
+
     var em = field('邮箱或手机号', 'text', '邮箱或手机号', 'username');
     if (seed) em.input.value = seed;
     ui.email = em.input;
@@ -901,6 +988,14 @@
     onlyLink.type = 'button';
     onlyLink.onclick = function () { loginMode = 'link'; setError(''); renderBody(); };
     b.appendChild(onlyLink);
+
+    /* 验证码入口只在服务端真的能发码时出现（cloud-config 里 otpCode 打开）。 */
+    if (SB && SB.codeReady && SB.codeReady()) {
+      var toCode = el('button', 'td-acct-linkbtn', '改用邮箱验证码登录');
+      toCode.type = 'button';
+      toCode.onclick = function () { loginMode = 'code'; setError(''); renderBody(); };
+      b.appendChild(toCode);
+    }
 
     b.appendChild(el('p', 'td-acct-note',
       '第一次用这个账号，先点「注册新账号」，会自动建好学习档案，之前做过的题一并带上。'));

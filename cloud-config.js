@@ -13,7 +13,12 @@ window.TD_CLOUD_CONFIG = {
     anonKey: 'sb_publishable_lUmLQYeK0WBOh3BfTb9OXA_pxX_wjbp',
     /* magic link 回跳地址：/otp 请求显式带上 redirect_to，避免后端回退到后台
        Site URL（站点根 timnotcook.github.io）把 /SAT-Math/ 路径段丢掉。 */
-    siteUrl: 'https://timnotcook.github.io/SAT-Math/'
+    siteUrl: 'https://timnotcook.github.io/SAT-Math/',
+    /* 邮箱验证码开关：Supabase 免费版用自带邮件服务时禁止改模板，正文里没有
+       {{ .Token }}，邮件里只有链接。只有把项目配好自定义 SMTP（模板加进
+       {{ .Token }}、码长设 6）之后，这里才能改成 true；为 false 时面板不出现
+       任何验证码入口，避免出现「点了收不到码」的假按钮。 */
+    otpCode: false
   },
   /* 以下三项仅用于图片识别 VLM（image-import.js），不是登录通道。 */
   endpoint: 'https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host',
