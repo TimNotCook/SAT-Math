@@ -1814,3 +1814,16 @@ html body .tile-grid>.tile-section.drill-section-row .tile-empty-badge{
   font-size:12px!important;
   white-space:nowrap!important;
 }
+
+/* 全库 0 条错题时工具栏只剩一颗「图片识别导入」，再套一层白卡就显得空；
+   放平成一颗线框按钮，让空状态卡独占版面。 */
+body.shell-wrong .wrong-toolbar.is-quiet{
+  border:0!important;background:transparent!important;box-shadow:none!important;
+  padding:0!important;margin-bottom:18px!important;
+}
+/* 错题页窄屏同屏只留一颗返回入口：实测 375/430 下顶部导航那条 rail-back 和标题旁
+   那颗 hero 都在，rail-back 还因为词长把「设置」挤到第三行（导航 109px）。
+   窄屏收掉 rail-back，只留页内那颗；宽屏反过来（见上面 @media(min-width:641px) 那条）。 */
+@media(max-width:640px){
+  html body.shell-wrong .site-rail .rail-back{display:none!important}
+}

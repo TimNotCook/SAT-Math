@@ -368,6 +368,12 @@ function importedGroupHtml(){
      else if(e.style)e.style.display=totallyEmpty?'none':'';
    });
    var heroGrid=document.getElementById('wrongHero'); if(heroGrid&&heroGrid.style&&totallyEmpty)heroGrid.style.display='none';
+   /* 全库 0 条错题时，主 CTA 是空态卡里的「开始真题练习」；
+     「图片识别导入」这时只是备选，降成线框按钮，工具栏也放平，同屏别两颗实心蓝抢注意力。 */
+   var impBar=document.getElementById('importBar');
+   if(impBar&&impBar.classList)impBar.classList[totallyEmpty?'add':'remove']('is-quiet');
+   var impBtn=document.getElementById('btnImgImport');
+   if(impBtn&&impBtn.classList){if(totallyEmpty)impBtn.classList.remove('primary');else impBtn.classList.add('primary');}
    var rows=activeUnit?all.filter(function(x){return x.q.unit===activeUnit;}):all;
    var byTopic={};rows.forEach(function(x){if(x.corrected)return;var k=topic(x.q);byTopic[k]=(byTopic[k]||0)+1;});
    var weak=Object.keys(byTopic).map(function(k){return{k:k,n:byTopic[k]};}).sort(function(a,b){return b.n-a.n;});
