@@ -254,3 +254,10 @@ test('退出登录后回到登录页，不把注册/重置表单留在面板上'
   assert.match(out, /loginMode = 'password'/, 'doSignOut 没重置登录模式');
   assert.match(acct, /if \(was\) loginMode = 'password'/, '会话过期退出没重置登录模式');
 });
+
+test('注册时报错要聚焦到出错的那一栏，手机上不用自己找', () => {
+  const seg = acct.slice(acct.indexOf('async function doSignUpPwd'), acct.indexOf('async function doSendLink'));
+  assert.match(seg, /email\.focus\(\)/, '邮箱为空/格式错没聚焦邮箱');
+  assert.match(seg, /ui\.pw\.focus\(\)/, '密码长度错没聚焦密码');
+  assert.match(seg, /ui\.pw2\.focus\(\)/, '两次密码不一致没聚焦确认框');
+});

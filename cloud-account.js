@@ -884,8 +884,8 @@
   async function doSignInPwd() {
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = readEmail(), pw = readPw();
-    if (!email) { setError('请先填写邮箱或手机号。'); return; }
-    if (!pw) { setError('请输入密码。'); return; }
+    if (!email) { setError('请先填写邮箱或手机号。'); if (ui && ui.email) ui.email.focus(); return; }
+    if (!pw) { setError('请输入密码。'); if (ui && ui.pw) ui.pw.focus(); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
       setBusy(true); setError('');
@@ -900,11 +900,25 @@
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = readEmail(), pw = readPw();
     var pw2 = ui && ui.pw2 ? ui.pw2.value : '';
-    if (!email) { setError(loginMode === 'signup' ? '请先填写邮箱。' : '请先填写邮箱或手机号。'); return; }
-    if (loginMode === 'signup' && !looksLikeEmail(email)) { setError('邮箱格式不正确，请检查后再试。'); return; }
-    if (pw.length < 8) { setError('密码至少 8 位。'); return; }
-    if (pw.length > 72) { setError('密码最多 72 位，请删短一点再试。'); return; }
-    if (ui && ui.pw2 && pw !== pw2) { setError('两次输入的密码不一致，请重新确认。'); return; }
+    /* 报错要落到具体那一格：手机上只弹一句红字，键盘还停在上一个框，
+       用户得自己找是哪一栏错了。 */
+    if (!email) {
+      setError(loginMode === 'signup' ? '请先填写邮箱。' : '请先填写邮箱或手机号。');
+      if (ui && ui.email) ui.email.focus();
+      return;
+    }
+    if (loginMode === 'signup' && !looksLikeEmail(email)) {
+      setError('邮箱格式不正确，请检查后再试。');
+      if (ui && ui.email) ui.email.focus();
+      return;
+    }
+    if (pw.length < 8) { setError('密码至少 8 位。'); if (ui && ui.pw) ui.pw.focus(); return; }
+    if (pw.length > 72) { setError('密码最多 72 位，请删短一点再试。'); if (ui && ui.pw) ui.pw.focus(); return; }
+    if (ui && ui.pw2 && pw !== pw2) {
+      setError('两次输入的密码不一致，请重新确认。');
+      ui.pw2.focus();
+      return;
+    }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
       setBusy(true); setError('');
