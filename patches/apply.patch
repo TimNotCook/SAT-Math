@@ -1,0 +1,32 @@
+diff --git a/cloud-account.js b/cloud-account.js
+index 42e66a9..ba38f4e 100644
+--- a/cloud-account.js
++++ b/cloud-account.js
+@@ -184,7 +184,13 @@
+     for (var i = 0; i < nodes.length; i++) { nodes[i].disabled = !!on; }
+   }
+   // 界面上的名称：只用昵称，绝不回退到邮箱。
+-  function displayName() { return nickname || defaultNick(); }
++  function displayName() {
++    var n = String(nickname || '').trim();
++    /* 旧版自动建档把默认昵称写死成「同学」并同步到云端；英文界面不能把它当成
++       用户自己起的名字显示（头像首字也会变成「同」）。等于默认值就当没设过。 */
++    if (!n || n === DEFAULT_NICK) return defaultNick();
++    return n;
++  }
+ 
+   // 设置齿轮图标（内联 SVG，无需外部图标字体）
+   function setBtnIcon(btn) {
+diff --git a/test/i18n.test.js b/test/i18n.test.js
+index 0108dd1..e852771 100644
+--- a/test/i18n.test.js
++++ b/test/i18n.test.js
+@@ -136,7 +136,7 @@ test('英文模式下没设昵称时显示 Student，不是中文「同学」',
+   const seg = acc.slice(acc.indexOf('function defaultNick'));
+   assert.ok(/TDI18n\.get\(\) === 'en'/.test(seg.slice(0, 300)), '没按界面语言切换默认昵称');
+   assert.ok(seg.slice(0, 300).indexOf("return 'Student'") >= 0, '英文默认昵称还不是 Student');
+-  assert.ok(/function displayName\(\) { return nickname \|\| defaultNick\(\); }/.test(acc), 'displayName 还在用固定的「同学」');
++  assert.ok(/n === DEFAULT_NICK/.test(acc) && /return defaultNick\(\)/.test(acc), 'displayName 没把默认「同学」当归未设');
+ });
+ 
+ test('「第 N / M 题」这类拼接计数在英文模式下要翻（讲义题号/页脚/结果分数）', () => {
