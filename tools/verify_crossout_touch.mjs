@@ -164,11 +164,16 @@ else {
 
 /* B) 桌面：克制 + hover */
 await send('Emulation.setTouchEmulationEnabled', { enabled: false });
+/* 无头 Linux 的 Chromium 恒报 hover:none，且 CDP 的媒体特性覆盖不生效（实测 v146），
+   桌面 hover 断言在这个平台上无法成立；Mac 真机 Chrome 会照常执行这段。 */
+const desktopCapable = await ev(`matchMedia('(hover:hover)').matches`);
+if (!desktopCapable) notes.push('本环境无 hover 能力（无头 Linux），桌面克制/hover 断言跳过');
 await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
 await nav('/index.html');
 await enterMock();
 const deskBefore = await ev(SAMPLE);
-if (!deskBefore || !deskBefore.length) fails.push('桌面 ✕ → 没渲染');
+if (!desktopCapable) { /* 见上：跳过桌面段 */ }
+else if (!deskBefore || !deskBefore.length) fails.push('桌面 ✕ → 没渲染');
 else {
   const t0 = deskBefore[0];
   if (!(t0.opacity < 0.15)) fails.push(`桌面 ✕ 常态 → opacity ${t0.opacity}（要求 <0.15，保持 Bluebook 的克制）`);
