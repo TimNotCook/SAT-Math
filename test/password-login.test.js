@@ -171,6 +171,18 @@ describe('手机号当账号：同一个号码必须折成同一个登录标识'
     }
   });
 
+
+  test('+1 国际号码不被误折成中国大陆 86 账号', async () => {
+    const calls = [];
+    const { SB } = loadModule(async (url, opts) => {
+      calls.push(JSON.parse(opts.body || '{}'));
+      return makeRes(200, sessionBody('uid-us'));
+    });
+    await SB.signInPassword('+1 415-555-0123', 'satmath123');
+    assert.equal(calls[0].email, 'p14155550123@p.satmath.app',
+      '+1 开头的号码被补成 86，和本机号码成了两个账号');
+  });
+
   test('手机号注册同样不发任何邮件', async () => {
     const calls = [];
     const { SB, store } = loadModule(async (url, opts) => {

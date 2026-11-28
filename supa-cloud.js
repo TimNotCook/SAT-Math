@@ -277,9 +277,12 @@
     var s = String(v || '').trim();
     var d = s.replace(/[\s\-()]/g, '');
     if (/^\+?\d{7,15}$/.test(d)) {
+      /* 显式写了 +/00 国家码的号码不能当「中国大陆 11 位手机号」再补 86：
+         +1 4155550123 会被错折成 p8614155550123，和本机 10 位号码成了两个账号。 */
+      var explicitCc = d.charAt(0) === '+' || d.indexOf('00') === 0;
       d = d.replace(/^\+/, '');
       if (d.indexOf('00') === 0) d = d.slice(2);
-      if (d.length === 11 && d.charAt(0) === '1') d = '86' + d;
+      if (!explicitCc && d.length === 11 && d.charAt(0) === '1') d = '86' + d;
       return { email: 'p' + d + '@p.satmath.app', phone: true };
     }
     return { email: s, phone: false };
