@@ -998,7 +998,10 @@
      这里按 A→B→C→D 顺序认标记（至少 3 个才算数），切出 stem 和 choices。 */
   function splitChoicesText(t) {
     var s = String(t || '');
-    var re = /(?:^|[\s\.\)])([A-D])\s*[\)\.:]\s*/g, m, marks = [];
+    /* 手机拍的卷面上四个选项是紧挨着的（"A)y<1+4xB)y<1~4xC)y>1+4xD)y>1-4x"），
+       标记前面常常没有空格。以前要求前面必须是空白/句点/右括号，B、C、D 全被漏掉，
+       导致四个选项一个字都切不出来。现在只要大写 A–D 后紧跟 ) . : 就算标记。 */
+    var re = /([A-D])\s*[\)\.:]\s*/g, m, marks = [];
     while ((m = re.exec(s))) marks.push({ k: m[1], i: m.index, e: re.lastIndex });
     var want = 'ABCD', seq = [];
     for (var i = 0; i < marks.length; i++) {
@@ -1256,7 +1259,9 @@
       status(tag === 'base' ? '正在识别文字…' : (tag === 'zoom' ? '字有点小，放大后再认一次…'
         : (tag === 'invert' ? '像是深色背景，取反后再认一次…' : '照片偏灰/拍歪了，先压平打正再认…')));
       return ocrImage(url, model).then(function (ocr) {
-        var sc = scoreOf(ocr.stem);
+        /* 计分用"题干 + 选项"整段文字：只拿题干算会把本来够高的分压下去，
+           白白多跑放大/压平几遍，单题多耗好几秒。 */
+        var sc = scoreOf(ocr.stem + ' ' + Object.keys(ocr.choices || {}).map(function (k) { return ocr.choices[k]; }).join(' '));
         LAST_PASSES.push({ tag: tag, score: sc, stem: String(ocr.stem || '') });
         if (LAST_PASSES.length > 8) LAST_PASSES.shift();
         if (!best || sc > best.score) best = { ocr: ocr, url: url, score: sc };
@@ -1874,7 +1879,9 @@
                 if (choicesTxt && recalled[0] && recalled[1]) {
                   var c0 = recalled[0].cs || 0, c1 = recalled[1].cs || 0;
                   csMarg = c0 - c1;
-                  csGate = c0 >= 0.9 && csMarg >= 0.08;
+                  /* 手机拍出来的选项常把 "-" 认成 "~"、把 "4x" 认成 "dx"，逐字比只剩 0.8。
+                     但只要第二名连 0.5 都不到（差距 ≥0.3），0.8 已经足够定题了。 */
+                  csGate = (c0 >= 0.9 && csMarg >= 0.08) || (c0 >= 0.75 && csMarg >= 0.3);
                 }
                 /* 选项本身就是图（"Which of the following could represent the graph A) B) C) D)"）
                    的题，四个选项一个字都没有，选项反查这条路天然走不通；只能靠题干文字本身。
