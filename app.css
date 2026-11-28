@@ -2021,10 +2021,12 @@ body.shell-wrong .wrong-toolbar .small.muted:not(#importFeedback){display:none!i
   }
 }
 
-/* 英文卡标题行数在 1 和 2 之间跳，高度就差一条；给标题区预留两行的位置，
-   一路看下去是一列齐的。中文标题基本都是一行，不参与。 */
-html[data-lang="en"] .site-shell .tile-grid>.tile-section.drill-section-row .tile-name{
-  min-height:2.7em;
+/* 英文卡标题行数在 1 和 2 之间跳，高度就差一条；窄屏给标题区预留两行的位置，
+   一路看下去是一列齐的。桌面三列本来就等高，不受影响。 */
+@media(max-width:640px){
+  html[data-lang="en"] .site-shell .tile-grid>.tile-section.drill-section-row .tile-name{
+    min-height:2.7em;
+  }
 }
 
 /* 320 的窄屏再给英文一点余地：字号收到 14，长标题也能塞进两行。 */
