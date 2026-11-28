@@ -52,6 +52,9 @@
        渲染成「你的答案 true」。布尔按空值处理。 */
     return v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' ? '' : String(v);
   }
+  /* 旧版/云端/手工导入可能把模式写成 'MOCK'/'Mock'/'QUIZ'：所有标题、44/30
+     封顶、补强报告分支都按小写比较，大小写不一致会让整卷重新印成 999 题。 */
+  function modeOf(rec) { return txt(rec && rec.mode).trim().toLowerCase(); }
   /* detail.correct 可能是布尔、1/0、'true'/'false'（云端旧结构）。只认明确的
      真值，否则 'false' 会被当成答对，整条错题行从记录里消失。 */
   /* 云端/手工导入有时把布尔写成 'True'/'FALSE'（Python 风格）：严格小写比较会把
@@ -113,7 +116,7 @@
     /* 官方模考整卷只有 44 题：旧版/云端把 total 写成 999 时，记录条会印
        「官方模考 · 全卷 999 题」，正确率也被 999 的分母稀释成个位数。
        有逐题明细时已按明细兜底；没有明细也不能信任超过 44 的题数。 */
-    var mode = txt(rec && rec.mode);
+    var mode = modeOf(rec);
     if (mode === 'mock' && total > 44) total = 44;
     /* 单元抽查的卷长上限是 30（QUIZ_TIERS T3/T4）。云端/旧版把 total 写成 999 时，
        记录页会印「答对 0 / 999」；有逐题明细就按明细条数，没明细按 30 封顶。 */
@@ -140,7 +143,7 @@
   function grade(rec) {
     if (abandonedRecord(rec)) return 'void';
     var scaled = scaledOf(rec);
-    if (txt(rec.mode) === 'mock' && scaled != null) {
+    if (modeOf(rec) === 'mock' && scaled != null) {
       return scaled >= 700 ? 'good' : scaled >= 550 ? 'mid' : 'bad';
     }
     var sc = scoreParts(rec), total = sc.total, correct = sc.correct;
@@ -150,12 +153,12 @@
   function scoreLabel(rec) {
     if (abandonedRecord(rec)) return '未做完';
     var scaled = scaledOf(rec);
-    if (txt(rec.mode) === 'mock' && scaled != null) return scaled + ' / 800';
+    if (modeOf(rec) === 'mock' && scaled != null) return scaled + ' / 800';
     var sc = scoreParts(rec);
     return Math.round(sc.total ? sc.correct / sc.total * 100 : 0) + '%';
   }
   function titleOf(rec) {
-    var mode = txt(rec.mode), board = txt(rec.board), section = txt(rec.section), total = scoreParts(rec).total;
+    var mode = modeOf(rec), board = txt(rec.board), section = txt(rec.section), total = scoreParts(rec).total;
     /* 抽查未做完档案只写 unitId（archiveAbandoned），旧记录写 unit：
        只读 unit 会让标题永远只剩「单元抽查」，看不出是哪个单元。 */
     var unit = txt(rec.unit) || txt(rec.unitId);
@@ -225,14 +228,14 @@
     /* startedAt 在旧版/云端合并里可能是字符串；严格 === 会把同一张还能做的卷
        误报成「存档已失效」。按有限数字比较，类型不一致也认。 */
     var resumable = !!(sess && sameStamp(rec.startedAt, sess.startedAt) && !finishedFlag(sess.finished) &&
-      txt(rec.mode) === txt(sess.mode));
+      modeOf(rec) === modeOf(sess));
     /* 抽查存档按 unit 隔离：链接不带 unit 会落到默认 U1，exam.js 再把
        原 Unit 的存档判成「unit 不匹配」并作废。优先用当前会话的 unit，
        老档案没有 unitId 时退回记录里的。 */
     var resumeUnit = num(sess && sess.unitId);
     if (resumeUnit == null) resumeUnit = num(rec.unitId);
-    var resumeHref = 'exam.html?mode=' + esc(txt(rec.mode));
-    if (txt(rec.mode) === 'quiz' && resumeUnit != null) resumeHref += '&unit=' + resumeUnit;
+    var resumeHref = 'exam.html?mode=' + esc(modeOf(rec));
+    if (modeOf(rec) === 'quiz' && resumeUnit != null) resumeHref += '&unit=' + resumeUnit;
     /* 未做完档案的题数也可能被云端写成 22.5 / 999：走 scoreParts 的整数与
        模考封顶口径，已答数夹在 0..总题数，别印「5 / 22.5」。 */
     var sc = scoreParts(rec);
@@ -262,7 +265,7 @@
       '<span>交卷时间 <b>' + fmtDate(rec.date) + '</b></span>' +
       '<span>答对 <b>' + numTxt(scoreParts(rec).correct) + ' / ' + numTxt(scoreParts(rec).total) + '</b></span>' +
       '<span>用时 <b>' + fmtDur(rec.elapsed) + '</b></span>' +
-      (txt(rec.mode) === 'mock' && Object.keys(asObj(rec.estimate)).length ? (function(){var rp=rawParts(rec);return '<span>原始分 <b>' + esc(numTxt(rp.raw)) + ' / ' + rp.max + '</b></span>';})() +
+      (modeOf(rec) === 'mock' && Object.keys(asObj(rec.estimate)).length ? (function(){var rp=rawParts(rec);return '<span>原始分 <b>' + esc(numTxt(rp.raw)) + ' / ' + rp.max + '</b></span>';})() +
         '<span>自适应路径 <b>' + (txt(asObj(rec.estimate).path) === 'easy' ? 'easier' : 'harder') + '</b></span>' : '') +
       '</div>';
     html += '<div class="hist-sec">错题（' + (asArr(rec.detail).filter(function (d) { return isDetail(d) && !isRight(d.correct); })).length + '）</div>' + wrongRows(rec.detail);
@@ -276,7 +279,7 @@
     var head = '<button type="button" class="hist-bar-head" aria-expanded="false" data-idx="' + idx + '">' +
       '<span class="hist-dot ' + g + '" aria-hidden="true"></span>' +
       '<span class="hist-title">' + esc(titleOf(rec)) +
-      '<small>' + fmtDate(rec.date) + ' · ' + (MODE_NAME[txt(rec.mode)] || txt(rec.mode) || '记录') + '</small></span>' +
+      '<small>' + fmtDate(rec.date) + ' · ' + (MODE_NAME[modeOf(rec)] || txt(rec.mode) || '记录') + '</small></span>' +
       '<span class="hist-score ' + g + '">' + esc(scoreLabel(rec)) + '</span>' +
       '<svg class="hist-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>' +
       '</button>';

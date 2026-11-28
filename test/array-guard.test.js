@@ -635,3 +635,19 @@ test('成绩页：抽查 total 999 也按明细/30 封顶', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'exam.js'), 'utf8');
   assert.match(src, /MODE === 'quiz' && total > 30/, '成绩页没有抽查 30 题封顶');
 });
+
+test('记录页：模考 mode 写成大写 MOCK 时仍按 44 题封顶并标成模考', () => {
+  const detail = Array.from({ length: 44 }, (_, i) => ({ id: 'TD-11-' + String(i + 1).padStart(2, '0'), correct: true }));
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([{
+      date: 1700000000000, mode: 'MOCK', total: 999, correct: 44, detail,
+    }]),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '大写 MOCK 记录打崩记录页：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(!/全卷 999 题/.test(html), '大写 MOCK 的坏 total 仍印成 999 题');
+  assert.ok(/全卷 44 题/.test(html), '大写 MOCK 没有按官方 44 题封顶');
+  assert.ok(/100%/.test(html), '大写 MOCK 的正确率没有按 44 题重算');
+});

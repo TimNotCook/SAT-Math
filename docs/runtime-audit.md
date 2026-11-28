@@ -747,3 +747,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 97 条：从 A 切到 B 前草稿写失败，A 的未同步增量被清掉（2026-11-28）
 
 `afterSignIn` 切号前只调用 `saveDraft(prof.owner, snapshot())`，不检查返回值；`saveDraft` 自己把 `setItem` 异常吞成 `console.warn`。Safari 无痕、配额满、只读存储时草稿没写成，流程仍继续 `applyArchive(target)` 清掉本机 A 的副本，A 的未同步增量永久丢失。修成 `saveDraft` 返回 true/false；切号前失败则 `signOut()` 取消这次登录、保留本机 A 的进度并提示“本机存储不可写”。验证：新增静态回归锁住 `saveDraft` 返回值与切号分支；全量 594/0；`verify_flows` 16/16。
+
+## 第 98 条：模式写成大写 `MOCK` 时，记录页又把整卷印回 999 题、正确率 4%（2026-11-28）
+
+第 92 条给 `mode === 'mock'/'quiz'` 加了 44/30 封顶，但比较仍是严格小写。旧版/云端/手工导入把 `mode` 写成 `"MOCK"`、`"Mock"` 时，封顶不生效：`total:999, correct:44, detail:44` 会显示「全卷 999 题」、正确率 4%，连续航链接也按未知模式处理。新增 `modeOf(rec)` 统一 `trim().toLowerCase()`，替换记录页所有模式比较：44/30 封顶、估分/等级、标题、未做完可恢复判断、续做链接、成绩条模式名。验证：新增 `mode:"MOCK"`、`total:999`、44 条全对明细回归，旧代码「全卷 999 题」失败，新代码「全卷 44 题 / 100%」通过；全量 595/0。
