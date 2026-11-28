@@ -1875,3 +1875,10 @@ html body .entry-tile-grid .jy-board-card .jy-card-meta{
 .imgimp-x { white-space: nowrap; flex: 0 0 auto; }
 .imgimp-head > div { min-width: 0; }
 #imgimpSearch { flex: 1 1 100%; }
+/* 窄屏讲义板块卡：英文 "0/6 sections" 与长标题把 1fr 轨道撑到 346px（容器只有 287），
+   整页横向溢出 13px。轨道显式 minmax(0,1fr) 允许收缩，标题超长才省略。 */
+@media(max-width:520px){
+  body.jy-page #jyBoardCards{grid-template-columns:minmax(0,1fr)!important}
+  body.jy-page #jyBoardCards .jy-board-card{min-width:0!important}
+  body.jy-page #jyBoardCards .jy-board-card b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
