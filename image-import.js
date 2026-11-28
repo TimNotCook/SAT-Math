@@ -1887,8 +1887,12 @@
                    的题，四个选项一个字都没有，选项反查这条路天然走不通；只能靠题干文字本身。
                    实测 U1-01 这类题文字分能到 0.96、却因为跟第二名拉不开 0.25 被拦死。
                    所以补一条：分数 ≥0.92 就认（0.92 以上已不是"句式相似"，是整句逐字对上）。 */
+                /* 只认出半句、一个数字都没读到，而候选题自己带数字：这种"句式对上"最危险
+                   （实测真实手机条件下 SR-099 被写成 TD-33-16，0.65 分就自动写进去了）。
+                   数字是判断题的唯一硬证据，没读到就一律转人工。 */
+                var noNumGuard = !(qNums.length === 0 && c0Nums.length >= 2);
                 var visualGate = !visual || recalled[0].score >= 0.92 || (recalled[0].score >= 0.75 && tg.margin >= 0.25);
-                if ((tg.pass && recalled[0] && numGate && visualGate) || (visual && csGate)) {
+                if ((tg.pass && recalled[0] && numGate && visualGate && noNumGuard) || (visual && csGate)) {
                   chosen = bankCands[0];
                   /* 孪生副本（题库同一题收了两三份）里挑信息最全的一份：
                      有的副本 answer 是空的，导进错题本后没法判对错。 */
