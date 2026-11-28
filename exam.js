@@ -1404,6 +1404,17 @@
     renderTypeSummary();
     renderResultList();
   }
+  /* 有些填空的「正确答案」只有给评分用的近似小数（22.333333333333332），
+     直接印出来没人认得出；超过 6 位小数的收窄一下。 */
+  function tidyNum(v) {
+    const s = String(v == null ? '' : v).trim();
+    if (!/^-?\d+\.\d{6,}$/.test(s)) return s;
+    const n = parseFloat(s);
+    if (!isFinite(n)) return s;
+    const cut = Math.abs(n) < 1 ? n.toFixed(4) : n.toFixed(3);
+    return cut.replace(/0+$/, '').replace(/\.$/, '');
+  }
+
   function renderResultList() {
     const r = S.result, allD = asArr(r.detail).filter(isRec), list = resultTab === 'wrong' ? allD.filter(d => !isRightFlag(d.correct)) : allD;
     const EN = OFFICIAL || document.documentElement.getAttribute('data-lang') === 'en';
@@ -1426,11 +1437,16 @@
       const okFlag = isRightFlag(d.correct);
       const meta = 'U' + dUnit + ' · ' + (dType === 'grid' ? (EN ? 'Grid-in' : '填空') : (EN ? 'Multiple choice' : '选择'));
       const ptsTxt = dPoints == null ? '—' : (EN ? dPoints + ' pt' : dPoints + ' 分');
+<<<<<<< HEAD
       const topicNameHtml = (raw) => {
         const t = raw || '—';
         const m = t.match(/^(.*?)\s*·\s*(第\s*\d+\s*题)$/);
         return m ? esc(m[1]) + '<span class="rev-qno"><span class="rev-sep"> · </span>' + esc(m[2]) + '</span>' : esc(t);
       };
+=======
+      /* 题号已经在 Q${dPos} 上报过一次了，知识点名后面再拖「· 第 12 题」只是噪音。 */
+      const topicNameHtml = (raw) => esc(String(raw || '—').replace(/\s*·\s*第\s*\d+\s*题$/, ''));
+>>>>>>> 8c6ca1d (fix(review): 模考逐题回顾不印内部来源、知识点名不再拖题号、答案长小数收窄)
       let causeHtml = '';
       if (!okFlag && AN && !EN) causeHtml = `<div class="rev-cause">错因 · ${esc(AN.analyze(bankQ, dGiven, (window.TD_TEXT || {})[did]).title)}`;
       if (!okFlag && dHint && !EN) causeHtml += (causeHtml ? '<br>' : '<div class="rev-cause">') + '提示 · ' + esc(dHint);
@@ -1443,10 +1459,10 @@
           <span class="rev-topic">${EN ? '' : topicNameHtml(dTopic)}</span>
           <span class="rev-meta">${meta} · ${ptsTxt}${isRightFlag(d.marked) ? (EN ? ' · Marked' : ' · 曾标记') : ''}${d.from === 'wrong' ? (EN ? ' · Previously missed' : ' · 历史错题') : ''}</span>
         </div>
-        <div class="rev-line2">${EN ? '' : esc(dSource) + ' · '}${EN ? 'Time ' : '用时 '}${fmt(dSeconds * 1000)}${crossed.length ? (EN ? ' · Crossed out ' : ' · 已划掉 ') + crossed.join(', ') : ''}</div>
+        <div class="rev-line2">${EN ? 'Time ' : '用时 '}${fmt(dSeconds * 1000)}${crossed.length ? (EN ? ' · Crossed out ' : ' · 已划掉 ') + crossed.join(', ') : ''}</div>
         <div class="rev-ans">
-          <span class="rev-chip no">${EN ? 'Your answer' : '你的答案'}<i>${esc(dGiven || '—')}</i></span>
-          <span class="rev-chip ok">${EN ? 'Correct answer' : '正确答案'}<i>${esc(dAnswer || '—')}</i></span>
+          <span class="rev-chip no">${EN ? 'Your answer' : '你的答案'}<i>${esc(tidyNum(dGiven) || '—')}</i></span>
+          <span class="rev-chip ok">${EN ? 'Correct answer' : '正确答案'}<i>${esc(tidyNum(dAnswer) || '—')}</i></span>
         </div>
         ${causeHtml}</div></div>`;
     }).join('') || `<div class="small muted">${EN ? 'No incorrect answers' : '无错题'}</div>`;

@@ -38,7 +38,7 @@ test('成绩页逐题回顾对旧存档也能补出正确答案', () => {
   assert.match(s, /let dAnswer = safeText\(d\.answer\) \|\| safeText\(d\.value\)/, '成绩页缺 d.answer/d.value 兜底');
   assert.match(s, /dAnswer = safeText\(bankQ\.answer\)/, '成绩页缺按题号回查题库 answer 的兜底');
   assert.match(s, /bankQ\.type === 'grid'[\s\S]{0,100}bankQ\.value/, '成绩页缺填空 value 兜底');
-  assert.ok(s.includes("esc(dAnswer || '—')"), '渲染必须用兜底后的 dAnswer');
+  assert.ok(s.includes("esc(tidyNum(dAnswer) || '—')"), '渲染必须用兜底后的 dAnswer（并收窄长小数）');
 });
 
 test('记录页对旧存档也能补出正确答案', () => {
