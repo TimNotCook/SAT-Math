@@ -97,11 +97,16 @@
     var open = false, hand = false, active = null;
     var tool = 'pen';
     var ink = { pen: PENS[0], marker: MARKERS[0] };
-    var MOCK = /[?&]mode=mock/.test(location.search);   // 模考屏一律英文，练习屏维持中文
-    var T = function (zh, en) { return MOCK ? en : zh; };
-    /* 练习页工具栏按「全英文」口径：只有 drill 页的三个控件词走英文；抽查页与提示文案不动。 */
-    var PRACTICE = /\/drill\.html/.test(location.pathname);
-    var TOOL = function (zh, en) { return (MOCK || PRACTICE) ? en : zh; };
+    var MOCK = /[?&]mode=mock/.test(location.search);   // 模考屏一律英文（Bluebook 原样）
+    /* 抽查/模考的作答屏也是 Bluebook 英文；练习页（drill.html）跟随界面语言。
+       原来 drill 页被硬编码成英文，中文界面里草稿板冒出 Clear / Done，
+       和中文工具条「公式参考 / 退出 / 作答自动保存」并排就是中英混排（2026-11-28 巡检发现）。 */
+    var EXAM_SCREEN = /\/exam\.html/.test(location.pathname);
+    var langEn = false;
+    try { langEn = !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en'); } catch (e) {}
+    var EN = MOCK || EXAM_SCREEN || langEn;
+    var T = function (zh, en) { return EN ? en : zh; };
+    var TOOL = function (zh, en) { return EN ? en : zh; };
     var widthIdx = { pen: 1, marker: 1 };      // 默认中档
     var store = {}, key = '', undoStack = [], redoStack = [];
     var self, timer = null;
@@ -144,6 +149,12 @@
     hint = layer.querySelector('.mist-hint');
 
     function isPen(e) { return e.pointerType === 'pen'; }
+    /* 鼠标也能写：原来只认 pointerType === 'pen'，桌面端（Mac/Windows 没触控笔）
+       点开草稿板后怎么拖都画不上，等于一个假按钮。左键按住拖动即书写。 */
+    function isDraw(e) {
+      if (isPen(e)) return true;
+      return e.pointerType === 'mouse' && (e.button === 0 || e.buttons === 1);
+    }
 
     /* ---------- 两条输入路径共用的笔画操作 ---------- */
     function baseWidth(t, sizeIdx) {
@@ -194,7 +205,7 @@
 
     /* ---------- 主路径：Pointer Events（电子笔） ---------- */
     canvas.addEventListener('pointerdown', function (e) {
-      if (!open || hand || !isPen(e)) return;
+      if (!open || hand || !isDraw(e)) return;
       e.preventDefault();
       penPointerAt = Date.now();
       try { if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId); } catch (ex) { console.warn('指针捕获未生效', ex); }
@@ -202,7 +213,7 @@
       beginStroke((e.clientX) / window.innerWidth, (e.clientY) / window.innerHeight, penPressure(e));
     });
     canvas.addEventListener('pointermove', function (e) {
-      if (!open || hand || !isPen(e)) return;
+      if (!open || hand || !isDraw(e)) return;
       e.preventDefault();
       penPointerAt = Date.now();
       if (tool === 'eraser') { eraseAt(e.clientX, e.clientY); return; }
@@ -214,7 +225,7 @@
       }
     });
     canvas.addEventListener('pointerup', function (e) {
-      if (!open || hand || !isPen(e)) return;
+      if (!open || hand || !isDraw(e)) return;
       e.preventDefault();
       penPointerAt = Date.now();
       finishStroke();
