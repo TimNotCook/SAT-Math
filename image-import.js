@@ -1477,7 +1477,7 @@
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked,
-    selfTest: selfTest, importByText: importByText, inbox: inboxList, _multiSplit: multiSplit, _salvage: salvageMulti,
+    selfTest: selfTest, importByText: importByText, inbox: inboxList,
     search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,
     cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
