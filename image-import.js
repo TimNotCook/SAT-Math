@@ -625,6 +625,70 @@
       function (e) { clearTimeout(timer); throw e; });
   }
 
+  /* 同一块图多试几种预处理，谁跟题库对得上用谁。
+     现实里"认不出来"多半不是引擎坏了，是这张图的字太小/太淡/带底纹：
+     放大 1.6 倍、或转灰度拉对比，往往就能认出来。评分用题库匹配分，
+     而不是 OCR 自己的置信度——认错字但认得很自信的情况太常见。 */
+  function scaleImage(dataUrl, scale, gray) {
+    return new Promise(function (res) {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var W = Math.round(img.width * scale), H = Math.round(img.height * scale);
+          var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+          var cx = cv.getContext('2d');
+          cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
+          cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
+          cx.drawImage(img, 0, 0, W, H);
+          if (gray) {
+            var d = cx.getImageData(0, 0, W, H), px = d.data;
+            for (var i = 0; i < px.length; i += 4) {
+              var g = (px[i] * 0.3 + px[i + 1] * 0.59 + px[i + 2] * 0.11);
+              g = g > 150 ? 255 : (g < 105 ? 0 : Math.round((g - 105) / 45 * 255));
+              px[i] = px[i + 1] = px[i + 2] = g;
+            }
+            cx.putImageData(d, 0, 0);
+          }
+          res(cv.toDataURL('image/jpeg', 0.9));
+        } catch (e) { res(null); }
+      };
+      img.onerror = function () { res(null); };
+      img.src = dataUrl;
+    });
+  }
+
+  function ocrBest(dataUrl, model) {
+    var best = null;
+    function scoreOf(text) {
+      var r = matchQuestion(String(text || ''), '', 5);
+      return r.length ? r[0].score : 0;
+    }
+    function run(url, tag) {
+      status(tag === 'base' ? '正在识别文字…' : (tag === 'zoom' ? '字有点小，放大后再认一次…' : '对比度不够，换个方式再认一次…'));
+      return ocrImage(url, model).then(function (ocr) {
+        var sc = scoreOf(ocr.stem);
+        if (!best || sc > best.score) best = { ocr: ocr, url: url, score: sc };
+        return sc;
+      }, function () { return -1; });
+    }
+    return run(dataUrl, 'base').then(function (sc) {
+      if (sc >= 0.62) return best;
+      return scaleImage(dataUrl, 1.6).then(function (v) {
+        if (!v) return best;
+        return run(v, 'zoom').then(function (sc2) {
+          if (sc2 >= 0.62 || (best && best.score >= 0.5)) return best;
+          return scaleImage(dataUrl, 1.25, true).then(function (v2) {
+            if (!v2) return best;
+            return run(v2, 'gray').then(function () { return best; });
+          });
+        });
+      });
+    }).then(function (r) {
+      if (!r || !r.ocr) throw new Error('本地识别未读到有效文字');
+      return r;
+    });
+  }
+
   function ocrImage(dataUrl, model) {
     return new Promise(function (res, rej) {
       // 云端走不通时的统一兜底：本地 WASM OCR
@@ -960,7 +1024,10 @@
     pages.forEach(function (p, idx) {
       c2 = c2.then(function () {
         status('正在识别第 ' + p.i + ' / ' + pages.length + ' 块…');
-        return ocrImage(p.dataUrl, state.model).then(function (ocr) {
+        // 多种预处理各认一遍，取"跟题库最对得上"的那一版，不迷信 OCR 自己的置信度
+        return ocrBest(p.dataUrl, state.model).then(function (bestRes) {
+            var ocr = bestRes.ocr;
+            if (bestRes.url) p.dataUrl = bestRes.url;
             p.ocr = ocr;
             var stemTxt = String(ocr.stem || '').trim();
             var choicesTxt = ocr.choices ? Object.keys(ocr.choices).map(function (k) { return ocr.choices[k]; }).join(' ') : '';
