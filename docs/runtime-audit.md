@@ -743,3 +743,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 96 条：云端 push 失败仍把 lastSynced 记成本地哈希，下一台设备永远等不到增量（2026-11-28）
 
 `afterSignIn` 有三条分支在 `silentPush()` 失败时仍写指纹：草稿合并分支 `await silentPush(); prof.lastSynced = localHash()`；切号并集分支先 `prof.lastSynced = localHash()` 再 `if (merged) await silentPush()`；新账号清档分支则完全不看 `applyArchive({})` 的返回值。前两条让本机误以为云端已同步，下次登录 `lh === lastSynced` 直接跳过推送，草稿/并集增量只留在这台设备；第三条在本地存储不可写时会把 A 的本机进度推给 B 的空档案。修成草稿/并集分支检查 push 返回值，失败时保留云端旧哈希并提示“联网后自动重试”；新账号清档失败则 `signOut()` 退出本次登录、本机进度不动。验证：新增 `applyArchive({})` 写失败回归与三条静态守卫；全量 593/0；`verify_flows` 16/16。
+
+## 第 97 条：从 A 切到 B 前草稿写失败，A 的未同步增量被清掉（2026-11-28）
+
+`afterSignIn` 切号前只调用 `saveDraft(prof.owner, snapshot())`，不检查返回值；`saveDraft` 自己把 `setItem` 异常吞成 `console.warn`。Safari 无痕、配额满、只读存储时草稿没写成，流程仍继续 `applyArchive(target)` 清掉本机 A 的副本，A 的未同步增量永久丢失。修成 `saveDraft` 返回 true/false；切号前失败则 `signOut()` 取消这次登录、保留本机 A 的进度并提示“本机存储不可写”。验证：新增静态回归锁住 `saveDraft` 返回值与切号分支；全量 594/0；`verify_flows` 16/16。

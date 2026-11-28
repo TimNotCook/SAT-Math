@@ -183,7 +183,8 @@
     catch (e) { return null; }
   }
   function saveDraft(uid, payload) {
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ uid: uid, payload: payload })); } catch (e) { console.warn('保存草稿失败', e); }
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ uid: uid, payload: payload })); return true; }
+    catch (e) { console.warn('保存草稿失败', e); return false; }
   }
   function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { console.warn('清除草稿失败', e); } }
   /* 应用一份云端/草稿档案：统一加抑制同步，并把成功/失败返回给调用方。
@@ -482,7 +483,16 @@
     } else {
       /* 切换到另一个账号 / 首次登录：绝不把 A 的进度串给 B。 */
       if (prof.owner && prof.owner !== 'guest' && lh !== prof.lastSynced) {
-        saveDraft(prof.owner, snapshot());
+        /* 从 A 切到 B 之前必须先把 A 未同步的增量暂存下来。saveDraft 写失败
+           （Safari 无痕/配额满/只读存储）时如果继续，下面 applyArchive 清掉
+           A 的本机副本，A 的增量就永久没了。失败就取消这次切换。 */
+        if (!saveDraft(prof.owner, snapshot())) {
+          try { await A.signOut(); } catch (e) { /* 本地会话清不掉就只保留本机 */ }
+          user = null; nickname = '';
+          setStatus('本机存储不可写，无法暂存当前账号进度，已取消切换；本机进度未受影响', 'warn');
+          renderBody();
+          return;
+        }
       }
       var fresh = !prof.owner || prof.owner === 'guest';
       if (cloudPayload && Object.keys(cloudPayload).length) {

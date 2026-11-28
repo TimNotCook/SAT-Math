@@ -194,3 +194,11 @@ test('账号分支的推送结果必须被检查，失败不能把指纹记成�
   assert.match(SRC, /var mergedPushed = await silentPush\(\);[\s\S]*?if \(!mergedPushed\)/, '并集回传失败仍会被当已同步');
   assert.match(SRC, /if \(!applyArchive\(\{\}\)\)/, '新账号清档失败没有退出，存在跨账号推送风险');
 });
+
+test('切号前的草稿保存必须检查返回值，写失败不能继续清掉 A 的本机进度', () => {
+  const SRC = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
+  assert.match(SRC, /function saveDraft[\s\S]*?return true;[\s\S]*?catch \(e\) \{ console\.warn\('保存草稿失败', e\); return false; \}/,
+    'saveDraft 没有把写失败返回给调用方');
+  assert.match(SRC, /if \(!saveDraft\(prof\.owner, snapshot\(\)\)\) \{[\s\S]*?已取消切换/,
+    '切号前草稿写失败仍继续，A 的未同步增量会被清掉');
+});
