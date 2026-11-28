@@ -17,7 +17,11 @@ const SRC = fs.readFileSync(path.join(ROOT, 'exam.js'), 'utf8');
 test('exam.js：T 只声明一次，且是 (zh,en) 文案选择器', () => {
   const decls = SRC.match(/const\s+T\s*=/g) || [];
   assert.equal(decls.length, 1, 'const T 应只有模块级那一处，发现 ' + decls.length + ' 处');
-  assert.match(SRC, /const T = \(zh, en\) => \(OFFICIAL \? en : zh\);/, 'T 必须是文案选择器');
+  assert.match(SRC, /const T = \(zh, en\) => .*en : zh;/, 'T 必须是文案选择器');
+  /* 2026-11-28 真事：T 原来只看 OFFICIAL，英文界面的抽查成绩页一律回中文，
+     含题号的拼接句（「对应错题：TD-…」）i18n 整句匹配不到，只能中英混排。
+     这里锁住「英文界面也算英文模式」，防止被改回 OFFICIAL 单选。 */
+  assert.match(SRC, /window\.TDI18n\.get\(\) === 'en'/, 'T 的英文分支要认界面语言，不只认 OFFICIAL');
 });
 
 test('exam.js：文本层变量叫 TXT，且没有把 T 当对象取字段', () => {

@@ -10,14 +10,18 @@ const path = require('path');
 const JS = fs.readFileSync(path.join(__dirname, '..', 'exam.js'), 'utf8');
 const SEG = JS.slice(JS.indexOf('function renderResult()'), JS.indexOf('function renderResultList'));
 const START = SEG.indexOf('const modeRaw');
-const END = SEG.indexOf("|| '模考';", START);
-assert.ok(START > -1 && END > START, 'renderResult 的模式标题表达式改了，测试要同步');
-const TITLE = SEG.slice(START, END + "|| '模考';".length);
+assert.ok(START > -1, 'renderResult 的模式标题表达式改了，测试要同步');
+const END = SEG.indexOf('\n', SEG.indexOf('const modeTxt', START));
+assert.ok(END > START, 'renderResult 的模式标题表达式改了，测试要同步');
+const TITLE = SEG.slice(START, END);
 
 const safeText = v => (v == null ? '' : String(v)).trim();
 const MODE_NAME = { mock: 'SAT 数学全真模考', quiz: '单元抽查' };
-function titleOf(r, MODE) {
-  return new Function('safeText', 'MODE_NAME', 'MODE', 'r', TITLE + '\nreturn modeTxt;')(safeText, MODE_NAME, MODE, r);
+/* modeName 现在按界面语言给名：这里用中英两套 stub 分别验证 */
+const modeNameZh = m => MODE_NAME[m] || MODE_NAME.quiz;
+const modeNameEn = m => ({ mock: 'Full-length SAT Math mock', quiz: 'Unit quiz' }[m] || 'Unit quiz');
+function titleOf(r, MODE, en) {
+  return new Function('safeText', 'MODE_NAME', 'MODE', 'r', 'modeName', TITLE + '\nreturn modeTxt;')(safeText, MODE_NAME, MODE, r, en ? modeNameEn : modeNameZh);
 }
 
 test('大写 QUIZ 不再原样印成 QUIZ', () => {
@@ -32,4 +36,10 @@ test('旧记录缺 mode 时按当前页面模式兜底，不把抽查印成模�
 
 test('未知 mode 仍原样保留，不吞掉排查线索', () => {
   assert.equal(titleOf({ mode: 'FOO' }, 'quiz'), 'FOO');
+});
+
+test('英文界面下抽查标题给英文名，不再印「单元抽查」', () => {
+  assert.equal(titleOf({ mode: 'quiz' }, 'quiz', true), 'Unit quiz');
+  assert.equal(titleOf({ mode: 'QUIZ' }, 'quiz', true), 'Unit quiz');
+  assert.equal(titleOf({}, 'quiz', true), 'Unit quiz');
 });

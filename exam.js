@@ -33,6 +33,11 @@
 
   const MODE_NAME = { mock: 'SAT 数学全真模考', quiz: '单元抽查' };
   const OFFICIAL = MODE === 'mock';               // only the official mock may use Desmos
+  /* 抽查层当年是「一律中文」设计，英文界面于是留下了「单元抽查 · 第 1 单元」「第 3 / 20 题」
+     这类中文标签。现在统一判定：官方模考本来就全英文，英文界面也算英文。 */
+  const EN_LANG = () => OFFICIAL || !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en');
+  const MODE_NAME_EN = { mock: 'Full-length SAT Math mock', quiz: 'Unit quiz' };
+  const modeName = (m) => (EN_LANG() ? (MODE_NAME_EN[m] || MODE_NAME_EN.quiz) : (MODE_NAME[m] || MODE_NAME.quiz));
 
   /* 抽查层一律中文：成绩页/交卷页的静态英文按钮就地换掉，模考层保持英文 */
   const QUIZ_COPY = {
@@ -80,7 +85,12 @@
     3: '<svg viewBox="0 0 176 132" width="176" height="132" fill="none" aria-hidden="true"><path d="M18 104H152" stroke="#dbe7f8" stroke-width="1.6" stroke-linecap="round"/><path d="M160 104l-6-3.2V107.2z" stroke="#dbe7f8" stroke-width="1.4" stroke-linejoin="round"/><path d="M46 104V30" stroke="#dbe7f8" stroke-width="1.6" stroke-linecap="round"/><path d="M46 22l-3.2 6H49.2z" stroke="#dbe7f8" stroke-width="1.4" stroke-linejoin="round"/><path d="M46 40H156" stroke="#edf4fc" stroke-width="1"/><path d="M46 64H156" stroke="#edf4fc" stroke-width="1"/><path d="M46 88H156" stroke="#edf4fc" stroke-width="1"/><path d="M76 104V40" stroke="#edf4fc" stroke-width="1"/><path d="M106 104V40" stroke="#edf4fc" stroke-width="1"/><path d="M136 104V40" stroke="#edf4fc" stroke-width="1"/><path d="M32 44.8 L36 51.0 L40 56.8 L44 62.2 L48 67.2 L52 71.8 L56 76.0 L60 79.8 L64 83.2 L68 86.2 L72 88.8 L76 91.0 L80 92.8 L84 94.2 L88 95.2 L92 95.8 L96 96.0 L100 95.8 L104 95.2 L108 94.2 L112 92.8 L116 91.0 L120 88.8 L124 86.2 L128 83.2 L132 79.8 L136 76.0 L140 71.8 L144 67.2 L148 62.2 L152 56.8 L156 51.0 L160 44.8" stroke="#8fb3ee" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><path d="M96 104V36" stroke="#c4d7f3" stroke-width="1" stroke-dasharray="3 4"/><circle cx="96" cy="96" r="3" fill="#8fb3ee"/><circle cx="45" cy="64" r="3.2" fill="#fff" stroke="#8fb3ee" stroke-width="1.6"/><circle cx="147" cy="64" r="3.2" fill="#fff" stroke="#8fb3ee" stroke-width="1.6"/></svg>',
     4: '<svg viewBox="0 0 176 132" width="176" height="132" fill="none" aria-hidden="true"><path d="M18 104H152" stroke="#dbe7f8" stroke-width="1.6" stroke-linecap="round"/><path d="M160 104l-6-3.2V107.2z" stroke="#dbe7f8" stroke-width="1.4" stroke-linejoin="round"/><path d="M46 104V30" stroke="#dbe7f8" stroke-width="1.6" stroke-linecap="round"/><path d="M46 22l-3.2 6H49.2z" stroke="#dbe7f8" stroke-width="1.4" stroke-linejoin="round"/><path d="M34 104L82 30L140 104Z" stroke="#c4d7f3" stroke-width="1.8" stroke-linejoin="round" fill="#f5faff"/><path d="M82 30V104" stroke="#c4d7f3" stroke-width="1" stroke-dasharray="4 4"/><path d="M74 104V96H82" stroke="#8fb3ee" stroke-width="1.5" stroke-linejoin="round" fill="none"/><path d="M53.0 104.0 L53.0 102.7 L52.8 101.5 L52.6 100.2 L52.3 99.0 L52.0 97.8 L51.5 96.6 L51.0 95.5 L50.4 94.4 L49.7 93.3 L49.0 92.3 L48.2 91.3 L47.3 90.4 L46.4 89.6 L45.4 88.8 L44.3 88.1" stroke="#8fb3ee" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M121.0 104.0 L121.0 102.9 L121.1 101.7 L121.3 100.6 L121.6 99.5 L121.9 98.3 L122.2 97.3 L122.7 96.2 L123.2 95.2 L123.7 94.2 L124.4 93.2 L125.0 92.3 L125.8 91.4 L126.6 90.6 L127.4 89.8 L128.3 89.0" stroke="#8fb3ee" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="34" cy="104" r="2.8" fill="#8fb3ee"/><circle cx="82" cy="30" r="2.8" fill="#8fb3ee"/><circle cx="140" cy="104" r="2.8" fill="#8fb3ee"/></svg>'
   };
-  const T = (zh, en) => (OFFICIAL ? en : zh);     // 模考层纯英文：docs/UI-COPY.md v1.1
+  /* 抽查页也要跟界面语言走：原来这里只看 OFFICIAL（官方模考），
+     于是英文界面的抽查成绩页，T() 一律回中文；纯文本还能靠 i18n 兜底翻，
+     但含题号的拼接句（「对应错题：TD-…」）整句匹配不到，只能中英混排。 */
+  /* 文案选择器：官方模考（Bluebook 口径）与英文界面都取英文。
+     原来只看 OFFICIAL，英文界面的抽查成绩页会被迫回中文（拼接句 i18n 兜不住）。 */
+  const T = (zh, en) => (OFFICIAL || !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en')) ? en : zh;
   const UNIT_EN = { 1: 'Heart of Algebra', 2: 'Problem Solving & Data Analysis', 3: 'Advanced Math', 4: 'Geometry & Trigonometry' };
   document.querySelectorAll('.exam-modules a').forEach(a => {
     const on = a.dataset.module === MODE;
@@ -580,7 +590,7 @@
     const calcBtn = $('btnCalculator');
     if (calcBtn) calcBtn.hidden = name !== 'answer';
     $('tbStage').textContent = STAGE_LABEL[name] || name.toUpperCase();
-    $('contextTitle').textContent = MODE === 'mock' ? 'Math' : MODE_NAME[MODE];
+    $('contextTitle').textContent = MODE === 'mock' ? 'Math' : modeName(MODE);
     /* 390 窄屏实测：「Section 2, Module 1: Math」被省略号裁到 142px，
        Module 号看不见。窄屏换短写法，宽屏保留 Bluebook 原句。 */
     var narrowTop = !!(window.matchMedia && window.matchMedia('(max-width:520px)').matches);
@@ -858,8 +868,9 @@
     $('qNum').textContent = String(pos);
     /* progress-rail: 顶栏底部 2px 进度线（样式在 glass.css 的 question-theme 块） */
     (function(){const bar=document.querySelector('.drill-questionbar-inner');if(bar&&total>0)bar.style.setProperty('--q-progress',(pos/total*100).toFixed(2)+'%');})();
-    $('footerSection').textContent = MODE === 'mock' ? 'Section 2, Module ' + S.module + ' of 2' : MODE_NAME[MODE] + ' · 第 ' + QUIZ_UNIT + ' 单元';
-    $('questionPosition').textContent = OFFICIAL ? 'Question ' + pos + ' of ' + total : '第 ' + pos + ' / ' + total + ' 题';
+    $('footerSection').textContent = MODE === 'mock' ? 'Section 2, Module ' + S.module + ' of 2'
+      : (EN_LANG() ? modeName(MODE) + ' · Unit ' + QUIZ_UNIT : modeName(MODE) + ' · 第 ' + QUIZ_UNIT + ' 单元');
+    $('questionPosition').textContent = EN_LANG() ? ('Question ' + pos + ' of ' + total) : ('第 ' + pos + ' / ' + total + ' 题');
 
     const locked = isLocked(inst.uid), area = $('answerArea');
     area.innerHTML = '';
@@ -1290,7 +1301,9 @@
        否则单元抽查的成绩页会印成「模考」，大写记录会印成「QUIZ」。 */
     const modeRaw = safeText(r.mode).trim();
     const modeKey = modeRaw.toLowerCase();
-    const modeTxt = MODE_NAME[modeKey] || (modeRaw ? modeRaw : MODE_NAME[MODE]) || '模考';
+    /* 已知 mode 按界面语言给名；记录缺 mode 用当前页面兜底；完全未知的 mode 原样留着当排查线索。 */
+    const modeKnown = Object.prototype.hasOwnProperty.call(MODE_NAME, modeKey);
+    const modeTxt = (modeKnown || !modeRaw) ? modeName(modeKnown ? modeKey : MODE) : modeRaw;
     /* 云端/旧版可能把 Date.now() 存成字符串；new Date('1700...') 是 Invalid，
        成绩页日期会变成 —。数字字符串先转时间戳，其他交给 Date 解析。 */
     /* date 可能是 null/0（旧存档/云端合并）：new Date(null) 会显示 1970 年。
@@ -1381,7 +1394,6 @@
         ? (p.type === 'unit' ? 'Redo these missed questions first, then review the topics below in order' : 'Targeted practice on this topic')
         : safeText(p.action);
       return `<div class="prio-item">
-      <span class="prio-lv${level ? ' ' + esc(level) : ''}">${esc(safeText(p.level) || '—')}</span>
       <div style="flex:1"><b>${esc(nm)}</b> <span class="tiny muted">${p.type === 'unit' ? T('单元', 'Unit') : T('知识点', 'Skill')}</span>
         <div class="small muted" style="margin-top:2px">${esc(reason)}</div>
         <div class="tiny" style="margin-top:3px;color:var(--blue-strong)">${esc(action)}</div>

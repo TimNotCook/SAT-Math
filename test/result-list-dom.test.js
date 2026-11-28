@@ -21,9 +21,10 @@ test('成绩页 rev-item 模板必须同时闭合 body 与 rev-item', () => {
 
 test('成绩页 priority 缺 level / 报告字段是对象时不裸调 toLowerCase', () => {
   const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
-  assert.match(seg, /const level = safeText\(p\.level\)\.toLowerCase\(\)/,
-    'priority.level 缺少/非字符串时仍会 toLowerCase 打崩成绩页');
+  /* 2026-11-28：那条「P0」小方框徽标已删（内部优先级编号 + 带框牌子，用户看不懂）。
+     level 不再上屏，但保留下面的裸调用守卫，防止有人重新加回时打崩成绩页。 */
   assert.ok(!/p\.level\.toLowerCase\(\)/.test(seg), 'priority.level 还有裸 toLowerCase');
+  assert.ok(!/class="prio-lv/.test(seg), '不要再往成绩页塞 P0/P1 编号徽标');
   assert.match(seg, /asArr\(rep\.units\)\.filter/, 'report.units 没过滤 null/非对象条目');
   assert.match(seg, /asArr\(rep\.topics\)\.filter/, 'report.topics 没过滤 null/非对象条目');
   assert.match(seg, /asArr\(rep\.priority\)\.filter/, 'report.priority 没过滤 null/非对象条目');
