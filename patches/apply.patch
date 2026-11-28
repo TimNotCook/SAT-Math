@@ -1,0 +1,20 @@
+diff --git a/image-import.js b/image-import.js
+index 04d5f8d..3a38f1b 100644
+--- a/image-import.js
++++ b/image-import.js
+@@ -1868,4 +1868,14 @@
+                 var numGate = qNums.length >= 2 ? (c0Agree >= numNeed || numCover) : (qNums.length === 1 ? c0Agree >= 0.6 : true);
++                /* 图示题的救援：题干那句通用话术认不准，但 A–D 四个选项是实打实的字
++                   （"20° 45° 135° 160°"这种），拿选项去反查题库往往一枪命中。
++                   条件收得很紧：选项相似度 ≥0.9、跟第二名拉开 ≥0.08、候选题自己确实
++                   带四个选项，才允许绕过"图文题必须极高分"的门槛。 */
++                var csGate = false, csMarg = 0;
++                if (choicesTxt && recalled[0] && recalled[1]) {
++                  var c0 = recalled[0].cs || 0, c1 = recalled[1].cs || 0;
++                  csMarg = c0 - c1;
++                  csGate = c0 >= 0.9 && csMarg >= 0.08;
++                }
+                 var visualGate = !visual || (recalled[0].score >= 0.75 && tg.margin >= 0.25);
+-                if (tg.pass && recalled[0] && numGate && visualGate) {
++                if ((tg.pass && recalled[0] && numGate && visualGate) || (visual && csGate)) {
+                   chosen = bankCands[0];
