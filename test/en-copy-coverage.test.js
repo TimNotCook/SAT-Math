@@ -72,3 +72,15 @@ test('窄屏排版：成绩页 meta 可折行、320 主标题不折成两行', (
   assert.ok(/@media \(max-width:430px\)\{[\s\S]{0,200}\.rev-meta\{white-space:normal/.test(css), '窄屏成绩页 meta 又被写回 nowrap');
   assert.ok(/@media \(max-width:360px\)\{[\s\S]{0,160}site-shell h1\{font-size:26px/.test(css), '320 主标题字号守卫丢了');
 });
+
+test('错题导入面板：没有失败项时不预先宣告失败，也不再摆技术术语', () => {
+  const html = read('wrong.html');
+  assert.ok(/id="imgimpFailHint" hidden/.test(html), '失败提示又变成常显');
+  assert.ok(/id="btnImgRetry"[^>]*hidden/.test(html), '重试按钮又变成常显');
+  const js = read('image-import.js');
+  assert.ok(js.includes('function syncFailBar'), '缺 syncFailBar：失败区块显隐不受控');
+  assert.ok(js.includes('把截图拖进来，认得出就自动进错题本。'), '导入空态又被写回长篇说明');
+  assert.ok(!js.includes("' · 双模型一致'"), '又把「双模型一致」摆给用户看');
+  assert.ok(!js.includes("' · 数字校验 '"), '行内又印「数字校验」');
+  assert.ok(js.includes('离线识别'), '云端账号状态行被写回了推销文案');
+});

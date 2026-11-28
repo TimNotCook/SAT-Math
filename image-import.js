@@ -305,7 +305,8 @@
     if (btn) btn.hidden = !!hasSession;
     var el = $('imgimpLoginState');
     if (el) {
-      el.textContent = hasSession ? '云端账号：已登录（云端精确识别）' : '云端账号：未登录 · 本地识别可用，登录后精度更高';
+      /* 这行是状态，不是推销文案：「登录后精度更高」属于系统说明，摆在不贴图的人眼前只是噪音 */
+      el.textContent = hasSession ? '云端账号：已登录' : '云端账号：未登录（用离线识别）';
       el.classList.toggle('is-ok', !!hasSession);
     }
   }
@@ -1086,44 +1087,54 @@
       }).join('') + '</div>';
   }
 
+  /* 「识别失败可重试：重试失败项/自检」这一行只在真的失败过才出现。
+      pages 里没有 p.error 时，用户什么都没导入，不该先看到一句失败。 */
+  function syncFailBar() {
+    var has = false;
+    for (var i = 0; i < pages.length; i++) { if (pages[i] && pages[i].error) { has = true; break; } }
+    ['imgimpFailHint', 'btnImgRetry', 'imgimpSelfTest'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.hidden = !has;
+    });
+  }
   function renderRows() {
     var host = $('imgimpRows'); if (!host) return;
     host.innerHTML = (pages.length ? pages.map(rowHtml).join('') :
-      '<div class="imgimp-empty">粘贴或拖入题目截图后，系统会自动识别文字与公式、自动匹配题库并写入错题回顾，无需任何额外操作。</div>') + inboxHtml();
+      '<div class="imgimp-empty">把截图拖进来，认得出就自动进错题本。</div>') + inboxHtml();
+    syncFailBar();
+  }
+  /* 导入结果的一条：只给用户能用的信息（第几张、识别到没、配到哪题、候选取哪个）。
+     置信度、双模型比对、数字校验这类是自己调参看的，摆到界面上就是技术噪音，删掉不影响任何判断。 */
+  function EN_UI() {
+    return !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en') ||
+      document.documentElement.getAttribute('data-lang') === 'en';
   }
   function rowHtml(p) {
+    var en = EN_UI();
     var cand = p.cands || [];
-    var label = p.error ? '识别失败'
-      : (!p.ocr ? '识别中'
-      : (p.qid ? (p.gate === 'discriminated' ? '已精确匹配并导入'
-        : (p.gate === 'text' ? '文本匹配 · 已导入' : '已导入'))
-      : '待核对'));
+    var label = p.error ? (en ? 'Failed' : '识别失败')
+      : (!p.ocr ? (en ? 'Reading' : '识别中')
+      : (p.qid ? (en ? 'Imported' : '已导入') : (en ? 'Check it' : '待核对')));
     var cls = p.qid ? 'ok' : 'warn';
-    var thumb = p.thumb ? '<img src="' + p.thumb + '" alt="第 ' + p.i + ' 张截图">' : '<span class="imgimp-thumb-ph">图片</span>';
-    var cross = p.ocr && p.ocr._cross ? (p.ocr._agree ? ' · 双模型一致' : ' · 双模型有分歧') : '';
-    var conf = p.ocr && p.ocr.confidence ? '<small class="muted">OCR ' + Math.round(p.ocr.confidence * 100) + '%' + esc(cross) + '</small>' : '';
-    var stem = p.ocr ? esc(String(p.ocr.stem).slice(0, 180))
-      : (p.error ? esc(p.error) + '<small class="muted"> · 图认不出也别放弃这题：把题干里 2–3 个词或数字敲进上面的搜框，一样能导</small>' : '正在识别…');
+    var thumb = p.thumb
+      ? '<img src="' + p.thumb + '" alt="' + (en ? 'Shot ' + p.i : '第 ' + p.i + ' 张截图') + '">'
+      : '<span class="imgimp-thumb-ph">' + (en ? 'Image' : '图片') + '</span>';
+    var stem;
+    if (p.ocr) stem = esc(String(p.ocr.stem).slice(0, 180));
+    else if (p.error) stem = '<small class="muted">' + (en
+      ? 'Can\'t read it? Paste the question text or search a keyword instead.'
+      : '认不出？把题干文字贴进来，或用关键词搜。') + '</small>';
+    else stem = '<small class="muted">' + (en ? 'Reading…' : '正在识别…') + '</small>';
     var matched = '', picks = '';
     if (p.qid) {
       var c = cand.filter(function (x) { return x.id === p.qid; })[0] || {};
-      var mi = p.matchInfo || {};
-      var proof = p.gate === 'discriminated'
-        ? '双模型' + (mi.agree ? '一致' : '确认') + ' · 置信 ' + Math.round((mi.conf || 0) * 100) + '%' +
-          (mi.numAgree != null ? ' · 数字校验 ' + Math.round(mi.numAgree * 100) + '%' : '')
-        : (p.gate === 'text'
-          ? '文本匹配 · 综合分 ' + Math.round((mi.conf || 0) * 100) + '% · 领先 ' + Math.round((mi.margin || 0) * 100) +
-            (mi.numAgree != null ? ' · 数字校验 ' + Math.round(mi.numAgree * 100) + '%' : '')
-          : '');
-      matched = '<div class="imgimp-matched">图像比对：<b>' + esc((c.sec || '') + ' · #' + (c.no || '')) + '</b>' +
-        (proof ? ' <small class="muted">' + esc(proof) + '</small>' : '') + '</div>';
+      matched = '<div class="imgimp-matched"><b>' + esc((c.sec || '') + ' · #' + (c.no || '')) + '</b></div>';
     } else if (p.skipReason) {
-      matched = '<div class="imgimp-matched">未自动导入：' + esc(p.skipReason) + '</div>';
+      matched = '<div class="imgimp-matched">' + (en ? 'Not auto-imported — pick it below.' : '没能自动认出来，下面挑一道。') + '</div>';
     }
-    /* 没自动匹配上时把候选题目摆出来：点一下就按这道题写进错题回顾。
-       这段之前只有点击处理、没有渲染，等于把唯一的人工确认通道关掉了。 */
+    /* 没自动匹配上时把候选题目摆出来：点一下就按这道题写进错题回顾。 */
     if (!p.qid && p.ocr && cand.length) {
-      picks = '<div class="imgimp-picks"><span class="muted">是下面哪一道？点一下即导入：</span>' +
+      picks = '<div class="imgimp-picks"><span class="muted">' + (en ? 'Which one is it? Tap to import:' : '是下面哪一道？点一下即导入：') + '</span>' +
         cand.slice(0, 5).map(function (x) {
           var st = String(x.stem || '').replace(/\s+/g, ' ').trim();
           return '<button type="button" class="imgimp-cand" data-page="' + p.i + '" data-qid="' + esc(x.id) + '">' +
@@ -1132,8 +1143,8 @@
         }).join('') + '</div>';
     }
     return '<article class="imgimp-row"><div class="imgimp-thumb">' + thumb + '</div>' +
-      '<div class="imgimp-fields"><div class="imgimp-line"><b>第 ' + p.i + ' 张</b>' +
-      '<span class="imgimp-badge' + cls + '">' + esc(label) + '</span>' + conf + '</div>' +
+      '<div class="imgimp-fields"><div class="imgimp-line"><b>' + (en ? 'Shot ' + p.i : '第 ' + p.i + ' 张') + '</b>' +
+      '<span class="imgimp-badge' + cls + '">' + esc(label) + '</span></div>' +
       '<div class="imgimp-ocr">' + stem + '</div>' + matched + picks + '</div></article>';
   }
   function findQ(id) {
