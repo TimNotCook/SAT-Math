@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="SAT Math 错题回顾：集中查看、重做与导入错题，做题进度保存在本机。"><meta name="theme-color" content="#2563eb"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'"><title>SAT Math Prep · 错题回顾</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E"><link rel="stylesheet" href="app.css?v=a6eb1c5f8c8d"><link rel="stylesheet" href="bluebook.css?v=a6eb1c5f8c8d"><link rel="stylesheet" href="glass.css?v=a6eb1c5f8c8d"><script src="theme.js?v=a6eb1c5f8c8d"></script><script src="i18n.js?v=a6eb1c5f8c8d"></script>
+<meta name="description" content="SAT Math 错题回顾：集中查看、重做与导入错题，做题进度保存在本机。"><meta name="theme-color" content="#2563eb"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://wbapp-ppcowwierzgpcol1drmipc.app.workbuddy.host https://www.workbuddy.cn; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https://www.desmos.com; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'"><title>SAT Math Prep · 错题回顾</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 10h14v3.2h-5.4V24h-3.2V13.2H9z' fill='%23fff'/%3E%3C/svg%3E"><link rel="stylesheet" href="app.css?v=7fb3b3f72f12"><link rel="stylesheet" href="bluebook.css?v=7fb3b3f72f12"><link rel="stylesheet" href="glass.css?v=7fb3b3f72f12"><script src="theme.js?v=7fb3b3f72f12"></script><script src="i18n.js?v=7fb3b3f72f12"></script>
 <style>
 /* 图片识别导入：复用站点既有 token（与 pdfimp 同一套变量） */
 .imgimp-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--sp4);margin-bottom:var(--sp3);box-shadow:var(--shadow-1)}
@@ -78,34 +78,32 @@
       <button class="btn primary" id="btnImgImport" type="button" aria-expanded="false" title="上传题目截图，AI 识别文字与公式并自动匹配题库">图片识别导入</button>
       <input type="file" id="fileImgImport" accept="image/*" multiple hidden>
     </div>
-    
     <span class="small muted" id="importFeedback" role="status" aria-live="polite"></span>
   </div>
   <section class="imgimp-panel" id="imgImportPanel" hidden aria-label="图片识别导入">
-    <!-- 面板里只留标题 + 直接能操作的入口：怎么用、几 MB、换成更准模型这些是系统说明书，
-         摆在这里只会把真正的入口挤到第一屏折线以下。 -->
-    <div class="imgimp-head"><div><h2>图片识别导入</h2></div>
+    <div class="imgimp-head"><div><h2>图片识别导入</h2>
+      </div>
       <button class="imgimp-x" id="imgImportClose" type="button" aria-label="关闭图片识别面板">关闭</button>
     </div>
     <div class="imgimp-drop" id="imgDropZone" role="button" tabindex="0" aria-label="拖入图片或点击选择，也可直接粘贴">
-      拖入截图，或粘贴（Ctrl/Cmd+V）
+      拖入 / 点击选择截图，或直接粘贴（Ctrl/Cmd+V），松开即自动识别导入
     </div>
     <div class="imgimp-text-row">
       <textarea id="imgimpText" rows="3" spellcheck="false" aria-label="粘贴题干文字导入"
-        placeholder="图认不出？把题干文字贴进来。"></textarea>
+        placeholder="图认不出？把题干文字复制/打进来（英文原文最准），点右边按钮同样能配题导入。"></textarea>
       <button class="btn" id="imgimpTextGo" type="button">用文字导入</button>
     </div>
     <div class="imgimp-finder-bar">
       <input id="imgimpSearch" type="search" autocomplete="off" spellcheck="false"
-        placeholder="敲几个词或数字，比如 4x 或 slope" aria-label="按题干关键词查题">
+        placeholder="等不及？敲题干里的几个词或数字，比如 4x 24x 36 或 slope" aria-label="按题干关键词查题">
       <button class="btn" id="imgimpSearchGo" type="button">在题库里找</button>
     </div>
     <div class="imgimp-rows" id="imgimpFinder" hidden></div>
+    <p class="small muted imgimp-fail" id="imgimpFailHint" hidden></p>
     <div class="imgimp-actions">
-      <!-- 没有失败项时整行不出现：面板一打开就宣告「识别失败」等于自曝失败，纯噪音 -->
-      <span class="small muted" id="imgimpFailHint" hidden>识别失败可重试：</span>
+      <span class="small muted">识别失败可重试：</span>
       <button class="btn" id="btnImgRetry" type="button" hidden>重试失败项</button>
-      <button class="btn" id="imgimpSelfTest" type="button" hidden title="不用贴图，自己造一张测试图跑一遍，确认这台机器能不能识别">自检</button>
+      <button class="btn" id="imgimpSelfTest" type="button" title="不用贴图，自己造一张测试图跑一遍，确认这台机器能不能识别">自检</button>
       <button class="btn" id="imgimpUndo" type="button" hidden title="只删掉本次导入写进去的记录，不动你原来的作答">撤销本次导入</button>
       <button class="btn" id="imgimpCloudSignIn" type="button" hidden title="登录云端账号后才能使用云端 AI 图片识别">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
@@ -124,13 +122,13 @@
   <section class="weak-panel" id="weakPanel"></section>
   <div id="wrongList"></div>
 </main>
-<script src="data/questions.js?v=a6eb1c5f8c8d" defer></script><script src="data/text.js?v=a6eb1c5f8c8d" defer></script><script src="data/figures.js?v=a6eb1c5f8c8d" defer></script><script src="data/figure_crops.js?v=a6eb1c5f8c8d" defer></script>
-<script src="grade-core.js?v=a6eb1c5f8c8d" defer></script><script src="app-core.js?v=a6eb1c5f8c8d" defer></script><script src="analysis.js?v=a6eb1c5f8c8d" defer></script><script src="figures.js?v=a6eb1c5f8c8d" defer></script><script src="scratch-pad.js?v=a6eb1c5f8c8d" defer></script>
-<script src="data/jiangyi.js?v=a6eb1c5f8c8d" defer></script>
-<script src="jiangyi-core.js?v=a6eb1c5f8c8d" defer></script>
-<script src="data/aliases.js?v=a6eb1c5f8c8d" defer></script>
-<script src="wrong-page.js?v=a6eb1c5f8c8d" defer></script>
-<script src="cloud-config.js?v=a6eb1c5f8c8d" defer></script><script src="supa-cloud.js?v=a6eb1c5f8c8d" defer></script><script src="cloud-account.js?v=a6eb1c5f8c8d" defer></script><script src="image-import.js?v=a6eb1c5f8c8d" defer></script>
+<script src="data/questions.js?v=7fb3b3f72f12" defer></script><script src="data/text.js?v=7fb3b3f72f12" defer></script><script src="data/figures.js?v=7fb3b3f72f12" defer></script><script src="data/figure_crops.js?v=7fb3b3f72f12" defer></script>
+<script src="grade-core.js?v=7fb3b3f72f12" defer></script><script src="app-core.js?v=7fb3b3f72f12" defer></script><script src="analysis.js?v=7fb3b3f72f12" defer></script><script src="figures.js?v=7fb3b3f72f12" defer></script><script src="scratch-pad.js?v=7fb3b3f72f12" defer></script>
+<script src="data/jiangyi.js?v=7fb3b3f72f12" defer></script>
+<script src="jiangyi-core.js?v=7fb3b3f72f12" defer></script>
+<script src="data/aliases.js?v=7fb3b3f72f12" defer></script>
+<script src="wrong-page.js?v=7fb3b3f72f12" defer></script>
+<script src="cloud-config.js?v=7fb3b3f72f12" defer></script><script src="supa-cloud.js?v=7fb3b3f72f12" defer></script><script src="cloud-account.js?v=7fb3b3f72f12" defer></script><script src="image-import.js?v=7fb3b3f72f12" defer></script>
 <script>
 /* 自动换新：标签页开久了会一直跑旧代码（贴图认不出、等半天，其实改的早推上去了）。
    每 60 秒（以及切回标签页时）问一次 version.json，发现构建号不同就静默刷新一次。 */

@@ -214,7 +214,7 @@
     /* detail 条目也可能是 5 / 'junk'（云端合并、半截导入）：truthy 但不是对象，
        只判 `d && !isRight` 会把它渲染成一条 id/答案全是「—」的幽灵错题行。 */
     var wrong = asArr(detail).filter(function (d) { return isDetail(d) && !isRight(d.correct); });
-    if (!wrong.length) return '<div class="hist-empty">本次全部答对。</div>';
+    if (!wrong.length) return '<div class="hist-empty">' + (isEn() ? 'All correct this time.' : '本次全部答对。') + '</div>';
     /* 320 宽下 19 条错题能铺满两屏多，还把内部题号（TD-13-05）摆在每行最前面。
        只列前 4 条，其余给一条「去错题回顾」的出口；题号一律不露，题干本身就是身份。 */
     var shown = wrong.slice(0, 4), more = wrong.length - shown.length;
