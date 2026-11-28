@@ -108,3 +108,7 @@ test('逐题回顾不再印仓库单元号 U1/U2，改印单元名', () => {
   assert.ok(!/'U' \+ dUnit/.test(examjs), '逐题回顾 meta 不要再拼 U 号');
   assert.ok(!/qt-code">U\$\{u\.id\}/.test(examjs), '单元折叠条不要 U 号前缀');
 });
+
+test('错题空态不留下空统计格的整块空白', () => {
+  assert.match(app, /body\.shell-wrong #wrongHero:empty\{display:none!important\}/);
+});

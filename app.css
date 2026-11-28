@@ -507,6 +507,9 @@ body.shell-wrong .wrong-hero-kv>div{display:flex!important;flex-direction:column
 body.shell-wrong .wrong-hero-kv>div:last-child{border-bottom:1px solid var(--line)!important}
 body.shell-wrong .wrong-hero-kv span{font-size:12.5px;color:var(--sub)}
 body.shell-wrong .wrong-hero-kv b{font-size:22px;line-height:1.1}
+/* 错题为空时 #wrongHero 没有任何子节点，但 .stat-grid 仍保留最小高度，
+   320 会在标题和「图片识别导入」之间留出一大块空白。空态直接收起。 */
+body.shell-wrong #wrongHero:empty{display:none!important}
 body.shell-wrong .wrong-toolbar{padding:16px 18px!important;border:1px solid var(--line)!important;border-radius:var(--radius)!important;background:var(--paper)!important;box-shadow:var(--shadow-1);margin-bottom:14px!important}
 body.shell-wrong .wrong-toolbar .unit-filter{display:flex;flex-wrap:wrap;gap:8px}
 
@@ -1598,8 +1601,8 @@ html body .rev-q{font-size:12.5px!important;font-weight:700!important;color:#256
   font-variant-numeric:tabular-nums!important;letter-spacing:.04em!important}
 html body .rev-topic{font-size:16px!important;font-weight:650!important;color:#12233f!important;letter-spacing:-.01em!important}
 /* 320 结果行只剩 Q1 + 知识点名：14px 下最长的「1.4 线性方程与不等式应用题」175px，
-   加上 Q1 与 10px 间距超过 194px，Q1 会被挤到单独一行。13px + 6px 间距刚好同排；
-   Q1 必须留着，否则两道同知识点题在窄屏完全分不清。390/1440 仍用 16px。 */
+   加上 Q1 与 10px 间距超过 194px，Q1 会被挤到单独一行。12.3px + 4px 间距连两位
+   题号 Q20 都能同排；Q1 必须留着，否则两道同知识点题在窄屏完全分不清。390/1440 仍用 16px。 */
 @media(max-width:360px){
   html body .rev-line1{gap:4px!important}
   html body .rev-topic{font-size:12.3px!important;line-height:1.5!important}

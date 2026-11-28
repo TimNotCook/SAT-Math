@@ -1157,3 +1157,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 193 条：改密成功、却踢不掉其他设备时，界面说“密码已保存”就完了（2026-11-28）
 
 `setPassword` 改完当前密码后会调 `/auth/v1/logout?scope=others` 踢掉其他设备；失败时只 `console.warn`，仍然返回成功。用户看到“密码已保存，下次可以用这个账号登录”，以为旧手机/旧电脑已经失效，实际上它们手里的 refresh token 还能继续续期。现在记录 `revokeOthersFailed` 并通过 `TDSUPA.revokeOthersFailed()` 暴露，账号面板改成警告：密码已保存，但其他设备上的旧登录没能全部失效，请在那几台设备上退出后重新登录。验证：`password-login` 模拟踢会话 500，断言标记为真且界面有警告；全量 792/0。
+
+## 第 194 条：320 错题空态在标题和「图片识别导入」之间留出一大块空白（2026-11-28）
+
+没有错题时 `#wrongHero` 里一个子节点都没有，但 `.stat-grid` 的最小高度还在，320 截图上标题与导入按钮之间空出整整一段，空态卡被推到下一屏。现在给 `body.shell-wrong #wrongHero:empty` 直接 `display:none`：有统计数据时照常显示，空态时导入按钮紧接页头，空态卡提前约 24px 出现。验证：本地 320 `#wrongHero` 高度 0，按钮顶边 236px，页面无横向溢出；全量 793/0。
