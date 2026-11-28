@@ -1825,7 +1825,7 @@ body.shell-wrong .wrong-toolbar.is-quiet{
    那颗 hero 都在，rail-back 还因为词长把「设置」挤到第三行（导航 109px）。
    窄屏收掉 rail-back，只留页内那颗；宽屏反过来（见上面 @media(min-width:641px) 那条）。 */
 @media(max-width:640px){
-  html body.shell-wrong .site-rail .rail-back{display:none!important}
+  html body .site-rail .rail-back{display:none!important}
 }
 
 /* 窄屏顶栏是横向 wrap，.rail-tail:has(.rail-back){margin-left:auto} 会把「设置」
@@ -1840,4 +1840,10 @@ body.shell-wrong .wrong-toolbar.is-quiet{
 html body.shell-history .hist-body .hist-empty{
   text-align:left!important;padding:8px 0 2px!important;
   border:0!important;background:none!important;
+}
+
+/* 讲义板块卡右侧的「已交几节 / 共几节」：贴住箭头，暗色下用 --sub 跟着主题走。 */
+html body .entry-tile-grid .jy-board-card .jy-card-meta{
+  margin-left:auto;font-size:12px;font-weight:600;color:var(--sub,#5b6b85);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
 }

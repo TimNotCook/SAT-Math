@@ -49,6 +49,8 @@
 
   /* ---------- 四个子板块 ---------- */
   var JY_ARROW = '<svg class="entry-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+  /* 界面当前语言：英文模式下卡片别拼出「0/6 节」这种中英混排。 */
+  function isEn() { var i = window.TDI18n; return !!(i && i.get && i.get() === 'en'); }
   function renderBoards() {
     var list = J.allStats();
     els.jyBoardCards.innerHTML = list.map(function (st) {
@@ -57,8 +59,12 @@
         return '<button type="button" class="entry-tile jy-board-card is-empty" data-board="' + st.board + '">' +
           '<b>' + esc(st.cn) + '</b><span class="tile-empty-badge">待录入</span></button>';
       }
+      /* 卡上带「已交几节 / 共几节」：首屏只有四个板块名，看不出进度；
+         单位按当前界面语言给，英文模式下不能留个中文「节」。 */
       return '<button type="button" class="entry-tile jy-board-card" data-board="' + st.board + '">' +
-        '<b>' + esc(st.cn) + '</b>' + JY_ARROW + '</button>';
+        '<b>' + esc(st.cn) + '</b>' +
+        '<span class="jy-card-meta">' + st.completeSections + '/' + st.sections +
+        (isEn() ? ' sections' : ' 节') + '</span>' + JY_ARROW + '</button>';
     }).join('');
     els.jyBoardCards.querySelectorAll('[data-board]').forEach(function (b) {
       b.addEventListener('click', function () { openBoard(b.dataset.board); });
