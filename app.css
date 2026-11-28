@@ -1600,6 +1600,12 @@ html body .rev-topic{font-size:16px!important;font-weight:650!important;color:#1
 /* 320 结果行标题只剩 184px：「…第 1 题」会把「第」丢在行末、题号单独另起一行，
    像被截断。题号拆成独立 span 并禁止内部换行，换行只落在题号前的空格。 */
 html body .rev-topic .rev-qno{white-space:nowrap!important}
+/* 320 只有 184px：14px 让最长的小节名（1.4 线性方程与不等式应用题）也能整行放下，
+   题号独立成第二行，不再从「图像」这种词中间断开。390/1440 不缩小、题号仍同线。 */
+@media(max-width:360px){
+  html body .rev-topic{font-size:14px!important;line-height:1.4!important}
+  html body .rev-topic .rev-qno{display:block!important;margin-top:2px!important}
+}
 html body .rev-meta{margin-left:auto!important;font-size:12px!important;color:#7b8ba1!important;white-space:nowrap!important}
 /* 窄屏：结果页每条的 meta（"1.1 · Q5 · 2 points · Marked · Previously missed"）允许折行并占满一行，
    否则 nowrap + margin-left:auto 会把 320/375 宽的页面整体撑出横向滚动条 */
