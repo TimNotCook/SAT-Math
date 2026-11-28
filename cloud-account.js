@@ -193,10 +193,12 @@
     } catch (e) { return {}; }
   }
   function loadDraft(uid) {
-    var items = draftsFromRaw(localStorage.getItem(DRAFT_KEY));
-    var key = uid || (Object.keys(items).length === 1 ? Object.keys(items)[0] : '');
-    if (!key || !items[key]) return null;
-    return { uid: key, payload: items[key].payload, ts: items[key].ts || 0 };
+    try {
+      var items = draftsFromRaw(localStorage.getItem(DRAFT_KEY));
+      var key = uid || (Object.keys(items).length === 1 ? Object.keys(items)[0] : '');
+      if (!key || !items[key]) return null;
+      return { uid: key, payload: items[key].payload, ts: items[key].ts || 0 };
+    } catch (e) { return null; }
   }
   function saveDraft(uid, payload) {
     if (!uid) return false;

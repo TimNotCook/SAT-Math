@@ -768,3 +768,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 102 条：草稿只有单槽，A→B→C 连续切号会把 A 的未同步增量覆盖掉（2026-11-28）
 
 `afterSignIn` 切号前用 `saveDraft(prof.owner, snapshot())` 暂存旧账号的增量，但 `tdprofile_draft_v1` 只有一个 `{uid,payload}` 槽。用户从 A 切到 B、再从 B 切到 C 时，第二次保存 B 的草稿会直接覆盖 A 的草稿；之后即使重新登录 A，A 在切号前的增量也已经不在本地，属于静默丢数据。修成按 uid 分槽的 `{v:2,items:{uid:{payload,ts}}}`，旧单槽格式仍能读并在下一次写入时迁移；`loadDraft(uid)` 只取当前账号，`clearDraft(uid)` 只清当前账号，应用草稿成功后不会顺手清掉其他账号的槽。验证：新增 A/B 双槽、旧格式迁移、应用 A 只清 A 三条回归；全量 605/0；`verify_flows` 16/16。
+
+## 第 103 条：多账号草稿读取没包 try，localStorage 被禁用时登录流程直接抛错（2026-11-28）
+
+第 102 条把草稿改成按账号分槽时，`loadDraft(uid)` 直接 `localStorage.getItem(DRAFT_KEY)`，没有像旧实现那样把读取包进 try。浏览器禁用站点存储、无痕模式或安全策略阻止访问时，`getItem` 抛 `SecurityError`，`afterSignIn` 在登录完成前就中断，用户看到的是登录失败而不是“这台设备读不到草稿”。修成 `loadDraft` 整体 try/catch，读取失败返回 null，后续按无草稿路径继续；新增注入 `getItem` 抛错的回归。验证：全量 606/0；`verify_flows` 16/16。

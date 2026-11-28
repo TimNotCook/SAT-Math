@@ -18,7 +18,7 @@ function boot(seed, opts) {
   const sandbox = {
     console,
     localStorage: {
-      getItem: k => (k in store ? store[k] : null),
+      getItem: k => { if (opts.throwRead) throw new Error('storage blocked'); return k in store ? store[k] : null; },
       setItem: (k, v) => { if (opts.throwWrite) throw new Error('storage denied'); store[k] = String(v); },
       removeItem: k => { delete store[k]; },
       key: i => Object.keys(store)[i] || null,
@@ -197,6 +197,11 @@ test('应用 A 的草稿只清 A 的槽，B 的草稿继续保留', () => {
   assert.strictEqual(M.loadDraft('uA'), null, 'A 的草稿应用成功后没有清掉');
   assert.deepStrictEqual(M.loadDraft('uB').payload, pB, '清 A 草稿时把 B 也清了');
   assert.deepStrictEqual(Object.keys(JSON.parse(store.tdprofile_draft_v1).items), ['uB']);
+});
+
+test('localStorage 读取被禁用时 loadDraft 返回 null，不把登录流程炸掉', () => {
+  const { M } = boot({}, { throwRead: true });
+  assert.strictEqual(M.loadDraft('uA'), null);
 });
 
 test('本地存储不可写时整份替换失败，不先删掉本机进度', () => {
