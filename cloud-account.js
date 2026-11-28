@@ -631,7 +631,8 @@
       if (otpCooldown <= 0) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
       if (ui && ui.otpSendBtn) {
         ui.otpSendBtn.disabled = busy || otpCooldown > 0;
-        ui.otpSendBtn.textContent = (loginMode === 'code' ? codeBtnLabel() : sendBtnLabel());
+        ui.otpSendBtn.textContent = (loginMode === 'code' ? codeBtnLabel()
+          : loginMode === 'reset' ? resetBtnLabel() : sendBtnLabel());
       }
     }, 1000);
   }
@@ -713,6 +714,7 @@
       setBusy(true); setError('');
       pwdEmail = email;
       await SB.sendRecovery(email);
+      startOtpCooldown();   // 60 秒内不许连点，否则会被服务端按频率挡回来
       ok = true;
     } catch (e) { setError(friendlyError(e)); }
     /* 顺序不能反：未登录时 renderBody 会把状态栏重置成「未登录」，
@@ -724,6 +726,11 @@
   /* ---------- 登录动作（邮箱验证码） ---------- */
   function readCode() {
     return ui && ui.code ? String(ui.code.value || '').replace(/[^\d]/g, '').slice(0, 6) : '';
+  }
+
+  function resetBtnLabel() {
+    if (otpCooldown > 0) return '重新发送 (' + otpCooldown + 's)';
+    return '发送重置链接';
   }
 
   function codeBtnLabel() {
@@ -1081,8 +1088,10 @@
       b.appendChild(el('div', 'td-acct-who', '重置密码'));
       b.appendChild(emReset.box);
       var resetRow = el('div', 'td-acct-actions');
-      var resetBtn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', '发送重置链接');
+      var resetBtn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', resetBtnLabel());
       resetBtn.type = 'button'; resetBtn.setAttribute('data-busy', '1');
+      if (otpCooldown > 0) resetBtn.disabled = true;
+      ui.otpSendBtn = resetBtn;
       resetBtn.onclick = doSendReset;
       resetRow.appendChild(resetBtn);
       b.appendChild(resetRow);
