@@ -109,3 +109,21 @@ test('显式存档按 savedAt 整份取新，不被逐字段合并', () => {
   const out = M.mergeLocalWithCloud({ tdsat_progress_save_v1: JSON.stringify(cloudSave) });
   assert.deepStrictEqual(JSON.parse(out.tdsat_progress_save_v1), cloudSave);
 });
+
+test('档案载荷是数组/字符串时不执行整份替换，不误清本机进度', () => {
+  const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: false, ts: 1 } } } } });
+  for (const bad of [[], ['tdsat_app_v1', 'x'], 'x', 1, true]) {
+    const { M, store } = boot({ tdsat_app_v1: local });
+    const ok = M.applyPayload(bad);
+    assert.strictEqual(ok, false, '坏载荷被当成有效档案：' + JSON.stringify(bad));
+    assert.strictEqual(store.tdsat_app_v1, local, '坏载荷清掉了本机进度：' + JSON.stringify(bad));
+  }
+});
+
+test('档案载荷是普通对象时仍能整份替换并写入快照键', () => {
+  const { M, store } = boot({ tdsat_app_v1: JSON.stringify({ old: 1 }), tdsat_prefs_v1: 'keep' });
+  const ok = M.applyPayload({ tdsat_app_v1: JSON.stringify({ sections: {} }) });
+  assert.strictEqual(ok, true, '普通对象载荷被拒绝');
+  assert.deepStrictEqual(JSON.parse(store.tdsat_app_v1), { sections: {} });
+  assert.strictEqual(store.tdsat_prefs_v1, 'keep', '外观偏好被档案替换误删');
+});

@@ -696,3 +696,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 84 条：Python 风格 `'True'/'False'` 被当成普通字符串，未交卷记录被印成 0 分成绩（2026-11-28）
 
 云端/手工导入的 JSON 可能把布尔写成大写字符串 `"True"`/`"False"`。`history-page.js` 的 `finishedFlag`/`unfinishedFlag`/`isRight`/`voidFlag` 只认全小写，`finished:"False"` 会被当已交卷，显示“全卷 2 题 / 0%”，而不是“未交卷”；`detail.correct:"True"` 也会被算成错题。修成所有字符串标志先 `trim().toLowerCase()` 再判；`wrong-page.js` 与 `exam.js` 的同名标志同步对齐。验证：新增大写 `finished` / `detail.correct` 回归，旧代码“未交卷”断言失败，新代码显示未交卷、50%、1 条错题行；全量 561/0。
+
+## 第 85 条：云端/草稿档案载荷是数组或字符串时，整份替换先清空再写入 0 个键（2026-11-28）
+
+`applyPayload(payload)` 是账号切换/恢复时“整份替换本机副本”的入口：它先把本机所有 `tdsat_*` 快照键删掉，再用 `canon(payload)` 写回。但 `canon()` 只认以快照前缀开头的对象键；当 `payload` 被写成数组 `["x"]` 或字符串 `"x"`（合法 JSON、形状不对），过滤结果是空对象——本机进度已经被清空，却一个键都没写回，且函数还静默“成功”。修成入口先校验载荷必须是普通对象，数组/字符串/数字/布尔一律拒绝，连一个键都不动；`loadDraft()` 的草稿路径也走同一校验。验证：新增数组/字符串/数字/布尔载荷回归，旧代码拒绝断言失败，新代码返回 false 且原 `tdsat_app_v1` 原样保留；普通对象载荷仍能替换并保留外观偏好；全量 567/0。

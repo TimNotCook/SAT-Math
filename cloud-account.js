@@ -186,7 +186,12 @@
   function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { console.warn('清除草稿失败', e); } }
 
   // 用档案内容整体替换本机副本；本机外观偏好保持不变。
+  /* 档案载荷必须是普通对象：云端/本地草稿被写成数组或字符串时，
+     canon() 会筛出 0 个快照键，但下面已经先把本机 tdsat_* 全删了——
+     结果“恢复成功”地清空整份进度。坏载荷一律拒绝，连一个键都不动。 */
+  function isPlainPayload(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
   function applyPayload(payload) {
+    if (!isPlainPayload(payload)) return false;
     var keep = {}, k;
     for (k in NO_SYNC) {
       if (!Object.prototype.hasOwnProperty.call(NO_SYNC, k)) continue;
@@ -203,6 +208,7 @@
     Object.keys(keep).forEach(function (key) {
       try { localStorage.setItem(key, keep[key]); } catch (e) { console.warn('写入本地存储失败', e); }
     });
+    return true;
   }
 
   /* 对象级深合并：键取并集；带数字时间戳 ts 的叶子（答题记录 {v,correct,ts}、
@@ -376,7 +382,7 @@
 
     /* 回到旧账号时，先恢复"登出后以游客身份做题"留下的增量，保证零丢失。 */
     var draft = loadDraft();
-    if (draft && draft.uid === uid && draft.payload && Object.keys(draft.payload).length) {
+    if (draft && draft.uid === uid && isPlainPayload(draft.payload) && Object.keys(draft.payload).length) {
       suppress = true;
       try { applyPayload(draft.payload); } finally { suppress = false; }
       clearDraft();
@@ -1153,7 +1159,8 @@
      便于 tools / 单测在无账号环境里验证「坏存档不覆盖好存档」这类不变量。 */
   try {
     window.TD_CLOUD_MERGE = { canon: canon, deepMerge: deepMerge, mergeLocalWithCloud: mergeLocalWithCloud,
-      mergeArrays: mergeArrays, itemSig: itemSig, pickAtomic: pickAtomic, ATOMIC_KEYS: ATOMIC_KEYS };
+      mergeArrays: mergeArrays, itemSig: itemSig, pickAtomic: pickAtomic, ATOMIC_KEYS: ATOMIC_KEYS,
+      isPlainPayload: isPlainPayload, applyPayload: applyPayload };
   } catch (e) { console.warn('合并诊断钩子注册失败', e); }
 
   function boot() {
