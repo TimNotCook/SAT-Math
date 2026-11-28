@@ -1,0 +1,43 @@
+diff --git a/app.css b/app.css
+index 0f60149..5b0465f 100644
+--- a/app.css
++++ b/app.css
+@@ -1593,6 +1593,12 @@ html body .rev-topic{font-size:16px!important;font-weight:650!important;color:#1
+ /* 320 结果行标题只剩 184px：「…第 1 题」会把「第」丢在行末、题号单独另起一行，
+    像被截断。题号拆成独立 span 并禁止内部换行，换行只落在题号前的空格。 */
+ html body .rev-topic .rev-qno{white-space:nowrap!important}
++/* 320 只有 184px：14px 让最长的小节名（1.4 线性方程与不等式应用题）也能整行放下，
++   题号独立成第二行，不再从「图像」这种词中间断开。390/1440 不缩小、题号仍同线。 */
++@media(max-width:360px){
++  html body .rev-topic{font-size:14px!important;line-height:1.4!important}
++  html body .rev-topic .rev-qno{display:block!important;margin-top:2px!important}
++}
+ html body .rev-meta{margin-left:auto!important;font-size:12px!important;color:#7b8ba1!important;white-space:nowrap!important}
+ /* 窄屏：结果页每条的 meta（"1.1 · Q5 · 2 points · Marked · Previously missed"）允许折行并占满一行，
+    否则 nowrap + margin-left:auto 会把 320/375 宽的页面整体撑出横向滚动条 */
+diff --git a/docs/runtime-audit.md b/docs/runtime-audit.md
+index 51c3268..348f948 100644
+--- a/docs/runtime-audit.md
++++ b/docs/runtime-audit.md
+@@ -1085,3 +1085,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
+ ## 第 175 条：320 成绩报告逐题标题把「第」丢在行末、题号另起一行（2026-11-28）
+ 
+ 成绩报告每行标题是「1.5 线性不等式与图像 · 第 1 题」，320 下 `.rev-topic` 只有 184px，浏览器按中文任意断行，第一行落到「…图像 · 第」，第二行只剩「1 题」，看起来像标题被截断。把「第 N 题」拆成独立的 `.rev-qno` 并 `white-space:nowrap`，浏览器只能在题号前的空格换行：标题名一行、题号一整段第二行；1440 不受影响仍同线。验证：本地 320 结果为「1.5 线性不等式与图像」/「· 第 1 题」；`visual-mobile-polish` 第 10 条锁住 nowrap。
++
++## 第 176 条：320 成绩报告标题不再从「图像」这类词中间断开（2026-11-28）
++
++第 175 条把题号拆出来后，320 显示成「1.1 线性方程与函数图 / 像 · 第 20 题」，题号完整了，但小节名仍从「图像」中间断开。320 的标题列只有 184px，16px 下「1.1 线性方程与函数图像」约 205px，怎么排都要断字。窄屏把标题降到 14px，并把题号强制另起一行：最长的小节名「1.4 线性方程与不等式应用题」实测 175px，也能整行放下。390/1440 保持 16px、题号同行。验证：本地 320 标题名一整行、题号第二行；全量测试通过。
+diff --git a/test/visual-mobile-polish.test.js b/test/visual-mobile-polish.test.js
+index a0c2531..070676d 100644
+--- a/test/visual-mobile-polish.test.js
++++ b/test/visual-mobile-polish.test.js
+@@ -68,3 +68,8 @@ test('320「继续上次练习」允许折行，不再截断小节名', () => {
+ test('320 成绩报告题号不被拆成「第」与「1 题」两截', () => {
+   assert.match(app, /html body \.rev-topic \.rev-qno\{white-space:nowrap!important\}/);
+ });
++
++test('320 成绩报告标题缩到 14px、题号独立成行', () => {
++  assert.match(app, /@media\(max-width:360px\)\{\s*html body \.rev-topic\{font-size:14px!important/);
++  assert.match(app, /html body \.rev-topic \.rev-qno\{display:block!important/);
++});
+
