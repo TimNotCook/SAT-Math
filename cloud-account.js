@@ -889,9 +889,32 @@
       sessionStorage.setItem('tdsat_recovery_opened', '1');
     } catch (e) { /* 存储不可用就按每次开 */ }
     recoveryOpened = true;
-    activeTab = 'account';
+    openPanel('account');
+  }
+
+  /* 打开面板的唯一入口：开完必须把焦点送进面板。
+     只把 data-open 置 1 时焦点仍留在 body 上，键盘用户按 Tab 会直接跑到
+     遮罩后面的页面里（aria-modal 写着 true，实际却能被绕过），读屏也会念错上下文。 */
+  function openPanel(tab) {
+    if (!ui || !ui.layer) return;
+    if (tab) activeTab = tab;
     ui.layer.setAttribute('data-open', '1');
     renderBody();
+    var panel = ui.root.querySelector('.td-acct-panel');
+    var x = panel && panel.querySelector('.td-acct-x');
+    try {
+      if (x && x.focus) x.focus();
+      else if (panel) { panel.setAttribute('tabindex', '-1'); panel.focus(); }
+    } catch (e) { console.warn('面板初次聚焦失败', e); }
+  }
+  /* 面板内的可聚焦元素（当前真实可见、未禁用），用于 Tab 首尾回绕。 */
+  function panelFocusables() {
+    var panel = ui && ui.root && ui.root.querySelector('.td-acct-panel');
+    if (!panel) return [];
+    return Array.prototype.filter.call(
+      panel.querySelectorAll('button, input, select, textarea, a[href], [tabindex]:not([tabindex="-1"])'),
+      function (n) { return !n.disabled && n.getClientRects().length > 0; }
+    );
   }
 
   /* 面板只有一条关闭路径：X、点遮罩、按 Esc 都走这里，
@@ -1081,7 +1104,15 @@
     layer.appendChild(panel);
     layer.addEventListener('click', function (e) { if (e.target === layer) closePanel(); });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && layer.getAttribute('data-open') === '1') { e.preventDefault(); closePanel(); }
+      if (layer.getAttribute('data-open') !== '1') return;
+      if (e.key === 'Escape') { e.preventDefault(); closePanel(); return; }
+      if (e.key !== 'Tab') return;
+      var f = panelFocusables();
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1], a = document.activeElement;
+      var inside = !!(a && layer.contains(a));
+      if (e.shiftKey && (!inside || a === first)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (!inside || a === last)) { e.preventDefault(); first.focus(); }
     });
     document.body.appendChild(layer);
 
@@ -1090,7 +1121,7 @@
     btn.setAttribute('aria-label', '设置');
     btn.title = '设置';
     setBtnIcon(btn);
-    btn.onclick = function () { layer.setAttribute('data-open', '1'); renderBody(); };
+    btn.onclick = function () { openPanel(); };
 
     ui = { root: layer, layer: layer, btn: btn, status: status, error: err, body: body, tabs: tabs };
     return btn;

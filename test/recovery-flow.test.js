@@ -76,3 +76,18 @@ test('密码登错的提示跟着账号类型走（手机号别说成邮箱）',
   assert.ok(!/第一次用这个邮箱请点/.test(acct), '旧的「第一次用这个邮箱」措辞还在');
 });
 
+
+test('打开面板把焦点送进面板（否则键盘 Tab 会跑到遮罩后面）', () => {
+  assert.ok(/function openPanel\(tab\)/.test(acct), '缺统一打开入口 openPanel');
+  const seg = acct.slice(acct.indexOf('function openPanel'), acct.indexOf('function panelFocusables'));
+  assert.ok(/\.td-acct-x/.test(seg) && /\.focus\(\)/.test(seg), '打开后没聚焦面板内元素');
+  assert.ok(acct.indexOf("btn.onclick = function () { openPanel(); }") >= 0, '入口按钮没走 openPanel');
+  assert.ok(acct.indexOf("openPanel('account')") >= 0, '重置回站自动打开没走 openPanel');
+  assert.ok(acct.indexOf("ui.layer.setAttribute('data-open', '1');\n    renderBody();\n  }") < 0, '还有绕过 openPanel 的直接置位');
+});
+
+test('Tab 在面板内首尾回绕，不会落到后台页面', () => {
+  const seg = acct.slice(acct.indexOf("if (e.key !== 'Tab') return;"), acct.indexOf('document.body.appendChild(layer)'));
+  assert.ok(/panelFocusables\(\)/.test(seg), 'Tab 处理没取面板内可聚焦元素');
+  assert.ok(/e\.preventDefault\(\); last\.focus\(\)/.test(seg) && /e\.preventDefault\(\); first\.focus\(\)/.test(seg), '缺首尾回绕');
+});
