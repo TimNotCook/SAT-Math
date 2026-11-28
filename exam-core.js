@@ -11,6 +11,14 @@
   const flagKey = v => (typeof v === 'string' ? v.trim().toLowerCase() : v);
   const isRightFlag = v => { v = flagKey(v); return v === true || v === 1 || v === 'true' || v === '1'; };
   const isRec = v => !!v && typeof v === 'object' && !Array.isArray(v);
+  /* 历史错题次数（state.wrong[id].count）可能来自旧版/云端合并：字符串
+     '3'、布尔 true、对象 {} 都会污染排序。只接受正有限数（小数向下取整），
+     坏值走 fallback；缺字段的语义仍由调用点决定（知识点算 1 次，报告分算 0）。 */
+  const countOf = (v, fallback) => {
+    if (v == null || typeof v === 'boolean' || typeof v === 'object') return fallback;
+    const n = Number(v);
+    return isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+  };
 
   /* =====================================================================
      OFFICIAL PARAMETERS — College Board, Digital SAT Suite Test Specifications
@@ -558,7 +566,7 @@
     if (mode === 'wrong') {
       const rank = Object.keys(state.wrong || {}).filter(id => byId(bank, id));
       let pool = bank.filter(q => rank.indexOf(q.id) >= 0);
-      pool.sort((a, b) => ((state.wrong[b.id] || {}).count || 0) - ((state.wrong[a.id] || {}).count || 0));
+      pool.sort((a, b) => countOf((state.wrong[b.id] || {}).count, 0) - countOf((state.wrong[a.id] || {}).count, 0));
       return pool;
     }
     if (mode === 'unit') {
@@ -661,7 +669,7 @@
       const key = q.section + '|' + q.topic;
       const w = (state && state.wrong && state.wrong[id]) || {};
       const g = freq[key] || { key, section: q.section, topic: q.topic, unit: q.unit, hits: 0, count: 0, ids: [] };
-      g.hits++; g.count += (w.count || 1); g.ids.push(id); freq[key] = g;
+      g.hits++; g.count += countOf(w.count, 1); g.ids.push(id); freq[key] = g;
     });
     return Object.values(freq).sort((a, b) => b.count - a.count || b.hits - a.hits || a.key.localeCompare(b.key));
   }
@@ -679,7 +687,7 @@
     // 1) 历史错题复测：至多 plan.mustWrong 道，按错误次数排序，不占满卷面
     const wmap = (state && state.wrong) || {};
     const chosenWrong = plan.wrongIds.slice().sort((a, b) =>
-      ((wmap[b] || {}).count || 0) - ((wmap[a] || {}).count || 0)).slice(0, plan.mustWrong);
+      countOf((wmap[b] || {}).count, 0) - countOf((wmap[a] || {}).count, 0)).slice(0, plan.mustWrong);
 
     // 2) 其余槽位按小节配额分配：每个知识点都抽到；节内从高难度档随机，
     //    不再只围着错题小节转。
@@ -829,7 +837,7 @@
       t.n++; if (!isRightFlag(d.correct)) { t.wrong++; t.ids.push(d.id); }
     });
     const historic = (state && state.wrong) || {};
-    const hScore = ids => ids.reduce((s, id) => s + ((historic[id] || {}).count || 0), 0);
+    const hScore = ids => ids.reduce((s, id) => s + countOf((historic[id] || {}).count, 0), 0);
     const unitRows = Object.values(ug).map(g => {
       const rate = g.n ? g.wrong / g.n : 0;
       return Object.assign({}, g, {

@@ -414,6 +414,29 @@ test('weaknessReport：detail 混入 null/数组/字符串时不崩', () => {
 });
 
 
+test('weaknessReport：历史错题 count 是字符串时按数值累加，不做字符串拼接', () => {
+  const detail = [
+    { id: 'Q1', unit: 1, section: '1.1', topic: 1, correct: false, seconds: 0 },
+    { id: 'Q2', unit: 1, section: '1.1', topic: 1, correct: false, seconds: 0 }
+  ];
+  const rep = C.weaknessReport(detail, [{ id: 1, cn: '代数' }], {
+    wrong: { Q1: { count: '3' }, Q2: { count: '4' } }
+  });
+  // 2 道错题 = 8 分；错误率 100% = 12 分；历史次数 3+4=7，乘 2 = 14 分
+  assert.equal(rep.units[0].score, 34, "'3'+'4' 被拼成 '34' 再乘 2，报告优先级被算高");
+});
+
+test('weaknessReport：历史错题 count 是布尔/对象时分数仍是有限数字', () => {
+  const detail = [
+    { id: 'Q1', unit: 1, section: '1.1', topic: 1, correct: false, seconds: 0 },
+    { id: 'Q2', unit: 1, section: '1.1', topic: 1, correct: false, seconds: 0 }
+  ];
+  const rep = C.weaknessReport(detail, [{ id: 1, cn: '代数' }], {
+    wrong: { Q1: { count: true }, Q2: { count: {} } }
+  });
+  assert.equal(Number.isFinite(rep.units[0].score), true, 'count 坏值把 score 算成 NaN');
+});
+
 test('weaknessReport：unit/section 是对象时报告名不出现 [object Object]', () => {
   const rep = C.weaknessReport(
     [{ id: 'Q1', unit: { x: 1 }, section: { y: 1 }, topic: { z: 1 }, correct: false, seconds: 0 }],
