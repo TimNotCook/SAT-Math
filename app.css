@@ -1704,3 +1704,16 @@ html[data-theme="dark"] body .tile-grid .tile-state.is-done{color:#4ade80!import
    两行（31px）装得下，不撑高、不挪版；中文短名仍然单行。 */
 html body.exam-page .quiz-tab .qt-name{white-space:normal!important;line-height:1.16;
   display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+
+/* 模考开始页 .mock-grid 是「主卡 1fr + 结构说明 300px」两列，但只有非模考模式
+   在窄屏转单列；模考模式下 390 宽时 1fr 被挤到 50px，结构说明白卡反压在主卡上，
+   "Start" 按钮跟着塌进那 50px 里。窄屏统一单列，说明卡落到主卡下面。 */
+@media (max-width:700px){
+  html body.exam-page .mock-grid{grid-template-columns:minmax(0,1fr)!important}
+}
+
+/* 模考开始页「← Back to Practice」看着是文字链接，实际只有 32px 高，
+   手指点偏一点就落到标题上。触屏给足 44px，鼠标设备样子不变。 */
+@media (hover:none),(pointer:coarse){
+  html body.exam-page #backPractice{min-height:44px!important;display:inline-flex!important;align-items:center!important}
+}

@@ -210,7 +210,7 @@
     if (btn) btn.hidden = !!hasSession;
     var el = $('imgimpLoginState');
     if (el) {
-      el.textContent = hasSession ? '云端账号：已登录' : '云端账号：未登录 · 图片识别需先登录';
+      el.textContent = hasSession ? '云端账号：已登录（云端精确识别）' : '云端账号：未登录 · 本地识别可用，登录后精度更高';
       el.classList.toggle('is-ok', !!hasSession);
     }
   }
@@ -231,7 +231,7 @@
           // 无会话：先消费 OAuth 回调。页面加载早期即执行，远早于用户点识别按钮。
           if (!oauthCallbackPresent()) {
             applyCloudSessionUI(false);
-            status('需要先登录云端账号才能使用图片识别');
+            status('未登录云端账号：先用本地引擎识别（离线也能用），登录后可更准。');
             resolve(false);
             return;
           }
