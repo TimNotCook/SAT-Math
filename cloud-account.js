@@ -726,7 +726,13 @@
         /* 从 A 切到 B 之前必须先把 A 未同步的增量暂存下来。saveDraft 写失败
            （Safari 无痕/配额满/只读存储）时如果继续，下面 applyArchive 清掉
            A 的本机副本，A 的增量就永久没了。失败就取消这次切换。 */
-        if (!saveDraft(prof.owner, snapshot())) {
+        /* 暂存给旧账号的草稿只能是"旧账号自己的"那份：登出后以游客身份做的题
+           已经由 guestAdd 送去新账号，如果整份本地快照都塞进草稿，等用户以后
+           回到旧账号时这些游客答案会被再并一次，凭空多出一批没做过的作答。
+           基线属于旧账号时就用基线（= 最后一次确认写进云端的那份）。 */
+        var draftSrc = (baseRec && baseRec.owner && baseRec.owner === prof.owner)
+          ? baseRec.payload : snapshot();
+        if (!saveDraft(prof.owner, draftSrc)) {
           try { await A.signOut(); } catch (e) { /* 本地会话清不掉就只保留本机 */ }
           user = null; nickname = '';
           setStatus('本机存储不可写，无法暂存当前账号进度，已取消切换；本机进度未受影响', 'warn');
@@ -768,6 +774,9 @@
           }
         } else {
           prof.lastSynced = localHash(); saveProf();
+          /* 云端本来就是最新的、不需要回传时也要把基线落到这个账号上：
+             否则基线还停在旧账号，下次登出时会把新账号的整份内容当成游客增量。 */
+          saveBase(snapshot(), uid);
         }
         renderBody();
         reloadSoon('正在打开你的学习档案…');
@@ -776,6 +785,8 @@
         // 首次在这台设备使用该账号 → 把已有做题记录归到它名下
         var ok2 = await silentPush();
         prof.owner = uid; saveProf();
+        /* 推送失败时也钉住基线：本机这份内容从此算这个账号的，不能再当游客增量。 */
+        if (!ok2) saveBase(snapshot(), uid);
         setStatus(ok2 ? '已为你建立专属学习档案' : '暂时无法保存进度，联网后会自动重试', ok2 ? 'ok' : 'warn');
       } else {
         // 新账号、本机副本属于别的账号 → 干净起点，不串档；
@@ -791,7 +802,7 @@
           return;
         }
         prof.owner = uid; prof.lastSynced = localHash(); saveProf();
-        await silentPush();
+        if (!(await silentPush())) saveBase(snapshot(), uid);
         renderBody();
         reloadSoon('正在打开你的学习档案…');
         return;

@@ -283,8 +283,20 @@ test('切号前的草稿保存必须检查返回值，写失败不能继续清�
   const SRC = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
   assert.match(SRC, /function saveDraft[\s\S]*?return true;[\s\S]*?catch \(e\) \{ console\.warn\('保存草稿失败', e\); return false; \}/,
     'saveDraft 没有把写失败返回给调用方');
-  assert.match(SRC, /if \(!saveDraft\(prof\.owner, snapshot\(\)\)\) \{[\s\S]*?已取消切换/,
+  assert.match(SRC, /if \(!saveDraft\(prof\.owner, draftSrc\)\) \{[\s\S]*?已取消切换/,
     '切号前草稿写失败仍继续，A 的未同步增量会被清掉');
+  assert.match(SRC, /var draftSrc = \(baseRec && baseRec\.owner && baseRec\.owner === prof\.owner\)[\s\S]*?: snapshot\(\);/,
+    '给旧账号的草稿没有按基线裁剪，游客答案会被再写回旧账号');
+});
+
+test('切号时不需要回传云端也要把基线钉到新账号', () => {
+  const SRC = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
+  assert.match(SRC, /prof\.lastSynced = localHash\(\); saveProf\(\);\s*\/\* 云端本来就是最新的[\s\S]*?saveBase\(snapshot\(\), uid\);/,
+    '切到已有云档的账号后基线仍停在旧账号，下次登出会把新账号内容当游客增量');
+  assert.match(SRC, /if \(!ok2\) saveBase\(snapshot\(\), uid\);/,
+    '新建账号推送失败时没钉基线');
+  assert.match(SRC, /if \(!\(await silentPush\(\)\)\) saveBase\(snapshot\(\), uid\);/,
+    '新账号空档案分支推送失败时没钉基线');
 });
 
 test('本机状态键（重置标记 / 主题 / 语言）不进同步快照', () => {
