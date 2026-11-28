@@ -508,7 +508,7 @@
         /* 只按宽度限幅，不按"最长边"限幅：长截图（1280×4000 这种整页/整屏截图）
            按最长边一缩，宽度只剩 400px，字全糊成一团——这正是"整页截图认不出"的元凶。
            高度放到 12000 再兜一次，避免离谱图把内存撑爆。 */
-        var MAXW = 1700, MAXH = 12000, W = img.width, H = img.height;
+        var MAXW = 2600, MAXH = 18000, W = img.width, H = img.height;
         var sc = Math.min(1, MAXW / W);
         if (H * sc > MAXH) sc = MAXH / H;
         W = Math.max(1, Math.round(W * sc)); H = Math.max(1, Math.round(H * sc));

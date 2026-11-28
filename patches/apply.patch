@@ -1,9 +1,0 @@
-diff --git a/image-import.js b/image-import.js
-index 5652080..4f3fd90 100644
---- a/image-import.js
-+++ b/image-import.js
-@@ -510,3 +510,3 @@
-            高度放到 12000 再兜一次，避免离谱图把内存撑爆。 */
--        var MAXW = 1700, MAXH = 12000, W = img.width, H = img.height;
-+        var MAXW = 2600, MAXH = 18000, W = img.width, H = img.height;
-         var sc = Math.min(1, MAXW / W);
