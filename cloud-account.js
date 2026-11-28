@@ -178,15 +178,43 @@
   function saveProf() {
     try { localStorage.setItem(PROFILE_KEY, JSON.stringify(prof)); } catch (e) { console.warn('保存档案归属失败', e); }
   }
-  function loadDraft() {
-    try { var raw = localStorage.getItem(DRAFT_KEY); return raw ? JSON.parse(raw) : null; }
-    catch (e) { return null; }
+  /* 草稿按账号分槽：A→B→C 连续切号时，不能用一个单槽把 A 的未同步增量
+     覆盖掉。旧格式 {uid,payload} 仍能读；新格式 {v:2,items:{uid:{payload,ts}}}，
+     读写都保持向后兼容。解析失败一律当空槽，后续写入会换成新格式。 */
+  function draftsFromRaw(raw) {
+    try {
+      var o = raw ? JSON.parse(raw) : null;
+      if (!o || typeof o !== 'object' || Array.isArray(o)) return {};
+      if (o.v === 2 && o.items && typeof o.items === 'object' && !Array.isArray(o.items)) return o.items;
+      if (typeof o.uid === 'string') {
+        var one = {}; one[o.uid] = { payload: o.payload, ts: o.ts || 0 }; return one;
+      }
+      return {};
+    } catch (e) { return {}; }
+  }
+  function loadDraft(uid) {
+    var items = draftsFromRaw(localStorage.getItem(DRAFT_KEY));
+    var key = uid || (Object.keys(items).length === 1 ? Object.keys(items)[0] : '');
+    if (!key || !items[key]) return null;
+    return { uid: key, payload: items[key].payload, ts: items[key].ts || 0 };
   }
   function saveDraft(uid, payload) {
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ uid: uid, payload: payload })); return true; }
-    catch (e) { console.warn('保存草稿失败', e); return false; }
+    if (!uid) return false;
+    try {
+      var items = draftsFromRaw(localStorage.getItem(DRAFT_KEY));
+      items[uid] = { payload: payload, ts: Date.now() };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ v: 2, items: items }));
+      return true;
+    } catch (e) { console.warn('保存草稿失败', e); return false; }
   }
-  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { console.warn('清除草稿失败', e); } }
+  function clearDraft(uid) {
+    try {
+      var items = draftsFromRaw(localStorage.getItem(DRAFT_KEY));
+      if (uid) delete items[uid]; else items = {};
+      if (Object.keys(items).length) localStorage.setItem(DRAFT_KEY, JSON.stringify({ v: 2, items: items }));
+      else localStorage.removeItem(DRAFT_KEY);
+    } catch (e) { console.warn('清除草稿失败', e); }
+  }
   /* 应用一份云端/草稿档案：统一加抑制同步，并把成功/失败返回给调用方。
      账号分支必须看这个返回值，不能“调用完就当打开了”。 */
   function applyArchive(payload) {
@@ -200,7 +228,7 @@
   function applyDraft(draft) {
     if (!draft) return false;
     var ok = applyArchive(draft.payload);
-    if (ok) clearDraft();
+    if (ok) clearDraft(draft.uid);
     return ok;
   }
 
@@ -430,11 +458,11 @@
     var lh = localHash();
 
     /* 回到旧账号时，先恢复"登出后以游客身份做题"留下的增量，保证零丢失。 */
-    var draft = loadDraft();
+    var draft = loadDraft(uid);
     if (draft && draft.uid === uid && isPlainPayload(draft.payload) && Object.keys(draft.payload).length) {
       /* 草稿也要过 applyPayload 的整份校验。旧实现不看返回值：载荷里只要
          有一个非字符串快照值，applyPayload 会拒绝（本机不动），这里却照样
-         clearDraft() 并 silentPush——把用户登出后以游客身份做的唯一一份
+         clearDraft(draft.uid) 并 silentPush——把用户登出后以游客身份做的唯一一份
          增量直接删掉。失败时保留草稿，不覆盖本机，也不再自动推云端。 */
       if (!applyDraft(draft)) {
         setStatus('本地暂存档案形状异常，已保留未合并，本机进度不受影响', 'warn');
@@ -1364,7 +1392,8 @@
   try {
     window.TD_CLOUD_MERGE = { canon: canon, deepMerge: deepMerge, mergeLocalWithCloud: mergeLocalWithCloud,
       mergeArrays: mergeArrays, itemSig: itemSig, pickAtomic: pickAtomic, ATOMIC_KEYS: ATOMIC_KEYS,
-      isPlainPayload: isPlainPayload, applyPayload: applyPayload, applyArchive: applyArchive, applyDraft: applyDraft };
+      isPlainPayload: isPlainPayload, applyPayload: applyPayload, applyArchive: applyArchive, applyDraft: applyDraft,
+      saveDraft: saveDraft, loadDraft: loadDraft, clearDraft: clearDraft };
   } catch (e) { console.warn('合并诊断钩子注册失败', e); }
 
   function boot() {

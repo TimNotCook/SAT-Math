@@ -166,6 +166,39 @@ test('好草稿应用成功后写回并清掉草稿', () => {
   assert.strictEqual(store.tdprofile_draft_v1, undefined, '成功应用后草稿没有清掉');
 });
 
+test('A→B→C 连续切号：后一个账号的草稿不覆盖前一个账号', () => {
+  const { M, store } = boot({});
+  const pA = { tdsat_app_v1: JSON.stringify({ who: 'A' }) };
+  const pB = { tdsat_app_v1: JSON.stringify({ who: 'B' }) };
+  assert.strictEqual(M.saveDraft('uA', pA), true);
+  assert.strictEqual(M.saveDraft('uB', pB), true);
+  const map = JSON.parse(store.tdprofile_draft_v1);
+  assert.deepStrictEqual(Object.keys(map.items).sort(), ['uA', 'uB']);
+  assert.deepStrictEqual(M.loadDraft('uA').payload, pA, 'A 的草稿被 B 覆盖了');
+  assert.deepStrictEqual(M.loadDraft('uB').payload, pB);
+});
+
+test('旧版单槽草稿在保存第二个账号时迁移为双槽，不丢 A', () => {
+  const pA = { tdsat_app_v1: JSON.stringify({ who: 'A' }) };
+  const { M, store } = boot({ tdprofile_draft_v1: JSON.stringify({ uid: 'uA', payload: pA }) });
+  assert.deepStrictEqual(M.loadDraft('uA').payload, pA, '旧格式读不出来');
+  assert.strictEqual(M.saveDraft('uB', { tdsat_app_v1: JSON.stringify({ who: 'B' }) }), true);
+  const map = JSON.parse(store.tdprofile_draft_v1);
+  assert.deepStrictEqual(Object.keys(map.items).sort(), ['uA', 'uB']);
+  assert.deepStrictEqual(M.loadDraft('uA').payload, pA, '迁移时把旧草稿丢了');
+});
+
+test('应用 A 的草稿只清 A 的槽，B 的草稿继续保留', () => {
+  const { M, store } = boot({});
+  const pA = { tdsat_app_v1: JSON.stringify({ who: 'A' }) };
+  const pB = { tdsat_app_v1: JSON.stringify({ who: 'B' }) };
+  M.saveDraft('uA', pA); M.saveDraft('uB', pB);
+  assert.strictEqual(M.applyDraft({ uid: 'uA', payload: pA }), true);
+  assert.strictEqual(M.loadDraft('uA'), null, 'A 的草稿应用成功后没有清掉');
+  assert.deepStrictEqual(M.loadDraft('uB').payload, pB, '清 A 草稿时把 B 也清了');
+  assert.deepStrictEqual(Object.keys(JSON.parse(store.tdprofile_draft_v1).items), ['uB']);
+});
+
 test('本地存储不可写时整份替换失败，不先删掉本机进度', () => {
   const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: true, ts: 3 } } } } });
   const { M, store } = boot({ tdsat_app_v1: local }, { throwWrite: true });

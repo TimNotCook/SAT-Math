@@ -763,3 +763,8 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 
 第 98 条把记录页的 mode 统一成小写，但成绩页 `renderResult` 仍用 `MODE_NAME[safeText(r.mode)]` 精确查表：旧存档/云端合并写成 `"QUIZ"` 时查不到，标题原样印「QUIZ · 成绩报告」；旧记录整个缺 `mode` 时，单元抽查的成绩页会被兜底成「模考 · 成绩报告」。修成 `modeRaw.trim().toLowerCase()` 查表，缺失时回落到当前页面的 `MODE`，未知值仍原样保留。验证：新增 3 条回归（QUIZ/Mock、缺失/空白、未知 FOO）；全量 601/0；`verify_flows` 16/16。
 
+
+
+## 第 102 条：草稿只有单槽，A→B→C 连续切号会把 A 的未同步增量覆盖掉（2026-11-28）
+
+`afterSignIn` 切号前用 `saveDraft(prof.owner, snapshot())` 暂存旧账号的增量，但 `tdprofile_draft_v1` 只有一个 `{uid,payload}` 槽。用户从 A 切到 B、再从 B 切到 C 时，第二次保存 B 的草稿会直接覆盖 A 的草稿；之后即使重新登录 A，A 在切号前的增量也已经不在本地，属于静默丢数据。修成按 uid 分槽的 `{v:2,items:{uid:{payload,ts}}}`，旧单槽格式仍能读并在下一次写入时迁移；`loadDraft(uid)` 只取当前账号，`clearDraft(uid)` 只清当前账号，应用草稿成功后不会顺手清掉其他账号的槽。验证：新增 A/B 双槽、旧格式迁移、应用 A 只清 A 三条回归；全量 605/0；`verify_flows` 16/16。
