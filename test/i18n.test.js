@@ -20,6 +20,7 @@ test('核心界面词都有英文：导航、按钮、设置、模考', () => {
     '已标记': 'Marked',
     '未作答': 'Unanswered',
     '交卷': 'Submit',
+    '完成本板块并查看结果': 'Finish section and view results',
     '语言': 'Language',
     '主题': 'Theme',
     '账户': 'Account',

@@ -39,6 +39,7 @@
     '标记本题': 'Mark this question',
     '取消标记': 'Unmark',
     '完成本板块': 'Finish section',
+    '完成本板块并查看结果': 'Finish section and view results',
     '交卷': 'Submit',
     '检查': 'Check',
     '已锁定': 'Locked',
