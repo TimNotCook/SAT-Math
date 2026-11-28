@@ -1754,3 +1754,10 @@ html body #toast#toast{width:max-content;max-width:min(560px,calc(100vw - 32px))
   html body .site-rail .td-acct-btn.rail-settings{min-height:44px!important;
     display:flex!important;align-items:center!important;justify-content:center!important;padding:10px 12px!important}
 }
+
+/* .btn.sm 在触屏上实测 39px（mock 开始页「Open full Directions」、错题卡「回到本题重练」），
+   padding 被 bluebook.css 压到 4px。触屏抬到 44 并居中，鼠标端保留小尺寸。 */
+@media (hover:none),(pointer:coarse){
+  html body .btn.sm{min-height:44px!important;display:inline-flex!important;
+    align-items:center!important;justify-content:center!important;padding-top:0!important;padding-bottom:0!important}
+}
