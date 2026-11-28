@@ -69,6 +69,10 @@
     '已作答': 'Answered',
     '未答': 'Unanswered',
     '正确': 'Correct',
+    '· 正确': '· Correct',
+    '原始分': 'Raw score',
+    '自适应路径': 'Adaptive path',
+    '暂无补强建议。': 'No focused review suggestions yet.',
     '错误': 'Incorrect',
     '第一空': 'Blank 1',
     '第二空': 'Blank 2',
@@ -597,6 +601,13 @@
     [/^(\d+) 题，$/, '$1 questions, '],
     [/^已导入 (\d+) 道：新增错题 (\d+) 道 · 已有作答仅只读展示 (\d+) 道（未改动）· 未匹配 (\d+) 道$/,
       'Imported $1: $2 new, $3 read-only (existing answers), $4 unmatched'],
+    /* 记录页成绩卡：标题/原始分/自适应路径/正确答案都是脚本拼出来的整串，
+       字典按整串永远命中不了，按模式翻。 */
+    [/^官方模考 · 全卷 (\d+) 题$/, 'Official Mock · Full test, $1 questions'],
+    [/^官方模考 · 未交卷$/, 'Official Mock · Not submitted'],
+    [/^原始分 (.+) \/ (\d+)$/, 'Raw score $1 / $2'],
+    [/^自适应路径 (.+)$/, 'Adaptive path $1'],
+    [/ · 正确 (.+)$/, ' · Correct $1'],
   ];
 
   var FORCED_LANG = null;
