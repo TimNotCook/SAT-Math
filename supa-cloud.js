@@ -333,7 +333,15 @@
   }
 
   /* ---------- 邮箱 / 手机号 + 密码（不依赖邮件投递，注册即可用） ---------- */
-  function validPw(v) { return String(v || '').length >= 8; }
+  /* 下限 8 位是产品规则；上限 72 位是 Supabase/GoTrue 的密码硬上限（bcrypt
+     只吃 72 字节）。不拦的话，用户把很长一段贴进来，服务端要么直接拒、
+     要么截断，界面上只会看到一句莫名其妙的错误。 */
+  function pwProblem(v) {
+    var n = String(v || '').length;
+    if (n < 8) return '密码至少 8 位。';
+    if (n > 72) return '密码最多 72 位，请删短一点再试。';
+    return '';
+  }
 
   /* 手机号当账号用：去掉空格/横线，补国家码，再折成项目内部的登录标识。
      规则：11 位且以 1 开头按中国大陆手机号，统一补 86，
@@ -381,7 +389,8 @@
       ce.code = 'auth/phone-signup-closed';
       throw ce;
     }
-    if (!validPw(pw)) throw errOf(400, { msg: '密码至少 8 位。' });
+    var pwErr = pwProblem(pw);
+    if (pwErr) throw errOf(400, { msg: pwErr });
     var body = { email: mail, password: pw };
     if (name) body.data = { display_name: String(name).slice(0, 24) };
     var r = await raw('/auth/v1/signup', {
@@ -440,7 +449,8 @@
 
   async function setPassword(password) {
     var pw = String(password || '');
-    if (!validPw(pw)) throw errOf(400, { msg: '密码至少 8 位。' });
+    var pwErr = pwProblem(pw);
+    if (pwErr) throw errOf(400, { msg: pwErr });
     var tk = await token();
     await raw('/auth/v1/user', {
       method: 'PUT', headers: authHeaders(tk),

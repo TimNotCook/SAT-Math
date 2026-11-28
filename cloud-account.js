@@ -850,6 +850,7 @@
   async function doSetPassword(pw, pw2) {
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     if (!pw || pw.length < 8) { setError('密码至少 8 位。'); return; }
+    if (pw.length > 72) { setError('密码最多 72 位，请删短一点再试。'); return; }
     if (pw2 !== undefined && pw !== pw2) { setError('两次输入的新密码不一致，请重新确认。'); return; }
     if (!SB || !SB.setPassword) { setError('登录模块未加载，请刷新页面重试。'); return; }
     var ok = false;
@@ -890,6 +891,7 @@
     if (!email) { setError(loginMode === 'signup' ? '请先填写邮箱。' : '请先填写邮箱或手机号。'); return; }
     if (loginMode === 'signup' && !looksLikeEmail(email)) { setError('邮箱格式不正确，请检查后再试。'); return; }
     if (pw.length < 8) { setError('密码至少 8 位。'); return; }
+    if (pw.length > 72) { setError('密码最多 72 位，请删短一点再试。'); return; }
     if (ui && ui.pw2 && pw !== pw2) { setError('两次输入的密码不一致，请重新确认。'); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
@@ -1401,6 +1403,8 @@
       if (SB && SB.setPassword) {
         var pwField = field('登录密码', 'password', '至少 8 位，设好后可换设备登录', 'new-password');
         var pw2Field = field('确认新密码', 'password', '再输一次', 'new-password');
+        pwField.input.maxLength = 72;
+        pw2Field.input.maxLength = 72;
         b.appendChild(pwField.box);
         b.appendChild(pw2Field.box);
         var pwRow = el('div', 'td-acct-actions');
@@ -1547,10 +1551,12 @@
       b.appendChild(emSign.box);
 
       var pwSign = field('设置密码', 'password', '至少 8 位', 'new-password');
+      pwSign.input.maxLength = 72;
       ui.pw = pwSign.input;
       b.appendChild(pwSign.box);
 
       var pwSign2 = field('确认密码', 'password', '再输一次', 'new-password');
+      pwSign2.input.maxLength = 72;
       ui.pw2 = pwSign2.input;
       b.appendChild(pwSign2.box);
 

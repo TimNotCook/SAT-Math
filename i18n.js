@@ -406,6 +406,7 @@
     '登录服务返回异常，请刷新页面后重试。': 'The sign-in service returned an error. Refresh and try again.',
     '登录链接已失效或邮件有误，请重新发送登录邮件。': 'That sign-in link has expired or the email is wrong. Send a new one.',
     '密码至少 8 位。': 'A password needs at least 8 characters.',
+    '密码最多 72 位，请删短一点再试。': 'A password can be at most 72 characters. Please shorten it and try again.',
     '请先填写邮箱或手机号。': 'Enter your email or phone number first.',
     '请先填写邮箱。': 'Enter your email first.',
     '请输入密码。': 'Enter your password first.',
