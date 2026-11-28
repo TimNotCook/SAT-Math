@@ -142,6 +142,12 @@
   function stateLabel(state){
     return state === 'is-done' ? '已完成' : state === 'is-active' ? '进行中' : '未开始';
   }
+  /* 卡片左上角那个编号：4.5.TD 是练习册版的内部 id，直接印出来像乱码，
+     用户认的号就是 4.5。其它（1.1、L2）保持原样。 */
+  function codeOf(s) {
+    var m = String(s || '').match(/^((?:\d+)\.\d+)\.TD$/i);
+    return m ? m[1] : String(s || '');
+  }
   function sectionTile(s) {
     var st = A.stats(s);
     var saved = A.secState(s, false) || {};
@@ -151,14 +157,14 @@
     var name = A.SECTION_CN[s] || s;
     if (!st.total) {
       return '<div class="tile-section drill-section-row ' + tier + ' is-empty" data-empty="1" aria-disabled="true">' +
-        '<span class="tile-code">' + esc(s) + '</span>' +
+        '<span class="tile-code">' + esc(codeOf(s)) + '</span>' +
         '<span class="tile-name">' + esc(name) + '</span>' +
         '<span class="tile-empty-badge">待录入</span></div>';
     }
     var href = done ? resultUrl(s) : A.secUrl(s, cursorIndex(saved) + 1);
     return '<a class="tile-section drill-section-row ' + tier + ' ' + state + '" href="' + href + '"' +
       (done ? ' data-result="1"' : '') + '>' +
-      '<span class="tile-code">' + esc(s) + '</span>' +
+      '<span class="tile-code">' + esc(codeOf(s)) + '</span>' +
       '<span class="tile-name">' + esc(name) + '</span>' +
       '<span class="tile-state ' + state + '">' + stateLabel(state) + '</span></a>';
   }

@@ -1991,3 +1991,29 @@ body.shell-wrong .wrong-toolbar .small.muted:not(#importFeedback){display:none!i
     max-width:100%!important;
   }
 }
+
+/* =====================================================================
+   首页板块行（手机）改成「编号 + 状态一行，标题独占一行」。
+   之前是 52px｜标题｜状态 三段一行：中文 7 字标题勉强两行，英文
+   「Linear Equations and Inequalities Word Problems」只剩 124px 宽，
+   断成四五根牙签，卡片高低还各不相同。标题独占整行后两种语言都是两行。
+   ===================================================================== */
+@media(max-width:640px){
+  html body .tile-grid>.tile-section.drill-section-row{
+    grid-template-columns:auto minmax(0,1fr)!important;
+    grid-template-areas:"code state" "name name"!important;
+    row-gap:5px!important;
+    align-items:center!important;
+  }
+  html body .tile-grid>.tile-section.drill-section-row .tile-code{
+    grid-area:code!important;grid-column:auto!important;grid-row:auto!important;
+  }
+  html body .tile-grid>.tile-section.drill-section-row .tile-name{
+    grid-area:name!important;grid-column:1/-1!important;grid-row:auto!important;
+  }
+  html body .tile-grid>.tile-section.drill-section-row .tile-state,
+  html body .tile-grid>.tile-section.drill-section-row .tile-empty-badge{
+    grid-area:state!important;grid-column:auto!important;grid-row:auto!important;
+    justify-self:end!important;align-self:center!important;
+  }
+}

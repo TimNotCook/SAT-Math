@@ -75,10 +75,17 @@ test('320 成绩报告标题缩到 14px、题号独立成行', () => {
   assert.match(app, /html body \.rev-topic \.rev-qno\{display:block!important/);
 });
 
+<<<<<<< HEAD
 test('320 题号换行后不把「·」孤零零留在第二行行首', () => {
   /* 8c6ca1d 之后知识点名不再拖「· 第 N 题」：题号只在 Q${dPos} 上出现一次，
      拼进知识点名的 rev-qno/rev-sep 结构已删除，这里反向守住别又被拼回去。 */
   assert.ok(!/<span class="rev-qno"><span class="rev-sep">[^<]*<\/span>/.test(examjs), '知识点名后面不要重复拼题号');
   assert.match(app, /html body \.rev-topic \.rev-qno \.rev-sep\{display:none!important\}/);
+=======
+test('320 逐题回顾不再印「· 第 N 题」这层题号', () => {
+  /* 题号已经在每行开头的 Q5 上给过一次；知识点名后面再跟一个「· 第 12 题」
+     既重复又把 320 宽挤成两截，这一层已经删掉（CSS 的兼容规则留着无害）。 */
+  assert.ok(!/rev-qno/.test(examjs), '逐题回顾又把「· 第 N 题」印回来了');
+>>>>>>> 7aa4dfe (hotfix: 清掉上一轮合并残留在 exam.js 的冲突标记（线上模考/抽查页全挂）；首页手机板块行改两行式)
   assert.match(app, /html body \.rev-line1 \.rev-q\{display:none!important\}/);
 });
