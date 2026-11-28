@@ -55,6 +55,16 @@
   /* 旧版/云端/手工导入可能把模式写成 'MOCK'/'Mock'/'QUIZ'：所有标题、44/30
      封顶、补强报告分支都按小写比较，大小写不一致会让整卷重新印成 999 题。 */
   function modeOf(rec) { return txt(rec && rec.mode).trim().toLowerCase(); }
+
+  /* 英文界面：题库里的出处前缀是硬编码中文（「讲义 p7 #1」），
+     记录页回放时不能原样摆出来；只换前缀名词，题号照旧。 */
+  function isEn() { try { return !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en'); } catch (e) { return false; } }
+  function enSource(v) {
+    return String(v == null ? '' : v)
+      .replace(/^讲义\s*/, 'Lecture ').replace(/^练习册\s*/, 'Book ')
+      .replace(/^真题练习\s*/, 'Practice ').replace(/^真题\s*/, 'Real test ')
+      .replace(/^模考\s*/, 'Mock ').replace(/\s*第\s*(\d+)\s*题/g, ' #$1');
+  }
   /* detail.correct 可能是布尔、1/0、'true'/'false'（云端旧结构）。只认明确的
      真值，否则 'false' 会被当成答对，整条错题行从记录里消失。 */
   /* 云端/手工导入有时把布尔写成 'True'/'FALSE'（Python 风格）：严格小写比较会把
@@ -192,7 +202,8 @@
     if (!wrong.length) return '<div class="hist-empty">本次全部答对。</div>';
     return '<div class="hist-wrong">' + wrong.map(function (d) {
       var did = txt(d.id) || '—', q = byId(did) || {};
-      var stem = (txt(q.stem) || txt(d.topic) || did).replace(/\s+/g, ' ').trim().slice(0, 90);
+      var stemRaw = (txt(q.stem) || txt(d.topic) || did).replace(/\s+/g, ' ').trim();
+      var stem = (isEn() ? enSource(stemRaw) : stemRaw).slice(0, 90);
       /* 37 道填空（SP2 系列）只有 value 没有 answer：存档里 answer 为 null 时
          旧版记录页会印「正确 —」，等于把正确答案吞掉。按 answer → value →
          q.value → q.values 逐级兜底，历史记录也能补出正确答案。 */
