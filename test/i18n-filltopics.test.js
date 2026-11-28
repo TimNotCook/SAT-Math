@@ -11,6 +11,7 @@ const pairs = [
   ['三角形内角与图形求角', 'Triangle angles'],
   ['平行线被截线所截求角', 'Angles from parallel lines'],
   ['直线方程与夹角参数', 'Line equation and angle parameters'],
+  ['平行线与垂直', 'Parallel and perpendicular lines'],
   ['表格求百分比', 'Percent from a table'],
   ['频数表求中位数', 'Median from a frequency table'],
 ];

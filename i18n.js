@@ -280,6 +280,7 @@
     '实际值与预测值之差': 'Difference between actual and predicted values',
     '展开后与分数系数比较求 a+b+c': 'Expand and compare fractional coefficients to find a + b + c',
     '平行线与垂直：由图形求角': 'Parallel and perpendicular lines: angles from a figure',
+    '平行线与垂直': 'Parallel and perpendicular lines',
     '平行线与截线：角度计算': 'Parallel lines and a transversal: angle calculation',
     '平行线被截线所截求角（填空）': 'Angles from parallel lines cut by a transversal (fill-in)',
     '平行线被截线所截求角': 'Angles from parallel lines cut by a transversal',
