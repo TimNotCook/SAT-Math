@@ -735,3 +735,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 94 条：云端档案应用失败后仍更新同步指纹/切换账号，还会把本地进度推上去（2026-11-28）
 
 第 93 条让 `applyPayload` 在本地存储不可写时返回 `false`，但 `afterSignIn` 的两个账号分支都没看返回值。同一账号分支照样 `prof.lastSynced = localHash()` 并提示「已打开你在其他设备上的进度」——本机实际没变，云端哈希被记成本地已同步，后续不再重试。切换账号分支更严重：失败后仍把 `prof.owner` 改成新账号，并在 `merged` 为真时 `silentPush()`，等于用 A 的本机进度覆盖 B 的云端档案。修成统一走 `applyArchive(payload)` 并检查返回值：同账号失败只警告、不动 `lastSynced`；切号失败则 `signOut()` 退出这次登录、保留本机进度、绝不跨账号推送。验证：新增 `applyArchive` 写失败回归，返回 false 且本机原值保留；全量 589/0。
+
+## 第 95 条：练习进度 cursor 是小数时，打开练习页直接空白（2026-11-28）
+
+`drill.js readLocation()` 直接把存档里的 `cursor` 塞进数组下标：云端/旧版写成 `1.5` 时，`questions[1.5]` 是 `undefined`，`currentQuestion()` 返回 null，练习页一打开就是空白。同页的单元卡片、专项“继续上次练习”和“继续上次练习 · 第 N 题”也都直接拼 `cursor + 1`，会生成 `2.5` 的链接和错位题号。修成统一 `cursorIndex(st)`：`Number` 后 `Math.floor`，非有限数按 0，再夹 `0..len-1`；四处入口全部改用该函数。验证：新增游标回归 2 条，旧代码无 `cursorIndex` 且裸拼 `st.cursor + 1` 断言失败；全量 589/0；`verify_flows` 16/16。

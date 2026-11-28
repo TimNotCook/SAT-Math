@@ -146,7 +146,7 @@
         '<span class="tile-name">' + esc(name) + '</span>' +
         '<span class="tile-empty-badge">待录入</span></div>';
     }
-    var href = done ? resultUrl(s) : A.secUrl(s, st.cursor + 1);
+    var href = done ? resultUrl(s) : A.secUrl(s, cursorIndex(saved) + 1);
     return '<a class="tile-section drill-section-row ' + tier + ' ' + state + '" href="' + href + '"' +
       (done ? ' data-result="1"' : '') + '>' +
       '<span class="tile-code">' + esc(s) + '</span>' +
@@ -289,7 +289,7 @@
     var last = A.state.last && A.CATALOG[A.state.last.sec] &&
       (A.isTopicSection(A.state.last.sec) || A.isSpecialSection(A.state.last.sec)) ? A.state.last.sec : null;
     els.specialResumeSlot.innerHTML = last
-      ? '<a class="drill-resume" href="' + A.secUrl(last, (A.secState(last, false) || {}).cursor + 1 || 1) + '">' +
+      ? '<a class="drill-resume" href="' + A.secUrl(last, cursorIndex(A.secState(last, false)) + 1) + '">' +
         '继续上次练习 · ' + esc(A.sectionLabel(last)) + '</a>'
       : '';
     setExit('drill.html', true);
@@ -386,8 +386,9 @@
     var last = A.state.last && A.CATALOG[A.state.last.sec] ? A.state.last.sec : null;
     if (!last) { els.resumeSlot.innerHTML = ''; return; }
     var st = A.secState(last, false) || { cursor: 0 };
-    els.resumeSlot.innerHTML = '<a class="drill-resume" href="' + A.secUrl(last, (st.cursor || 0) + 1) + '">' +
-      '继续上次练习 · ' + esc(A.sectionLabel(last)) + ' 第 ' + ((st.cursor || 0) + 1) + ' 题</a>';
+    var cur = cursorIndex(st);
+    els.resumeSlot.innerHTML = '<a class="drill-resume" href="' + A.secUrl(last, cur + 1) + '">' +
+      '继续上次练习 · ' + esc(A.sectionLabel(last)) + ' 第 ' + (cur + 1) + ' 题</a>';
   }
   /* 空小节禁用态：误点只弹轻提示，绝不进做题页。 */
   function drillToast(msg) {
@@ -402,6 +403,12 @@
   function currentQuestion() { return questions[index] || null; }
   function textFor(q) { return (window.TD_TEXT || {})[q.id] || {}; }
   function stateFor(sec, create) { return A.secState(sec, create) || { answers: {}, marks: {}, cursor: 0 }; }
+  /* 云端/旧版可能把 cursor 写成 1.5：直接塞进数组下标会得到 undefined，
+     练习页打开就是空白。游标只认有限数，先向下取整再夹到 0..len-1。 */
+  function cursorIndex(st) {
+    var n = Number(st && st.cursor);
+    return isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
+  }
   function readLocation() {
     var p = new URLSearchParams(location.search);
     var requested = p.get('sec');
@@ -409,7 +416,7 @@
     var list = A.CATALOG[sec], raw = p.get('i'), i;
     if (raw == null) {
       var saved = stateFor(sec, false);
-      i = Math.max(0, Math.min(list.length - 1, saved.cursor || 0));
+      i = Math.min(list.length - 1, cursorIndex(saved));
     } else {
       i = parseInt(raw, 10);
       i = isFinite(i) ? Math.max(1, Math.min(list.length, i)) - 1 : 0;
