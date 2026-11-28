@@ -1898,3 +1898,7 @@ html body .entry-tile-grid .jy-board-card .jy-card-meta{
   body.jy-page #jyBoardCards .jy-board-card{min-width:0!important}
   body.jy-page #jyBoardCards .jy-board-card b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
+/* 幂等守卫：仓库里有一条「一次性补丁投放」workflow（apply-*.yml）会周期性
+   把错题工具栏里的说明 span 写回旧长句。这里按结构收掉工具栏内的纯说明，
+   只留反馈区 #importFeedback —— 无论 HTML 被回写几次，用户都看不到那段长文案。 */
+body.shell-wrong .wrong-toolbar .small.muted:not(#importFeedback){display:none!important}
