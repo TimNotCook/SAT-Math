@@ -1,0 +1,69 @@
+diff --git a/cloud-account.js b/cloud-account.js
+index 8716a10..98c40d6 100644
+--- a/cloud-account.js
++++ b/cloud-account.js
+@@ -1182,6 +1182,12 @@
+     needConfirm = false;
+     confirmCooldown = 0;
+     if (confirmTimer) { clearInterval(confirmTimer); confirmTimer = null; }
++    /* 邮箱是个人标识，不该在共享设备上留给下一个人；重置标记也要复位，
++       否则下一个人从重置链接回来会以为面板已经开过。 */
++    pwdEmail = '';
++    otpEmail = '';
++    recoveryOpened = false;
++    try { sessionStorage.removeItem('tdsat_recovery_opened'); } catch (e) { /* 存储不可用就算了 */ }
+     /* 邮件链接/验证码/重置共用的 60 秒冷却也不能跨账号留着：上一个人刚发过，
+        下一个人刚打开登录页就看到按钮被禁用，还会把“重新获取”当成自己点过。 */
+     otpCooldowns = { link: 0, reset: 0, code: 0 };
+@@ -1284,8 +1290,10 @@
+       if (ui) ui.btn.setAttribute('data-on', '0');
+       /* 会话过期/在别处退出也回到登录页，别把注册或重置表单留在面板上。 */
+       if (was) loginMode = 'password';
+-      if (was) setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
++      /* 先重绘再写提示：未登录重绘会把状态栏改成「未登录」，会话过期
++         的退出提示写在前面会被吞掉，用户以为只是页面自己刷新了一下。 */
+       renderBody();
++      if (was) setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
+     }
+     openAuthNoticeOnce();
+   }
+diff --git a/docs/runtime-audit.md b/docs/runtime-audit.md
+index f5dab89..1625710 100644
+--- a/docs/runtime-audit.md
++++ b/docs/runtime-audit.md
+@@ -1141,3 +1141,11 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
+ ## 第 189 条：发过登录邮件后，重置密码和验证码也被同一个 60 秒锁住（2026-11-28）
+ 
+ 邮件链接、重置密码、验证码三条通道共用一个 `otpCooldown`。用户刚发完登录链接，发现没收到，切到“忘记密码”想走重置，按钮却显示“重新发送 (47s)”并被禁用；切到验证码也一样。三条通道本来是不同的邮件模板，服务端也分别限流，本地不该互相锁。现在冷却改成 `{link,reset,code}` 三份独立计数，一个计时器一起递减；退出登录仍全部归零。验证：`login-errors` 锁住三份计数与退出清理；全量 776/0。
++
++## 第 190 条：会话过期退出时，“已退出登录”被重绘盖成“未登录”（2026-11-28）
++
++第 185 条只修了手动退出，`onState` 里“会话过期/在别处退出”的路径仍是先 `setStatus` 再 `renderBody()`。未登录重绘第一件事就是把状态栏改成“未登录 · 进度保存在这台设备”，用户以为只是页面刷新，不知道登录已经失效。现在先重绘，再写退出提示。验证：`login-errors` 锁住语句顺序；全量 786/0。
++
++## 第 191 条：退出登录后，上一个人的邮箱和“重置面板已开过”留给下一个人（2026-11-28）
++
++`pwdEmail` / `otpEmail` 在退出时没清，登录页的 `seed` 会把上一个人的邮箱预填出来；共享设备上等于把账号标识留给下一个人。`recoveryOpened` 和 `sessionStorage.tdsat_recovery_opened` 也没清，下一个人从重置链接回来时会被误判成“这个标签页已经自动开过面板”，停在首页找不到设密码的入口。现在退出时把两个邮箱、`recoveryOpened` 和会话标记一起清掉。验证：`login-errors` 锁住四处清理；全量 787/0。
+diff --git a/test/login-errors.test.js b/test/login-errors.test.js
+index b8b1c19..6aed06a 100644
+--- a/test/login-errors.test.js
++++ b/test/login-errors.test.js
+@@ -338,3 +338,19 @@ test('邮件链接、重置密码、验证码三条通道各算各的 60 秒冷
+   assert.match(acct, /otpCooldowns\.code/);
+   assert.match(acct, /startOtpCooldown\(loginMode\)/);
+ });
++
++test('会话过期退出先重绘再写状态，别被“未登录”盖掉', () => {
++  const st = acct.slice(acct.indexOf('function onState'), acct.indexOf('function buildUI'));
++  const draw = st.indexOf('renderBody()');
++  const msg = st.indexOf("if (was) setStatus('已退出登录");
++  assert.ok(draw >= 0 && msg >= 0, '会话过期退出缺少重绘或提示');
++  assert.ok(draw < msg, '退出提示写在重绘之前，会被“未登录”覆盖');
++});
++
++test('退出登录不把上一个人的邮箱和重置面板状态留给下一个人', () => {
++  const out = acct.slice(acct.indexOf('async function doSignOut'), acct.indexOf('function openAuthNoticeOnce'));
++  assert.match(out, /pwdEmail = ''/, '退出后仍预填上一个账号的邮箱');
++  assert.match(out, /otpEmail = ''/, '退出后仍记得上一个验证码发到哪个邮箱');
++  assert.match(out, /recoveryOpened = false/, '退出后重置面板仍被记成已自动打开');
++  assert.match(out, /sessionStorage\.removeItem\('tdsat_recovery_opened'\)/, '退出后没清重置面板的会话标记');
++});
