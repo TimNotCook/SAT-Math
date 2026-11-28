@@ -1449,15 +1449,19 @@
         '<span><i class="is-marked"></i>已标记</span><span><i class="is-current"></i>当前</span>';
     $('btnReviewNav').textContent = '打开题目导航';
   }
-  window.TD_UI.bindTools({
-    reference: 'btnReference', directions: 'btnDirections', calculator: 'btnCalculator',
-    allowCalculator: true
-  });
+  /* app-ui.js 未加载成功时（弱网/首屏被截断）不能让整个初始化中断：
+     紧跟着的答题区/计时绑定都在这个块里，一抛错整页按钮就全死。 */
+  if (window.TD_UI && typeof window.TD_UI.bindTools === 'function') {
+    window.TD_UI.bindTools({
+      reference: 'btnReference', directions: 'btnDirections', calculator: 'btnCalculator',
+      allowCalculator: true
+    });
+  }
   $('answerArea').addEventListener('click', event => {
-    if (event.target.closest('.exam-spr-link')) window.TD_UI.openModal('dir');
+    if (event.target.closest('.exam-spr-link') && window.TD_UI) window.TD_UI.openModal('dir');
   });
   $('introDirections').addEventListener('click', event => {
-    if (event.target.closest('#btnIntroDirections')) window.TD_UI.openModal('dir');
+    if (event.target.closest('#btnIntroDirections') && window.TD_UI) window.TD_UI.openModal('dir');
   });
   $('btnHideTimer').addEventListener('click', () => {
     const b = $('btnHideTimer');
