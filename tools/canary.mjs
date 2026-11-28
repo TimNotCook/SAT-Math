@@ -53,7 +53,7 @@ async function checkPage(file) {
     try {
       const r = await get(url + (i ? '&r=' + i : ''));
       if (r.status !== 200) { last = 'HTTP ' + r.status; continue; }
-      if (!/<title[^>]*>[^<不容]+<\/title>/i.test(r.text)) { last = '缺少非空 title'; continue; }
+      if (!/<title[^>]*>[^<]+<\/title>/i.test(r.text)) { last = '缺少非空 title'; continue; }
       if (!/<\/html>/i.test(r.text)) { last = 'HTML 不完整'; continue; }
       if (/^<{7}|^>{7}/m.test(r.text)) { last = '页面含冲突标记'; continue; }
       return record(file, true, 'HTTP 200');
