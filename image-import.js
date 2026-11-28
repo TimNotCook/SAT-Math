@@ -406,7 +406,8 @@
   /* 一张截屏里常有 3~5 道题并排/竖排。整块喂给 OCR 会把几道题的题干糊成一锅（数字互相串），
      匹配自然不稳、认不出来。这里按"横向空白带"把图切成一块一块，每块当成一道题分别识别。
      切不动（单题大图、有题图/表格）就原样整张走老流程，不改变原有行为。 */
-  function splitBands(dataUrl) {
+  function splitBands(dataUrl, depth) {
+    depth = depth || 0;
     return new Promise(function (res) {
       var img = new Image();
       img.onload = function () {
@@ -416,7 +417,57 @@
           var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
           var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cw, ch); cx.drawImage(img, 0, 0, cw, ch);
           var px = cx.getImageData(0, 0, cw, ch).data;
-          var ink = [], i, x, y;
+          var i, x, y;
+
+          /* 双栏页（PDF 论文/真题书排版）先竖着切一刀：两栏的文字在同一个横向行里，
+             按横向空白带切根本切不开，OCR 会把左右两栏交错读成一句（实测"Line r ... The graph of 4x..."）。
+             找"整列都是空白"的竖直缝，位置在中间区域、左右两边都还有字，才认定是两栏。 */
+          if (depth < 1) {
+            var colInk = [], m;
+            for (x = 0; x < cw; x++) {
+              m = 0;
+              for (y = 0; y < ch; y += 2) {
+                i = (y * cw + x) * 4;
+                if (px[i] < 205 || px[i + 1] < 205 || px[i + 2] < 205) { m++; if (m > 2) break; }
+              }
+              colInk.push(m > 2);
+            }
+            /* 收集所有"整列空白"的竖条，再从里面挑最靠中间的那条。
+               只取全局最长会把右边页边距当成中缝（页边距往往比中缝更宽），于是一直切不开。 */
+            var runs = [], runStart = -1, len;
+            for (x = 0; x <= cw; x++) {
+              var blank = x < cw ? !colInk[x] : false;
+              if (blank) { if (runStart < 0) runStart = x; }
+              else if (runStart >= 0) { len = x - runStart; runs.push([runStart, len]); runStart = -1; }
+            }
+            var bestStart = -1, bestLen = 0;
+            runs.forEach(function (r) {
+              if (r[1] < 20) return;
+              if (r[0] <= cw * 0.2 || r[0] + r[1] >= cw * 0.85) return;   // 只认中间那块
+              if (r[1] > bestLen) { bestLen = r[1]; bestStart = r[0]; }
+            });
+            if (bestLen) {
+              var gx0 = bestStart, gx1 = bestStart + bestLen;
+              var li = 0, ri = 0, k;
+              for (k = 0; k < gx0; k++) if (colInk[k]) li++;
+              for (k = gx1; k < cw; k++) if (colInk[k]) ri++;
+              if (li > cw * 0.06 && ri > cw * 0.06) {
+                var xL = Math.max(1, Math.round(gx0 / sc)), xR = Math.min(W - 1, Math.round(gx1 / sc));
+                var half = function (sx, sw) {
+                  var c2 = document.createElement('canvas'); c2.width = sw; c2.height = H;
+                  var x2 = c2.getContext('2d'); x2.fillStyle = '#fff'; x2.fillRect(0, 0, sw, H);
+                  x2.drawImage(img, sx, 0, sw, H, 0, 0, sw, H);
+                  return c2.toDataURL('image/jpeg', 0.9);
+                };
+                var lUrl = half(0, xL), rUrl = half(xR, W - xR);
+                return Promise.all([splitBands(lUrl, depth + 1), splitBands(rUrl, depth + 1)]).then(function (two) {
+                  res(two[0].concat(two[1]));
+                });
+              }
+            }
+          }
+
+          var ink = [];
           for (y = 0; y < ch; y++) {
             var n = 0;
             for (x = 0; x < cw; x++) {
@@ -434,8 +485,7 @@
           if (start >= 0) blocks.push([start, ch - 1]);
           blocks = blocks.filter(function (b) { return b[1] - b[0] >= 10; });
           /* 顶端若是一小行标题（"Questions 12-15"、页码），把它并进第一块，避免多出一道假题。
-             阈值必须按"原图 60px"算：以前按 4% 高度算，长截图 ch 上千，阈值涨到 100 多像素，
-             把正常的短题（两三行）也当成标题并掉了 —— 两块题混在一条里，识别全乱。 */
+             阈值按"原图 30px"算：按比例算会随图高变化，长截图时把正常短题也并掉，两题混一条。 */
           if (blocks.length > 1 && (blocks[0][1] - blocks[0][0]) < 30 * sc) { blocks[1] = [blocks[0][0], blocks[1][1]]; blocks.shift(); }
           if (blocks.length < 2 || blocks.length > 8) return res([{ url: dataUrl }]);
           var out = blocks.map(function (b) {
@@ -683,7 +733,7 @@
     });
   }
 
-  function ocrBest(dataUrl, model) {
+  function ocrBest(dataUrl, model, quick) {
     var best = null;
     function scoreOf(text) {
       var r = matchQuestion(String(text || ''), '', 5);
@@ -698,7 +748,7 @@
       }, function () { return -1; });
     }
     return run(dataUrl, 'base').then(function (sc) {
-      if (sc >= 0.62) return best;
+      if (sc >= 0.62 || quick) return best;   // 多块/已经慢了：只认一遍，别为一道题耗十几秒
       return scaleImage(dataUrl, 1.6).then(function (v) {
         if (!v) return best;
         return run(v, 'zoom').then(function (sc2) {
@@ -1035,6 +1085,7 @@
     busy = true;
     pages = []; renderRows(); progress(0, 1);
     var prep = Promise.resolve();
+    var t0 = Date.now();
     images.forEach(function (f, i) {
       prep = prep.then(function () {
         status('正在准备第 ' + (i + 1) + ' / ' + images.length + ' 张…');
@@ -1066,7 +1117,7 @@
         }
         status('正在识别第 ' + p.i + ' / ' + pages.length + ' 块…');
         // 多种预处理各认一遍，取"跟题库最对得上"的那一版，不迷信 OCR 自己的置信度
-        return ocrBest(p.dataUrl, state.model).then(function (bestRes) {
+        return ocrBest(p.dataUrl, state.model, Date.now() - t0 > 8000).then(function (bestRes) {
             var ocr = bestRes.ocr;
             if (bestRes.url) p.dataUrl = bestRes.url;
             p.ocr = ocr;
