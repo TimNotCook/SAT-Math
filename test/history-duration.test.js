@@ -12,16 +12,23 @@ const src = fs.readFileSync(path.join(ROOT, 'history-page.js'), 'utf8');
 const body = src.match(/function fmtDur\(sec\) \{[\s\S]*?\n  \}/);
 assert.ok(body, 'history-page.js 里找不到 fmtDur');
 
-const fmtDur = new Function('num', body[0] + '\nreturn fmtDur;')(v => {
+const mk = isEn => new Function('num', 'isEn', body[0] + '\nreturn fmtDur;')(v => {
   if (v === null || v === undefined || v === '') return null;
   const n = Number(v);
   return isFinite(n) ? n : null;
-});
+}, isEn);
+const fmtDur = mk(() => false), fmtDurEn = mk(() => true);
 
 test('不到一分钟按秒显示，不再写成 0 min', () => {
   assert.equal(fmtDur(17), '17 秒');
   assert.equal(fmtDur(59), '59 秒');
   assert.equal(fmtDur(0), '0 秒');
+});
+
+test('英文界面不足一分钟不夹中文「秒」', () => {
+  assert.equal(fmtDurEn(17), '17 sec');
+  assert.equal(fmtDurEn(59), '59 sec');
+  assert.equal(fmtDurEn(0), '0 sec');
 });
 
 test('整分钟及以上仍按分钟/小时', () => {
