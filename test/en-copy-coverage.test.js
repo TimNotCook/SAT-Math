@@ -84,3 +84,11 @@ test('错题导入面板：没有失败项时不预先宣告失败，也不再�
   assert.ok(!js.includes("' · 数字校验 '"), '行内又印「数字校验」');
   assert.ok(js.includes('离线识别'), '云端账号状态行被写回了推销文案');
 });
+
+test('导入面板不再摆系统说明书与内核诊断行', () => {
+  const html = read('wrong.html');
+  assert.ok(/id="imgimpDiag"[^>]*hidden/.test(html), '内核诊断行又显示出来了');
+  assert.ok(!html.includes('两种用法：'), '「两种用法」说明段又写回来了');
+  assert.ok(!html.includes('首次要下载约 7MB'), '7MB 下载说明又写回来了');
+  assert.ok(!/错题记录只增不改/.test(html), '工具条上的「只增不改」说明又回来了');
+});

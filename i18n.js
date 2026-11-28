@@ -323,6 +323,8 @@
     '几何': 'Geometry',
     '单元抽查 · U1': 'Unit Quiz · U1',
     '识别失败可重试：': 'Recognition failed, you can retry:',
+    '拖入截图，或粘贴（Ctrl/Cmd+V）': 'Drop a screenshot, or paste (Ctrl/Cmd+V)',
+    '图认不出？把题干文字贴进来。': 'Can\'t read it? Paste the question text.',
     '把截图拖进来，认得出就自动进错题本。': 'Drop a screenshot in — if it reads, it lands in your wrong answers.',
     '重试失败项': 'Retry failed items',
     '拖入 / 点击选择截图，或直接粘贴（Ctrl/Cmd+V），松开即自动识别导入': 'Drop or click a screenshot, or paste (Ctrl/Cmd+V) to import automatically',

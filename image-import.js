@@ -327,7 +327,8 @@
           // 无会话：先消费 OAuth 回调。页面加载早期即执行，远早于用户点识别按钮。
           if (!oauthCallbackPresent()) {
             applyCloudSessionUI(false);
-            status('未登录云端账号：先用本地引擎识别（离线也能用），登录后可更准。');
+            /* 不弹「未登录…登录后更准」：这是系统说明，而且每次开面板都跳一句话。
+               状态行已经写着「未登录（用离线识别）」，用户看图说话就够。 */
             resolve(false);
             return;
           }
@@ -336,11 +337,11 @@
             if (r2 && r2.data) {
               cleanOAuthParams();
               applyCloudSessionUI(true);
-              status('云端账号已登录，图片识别已就绪。');
+              status(EN_UI() ? 'Cloud account connected — image import ready.' : '云端账号已登录，图片识别已就绪。');
               resolve(true);
             } else {
               applyCloudSessionUI(false);
-              status('云端登录未完成，请点击「登录云端账号」重试。');
+              status(EN_UI() ? 'Cloud sign-in didn\'t finish — tap “Sign in” and try again.' : '云端登录未完成，点击「登录云端账号」重试。');
               resolve(false);
             }
           }).catch(function () { applyCloudSessionUI(false); resolve(false); });
