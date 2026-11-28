@@ -704,3 +704,11 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 86 条：本机快照键是合法 JSON 的 null/标量时，合并会顶掉云端整份进度（2026-11-28）
 
 `deepMerge(lo, co)` 的兜底分支无条件 `return lo`，只挡住了数组对对象、坏 JSON 两种情况。若本机某个 `tdsat_*` 快照键被写成 `"null"`、`"0"`、`"false"`、`"\"\""`（都能 `JSON.parse`，但形状不对），云端对应键是完好对象，合并结果仍取本机标量；随后 `silentPush` 把它推上云，账号里的好数据被冲掉。修成“一边普通对象、另一边标量/null 时保留对象那侧”，两边都是标量才按本机优先。验证：本机 `tdsat_app_v1` 分别写成 `null/""/0/false/[]`、云端为完整 `sections`，旧代码保留本机标量失败，新代码保留云端对象；全量 568/0。
+
+## 第 87 条：大写布尔只修了一半，错题本仍会丢 `correct:"False"`（2026-11-28）
+
+`5437bb6` 给记录页、成绩页、错题页的 `isRight` 加了 `trim().toLowerCase()`，但 `wrong-page.js isWrong`、`exam.js isWrongFlag` 仍是严格小写；`app-core`、`progress-save`、`jiangyi-core`、`exam-core`、`analysis`、`drill`、`cloud-account` 的布尔判断也各自漏改。结果 `correct:"False"` 既不算对也不算错：练习作答不会进错题本，抽查优先池不收，成绩报告的 `correct` 还把字符串 `"False"` 当 truthy 计成答对。修成所有模块统一 `flagKey(v)` 先 trim+小写再判；补错题本、练习统计、weaknessReport、analysis aggregate 回归。验证：全量 571/0；`verify_flows` 16/16；`verify_junk` 11×7。
+
+## 第 88 条：图片导入「撤销本次」实际会删掉之前多批导入记录（2026-11-28）
+
+`image-import.js` 的 `lastAdded` 从页面加载到刷新一直累积，`importChecked()` 与 `importSingle()` 都只往里 push、不重置；用户连续导入两批后点一次「撤销本次导入」，会把两批甚至整个会话的导入记录一起删掉，和按钮文案不符。修成每次新的导入动作先 `beginBatch()` 清空上一批，撤销只覆盖最近一次。验证：新增静态回归锁住两个入口都调用 `beginBatch()`；全量 572/0；`verify_flows` 16/16；`verify_junk` 11×7。

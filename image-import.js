@@ -680,6 +680,9 @@
 
   /* 最近一次导入的记录 id：识别偶有认错题，得留一条后悔药，一键撤回本次写入。 */
   var lastAdded = [];
+  /* 撤销只覆盖「最近一次导入」，不是整个页面生命周期：每次新的导入动作
+     先清空上一批，否则连续导入两批后点一次撤销会把两批一起删掉。 */
+  function beginBatch() { lastAdded = []; showUndo(); }
   function rememberAdd(qid) {
     if (lastAdded.indexOf(qid) < 0) lastAdded.push(qid);
     showUndo();
@@ -706,6 +709,7 @@
 
   function importChecked() {
     if (!A) return { added: 0, message: '题库未就绪' };
+    beginBatch();
     var conflicts = [], now = Date.now(), added = 0, alreadys = 0;
     pages.forEach(function (p) {
       if (!p.checked || !p.qid) return;
@@ -819,6 +823,7 @@
     }
     var st = A.secState(hit.sec, true);
     if (!st) return { added: 0 };
+    beginBatch();
     st.answers[hit.q.id] = { v: '', correct: false, ts: Date.now(), importSrc: MARK };
     st.completed = A.stats(hit.sec).completed;
     rememberAdd(hit.q.id);

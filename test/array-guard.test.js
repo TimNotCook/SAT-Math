@@ -609,3 +609,12 @@ test('练习统计：correct 是 "True" 时算答对，"False" 时算答错', ()
   assert.equal(stats.correct, 1, '大写 True 没有被算成答对');
   assert.equal(stats.wrong, 1, '大写 False 没有被算成答错');
 });
+
+test('图片导入撤销只覆盖最近一批，不是整页生命周期', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'image-import.js'), 'utf8');
+  const checked = src.slice(src.indexOf('function importChecked()'), src.indexOf('function finderRender('));
+  const singleStart = src.indexOf('function importSingle(');
+  const single = src.slice(singleStart, singleStart + 1400);
+  assert.ok(checked.indexOf('beginBatch()') > -1, 'importChecked 开始前没有清空上一批撤销清单');
+  assert.ok(single.indexOf('beginBatch()') > -1, 'importSingle 写入前没有清空上一批撤销清单');
+});
