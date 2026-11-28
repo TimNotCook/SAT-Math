@@ -12,6 +12,7 @@ import { dirname, resolve } from 'node:path';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(resolve(ROOT, 'app.css'), 'utf8');
+const examjs = readFileSync(resolve(ROOT, 'exam.js'), 'utf8');
 const bluebook = readFileSync(resolve(ROOT, 'bluebook.css'), 'utf8');
 
 test('讲义四列收紧内边距/字号，长板块名不再省略', () => {
@@ -72,4 +73,10 @@ test('320 成绩报告题号不被拆成「第」与「1 题」两截', () => {
 test('320 成绩报告标题缩到 14px、题号独立成行', () => {
   assert.match(app, /@media\(max-width:360px\)\{\s*html body \.rev-topic\{font-size:14px!important/);
   assert.match(app, /html body \.rev-topic \.rev-qno\{display:block!important/);
+});
+
+test('320 题号换行后不把「·」孤零零留在第二行行首', () => {
+  assert.match(examjs, /<span class="rev-qno"><span class="rev-sep"> · <\/span>/);
+  assert.match(app, /html body \.rev-topic \.rev-qno \.rev-sep\{display:none!important\}/);
+  assert.match(app, /html body \.rev-line1 \.rev-q\{display:none!important\}/);
 });

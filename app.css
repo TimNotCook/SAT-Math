@@ -1605,6 +1605,9 @@ html body .rev-topic .rev-qno{white-space:nowrap!important}
 @media(max-width:360px){
   html body .rev-topic{font-size:14px!important;line-height:1.4!important}
   html body .rev-topic .rev-qno{display:block!important;margin-top:2px!important}
+  html body .rev-topic .rev-qno .rev-sep{display:none!important}
+  /* 题号已经在第二行「第 N 题」里，左侧蓝色的 Q1 在 320 只够把标题挤到下一行，孤零零占一行。 */
+  html body .rev-line1 .rev-q{display:none!important}
 }
 html body .rev-meta{margin-left:auto!important;font-size:12px!important;color:#7b8ba1!important;white-space:nowrap!important}
 /* 窄屏：结果页每条的 meta（"1.1 · Q5 · 2 points · Marked · Previously missed"）允许折行并占满一行，

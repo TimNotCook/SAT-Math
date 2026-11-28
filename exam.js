@@ -1429,7 +1429,7 @@
       const topicNameHtml = (raw) => {
         const t = raw || '—';
         const m = t.match(/^(.*?)\s*·\s*(第\s*\d+\s*题)$/);
-        return m ? esc(m[1]) + '<span class="rev-qno"> · ' + esc(m[2]) + '</span>' : esc(t);
+        return m ? esc(m[1]) + '<span class="rev-qno"><span class="rev-sep"> · </span>' + esc(m[2]) + '</span>' : esc(t);
       };
       let causeHtml = '';
       if (!okFlag && AN && !EN) causeHtml = `<div class="rev-cause">错因 · ${esc(AN.analyze(bankQ, dGiven, (window.TD_TEXT || {})[did]).title)}`;
