@@ -605,6 +605,19 @@
     try {
       var snap = snapshot();
       if (!snap) return false;
+      /* 两台设备同时在线（手机+电脑）时，各自整份覆盖云端会互相冲掉：A 刚做
+         的第 5 题会被 B 那份没刷新过的快照盖掉。推之前先拉一次云端，变了就
+         按 ts 合进来再推——代价是每次保存多一个 GET，换"另一台设备的题不丢"。
+         拉取失败不该阻断保存：按本机照旧推，下次变化时还会再合。 */
+      var pulled = null;
+      try { pulled = await A.getArchive(); } catch (ePull) { pulled = null; }
+      var cloudNow = pulled && pulled.payload ? canon(pulled.payload) : null;
+      if (cloudNow && Object.keys(cloudNow).length && hashOf(cloudNow) !== prof.lastSynced) {
+        var mergedNow = mergeLocalWithCloud(cloudNow);
+        if (hashOf(mergedNow) !== hashOf(snap) && applyArchive(mergedNow)) {
+          snap = snapshot() || mergedNow;
+        }
+      }
       var h = hashOf(snap);
       await A.pushProgress(snap);
       prof.owner = user.uid;
