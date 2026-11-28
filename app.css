@@ -366,7 +366,13 @@ html[data-lang="en"] .cause-box .fix::before{content:'How to improve: '}
 .wrong-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;font-size:12px;color:var(--sub);flex-wrap:wrap}
 .empty-panel{text-align:center;border:1px solid var(--line);border-radius:var(--radius-lg);padding:48px 20px;background:var(--paper);box-shadow:var(--shadow-1)}
 .empty-panel h2{font-size:18px;margin-bottom:10px}.empty-panel p{color:var(--sub);font-size:13.5px;margin-bottom:20px}
-@media(max-width:760px){.wrong-overview{grid-template-columns:repeat(2,1fr)}.answer-compare{grid-template-columns:1fr}.wrong-card{padding:18px}}
+@media(max-width:760px){
+  /* bluebook.css 后加载的 auto-fit minmax(150px,1fr) 在 320/390 只能排一列，
+     四个单元统计卡竖着占掉两屏。窄屏强制两列，两行就能看完四个单元。 */
+  body.shell-wrong .wrong-overview{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .wrong-overview{grid-template-columns:repeat(2,1fr)}
+  .answer-compare{grid-template-columns:1fr}.wrong-card{padding:18px}
+}
 .wrong-page a:focus-visible,.wrong-page button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
 /* Narrow screens: give the module nav room to breathe. */

@@ -112,3 +112,7 @@ test('逐题回顾不再印仓库单元号 U1/U2，改印单元名', () => {
 test('错题空态不留下空统计格的整块空白', () => {
   assert.match(app, /body\.shell-wrong #wrongHero:empty\{display:none!important\}/);
 });
+
+test('320 错题四个单元统计卡排成两列，不竖着占两屏', () => {
+  assert.match(app, /body\.shell-wrong \.wrong-overview\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important\}/);
+});
