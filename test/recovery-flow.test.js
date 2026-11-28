@@ -102,3 +102,11 @@ test('主按钮是胶囊实心强调蓝，且暗色下不会变成白板', () =>
   assert.ok(/background:#2563eb/.test(seg), '主按钮没跟站内 #btnStart 同一套强调蓝');
   assert.ok(seg.indexOf('background:var(--blue,') < 0, '主按钮跟了 --blue 变量：暗色主题里它是近白色，会白底白字');
 });
+
+test('错误与状态是 live region，提交失败读屏能播报', () => {
+  assert.ok(/err\.setAttribute\('role', 'alert'\)/.test(acct), '错误提示没有 role=alert');
+  assert.ok(/err\.setAttribute\('aria-live', 'assertive'\)/.test(acct), '错误提示没有 assertive');
+  assert.ok(/status\.setAttribute\('role', 'status'\)/.test(acct), '状态行没有 role=status');
+  var seg = acct.slice(acct.indexOf('function setError'), acct.indexOf('function setBusy'));
+  assert.ok(seg.indexOf('ui.error.hidden = false; ui.error.textContent = text') >= 0, '先写字后显示，live region 不会播报');
+});

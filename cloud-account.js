@@ -139,8 +139,11 @@
   }
   function setError(text) {
     if (!ui || !ui.error) return;
-    ui.error.textContent = text || '';
-    ui.error.hidden = !text;
+    /* 先显出来再写文字：live region 在 hidden 状态下改内容不会播报，
+       读屏用户提交后只会听到沉默。 */
+    if (text) { ui.error.hidden = false; ui.error.textContent = text; return; }
+    ui.error.textContent = '';
+    ui.error.hidden = true;
   }
   function setBusy(on) {
     busy = !!on;
@@ -1108,7 +1111,13 @@
     });
     panel.appendChild(tabs);
     var status = el('div', 'td-acct-status');
+    /* 状态与错误都是「异步冒出来的一句话」：读屏默认不会念，键盘用户提交后
+       只听到一片安静，以为按钮没生效。给它们 live region，变化时才播报。 */
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
     var err = el('div', 'td-acct-err'); err.hidden = true;
+    err.setAttribute('role', 'alert');
+    err.setAttribute('aria-live', 'assertive');
     var body = el('div');
     panel.appendChild(status); panel.appendChild(err); panel.appendChild(body);
     layer.appendChild(panel);

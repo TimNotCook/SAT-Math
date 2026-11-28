@@ -1761,3 +1761,56 @@ html body #toast#toast{width:max-content;max-width:min(560px,calc(100vw - 32px))
   html body .btn.sm{min-height:44px!important;display:inline-flex!important;
     align-items:center!important;justify-content:center!important;padding-top:0!important;padding-bottom:0!important}
 }
+
+/* 小节列表原来每行 112px 高，里面只有「编号 / 标题 / 状态」三小块，
+   24 个小节要滚三屏多，编号与标题之间空 22px、标题与状态之间只有 14px，
+   松紧还不一致。改成一行三段的一栏列表：编号 52px、标题吃掉剩余、状态靠右，
+   高度落到 ~68px，一屏多出两三个小节。只作用于 .tile-grid 里的小节行。 */
+html body .tile-grid>.tile-section.drill-section-row{
+  display:grid!important;
+  grid-template-columns:52px minmax(0,1fr) auto!important;
+  align-items:center!important;
+  column-gap:12px!important;
+  row-gap:0!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:15px 16px!important;
+}
+html body .tile-grid>.tile-section.drill-section-row .tile-code{
+  position:static!important;
+  grid-column:1!important;
+  grid-row:1!important;
+  margin:0!important;
+  justify-self:start!important;
+  background:none!important;
+  padding:0!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  color:var(--sub,#5b6b85)!important;
+  font-variant-numeric:tabular-nums!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+}
+html body .tile-grid>.tile-section.drill-section-row .tile-name{
+  position:static!important;
+  grid-column:2!important;
+  grid-row:1!important;
+  margin:0!important;
+  font-size:15px!important;
+  font-weight:700!important;
+  line-height:1.32!important;
+  color:var(--ink,#12233f)!important;
+  white-space:normal!important;
+}
+html body .tile-grid>.tile-section.drill-section-row .tile-state,
+html body .tile-grid>.tile-section.drill-section-row .tile-empty-badge{
+  position:static!important;
+  grid-column:3!important;
+  grid-row:1!important;
+  margin:0!important;
+  inset:auto!important;
+  justify-self:end!important;
+  align-self:center!important;
+  font-size:12px!important;
+  white-space:nowrap!important;
+}
