@@ -537,66 +537,92 @@
     // 不缓存 rejected 状态：失败后换镜像/允许重试，避免一次网络抖动永久锁死
     return attempt(0).catch(function () { return attempt(1).catch(function () { return attempt(2); }); });
   }
-  function localOcr(dataUrl) {
-    var worker;
-    // 硬超时：差网络下 worker/内核/语言包可能静默挂起（无 onerror），
-    // 75s 未完成就终止并报错，让用户可重试，而不是无限转圈。
-    var timer;
-    var timeout = new Promise(function (_, reject) {
-      timer = setTimeout(function () {
-        if (worker) { try { worker.terminate(); } catch (e) { console.warn('终止识别线程失败', e); } }
-        var e = new Error('本地识别超时');
-        e.error = { code: 'local_ocr_timeout' };
-        reject(e);
-      }, 26000);
-    });
-    var work = loadTesseract().then(function (T) {
-      status('正在启动本地识别（无需登录）…');
-      function createAt(mi) {
-        var m = TESS_MIRRORS[mi];
-        return T.createWorker('eng', 1, {
-          workerPath: m.worker,
-          corePath: m.core,
-          langPath: m.lang,
-          gzip: true
-        });
+  /* 本地引擎常驻：worker 建一次一直用。
+     原来每次识别都 createWorker + terminate，等于每贴一张图就重走一遍内核初始化
+     （语言包 2.9MB 解压 + wasm 编译），再快也要 2~4 秒，还得反复吃网络。
+     现在页面打开后在空闲时就把引擎建好、语言包读进内存，贴图只跑 recognize。 */
+  var OCR_W = null, OCR_WARM = null, OCR_READY = false;
+
+  function createWorkerAt(T, mi, onProgress) {
+    var m = TESS_MIRRORS[mi];
+    return T.createWorker('eng', 1, {
+      workerPath: m.worker,
+      corePath: m.core,
+      langPath: m.lang,
+      gzip: true,
+      logger: function (msg) {
+        if (!onProgress || !msg) return;
+        if (msg.status === 'loading language traineddata' && msg.progress < 1) {
+          onProgress('正在下载识别语言包 ' + Math.round(msg.progress * 100) + '%');
+        } else if (msg.status === 'initializing api') {
+          onProgress('正在初始化识别内核…');
+        }
       }
-      // 单镜像 35s 未就绪（含静默挂起，不只是 onerror）就换下一个镜像，避免干等
+    });
+  }
+
+  function warmOcr(onProgress) {
+    if (OCR_W) return Promise.resolve(OCR_W);
+    if (OCR_WARM) return OCR_WARM;
+    OCR_WARM = loadTesseract().then(function (T) {
       function bounded(mi) {
         var t;
         return Promise.race([
-          createAt(mi),
+          createWorkerAt(T, mi, onProgress),
           new Promise(function (_, reject) {
             t = setTimeout(function () {
               var e = new Error('镜像加载超时');
               e.error = { code: 'local_stage_timeout' };
               reject(e);
-            }, 9000);
+            }, 12000);
           })
         ]).then(function (w) { clearTimeout(t); return w; }, function (e) { clearTimeout(t); throw e; });
       }
-      // worker/内核/语言包失败或超时，换下一套镜像重来（本地 → jsdelivr → unpkg）
       return bounded(0).catch(function () { return bounded(1).catch(function () { return bounded(2); }); });
     }).then(function (w) {
-      worker = w;
-      return worker.recognize(dataUrl);
-    }).then(function (out) {
-      var done = worker.terminate();
-      return Promise.resolve(done).then(function () { return out; });
-    }, function (e) {
-      if (worker) { try { worker.terminate(); } catch (e2) { console.warn('终止识别线程失败', e2); } }
+      OCR_W = w; OCR_READY = true;
+      // 单题截图是"一整块文字"，按单块版面分析比默认的全页分析准
+      try { w.setParameters({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1' }); } catch (e) { console.warn('设置识别参数失败', e); }
+      return w;
+    }).catch(function (e) {
+      OCR_WARM = null; OCR_READY = false;
       throw e;
-    }).then(function (out) {
-      var raw = String((out && out.data && out.data.text) || '').replace(/\s+/g, ' ').trim();
-      var conf = out && out.data && isFinite(out.data.confidence) ? out.data.confidence / 100 : 0.6;
-      if (raw.length < 8) throw new Error('本地识别未读到有效文字');
-      return { stem: raw, type: 'mcq', choices: {}, confidence: Math.max(0.5, Math.min(0.95, conf)), _model: 'tesseract-local' };
     });
-    return Promise.race([work, timeout]).then(function (out) {
-      clearTimeout(timer); return out;
-    }, function (e) {
-      clearTimeout(timer); throw e;
+    return OCR_WARM;
+  }
+
+  function engineWarmInBackground() {
+    if (OCR_READY || OCR_WARM) return;
+    var go = function () { warmOcr(function (msg) { status(msg); }).catch(function () {}); };
+    if (window.requestIdleCallback) window.requestIdleCallback(go, { timeout: 4000 });
+    else setTimeout(go, 2500);
+  }
+
+  function localOcr(dataUrl) {
+    var timer;
+    var work = warmOcr(function (msg) { status(msg); }).then(function (w) {
+      status('正在识别文字…');
+      return w.recognize(dataUrl).then(function (out) {
+        var raw = String((out && out.data && out.data.text) || '').replace(/\s+/g, ' ').trim();
+        var conf = out && out.data && isFinite(out.data.confidence) ? out.data.confidence / 100 : 0.6;
+        if (raw.length < 8) throw new Error('本地识别未读到有效文字');
+        return { stem: raw, type: 'mcq', choices: {}, confidence: Math.max(0.5, Math.min(0.95, conf)), _model: 'tesseract-local' };
+      }, function (e) {
+        // 引擎状态可能已坏（内存/线程异常），丢掉重来，下次自动重建
+        try { w.terminate(); } catch (e2) { console.warn('重置识别引擎失败', e2); }
+        OCR_W = null; OCR_WARM = null; OCR_READY = false;
+        throw e;
+      });
     });
+    var timeout = new Promise(function (_, reject) {
+      timer = setTimeout(function () {
+        var e = new Error('本地识别超时（引擎没在 26 秒内出结果）');
+        e.error = { code: 'local_ocr_timeout' };
+        reject(e);
+      }, 26000);
+    });
+    return Promise.race([work, timeout]).then(function (out) { clearTimeout(timer); return out; },
+      function (e) { clearTimeout(timer); throw e; });
   }
 
   function ocrImage(dataUrl, model) {
@@ -1007,6 +1033,22 @@
       return { total: pages.length, ok: ok, fail: fail, added: added, skipped: skipped };
     });
   }
+  /* 预热：面板一打开就开始准备引擎，并把引擎文件交给 SW 永久缓存。
+     目的是让人贴图那一刻不用等下载/解压——第一次打开错题页时就把活干完。 */
+  var warmedCache = false;
+  function prewarm() {
+    engineWarmInBackground();
+    if (warmedCache) return;
+    warmedCache = true;
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+        navigator.serviceWorker.ready.then(function (reg) {
+          if (reg.active) reg.active.postMessage({ type: 'warm-ocr' });
+        });
+      }
+    } catch (e) { console.warn('通知缓存预热失败', e); }
+  }
+
   function acceptFiles(fileList) {
     var files = [].slice.call(fileList || []).filter(function (f) { return /^image\//.test(f.type) || /\.(png|jpe?g|webp|gif|bmp|heic)$/i.test(f.name || ''); });
     if (!files.length) { status('请选择图片文件（PNG / JPG / WebP 等）'); return false; }
@@ -1016,7 +1058,12 @@
   }
 
   window.TD_IMG_IMPORT = {
-    open: function () { $('imgImportPanel').hidden = false; $('btnImgImport').setAttribute('aria-expanded', 'true'); ensureCloudSession(function () { }); },
+    open: function () {
+      $('imgImportPanel').hidden = false; $('btnImgImport').setAttribute('aria-expanded', 'true');
+      ensureCloudSession(function () { });
+      prewarm();
+    },
+    prewarm: prewarm,
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked,
@@ -1037,6 +1084,9 @@
   };
   function on(id, ev, fn) { var el = $(id); if (el) el.addEventListener(ev, fn); }
   on('btnImgImport', 'click', function () { window.TD_IMG_IMPORT.open(); });
+  /* 打开错题页就悄悄把识别引擎备好，别等用户贴图才开始下载 */
+  if (window.requestIdleCallback) window.requestIdleCallback(prewarm, { timeout: 3000 });
+  else setTimeout(prewarm, 1500);
   on('imgImportClose', 'click', window.TD_IMG_IMPORT.close);
   on('fileImgImport', 'change', function (e) { acceptFiles(e.target.files); e.target.value = ''; });
   on('btnImgRetry', 'click', function () { window.TD_IMG_IMPORT.retryFailed(); });
