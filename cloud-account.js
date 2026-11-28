@@ -901,8 +901,9 @@
       /* 注册请求断网/超时是最尴尬的状态：服务端可能已经建好号，但响应没回来。
          这时如果只报“网络异常”，用户再点一次会撞号、被切去登录，等于白填。
          先用同一组邮箱密码试一次登录：号真建好了就直接进；没建好再报原错误。 */
-      var netFail = e && (e.status === 0 || !e.code) &&
-        /网络|连不上|较慢|超时/.test(String(e.message || ''));
+      /* raw() 把所有断网/超时/连接被重置都归一成 status=0；浏览器里的
+         TypeError 文案是英文 “Failed to fetch”，不能靠中文关键词认。 */
+      var netFail = e && e.status === 0;
       if (netFail && SB && SB.signInPassword) {
         try {
           await SB.signInPassword(email, pw);
