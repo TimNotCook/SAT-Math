@@ -1,0 +1,49 @@
+diff --git a/app.css b/app.css
+index babc303..177b84e 100644
+--- a/app.css
++++ b/app.css
+@@ -1483,6 +1483,16 @@ html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:1
+      的断点往回挪一个字，三行仍三行，但不再出现两字孤行。 */
+   html body .empty-panel p,html body .hist-empty .he-d{text-wrap:pretty}
+ }
++/* 320/390 首页板块行标题列只有 86–120px：「一元线性方程求解」会在「方」和「程」
++   之间断开，「线性方程与不等式应用」末行剩一个「题」。balance 把两行匀成 4/4、5/4。 */
++@media(max-width:520px){
++  html body .tile-grid>.tile-section.drill-section-row .tile-name{text-wrap:balance!important;padding-right:0!important}
++}
++@media(max-width:360px){
++  /* 标题列 86px 只放得下 5 个字，「线性方程与不等式应用题」11 字被切成三行；
++     行号列 52px 对「1.1」太宽，收到 44px，标题列变 94px，正好两行。 */
++  html body .tile-grid>.tile-section.drill-section-row.drill-section-row{grid-template-columns:44px minmax(0,1fr) auto!important}
++}
+ 
+ /* 抽查开场左栏右侧那块空白：放一张本单元的浅色线稿，不做标签也不写字 */
+ html body.exam-page:not(.is-mock) .mock-card-copy{position:relative!important}
+diff --git a/docs/runtime-audit.md b/docs/runtime-audit.md
+index 19d252d..199c2d3 100644
+--- a/docs/runtime-audit.md
++++ b/docs/runtime-audit.md
+@@ -1013,3 +1013,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
+ ## 第 157 条：320 空态说明最后一行只剩「里。」（2026-11-28）
+ 
+ 内边距收窄后记录页说明仍是三行，但断点把「这里。」丢到最后一行，视觉上像被切掉。窄屏给 `.he-d` / `.empty-panel p` 加 `text-wrap:pretty`，让浏览器把前一行的断点往回挪一个字，三行不变、末行变成「这里。」三个字，不再出现两字孤行。验证：本地 320 截图末行「这里。」；`visual-mobile-polish` 断言 `text-wrap:pretty`。
++
++## 第 158 条：320/390 首页板块标题把「方程」拆成「方 / 程」、末行只剩「题」（2026-11-28）
++
++首页板块行左侧行号、右侧状态各占一格，中间标题列在 320 只有 86px、390 也只有 120px；15px 的「一元线性方程求解」要 135px，普通换行按字符切，变成「一元线性方 / 程求…」或「一元线性方 / 程求解」，「线性方程与不等式应用」在 390 末行只剩一个「题」。390 用 `text-wrap:balance` 把两行按宽度均分；320 再把行号列 52px 收到 44px，标题列从 86px 变 94px，「11 字」的线性方程与不等式应用题正好排成「线性方程与 / 不等式应用题」两行，不再出现「线性方 / 程与不等 / 式应用」三行。验证：本地 320/390 截图两行语义完整；`visual-mobile-polish` 第 7 条断言两条规则。
+diff --git a/test/visual-mobile-polish.test.js b/test/visual-mobile-polish.test.js
+index c7250c2..93389da 100644
+--- a/test/visual-mobile-polish.test.js
++++ b/test/visual-mobile-polish.test.js
+@@ -46,4 +46,8 @@ test('320 空态卡收窄左右内边距，记录页标题不再拆成「…抽
+   assert.match(app, /html body\.shell-history \.hist-list>\.hist-empty\{padding-left:12px!important;padding-right:12px!important\}/);
+   assert.match(app, /html body \.empty-panel\{padding-left:12px!important;padding-right:12px!important\}/);
+   assert.match(app, /html body \.empty-panel p,html body \.hist-empty \.he-d\{text-wrap:pretty\}/);
+-});
+\ No newline at end of file
++});
++test('320/390 首页板块行标题两行均分，不把「方程」拆开、不留单字「题」', () => {
++  assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row \.tile-name\{text-wrap:balance!important;padding-right:0!important\}/);
++  assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row\.drill-section-row\{grid-template-columns:44px minmax\(0,1fr\) auto!important\}/);
++});
+
