@@ -802,6 +802,29 @@
      现实里"认不出来"多半不是引擎坏了，是这张图的字太小/太淡/带底纹：
      放大 1.6 倍、或转灰度拉对比，往往就能认出来。评分用题库匹配分，
      而不是 OCR 自己的置信度——认错字但认得很自信的情况太常见。 */
+  /* 反色：深色背景的截图（暗色模式 PDF、拍照的黑板/屏幕）Tesseract 直接认不出，
+     把像素取反变成白底黑字它就能读。只在前几遍分数都不够时用，不占常规耗时。 */
+  function invertImage(dataUrl) {
+    return new Promise(function (res) {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height;
+          var cx = cv.getContext('2d');
+          cx.drawImage(img, 0, 0);
+          var d = cx.getImageData(0, 0, cv.width, cv.height), px = d.data;
+          for (var i = 0; i < px.length; i += 4) {
+            px[i] = 255 - px[i]; px[i + 1] = 255 - px[i + 1]; px[i + 2] = 255 - px[i + 2];
+          }
+          cx.putImageData(d, 0, 0);
+          res(cv.toDataURL('image/png'));
+        } catch (e) { res(null); }
+      };
+      img.onerror = function () { res(null); };
+      img.src = dataUrl;
+    });
+  }
+
   function scaleImage(dataUrl, scale, gray) {
     return new Promise(function (res) {
       var img = new Image();
@@ -837,7 +860,8 @@
       return r.length ? r[0].score : 0;
     }
     function run(url, tag) {
-      status(tag === 'base' ? '正在识别文字…' : (tag === 'zoom' ? '字有点小，放大后再认一次…' : '对比度不够，换个方式再认一次…'));
+      status(tag === 'base' ? '正在识别文字…' : (tag === 'zoom' ? '字有点小，放大后再认一次…'
+        : (tag === 'invert' ? '像是深色背景，取反后再认一次…' : '对比度不够，换个方式再认一次…')));
       return ocrImage(url, model).then(function (ocr) {
         var sc = scoreOf(ocr.stem);
         if (!best || sc > best.score) best = { ocr: ocr, url: url, score: sc };
@@ -852,7 +876,14 @@
           if (sc2 >= 0.62 || (best && best.score >= 0.5)) return best;
           return scaleImage(dataUrl, 1.25, true).then(function (v2) {
             if (!v2) return best;
-            return run(v2, 'gray').then(function () { return best; });
+            return run(v2, 'gray').then(function (sc3) {
+              if (sc3 >= 0.5 || (best && best.score >= 0.42)) return best;
+              /* 深色背景最后补一刀：取反后再认一次 */
+              return invertImage(dataUrl).then(function (v3) {
+                if (!v3) return best;
+                return run(v3, 'invert').then(function () { return best; });
+              });
+            });
           });
         });
       });
