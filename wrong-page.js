@@ -116,11 +116,19 @@ function importData(data){
   if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
   var store=readImport();if(!Array.isArray(store.items))store.items=[];
   var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0;
-  var pending=[];
+  var pending=[],retried=0;
   /* 旧存档/云端合并可能把 items 写成 [null, ...]：先剔掉非对象条目，
      否则下一次导入在 x.key 处直接 TypeError，整次导入失败。 */
   store.items=store.items.filter(function(x){return x&&typeof x==='object';});
-  store.items.forEach(function(x){var k=x.key||(x.matchId?'i:'+x.matchId:'s:'+normStem(x.stem));if(k)seen[k]=true;});
+  store.items.forEach(function(x){var k=x.key||(x.matchId?'i:'+x.matchId:'s:'+normStem(x.stem));if(k)seen[k]=true;
+    /* 上次错题仓库写成功、本机作答落盘失败时，条目会带 localPending。
+       重试导入同一份 JSON 时不能因为 key 已存在就直接判重复：否则本机
+       答案永远补不回来。这里把它重新排进 pending，写盘成功后再摘标记。 */
+    if(x.localPending){
+      var ps=A.secState(x.matchSec,false),pc=ps?ps.answers[x.matchId]:null;
+      if(x.matchId&&x.matchSec&&!pc){pending.push({sec:x.matchSec,q:x.matchId,v:x.given,rec:x});retried++;}
+      else x.localPending=false;
+    }});
   items.forEach(function(raw){
     var it=normalizeItem(raw),m=matchItem(it,idx);
     var key=m?'i:'+m.q.id:(normStem(it.stem)?'s:'+normStem(it.stem):(it.id?'i:'+it.id.toLowerCase():''));
@@ -139,7 +147,8 @@ function importData(data){
         /* 该题此前没有任何作答记录：新增一条导入错题（纯追加）。
            先记在内存里，等错题仓库真的写盘成功再落本机进度——
            否则仓库写失败时，本机已经多了一条用户没见过的作答。 */
-        pending.push({sec:m.sec,q:m.q.id,v:it.given});
+        rec.localPending=true;
+        pending.push({sec:m.sec,q:m.q.id,v:it.given,rec:rec});
         written++;
       }
     }
@@ -152,11 +161,17 @@ function importData(data){
   var localWriteFailed=false;
   pending.forEach(function(x){
     var st=A.secState(x.sec,true);
+    if(!st)return;
     st.answers[x.q]={v:x.v,correct:false,ts:now,importSrc:IMPORT_MARK};
     st.completed=A.stats(x.sec).completed;
   });
   if(pending.length){try{if(!A.save())localWriteFailed=true;}catch(e){localWriteFailed=true;}}
+  if(!localWriteFailed&&pending.length){
+    pending.forEach(function(x){if(x.rec)x.rec.localPending=false;});
+    writeImport(store);
+  }
   var msg='已导入 '+added+' 道：新增错题 '+written+' 道 · 已有作答仅只读展示 '+readOnly+' 道（未改动）· 未匹配 '+created+' 道';
+  if(retried)msg+=' · 重试补写上次未落盘 '+retried+' 道';
   if(localWriteFailed)msg='错题仓库已保存，但本机作答写入失败（这些题刷新后会从本机进度里消失）';
   all=collect();render();feedback(msg);
   return{added:added,written:written,readOnly:readOnly,created:created,message:msg};

@@ -72,3 +72,38 @@ test('导入错题在 A.save() 失败时会明确告知本机作答未落盘', (
   assert.ok(src.includes('if(!A.save())localWriteFailed=true;'), 'importData 没检查 A.save() 的返回');
   assert.ok(src.includes('错题仓库已保存，但本机作答写入失败'), '保存失败仍只显示“已导入”，用户不知道刷新会丢进度');
 });
+
+test('导入错题本机落盘失败后，重试同一份 JSON 能补写答案而不是被判重复', () => {
+  const fs2 = fs, path2 = path, vm2 = vm;
+  const store = {};
+  function bootWrong(opts) {
+    const sandbox = {
+      console,
+      localStorage: {
+        getItem: k => (k in store ? store[k] : null),
+        setItem: (k, v) => { if (opts && opts.throwWriteKey === k) throw new Error('storage denied'); store[k] = String(v); },
+        removeItem: k => { delete store[k]; },
+      },
+      location: { search: '', hash: '', pathname: '/wrong.html', href: '', replaceState() {}, assign() {} },
+      history: { replaceState() {} },
+      document: { getElementById: () => ({ innerHTML: '', textContent: '', hidden: false, href: '', dataset: {}, style: {}, classList: { add() {}, remove() {}, toggle() { return true; }, contains() { return false; } }, setAttribute() {}, getAttribute() { return null; }, appendChild() {}, querySelector() { return null; }, querySelectorAll() { return []; }, addEventListener() {} }), querySelector: () => null, querySelectorAll: () => [], addEventListener() {}, body: { classList: { add() {}, remove() {}, toggle() { return true; } }, appendChild() {} }, createElement: () => ({ innerHTML: '', textContent: '', href: '', style: {}, classList: { add() {}, remove() {}, toggle() { return true; }, contains() { return false; } }, appendChild() {}, setAttribute() {}, addEventListener() {} }) },
+      window: {}, URLSearchParams, navigator: { language: 'zh' }, addEventListener() {}, setTimeout: () => 1, clearTimeout() {},
+    };
+    sandbox.window = sandbox;
+    vm2.createContext(sandbox);
+    for (const f of ['data/questions.js', 'data/aliases.js', 'grade-core.js', 'app-core.js', 'wrong-page.js']) {
+      vm2.runInContext(fs2.readFileSync(path2.join(ROOT, f), 'utf8'), sandbox);
+    }
+    return sandbox;
+  }
+  const payload = { items: [{ id: 'U1-01', given: 'B' }] };
+  const first = bootWrong({ throwWriteKey: 'tdsat_app_v1' });
+  first.TD_IMPORT_WRONG.importData(payload);
+  assert.ok(!store.tdsat_app_v1, '前置条件：第一次 A.save() 应该失败，本机没有进度');
+  const second = bootWrong({});
+  second.TD_IMPORT_WRONG.importData(payload);
+  const saved = store.tdsat_app_v1 || '';
+  assert.ok(/imported_wrong_json_v1/.test(saved), '重试导入被 seen 判成重复，本机作答永远补不回来');
+  const imports = JSON.parse(store.tdsat_imported_wrong_v1);
+  assert.ok(imports.items.every(x => !x.localPending), '补写成功后 localPending 没有摘掉，下次还会重复提示');
+});

@@ -842,3 +842,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 121 条：讲义答题写盘失败仍把答案留在内存里假装已保存（2026-11-28）
 
 `jiangyi-core.js` 的 `save()` 一直调用 `write(KEY,S)` 却不看返回值，`answerQ()` 和 `setCursor()` 写完就渲染：配额满/只读存储/无痕模式下，答案只进了内存，页面照常显示已选选项，刷新或换页即消失；用户没有任何提示，还会以为复习记录已经保存。第 120 条只修了交卷成绩仓库，没有覆盖普通答题路径。修成 `save()` 返回成功与否并记 `lastSaveFailed`，对外暴露 `TD_JY.saveFailed()`；`jiangyi-page.js` 三个答题入口统一走 `commitAnswer()`，写完检查 `saveFailed()`，失败提示「答案保存失败：本地存储不可写，刷新后本题会丢失」。验证：注入 `tdsat_jiangyi_v1` 写入抛错，`answerQ()` 不抛异常且 `saveFailed()` 为 true，页面源码必须检查 `saveFailed()` 并出现该提示；全量 641/0。
+
+## 第 122 条：已录答案但重试导入被判重复，本机作答永远补不回来（2026-11-28）
+
+第 106 条把导入顺序改成“先写错题仓库，再写本机作答”，但两半之间没有重试凭证：错题仓库写成功后 `A.save()` 失败，本机 `tdsat_app_v1` 里没有这条作答；用户按提示重新导入同一份 JSON 时，`store.items` 的 `seen` 键让这些题全部被判重复，`pending` 为空、`A.save()` 根本不再执行，于是那几条作答永远补不回来。修成新增记录带 `localPending:true`，本机写盘成功后才摘标记并重写仓库；重试导入时先扫描仓库里的 `localPending` 条目，把尚未写进本机的作答重新排进 `pending` 再保存，消息追加「重试补写上次未落盘 N 道」。验证：第一次导入注入 `tdsat_app_v1` 写失败，第二次恢复可写后重导同一份，旧代码仓库有记录但本机仍为空，新代码本机出现 `imported_wrong_json_v1` 作答且 `localPending` 已摘；全量 642/0。
