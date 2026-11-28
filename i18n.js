@@ -397,6 +397,46 @@
     '请先填写邮箱。': 'Enter your email first.',
     '请输入密码。': 'Enter your password first.',
     '登录模块未加载，请刷新页面重试。': 'The sign-in module is not loaded. Refresh and try again.',
+    '密码太短或强度不够，换一个更长一点的密码再试。':
+      'That password is too short or too weak. Try a longer one.',
+    '新密码不能和旧密码一样，换一个再保存。': 'The new password must be different from your current one.',
+    '当前暂未开放新账号注册，请稍后再试。': 'New sign-ups are temporarily closed. Please try again later.',
+    '手机号注册需要短信验证，当前暂未开通；请改用邮箱注册。已有手机号账号可以直接登录。':
+      'Phone sign-up needs SMS verification, which is not available yet. Please use email instead. Existing phone accounts can still sign in.',
+    '手机号注册没有直接登录成功；这个号码没有可收确认邮件的邮箱，请稍后重试，或改用邮箱注册。':
+      'Phone sign-up did not finish. This number has no email inbox for a confirmation message; try again later or sign up with email.',
+    '手机号注册需要短信验证，当前暂未开通；请用邮箱注册。已有手机号账号可以直接登录。':
+      'Phone sign-up needs SMS verification, which is not available yet. Please use email instead. Existing phone accounts can still sign in.',
+    '注册成功，但邮箱还没确认：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。':
+      'Your account was created, but the email is not confirmed yet. Open the confirmation link in your inbox (check spam), then sign in.',
+    '邮箱还没有验证：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。':
+      'This email is not verified yet. Open the confirmation link in your inbox (check spam), then sign in.',
+    '登录服务暂时连不上，请检查网络后重试。':
+      'Cannot reach the sign-in service right now. Check your connection and try again.',
+    '操作失败，请稍后重试。': 'That did not work. Please try again later.',
+    '两次输入的密码不一致，请重新确认。': 'The two passwords do not match. Please confirm them again.',
+    '两次输入的新密码不一致，请重新确认。': 'The two new passwords do not match. Please confirm them again.',
+    '昵称不能为空。': 'Nickname cannot be empty.',
+    '请先填写注册时用的邮箱。': 'Enter the email you signed up with first.',
+    '请先登录。': 'Please sign in first.',
+    '请输入邮件里的 6 位数字验证码。': 'Enter the 6-digit code from the email.',
+    '验证码通道尚未启用，请用密码或邮件链接登录。':
+      'The email-code option is not enabled yet. Use password or email-link sign-in.',
+    '手机号请用密码登录，验证码只发到邮箱。':
+      'Phone accounts sign in with a password; codes are sent to email only.',
+    '注册成功，但还需要去邮箱点确认链接；确认后再回来登录。':
+      'Your account was created. Open the confirmation link in your inbox, then come back and sign in.',
+    '注册没有返回登录态，请刷新页面后重试。': 'Sign-up did not return a session. Refresh the page and try again.',
+    '登录失败，请重试。': 'Sign-in failed. Please try again.',
+    '登录状态已失效，请重新登录。': 'Your session has expired. Please sign in again.',
+    '续期没有拿到新会话': 'Could not refresh the session.',
+    '请输入邮件里收到的 6 位数字验证码。': 'Enter the 6-digit code sent to your email.',
+    '这个地址是系统内部账号，不能直接注册或登录；手机号请直接填号码，邮箱请用普通邮箱。':
+      'This address is reserved for internal accounts and cannot be used to sign up or sign in. Enter your phone number directly, or use a normal email address.',
+    '邮箱或手机号格式不正确，请检查后再试。': 'That email or phone number does not look right. Please check it.',
+    '邮箱格式不正确，请检查后再发送登录邮件。': 'That email does not look right. Check it before sending the sign-in email.',
+    '邮箱格式不正确，请检查后再发送重置链接。': 'That email does not look right. Check it before sending the reset link.',
+    '邮箱格式不正确，请检查后再获取验证码。': 'That email does not look right. Check it before requesting a code.',
 
     /* 设置面板 · 练习 / 关于 */
     '打开后，单元练习答题页也会显示计算器按钮；关闭则只有专项训练、单元抽查与模考可用。':

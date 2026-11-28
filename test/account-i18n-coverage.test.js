@@ -11,6 +11,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const ACC = fs.readFileSync(path.join(ROOT, 'cloud-account.js'), 'utf8');
+const CLOUD = fs.readFileSync(path.join(ROOT, 'supa-cloud.js'), 'utf8');
 const I18N = fs.readFileSync(path.join(ROOT, 'i18n.js'), 'utf8');
 
 /* 词典键：'中文': 'English' 里冒号左边那一段 */
@@ -21,6 +22,22 @@ test('账户面板直出的中文都有英文词条', () => {
   const missing = [];
   ACC.replace(/el\('(\w+)',\s*[^,]+,\s*'((?:[^'\\]|\\.)*)'/g, (m, tag, text) => {
     if (/[\u4e00-\u9fff]/.test(text) && !KEYS.has(text)) missing.push(tag + ': ' + text);
+    return m;
+  });
+  /* 动态错误提示不经过 el()，但同样会印在英文界面上：friendlyError 的
+     return 字面量、setError('...') 字面量都要有词条，否则英文模式突然掉回中文。 */
+  const FE = ACC.slice(ACC.indexOf('function friendlyError'), ACC.indexOf('/* ---------- 档案归属'));
+  FE.replace(/return '((?:[^'\\]|\\.)*)';/g, (m, text) => {
+    if (/[\u4e00-\u9fff]/.test(text) && !KEYS.has(text)) missing.push('error: ' + text);
+    return m;
+  });
+  ACC.replace(/setError\('((?:[^'\\]|\\.)*)'\)/g, (m, text) => {
+    if (/[\u4e00-\u9fff]/.test(text) && !KEYS.has(text)) missing.push('error: ' + text);
+    return m;
+  });
+  /* supa-cloud 校验提示会原样透传到面板上；英文模式下也得有词条。 */
+  CLOUD.replace(/msg:\s*'((?:[^'\\]|\\.)*)'/g, (m, text) => {
+    if (/[\u4e00-\u9fff]/.test(text) && !KEYS.has(text)) missing.push('cloud: ' + text);
     return m;
   });
   assert.deepStrictEqual(missing, [], '英文模式下这些字会是中文：\n' + missing.join('\n'));

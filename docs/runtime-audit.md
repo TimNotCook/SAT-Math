@@ -973,3 +973,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 147 条：注册错误只认英文文案，Supabase 改一句提示就掉回「操作失败」（2026-11-28）
 
 `errOf()` 原来只拿 `msg` 做英文子串匹配：撞号、弱密码、停注册这些稳定错误码明明在响应 body 的 `error_code` 里，代码却没用。后端文案一改（例如从 `User already registered` 换成别的说法），注册页就只能显示“操作失败，请稍后重试”，用户不知道是撞号还是密码太短。现在先读 `error_code` / `code` 映射到内部错误码，认不到再退回英文文案匹配；已注册、弱密码、停注册、验证码过期、限流等都不再依赖某一句英文。顺手把注册表单空邮箱提示从“邮箱或手机号”改成“邮箱”，和只收邮箱的注册框一致。验证：`password-login` 新增 `user_already_exists` / `weak_password` 稳定码断言；全量 704/0，`verify_flows` 16/16。
+
+## 第 148 条：英文模式下注册错误突然掉回中文，词条守卫只查了标签没查报错（2026-11-28）
+
+`account-i18n-coverage` 原来只静态扫描 `el('tag', cls, '中文')`，账号面板的标签都翻译了，但注册/登录/改密的报错是另一条路径：`friendlyError()` 直接 `return` 中文，`setError('...')` 直接写中文，`supa-cloud` 的 `msg` 还会原样透传。英文模式下，注册撞号、弱密码、停注册、手机号关闭、邮箱待确认、两次密码不一致全变成中文，和整页英文混在一起。现在补齐 16 条 `friendlyError`/`setError` 词条和 12 条云端校验提示词条；守卫同步扩到 `friendlyError` 的 `return`、`setError()` 字面量、`supa-cloud.js` 的 `msg:` 字面量，下次新增中文报错会直接红。验证：`account-i18n-coverage` 通过；全量 704/0，`verify_flows` 16/16。
