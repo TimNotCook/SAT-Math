@@ -491,7 +491,12 @@
   }
 
   /* ---------- 邮箱登录 ---------- */
-  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim()); }
+  /* RFC 5321 的地址总长上限是 254；超过这个长度 Supabase 也会拒。登录、
+     找回密码、发验证码都走这里，不能只在注册页拦。 */
+  function validEmail(v) {
+    var s = String(v || '').trim();
+    return s.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+  }
 
   // 发送登录邮件：create_user=true，首次输入邮箱即自动建档（后端 disable_signup:false）。
   // 当前后端默认邮件模板回的是 magic link（点链接回站带 hash 会话），不是数字码。

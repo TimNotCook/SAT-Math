@@ -254,3 +254,11 @@ test('注册/改密输入框限长 72，别让用户先贴进去再被服务端�
   assert.match(acct, /pwField\.input\.maxLength = 72/);
   assert.match(acct, /pw\.length > 72/);
 });
+
+test('邮箱超过 254 位 → 本地 400，登录/找回都不发请求', async () => {
+  const long = 'a'.repeat(250) + '@example.com';
+  const calls = [];
+  const { SB } = loadModule(async (url) => { calls.push(url); return makeRes(200, sessionBody('x')); });
+  await assert.rejects(() => SB.signInPassword(long, 'satmath123'), e => e.status === 400 && /邮箱或手机号格式不正确/.test(e.message));
+  assert.equal(calls.length, 0);
+});
