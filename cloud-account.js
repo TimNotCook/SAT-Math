@@ -1355,6 +1355,9 @@
     input.type = inputType;
     input.placeholder = placeholder;
     if (autocomplete) input.autocomplete = autocomplete;
+    /* 用户开始改字段就把上一次的报错收掉。否则“邮箱已注册”会一直挂在
+       新填的邮箱上方，改完看着像还是错的。 */
+    input.addEventListener('input', function () { setError(''); });
     lab.appendChild(input); f.appendChild(lab);
     return { box: f, input: input };
   }

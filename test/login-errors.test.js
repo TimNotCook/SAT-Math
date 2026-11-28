@@ -209,3 +209,8 @@ test('登录框同时收邮箱/手机号，但关掉自动大写，邮箱不会�
   assert.match(seg, /em\.input\.autocapitalize = 'none'/, '登录邮箱首字母会被自动大写');
   assert.match(seg, /em\.input\.spellcheck = false/, '登录邮箱被拼写检查改字');
 });
+
+test('开始改输入就把上次报错收掉，旧错误不挂在新内容上', () => {
+  const fn = acct.slice(acct.indexOf('function field('), acct.indexOf('function renderAccountTab'));
+  assert.match(fn, /addEventListener\('input'[\s\S]{0,80}setError\(''\)/, '输入时没清旧错误');
+});
