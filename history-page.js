@@ -222,8 +222,14 @@
     if (resumeUnit == null) resumeUnit = num(rec.unitId);
     var resumeHref = 'exam.html?mode=' + esc(txt(rec.mode));
     if (txt(rec.mode) === 'quiz' && resumeUnit != null) resumeHref += '&unit=' + resumeUnit;
+    /* 未做完档案的题数也可能被云端写成 22.5 / 999：走 scoreParts 的整数与
+       模考封顶口径，已答数夹在 0..总题数，别印「5 / 22.5」。 */
+    var sc = scoreParts(rec);
+    var answeredRaw = num(rec.answered);
+    var answeredN = answeredRaw == null ? 0 : Math.max(0, Math.floor(answeredRaw));
+    if (sc.total > 0) answeredN = Math.min(answeredN, sc.total);
     var html = '<div class="hist-kv"><span>状态 <b>未做完</b></span>' +
-      '<span>已答 <b>' + numTxt(rec.answered == null ? 0 : rec.answered) + ' / ' + numTxt(rec.total) + '</b></span>' +
+      '<span>已答 <b>' + numTxt(answeredN) + ' / ' + numTxt(sc.total) + '</b></span>' +
       '<span>中断时间 <b>' + fmtDate(rec.date) + '</b></span></div>';
     if (resumable) {
       html += '<div class="hist-continue"><a class="btn primary" href="' + resumeHref + '">继续这卷</a></div>';
