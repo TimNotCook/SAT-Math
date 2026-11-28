@@ -118,3 +118,13 @@ test('注册错误码：弱密码/停注册/非法邮箱给中文提示，不甩
   assert.match(cloud, /password should be at least/, '没把 GoTrue 弱密码错误归一');
   assert.match(cloud, /signups not allowed/, '没把停注册错误归一');
 });
+
+test('注册是独立表单：必须确认密码，避免输错密码直接建号', () => {
+  assert.match(acct, /loginMode === 'signup'/, '没有独立注册面板');
+  assert.match(acct, /确认密码/, '缺确认密码输入框');
+  assert.match(acct, /ui\.pw2/, '确认密码框没被读取');
+  const fn = acct.slice(acct.indexOf('async function doSignUpPwd'), acct.indexOf('async function doSendLink'));
+  assert.match(fn, /两次输入的密码不一致/, '两次密码不同没有拦住');
+  assert.match(fn, /pw2/, '注册提交没比对确认密码');
+  assert.match(acct, /loginMode = 'signup'/, '登录页的注册按钮没切到注册表单');
+});

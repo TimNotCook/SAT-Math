@@ -925,3 +925,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 138 条：注册失败还是甩英文技术错误：弱密码、停注册、非法邮箱没归一（2026-11-28）
 
 `errOf()` 只归一了「已注册」「限流」「未验证」等少数码。注册时 GoTrue 返回 `Password should be at least 6 characters`、`Signups not allowed for this instance`、`Unable to validate email address: invalid format` 会原样作为 `Error.message` 抛到面板，用户看到的是英文技术句。现在补 `auth/weak-password`、`auth/signup-disabled`、`auth/invalid-email` 三个码，`friendlyError()` 分别给「密码太短或强度不够」「当前暂未开放新账号注册」「邮箱格式不正确」的中文下一步。验证：`login-errors` 锁错误归一与中文提示；全量回归。
+
+## 第 139 条：注册和登录共用一套输入框，输错邮箱/密码点「注册」也会直接建号（2026-11-28）
+
+密码模式原来把「登录」和「注册新账号」并排放在同一组邮箱 + 密码输入框后面，没有确认密码，也没有独立的注册页。用户本来想登录、只是邮箱打错一个字母时，点「注册新账号」会真的在那个错地址上开一个新号；密码打错也会直接建号，自己还不知道。现在拆出 `loginMode='signup'`：独立的「设置密码」「确认密码」两栏，`autocomplete=new-password`，两次不一致在本地就拦住（`两次输入的密码不一致，请重新确认。`），不发注册请求；登录页的「注册新账号」只负责切到注册表单，并带上已填的账号。浏览器实测：三个输入框、两个密码框、错配确认密码会原地报错且不发请求。验证：`login-errors` 新增独立注册表单断言；全量 677/0，`verify_flows` 16/16。

@@ -714,8 +714,10 @@
   async function doSignUpPwd() {
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = readEmail(), pw = readPw();
+    var pw2 = ui && ui.pw2 ? ui.pw2.value : '';
     if (!email) { setError('请先填写邮箱或手机号。'); return; }
     if (pw.length < 6) { setError('密码至少 6 位。'); return; }
+    if (ui && ui.pw2 && pw !== pw2) { setError('两次输入的密码不一致，请重新确认。'); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
       setBusy(true); setError('');
@@ -1101,7 +1103,7 @@
 
   function renderAccountTab() {
     var b = ui.body;
-    ui.email = null; ui.otpSendBtn = null; ui.pw = null; ui.code = null;
+    ui.email = null; ui.otpSendBtn = null; ui.pw = null; ui.pw2 = null; ui.code = null;
     if (user) {
       var p = el('div', 'td-prof');
       var initial = (displayName().trim().charAt(0) || DEFAULT_NICK).toUpperCase();
@@ -1261,6 +1263,41 @@
       return;
     }
 
+    if (loginMode === 'signup') {
+      var emSign = field('邮箱或手机号', 'text', '邮箱或手机号', 'username');
+      if (seed) emSign.input.value = seed;
+      ui.email = emSign.input;
+      b.appendChild(el('div', 'td-acct-who', '注册新账号'));
+      b.appendChild(emSign.box);
+
+      var pwSign = field('设置密码', 'password', '至少 6 位', 'new-password');
+      ui.pw = pwSign.input;
+      b.appendChild(pwSign.box);
+
+      var pwSign2 = field('确认密码', 'password', '再输一次', 'new-password');
+      ui.pw2 = pwSign2.input;
+      b.appendChild(pwSign2.box);
+
+      var signRow = el('div', 'td-acct-actions');
+      var signBtn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', '注册并登录');
+      signBtn.type = 'button'; signBtn.setAttribute('data-busy', '1');
+      signBtn.onclick = doSignUpPwd;
+      signRow.appendChild(signBtn);
+      b.appendChild(signRow);
+
+      var backSign = el('button', 'td-acct-linkbtn', '返回登录');
+      backSign.type = 'button';
+      backSign.onclick = function () { loginMode = 'password'; setError(''); renderBody(); };
+      b.appendChild(backSign);
+
+      [pwSign, pwSign2].forEach(function (f) {
+        f.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSignUpPwd(); });
+      });
+      b.appendChild(el('p', 'td-acct-note',
+        '注册成功会自动登录。手机号账号没有短信验证，忘记密码只能先登录再在设置里改；常用的话建议用邮箱注册。'));
+      return;
+    }
+
     var em = field('邮箱或手机号', 'text', '邮箱或手机号', 'username');
     if (seed) em.input.value = seed;
     ui.email = em.input;
@@ -1288,7 +1325,7 @@
     var signUp = el('button', 'td-acct-btn2 td-acct-btn--wide', '注册新账号');
     signUp.type = 'button'; signUp.setAttribute('data-busy', '1');
     signUp.setAttribute('data-neutral', '1');
-    signUp.onclick = doSignUpPwd;
+    signUp.onclick = function () { pwdEmail = readEmail() || pwdEmail; loginMode = 'signup'; setError(''); renderBody(); };
     actions.appendChild(signUp);
     b.appendChild(actions);
 
