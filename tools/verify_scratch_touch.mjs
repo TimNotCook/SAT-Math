@@ -79,22 +79,27 @@ const PICK_THIRD = `(()=>{const sws=[...document.querySelectorAll('.mist-sw')];i
 async function enterTest(ctx, w, h) {
   await ctx.send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 2, mobile: w < 760 });
   await ctx.send('Emulation.setTouchEmulationEnabled', { enabled: w < 760, maxTouchPoints: 5 });
-  await ctx.send('Page.navigate', { url: `${BASE}/drill.html?unit=1` });
+  await ctx.send('Page.navigate', { url: `${BASE}/drill.html?sec=1.1&i=1` });
   await sleep(800);
   for (let i = 0; i < 12; i++) { if (await ctx.ev(`document.querySelectorAll('.drill-section-row').length>0`)) break; await sleep(400); }
+  /* 题库铺开要几秒；选项出现之前点 Scratch，JS 还没绑上，点了不会有工具条。 */
+  for (let i = 0; i < 40; i++) { if (await ctx.ev(`document.querySelectorAll('.drill-choice').length>0`)) break; await sleep(400); }
   for (let i = 0; i < 3; i++) {
     await ctx.ev(OPEN_TEST); await sleep(1300);
     if (await ctx.ev(`(()=>{const v=document.getElementById('questionView');return !!v&&!v.hidden})()`)) break;
   }
   await ctx.ev(`(()=>{const b=document.getElementById('btnScratch');if(b)b.click()})()`);
   await sleep(900);
-  return ctx.ev(`(()=>!!document.querySelector('.mist-toolbar.show')||(getComputedStyle(document.querySelector('.mist-toolbar')).opacity>0.5))()`);
+  /* 工具条是点 Scratch 后才动态插入的：先点不到/页面没进来时它是 null，
+     直接 getComputedStyle(null) 会让整个验收器崩掉，这里先判空。 */
+  return ctx.ev(`(()=>{const tb=document.querySelector('.mist-toolbar');if(!tb)return false;
+    return !!tb.classList.contains('show')||parseFloat(getComputedStyle(tb).opacity)>0.5})()`);
 }
 
 async function audit(ctx, label, w, h) {
   const opened = await enterTest(ctx, w, h);
   const d = await ctx.ev(READ);
-  if (!d) { bad(`${label} 取不到手写板工具条`); return; }
+  if (!d || d.missing) { bad(`${label} 取不到手写板工具条`); return; }
   if (!opened) bad(`${label} 点了 Scratch 但工具条没出现`);
   const tag = label;
   const minSw = 26, minSz = { w: 30, h: 38 };
@@ -134,9 +139,11 @@ async function audit(ctx, label, w, h) {
 async function auditDesktop(ctx) {
   await ctx.send('Emulation.setDeviceMetricsOverride', { width: 1024, height: 800, deviceScaleFactor: 1, mobile: false });
   await ctx.send('Emulation.setTouchEmulationEnabled', { enabled: false });
-  await ctx.send('Page.navigate', { url: `${BASE}/drill.html?unit=1` });
+  await ctx.send('Page.navigate', { url: `${BASE}/drill.html?sec=1.1&i=1` });
   await sleep(800);
   for (let i = 0; i < 12; i++) { if (await ctx.ev(`document.querySelectorAll('.drill-section-row').length>0`)) break; await sleep(400); }
+  /* 题库铺开要几秒；选项出现之前点 Scratch，JS 还没绑上，点了不会有工具条。 */
+  for (let i = 0; i < 40; i++) { if (await ctx.ev(`document.querySelectorAll('.drill-choice').length>0`)) break; await sleep(400); }
   for (let i = 0; i < 3; i++) {
     await ctx.ev(OPEN_TEST); await sleep(1200);
     if (await ctx.ev(`(()=>{const v=document.getElementById('questionView');return !!v&&!v.hidden})()`)) break;
@@ -144,7 +151,7 @@ async function auditDesktop(ctx) {
   await ctx.ev(`(()=>{const b=document.getElementById('btnScratch');if(b)b.click()})()`);
   await sleep(800);
   const d = await ctx.ev(READ);
-  if (!d) { bad('桌面 取不到手写板工具条'); return; }
+  if (!d || d.missing) { bad('桌面 取不到手写板工具条'); return; }
   if (d.sw.box.every(b => b.w === 0)) ok('桌面 1024 颜色点不加热区（鼠标端保持原样）');
   else bad(`桌面 1024 颜色点被加了热区：${d.sw.box[0].raw}`);
 }
