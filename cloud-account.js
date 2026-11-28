@@ -829,6 +829,12 @@
 
   function readEmail() { return ui && ui.email ? ui.email.value.trim() : ''; }
   function readPw() { return ui && ui.pw ? ui.pw.value : ''; }
+  /* 注册只收邮箱：先自己看一眼格式，别把明显缺 @ 的串发给服务端再等一圈
+     “邮箱格式不正确”。宽严和 supa-cloud 的 validEmail 保持一致，最大 254。 */
+  function looksLikeEmail(v) {
+    var s = String(v || '').trim();
+    return s.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+  }
 
   async function doSetPassword(pw, pw2) {
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
@@ -871,6 +877,7 @@
     var email = readEmail(), pw = readPw();
     var pw2 = ui && ui.pw2 ? ui.pw2.value : '';
     if (!email) { setError(loginMode === 'signup' ? '请先填写邮箱。' : '请先填写邮箱或手机号。'); return; }
+    if (loginMode === 'signup' && !looksLikeEmail(email)) { setError('邮箱格式不正确，请检查后再试。'); return; }
     if (pw.length < 6) { setError('密码至少 6 位。'); return; }
     if (ui && ui.pw2 && pw !== pw2) { setError('两次输入的密码不一致，请重新确认。'); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
@@ -1494,7 +1501,13 @@
     if (loginMode === 'signup') {
       /* 手机号注册暂未开放（要短信验证），注册框就只写邮箱：
          摆一个「邮箱或手机号」再弹「暂未开通」等于假入口。 */
-      var emSign = field('邮箱', 'text', '邮箱', 'username');
+      /* 邮箱框必须用 email 类型：手机键盘会切到 @ 键，也不会把首字母自动
+         大写（Gmail 一般不分大小写，但自动补成 Tim@ 看着像另一个账号）。 */
+      var emSign = field('邮箱', 'email', 'you@example.com', 'username');
+      emSign.input.inputMode = 'email';
+      emSign.input.autocapitalize = 'none';
+      emSign.input.spellcheck = false;
+      emSign.input.maxLength = 254;
       if (seed) emSign.input.value = seed;
       ui.email = emSign.input;
       b.appendChild(el('div', 'td-acct-who', '注册新账号'));

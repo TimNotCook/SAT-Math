@@ -173,3 +173,13 @@ test('待确认或已注册的邮箱，注册失败后切回登录页', () => {
   assert.match(fn, /loginMode = 'password'/, '没切回登录页');
   assert.match(fn, /pwdEmail = email/, '没保留账号');
 });
+
+test('注册邮箱框是 email 类型，明显格式错在本地就拦，不白跑一次网络', () => {
+  assert.match(acct, /field\('邮箱', 'email'/, '注册邮箱框还是 text，手机键盘不出 @');
+  assert.match(acct, /emSign\.input\.inputMode = 'email'/, '没切邮箱键盘');
+  assert.match(acct, /emSign\.input\.autocapitalize = 'none'/, '首字母会被自动大写');
+  assert.match(acct, /emSign\.input\.maxLength = 254/, '邮箱长度没设上限');
+  const fn = acct.slice(acct.indexOf('async function doSignUpPwd'), acct.indexOf('async function doSendLink'));
+  assert.match(fn, /!looksLikeEmail\(email\)/, '注册前没检查邮箱格式');
+  assert.match(fn, /邮箱格式不正确/, '格式错没给可行动提示');
+});
