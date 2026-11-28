@@ -1688,3 +1688,19 @@ html[data-theme="dark"] body .tile-grid .tile-state.is-done{color:#4ade80!import
 /* 讲义页四张板块卡在 390/320 下被 900px 的两列断点接管，每格只剩约 140px，
    标题被 nowrap+ellipsis 截成“问题解决…”“几何与三…”。窄屏直接单列。 */
 @media (max-width:520px){body.jy-page #jyBoardCards{grid-template-columns:1fr}}
+
+/* 单元抽查开始页的四个单元 tab 被 exam 页的 4 列 !important 锁死，390 下每格
+   只有 77px、320 下 60px，名字全被 ellipsis 截成「U1 代…」「U2 问…」（英文更惨，
+   "U2 P…"）。这条只出现在 intro 的 #introUnitPick，不涉及答题/结果页版式。 */
+@media (max-width:900px){
+  html body.exam-page .quiz-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media (max-width:640px){
+  html body.exam-page .quiz-tabs{grid-template-columns:1fr!important}
+}
+
+/* 英文单元名（"Problem Solving & Data Analysis" 要 211px）在 1440 以下的 4 列里
+   放不下尾巴，被 ellipsis 截成 "Problem Solving & Data…"。tab 高度固定 44px，
+   两行（31px）装得下，不撑高、不挪版；中文短名仍然单行。 */
+html body.exam-page .quiz-tab .qt-name{white-space:normal!important;line-height:1.16;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}

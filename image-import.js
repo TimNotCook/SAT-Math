@@ -31,12 +31,25 @@
       .replace(/\^\{?([^{}]{1,6})\}?/g, '^$1');
   }
   function norm(s) {
-    s = preLatex(String(s == null ? '' : s)).toLowerCase();
+    s = preLatex(String(s == null ? '' : s));
+    /* 先把 Unicode 数学字形折成 ASCII 再进白名单。以前这些字符会被最后那行白名单直接抹成空格，
+       于是 x² → x、3≤x → 3 x、1,200 → 1 200：正确候选题的数字指纹被改掉，匹配就跑到别的题上。 */
+    s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, function (c) { return '^' + '0123456789'.charAt('⁰¹²³⁴⁵⁶⁷⁸⁹'.indexOf(c)); })
+         .replace(/[×·⋅]/g, '*').replace(/÷/g, '/')
+         .replace(/√/g, 'sqrt')
+         .replace(/≤/g, ' < ').replace(/≥/g, ' > ').replace(/≠/g, ' != ')
+         .replace(/±/g, ' plusminus ')
+         .replace(/½/g, ' 1/2 ').replace(/⅓/g, ' 1/3 ').replace(/⅔/g, ' 2/3 ')
+         .replace(/¼/g, ' 1/4 ').replace(/¾/g, ' 3/4 ')
+         .replace(/π/g, ' pi ').replace(/°/g, ' ')
+         .replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 65248); })
+         .replace(/(\d),(\d{3})(?!\d)/g, '$1$2');   /* 千分位合并：1,200 → 1200，不再被拆成 1 和 200 */
+    s = s.toLowerCase();
     s = s.replace(/\\(?:dfrac|tfrac|frac|sqrt|left|right|quad|qquad|text|mathrm|operatorname|cdot|times|div|pm|le|ge|ne|approx|pi|theta|alpha|beta|gamma|circ|degree|overline|hat)\b/g, ' ');
-    s = s.replace(/[{}\[\]$^_~]/g, ' ');
+    s = s.replace(/[{}$_~]/g, ' ');   /* 不再连 ^ 一起抹掉：x^2 与 x2 要分得开 */
     s = s.replace(/[−–—]/g, '-');
     s = s.replace(/\b(degrees?|percent)\b/g, ' ');
-    s = s.replace(/[^a-z0-9./+\- ]+/g, ' ');
+    s = s.replace(/[^a-z0-9.^/+\- ]+/g, ' ');
     return s.replace(/\s+/g, ' ').trim();
   }
   function numbers(s) {
@@ -119,9 +132,9 @@
     if (!cands || !cands.length) return { pass: false, reason: 'no-candidate' };
     var t = cands[0], r = cands[1];
     var margin = r ? t.score - r.score : 1;
-    var strong = t.score >= 0.45 && margin >= 0.06;
+    var strong = t.score >= 0.5 && margin >= 0.08;
     var qnums = numbers(norm(queryStem));
-    var numFast = t.ns >= 0.85 && qnums.length >= 2 && margin >= 0.03;
+    var numFast = t.ns >= 0.88 && qnums.length >= 2 && margin >= 0.05;
     return { pass: strong || numFast, margin: margin,
       reason: strong ? 'strong' : (numFast ? 'number' : 'review') };
   }
@@ -614,29 +627,47 @@
   }
   function rowHtml(p) {
     var cand = p.cands || [];
-    var label = p.error ? '识别失败' : (!p.ocr ? '识别中' : (p.qid ? (p.gate === 'discriminated' ? '已精确匹配并导入' : '已自动匹配并导入') : '未匹配'));
+    var label = p.error ? '识别失败'
+      : (!p.ocr ? '识别中'
+      : (p.qid ? (p.gate === 'discriminated' ? '已精确匹配并导入'
+        : (p.gate === 'text' ? '文本匹配 · 已导入' : '已导入'))
+      : '待核对'));
     var cls = p.qid ? 'ok' : 'warn';
     var thumb = p.thumb ? '<img src="' + p.thumb + '" alt="第 ' + p.i + ' 张截图">' : '<span class="imgimp-thumb-ph">图片</span>';
     var cross = p.ocr && p.ocr._cross ? (p.ocr._agree ? ' · 双模型一致' : ' · 双模型有分歧') : '';
     var conf = p.ocr && p.ocr.confidence ? '<small class="muted">OCR ' + Math.round(p.ocr.confidence * 100) + '%' + esc(cross) + '</small>' : '';
     var stem = p.ocr ? esc(String(p.ocr.stem).slice(0, 180)) : (p.error ? esc(p.error) : '正在识别…');
-    var matched = '';
+    var matched = '', picks = '';
     if (p.qid) {
       var c = cand.filter(function (x) { return x.id === p.qid; })[0] || {};
       var mi = p.matchInfo || {};
       var proof = p.gate === 'discriminated'
         ? '双模型' + (mi.agree ? '一致' : '确认') + ' · 置信 ' + Math.round((mi.conf || 0) * 100) + '%' +
           (mi.numAgree != null ? ' · 数字校验 ' + Math.round(mi.numAgree * 100) + '%' : '')
-        : '';
+        : (p.gate === 'text'
+          ? '文本匹配 · 综合分 ' + Math.round((mi.conf || 0) * 100) + '% · 领先 ' + Math.round((mi.margin || 0) * 100) +
+            (mi.numAgree != null ? ' · 数字校验 ' + Math.round(mi.numAgree * 100) + '%' : '')
+          : '');
       matched = '<div class="imgimp-matched">图像比对：<b>' + esc((c.sec || '') + ' · #' + (c.no || '')) + '</b>' +
         (proof ? ' <small class="muted">' + esc(proof) + '</small>' : '') + '</div>';
     } else if (p.skipReason) {
-      matched = '<div class="imgimp-matched">未导入：' + esc(p.skipReason) + '（为避免导错已跳过，可重试）</div>';
+      matched = '<div class="imgimp-matched">未自动导入：' + esc(p.skipReason) + '</div>';
+    }
+    /* 没自动匹配上时把候选题目摆出来：点一下就按这道题写进错题回顾。
+       这段之前只有点击处理、没有渲染，等于把唯一的人工确认通道关掉了。 */
+    if (!p.qid && p.ocr && cand.length) {
+      picks = '<div class="imgimp-picks"><span class="muted">是下面哪一道？点一下即导入：</span>' +
+        cand.slice(0, 5).map(function (x) {
+          var st = String(x.stem || '').replace(/\s+/g, ' ').trim();
+          return '<button type="button" class="imgimp-cand" data-page="' + p.i + '" data-qid="' + esc(x.id) + '">' +
+            esc((x.sec || '') + ' · #' + (x.no == null ? '' : x.no)) +
+            (st ? '<small>' + esc(st.slice(0, 40)) + '</small>' : '') + '</button>';
+        }).join('') + '</div>';
     }
     return '<article class="imgimp-row"><div class="imgimp-thumb">' + thumb + '</div>' +
       '<div class="imgimp-fields"><div class="imgimp-line"><b>第 ' + p.i + ' 张</b>' +
-      '<span class="imgimp-badge' + cls + '">' + label + '</span>' + conf + '</div>' +
-      '<div class="imgimp-ocr">' + stem + '</div>' + matched + '</div></article>';
+      '<span class="imgimp-badge' + cls + '">' + esc(label) + '</span>' + conf + '</div>' +
+      '<div class="imgimp-ocr">' + stem + '</div>' + matched + picks + '</div></article>';
   }
   function findQ(id) {
     for (var i = 0; i < A.SECS.length; i++) {
@@ -663,7 +694,6 @@
       var st = A.secState(hit.sec, true); if (!st) return;
       st.answers[hit.q.id] = { v: '', correct: false, ts: now, importSrc: MARK };
       st.completed = A.stats(hit.sec).completed;
-      items.push({ sec: hit.sec, qid: hit.q.id, page: p.i });
       added++;
     });
     var msg = added ? ('已导入 ' + added + ' 道图片错题（仅新增记录）') : '没有可导入的题目';
@@ -708,27 +738,42 @@
             status('正在比对 ' + bankCands.length + ' 道候选题…');
             // 第二步：双模型判别式投票（不一致/低置信 → 跳过）
             return discriminate(discriminateMessages(img.url, bankCands), bankCands, state.model).then(function (verdict) {
-              var chosen = null;
+              var chosen = null, qNums = numbers(norm(stemTxt));
               if (verdict && verdict.idx >= 1 && verdict.idx <= bankCands.length) {
                 var cand = bankCands[verdict.idx - 1];
                 // 第三步：独立数字指纹校验——OCR 题干的数字必须和候选题干数字吻合。
                 // 这是不依赖模型的客观闸门，能挡住"模型看错图"导致的错导。
-                var qNums = numbers(norm(stemTxt)), cNums = numbers(norm(cand.stem || ''));
+                var cNums = numbers(norm(cand.stem || ''));
                 var numAgree = numScore(qNums, cNums);
-                if (qNums.length < 2 || numAgree >= 0.7) {
+                // 只读到一两个数字时不再一律放行：数字少就要求型号置信度更高，否则退回让用户点选
+                var numOk = qNums.length >= 2 ? (numAgree >= 0.8)
+                  : (numAgree >= 0.7 && verdict.confidence >= 0.9);
+                if (numOk) {
                   chosen = cand;
                   p.matchInfo = { agree: verdict.agree, conf: verdict.confidence, numAgree: numAgree };
                 } else {
-                  p.skipReason = '数字校验未通过';
+                  p.skipReason = '数字校验未通过（识别出的数字和这道题不符）';
+                }
+              } else if (!verdict) {
+                /* 云端比对用不了（未登录、断网、模型全挂）时不再直接判死：
+                   退回纯文本匹配，分数够高又明显领先、数字对得上才自动导入；否则把候选摆出来让用户点一下。 */
+                var tg = autoGate(recalled, stemTxt);
+                if (tg.pass && recalled[0]) {
+                  chosen = bankCands[0];
+                  p.matchInfo = { agree: false, conf: recalled[0].score, margin: tg.margin,
+                    numAgree: numScore(qNums, numbers(norm(bankCands[0].stem || ''))) };
+                } else {
+                  p.skipReason = '云端比对不可用，文本匹配也不够稳（可从下面的题目里点一个）';
                 }
               } else {
-                p.skipReason = verdict ? '模型判别不一致或置信不足' : '模型判别不可用';
+                p.skipReason = '两个模型判断不一致或置信不足（可从下面的题目里点一个）';
               }
               if (chosen) {
-                p.qid = chosen.id; p.checked = true; p.gate = 'discriminated';
+                p.qid = chosen.id; p.checked = true;
+                p.gate = verdict ? 'discriminated' : 'text';
                 p.cands = [chosen].concat(bankCands.filter(function (x) { return x.id !== chosen.id; }).slice(0, 4));
               } else {
-                // 保守：拿不准就不导，绝不硬猜，也不推给用户点选
+                // 保守：不硬猜，但把候选摆到界面上，用户点一下就能确认
                 p.qid = ''; p.checked = false; p.cands = recalled.slice(0, 5);
               }
               p.ocr.stem = stemTxt;
