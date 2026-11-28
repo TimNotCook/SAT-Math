@@ -371,7 +371,7 @@
       var url = URL.createObjectURL(file), img = new Image();
       img.onload = function () {
         URL.revokeObjectURL(url);
-        var MAX = 1200, W = img.width, H = img.height, sc = Math.min(1, MAX / Math.max(W, H));
+        var MAX = 1600, W = img.width, H = img.height, sc = Math.min(1, MAX / Math.max(W, H));
         W = Math.max(1, Math.round(W * sc)); H = Math.max(1, Math.round(H * sc));
         var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
         var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H); cx.drawImage(img, 0, 0, W, H);
@@ -980,12 +980,18 @@
                 /* 云端比对用不了（未登录、断网、模型全挂）时不再直接判死：
                    退回纯文本匹配，分数够高又明显领先、数字对得上才自动导入；否则把候选摆出来让用户点一下。 */
                 var tg = autoGate(recalled, stemTxt);
-                if (tg.pass && recalled[0]) {
+                // 数字指纹也要对得上才敢自动写：题库里没有这道题时，光靠文字相似度
+                // 会挑到题干句式相近的另一道（实测 55 分也能被放进来），宁可不导。
+                var c0Nums = numbers(norm((bankCands[0] || {}).stem || ''));
+                var c0Agree = numScore(qNums, c0Nums);
+                var numGate = qNums.length >= 2 ? c0Agree >= 0.85 : (qNums.length === 1 ? c0Agree >= 0.6 : true);
+                if (tg.pass && recalled[0] && numGate) {
                   chosen = bankCands[0];
                   p.matchInfo = { agree: false, conf: recalled[0].score, margin: tg.margin,
                     numAgree: numScore(qNums, numbers(norm(bankCands[0].stem || ''))) };
                 } else {
-                  p.skipReason = '云端比对不可用，文本匹配也不够稳（可从下面的题目里点一个）';
+                  p.skipReason = tg.pass ? '文字最像的那道数字对不上，没敢自动写（可点下面任一道）'
+                    : '云端比对不可用，文本匹配也不够稳（可从下面的题目里点一个）';
                 }
               } else {
                 p.skipReason = '两个模型判断不一致或置信不足（可从下面的题目里点一个）';
