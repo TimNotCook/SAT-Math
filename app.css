@@ -1743,3 +1743,14 @@ html body #toast#toast{width:max-content;max-width:min(560px,calc(100vw - 32px))
 @media (hover:none),(pointer:coarse){
   html body.exam-page #stage-result .exam-button-row .btn{min-height:44px!important}
 }
+
+/* 全站侧栏导航在 320 上被压成 39px 高（font 14 × line-height 1.35 + padding 10），
+   手指点不中；rail-back 38、rail-brand 39、rail-settings 43 同理。
+   触屏统一抬到 44，并用 flex 把文字垂直居中，桌面鼠标端保持原样式。 */
+@media (hover:none),(pointer:coarse){
+  html body .site-rail>a,
+  html body .site-rail .rail-brand{min-height:44px!important;display:flex!important;align-items:center!important}
+  html body .site-rail .rail-back{min-height:44px!important;display:flex!important;align-items:center!important}
+  html body .site-rail .td-acct-btn.rail-settings{min-height:44px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;padding:10px 12px!important}
+}
