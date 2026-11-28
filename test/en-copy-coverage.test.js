@@ -104,3 +104,11 @@ test('记录页：错题不印内部题号、只列前 4 条、建议不带长�
   assert.ok(js.includes('function fmtStamp'), '卡头日期没走短格式');
   assert.ok(/Question\\s\*\\d\+/.test(js) || js.includes('Question\\\\s'), '知识点名里的「· Question N」没剥掉');
 });
+
+test('板块标题永不出 undefined：旧编号 2.6 也报得出名字', () => {
+  const core = read('app-core.js');
+  assert.ok(/function sectionLabel\(s\)/.test(core), '找不到 sectionLabel');
+  assert.ok(core.includes("'Section ' + s"), '缺中性兜底，缺名字时会拼出 undefined');
+  assert.ok(/list\[0\]\[?.*section/.test(core) || core.includes('list[0] && list[0].section'), '缺按首题 section 找回真名的逻辑');
+  assert.ok(core.includes("\\d\\.\\d\\.T"), '专项板块 id（2.7.T23）没去编号');
+});

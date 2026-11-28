@@ -516,7 +516,34 @@
   /* 板块名统一为「1.1 线性方程与函数图像」：代码与名称之间用空格，不再用「·」。
      做题页顶栏、页脚、导语、结果标题共用这一个来源，避免同一条板块名在不同位置
      一半带点一半不带。 */
-  function sectionLabel(s) { return s + ' ' + SECTION_CN[s]; }
+  /* 旧链接（drill.html?sec=2.6）落到的板块可能已被并/改号，SECTION_CN 里没有它的名字，
+     以前直接拼成「2.6 undefined」。这里顺着首题的 section 找回真名，找不到就退回中性叫法，
+     绝不把 undefined 印到标题上。 */
+  function secNameOf(s) {
+    var nm = SECTION_CN[s];
+    if (nm && nm !== s) return nm;
+    var list = CATALOG[s] || [];
+    var sid = (list.length && list[0] && list[0].section) || '';
+    if (sid && sid !== s && SECTION_CN[sid]) return SECTION_CN[sid];
+    return '';
+  }
+  function sectionLabel(s) {
+    var own = SECTION_CN[s];
+    var withId = function (id, name) {
+      /* 名字自己已经带编号（「Topic 23 · …」「4.5 圆（练习册）」）时不再重复拼 id。 */
+      if (/^\d\.\d\.T[\dA-Z]+$/.test(id)) return name;
+      if (/^\d[\d.]*\s/.test(name)) return name;
+      return id + ' ' + name;
+    };
+    if (own && own !== s) return withId(s, own);
+    /* 旧链接（drill.html?sec=2.6）落到的板块已被并号/改名，SECTION_CN 里查不到名字，
+       原来会直接拼成「2.6 undefined」。顺着首题的 section 找回真名，
+       再不行就报「Section 2.6」这种中性叫法，绝不让 undefined 露出来。 */
+    var list = CATALOG[s] || [];
+    var sid = (list.length && list[0] && list[0].section) || '';
+    if (sid && sid !== s && SECTION_CN[sid]) return withId(sid, SECTION_CN[sid]);
+    return withId(s, 'Section ' + s);
+  }
 
   function groupTag(s) { return isLegacy(s) ? '精编原题组' : '教材板块'; }
   function secHref(s) { return secUrl(s, 1); }
@@ -531,7 +558,7 @@
     stillWrong: stillWrong, refreshVerdict: refreshVerdict,
     unitStats: unitStats, globalStats: globalStats, wrongList: wrongList,
     nav: nav, crumb: crumb, esc: esc, unit: unit, unitName: unitName,
-    secUrl: secUrl, sectionLabel: sectionLabel, isLegacy: isLegacy,
+    secUrl: secUrl, sectionLabel: sectionLabel, secNameOf: secNameOf, isLegacy: isLegacy,
     unitSections: unitSections, groupTag: groupTag, secHref: secHref, unitHref: unitHref,
     isTopicSection: isTopicSection, topicSections: topicSections, topicGroup: topicGroup,
     isSpecialSection: isSpecialSection, specialSections: specialSections, specialGroup: specialGroup,
