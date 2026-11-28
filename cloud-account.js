@@ -186,13 +186,19 @@
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ uid: uid, payload: payload })); } catch (e) { console.warn('保存草稿失败', e); }
   }
   function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { console.warn('清除草稿失败', e); } }
-  /* 应用一份本地草稿：只有整份写回成功才清草稿。坏载荷（数组、或某个快照值
-     不是字符串）会返回 false，草稿原样保留，供后续恢复/排查。 */
-  function applyDraft(draft) {
-    if (!draft) return false;
+  /* 应用一份云端/草稿档案：统一加抑制同步，并把成功/失败返回给调用方。
+     账号分支必须看这个返回值，不能“调用完就当打开了”。 */
+  function applyArchive(payload) {
     var ok = false;
     suppress = true;
-    try { ok = applyPayload(draft.payload); } finally { suppress = false; }
+    try { ok = applyPayload(payload); } finally { suppress = false; }
+    return ok;
+  }
+  /* 应用一份本地草稿：只有整份写回成功才清草稿。坏载荷（数组、或某个快照值
+     不是字符串、本地存储不可写）会返回 false，草稿原样保留，供后续恢复/排查。 */
+  function applyDraft(draft) {
+    if (!draft) return false;
+    var ok = applyArchive(draft.payload);
     if (ok) clearDraft();
     return ok;
   }
@@ -447,8 +453,14 @@
         var ok = await silentPush();
         setStatus(ok ? '进度已自动保存' : '暂时无法保存进度，联网后会自动重试', ok ? 'ok' : 'warn');
       } else if (cloudHash && cloudHash !== prof.lastSynced) {
-        suppress = true;
-        try { applyPayload(cloudPayload); } finally { suppress = false; }
+        /* 云端档案被 applyPayload 拒绝时（值形状坏/本机存储不可写），旧实现
+           照样更新 lastSynced 并提示“已打开你在其他设备上的进度”——其实本机
+           一个字节都没变，还把云端哈希记成本地已同步，后续不再重试。 */
+        if (!applyArchive(cloudPayload)) {
+          setStatus('云端档案内容异常，已保留本机进度，未覆盖', 'warn');
+          renderBody();
+          return;
+        }
         prof.lastSynced = localHash(); saveProf();
         renderBody();
         reloadSoon('已打开你在其他设备上的进度');
@@ -470,8 +482,16 @@
         // canon()/mergeLocalWithCloud() 每次返回新对象，引用比较永远为真；
         // 改为内容指纹比对，只有真的发生了合并（内容有差异）才回传，避免无谓覆盖。
         var merged = hashOf(target) !== cloudHash;
-        suppress = true;
-        try { applyPayload(target); } finally { suppress = false; }
+        /* 应用失败时绝不能继续：下面会把 owner 改成新账号，还会把本机快照
+           silentPush 上去——等于用 A 的进度覆盖 B 的云端档案。失败就退出
+           这次登录，保留本机进度，不跨账号写入。 */
+        if (!applyArchive(target)) {
+          try { await A.signOut(); } catch (e) { /* 本地会话已清不掉就只保留本机 */ }
+          user = null; nickname = '';
+          setStatus('云端档案内容异常，已退出该账号；本机进度未受影响', 'warn');
+          renderBody();
+          return;
+        }
         prof.owner = uid; prof.lastSynced = localHash(); saveProf();
         if (merged) await silentPush();  // 把并集回传该账号
         renderBody();
@@ -1302,7 +1322,7 @@
   try {
     window.TD_CLOUD_MERGE = { canon: canon, deepMerge: deepMerge, mergeLocalWithCloud: mergeLocalWithCloud,
       mergeArrays: mergeArrays, itemSig: itemSig, pickAtomic: pickAtomic, ATOMIC_KEYS: ATOMIC_KEYS,
-      isPlainPayload: isPlainPayload, applyPayload: applyPayload, applyDraft: applyDraft };
+      isPlainPayload: isPlainPayload, applyPayload: applyPayload, applyArchive: applyArchive, applyDraft: applyDraft };
   } catch (e) { console.warn('合并诊断钩子注册失败', e); }
 
   function boot() {

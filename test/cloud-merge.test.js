@@ -173,3 +173,10 @@ test('本地存储不可写时整份替换失败，不先删掉本机进度', ()
   assert.strictEqual(ok, false, '写不进去却报告成功');
   assert.strictEqual(store.tdsat_app_v1, local, '写入失败前已经把本机进度删了');
 });
+
+test('applyArchive 把 applyPayload 的失败返回给账号分支，不静默当成功', () => {
+  const local = JSON.stringify({ sections: {} });
+  const { M, store } = boot({ tdsat_app_v1: local }, { throwWrite: true });
+  assert.strictEqual(M.applyArchive({ tdsat_app_v1: JSON.stringify({ sections: { '1.1': {} } }) }), false);
+  assert.strictEqual(store.tdsat_app_v1, local, '失败时动了本机进度');
+});
