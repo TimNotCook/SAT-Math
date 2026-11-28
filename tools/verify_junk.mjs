@@ -41,11 +41,21 @@ const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '
 const cleanup = () => { try { proc.kill('SIGKILL'); } catch (e) {} if (server) { try { server.stop(); } catch (e) {} } };
 process.on('exit', cleanup);
 process.on('SIGINT', () => { cleanup(); process.exit(130); });
-for (let i = 0; i < 60; i++) {
-  try { if ((await fetch(`http://127.0.0.1:${CDP}/json/version`)).ok) break; } catch (e) {}
+/* 起浏览器这件事本身会失败：端口撞上残留实例、负载高时 15 秒不够。
+   原来固定 15 秒后直接 fetch 一次，失败了抛 ECONNREFUSED，看起来像"页面坏了"。
+   现在改成轮询到真拿到 page target 为止，拿不到就明确报"浏览器没起来"并退出。 */
+let tabs = null;
+for (let i = 0; i < 120; i++) {
+  try {
+    const t = await (await fetch(`http://127.0.0.1:${CDP}/json/list`)).json();
+    if (Array.isArray(t) && t.some((x) => x.type === 'page' && x.webSocketDebuggerUrl)) { tabs = t; break; }
+  } catch (e) {}
   await sleep(250);
 }
-const tabs = await (await fetch(`http://127.0.0.1:${CDP}/json/list`)).json();
+if (!tabs) {
+  console.error(`❌ Chromium 30 秒内没在 ${CDP} 端口起来（换端口或设 CHROME_BIN）。浏览器：${CHROME}`);
+  cleanup(); process.exit(2);
+}
 const ws = new WebSocket(tabs.find((t) => t.type === 'page').webSocketDebuggerUrl);
 await new Promise((r) => ws.addEventListener('open', r));
 let mid = 0; const pending = new Map(); let events = [];
