@@ -215,43 +215,55 @@
     var digits = s.replace(/[^\d]/g, '');
     return digits.length >= 7 && digits.length <= 15;
   }
+  /* 登录/注册失败时的提示：英文界面必须整句英文。这里不用词典逐字替换，
+     因为句子里夹着账号类型（邮箱/手机号）和动态拼接，逐词替换会剩下半句中文。 */
   function friendlyError(e, account) {
     var c = e && e.code, m = e && e.message;
-    if (c === 'auth/invalid-email') return '邮箱格式不正确，请检查后再试。';
-    if (c === 'auth/weak-password') return '密码太短或强度不够，换一个更长一点的密码再试。';
-    if (c === 'auth/same-password') return '新密码不能和旧密码一样，换一个再保存。';
-    if (c === 'auth/signup-disabled') return '当前暂未开放新账号注册，请稍后再试。';
-    if (c === 'auth/phone-signup-closed') return '手机号注册需要短信验证，当前暂未开通；请改用邮箱注册。已有手机号账号可以直接登录。';
-    if (c === 'auth/phone-signup-no-session') return '手机号注册没有直接登录成功；这个号码没有可收确认邮件的邮箱，请稍后重试，或改用邮箱注册。';
+    var en = langEn();
+    if (c === 'auth/invalid-email') return en ? 'That email doesn\'t look right — check it and try again.' : '邮箱格式不正确，请检查后再试。';
+    if (c === 'auth/weak-password') return en ? 'Password is too short — pick a longer one and try again.' : '密码太短或强度不够，换一个更长一点的密码再试。';
+    if (c === 'auth/same-password') return en ? 'New password must differ from the old one — pick another.' : '新密码不能和旧密码一样，换一个再保存。';
+    if (c === 'auth/signup-disabled') return en ? 'Sign-up is closed right now — try again later.' : '当前暂未开放新账号注册，请稍后再试。';
+    if (c === 'auth/phone-signup-closed') return en ? 'Phone sign-up needs an SMS code, which isn\'t available yet — use email instead. Existing phone accounts can still sign in.' : '手机号注册需要短信验证，当前暂未开通；请改用邮箱注册。已有手机号账号可以直接登录。';
+    if (c === 'auth/phone-signup-no-session') return en ? 'Phone sign-up didn\'t finish signing you in — try again in a moment, or sign up with email instead.' : '手机号注册没有直接登录成功；这个号码没有可收确认邮件的邮箱，请稍后重试，或改用邮箱注册。';
     if (c === 'auth/invalid-credential') {
-      return (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。';
+      return en
+        ? (isPhoneAccount(account) ? 'Phone number' : 'Email') + ' or password is wrong.'
+        : (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。';
     }
     if (c === 'auth/email-already-in-use') {
-      return (isPhoneAccount(account) ? '这个手机号' : '这个邮箱') + '已经注册过了，直接点「登录」。';
+      return en
+        ? (isPhoneAccount(account) ? 'That phone number' : 'That email') + ' is already registered — just tap Sign in.'
+        : (isPhoneAccount(account) ? '这个手机号' : '这个邮箱') + '已经注册过了，直接点「登录」。';
     }
     /* supa-cloud 把 GoTrue 的 Email not confirmed 归一成带 -ed 的码；
        这里原来只认少一个 ed 的拼写，用户会直接看到英文技术错误。 */
     if (c === 'auth/email-confirm-required') {
-      return '注册成功，但邮箱还没确认：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。';
+      return en ? 'Account created, but the email isn\'t confirmed yet: open the link in your inbox (check spam too), then sign in.' : '注册成功，但邮箱还没确认：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。';
     }
     if (c === 'auth/email-not-confirmed' || c === 'auth/email-not-confirm') {
-      return '邮箱还没有验证：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。';
+      return en ? 'Email isn\'t verified yet: open the link in your inbox (check spam too), then sign in.' : '邮箱还没有验证：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。';
     }
-    if (c === 'auth/invalid-code') return '登录链接已失效或邮件有误，请重新发送登录邮件。';
-    if (c === 'auth/too-many-requests') return '操作太频繁了，等一分钟再试。';
-    if (c === 'auth/network-request-failed') return '网络异常，请检查连接后重试。';
-    if (c === 'auth/internal-error') return '登录服务返回异常，请刷新页面后重试。';
+    if (c === 'auth/invalid-code') return en ? 'That sign-in link is expired or wrong — send a new one.' : '登录链接已失效或邮件有误，请重新发送登录邮件。';
+    if (c === 'auth/too-many-requests') return en ? 'Too many attempts — wait a minute and try again.' : '操作太频繁了，等一分钟再试。';
+    if (c === 'auth/network-request-failed') return en ? 'Network problem — check your connection and try again.' : '网络异常，请检查连接后重试。';
+    if (c === 'auth/internal-error') return en ? 'The sign-in service hit an error — reload the page and try again.' : '登录服务返回异常，请刷新页面后重试。';
     var lm = String(m || '').toLowerCase();
     if (lm.indexOf('does not match') >= 0 || lm.indexOf('verification code') >= 0 || lm.indexOf('token') >= 0 || lm.indexOf('expired') >= 0) {
-      return '登录链接已失效或邮件有误，请重新发送登录邮件。';
+      return en ? 'That sign-in link is expired or wrong — send a new one.' : '登录链接已失效或邮件有误，请重新发送登录邮件。';
     }
-    if (lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return '登录服务暂时连不上，请检查网络后重试。';
+    if (lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return en ? 'Can\'t reach the sign-in service — check your network and try again.' : '登录服务暂时连不上，请检查网络后重试。';
     /* supa-cloud 自己抛的校验提示是中文，必须原样给用户；未归一的 Supabase
        原文可能是英文甚至“Database error saving new user”这类内部信息，才收成
        一句可行动的提示，细节留给控制台。 */
-    if (/[\u4e00-\u9fa5]/.test(String(m || ''))) return m;
+    if (/[\u4e00-\u9fa5]/.test(String(m || ''))) {
+      /* 英文界面：这些中文提示多半在词典里有；词典里没有就保留原文，
+         总比把技术错误丢给用户强。 */
+      if (en && window.TDI18n && window.TDI18n.t) return window.TDI18n.t(m);
+      return m;
+    }
     if (m) { try { console.warn('账号操作失败：', m); } catch (e) {} }
-    return '操作失败，请稍后重试。';
+    return en ? 'Something went wrong — try again in a moment.' : '操作失败，请稍后重试。';
   }
 
   /* ---------- 档案归属 / 暂存 ---------- */
@@ -1587,7 +1599,9 @@
       return;
     }
 
-    var em = field('邮箱或手机号', 'text', '邮箱或手机号', 'username');
+    /* 标签已经写着「邮箱或手机号」，placeholder 再写一遍是废话；
+     这里给一个格式示例，用户一眼知道该填什么样子。 */
+    var em = field('邮箱或手机号', 'text', 'you@example.com', 'username');
     /* 这一格同时收邮箱和手机号，不能用 type=email；但 text 在手机上会把
        首字母自动大写，邮箱就登不进去了。统一关掉自动大写和拼写检查。 */
     em.input.autocapitalize = 'none';
@@ -1596,7 +1610,8 @@
     ui.email = em.input;
     b.appendChild(em.box);
 
-    var pw = field('密码', 'password', '密码', 'current-password');
+    /* 标签就是「密码」，placeholder 再写一遍「密码」是纯噪音，留空。 */
+    var pw = field('密码', 'password', '', 'current-password');
     ui.pw = pw.input;
     b.appendChild(pw.box);
 

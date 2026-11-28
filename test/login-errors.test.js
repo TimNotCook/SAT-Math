@@ -17,7 +17,14 @@ function accountFns() {
   const start = acct.indexOf('function isPhoneAccount');
   const end = acct.indexOf('function loadProf');
   const src = acct.slice(start, end);
-  return new Function(src + '; return { isPhoneAccount: isPhoneAccount, friendlyError: friendlyError };')();
+  /* friendlyError 现在按界面语言整句出文案，会调 langEn() 和 window.TDI18n.t()；
+     这里注入这两个桩，才能同时测中文与英文两个版本。 */
+  return new Function(
+    'var __lang = "zh"; var window = { TDI18n: { t: function (x) { return x; } } };'
+    + 'function langEn() { return __lang === "en"; }'
+    + src
+    + '; return { isPhoneAccount: isPhoneAccount, friendlyError: friendlyError,'
+    + ' setLang: function (l) { __lang = l; } };')();
 }
 
 test('手机号识别接受国家码、空格、横线和括号，别把账号说成邮箱', () => {
@@ -213,4 +220,31 @@ test('登录框同时收邮箱/手机号，但关掉自动大写，邮箱不会�
 test('开始改输入就把上次报错收掉，旧错误不挂在新内容上', () => {
   const fn = acct.slice(acct.indexOf('function field('), acct.indexOf('function renderAccountTab'));
   assert.match(fn, /addEventListener\('input'[\s\S]{0,80}setError\(''\)/, '输入时没清旧错误');
+});
+
+test('英文界面下的登录错误提示整句英文，不夹中文', () => {
+  const f = accountFns(); f.setLang('en');
+  const CJK = /[\u4e00-\u9fff]/;
+  const cases = [
+    ['auth/invalid-email', 'you@example.com'],
+    ['auth/weak-password', 'you@example.com'],
+    ['auth/same-password', 'you@example.com'],
+    ['auth/signup-disabled', 'you@example.com'],
+    ['auth/invalid-credential', 'you@example.com'],
+    ['auth/invalid-credential', '+1 415 555 0123'],
+    ['auth/email-already-in-use', 'you@example.com'],
+    ['auth/email-not-confirmed', 'you@example.com'],
+    ['auth/invalid-code', 'you@example.com'],
+    ['auth/too-many-requests', 'you@example.com'],
+    ['auth/network-request-failed', 'you@example.com'],
+    ['auth/internal-error', 'you@example.com'],
+  ];
+  for (const [code, acct] of cases) {
+    const msg = f.friendlyError({ code }, acct);
+    assert.ok(!CJK.test(msg), '英文界面仍是中文：' + code + ' → ' + msg);
+    assert.ok(msg.length > 8, '英文提示为空：' + code);
+  }
+  assert.match(f.friendlyError({ code: 'auth/invalid-credential' }, '+1 415 555 0123'), /Phone number/);
+  assert.match(f.friendlyError({ code: 'auth/invalid-credential' }, 'you@example.com'), /Email/);
+  assert.match(f.friendlyError({ message: 'Failed to fetch' }, 'x'), /network/i);
 });

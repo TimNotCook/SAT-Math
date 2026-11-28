@@ -1588,6 +1588,11 @@ html body .rev-q{font-size:12.5px!important;font-weight:700!important;color:#256
   font-variant-numeric:tabular-nums!important;letter-spacing:.04em!important}
 html body .rev-topic{font-size:16px!important;font-weight:650!important;color:#12233f!important;letter-spacing:-.01em!important}
 html body .rev-meta{margin-left:auto!important;font-size:12px!important;color:#7b8ba1!important;white-space:nowrap!important}
+/* 窄屏：结果页每条的 meta（"1.1 · Q5 · 2 points · Marked · Previously missed"）允许折行并占满一行，
+   否则 nowrap + margin-left:auto 会把 320/375 宽的页面整体撑出横向滚动条 */
+@media (max-width:430px){
+  html body .rev-meta{white-space:normal!important;margin-left:0!important;flex:1 1 100%!important;line-height:1.5!important}
+}
 html body .rev-line2{margin-top:5px!important;font-size:12.5px!important;color:#8b99ad!important}
 html body .rev-ans{margin-top:12px!important;display:flex!important;gap:10px!important;flex-wrap:wrap!important}
 html body .rev-chip{display:inline-flex!important;align-items:center!important;gap:8px!important;height:30px!important;
