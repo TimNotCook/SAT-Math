@@ -623,6 +623,7 @@
     try {
       setBusy(true); setError('');
       await SB.setPassword(pw);
+      if (SB.clearRecovery) SB.clearRecovery();
       setStatus('密码已保存，下次可以用这个账号登录。', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); renderBody(); }
@@ -670,6 +671,20 @@
       setStatus('已发送到 ' + email + '，点邮件里的登录按钮即可完成登录。链接只能用一次，请尽快点击（也可以在垃圾箱里找一下）。', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); syncOtpSendBtn(); }
+  }
+
+  /* ---------- 登录动作（重置密码） ---------- */
+  async function doSendReset() {
+    var email = ui && ui.email ? ui.email.value.trim() : '';
+    if (!email) { setError('请先填写注册时用的邮箱。'); return; }
+    if (!SB || !SB.sendRecovery) { setError('登录模块未加载，请刷新页面重试。'); return; }
+    try {
+      setBusy(true); setError('');
+      pwdEmail = email;
+      await SB.sendRecovery(email);
+      setStatus('重置链接已发到 ' + email + '，点邮件里的按钮就回到这里设新密码（垃圾箱也翻一下）。', 'ok');
+    } catch (e) { setError(friendlyError(e)); }
+    finally { setBusy(false); renderBody(); }
   }
 
   /* ---------- 登录动作（邮箱验证码） ---------- */
@@ -975,6 +990,11 @@
       b.appendChild(el('p', 'td-acct-note', '昵称只用于显示，不参与登录。'));
       ui.nameInput = f.input;
 
+      var recovering = !!(SB && SB.recoveryPending && SB.recoveryPending());
+      if (recovering) {
+        b.appendChild(el('p', 'td-acct-note',
+          '已经通过重置链接登录，在下面设一个新密码就完成重置。'));
+      }
       if (SB && SB.setPassword) {
         var pwField = field('登录密码', 'password', '至少 6 位，设好后可换设备登录', 'new-password');
         var pwRow = el('div', 'td-nick-row');
@@ -1011,6 +1031,28 @@
     /* 两条入口：默认邮箱 / 手机号 + 密码（注册即用，完全不走邮件投递），
        备用邮件链接（邮件能收到的人可以用，点开回站自动登录）。 */
     var seed = pwdEmail || otpEmail;
+
+    if (loginMode === 'reset') {
+      var emReset = field('邮箱', 'email', '注册时用的邮箱', 'email');
+      if (seed) emReset.input.value = seed;
+      ui.email = emReset.input;
+      b.appendChild(el('div', 'td-acct-who', '重置密码'));
+      b.appendChild(emReset.box);
+      var resetRow = el('div', 'td-acct-actions');
+      var resetBtn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', '发送重置链接');
+      resetBtn.type = 'button'; resetBtn.setAttribute('data-busy', '1');
+      resetBtn.onclick = doSendReset;
+      resetRow.appendChild(resetBtn);
+      b.appendChild(resetRow);
+      emReset.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSendReset(); });
+      var backReset = el('button', 'td-acct-linkbtn', '返回登录');
+      backReset.type = 'button';
+      backReset.onclick = function () { loginMode = 'password'; setError(''); renderBody(); };
+      b.appendChild(backReset);
+      b.appendChild(el('p', 'td-acct-note',
+        '重置链接只发到邮箱；手机号注册的账号请直接用密码登录。'));
+      return;
+    }
 
     if (loginMode === 'link') {
       var emLink = field('邮箱', 'email', 'you@example.com', 'email');
@@ -1087,6 +1129,14 @@
     var pw = field('密码', 'password', '至少 6 位', 'current-password');
     ui.pw = pw.input;
     b.appendChild(pw.box);
+
+    var forgot = el('button', 'td-acct-linkbtn', '忘记密码？');
+    forgot.type = 'button';
+    forgot.onclick = function () {
+      pwdEmail = readEmail() || pwdEmail;
+      loginMode = 'reset'; setError(''); renderBody();
+    };
+    b.appendChild(forgot);
 
     var actions = el('div', 'td-acct-actions td-acct-actions--stack');
     var signIn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', '登录');

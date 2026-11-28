@@ -33,6 +33,7 @@
   var KEY = CFG.anonKey || '';
   var SITE_URL = String(CFG.siteUrl || '').replace(/\/+$/, '');
   var SESSION_KEY = 'tdsat_auth_v1';
+  var RECOVER_KEY = 'tdsat_recovery_v1';
 
   var stateCb = null;
   var session = null;      // { access, refresh, expiresAt, user }
@@ -143,6 +144,11 @@
     var expAt = Number(params.get('expires_at'));
     if (expAt > 0) expiresAt = expAt * 1000 - 30000;
     else expiresAt = Date.now() + ((Number(params.get('expires_in')) || 3600) * 1000) - 30000;
+    /* 记住这是「重置密码」链接回来的：面板这时应该引导设新密码，
+       否则用户会以为自己只是莫名登录了。 */
+    try {
+      if (String(params.get('type') || '') === 'recovery') localStorage.setItem(RECOVER_KEY, '1');
+    } catch (e) { /* 本地存储不可写也不影响登录 */ }
     saveSession({
       access: access,
       refresh: params.get('refresh_token') || '',
@@ -346,6 +352,35 @@
     return true;
   }
 
+  /* ---------- 重置密码（邮件链接） ---------- */
+  /* 忘了密码的人不该被卡死。Supabase 免费版发链接是通的（只是模板改不了），
+     recover 走的就是这条链接：点回站带 #type=recovery 的会话，随后用
+     setPassword 覆盖旧密码，全程不需要自定义 SMTP。 */
+  async function sendRecovery(email) {
+    var id = idToEmail(email);
+    if (id.phone) throw errOf(400, { msg: '手机号账号收不到重置邮件，请直接用密码登录。' });
+    if (!validEmail(id.email)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送重置链接。' });
+    var body = { email: id.email };
+    var path = '/auth/v1/recover';
+    if (SITE_URL) {
+      var redirectTo = SITE_URL + '/';
+      body.redirect_to = redirectTo;
+      path += '?redirect_to=' + encodeURIComponent(redirectTo);
+    }
+    await raw(path, {
+      method: 'POST', headers: authHeaders(null),
+      body: JSON.stringify(body), timeout: 20000
+    });
+    return true;
+  }
+
+  function recoveryPending() {
+    try { return localStorage.getItem(RECOVER_KEY) === '1'; } catch (e) { return false; }
+  }
+  function clearRecovery() {
+    try { localStorage.removeItem(RECOVER_KEY); } catch (e) { /* 忽略 */ }
+  }
+
   /* ---------- 邮箱登录 ---------- */
   function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim()); }
 
@@ -451,6 +486,9 @@
     signInPassword: signInPassword,
     maskAccount: maskAccount,
     setPassword: setPassword,
+    sendRecovery: sendRecovery,
+    recoveryPending: recoveryPending,
+    clearRecovery: clearRecovery,
     verifyOtp: verifyOtp,
 
     signOut: async function () {
