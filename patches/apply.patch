@@ -1,0 +1,109 @@
+diff --git a/cloud-account.js b/cloud-account.js
+index ff2baaa..8716a10 100644
+--- a/cloud-account.js
++++ b/cloud-account.js
+@@ -1326,7 +1326,7 @@
+       'border:0;border-bottom:2px solid transparent;background:transparent;color:var(--sub,#51648a)}',
+       '.td-set-tab:hover{color:var(--blue,#2563eb)}',
+       '.td-set-tab[data-active="1"]{color:var(--blue,#2563eb);border-bottom-color:var(--blue,#2563eb)}',
+-      '@media(max-width:400px){.td-set-tabs{gap:0}.td-set-tab{font-size:11.5px;letter-spacing:-.2px;padding:8px 2px}}',
++      '@media(max-width:400px){.td-set-tabs{gap:2px 6px;flex-wrap:wrap}.td-set-tab{flex:0 1 auto;font-size:12px;letter-spacing:0;padding:7px 8px}}',
+       '.td-set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;',
+       'padding:11px 0;border-bottom:1px solid var(--line-soft,#eef3fb)}',
+       '.td-set-row:last-child{border-bottom:0}',
+diff --git a/i18n.js b/i18n.js
+index 1ebd973..524fff3 100644
+--- a/i18n.js
++++ b/i18n.js
+@@ -235,6 +235,7 @@
+     'x 截距（填空）': 'x-intercept (fill-in)',
+     '「c>n 时无实解」求临界值': 'Critical value when there is no real solution for c > n',
+     '三角形内角与图形求角（填空）': 'Triangle angles and angles from a figure (fill-in)',
++    '三角形内角与图形求角': 'Triangle angles and angles from a figure',
+     '二次函数建模求指定时刻高度': 'Model the height at a given time with a quadratic',
+     '二次函数最小值对应的 x': 'x at the minimum of a quadratic',
+     '二维表概率': 'Probability from a two-way table',
+@@ -250,6 +251,7 @@
+     '平行线与垂直：由图形求角': 'Parallel and perpendicular lines: angles from a figure',
+     '平行线与截线：角度计算': 'Parallel lines and a transversal: angle calculation',
+     '平行线被截线所截求角（填空）': 'Angles from parallel lines cut by a transversal (fill-in)',
++    '平行线被截线所截求角': 'Angles from parallel lines cut by a transversal',
+     '抛体运动顶点式建模': 'Vertex-form model for projectile motion',
+     '抛物线与直线恰有一个交点': 'Parabola and line with exactly one intersection',
+     '抽样偏差与结论范围': 'Sampling bias and scope of conclusions',
+@@ -277,6 +279,7 @@
+     '由表格识别指数函数': 'Recognize an exponential function from a table',
+     '直线与抛物线有两个交点': 'Line and parabola with two intersections',
+     '直线方程与夹角参数（填空）': 'Line equation and angle parameters (fill-in)',
++    '直线方程与夹角参数': 'Line equation and angle parameters',
+     '相交直线与对顶角求角': 'Angles of intersecting lines and vertical angles',
+     '相似三角形对应角判断': 'Corresponding angles of similar triangles',
+     '等腰三角形相似与角度': 'Isosceles triangles: similarity and angles',
+@@ -288,6 +291,7 @@
+     '绝对值方程可能值': 'Possible values in an absolute-value equation',
+     '行程文字题建模': 'Model a distance word problem',
+     '表格求百分比（填空）': 'Percent from a table (fill-in)',
++    '表格求百分比': 'Percent from a table',
+     '误差范围的结论表述': 'State a conclusion within a margin of error',
+     '连续百分比增长': 'Repeated percent growth',
+     '长宽比与比例': 'Aspect ratio and proportions',
+@@ -296,6 +300,7 @@
+     '顶点式 + 纵向伸缩后截距差': 'Vertex form with vertical scaling: intercept difference',
+     '顶点式求系数再求 f(-2)-f(0)': 'Coefficients from vertex form, then f(-2) - f(0)',
+     '频数表求中位数（填空）': 'Median from a frequency table (fill-in)',
++    '频数表求中位数': 'Median from a frequency table',
+     '该单元暂无错题记录': 'No wrong answers in this unit yet',
+ 
+     /* 讲义 / 记录 */
+diff --git a/test/i18n-filltopics.test.js b/test/i18n-filltopics.test.js
+new file mode 100644
+index 0000000..a596237
+--- /dev/null
++++ b/test/i18n-filltopics.test.js
+@@ -0,0 +1,24 @@
++'use strict';
++/* 抽查起始页「涵盖考点」会把 topic 里的「（填空）」剥掉再显示；剥掉后的名字
++   若没有英文词条，英文界面就会漏出中文（线上 320 实测到「表格求百分比」）。 */
++const { test } = require('node:test');
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const path = require('node:path');
++const i18n = fs.readFileSync(path.join(__dirname, '..', 'i18n.js'), 'utf8');
++
++const pairs = [
++  ['三角形内角与图形求角', 'Triangle angles'],
++  ['平行线被截线所截求角', 'Angles from parallel lines'],
++  ['直线方程与夹角参数', 'Line equation and angle parameters'],
++  ['表格求百分比', 'Percent from a table'],
++  ['频数表求中位数', 'Median from a frequency table'],
++];
++for (const [zh, en] of pairs) {
++  test(`剥掉（填空）后仍有英文：${zh}`, () => {
++    const re = new RegExp("'" + zh + "': '([^']*)'");
++    const m = i18n.match(re);
++    assert.ok(m, `缺少「${zh}」词条`);
++    assert.match(m[1], new RegExp(en), '英文词条内容不对');
++  });
++}
+diff --git a/test/settings-tabs-wrap.test.js b/test/settings-tabs-wrap.test.js
+new file mode 100644
+index 0000000..3d5d1e9
+--- /dev/null
++++ b/test/settings-tabs-wrap.test.js
+@@ -0,0 +1,16 @@
++'use strict';
++/* 320 宽设置弹层五个 tab 等分 234px（每个约 47px），「Appearance」「Language」
++   会互相压字。窄屏必须允许换行、按内容取宽。 */
++const { test } = require('node:test');
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const path = require('node:path');
++const src = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
++
++test('设置弹层窄屏 tab 允许换行且不强行等分', () => {
++  const m = src.match(/@media\(max-width:400px\)\{\.td-set-tabs\{([^}]*)\}/);
++  assert.ok(m, '缺少 ≤400px 的 tab 规则');
++  assert.match(m[1], /flex-wrap:wrap/, 'tab 仍会挤在一行互相压字');
++  const t = src.match(/@media\(max-width:400px\)\{[^\n]*\.td-set-tab\{([^}]*)\}/);
++  assert.ok(t && /flex:0 1 auto/.test(t[1]), 'tab 仍被 flex:1 等分到装不下文字');
++});
