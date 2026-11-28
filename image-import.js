@@ -371,7 +371,7 @@
       var url = URL.createObjectURL(file), img = new Image();
       img.onload = function () {
         URL.revokeObjectURL(url);
-        var MAX = 1600, W = img.width, H = img.height, sc = Math.min(1, MAX / Math.max(W, H));
+        var MAX = 1200, W = img.width, H = img.height, sc = Math.min(1, MAX / Math.max(W, H));
         W = Math.max(1, Math.round(W * sc)); H = Math.max(1, Math.round(H * sc));
         var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
         var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H); cx.drawImage(img, 0, 0, W, H);
@@ -500,7 +500,7 @@
         var e = new Error('本地识别超时');
         e.error = { code: 'local_ocr_timeout' };
         reject(e);
-      }, 110000);
+      }, 26000);
     });
     var work = loadTesseract().then(function (T) {
       status('正在启动本地识别（无需登录）…');
@@ -523,7 +523,7 @@
               var e = new Error('镜像加载超时');
               e.error = { code: 'local_stage_timeout' };
               reject(e);
-            }, 35000);
+            }, 9000);
           })
         ]).then(function (w) { clearTimeout(t); return w; }, function (e) { clearTimeout(t); throw e; });
       }
@@ -660,7 +660,7 @@
         cand.slice(0, 5).map(function (x) {
           var st = String(x.stem || '').replace(/\s+/g, ' ').trim();
           return '<button type="button" class="imgimp-cand" data-page="' + p.i + '" data-qid="' + esc(x.id) + '">' +
-            esc((x.sec || '') + ' · #' + (x.no == null ? '' : x.no)) +
+            esc(x.sec ? (x.sec + ' · #' + (x.no == null ? '' : x.no)) : String(x.id || '')) +
             (st ? '<small>' + esc(st.slice(0, 40)) + '</small>' : '') + '</button>';
         }).join('') + '</div>';
     }
@@ -680,14 +680,14 @@
 
   function importChecked() {
     if (!A) return { added: 0, message: '题库未就绪' };
-    var conflicts = [], now = Date.now(), added = 0;
+    var conflicts = [], now = Date.now(), added = 0, alreadys = 0;
     pages.forEach(function (p) {
       if (!p.checked || !p.qid) return;
       var hit = findQ(p.qid); if (!hit) return;
       var old = A.secState(hit.sec, false), cur = old && old.answers[hit.q.id];
       if (cur) {
         /* 错题记录只增不改：该题已有任何作答记录（真实作答或此前导入），一律跳过，绝不覆盖。 */
-        if (cur.importSrc === MARK) return;
+        if (cur.importSrc === MARK) { alreadys++; return; }
         conflicts.push({ page: p.i, qid: hit.q.id, v: cur.v });
         return;
       }
@@ -696,12 +696,107 @@
       st.completed = A.stats(hit.sec).completed;
       added++;
     });
-    var msg = added ? ('已导入 ' + added + ' 道图片错题（仅新增记录）') : '没有可导入的题目';
+    var msg = added ? ('已导入 ' + added + ' 道图片错题（仅新增记录）') : '这批图里的题没有新东西可写';
+    if (alreadys) msg += '；' + alreadys + ' 道此前已导入过，不重复写';
     if (conflicts.length) msg += '；' + conflicts.length + ' 道已有作答记录，按只增不改原则跳过（未改动）';
     status(msg);
-    if (!added) return { added: 0, skipped: conflicts.length, message: msg };
+    if (!added) return { added: 0, skipped: conflicts.length, dups: alreadys, message: msg };
     A.save(); refreshHost();
-    return { added: added, skipped: conflicts.length, message: msg };
+    return { added: added, skipped: conflicts.length, dups: alreadys, message: msg };
+  }
+
+  /* ---------------- 手动定位（不依赖 OCR） ----------------
+     识别慢/识别不出时的兜底：用户敲题干里的几个词或数字，直接在题库里找，
+     点一下就把这道题写进错题回顾。零组件、零等待。 */
+  function finderRender(list, query) {
+    var host = $('imgimpFinder'); if (!host) return;
+    if (!query) { host.hidden = true; host.innerHTML = ''; return; }
+    if (!list.length) {
+      host.hidden = false;
+      host.innerHTML = '<div class="imgimp-finder-hint">没找到匹配「' + esc(query) + '」的题。试试只敲数字（如 24 36）或题干里的英文短语。</div>';
+      return;
+    }
+    host.hidden = false;
+    host.innerHTML = '<div class="imgimp-finder-hint">找到 ' + list.length + ' 道，点一道即导入：</div><div class="imgimp-finder-list">' +
+      list.map(function (x) {
+        var st = String(x.stem || '').replace(/\s+/g, ' ').trim();
+        return '<button type="button" class="imgimp-cand" data-manual-qid="' + esc(x.id) + '">' +
+          esc((x.sec || '') + ' · #' + (x.no == null ? '' : x.no)) +
+          (st ? '<small>' + esc(st.slice(0, 60)) + '</small>' : '') + '</button>';
+      }).join('') + '</div>';
+  }
+  /* 真题卷里的题（SP2-xxx / R03-xxx 等）不在 CATALOG 里，写不进错题本；
+     同一道题在 CATALOG 里另有一份（题干一模一样）。按题干建索引，指回那份可写的。 */
+  var aliasMap = null;
+  function ensureAlias() {
+    if (aliasMap || !A) return;
+    aliasMap = {};
+    A.SECS.forEach(function (sec) {
+      (A.CATALOG[sec] || []).forEach(function (q) {
+        var k = norm(String(q.stem || '')).slice(0, 120);
+        if (k && !aliasMap[k]) aliasMap[k] = { id: q.id, sec: sec, no: q.no };
+      });
+    });
+  }
+
+  function finderSearch() {
+    var inp = $('imgimpSearch'); if (!inp) return 0;
+    var q = String(inp.value || '').trim();
+    if (q.length < 2) { finderRender([], ''); status('敲两个字符以上再找，比如 24 或 slope。'); return 0; }
+    /* 手动搜索不走 OCR 那套字符频率打分（它靠「像不像一段被认错的英文」取胜，
+       会把手打的关键词组偏到题干雷同的题上）。这里按词命中率 + 数字命中率排。 */
+    var qt = String(q).toLowerCase().replace(/[^a-z0-9.]+/g, ' ').split(' ')
+      .filter(function (w) { return w.length > 1; });
+    var qn = numbers(q);
+    var banks = (window.TD_BANK && window.TD_BANK.questions) || [];
+    var rows = [];
+    banks.forEach(function (bq) {
+      var st = String(bq.stem || ''); if (!st) return;
+      var ns = norm(st);
+      var cover = qt.length ? qt.filter(function (w) { return ns.indexOf(w) >= 0; }).length / qt.length : 0;
+      var sn = numbers(st);
+      var num = qn.length ? qn.filter(function (n) { return sn.indexOf(n) >= 0; }).length / qn.length : 0;
+      if (!cover && !num) return;
+      var hit = findQ(bq.id);
+      if (!hit) {
+        ensureAlias();
+        var al = aliasMap[norm(st).slice(0, 120)];
+        if (!al) return;
+        rows.push({ id: al.id, sec: al.sec, no: al.no, stem: st, cover: cover, num: num });
+        return;
+      }
+      rows.push({ id: bq.id, sec: hit.sec || '', no: hit.q ? hit.q.no : '', stem: st, cover: cover, num: num });
+    });
+    rows.sort(function (a, b) {
+      if (Math.abs(b.cover - a.cover) > 0.02) return b.cover - a.cover;
+      if (Math.abs(b.num - a.num) > 0.02) return b.num - a.num;
+      return b.cover - a.cover;
+    });
+    /* 同一道题可能以真题卷 id 和单元 id 各存一份，映射后要按 id 去重 */
+    var seen = {}, list = [];
+    for (var ri = 0; ri < rows.length && list.length < 8; ri++) {
+      if (seen[rows[ri].id]) continue;
+      seen[rows[ri].id] = 1; list.push(rows[ri]);
+    }
+    finderRender(list, q);
+    status(list.length ? ('题库里找到 ' + list.length + ' 道，点一道即导入。') : '没找到，换个关键词试试（数字或题干短语更准）。');
+    return list.length;
+  }
+  function importSingle(qid) {
+    if (!A) return { added: 0 };
+    var hit = findQ(qid); if (!hit) return { added: 0 };
+    var old = A.secState(hit.sec, false), cur = old && old.answers[hit.q.id];
+    if (cur) {
+      status('这道题已有作答记录，按「只增不改」原则没有改动（' + hit.sec + ' · #' + hit.q.no + '）。');
+      return { added: 0, skipped: 1 };
+    }
+    var st = A.secState(hit.sec, true);
+    if (!st) return { added: 0 };
+    st.answers[hit.q.id] = { v: '', correct: false, ts: Date.now(), importSrc: MARK };
+    st.completed = A.stats(hit.sec).completed;
+    A.save(); refreshHost();
+    status('已导入 ' + hit.sec + ' · #' + hit.q.no + '（点上面「在题库里找」还能继续加）。');
+    return { added: 1 };
   }
 
   function select(i, qid) {
@@ -795,12 +890,16 @@
       try { res = importChecked(); } catch (e) { console.warn('导入错题失败', e); }
       var added = res && res.added ? res.added : 0;
       var skipped = res && res.skipped ? res.skipped : 0;
+      var dups = res && res.dups ? res.dups : 0;
       var unmatched = pages.filter(function (p) { return p.ocr && !p.error && !p.qid; }).length;
       var msg = '已自动识别并写入错题回顾：' + added + ' 道';
+      if (dups) msg += '；' + dups + ' 道此前已在错题本里（不重复写）';
       if (unmatched) msg += '；' + unmatched + ' 道未能确认，为免导错已跳过（可重试）';
       if (fail) msg += '；' + fail + ' 张识别失败（可点「重试失败项」）';
       if (skipped) msg += '；' + skipped + ' 道因已有作答被跳过';
-      if (!added && !fail && !skipped && !unmatched) msg = '未能匹配到题库题目，本次未导入';
+      if (!added && dups && !fail && !unmatched) msg = '这些题已经在错题本里了（' + dups + ' 道，没有重复写入）';
+      if (!added && !fail && !skipped && !unmatched && !dups) msg = '未能匹配到题库题目，本次未导入';
+      if (fail || unmatched) msg += '　→ 等不及的话，直接在下面的搜索框敲题干里的几个词/数字，点题即导入。';
       status(msg);
       renderRows();
       return { total: pages.length, ok: ok, fail: fail, added: added, skipped: skipped };
@@ -819,6 +918,7 @@
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked,
+    search: finderSearch, importSingle: importSingle,
     cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
     getModel: function () { return state.model; },
@@ -839,6 +939,17 @@
   on('fileImgImport', 'change', function (e) { acceptFiles(e.target.files); e.target.value = ''; });
   on('btnImgRetry', 'click', function () { window.TD_IMG_IMPORT.retryFailed(); });
   on('imgimpCloudSignIn', 'click', cloudSignIn);
+  on('imgimpSearchGo', 'click', finderSearch);
+  var inpSearch = $('imgimpSearch');
+  if (inpSearch) {
+    inpSearch.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); finderSearch(); } });
+    inpSearch.addEventListener('input', function () { if (!inpSearch.value) finderRender([], ''); });
+  }
+  on('imgimpFinder', 'click', function (e) {
+    var t = e.target.closest ? e.target.closest('.imgimp-cand') : null;
+    var qid = t && t.getAttribute('data-manual-qid');
+    if (qid) importSingle(qid);
+  });
   on('imgimpRows', 'change', function (e) {
     var t = e.target, c = t.getAttribute && t.getAttribute('data-img-cand'), k = t.getAttribute && t.getAttribute('data-img-check');
     if (c) select(c, t.value); else if (k) check(k, t.checked);
