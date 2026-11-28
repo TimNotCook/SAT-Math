@@ -796,3 +796,6 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 109 条：本地存储读不到时 snapshot 冒充空档案，可能把云端好进度推成空（2026-11-28）
 
 `cloud-account.js snapshot()` 用 `localStorage.length/key/getItem` 扫描 `tdsat_*`，异常时返回 `{}`。Safari 无痕或禁用站点数据时读不到本机，`localHash()` 会得到一个「空档案」哈希；与 `prof.lastSynced` 不等后登录分支照常 `silentPush()`，把空 payload 推上云，账号里唯一的好档案被冲掉。修成读失败返回 `null`；`localHash()` 也返回 `null`，`silentPush()` 拿到 null 快照直接拒绝，`saveDraft()` 拒绝 null 载荷，`applyPayload` 回滚和首次登录并集都先把 null 当空对象但不再把「读不到」当成「空」。验证：注入 `localStorage.length` 抛错，旧代码 `snapshot()` 返回 `{}`、`localHash()` 得出空哈希，新代码两者均返回 `null` 且 `saveDraft('uA', null)` 为 false；全量 622/0。顺带把 `tools/verify_cloud_branches.mjs` 的草稿读取从旧单槽 `uid` 改成兼容 `{v:2,items}` 多槽格式，否则两个场景会假红。
+## 第 110 条：写盘失败把内存重置回旧盘，刚选的答案静默消失（2026-11-28）
+
+`writeDisk()` 不管 `localStorage.setItem` 成功还是抛错，都执行 `syncFromDisk(st)`。配额满、Safari 无痕、只读存储时 `setItem` 抛 `QuotaExceededError` 被 catch 住，随后内存里的 `S` 被重置成旧盘，刚选的那道题在页面上消失，刷新更不可能找回；`save()` 也没有返回值，导入流程无法知道本机作答根本没落盘。修成：写盘成功才 `syncFromDisk`；失败时采用新状态但保留旧 `BASE`，让下一次 `save()` 仍能按差异重试这批未落盘改动；`save()` 返回 true/false。`wrong-page.importData()` 据此在本机作答写失败时明确提示「错题仓库已保存，但本机作答写入失败…」，不再只显示“已导入”。验证：新增 4 条真实 app-core 回归（失败保留内存、save 返回 false/true、恢复可写后补写、导入提示静态守卫）；全量 625/0；`verify_flows` 16/16。

@@ -208,15 +208,29 @@
   var S = {};
   var BASE = '{}';            // last state known to be on disk (serialized)
 
-  function syncFromDisk(src) {
+  function adoptState(src) {
     Object.keys(S).forEach(function (k) { delete S[k]; });
     Object.keys(src).forEach(function (k) { S[k] = src[k]; });
+  }
+  function syncFromDisk(src) {
+    adoptState(src);
     BASE = JSON.stringify(S);
   }
   function writeDisk(st) {
-    try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { console.warn('保存做题进度失败', e); }
-    if (window.TDSync) try { window.TDSync.notify(KEY); } catch (e) { console.warn('同步通知未生效', e); }
-    syncFromDisk(st);
+    var prevBase = BASE, ok = true;
+    try { localStorage.setItem(KEY, JSON.stringify(st)); }
+    catch (e) { ok = false; console.warn('保存做题进度失败', e); }
+    if (ok) {
+      if (window.TDSync) try { window.TDSync.notify(KEY); } catch (e) { console.warn('同步通知未生效', e); }
+      syncFromDisk(st);
+    } else {
+      /* 写盘失败时不能把 S 重置回旧盘：当前作答只活在内存里，重置等于
+         把刚才那题静默抹掉。采用新状态但 BASE 保留上次真正落盘的样子，
+         下一次 save() 的差异比较仍会把这批未落盘改动重试写出去。 */
+      adoptState(st);
+      BASE = prevBase;
+    }
+    return ok;
   }
 
   function isPlainObject(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
@@ -324,7 +338,7 @@
       var was = base.sections ? JSON.stringify(base.sections[id]) : undefined;
       if (local !== was) disk.sections[id] = S.sections[id];
     });
-    writeDisk(disk);
+    return writeDisk(disk);
   }
 
   syncFromDisk(diskState());

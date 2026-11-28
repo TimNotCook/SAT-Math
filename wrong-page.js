@@ -109,7 +109,7 @@ function importData(data){
   var items=Array.isArray(data)?data:asArr(data.items||data.questions||data.records||data.wrong);
   if(!Array.isArray(items)||!items.length)throw new Error('JSON 中没有 items 数组');
   var store=readImport();if(!Array.isArray(store.items))store.items=[];
-  var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0,pending=[];
+  var idx=bankIndex(),seen={},now=Date.now(),added=0,written=0,readOnly=0,created=0,localWriteFailed=false,pending=[];
   /* 旧存档/云端合并可能把 items 写成 [null, ...]：先剔掉非对象条目，
      否则下一次导入在 x.key 处直接 TypeError，整次导入失败。 */
   store.items=store.items.filter(function(x){return x&&typeof x==='object';});
@@ -148,9 +148,10 @@ function importData(data){
     var st=A.secState(x.sec,true);
     st.answers[x.qid]={v:x.given,correct:false,ts:now,importSrc:IMPORT_MARK};
     st.completed=A.stats(x.sec).completed;
-    A.save();
+    if(!A.save())localWriteFailed=true;
   });
   var msg='已导入 '+added+' 道：新增错题 '+written+' 道 · 已有作答仅只读展示 '+readOnly+' 道（未改动）· 未匹配 '+created+' 道';
+  if(localWriteFailed)msg+='；错题仓库已保存，但本机作答写入失败，刷新后这些题可能不计入进度，请清理存储空间后重试';
   all=collect();render();feedback(msg);
   return{added:added,written:written,readOnly:readOnly,created:created,message:msg};
 }
