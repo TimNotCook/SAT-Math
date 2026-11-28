@@ -1069,3 +1069,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 171 条：登录/找回的邮箱没有长度上限，超长地址照样发给服务端（2026-11-28）
 
 注册页本地拦了 254 位，但 `supa-cloud.validEmail` 只查格式，登录、找回密码、发链接、发验证码都能把超过 254 位的地址发出去，最后只换回一句服务端错误。现在 `validEmail` 同时卡 RFC 5321 的 254 位总长，所有入口统一本地拒绝。验证：`password-login` 262 位登录不发请求；全量 735/0。
+
+## 第 172 条：账号面板开着，背后页面还能跟着滚（2026-11-28）
+
+面板是 `position:fixed` 浮层，但打开时没锁 body 滚动。手机上在注册表单里一划，底下的首页/题目跟着走，关掉面板后人已经不在原位；面板滚到顶/底还会把滚动链传给背景。现在 `openPanel()` 锁 `body.overflow`，`closePanel()` 恢复原值，面板本身加 `overscroll-behavior:contain`。邮件链接失效回站原来绕开 `openPanel` 直接显示层，也改成走同一条路，顺带补上焦点。验证：`login-errors` 锁住打开/关闭/邮件回站三条路径；全量 736/0。

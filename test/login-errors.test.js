@@ -261,3 +261,13 @@ test('注册时报错要聚焦到出错的那一栏，手机上不用自己找',
   assert.match(seg, /ui\.pw\.focus\(\)/, '密码长度错没聚焦密码');
   assert.match(seg, /ui\.pw2\.focus\(\)/, '两次密码不一致没聚焦确认框');
 });
+
+test('账号面板打开时锁住背景滚动，关闭/邮件链接回站都走同一条路', () => {
+  const open = acct.slice(acct.indexOf('function openPanel'), acct.indexOf('function panelFocusables'));
+  assert.match(open, /lockBodyScroll\(\)/, '打开面板没锁背景滚动');
+  const close = acct.slice(acct.indexOf('function closePanel'), acct.indexOf('function onState'));
+  assert.match(close, /unlockBodyScroll\(\)/, '关闭面板没恢复背景滚动');
+  const notice = acct.slice(acct.indexOf('function openAuthNoticeOnce'), acct.indexOf('function openRecoveryOnce'));
+  assert.match(notice, /openPanel\('account'\)/, '邮件回站提示绕过了 openPanel');
+  assert.doesNotMatch(notice, /setAttribute\('data-open'/, '邮件回站仍直接改层显示状态');
+});

@@ -1111,9 +1111,9 @@
     if (!ui || !SB || !SB.takeAuthNotice) return;
     var notice = SB.takeAuthNotice();
     if (!notice) return;
-    activeTab = 'account';
-    ui.layer.setAttribute('data-open', '1');
-    renderBody();
+    /* 和普通打开走同一条路：不然邮件链接失效时只把层显示出来，焦点还留在
+       body 上，背景也照样能滚。 */
+    openPanel('account');
     setError(notice);
   }
 
@@ -1131,10 +1131,24 @@
   /* 打开面板的唯一入口：开完必须把焦点送进面板。
      只把 data-open 置 1 时焦点仍留在 body 上，键盘用户按 Tab 会直接跑到
      遮罩后面的页面里（aria-modal 写着 true，实际却能被绕过），读屏也会念错上下文。 */
+  var bodyLockPrev = null;
+  /* 面板是浮层，背后页面不能跟着手指滚。移动端尤其明显：在注册表单上
+     一划，底下的首页/题目跟着走，关掉面板后人已经不在原位。 */
+  function lockBodyScroll() {
+    if (!document.body) return;
+    if (bodyLockPrev === null) bodyLockPrev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+  }
+  function unlockBodyScroll() {
+    if (!document.body || bodyLockPrev === null) return;
+    document.body.style.overflow = bodyLockPrev;
+    bodyLockPrev = null;
+  }
   function openPanel(tab) {
     if (!ui || !ui.layer) return;
     if (tab) activeTab = tab;
     ui.layer.setAttribute('data-open', '1');
+    lockBodyScroll();
     renderBody();
     var panel = ui.root.querySelector('.td-acct-panel');
     var x = panel && panel.querySelector('.td-acct-x');
@@ -1161,6 +1175,7 @@
     /* 关掉面板时把上次的报错清掉：否则用户隔天再打开，注册页还挂着
        “密码或邮箱不对”，像是刚才又输错了一次。 */
     setError('');
+    unlockBodyScroll();
     if (ui.btn && ui.btn.focus) ui.btn.focus();
   }
 
@@ -1212,7 +1227,7 @@
       '.td-acct-layer{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;',
       'background:var(--veil,rgba(18,35,63,.45));padding:20px}',
       '.td-acct-layer[data-open="1"]{display:flex}',
-      '.td-acct-panel{width:min(430px,100%);max-height:88vh;overflow:auto;background:var(--paper,#fff);',
+      '.td-acct-panel{width:min(430px,100%);max-height:88vh;overflow:auto;overscroll-behavior:contain;background:var(--paper,#fff);',
       'border:1px solid var(--line,#d2e0f1);border-radius:12px;box-shadow:var(--shadow-3,0 16px 40px rgba(18,35,63,.18));',
       'padding:22px;color:var(--ink,#12233f);font-size:14px}',
       '.td-set-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line,#d2e0f1);margin-bottom:16px}',
