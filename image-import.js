@@ -663,10 +663,48 @@
     });
   }
 
+  /* 首次使用要下 6.8MB 引擎（国内实测 GitHub Pages 约 440KB/s ≈ 15 秒），
+     以前这段只显示"正在初始化识别内核"，人只能干等、还以为卡死。
+     这里自己先把内核 + 语言包并行拉一遍：内核和语言包原本在 worker 里是串行的，
+     并行能省掉一次完整往返；顺便报出真实 MB 和预计剩余时间。
+     只在 SW 已接管时做（否则预取的文件 worker 不认，等于白下 6.8MB）。 */
+  var ENGINE_FILES = [
+    ['vendor/tesseract/tesseract-core-simd-lstm.wasm.js', 3938657],
+    ['vendor/tesseract/eng.traineddata.gz', 2952873]
+  ];
+  var ENGINE_TOTAL = 3938657 + 2952873 + 123724 + 66995;
+
+  function prefetchEngine(onProgress) {
+    var ctrl = navigator.serviceWorker && navigator.serviceWorker.controller;
+    if (!ctrl) return Promise.resolve();
+    var got = 0, t0 = Date.now(), done = false;
+    function report() {
+      if (!onProgress || done) return;
+      var mb = (got / 1048576).toFixed(1), tot = (ENGINE_TOTAL / 1048576).toFixed(1);
+      var sec = got > 262144 ? Math.max(1, Math.round((ENGINE_TOTAL - got) / (got / ((Date.now() - t0) / 1000)))) : null;
+      onProgress('首次准备识别引擎 ' + mb + '/' + tot + 'MB' + (sec ? '（约剩 ' + sec + ' 秒，之后永久缓存不用再下）' : '…'));
+    }
+    report();
+    var jobs = ENGINE_FILES.map(function (f) {
+      return fetch(f[0], { cache: 'force-cache' }).then(function (r) {
+        var rd = r.body && r.body.getReader ? r.body.getReader() : null;
+        if (!rd) { got += f[1]; report(); return 1; }
+        function pump() {
+          return rd.read().then(function (x) {
+            if (x.done) return 1;
+            got += x.value.length; report(); return pump();
+          });
+        }
+        return pump();
+      }).catch(function () { return 1; });
+    });
+    return Promise.all(jobs).then(function () { done = true; return 1; });
+  }
+
   function warmOcr(onProgress) {
     if (OCR_W) return Promise.resolve(OCR_W);
     if (OCR_WARM) return OCR_WARM;
-    OCR_WARM = loadTesseract().then(function (T) {
+    OCR_WARM = prefetchEngine(onProgress).then(function () { return loadTesseract(); }).then(function (T) {
       function bounded(mi) {
         var t;
         return Promise.race([
