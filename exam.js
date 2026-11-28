@@ -378,16 +378,27 @@
       plan: session.plan || null, detail
     };
     const all = asArr(load(KEY_RESULTS)); all.push(rec); if (all.length > 40) all.shift();
-    save(KEY_RESULTS, all);
+    /* 留档写失败时绝不能紧接着删会话：否则 35 分钟卷面只留在内存里，
+       刷新即永久丢失。标记在记录上，调用方据此保留原会话让用户重试。 */
+    if (!save(KEY_RESULTS, all)) rec.storageWriteFailed = true;
     return rec;
+  }
+  function salvageThenClear(session, reason) {
+    var rec = salvageSession(session, reason);
+    if (rec && rec.storageWriteFailed) {
+      toast('旧卷留档写入失败：本地存储不可写，原会话已保留；清出空间后刷新可重试');
+      return false;
+    }
+    return true;
   }
 
   function voidRecords() { return asArr(load(KEY_RESULTS)).filter(r => r && isTrueFlag(r.void)); }
 
   /* 运行中结构异常（理论上不可达）：同样走留档 + 重置，不给错数。 */
   function runtimeVoid() {
-    salvageSession(S, 'runtime');
-    try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
+    if (salvageThenClear(S, 'runtime')) {
+      try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
+    }
     sessionExpired = true;
     resumeStage = null;
     adopt(newSession()); renderIntro(); setStage('intro');
@@ -471,8 +482,10 @@
        开场页预生成、还没开考的存档（没有 startedAt / 还停在 intro）不入留档。 */
     if (saved && saved.mode === MODE) {
       const started = Number(saved.startedAt) > 0 && saved.stage && saved.stage !== 'intro';
-      if (started) salvageSession(saved, fixed.reason);
-      try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
+      const canClear = started ? salvageThenClear(saved, fixed.reason) : true;
+      if (canClear) {
+        try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
+      }
     }
     resumeStage = null;
     adopt(newSession()); renderIntro(); setStage('intro'); return false;

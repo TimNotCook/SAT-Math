@@ -48,7 +48,7 @@ test('未交卷导出面板已整体移除，开场页不再有 salvage 区块',
   assert.ok(!/introSalvage/.test(html), 'exam.html 不得再有 introSalvage 面板');
   assert.ok(!/btnExportSalvage/.test(js), 'exam.js 不得再有导出按钮');
   /* 静默作废仍然要留档：results 里的 void 记录这条账不能删。 */
-  assert.match(js, /salvageSession\(saved, fixed\.reason\)/, '存档作废仍要写 void 记录');
+  assert.match(js, /salvageThenClear\(saved, fixed\.reason\)/, '存档作废仍要写 void 记录');
 });
 
 test('成绩页：明细/units/topics/priority 里的数组条目按幽灵记录过滤', () => {

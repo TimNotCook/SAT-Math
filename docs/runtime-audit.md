@@ -870,3 +870,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 128 条：讲义成绩写成功但完成标记写失败，刷新后本节又变“未交”，再交一次就多一条成绩（2026-11-28）
 
 `submitSection()` 先把成绩追加进 `tdsat_exam_suite_results_v1`，再写 `tdsat_jiangyi_v1` 的 `submitted`；第二次 `save()` 的返回值一直没人看。存储配额满/只读时，成绩已经落盘，但本节完成标记没写进去。刷新后 `submittedOf()` 只看状态键，本节重新显示“未开始”，用户再交一次就会往成绩仓库追加第二条重复记录。修成：第二次 `save()` 失败时在交卷记录上标 `submittedWriteFailed` 并置 `lastSaveFailed`；`submittedOf()` 在状态键没有有效标记时，按 `mode==='jiangyi'` 和同 `section` 从成绩仓库反查最近一条，把完成状态认回来。验证：新增用例注入 `tdsat_jiangyi_v1` 写失败，成绩仍落盘、记录带失败标记，重启后 `submittedOf()` 仍返回已交；全量 651/0；`verify_flows` 16/16。
+
+## 第 129 条：模考作废留档写盘失败后仍删原会话，35 分钟卷面一起清零（2026-11-28）
+
+`salvageSession()` 先把整卷写进 `tdsat_exam_suite_results_v1`（`void:true` 留档），但 `save()` 的返回值一直没人看；`runtimeVoid()` 和 `recoverInvalid()` 紧接着无条件 `removeItem(KEY_SESSION)`。存储配额满/只读时，留档只在内存里，会话却被删掉，刷新后既没有作废记录、也找不回原卷——正好违反“宁可多一条未交卷记录，也不静默清零”。修成：`save()` 失败时在记录上标 `storageWriteFailed`，新增 `salvageThenClear()` 统一判断；写失败就保留原会话并提示“清出空间后刷新可重试”，只有留档真正落盘才删会话。验证：新增静态守卫锁标记、收口与两处调用；全量 653/0；`verify_flows` 16/16。
