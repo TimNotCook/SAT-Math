@@ -382,8 +382,7 @@
       /* 交卷标记没落盘就跳成绩页，新页面会读回旧存档：这一节看起来没交，
          用户以为白做。留在本题，等存储恢复后重点一次“交卷”。 */
       st.submitted = false;
-      delete st.submittedAt;
-      return;
+      delete st.submittedAt;      return;
     }
     if (window.TD_SAVE) window.TD_SAVE.manualSave();
     location.href = resultUrl(section);
@@ -762,7 +761,11 @@
     if (!els.nav.hidden) renderNavigator();
   }
   function setSaved() {
-    els.save.textContent = '已保存到此设备';
+    /* A.save() 现在返回真实写入结果：配额满/无痕下不能再无条件写「已保存」，
+       否则用户刷新后答案没了，还会以为落盘成功。走 saveDrill 复用失败提示。 */
+    var ok = saveDrill();
+    els.save.textContent = ok ? '已保存到此设备' : '保存失败：本地存储不可写';
+    els.save.classList.toggle('is-save-error', !ok);
     if (window.TD_SAVE) window.TD_SAVE.autosave();
   }
   function refreshSaveStatus() {

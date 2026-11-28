@@ -26,3 +26,7 @@ test('练习页保存失败时提示一次，不把 A.save() 当永远成功', (
 test('交卷标记写盘失败时不跳成绩页，留在本题等重试', () => {
   assert.match(JS, /if \(!saveDrill\(\)\) \{[\s\S]*?st\.submitted = false;[\s\S]*?return;[\s\S]*?location\.href = resultUrl\(section\);/, '交卷写盘失败仍跳到读旧盘的成绩页，页面会显示这一节没交');
 });
+
+test('练习页保存状态必须反映 saveDrill 真实结果', () => {
+  assert.match(JS, /function setSaved\(\) \{[\s\S]*?var ok = saveDrill\(\);[\s\S]*?保存失败：本地存储不可写/, 'setSaved 仍无条件写「已保存到此设备」');
+});
