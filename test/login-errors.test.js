@@ -308,3 +308,10 @@ test('改登录邮箱就收掉上一条重发确认入口和冷却，不把信�
   assert.match(out, /confirmCooldown = 0/, '改邮箱后仍被上一条冷却挡住');
   assert.match(out, /removeChild\(ui\.resendConfirmBtn\)/, '改邮箱后重发按钮没从界面移除');
 });
+
+test('退出登录清掉邮件链接/验证码/重置共用的冷却，不让下一个人继承', () => {
+  const out = acct.slice(acct.indexOf('async function doSignOut'), acct.indexOf('function openAuthNoticeOnce'));
+  assert.match(out, /otpCooldown = 0/, '退出后仍保留发送冷却');
+  assert.match(out, /codeSent = false/, '退出后仍显示上一个账号“重新获取”');
+  assert.match(out, /clearInterval\(otpCountdownTimer\)/, '退出后验证码冷却计时器还在跑');
+});

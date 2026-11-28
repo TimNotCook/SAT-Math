@@ -1144,6 +1144,11 @@
     needConfirm = false;
     confirmCooldown = 0;
     if (confirmTimer) { clearInterval(confirmTimer); confirmTimer = null; }
+    /* 邮件链接/验证码/重置共用的 60 秒冷却也不能跨账号留着：上一个人刚发过，
+       下一个人刚打开登录页就看到按钮被禁用，还会把“重新获取”当成自己点过。 */
+    otpCooldown = 0;
+    codeSent = false;
+    if (otpCountdownTimer) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
     /* removeItem 也可能被浏览器拒绝：这时内存里退了，磁盘上的会话还在，
        刷新会悄悄把人登回去。不能继续报「已退出」。 */
     if (cleared === false) setStatus('当前页面已退出，但浏览器拒绝清除登录缓存；刷新后可能仍处于登录状态，请先清出空间再退出', 'warn');
