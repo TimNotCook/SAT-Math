@@ -22,12 +22,14 @@
     return { wasm: wasm, sw: sw };
   }
   // 面板底部那行小字：出问题时不用描述症状，看这一行就能定位
+  var SELF_LINE = '';
   function diag() {
     var el = $('imgimpDiag'); if (!el) return;
     var e = ocrEnv();
     el.textContent = '内核 ' + (e.wasm ? 'wasm✓' : 'wasm✗ 这台浏览器不支持本地识别') +
       ' · 缓存 ' + (e.sw ? 'sw✓' : 'sw✗ 首贴要现下 7MB') +
       ' · 引擎 ' + (OCR_READY ? '就绪' : '未就绪') +
+      (SELF_LINE ? ' · ' + SELF_LINE : '') +
       (ENGINE_LAST_ERR ? ' · 上次错误：' + ENGINE_LAST_ERR : '');
   }
   function status(msg) { var el = $('imgimpStatus'); if (el) el.textContent = msg || ''; diag(); }
@@ -1470,6 +1472,7 @@
       renderRows();   /* 打开就把"待整理"摆出来，上次没配上的题不会看不见 */
       ensureCloudSession(function () { });
       prewarm();
+      autoSelfTest();
       if (!ocrEnv().wasm) status('这台浏览器不支持本地识别内核；把题干里几个词敲进下面的搜框，照样能查题导入。');
     },
     prewarm: prewarm,
@@ -1494,6 +1497,35 @@
   };
   /* 一键自检：不看用户环境也能知道这台机器到底哪一环不行。
      自己造一张"x+3=10 what is x"的图，跑完整识别链路，报耗时与结果。 */
+  /* 自动自检：第一次打开面板时悄悄跑一遍完整链路（造一张已知题目的图 → 识别 → 配题）。
+     目的不是炫技，是让"到底能不能用"这件事在界面上有答案：通过就写 ✓ 几秒，
+     不通过就把原始错误摆在诊断行里，不用用户回忆、也不用他点按钮。 */
+  var autoSelfDone = false;
+  function autoSelfTest() {
+    if (autoSelfDone) return;
+    if (sessionStorage.getItem('satmath_self_line')) { SELF_LINE = sessionStorage.getItem('satmath_self_line'); return; }
+    autoSelfDone = true;
+    var t0 = Date.now();
+    warmOcr(function () {}).then(function () {
+      if (busy) return;
+      var cv = document.createElement('canvas'); cv.width = 900; cv.height = 160;
+      var cx = cv.getContext('2d');
+      cx.fillStyle = '#fff'; cx.fillRect(0, 0, 900, 160);
+      cx.fillStyle = '#222'; cx.font = '24px Georgia';
+      cx.fillText('If x + 3 = 10, what is the value of x ?', 30, 70);
+      var url = cv.toDataURL('image/png');
+      return ocrBest(url, state.model).then(function (r) {
+        var sec = ((Date.now() - t0) / 1000).toFixed(1);
+        SELF_LINE = '自检✓ ' + sec + 's ' + Math.round((r.score || 0) * 100) + '%';
+      });
+    }).catch(function (e) {
+      SELF_LINE = '自检✗ ' + ((e && e.message) || e);
+    }).then(function () {
+      try { sessionStorage.setItem('satmath_self_line', SELF_LINE); } catch (e) {}
+      diag();
+    });
+  }
+
   function selfTest() {
     var btn = $('imgimpSelfTest'); if (btn) btn.disabled = true;
     var t0 = Date.now();
