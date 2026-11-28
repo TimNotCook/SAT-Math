@@ -633,11 +633,13 @@ test('练习统计：correct 是 "True" 时算答对，"False" 时算答错', ()
 
 test('图片导入撤销只覆盖最近一批，不是整页生命周期', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'image-import.js'), 'utf8');
-  const checked = src.slice(src.indexOf('function importChecked()'), src.indexOf('function finderRender('));
+  const checked = src.slice(src.indexOf('function importChecked('), src.indexOf('function finderRender('));
   const singleStart = src.indexOf('function importSingle(');
   const single = src.slice(singleStart, singleStart + 1400);
-  assert.ok(checked.indexOf('beginBatch()') > -1, 'importChecked 开始前没有清空上一批撤销清单');
-  assert.ok(single.indexOf('beginBatch()') > -1, 'importSingle 写入前没有清空上一批撤销清单');
+  /* 默认入口仍要在开始前清空上一批；多题拆分/常规导入需要沿用同一批时
+     由 keepBatch 显式跳过，不能删掉默认清理逻辑。 */
+  assert.ok(checked.indexOf('if (!keepBatch) beginBatch();') > -1, 'importChecked 默认入口没有清空上一批撤销清单');
+  assert.ok(single.indexOf('if (!keepBatch) beginBatch();') > -1, 'importSingle 默认入口没有清空上一批撤销清单');
 });
 
 test('记录页：单元抽查 total 被写成 999 时封顶 30，不印 0 / 999', () => {

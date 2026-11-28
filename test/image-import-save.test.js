@@ -25,3 +25,10 @@ test('引擎预取把四个真实文件都算进 6.8MB 进度，错误响应不�
   assert.match(JS, /'vendor\/tesseract\/tesseract\.min\.js'[\s\S]*'vendor\/tesseract\/worker\.min\.js'[\s\S]*tesseract-core-simd-lstm\.wasm\.js[\s\S]*eng\.traineddata\.gz/, '预取清单漏了 tesseract.min.js / worker.min.js，进度永远停在 6.6/6.8MB');
   assert.match(JS, /if \(!r\.ok\) return 0;/, '404/500 仍把错误页字节算成下载进度');
 });
+
+test('多题拆分与常规导入共用同一个撤销批次，不会一道各开一批', () => {
+  assert.match(JS, /function importChecked\(keepBatch\)[\s\S]*?if \(!keepBatch\) beginBatch\(\);/, 'importChecked 仍无条件清空批次');
+  assert.match(JS, /function importSingle\(qid, keepBatch\)[\s\S]*?if \(!keepBatch\) beginBatch\(\);/, 'importSingle 仍每道题各开一批');
+  assert.match(JS, /salvageMulti[\s\S]*?beginBatch\(\);[\s\S]*?importSingle\(c\.id, true\)/, '多题拆分没有共用一个撤销批次');
+  assert.match(JS, /salvageMulti\(\)[\s\S]*?importChecked\(true\)/, '常规导入仍会清掉多题拆分刚记下的批次');
+});

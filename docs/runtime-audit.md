@@ -858,3 +858,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 125 条：引擎预取只下 2/4 个文件，进度永远停 6.6/6.8MB；404 错误页也被算成下载量（2026-11-28）
 
 `d6cba62c` 新增的 `prefetchEngine()` 把 `ENGINE_TOTAL` 按内核+语言包+`tesseract.min.js`+`worker.min.js` 四个文件算成 6.8MB，但 `ENGINE_FILES` 只预取了后两个大文件（3.9MB+2.95MB），进度最多到 6.6/6.8MB，随后加载脚本时数字卡住不动，看起来又像卡死。另外 `fetch()` 对 404/500 也 resolve，原来直接把错误页 body 字节加进 `got`，网络坏时反而显示“下载很快”。修成：把 `tesseract.min.js`、`worker.min.js` 也放进预取清单（顺便让后续 `<script>` 走缓存）；`!r.ok` 直接不计字节。验证：新增静态守卫锁四文件清单与 `r.ok` 校验；全量 646/0；`verify_flows` 16/16。
+
+## 第 126 条：一张图拆多题时每道各开一个撤销批次，最后“撤销本次”只能撤掉最后一道（2026-11-28）
+
+`2914a811` 的 `salvageMulti()` 逐题调用 `importSingle()`，而 `importSingle()` 内部每次 `beginBatch()` 都把 `lastAdded` 清空；随后 `recognizeAll` 又调 `importChecked()` 再清一次。结果一张图拆出 3 道并写入 3 道后，撤销按钮只能撤最后一道，前两道永久留在错题本；常规导入与拆题导入也各自成批，一个按钮管不到整张图。修成：拆题入口只 `beginBatch()` 一次，`importSingle(qid, keepBatch)` 与 `importChecked(keepBatch)` 支持沿用当前批次；`recognizeAll` 先拆题、再 `importChecked(true)`，整张图的拆题+常规导入共用一个撤销批次。验证：新增静态守卫锁 `keepBatch` 传参链；全量 647/0；`verify_flows` 16/16。

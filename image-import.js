@@ -1070,9 +1070,9 @@
     return n;
   }
 
-  function importChecked() {
+  function importChecked(keepBatch) {
     if (!A) return { added: 0, message: '题库未就绪' };
-    beginBatch();
+    if (!keepBatch) beginBatch();
     var conflicts = [], now = Date.now(), added = 0, alreadys = 0;
     pages.forEach(function (p) {
       if (!p.checked || !p.qid) return;
@@ -1219,7 +1219,7 @@
     status(list.length ? ('题库里找到 ' + list.length + ' 道，点一道即导入。') : '没找到，换个关键词试试（数字或题干短语更准）。');
     return list.length;
   }
-  function importSingle(qid) {
+  function importSingle(qid, keepBatch) {
     if (!A) return { added: 0 };
     var hit = findQ(qid); if (!hit) return { added: 0 };
     var old = A.secState(hit.sec, false), cur = old && old.answers[hit.q.id];
@@ -1229,7 +1229,7 @@
     }
     var st = A.secState(hit.sec, true);
     if (!st) return { added: 0 };
-    beginBatch();
+    if (!keepBatch) beginBatch();
     st.answers[hit.q.id] = { v: '', correct: false, ts: Date.now(), importSrc: MARK };
     st.completed = A.stats(hit.sec).completed;
     rememberAdd(hit.q.id);
@@ -1266,6 +1266,9 @@
   }
   function salvageMulti() {
     var added = 0;
+    /* 一张图拆出来的多道题属于同一次导入，撤销要一起撤：这里只开一个批次，
+       后面 importSingle 不要再各开各的，否则“撤销本次”只能撤掉最后一道。 */
+    beginBatch();
     pages.forEach(function (p) {
       if (p.qid || !p.ocr || !p.ocr.stem) return;
       var segs = multiSplit(p.ocr.stem);
@@ -1282,7 +1285,7 @@
         var tg = autoGate(rc, sg);
         if (tg.pass && numOk && !seen[rc[0].id]) { seen[rc[0].id] = 1; hits.push(rc[0]); }
       });
-      hits.forEach(function (c) { var r = importSingle(c.id); if (r && r.added) added++; });
+      hits.forEach(function (c) { var r = importSingle(c.id, true); if (r && r.added) added++; });
       if (hits.length) { p.salvaged = hits.length; p.salvageIds = hits.map(function (c) { return c.id; }); }
     });
     return added;
@@ -1405,7 +1408,7 @@
       var salvaged = 0;
       try { salvaged = salvageMulti(); } catch (e) { console.warn('拆多题失败', e); }
       var res = null;
-      try { res = importChecked(); } catch (e) { console.warn('导入错题失败', e); }
+      try { res = importChecked(true); } catch (e) { console.warn('导入错题失败', e); }
       var added = (res && res.added ? res.added : 0) + salvaged;
       var skipped = res && res.skipped ? res.skipped : 0;
       var dups = res && res.dups ? res.dups : 0;
