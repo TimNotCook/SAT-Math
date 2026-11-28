@@ -792,3 +792,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 108 条：历史错题次数是字符串时被拼成「34」，薄弱点报告排序被算高（2026-11-28）
 
 `mergedState()` 里 `x.count = (x.count || 0) + 1`，如果云端/旧版把 `count` 写成字符串 `'3'`，第二次命中就变成 `'31'`；`weaknessReport` 的 `hScore` 再用 `s + count` 累加，`'3' + '4'` 变 `'34'`，乘 2 后优先级分数被明显抬高，报告会把并不最弱的单元排到前面。布尔 `true`、对象 `{}` 还会把分数算成 NaN。统一走 `countOf(v, fallback)`：只接受正有限数（小数向下取整），坏值按调用点语义回落（知识点算 1 次、报告分算 0），`exam.js` 的合并计数也同步改掉字符串拼接。验证：新增字符串 `'3'/'4'` 精确分数（34）与布尔/对象有限性两条回归；全量 616/0；`verify_flows` 16/16。
+
+## 第 109 条：本地存储读不到时 snapshot 冒充空档案，可能把云端好进度推成空（2026-11-28）
+
+`cloud-account.js snapshot()` 用 `localStorage.length/key/getItem` 扫描 `tdsat_*`，异常时返回 `{}`。Safari 无痕或禁用站点数据时读不到本机，`localHash()` 会得到一个「空档案」哈希；与 `prof.lastSynced` 不等后登录分支照常 `silentPush()`，把空 payload 推上云，账号里唯一的好档案被冲掉。修成读失败返回 `null`；`localHash()` 也返回 `null`，`silentPush()` 拿到 null 快照直接拒绝，`saveDraft()` 拒绝 null 载荷，`applyPayload` 回滚和首次登录并集都先把 null 当空对象但不再把「读不到」当成「空」。验证：注入 `localStorage.length` 抛错，旧代码 `snapshot()` 返回 `{}`、`localHash()` 得出空哈希，新代码两者均返回 `null` 且 `saveDraft('uA', null)` 为 false；全量 622/0。顺带把 `tools/verify_cloud_branches.mjs` 的草稿读取从旧单槽 `uid` 改成兼容 `{v:2,items}` 多槽格式，否则两个场景会假红。

@@ -111,10 +111,16 @@
         k = localStorage.key(i);
         if (k && k.indexOf(SNAP_PREFIX) === 0 && !NO_SYNC[k]) out[k] = localStorage.getItem(k);
       }
-    } catch (e) { return {}; }
+    } catch (e) {
+      /* 读不到 ≠ 空档案：Safari 无痕/禁用站点数据时 localStorage.length 或 key()
+         会抛。旧实现返回 {}，登录后 localHash 变成空档案哈希，和 lastSynced
+         不等就会 silentPush 一份空 payload 上云，把账号里唯一的好档案冲掉。
+         这里用 null 明确表示「本机快照不可读」，上层拒绝推送/暂存。 */
+      return null;
+    }
     return out;
   }
-  function localHash() { return hashOf(snapshot()); }
+  function localHash() { var s = snapshot(); return s == null ? null : hashOf(s); }
   function setStatus(text, kind) {
     if (!ui || !ui.status) return;
     ui.status.textContent = text;
@@ -201,7 +207,7 @@
     } catch (e) { return null; }
   }
   function saveDraft(uid, payload) {
-    if (!uid) return false;
+    if (!uid || payload == null) return false;
     try {
       var items = draftsFromRaw(localStorage.getItem(DRAFT_KEY));
       items[uid] = { payload: payload, ts: Date.now() };
@@ -264,7 +270,7 @@
       try { v = localStorage.getItem(k); } catch (e) { console.warn('读取本地存储失败', e); }
       if (v != null) keep[k] = v;
     }
-    var cur = snapshot(), failed = false;
+    var cur = snapshot() || {}, failed = false;
     Object.keys(cur).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) { console.warn('清除本地存储失败', e); } });
     Object.keys(clean).forEach(function (key) {
       try { if (typeof clean[key] === 'string') localStorage.setItem(key, clean[key]); }
@@ -362,7 +368,7 @@
     return ct > lt ? cloudRaw : localRaw;   // 平手取本机，和深合并的本地优先一致
   }
   function mergeLocalWithCloud(cloudPayload) {
-    var local = snapshot();
+    var local = snapshot() || {};
     var out = canon(cloudPayload);
     Object.keys(local).forEach(function (k) {
       if (!(k in out)) { out[k] = local[k]; return; }
@@ -396,6 +402,7 @@
     saving = true;
     try {
       var snap = snapshot();
+      if (!snap) return false;
       var h = hashOf(snap);
       await A.pushProgress(snap);
       prof.owner = user.uid;
@@ -527,7 +534,7 @@
       var fresh = !prof.owner || prof.owner === 'guest';
       if (cloudPayload && Object.keys(cloudPayload).length) {
         // 该账号已有档案 → 切过去。首次登录且本机有"无主"进度时先并入，避免丢题。
-        var target = (fresh && Object.keys(snapshot()).length)
+        var target = (fresh && Object.keys(snapshot() || {}).length)
           ? mergeLocalWithCloud(cloudPayload) : cloudPayload;
         // canon()/mergeLocalWithCloud() 每次返回新对象，引用比较永远为真；
         // 改为内容指纹比对，只有真的发生了合并（内容有差异）才回传，避免无谓覆盖。
@@ -1457,7 +1464,7 @@
     window.TD_CLOUD_MERGE = { canon: canon, deepMerge: deepMerge, mergeLocalWithCloud: mergeLocalWithCloud,
       mergeArrays: mergeArrays, itemSig: itemSig, pickAtomic: pickAtomic, ATOMIC_KEYS: ATOMIC_KEYS,
       isPlainPayload: isPlainPayload, applyPayload: applyPayload, applyArchive: applyArchive, applyDraft: applyDraft,
-      saveDraft: saveDraft, loadDraft: loadDraft, clearDraft: clearDraft };
+      saveDraft: saveDraft, loadDraft: loadDraft, clearDraft: clearDraft, snapshot: snapshot, localHash: localHash };
   } catch (e) { console.warn('合并诊断钩子注册失败', e); }
 
   function boot() {

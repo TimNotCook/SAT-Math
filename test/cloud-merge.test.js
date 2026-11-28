@@ -22,7 +22,7 @@ function boot(seed, opts) {
       setItem: (k, v) => { if (opts.throwWrite) throw new Error('storage denied'); store[k] = String(v); },
       removeItem: k => { delete store[k]; },
       key: i => Object.keys(store)[i] || null,
-      get length() { return Object.keys(store).length; },
+      get length() { if (opts.throwRead) throw new Error('storage blocked'); return Object.keys(store).length; },
     },
     location: { pathname: '/', href: '', reload() {} },
     document: {
@@ -197,6 +197,13 @@ test('应用 A 的草稿只清 A 的槽，B 的草稿继续保留', () => {
   assert.strictEqual(M.loadDraft('uA'), null, 'A 的草稿应用成功后没有清掉');
   assert.deepStrictEqual(M.loadDraft('uB').payload, pB, '清 A 草稿时把 B 也清了');
   assert.deepStrictEqual(Object.keys(JSON.parse(store.tdprofile_draft_v1).items), ['uB']);
+});
+
+test('本地存储读取被禁用时 snapshot/localHash 返回 null，不冒充空档案', () => {
+  const { M } = boot({}, { throwRead: true });
+  assert.strictEqual(M.snapshot(), null, '读不到本机存储却返回空档案');
+  assert.strictEqual(M.localHash(), null, '读不到本机存储却算出空档案哈希，会被推上云');
+  assert.strictEqual(M.saveDraft('uA', null), false, 'null 快照被当成合法草稿存了下来');
 });
 
 test('localStorage 读取被禁用时 loadDraft 返回 null，不把登录流程炸掉', () => {

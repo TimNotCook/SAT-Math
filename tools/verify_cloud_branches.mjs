@@ -153,7 +153,7 @@ const SNAP = `(() => {
     score: (res[0] && res[0].estimate) ? res[0].estimate.scaled : null,
     bars: document.querySelectorAll('.hist-bar').length,
     status: ((document.querySelector('.td-acct-status') || {}).textContent || '').trim(),
-    draft: dr ? dr.uid : '',
+    draft: dr ? (dr.uid || (dr.items ? (Object.keys(dr.items)[0] || '') : '')) : '',
     auth: au && au.access ? String(au.access).slice(0, 10) : '',
     hash: location.hash || '',
     err: (window.__vcErr || []).join(';').slice(0, 160),
