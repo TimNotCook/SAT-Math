@@ -643,13 +643,15 @@
   async function doSetPassword(pw) {
     if (!pw || pw.length < 6) { setError('密码至少 6 位。'); return; }
     if (!SB || !SB.setPassword) { setError('登录模块未加载，请刷新页面重试。'); return; }
+    var ok = false;
     try {
       setBusy(true); setError('');
       await SB.setPassword(pw);
       if (SB.clearRecovery) SB.clearRecovery();
-      setStatus('密码已保存，下次可以用这个账号登录。', 'ok');
+      ok = true;
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); renderBody(); }
+    if (ok) setStatus('密码已保存，下次可以用这个账号登录。', 'ok');
   }
 
   async function doSignInPwd() {
@@ -1497,6 +1499,14 @@
     var btn = buildUI();
     mountButton(btn);
     renderBody();
+    /* cloud 模块有可能在注册 onState 之前就把「已登录」抛过一次，
+       这时 onState 收不到首次状态，重置链接回来的面板就没人开。 */
+    if (SB && SB.recoveryPending && SB.recoveryPending() && user && ui) {
+      recoveryOpened = true;
+      activeTab = 'account';
+      ui.layer.setAttribute('data-open', '1');
+      renderBody();
+    }
     if (SB && typeof SB.onState === 'function') SB.onState(function (u) { onState(u); });
     startAutoSave();
   }
