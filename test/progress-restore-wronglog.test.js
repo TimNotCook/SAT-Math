@@ -14,13 +14,13 @@ const ROOT = path.join(__dirname, '..');
 const SAVE_KEY = 'tdsat_progress_save_v1';
 const LIVE_KEY = 'tdsat_app_v1';
 
-function boot(liveSeed, archive) {
+function boot(liveSeed, archive, opts) {
   const store = { [LIVE_KEY]: JSON.stringify(liveSeed), [SAVE_KEY]: JSON.stringify(archive) };
   const sandbox = {
     console,
     localStorage: {
       getItem: k => (k in store ? store[k] : null),
-      setItem: (k, v) => { store[k] = String(v); },
+      setItem: (k, v) => { if (opts && opts.throwWrite && k === LIVE_KEY) throw new Error('storage denied'); store[k] = String(v); },
       removeItem: k => { delete store[k]; },
     },
     location: { search: '', hash: '', pathname: '/drill.html', href: '' },
@@ -68,6 +68,18 @@ test('恢复存档会把 wrongLog 合并进本机（已订正题不再蒸发）'
   const live = JSON.parse(store[LIVE_KEY]);
   const wl = live.sections[T.sec].wrongLog || {};
   assert.deepStrictEqual(wl[T.qid], { v: 'A', ts: 1700000000000 }, 'wrongLog 没被搬进本机');
+});
+
+test('恢复存档时本地存储不可写，返回 write-failed 而不是抛出异常', () => {
+  const { SAVE, store } = boot({ sections: {}, last: null },
+    mkArchive({ [T.qid]: { v: 'A', ts: 1700000000000 } }), { throwWrite: true });
+  let threw = null, res = null;
+  try { res = SAVE.restore(); } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '存储不可写时 restore 抛出未捕获异常：' + (threw && threw.message));
+  assert.strictEqual(res && res.ok, false, '写盘失败却返回恢复成功');
+  assert.strictEqual(res && res.status, 'write-failed', '没有把失败原因标成 write-failed');
+  assert.ok(store[SAVE_KEY], '恢复失败后存档被删掉了');
+  assert.strictEqual(JSON.parse(store[SAVE_KEY]).producer, 'tdsat-bluebook', '恢复失败后存档内容被改动');
 });
 
 test('本机 sections 是数组时，恢复结果仍写回普通对象', () => {

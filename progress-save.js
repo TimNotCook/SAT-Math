@@ -330,7 +330,12 @@
       live.sections[sidN] = cur;
     });
     live.last = { sec: st.position.sec, qid: null, ts: Date.now() };
-    localStorage.setItem(LIVE, JSON.stringify(live));
+    /* Safari 无痕/配额满/只读存储时 setItem 会抛：旧实现让异常直接冲出
+       restore()，调用方的恢复按钮只看到一次未捕获错误，存档还留着但本机
+       一个字节没写，用户也不知道是存储不可写。这里变成明确的 write-failed，
+       存档原样保留，调用方可提示并让用户导出/换浏览器。 */
+    try { localStorage.setItem(LIVE, JSON.stringify(live)); }
+    catch (e) { console.warn('恢复存档写入本地存储失败', e); return { ok: false, status: 'write-failed' }; }
     if (window.TDSync) try { window.TDSync.notify(LIVE); } catch (e) { console.warn('同步通知未生效', e); }
     return { ok: true, position: st.position };
   }
@@ -432,7 +437,11 @@
     }
     if (act === 'restore') {
       var res = restore();
-      if (!res.ok) { renderPanel(); flash('恢复失败：存档状态异常'); return; }
+      if (!res.ok) {
+        renderPanel();
+        flash(res.status === 'write-failed' ? '本机存储不可写，恢复未写入；存档仍保留' : '恢复失败：存档状态异常', true);
+        return;
+      }
       closePanel();
       var url = A.secUrl(res.position.sec, res.position.n);
       location.href = url;

@@ -772,3 +772,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 103 条：多账号草稿读取没包 try，localStorage 被禁用时登录流程直接抛错（2026-11-28）
 
 第 102 条把草稿改成按账号分槽时，`loadDraft(uid)` 直接 `localStorage.getItem(DRAFT_KEY)`，没有像旧实现那样把读取包进 try。浏览器禁用站点存储、无痕模式或安全策略阻止访问时，`getItem` 抛 `SecurityError`，`afterSignIn` 在登录完成前就中断，用户看到的是登录失败而不是“这台设备读不到草稿”。修成 `loadDraft` 整体 try/catch，读取失败返回 null，后续按无草稿路径继续；新增注入 `getItem` 抛错的回归。验证：全量 606/0；`verify_flows` 16/16。
+
+## 第 103 条：恢复答题存档时本地存储不可写，按钮抛未捕获异常且不告诉用户（2026-11-28）
+
+`progress-save.js restore()` 把合并结果 `localStorage.setItem(LIVE, ...)` 直接放在流程末尾，没有 try/catch。Safari 无痕、配额满、只读存储时，点击「恢复存档」会让 `QuotaExceededError/SecurityError` 冲出 `restore()`，调用方只看到一次未捕获异常：存档本身还在，本机进度一个字节没写，用户也不知道是存储不可写。修成写入失败返回 `{ok:false, status:'write-failed'}`，存档原样保留；恢复按钮据此提示「本机存储不可写，恢复未写入；存档仍保留」，不再显示笼统的「存档状态异常」。验证：测试 harness 注入 `setItem` 抛错，旧代码 `restore()` 抛 `storage denied`，新代码返回 false/`write-failed` 且存档 `producer` 未被改动；全量 607/0。
