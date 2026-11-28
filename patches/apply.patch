@@ -1,0 +1,116 @@
+diff --git a/app.css b/app.css
+index 629518e..0e5c809 100644
+--- a/app.css
++++ b/app.css
+@@ -900,6 +900,13 @@ body.shell-drill .site-rail,body.shell-history .site-rail,body.jy-page .site-rai
+ /* 讲义四个板块排成四等分，别落一个孤儿卡；模考记录空态也换成白卡 */
+ body.jy-page #jyBoardCards{grid-template-columns:repeat(4,minmax(0,1fr))}
+ body.jy-page #jyBoardCards .entry-tile b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
++/* 1440 的第四列只有 234px：8 个字的「问题解决与数据分析」被切成「问题解决与数…」。
++   四列时收紧内边距、图标和字距，把 17px 的缺口补回来；1000 以下已切两列。 */
++@media(min-width:1000px){
++  body.jy-page #jyBoardCards .entry-tile{padding:0 14px;gap:8px}
++  body.jy-page #jyBoardCards .entry-tile b{font-size:14px}
++  body.jy-page #jyBoardCards .entry-tile .entry-arrow{width:16px;height:16px}
++}
+ @media(max-width:900px){body.jy-page #jyBoardCards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+ body.shell-history .hist-empty{padding:44px 24px;border:1px solid #e6ebf3;border-radius:14px;
+   background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04);color:#7b8798}
+@@ -1451,6 +1458,15 @@ html body.exam-page:not(.is-mock) #introStartCard#introStartCard .exam-special-p
+ html body.exam-page .quiz-card-facts{gap:0!important;display:flex!important;align-items:flex-start!important}
+ html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:104px!important;margin:0!important;
+   padding:0!important;min-width:0!important;border:0!important}
++/* 390/320 的模考卡只有 284/214px 宽，三个 104px 的定宽块排不下：
++   22、35 在上一行，「1」孤零零掉到第二行。手机档改成三格等分，一行放完。 */
++@media(max-width:520px){
++  html body.exam-page.is-mock .quiz-card-facts .quiz-fact{flex:1 1 0!important;width:auto!important;white-space:nowrap!important;
++    font-size:10.5px!important;letter-spacing:0!important}
++}
++@media(max-width:360px){
++  html body.exam-page.is-mock .quiz-card-facts .quiz-fact{font-size:10px!important}
++}
+ 
+ /* 抽查开场左栏右侧那块空白：放一张本单元的浅色线稿，不做标签也不写字 */
+ html body.exam-page:not(.is-mock) .mock-card-copy{position:relative!important}
+diff --git a/bluebook.css b/bluebook.css
+index 86419f0..c21b14c 100644
+--- a/bluebook.css
++++ b/bluebook.css
+@@ -677,6 +677,15 @@ body.scratch-on #answerArea{position:relative;z-index:65}
+   .drill-position-button{font-size:12px!important;padding-left:10px!important;padding-right:10px!important}
+ }
+ 
++@media (max-width:360px) {
++  /* 320 下左侧只剩约 116px，「Mark for Review」被拆成两行，把工具条撑高一倍。
++     文字保留在无障碍树里（视觉隐藏），按钮只显示旗帜图标。 */
++  .drill-mark-button #markLabel{position:absolute!important;width:1px!important;height:1px!important;
++    margin:-1px!important;padding:0!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;
++    white-space:nowrap!important;border:0!important}
++  .drill-mark-button{padding:0 8px!important;min-width:36px!important}
++}
++
+ @media (max-width:900px) {
+   .exam-page .appbar-inner, .exam-context-inner, .exam-questionbar .drill-questionbar-inner, .exam-page .drill-footer-inner{padding-left:16px;padding-right:16px}
+   .exam-context{height:auto;min-height:66px}
+diff --git a/docs/runtime-audit.md b/docs/runtime-audit.md
+index d2c64c5..4d14473 100644
+--- a/docs/runtime-audit.md
++++ b/docs/runtime-audit.md
+@@ -981,3 +981,17 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
+ ## 第 149 条：英文模式下状态栏还是中文，带邮箱的句子永远翻译不到（2026-11-28）
+ 
+ 补完报错后又发现一层：`setStatus()` 直接写 textContent，状态句没有走词典；更麻烦的是「已发送到 xx@…」「重置链接已发到 xx@…」「验证码已发到 xx@…」把邮箱拼进整句，i18n 的整句匹配不可能命中，英文模式下这些成功提示全是中文。现在 `setStatus()` / `setError()` 落 DOM 前统一过 `TDI18n.t()`，但只在 `getLang()==='en'` 时生效（`t()` 本身无条件查英文词典，中文模式直接调用会把状态栏翻成英文）；含邮箱的句子改成 `trTpl('…{email}…', {email})`：先按模板查词条、再替换邮箱。补了 14 条状态栏词条和 4 条带 `{email}` 模板；守卫扩到 `setStatus()` 与 `trTpl()` 的字面量。验证：全量 705/0，`verify_flows` 16/16。
++
++## 第 150 条：1440 讲义四列把「问题解决与数据分析」截成「问题解决与数…」（2026-11-28）
++
++讲义页四个板块卡在 1440 排成四列，每张卡只有 234px。标题列实际只剩 114px，而「问题解决与数据分析」需要 131px，`white-space:nowrap;text-overflow:ellipsis` 就把它切成了「问题解决与数…」；另外三张短标题都完好，只有最长的这张像坏掉。现在四列档（≥1000px）把卡片内边距从 20 收到 14、图标间距从 12 收到 8、箭头从 18 缩到 16、标题从 14.5 降到 14，一次腾出 22px；1000px 以下本来就走两列/单列，不受影响。
++
++## 第 151 条：320 做题页把「Mark for Review」拆成两行，工具条被撑高一倍（2026-11-28）
++
++做题页工具条左侧只有约 116px 可用，`#markLabel` 是一段可收缩的 flex 文字，「Mark for Review」在 320 下被压成「Mark for / Review」两行，旗帜图标孤零零挂在第一行，整条工具栏从 52px 涨到 80px。现在只对 ≤360px 生效：文字用 1px 裁剪法保留在无障碍树里，按钮只显示旗帜，宽度收到 36px；390 仍显示完整文案。实测 320 工具栏恢复单行，编号、旗帜、Scratch 三段对齐。
++
++## 第 152 条：手机模考开场的 22 / 35 / 1 被 104px 定宽挤成两行（2026-11-28）
++
++模考开场卡的三块数字被锁成 `flex:0 0 104px`，390 的卡内只有 284px，三块要 312px；320 更只剩 214px。结果 22、35 在第一行，「1 / of 2 modules」掉到第二行，右下空出一大块。现在 ≤520px 且 `body.is-mock` 时三块改成 `flex:1 1 0` 等分、标签不换行，320 再把标签收到 10px；390 和 320 都能在一行读完 Questions / Minutes / of 2 modules。
++
++验证：新增 `visual-mobile-polish` 三道静态守卫；Playwright 1440 讲义、390/320 模考、320 做题逐张复核；全量测试与 `bump_assets` 见流水线。
+diff --git a/test/visual-mobile-polish.test.js b/test/visual-mobile-polish.test.js
+new file mode 100644
+index 0000000..db0c44d
+--- /dev/null
++++ b/test/visual-mobile-polish.test.js
+@@ -0,0 +1,34 @@
++/* test/visual-mobile-polish.test.js — 窄屏/桌面小屏排版守门
++ * 1) 1440 讲义四列里「问题解决与数据分析」被 nowrap+ellipsis 切成「问题解决与数…」；
++ * 2) 320 做题页「Mark for Review」被 flex 压成两行，把工具条撑高一倍；
++ * 3) 390/320 模考卡三块 104px 定宽数字排不下，「1」孤零零掉到第二行。
++ * 这些只在真实视口截图里看得到，用静态 CSS 断言锁住修复条件。
++ */
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++import { fileURLToPath } from 'node:url';
++import { dirname, resolve } from 'node:path';
++
++const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
++const app = readFileSync(resolve(ROOT, 'app.css'), 'utf8');
++const bluebook = readFileSync(resolve(ROOT, 'bluebook.css'), 'utf8');
++
++test('讲义四列收紧内边距/字号，长板块名不再省略', () => {
++  assert.match(app, /@media\(min-width:1000px\)\{/);
++  assert.match(app, /body\.jy-page #jyBoardCards \.entry-tile\{padding:0 14px;gap:8px\}/);
++  assert.match(app, /body\.jy-page #jyBoardCards \.entry-tile b\{font-size:14px\}/);
++  assert.match(app, /body\.jy-page #jyBoardCards \.entry-tile \.entry-arrow\{width:16px;height:16px\}/);
++});
++
++test('320 做题页只留旗帜图标，Mark 文案视觉隐藏但仍在无障碍树', () => {
++  assert.match(bluebook, /@media \(max-width:360px\) \{/);
++  assert.match(bluebook, /\.drill-mark-button #markLabel\{position:absolute!important/);
++  assert.match(bluebook, /clip:rect\(0 0 0 0\)!important/);
++  assert.match(bluebook, /\.drill-mark-button\{padding:0 8px!important;min-width:36px!important\}/);
++});
++
++test('手机模考卡三个数字等分成一行，320 不再把「of 2 modules」拆两行', () => {
++  assert.match(app, /html body\.exam-page\.is-mock \.quiz-card-facts \.quiz-fact\{flex:1 1 0!important;width:auto!important;white-space:nowrap!important/);
++  assert.match(app, /html body\.exam-page\.is-mock \.quiz-card-facts \.quiz-fact\{font-size:10px!important\}/);
++});
