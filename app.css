@@ -1483,6 +1483,16 @@ html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:1
      的断点往回挪一个字，三行仍三行，但不再出现两字孤行。 */
   html body .empty-panel p,html body .hist-empty .he-d{text-wrap:pretty}
 }
+/* 320/390 首页板块行标题列只有 86–120px：「一元线性方程求解」会在「方」和「程」
+   之间断开，「线性方程与不等式应用」末行剩一个「题」。balance 把两行匀成 4/4、5/4。 */
+@media(max-width:520px){
+  html body .tile-grid>.tile-section.drill-section-row .tile-name{text-wrap:balance!important;padding-right:0!important}
+}
+@media(max-width:360px){
+  /* 标题列 86px 只放得下 5 个字，「线性方程与不等式应用题」11 字被切成三行；
+     行号列 52px 对「1.1」太宽，收到 44px，标题列变 94px，正好两行。 */
+  html body .tile-grid>.tile-section.drill-section-row.drill-section-row{grid-template-columns:44px minmax(0,1fr) auto!important}
+}
 
 /* 抽查开场左栏右侧那块空白：放一张本单元的浅色线稿，不做标签也不写字 */
 html body.exam-page:not(.is-mock) .mock-card-copy{position:relative!important}

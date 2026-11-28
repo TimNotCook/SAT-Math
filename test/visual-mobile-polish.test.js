@@ -47,3 +47,7 @@ test('320 空态卡收窄左右内边距，记录页标题不再拆成「…抽�
   assert.match(app, /html body \.empty-panel\{padding-left:12px!important;padding-right:12px!important\}/);
   assert.match(app, /html body \.empty-panel p,html body \.hist-empty \.he-d\{text-wrap:pretty\}/);
 });
+test('320/390 首页板块行标题两行均分，不把「方程」拆开、不留单字「题」', () => {
+  assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row \.tile-name\{text-wrap:balance!important;padding-right:0!important\}/);
+  assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row\.drill-section-row\{grid-template-columns:44px minmax\(0,1fr\) auto!important\}/);
+});
