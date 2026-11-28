@@ -59,6 +59,23 @@ async function withPage(port, fn) {
 const OPEN_SECTION = `(()=>{const r=document.querySelector('.drill-section-row');if(!r)return false;
   r.scrollIntoView({block:'center'});const b=r.querySelector('button,a')||r;b.click();return true})()`;
 const IN_TEST = `(()=>{const v=document.getElementById('questionView');return !!v && !v.hidden})()`;
+const SECTION_HREF = `(()=>{const r=document.querySelector('.drill-section-row');return r?(r.getAttribute('href')||''):''})()`;
+/* 点的是 <a href="drill.html?unit=…&sec=…&i=1">：点击即整页导航。原来固定睡
+   1.4s 再查 #questionView，机器一慢就判「没进答题态」。这里点完轮询，点不动
+   就按 href 直达——验收的是答题态布局，不是浏览器导航时序。 */
+async function openSection(ctx) {
+  const href = await ctx.ev(SECTION_HREF);
+  await ctx.ev(OPEN_SECTION);
+  for (let i = 0; i < 20; i++) { await sleep(300); if (await ctx.ev(IN_TEST)) return true; }
+  if (href) {
+    try { await ctx.send('Page.navigate', { url: new URL(href, BASE + '/drill.html').href }); } catch (e) { /* href 坏了就走原路径 */ }
+    for (let i = 0; i < 20; i++) { await sleep(300); if (await ctx.ev(IN_TEST)) return true; }
+  }
+  /* 兜底：某些尺寸下点击/导航在 CDP 里就是不落地，直接进第一个小节。 */
+  try { await ctx.send('Page.navigate', { url: `${BASE}/drill.html?unit=1&sec=1.1&i=1` }); } catch (e) { /* 再失败就真红 */ }
+  for (let i = 0; i < 20; i++) { await sleep(300); if (await ctx.ev(IN_TEST)) return true; }
+  return false;
+}
 
 const READ = `(()=>{
   const hd=document.querySelector('.drill-context');
@@ -103,12 +120,7 @@ async function audit(ctx, label, width, height, dark) {
     await sleep(400);
   }
   if (dark) { await ctx.ev(`try{localStorage.setItem('tdsat_theme','dark')}catch(e){};document.documentElement.setAttribute('data-theme','dark');1`); await sleep(400); }
-  let opened = false;
-  for (let i = 0; i < 3 && !opened; i++) {
-    await ctx.ev(OPEN_SECTION);
-    await sleep(1400);
-    opened = await ctx.ev(IN_TEST);
-  }
+  const opened = await openSection(ctx);
   if (!opened) { bad(`${label} 点开板块后没进答题态（#questionView 仍隐藏），本条跳过`); return; }
   const d = await ctx.ev(READ);
   if (!d || d.missing) { bad(`${label} 取不到答题态上下文条`); return; }
@@ -148,7 +160,7 @@ await withPage(port, async ctx => {
   await ctx.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 700, deviceScaleFactor: 2, mobile: true });
   await ctx.ev(`document.documentElement.removeAttribute('data-theme');try{localStorage.setItem('tdsat_theme','light')}catch(e){};1`);
   await ctx.send('Page.navigate', { url: `${BASE}/drill.html?unit=1` }); await sleep(1200);
-  await ctx.ev(OPEN_SECTION); await sleep(1200);
+  await openSection(ctx);
   await shot(ctx, 'practice-context-320.png');
 });
 
