@@ -1124,7 +1124,7 @@
       backReset.onclick = function () { loginMode = 'password'; setError(''); renderBody(); };
       b.appendChild(backReset);
       b.appendChild(el('p', 'td-acct-note',
-        '重置链接只发到邮箱；手机号注册的账号收不到，重置请用邮箱账号。'));
+        '重置链接只发到邮箱。'));
       return;
     }
 
