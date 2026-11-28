@@ -2,9 +2,7 @@ diff --git a/image-import.js b/image-import.js
 index c43a5be..5e58c76 100644
 --- a/image-import.js
 +++ b/image-import.js
-@@ -113,7 +113,10 @@
-         if (core === 'io' || core === 'lo') return '10';
-         return t;
+@@ -115,3 +115,6 @@
        }
 -      return t.replace(/l/g, '1').replace(/o/g, '0').replace(/s/g, '5').replace(/g/g, '9').replace(/b/g, '8');
 +      /* 只折算最稳的两个同形字（l→1、o→0）。s/g/b 在"带数字的 token"里乱改会把
@@ -12,11 +10,7 @@ index c43a5be..5e58c76 100644
 +         （实测 √ 题 TD-31-29 就因此被判"数字对不上"）。 */
 +      return t.replace(/l/g, '1').replace(/o/g, '0');
      }).join(' ');
-     s = s.replace(/\\(?:dfrac|tfrac|frac|sqrt|left|right|quad|qquad|text|mathrm|operatorname|cdot|times|div|pm|le|ge|ne|approx|pi|theta|alpha|beta|gamma|circ|degree|overline|hat)\b/g, ' ');
-     s = s.replace(/[{}$_~]/g, ' ');   /* 不再连 ^ 一起抹掉：x^2 与 x2 要分得开 */
-@@ -124,7 +127,18 @@
-   }
-   function numbers(s) {
+@@ -126,3 +129,14 @@
      var out = [], re = /(\d+\s*\/\s*\d+|\d+\.\d+|\.\d+|\d+)/g, m;
 -    while ((m = re.exec(s))) { var v = parseFloat(m[1].replace(/\s/g, '')); if (isFinite(v)) out.push(v); }
 +    while ((m = re.exec(s))) {
@@ -32,11 +26,7 @@ index c43a5be..5e58c76 100644
 +      }
 +    }
      return out;
-   }
-   function tokens(s) { return s.split(' ').filter(function (w) { return w.length > 1 && !STOP.has(w); }); }
-@@ -944,15 +958,20 @@
-   /* 拍照场景专用：灰度 → 2%–98% 直方图拉伸（把阴影、偏灰、逆光压平）→ 估计倾斜角并扶正。
-      截图走不到这里；手机拍屏幕/拍卷子糊成一片时才用。 */
+@@ -946,7 +960,12 @@
    function estimateSkew(cv) {
 -    var W = 360, H = Math.max(1, Math.round(cv.height * (W / cv.width)));
 +    /* 360px 太窄：19px 字缩到 6px，笔画被抗锯齿抹成浅灰（阈值 128 直接判成背景），
@@ -52,16 +42,12 @@ index c43a5be..5e58c76 100644
 -    for (var i = 0, j = 0; i < d.length; i += 4) bin[j++] = d[i] < 128 ? 1 : 0;
 +    for (var i = 0, j = 0; i < d.length; i += 4) bin[j++] = d[i] < 150 ? 1 : 0;
      function variance(angle) {
-       var rad = angle * Math.PI / 180, cos = Math.cos(rad), sin = Math.sin(rad);
+@@ -954,3 +973,3 @@
        var rows = new Float64Array(H), cx = W / 2, cy = H / 2;
 -      for (var y = 0; y < H; y += 2) for (var x = 0; x < W; x += 2) {
 +      for (var y = 0; y < H; y++) for (var x = 0; x < W; x += 2) {
          if (!bin[y * W + x]) continue;
-         var yy = Math.round(-(x - cx) * sin + (y - cy) * cos + cy);
-         if (yy >= 0 && yy < H) rows[yy]++;
-@@ -961,19 +980,29 @@
-       mean /= n; var v = 0; for (var k2 = 0; k2 < H; k2++) v += (rows[k2] - mean) * (rows[k2] - mean);
-       return v;
+@@ -963,10 +982,20 @@
      }
 +    /* 粗扫 1° 找到主峰，再在峰附近 0.25° 细扫：手机拍歪常常是 2.7°、3.4° 这种零碎角度，
 +       只按整数度扶正会留下半度残差，Tesseract 对 0.5° 以上的倾斜就明显掉字。 */
@@ -85,17 +71,12 @@ index c43a5be..5e58c76 100644
 +    var targetW = opt.width || 1500;
 +    var sharp = opt.sharp == null ? 5 : opt.sharp;   /* 3×3 锐化中心权重：5 温和，9 强 */
      return new Promise(function (res) {
-       var img = new Image();
-       img.onload = function () {
+@@ -975,3 +1004,3 @@
          try {
 -          var sc = Math.min(2, Math.max(1, 1500 / Math.max(1, img.width)));
 +          var sc = Math.min(2.6, Math.max(1, targetW / Math.max(1, img.width)));
            var W = Math.round(img.width * sc), H = Math.round(img.height * sc);
-           var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-           var cx = cv.getContext('2d');
-@@ -996,6 +1025,20 @@
-             g = Math.round((px[i] - lo) * k); g = g < 0 ? 0 : (g > 255 ? 255 : g);
-             px[i] = px[i + 1] = px[i + 2] = g;
+@@ -998,2 +1027,16 @@
            }
 +          /* 钝化掩模锐化（3×3，中心 5 邻域 -1）：手机拍糊/JPEG 压缩把笔画边缘抹平，
 +             拉伸对比只是让灰更黑、白更白，边缘还是糊的；这一遍专门把笔画边缘"找回来"，
@@ -112,37 +93,21 @@ index c43a5be..5e58c76 100644
 +            }
 +          }
            cx.putImageData(d, 0, 0);
-           var angle = 0;
-           try { angle = estimateSkew(cv); } catch (e) { angle = 0; }
-@@ -1004,7 +1047,7 @@
-             var R = document.createElement('canvas'); R.width = W; R.height = H;
-             var rx = R.getContext('2d');
+@@ -1006,3 +1049,3 @@
              rx.fillStyle = '#fff'; rx.fillRect(0, 0, W, H);
 -            rx.translate(W / 2, H / 2); rx.rotate(angle * Math.PI / 180); rx.drawImage(cv, -W / 2, -H / 2);
 +            rx.translate(W / 2, H / 2); rx.rotate(-angle * Math.PI / 180); rx.drawImage(cv, -W / 2, -H / 2);
              out = R;
-           }
-           res(out.toDataURL('image/jpeg', 0.92));
-@@ -1064,6 +1107,7 @@
-     });
-   }
+@@ -1066,2 +1109,3 @@
  
 +  var LAST_PASSES = [];
    function ocrBest(dataUrl, model, quick) {
-     var best = null;
-     function scoreOf(text) {
-@@ -1075,6 +1119,8 @@
-         : (tag === 'invert' ? '像是深色背景，取反后再认一次…' : '照片偏灰/拍歪了，先压平打正再认…')));
-       return ocrImage(url, model).then(function (ocr) {
+@@ -1077,2 +1121,4 @@
          var sc = scoreOf(ocr.stem);
 +        LAST_PASSES.push({ tag: tag, score: sc, stem: String(ocr.stem || '') });
 +        if (LAST_PASSES.length > 8) LAST_PASSES.shift();
          if (!best || sc > best.score) best = { ocr: ocr, url: url, score: sc };
-         return sc;
-       }, function () { return -1; });
-@@ -1090,17 +1136,28 @@
-              例外：深色底截图本来就该取反，先量一下亮度再说。 */
-           /* 压平打正（去灰、拉对比、扶正倾斜）：手机拍照糊/灰/歪的最后一遍。
+@@ -1092,2 +1138,11 @@
               浅底且文本很弱也值得一试——拍照退化恰恰就发生在白纸上。 */
 +          function photo2() {
 +            /* 拍糊/压缩重的图，19px 字迹在 1500 宽下只剩 26px 字高，糊成一团。
@@ -154,9 +119,7 @@ index c43a5be..5e58c76 100644
 +            });
 +          }
            function photoPass() {
-             return enhancePhoto(dataUrl).then(function (v2) {
-               if (!v2) return best;
-               return run(v2, 'photo').then(function (sc3) {
+@@ -1097,8 +1152,10 @@
                  if (sc3 >= 0.5 || (best && best.score >= 0.42)) return best;
 -                /* 深色背景最后补一刀：先测亮度，浅底就不浪费这一遍 */
 -                return imageLuma(dataUrl).then(function (luma) {
@@ -173,11 +136,7 @@ index c43a5be..5e58c76 100644
 +                      return run(v3, 'invert').then(function () { return best; });
 +                    });
                    });
-                 });
-               });
-@@ -1640,12 +1697,21 @@
-                 /* 云端比对用不了（未登录、断网、模型全挂）时不再直接判死：
-                    退回纯文本匹配，分数够高又明显领先、数字对得上才自动导入；否则把候选摆出来让用户点一下。 */
+@@ -1642,2 +1699,7 @@
                  var tg = autoGate(recalled, stemTxt);
 +                /* 题干自己就写着"图/表所示"（shown / figure / graph / table）：真正要认的
 +                   是图里的方程、坐标、角度，OCR 只能读到一句通用话术。这种题最容易被
@@ -185,8 +144,7 @@ index c43a5be..5e58c76 100644
 +                   只有分数极高且明显领先才自动写，否则把候选摆出来让人点。 */
 +                var visual = /\b(shown|figure|graph|table|diagram|triangle shown)\b/i.test(stemTxt);
                  // 数字指纹也要对得上才敢自动写：题库里没有这道题时，光靠文字相似度
-                 // 会挑到题干句式相近的另一道（实测 55 分也能被放进来），宁可不导。
-                 var c0Nums = numbers(norm((bankCands[0] || {}).stem || ''));
+@@ -1646,4 +1708,8 @@
                  var c0Agree = numScore(qNums, c0Nums);
 -                var numGate = qNums.length >= 2 ? c0Agree >= 0.85 : (qNums.length === 1 ? c0Agree >= 0.6 : true);
 -                if (tg.pass && recalled[0] && numGate) {
@@ -197,11 +155,7 @@ index c43a5be..5e58c76 100644
 +                var visualGate = !visual || (recalled[0].score >= 0.75 && tg.margin >= 0.25);
 +                if (tg.pass && recalled[0] && numGate && visualGate) {
                    chosen = bankCands[0];
-                   /* 孪生副本（题库同一题收了两三份）里挑信息最全的一份：
-                      有的副本 answer 是空的，导进错题本后没法判对错。 */
-@@ -1663,8 +1729,9 @@
-                   p.matchInfo = { agree: false, conf: recalled[0].score, margin: tg.margin, twin: !!tg.twin,
-                     numAgree: numScore(qNums, numbers(norm(chosen.stem || ''))) };
+@@ -1665,4 +1731,5 @@
                  } else {
 -                  p.skipReason = tg.pass ? '文字最像的那道数字对不上，没敢自动写（可点下面任一道）'
 -                    : '云端比对不可用，文本匹配也不够稳（可从下面的题目里点一个）';
@@ -209,40 +163,19 @@ index c43a5be..5e58c76 100644
 +                    : (tg.pass ? '文字最像的那道数字对不上，没敢自动写（可点下面任一道）'
 +                    : '云端比对不可用，文本匹配也不够稳（可从下面的题目里点一个）');
                  }
-               } else {
-                 p.skipReason = '两个模型判断不一致或置信不足（可从下面的题目里点一个）';
-@@ -1772,7 +1839,9 @@
-     },
-     prewarm: prewarm,
+@@ -1774,3 +1841,5 @@
      close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
 -    acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem, _gate: autoGate, _enhance: enhancePhoto, _luma: imageLuma,
 +    acceptFiles: acceptFiles, recognizeAll: recognizeAll,
 +    _skew: estimateSkew, _skewOf: function (dataUrl) { return new Promise(function (res) { var im = new Image(); im.onload = function () { try { var c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); res(estimateSkew(c)); } catch (e) { res(0); } }; im.onerror = function () { res(0); }; im.src = dataUrl; }); },
 +    _nums: function(t){return numbers(norm(String(t||'')));}, _passes: function () { return LAST_PASSES.slice(); }, matchStem: matchStem, _gate: autoGate, _enhance: enhancePhoto, _luma: imageLuma,
      select: select, check: check, importChecked: importChecked,
-     selfTest: selfTest, importByText: importByText, inbox: inboxList,
-     search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,
-@@ -1772,7 +1839,9 @@
-     },
-     prewarm: prewarm,
-     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
--    acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem, _gate: autoGate, _enhance: enhancePhoto, _luma: imageLuma,
-+    acceptFiles: acceptFiles, recognizeAll: recognizeAll,
-+    _skew: estimateSkew, _skewOf: function (dataUrl) { return new Promise(function (res) { var im = new Image(); im.onload = function () { try { var c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); res(estimateSkew(c)); } catch (e) { res(0); } }; im.onerror = function () { res(0); }; im.src = dataUrl; }); },
-+    _nums: function(t){return numbers(norm(String(t||'')));}, _passes: function () { return LAST_PASSES.slice(); }, matchStem: matchStem, _gate: autoGate, _enhance: enhancePhoto, _luma: imageLuma,
-     select: select, check: check, importChecked: importChecked,
-     selfTest: selfTest, importByText: importByText, inbox: inboxList,
-     search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,
 diff --git a/match_eval.mjs b/match_eval.mjs
 index 82ff193..32f5f86 100644
 --- a/match_eval.mjs
 +++ b/match_eval.mjs
-@@ -14,7 +14,7 @@
-  */
- import { spawn } from 'child_process';
+@@ -16,3 +16,3 @@ import { spawn } from 'child_process';
  const BASE = process.argv[2] || 'https://timnotcook.github.io/SAT-Math';
 -const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 +const CHROME = process.env.CHROME_BIN || '/usr/local/bin/chromium';
  const PORT = 9400 + Math.floor(Math.random() * 80);
- const sleep = ms => new Promise(r => setTimeout(r, ms));
- const proc = spawn(CHROME, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
