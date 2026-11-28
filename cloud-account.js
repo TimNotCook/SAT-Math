@@ -1514,7 +1514,7 @@
          摆一个「邮箱或手机号」再弹「暂未开通」等于假入口。 */
       /* 邮箱框必须用 email 类型：手机键盘会切到 @ 键，也不会把首字母自动
          大写（Gmail 一般不分大小写，但自动补成 Tim@ 看着像另一个账号）。 */
-      var emSign = field('邮箱', 'email', 'you@example.com', 'username');
+      var emSign = field('邮箱', 'email', 'you@example.com', 'email');
       emSign.input.inputMode = 'email';
       emSign.input.autocapitalize = 'none';
       emSign.input.spellcheck = false;
