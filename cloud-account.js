@@ -678,13 +678,17 @@
     var email = ui && ui.email ? ui.email.value.trim() : '';
     if (!email) { setError('请先填写注册时用的邮箱。'); return; }
     if (!SB || !SB.sendRecovery) { setError('登录模块未加载，请刷新页面重试。'); return; }
+    var ok = false;
     try {
       setBusy(true); setError('');
       pwdEmail = email;
       await SB.sendRecovery(email);
-      setStatus('重置链接已发到 ' + email + '，点邮件里的按钮就回到这里设新密码（垃圾箱也翻一下）。', 'ok');
+      ok = true;
     } catch (e) { setError(friendlyError(e)); }
+    /* 顺序不能反：未登录时 renderBody 会把状态栏重置成「未登录」，
+       成功提示必须写在重绘之后，否则用户点完什么都看不到。 */
     finally { setBusy(false); renderBody(); }
+    if (ok) setStatus('重置链接已发到 ' + email + '，点邮件里的按钮就回到这里设新密码（垃圾箱也翻一下）。', 'ok');
   }
 
   /* ---------- 登录动作（邮箱验证码） ---------- */
