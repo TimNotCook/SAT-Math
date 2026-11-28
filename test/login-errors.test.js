@@ -294,3 +294,10 @@ test('手机上账号输入框至少 16px，避免 iOS 聚焦自动放大浮层'
   assert.match(acct, /@media\(max-width:520px\)\{\.td-acct-input\{font-size:16px!important\}\}/,
     '窄屏输入框又低于 16px，iOS 会缩放');
 });
+
+test('退出登录收掉上一个人的“等确认”和重发冷却，避免替别人发信', () => {
+  const out = acct.slice(acct.indexOf('async function doSignOut'), acct.indexOf('function openAuthNoticeOnce'));
+  assert.match(out, /needConfirm = false/, '退出后仍挂着等确认入口');
+  assert.match(out, /confirmCooldown = 0/, '退出后仍保留重发冷却');
+  assert.match(out, /clearInterval\(confirmTimer\)/, '退出后冷却计时器还在跑');
+});

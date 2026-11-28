@@ -1139,6 +1139,11 @@
     /* 退出后回到登录页。注册过程中点退出、或注册成功后再退出，loginMode
        还停在 signup，会把「注册新账号」表单又摆出来，像账号没退干净。 */
     loginMode = 'password';
+    /* 共享设备上别把上一个人的“等确认/重发冷却”留给下一个人：邮箱可以
+       预填，但重发确认信这种会向那个邮箱发信的入口必须收掉。 */
+    needConfirm = false;
+    confirmCooldown = 0;
+    if (confirmTimer) { clearInterval(confirmTimer); confirmTimer = null; }
     /* removeItem 也可能被浏览器拒绝：这时内存里退了，磁盘上的会话还在，
        刷新会悄悄把人登回去。不能继续报「已退出」。 */
     if (cleared === false) setStatus('当前页面已退出，但浏览器拒绝清除登录缓存；刷新后可能仍处于登录状态，请先清出空间再退出', 'warn');
