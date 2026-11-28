@@ -934,10 +934,35 @@
   }
 
   /* ---------------- 状态与 UI ---------------- */
+  /* 待整理：没匹配上的题不丢。题干文字存本地，面板底部列出来，
+     点一下"用文字导入"就重跑一遍匹配——换台设备/明天再看都还在。 */
+  var INBOX_KEY = 'satmath_imgimp_inbox_v1';
+  function inboxList() { try { return JSON.parse(localStorage.getItem(INBOX_KEY) || '[]') || []; } catch (e) { return []; } }
+  function inboxSave(a) { try { localStorage.setItem(INBOX_KEY, JSON.stringify(a.slice(0, 20))); } catch (e) {} }
+  function inboxAdd(text) {
+    var t = String(text || '').replace(/\s+/g, ' ').trim();
+    if (t.length < 8) return;
+    var a = inboxList();
+    if (a.some(function (x) { return x.t === t; })) return;
+    a.unshift({ t: t, ts: Date.now() });
+    inboxSave(a);
+  }
+  function inboxDrop(i) { var a = inboxList(); a.splice(i, 1); inboxSave(a); renderRows(); }
+  function inboxHtml() {
+    var a = inboxList();
+    if (!a.length) return '';
+    return '<div class="imgimp-inbox"><div class="imgimp-finder-hint">待整理 ' + a.length +
+      ' 道（没匹配上但已经存住，不会丢）</div>' +
+      a.map(function (x, i) {
+        return '<button type="button" class="imgimp-cand" data-inbox-i="' + i + '">' +
+          esc(x.t.slice(0, 70)) + '<small>点一下重新配题</small></button>';
+      }).join('') + '</div>';
+  }
+
   function renderRows() {
     var host = $('imgimpRows'); if (!host) return;
-    host.innerHTML = pages.length ? pages.map(rowHtml).join('') :
-      '<div class="imgimp-empty">粘贴或拖入题目截图后，系统会自动识别文字与公式、自动匹配题库并写入错题回顾，无需任何额外操作。</div>';
+    host.innerHTML = (pages.length ? pages.map(rowHtml).join('') :
+      '<div class="imgimp-empty">粘贴或拖入题目截图后，系统会自动识别文字与公式、自动匹配题库并写入错题回顾，无需任何额外操作。</div>') + inboxHtml();
   }
   function rowHtml(p) {
     var cand = p.cands || [];
@@ -1362,6 +1387,8 @@
       if (miss && $('imgimpText') && !$('imgimpText').value) {
         $('imgimpText').value = String(miss.ocr.stem).slice(0, 600);
       }
+      /* 所有没落到题号上的块，题干文字都先进"待整理"，保证一道都不落空。 */
+      pages.forEach(function (p) { if (!p.qid && p.ocr && p.ocr.stem) inboxAdd(p.ocr.stem); });
       status(msg);
       renderRows();
       return { total: pages.length, ok: ok, fail: fail, added: added, skipped: skipped };
@@ -1395,6 +1422,7 @@
     open: function () {
       $('imgImportPanel').hidden = false; $('btnImgImport').setAttribute('aria-expanded', 'true');
       diag();
+      renderRows();   /* 打开就把"待整理"摆出来，上次没配上的题不会看不见 */
       ensureCloudSession(function () { });
       prewarm();
       if (!ocrEnv().wasm) status('这台浏览器不支持本地识别内核；把题干里几个词敲进下面的搜框，照样能查题导入。');
@@ -1403,7 +1431,7 @@
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked,
-    selfTest: selfTest, importByText: importByText,
+    selfTest: selfTest, importByText: importByText, inbox: inboxList,
     search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,
     cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
@@ -1475,7 +1503,17 @@
   // 待核对候选按钮：点一下即确认该题为正确匹配并写入
   on('imgimpRows', 'click', function (e) {
     var t = e.target.closest ? e.target.closest('.imgimp-cand') : null;
-    if (t) select(t.getAttribute('data-page'), t.getAttribute('data-qid'));
+    if (!t) return;
+    var ib = t.getAttribute('data-inbox-i');
+    if (ib != null) {
+      var row = inboxList()[+ib];
+      if (!row) return;
+      if ($('imgimpText')) $('imgimpText').value = row.t;   /* 先把文字填进框，认错的字能直接改 */
+      var ok = importByText(row.t);
+      if (ok) inboxDrop(+ib);
+      return;
+    }
+    select(t.getAttribute('data-page'), t.getAttribute('data-qid'));
   });
   var dz = $('imgDropZone'), pn = $('imgImportPanel');
   if (dz) {
