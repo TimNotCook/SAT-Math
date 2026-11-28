@@ -132,3 +132,11 @@ test('记录页剥时间噪音的正则要吃下「平均用时 N 秒」', () =>
   const js = read('history-page.js');
   assert.ok(/平均\(每题\|每道\|用时\)/.test(js), '正则只认「平均每 N 秒」，认不出「平均用时」');
 });
+
+test('成绩页未作答的填空不能拿 q.value 冒充「你的答案」，长小数要收窄', () => {
+  const js = read('drill.js');
+  const fn = js.slice(js.indexOf('function answerLabel'), js.indexOf('function allRegularSections'));
+  assert.ok(!fn.includes('v = q.value'), '又问答题回填了 q.value，未作答会被显示成一个十几位小数');
+  assert.ok(js.includes('function tidyNum'), '长小数没格式化');
+  assert.ok(js.includes('\\.\\d{6,}'), '格式化只认特定小数位数');
+});

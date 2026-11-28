@@ -88,12 +88,21 @@
     els.resultView.hidden = which !== 'result';
   }
   function fmt(s) { return window.TD_FIG ? window.TD_FIG.fmtMath(s) : esc(s); }
+  /* 成绩页「你的答案 / 正确答案」共用的显示函数。
+     以前填空题没作答时会拿题目的 q.value（一个给评分用的近似小数）冒充学生的答案，
+     屏幕上就出现「Your answer −0.5555555555555556」这种谁也认不出的东西，
+     学生还以为自己填过。没作答就是没作答，显示破折号。 */
+  function tidyNum(s) {
+    if (!/^-?\d+\.\d{6,}$/.test(s)) return s;
+    var n = parseFloat(s);
+    if (!isFinite(n)) return s;
+    return Math.abs(n) < 1 ? n.toFixed(4).replace(/0+$/, '').replace(/\.$/, '') : n.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+  }
   function answerLabel(q, v) {
-    if (q.type === 'grid' && (v == null || String(v).trim() === '')) v = q.value;
     if (v == null || String(v).trim() === '') return '—';
     var t = textFor(q), ch = (t.choices || {})[String(v).trim().toUpperCase()];
     if (q.type === 'mcq') return String(v).trim().toUpperCase() + (ch ? ' · ' + ch : '');
-    return String(v).trim();
+    return tidyNum(String(v).trim());
   }
 
   /* ---------------- selection page ---------------- */
