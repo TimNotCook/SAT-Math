@@ -1655,7 +1655,20 @@
     for (var i = 0; i < items.length; i++) {
       if (items[i].type && items[i].type.indexOf('image/') === 0) { var f = items[i].getAsFile(); if (f) files.push(f); }
     }
-    if (files.length) { e.preventDefault(); acceptFiles(files); }
+    if (files.length) { e.preventDefault(); acceptFiles(files); return; }
+    /* 只复制文字也能用：在网页上选中题干按 Cmd/Ctrl+V，粘进来的是一段文本而不是图片。
+       以前这种情况没反应，人会以为功能坏了。现在直接走"贴文字导入"。 */
+    var txt = (e.clipboardData && (e.clipboardData.getData('text/plain') || '')) || '';
+    var el = e.target;
+    if (el && /^(INPUT|TEXTAREA)$/.test(el.tagName || '')) return;   // 在输入框里粘，交给输入框自己
+    var flat = txt.replace(/\s+/g, ' ').trim();
+    if (flat.length >= 20 && /[A-Za-z]/.test(flat)) {
+      e.preventDefault();
+      if ($('imgImportPanel').hidden) window.TD_IMG_IMPORT.open();
+      var ta2 = $('imgimpText'); if (ta2) ta2.value = txt.trim();
+      status('从粘贴的文字里找这道题…');
+      importByText(txt);
+    }
   });
   var sel = $('imgimpModel');
   if (sel) { sel.value = state.model; sel.addEventListener('change', function () { state.model = sel.value; }); }
