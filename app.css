@@ -1722,3 +1722,24 @@ html body.exam-page .quiz-tab .qt-name{white-space:normal!important;line-height:
    320 下气泡只有 160px，长句（"Copying or pasting test content is not allowed…"）
    被挤成一坨窄条、看着像被右侧切掉。显式给 max-content + 视口上限。 */
 html body #toast#toast{width:max-content;max-width:min(560px,calc(100vw - 32px))}
+
+/* 701–1100 之间仍是「名字 + 168 进度条 + 74 百分比」三列，卡内约 460px，
+   名字只剩 185–192px，英文长单元名（203px）照样被截尾。把进度条收到 100px。 */
+@media (max-width:1100px){
+  html body.exam-page #stage-result .kp-row{grid-template-columns:minmax(0,1fr) 100px 74px!important}
+}
+/* 成绩页知识点行在 390/320 被锁成「名字 1fr + 进度条 168px + 百分比 74px」三列，
+   卡内只有约 270px，名字那列被挤到 4px，单元名只剩一个省略号（截图实测 cw=4）。
+   窄屏改成两行：名字占整行、进度条和百分比排第二行。 */
+@media (max-width:700px){
+  html body.exam-page #stage-result .kp-row{grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"nm nm" "bar pct"!important;row-gap:7px!important;column-gap:12px!important;padding:12px 0!important}
+  html body.exam-page #stage-result .kp-row>.nm{grid-area:nm!important;white-space:normal!important;line-height:1.35}
+  html body.exam-page #stage-result .kp-row>.bar{grid-area:bar!important;width:100%!important}
+  html body.exam-page #stage-result .kp-row>.pct{grid-area:pct!important;white-space:nowrap!important}
+}
+
+/* 成绩页两个主按钮实测 40px 高，触屏上偏矮（HIG 44）。只在触屏抬，鼠标不变。 */
+@media (hover:none),(pointer:coarse){
+  html body.exam-page #stage-result .exam-button-row .btn{min-height:44px!important}
+}
