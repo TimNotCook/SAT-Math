@@ -28,7 +28,10 @@ const args = process.argv.slice(2);
 const argVal = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const ONLY = argVal('--only', '').split(',').map((x) => x.trim()).filter(Boolean);
 const SKIP = argVal('--skip', '').split(',').map((x) => x.trim()).filter(Boolean);
-const TIMEOUT = Number(argVal('--timeout', '240000'));
+/* 单个验收器的墙钟上限。240s 的旧值在「上一轮 Chrome 残留 + 机器负载」时
+   会把 acct_entry（实测 50s）、junk（实测 151s）判成 TIMEOUT——那不是页面坏，
+   是验收器自己排队排死了。给到 7 分钟，超时仍会 SIGKILL 并把尾部输出带回来。 */
+const TIMEOUT = Number(argVal('--timeout', '420000'));
 const COOLDOWN = Number(argVal('--cooldown', '2500'));
 const REPORT = argVal('--report', '/tmp/verify-all.json');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

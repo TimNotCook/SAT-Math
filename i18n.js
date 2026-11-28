@@ -573,6 +573,7 @@
     '概念判断错误': 'Concept error',
     '知识点概念未掌握': 'Concept not mastered',
     '条件转化失误': 'Condition handling error',
+    '时间分配': 'time management',
   };
 
   /* 带数字的句子：模板字符串拼出来的是一个整体文本节点，靠模式匹配 */
@@ -600,6 +601,10 @@
     /* 讲义面包屑是 "讲义复习 › U1" 一整串，' › ' 不参与 ' · ' 拆分，同上。 */
     [/^讲义复习 › U(\d+)$/, 'Lecture Review › U$1'],
     [/^显示 (\d+) 道 · 含历史错题与已订正记录$/, 'Showing $1 · includes past and corrected items'],
+    /* 题库来源字段是「练习册 P54」这种拼装串，英文模式下只换前缀 */
+    [/^练习册 (.+)$/, 'Workbook $1'],
+    [/^讲义 (.+)$/, 'Lecture $1'],
+    [/^教材原题（练习册 (.+)）$/, 'Textbook ($1)'],
     [/^(\d+) 道错题$/, '$1 wrong answers'],
     [/^(\d+) 道错题已加入错题回顾。$/, '$1 wrong answers added to Wrong Answers.'],
     [/^答对 (\d+) 题$/, '$1 correct'],

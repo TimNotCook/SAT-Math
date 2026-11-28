@@ -89,7 +89,12 @@ async function toAnswer(ctx, w, h) {
   }
   await sleep(400);
   const opened = await ctx.ev(`(()=>{const b=[...document.querySelectorAll('button')].find(x=>/Calculator/i.test(x.textContent||''));if(!b)return false;b.click();return true})()`);
-  await sleep(700);
+  /* 面板是 Desmos 异步注入的：固定 700ms 在 320×380 偶发读不到 .bb-calc-panel，
+     看起来像「点不开」。轮询到面板出现（最多 10 秒）再返回。 */
+  for (let i = 0; i < 25; i++) {
+    if (await ctx.ev(`!!document.querySelector('.bb-calc-panel')`)) break;
+    await sleep(400);
+  }
   return opened;
 }
 
