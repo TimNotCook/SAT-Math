@@ -91,3 +91,21 @@ test('失效/已用登录链接回跳会留下可展示的提示，不再静默�
   assert.match(acctNotice, /setError\(notice\)/, '拿到提示却没显示');
   assert.match(acct.slice(acct.indexOf('function onState'), acct.indexOf('function buildUI')), /openAuthNoticeOnce\(\)/);
 });
+
+test('内部手机号伪邮箱不能当普通邮箱注册/登录，避免抢注占号', () => {
+  assert.match(cloud, /p\.satmath\.app/, '没识别内部伪邮箱域名');
+  assert.match(cloud, /function rejectInternalMail/, '没有统一拦截口');
+  const fns = ['signUpPassword', 'signInPassword', 'sendRecovery', 'sendOtp', 'sendEmailCode', 'verifyOtp'];
+  for (const fn of fns) {
+    const seg = cloud.slice(cloud.indexOf('async function ' + fn), cloud.indexOf('async function ', cloud.indexOf('async function ' + fn) + 20));
+    assert.match(seg, /rejectInternalMail\(id\)/, fn + ' 没拦截内部伪邮箱');
+  }
+});
+
+test('注册成功但待邮箱确认时，提示去点确认链接而不是再点登录', () => {
+  const signup = cloud.slice(cloud.indexOf('async function signUpPassword'), cloud.indexOf('async function signInPassword'));
+  assert.match(signup, /auth\/email-confirm-required/, '没区分“账号已建、待确认”');
+  assert.match(signup, /去邮箱点确认链接/, '待确认提示没告诉用户下一步');
+  const { friendlyError } = accountFns();
+  assert.match(friendlyError({ code: 'auth/email-confirm-required' }), /邮箱还没有验证/);
+});

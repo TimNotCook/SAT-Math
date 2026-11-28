@@ -316,6 +316,20 @@
   /* 手机号当账号用：去掉空格/横线，补国家码，再折成项目内部的登录标识。
      规则：11 位且以 1 开头按中国大陆手机号，统一补 86，
      所以「13800138000」「+86 138-0013-8000」「8613800138000」是同一个账号。 */
+  var INTERNAL_MAIL_DOMAIN = 'p.satmath.app';
+  function isInternalEmail(v) {
+    var s = String(v || '').trim().toLowerCase();
+    var at = s.lastIndexOf('@');
+    return at > 0 && s.slice(at + 1) === INTERNAL_MAIL_DOMAIN;
+  }
+  function rejectInternalMail(id) {
+    /* 手机号折出来的 p...@p.satmath.app 是内部账号标识。普通用户不能拿这个
+       域名直接注册/登录，否则抢注一个伪邮箱就能占住别人的手机号账号，或
+       把系统内部命名空间变成可登录入口。 */
+    if (!id.phone && isInternalEmail(id.email)) {
+      throw errOf(400, { msg: '这个地址是系统内部账号，不能直接注册或登录；手机号请直接填号码，邮箱请用普通邮箱。' });
+    }
+  }
   function idToEmail(v) {
     var s = String(v || '').trim();
     var d = s.replace(/[\s\-()]/g, '');
@@ -336,13 +350,23 @@
     var mail = id.email;
     var pw = String(password || '');
     if (!id.phone && !validEmail(mail)) throw errOf(400, { msg: '邮箱或手机号格式不正确，请检查后再试。' });
+    rejectInternalMail(id);
     if (!validPw(pw)) throw errOf(400, { msg: '密码至少 6 位。' });
     var body = { email: mail, password: pw };
     if (name) body.data = { display_name: String(name).slice(0, 24) };
     var r = await raw('/auth/v1/signup', {
       method: 'POST', headers: authHeaders(null), body: JSON.stringify(body), timeout: 25000
     });
-    if (!r || !r.access_token) throw errOf(400, { msg: '注册没有返回登录态，请直接点「登录」试试。' });
+    if (!r || !r.access_token) {
+      /* 后端开了邮箱确认时 signup 只返回 user、不返回会话。账号已经建好，
+         再点一次注册只会撞号；必须告诉用户去点确认邮件，而不是“点登录试试”。 */
+      if (r && r.user) {
+        var ne = errOf(400, { msg: '注册成功，但还需要去邮箱点确认链接；确认后再回来登录。' });
+        ne.code = 'auth/email-confirm-required';
+        throw ne;
+      }
+      throw errOf(400, { msg: '注册没有返回登录态，请刷新页面后重试。' });
+    }
     return sessionFrom(r);
   }
 
@@ -351,6 +375,7 @@
     var mail = id.email;
     var pw = String(password || '');
     if (!id.phone && !validEmail(mail)) throw errOf(400, { msg: '邮箱或手机号格式不正确，请检查后再试。' });
+    rejectInternalMail(id);
     if (!pw) throw errOf(400, { msg: '请输入密码。' });
     var r = await raw('/auth/v1/token?grant_type=password', {
       method: 'POST', headers: authHeaders(null),
@@ -397,6 +422,7 @@
     var id = idToEmail(email);
     if (id.phone) throw errOf(400, { msg: '这个账号是手机号，收不到重置邮件。' });
     if (!validEmail(id.email)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送重置链接。' });
+    rejectInternalMail(id);
     var body = { email: id.email };
     var path = '/auth/v1/recover';
     if (SITE_URL) {
@@ -431,6 +457,7 @@
        在这里挡住，否则会假装发出、用户永远等不到邮件。 */
     if (id.phone) throw errOf(400, { msg: '手机号请用密码登录，登录邮件只发到邮箱。' });
     if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送登录邮件。' });
+    rejectInternalMail(id);
     var body = { email: mail, create_user: true };
     /* 显式带 redirect_to：否则后端按后台 Site URL 回跳，可能落到站点根、丢掉
        /SAT-Math/ 路径段，导致回跳 hash 接不到本站壳页。
@@ -463,8 +490,11 @@
   // 模板配好后用户收到的正文就是 6 位数字；模板没配好时它只发链接，所以只有在
   // codeReady() 为真时 UI 才允许调用。
   async function sendEmailCode(email) {
-    var mail = String(email || '').trim();
+    var id = idToEmail(email);
+    if (id.phone) throw errOf(400, { msg: '手机号请用密码登录，验证码只发到邮箱。' });
+    var mail = id.email;
     if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再获取验证码。' });
+    rejectInternalMail(id);
     var body = { email: mail, create_user: true };
     var otpPath = '/auth/v1/otp';
     if (SITE_URL) {
@@ -484,9 +514,12 @@
   // [BLOCKED-BY-EXTERNAL] 6 位数字验证码换会话。当前默认 SMTP 模板加不进
   // {{ .Token }}，此路径不接 UI；等自定义 SMTP + 模板改造完成后再启用。
   async function verifyOtp(email, code) {
-    var mail = String(email || '').trim();
+    var id = idToEmail(email);
+    if (id.phone) throw errOf(400, { msg: '手机号请用密码登录，验证码只发到邮箱。' });
+    var mail = id.email;
     var token = String(code || '').trim();
     if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再发送登录邮件。' });
+    rejectInternalMail(id);
     if (!/^\d{6}$/.test(token)) throw errOf(400, { msg: '请输入邮件里收到的 6 位数字验证码。' });
     var r = await raw('/auth/v1/verify', {
       method: 'POST',

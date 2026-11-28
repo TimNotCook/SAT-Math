@@ -185,7 +185,7 @@
     }
     /* supa-cloud 把 GoTrue 的 Email not confirmed 归一成带 -ed 的码；
        这里原来只认少一个 ed 的拼写，用户会直接看到英文技术错误。 */
-    if (c === 'auth/email-not-confirmed' || c === 'auth/email-not-confirm') {
+    if (c === 'auth/email-not-confirmed' || c === 'auth/email-not-confirm' || c === 'auth/email-confirm-required') {
       return '邮箱还没有验证：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。';
     }
     if (c === 'auth/invalid-code') return '登录链接已失效或邮件有误，请重新发送登录邮件。';
