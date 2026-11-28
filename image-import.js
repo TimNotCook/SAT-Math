@@ -1250,6 +1250,44 @@
   }
   function check(i, on) { var p = pages.filter(function (x) { return x.i === +i; })[0]; if (!p) return false; p.checked = !!on; renderRows(); return true; }
 
+  /* 一张图里挤了好几道短题（题库列表截图最常见）：OCR 会把它们读成一整段，
+     既对不上任何一道、也不会被切块切开。这里按问号把段落拆回单题，
+     每题都过同一套门禁，只有数字指纹和文字都对得上的才导，不猜。 */
+  function multiSplit(stem) {
+    var t = String(stem || '').replace(/\s+/g, ' ').trim();
+    if ((t.match(/\?/g) || []).length < 2) return [];
+    var parts = t.split('?').map(function (x) { return x.trim(); }).filter(Boolean);
+    if (parts.length < 2) return [];
+    var segs = parts.map(function (x, i) { return x + (i < parts.length - 1 ? ' ?' : ''); });
+    /* 两题之间的分界通常是"上一句以问号结尾"，最后一题没有问号。
+       每题至少 30 字符，短于此的丢弃（多半是"?"碎片），最多 6 题。 */
+    segs = segs.filter(function (x) { return x.length >= 30; }).slice(0, 6);
+    return segs.length >= 2 ? segs : [];
+  }
+  function salvageMulti() {
+    var added = 0;
+    pages.forEach(function (p) {
+      if (p.qid || !p.ocr || !p.ocr.stem) return;
+      var segs = multiSplit(p.ocr.stem);
+      if (!segs.length) return;
+      var hits = [], seen = {};
+      segs.forEach(function (sg) {
+        /* 段首的题号（"2." "3)"）会被当成题目里的数字，把数字指纹校验拖垮——
+           先剥掉题号再比对。 */
+        sg = sg.replace(/^\s*\d{1,2}\s*[.)]\s*/, '').trim();
+        var rc = matchQuestion(sg, '', 8); if (!rc.length) return;
+        var qn = numbers(norm(sg)), cn = numbers(norm(rc[0].stem || ''));
+        var ag = numScore(qn, cn);
+        var numOk = qn.length >= 2 ? ag >= 0.9 : (qn.length === 1 ? ag >= 0.7 : false);
+        var tg = autoGate(rc, sg);
+        if (tg.pass && numOk && !seen[rc[0].id]) { seen[rc[0].id] = 1; hits.push(rc[0]); }
+      });
+      hits.forEach(function (c) { var r = importSingle(c.id); if (r && r.added) added++; });
+      if (hits.length) { p.salvaged = hits.length; p.salvageIds = hits.map(function (c) { return c.id; }); }
+    });
+    return added;
+  }
+
   function recognizeAll(images) {
     if (busy || !images || !images.length) return Promise.resolve(null);
     busy = true;
@@ -1363,13 +1401,17 @@
       var ok = pages.filter(function (p) { return p.ocr; }).length;
       var fail = pages.length - ok;
       // 全自动：识别结束后立即写入错题本，不等待任何用户操作
+      /* 先把"一张图里多道短题"拆开抢救一遍，再走常规导入 */
+      var salvaged = 0;
+      try { salvaged = salvageMulti(); } catch (e) { console.warn('拆多题失败', e); }
       var res = null;
       try { res = importChecked(); } catch (e) { console.warn('导入错题失败', e); }
-      var added = res && res.added ? res.added : 0;
+      var added = (res && res.added ? res.added : 0) + salvaged;
       var skipped = res && res.skipped ? res.skipped : 0;
       var dups = res && res.dups ? res.dups : 0;
-      var unmatched = pages.filter(function (p) { return p.ocr && !p.error && !p.qid; }).length;
+      var unmatched = pages.filter(function (p) { return p.ocr && !p.error && !p.qid && !p.salvaged; }).length;
       var msg = '已自动识别并写入错题回顾：' + added + ' 道';
+      if (salvaged) msg += '（其中 ' + salvaged + ' 道来自一张图里的多道短题，已按问号拆开逐题核对）';
       if (dups) msg += '；' + dups + ' 道此前已在错题本里（不重复写）';
       if (unmatched) msg += '；' + unmatched + ' 道未能确认，为免导错已跳过（可重试）';
       if (fail) msg += '；' + fail + ' 张识别失败（可点「重试失败项」）';
@@ -1435,7 +1477,7 @@
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
     acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
     select: select, check: check, importChecked: importChecked,
-    selfTest: selfTest, importByText: importByText, inbox: inboxList,
+    selfTest: selfTest, importByText: importByText, inbox: inboxList, _multiSplit: multiSplit, _salvage: salvageMulti,
     search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,
     cloudSignIn: cloudSignIn,
     setModel: function (m) { state.model = m; },
