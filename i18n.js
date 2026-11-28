@@ -353,10 +353,8 @@
     '改用邮箱验证码登录': 'Use email code instead',
     '还没有账号？点「注册新账号」就行。': 'No account yet? Tap “Create an account”.',
     '登录成功，正在读取你的学习档案…': 'Signed in, loading your profile…',
-    '手机号或密码不对。还没有账号就点「注册新账号」。':
-      'Wrong phone number or password. New here? Tap “Create an account”.',
-    '邮箱或密码不对。还没有账号就点「注册新账号」。':
-      'Wrong email or password. New here? Tap “Create an account”.',
+    '手机号或密码不对。': 'Wrong phone number or password.',
+    '邮箱或密码不对。': 'Wrong email or password.',
     '这个账号是手机号，收不到重置邮件。': 'This account is a phone number, so it cannot receive reset email.',
     '手机号请用密码登录，登录邮件只发到邮箱。': 'Phone accounts sign in with a password; sign-in email only goes to email addresses.',
     '邮箱格式不正确，请检查后再试。': 'That email does not look right, please check it.',

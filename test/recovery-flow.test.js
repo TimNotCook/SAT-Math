@@ -71,6 +71,7 @@ test('密码登错的提示跟着账号类型走（手机号别说成邮箱）',
   assert.ok(/function isPhoneAccount/.test(acct), '缺 isPhoneAccount');
   const seg = acct.slice(acct.indexOf('function friendlyError'), acct.indexOf('function loadProf'));
   assert.ok(seg.indexOf("isPhoneAccount(account) ? '手机号' : '邮箱'") >= 0, 'invalid-credential 没有区分手机号/邮箱');
+  assert.ok(seg.indexOf('或密码不对。') >= 0 && seg.indexOf('还没有账号就点') < 0, '错误提示还在长篇劝注册');
   assert.ok(/friendlyError\(e, email\)/.test(acct), '登录失败没把输入的账号传给 friendlyError');
   assert.ok(!/第一次用这个邮箱请点/.test(acct), '旧的「第一次用这个邮箱」措辞还在');
 });

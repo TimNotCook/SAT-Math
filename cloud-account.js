@@ -160,7 +160,7 @@
     var c = e && e.code, m = e && e.message;
     if (c === 'auth/invalid-email') return '邮箱格式不正确，请检查后再试。';
     if (c === 'auth/invalid-credential') {
-      return (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。还没有账号就点「注册新账号」。';
+      return (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。';
     }
     if (c === 'auth/email-already-in-use') return '这个邮箱已经注册过了，直接点「登录」。';
     if (c === 'auth/invalid-code' || c === 'auth/email-not-confirm') return '登录链接已失效或邮件有误，请重新发送登录邮件。';
@@ -989,7 +989,13 @@
     panel.appendChild(head);
     // 标签栏：账户 / 外观 / 关于
     var tabs = el('div', 'td-set-tabs');
+    /* 模考页是英文 Bluebook 界面，语言由页面强制英文；「语言」页签在那儿点了也没用，
+       干脆不摆出来（宁可不显示，也不做一个点了不生效的开关）。 */
     var tabDefs = [['account', '账户'], ['appearance', '外观'], ['language', '语言'], ['practice', '练习'], ['about', '关于']];
+    if (document.body && document.body.classList.contains('is-mock')) {
+      tabDefs = tabDefs.filter(function (p) { return p[0] !== 'language'; });
+    }
+    if (activeTab === 'language' && tabDefs.every(function (p) { return p[0] !== 'language'; })) activeTab = 'account';
     tabDefs.forEach(function (pair) {
       var t = el('button', 'td-set-tab', pair[1]);
       t.type = 'button';
