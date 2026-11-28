@@ -784,7 +784,7 @@
     $('clockText').textContent = fmt((official ? O.secondsPerModule : S.durationSec) * 1000);
     $('clockLabel').textContent = T('剩余时间', 'Time Remaining');
     $('tbTotal').textContent = official ? 'Section 2 of 2 · Math' : 'Unit ' + QUIZ_UNIT;
-    $('bankCount').textContent = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
+    paintBankPill();
   }
 
   /* =====================================================================
@@ -1470,9 +1470,20 @@
   /* =====================================================================
      Events
      ===================================================================== */
+  /* 「本单元 268 题」这条题库胶囊：单位词按界面语言写死，
+     避免中英混排（i18n 逐节点翻译管不到拼在 HTML 里的那半个词）。 */
+  function paintBankPill() {
+    const en = !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en');
+    const n = $('bankCount'); if (n) n.textContent = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
+    const u = $('bankPillUnit'); if (u) u.textContent = en ? 'This unit' : '本单元';
+    const q = $('bankQW'); if (q) q.textContent = en ? ' questions' : ' 题';
+  }
   function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600); }
 
-  $('bankCount').textContent = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
+  paintBankPill();
+  /* 切语言时这条胶囊要重画：数字后面那半句「题 / questions」是拼在 HTML 里的，
+     i18n 只认整段纯文本，会漏掉它，英文界面就剩一个中文「题」字。 */
+  window.addEventListener('td-lang-change', () => { try { paintBankPill(); } catch (e) {} });
   $('btnStart').addEventListener('click', startSession);
   $('btnPrev').addEventListener('click', () => goTo(S.idx - 1));
   $('btnNext').addEventListener('click', () => goTo(S.idx + 1));
