@@ -1466,6 +1466,9 @@ html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:1
 }
 @media(max-width:360px){
   html body.exam-page.is-mock .quiz-card-facts .quiz-fact{font-size:10px!important}
+  /* 320 卡内只剩 214px，「Math · Practice Test」24px 要 233px，会在 Practice 后断行。
+     21px 只需 204px，整句一行，也不再压住下面的副标题。 */
+  html body.exam-page.is-mock #mockCardTitle{font-size:21px!important;line-height:1.25!important}
 }
 
 /* 抽查开场左栏右侧那块空白：放一张本单元的浅色线稿，不做标签也不写字 */

@@ -32,3 +32,7 @@ test('手机模考卡三个数字等分成一行，320 不再把「of 2 modules�
   assert.match(app, /html body\.exam-page\.is-mock \.quiz-card-facts \.quiz-fact\{flex:1 1 0!important;width:auto!important;white-space:nowrap!important/);
   assert.match(app, /html body\.exam-page\.is-mock \.quiz-card-facts \.quiz-fact\{font-size:10px!important\}/);
 });
+
+test('320 模考卡标题 21px 单行，不在 Practice 后断开', () => {
+  assert.match(app, /html body\.exam-page\.is-mock #mockCardTitle\{font-size:21px!important;line-height:1\.25!important\}/);
+});
