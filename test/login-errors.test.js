@@ -315,3 +315,10 @@ test('退出登录清掉邮件链接/验证码/重置共用的冷却，不让下
   assert.match(out, /codeSent = false/, '退出后仍显示上一个账号“重新获取”');
   assert.match(out, /clearInterval\(otpCountdownTimer\)/, '退出后验证码冷却计时器还在跑');
 });
+
+test('退出登录的成功/警告提示写在 renderBody 之后，不被“未登录”盖掉', () => {
+  const out = acct.slice(acct.indexOf('async function doSignOut'), acct.indexOf('function openAuthNoticeOnce'));
+  assert.ok(out.indexOf('renderBody()') >= 0, '退出流程没有重绘');
+  assert.ok(out.indexOf('renderBody()') < out.indexOf('if (cleared === false) setStatus'),
+    '状态提示写在重绘之前，会被“未登录”覆盖');
+});

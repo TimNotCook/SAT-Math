@@ -1149,11 +1149,12 @@
     otpCooldown = 0;
     codeSent = false;
     if (otpCountdownTimer) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
-    /* removeItem 也可能被浏览器拒绝：这时内存里退了，磁盘上的会话还在，
-       刷新会悄悄把人登回去。不能继续报「已退出」。 */
+    setError(''); setBusy(false); renderBody();
+    /* 顺序不能反：未登录时 renderBody 会把状态栏重置成「未登录」，退出结果
+       和“浏览器拒绝清缓存、刷新可能又登回去”的警告必须写在它之后。
+       旧顺序把这条安全警告也一起盖掉了。 */
     if (cleared === false) setStatus('当前页面已退出，但浏览器拒绝清除登录缓存；刷新后可能仍处于登录状态，请先清出空间再退出', 'warn');
     else setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
-    setError(''); setBusy(false); renderBody();
   }
   /* 从「重置密码」链接回来的：直接把设置面板打开在账户页，
      否则人点了邮件里的按钮只看到首页，根本不知道去哪儿设新密码。
