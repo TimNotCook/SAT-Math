@@ -178,6 +178,7 @@
     var c = e && e.code, m = e && e.message;
     if (c === 'auth/invalid-email') return '邮箱格式不正确，请检查后再试。';
     if (c === 'auth/weak-password') return '密码太短或强度不够，换一个更长一点的密码再试。';
+    if (c === 'auth/same-password') return '新密码不能和旧密码一样，换一个再保存。';
     if (c === 'auth/signup-disabled') return '当前暂未开放新账号注册，请稍后再试。';
     if (c === 'auth/invalid-credential') {
       return (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。';
@@ -187,7 +188,10 @@
     }
     /* supa-cloud 把 GoTrue 的 Email not confirmed 归一成带 -ed 的码；
        这里原来只认少一个 ed 的拼写，用户会直接看到英文技术错误。 */
-    if (c === 'auth/email-not-confirmed' || c === 'auth/email-not-confirm' || c === 'auth/email-confirm-required') {
+    if (c === 'auth/email-confirm-required') {
+      return '注册成功，但邮箱还没确认：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。';
+    }
+    if (c === 'auth/email-not-confirmed' || c === 'auth/email-not-confirm') {
       return '邮箱还没有验证：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。';
     }
     if (c === 'auth/invalid-code') return '登录链接已失效或邮件有误，请重新发送登录邮件。';
@@ -199,7 +203,10 @@
       return '登录链接已失效或邮件有误，请重新发送登录邮件。';
     }
     if (lm.indexOf('failed to fetch') >= 0 || lm.indexOf('request failed') >= 0) return '登录服务暂时连不上，请检查网络后重试。';
-    return m || '操作失败，请重试。';
+    /* 未归一的 Supabase 原文可能是英文甚至“Database error saving new user”
+       这类内部信息；正常软件只给用户一句可行动的提示，细节留给控制台。 */
+    if (m) { try { console.warn('账号操作失败：', m); } catch (e) {} }
+    return '操作失败，请稍后重试。';
   }
 
   /* ---------- 档案归属 / 暂存 ---------- */
@@ -1287,7 +1294,7 @@
 
       var backSign = el('button', 'td-acct-linkbtn', '返回登录');
       backSign.type = 'button';
-      backSign.onclick = function () { loginMode = 'password'; setError(''); renderBody(); };
+      backSign.onclick = function () { pwdEmail = readEmail() || pwdEmail; loginMode = 'password'; setError(''); renderBody(); };
       b.appendChild(backSign);
 
       [pwSign, pwSign2].forEach(function (f) {

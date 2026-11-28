@@ -107,7 +107,7 @@ test('注册成功但待邮箱确认时，提示去点确认链接而不是再�
   assert.match(signup, /auth\/email-confirm-required/, '没区分“账号已建、待确认”');
   assert.match(signup, /去邮箱点确认链接/, '待确认提示没告诉用户下一步');
   const { friendlyError } = accountFns();
-  assert.match(friendlyError({ code: 'auth/email-confirm-required' }), /邮箱还没有验证/);
+  assert.match(friendlyError({ code: 'auth/email-confirm-required' }), /注册成功.*邮箱还没确认/);
 });
 
 test('注册错误码：弱密码/停注册/非法邮箱给中文提示，不甩英文原文', () => {
@@ -127,4 +127,22 @@ test('注册是独立表单：必须确认密码，避免输错密码直接建�
   assert.match(fn, /两次输入的密码不一致/, '两次密码不同没有拦住');
   assert.match(fn, /pw2/, '注册提交没比对确认密码');
   assert.match(acct, /loginMode = 'signup'/, '登录页的注册按钮没切到注册表单');
+});
+
+test('手机号注册若后端没直接返回会话，不能叫用户去收不存在的确认邮件', () => {
+  const signup = cloud.slice(cloud.indexOf('async function signUpPassword'), cloud.indexOf('async function signInPassword'));
+  assert.match(signup, /id\.phone[\s\S]{0,220}没有可收确认邮件/, '手机号待确认分支仍指向邮箱');
+});
+
+test('改密码填回旧密码时给中文提示，不甩英文', () => {
+  const { friendlyError } = accountFns();
+  assert.match(friendlyError({ code: 'auth/same-password' }), /不能和旧密码一样/);
+  assert.match(cloud, /different from the old password/, '没归一旧密码复用错误');
+});
+
+test('没归一的服务端原文不直接甩给用户，只留一句可行动的提示', () => {
+  const { friendlyError } = accountFns();
+  const msg = friendlyError({ message: 'Database error saving new user' });
+  assert.match(msg, /操作失败，请稍后重试/);
+  assert.doesNotMatch(msg, /Database error/);
 });

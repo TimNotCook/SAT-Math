@@ -57,8 +57,9 @@
     if (low.indexOf('invalid login credentials') >= 0) e.code = 'auth/invalid-credential';
     else if (low.indexOf('email not confirmed') >= 0) e.code = 'auth/email-not-confirmed';
     else if (low.indexOf('user already registered') >= 0 || low.indexOf('already been registered') >= 0) e.code = 'auth/email-already-in-use';
-    else if (low.indexOf('signups not allowed') >= 0 || low.indexOf('signup is disabled') >= 0) e.code = 'auth/signup-disabled';
-    else if (low.indexOf('password should be at least') >= 0 || low.indexOf('password is too short') >= 0 || low.indexOf('weak password') >= 0) e.code = 'auth/weak-password';
+    else if (low.indexOf('signups not allowed') >= 0 || low.indexOf('signup is disabled') >= 0 || low.indexOf('signups are disabled') >= 0) e.code = 'auth/signup-disabled';
+    else if (low.indexOf('different from the old password') >= 0) e.code = 'auth/same-password';
+    else if (low.indexOf('password should be at least') >= 0 || low.indexOf('password should contain') >= 0 || low.indexOf('password is too short') >= 0 || low.indexOf('weak password') >= 0) e.code = 'auth/weak-password';
     else if (low.indexOf('invalid email') >= 0 || low.indexOf('validate email') >= 0) e.code = 'auth/invalid-email';
     else if (low.indexOf('email rate limit') >= 0 || low.indexOf('too many') >= 0 || low.indexOf('security purposes') >= 0) e.code = 'auth/too-many-requests';
     else if (low.indexOf('token has expired') >= 0 || low.indexOf('invalid') >= 0 && low.indexOf('token') >= 0) e.code = 'auth/invalid-code';
@@ -364,6 +365,9 @@
       /* 后端开了邮箱确认时 signup 只返回 user、不返回会话。账号已经建好，
          再点一次注册只会撞号；必须告诉用户去点确认邮件，而不是“点登录试试”。 */
       if (r && r.user) {
+        if (id.phone) {
+          throw errOf(400, { msg: '手机号注册没有直接登录成功；这个号码没有可收确认邮件的邮箱，请稍后重试，或改用邮箱注册。' });
+        }
         var ne = errOf(400, { msg: '注册成功，但还需要去邮箱点确认链接；确认后再回来登录。' });
         ne.code = 'auth/email-confirm-required';
         throw ne;
