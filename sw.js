@@ -11,7 +11,7 @@
    v1→v2（2026-11-23）：v1 从未升过版，历史旧构建资源在缓存里永久滞留；
    导航请求 network-first 失败时（弱网/VPN 抖动）会整站回退到旧版页面。
    升版触发 activate 全量清缓存，旧构建自愈。 */
-var VERSION = 'satmath-312b9dd4a445';
+var VERSION = 'satmath-6f4ce381fdd3';
 
 /* 从本 SW 自身路径推导站点基路径（兼容 GitHub Pages 子路径，如 /SAT-Math/） */
 var BASE = self.location.pathname.replace(/\/sw\.js$/, '/');
@@ -25,9 +25,6 @@ self.addEventListener('install', function (e) {
 });
 
 self.addEventListener('activate', function (e) {
-  /* 装好就把识别引擎拉进缓存（不阻塞激活）。用户第一次点开错题页之前，
-     这 6.8MB 已经在本地了，贴图那一刻不用再等下载。 */
-  try { e.waitUntil(warmOcr()); } catch (err) { console.warn('预载识别引擎失败', err); }
   e.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(keys.filter(function (k) { return k !== VERSION; }).map(function (k) {
@@ -36,32 +33,6 @@ self.addEventListener('activate', function (e) {
     }).then(function () { return self.clients.claim(); })
   );
 });
-
-self.addEventListener('message', function (e) {
-  var d = e.data || {};
-  if (d.type !== 'warm-ocr') return;
-  e.waitUntil(warmOcr().then(function (ok) {
-    if (e.source) e.source.postMessage({ type: 'warm-ocr', ok: ok });
-  }));
-});
-
-function warmOcr() {
-  var files = [
-    BASE + 'vendor/tesseract/tesseract.min.js',
-    BASE + 'vendor/tesseract/worker.min.js',
-    BASE + 'vendor/tesseract/tesseract-core-simd-lstm.wasm.js',
-    BASE + 'vendor/tesseract/eng.traineddata.gz'
-  ];
-  return Promise.all(files.map(function (u) {
-    return caches.match(u).then(function (m) {
-      if (m) return true;
-      return fetch(u).then(function (res) {
-        if (!res || !res.ok) return false;
-        return caches.open(VERSION).then(function (c) { return c.put(u, res.clone()); }).then(function () { return true; });
-      }).catch(function () { return false; });
-    });
-  })).then(function (r) { return r.every(Boolean); });
-}
 
 self.addEventListener('fetch', function (e) {
   var req = e.request;
@@ -94,16 +65,7 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  /* 识别引擎（tesseract worker/内核/语言包，约 6.8MB）：cache-first 永久驻留。
-     GitHub Pages 对这些文件只给 max-age=600，十分钟后浏览器就会重新下载，
-     用户看到的就是"每次用都先等十几秒"。SW 缓存不看过期时间，下一份就一直在。
-     只存这一套文件，别把整个 vendor/（含 pdf.js 等）都钉死，免得更新资源时被旧缓存挡住。 */
-  if (/\/vendor\/tesseract\//.test(url.pathname)) {
-    e.respondWith(cacheFirst(req));
-    return;
-  }
-
-  /* 其余大件静态资源：stale-while-revalidate */
+  /* 大件静态资源：stale-while-revalidate */
   if (/(\/images\/|\/fonts\/|\/vendor\/)/.test(url.pathname)) {
     e.respondWith(swr(req));
     return;
