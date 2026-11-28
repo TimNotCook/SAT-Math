@@ -663,21 +663,27 @@
       }
       /* 三个镜像同时起步抢第一个能用的：中国网络下 GitHub Pages / jsdelivr / unpkg
          谁快谁慢完全看运气，串行试等于把最坏情况叠成 3 倍等待（36 秒以上）。
-         并发抢跑后最坏也就 15 秒，而且通常 1~3 秒就有赢家。 */
-      var tries = [0, 1, 2].map(function (mi) {
-        return bounded(mi).then(function (w) { return { w: w, mi: mi }; });
-      });
-      return Promise.all(tries.map(function (p) { return p.catch(function (e) { return { err: e }; }); }))
-        .then(function (all) {
-          var win = all.filter(function (x) { return x && x.w; })[0];
-          all.forEach(function (x) { if (x && x.w && x.w !== win.w) { try { x.w.terminate(); } catch (e) {} } });
-          if (!win) {
-            var msgs = all.map(function (x) { return x && x.err ? ((x.err && x.err.message) || String(x.err)) : '失败'; });
-            throw new Error(msgs.join(' / '));
-          }
-          TESS_FAST = win.mi;
-          return win.w;
+         Promise.all 会等所有镜像都 settle，哪怕第 1 秒已经有一个成功；这里
+         改成首个成功立刻 resolve，后来才成功的 worker 直接 terminate。 */
+      var tries = [0, 1, 2].map(function (mi) { return bounded(mi); });
+      return new Promise(function (resolve, reject) {
+        var left = tries.length, settled = false, errs = [];
+        tries.forEach(function (p, mi) {
+          p.then(function (w) {
+            if (settled) { try { w.terminate(); } catch (e) {} return; }
+            settled = true;
+            TESS_FAST = mi;
+            resolve(w);
+          }, function (e) {
+            errs[mi] = (e && e.message) || String(e);
+            left--;
+            if (!settled && left === 0) {
+              settled = true;
+              reject(new Error(errs.join(' / ')));
+            }
+          });
         });
+      });
     }).then(function (w) {
       OCR_W = w; OCR_READY = true;
       // 单题截图是"一整块文字"，按单块版面分析比默认的全页分析准

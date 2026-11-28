@@ -846,3 +846,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 122 条：已录答案但重试导入被判重复，本机作答永远补不回来（2026-11-28）
 
 第 106 条把导入顺序改成“先写错题仓库，再写本机作答”，但两半之间没有重试凭证：错题仓库写成功后 `A.save()` 失败，本机 `tdsat_app_v1` 里没有这条作答；用户按提示重新导入同一份 JSON 时，`store.items` 的 `seen` 键让这些题全部被判重复，`pending` 为空、`A.save()` 根本不再执行，于是那几条作答永远补不回来。修成新增记录带 `localPending:true`，本机写盘成功后才摘标记并重写仓库；重试导入时先扫描仓库里的 `localPending` 条目，把尚未写进本机的作答重新排进 `pending` 再保存，消息追加「重试补写上次未落盘 N 道」。验证：第一次导入注入 `tdsat_app_v1` 写失败，第二次恢复可写后重导同一份，旧代码仓库有记录但本机仍为空，新代码本机出现 `imported_wrong_json_v1` 作答且 `localPending` 已摘；全量 642/0。
+
+## 第 123 条：三个镜像并发却用 Promise.all 等最慢的，快镜像赢了也要干等 15 秒（2026-11-28）
+
+`632fa0d` 把识别引擎三个镜像改成并发抢跑，但收口是 `Promise.all(tries.map(...))`：`Promise.all` 要等**所有**镜像都 resolve/reject 才返回，哪怕第 1 秒 GitHub Pages 已经成功，只要另一个镜像还在下载/超时，识别仍要等到第 15 秒；“1~3 秒就有赢家”只体现在赢了但没被用。修成手动 first-win：任一镜像成功立刻 `resolve`，并把随后才成功的 worker `terminate()`，全部失败才 reject 并保留三条错误信息。验证：新增静态守卫禁止回到 `Promise.all(tries)`；全量 643/0；`verify_flows` 16/16。
