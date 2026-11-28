@@ -241,8 +241,14 @@
     var strong = t.score >= 0.5 && margin >= 0.08;
     var qnums = numbers(norm(queryStem));
     var numFast = t.ns >= 0.88 && qnums.length >= 2 && margin >= 0.05;
-    return { pass: strong || numFast, margin: margin,
-      reason: strong ? 'strong' : (numFast ? 'number' : 'review') };
+    /* 题库里同一道题以不同编号收了两三份（如 SP2-032 / R03-069 / R03-070），
+       指纹、数字、文本全一致，打分并列第一，margin 恒为 0。这不该当成"拿不准"：
+       内容就是同一题，按排序第一顺位写入即可（用户看到的是同一道题，
+       只是归属板块取第一份的编号）。 */
+    var twin = !!(r && t.score >= 0.5 && Math.abs(t.score - r.score) < 0.012 &&
+      norm(t.stem) && norm(t.stem) === norm(r.stem));
+    return { pass: strong || numFast || twin, margin: margin, twin: twin,
+      reason: strong ? 'strong' : (numFast ? 'number' : (twin ? 'twin' : 'review')) };
   }
 
   /* ---------------- 云 SDK / VLM ---------------- */
@@ -935,6 +941,80 @@
     });
   }
 
+  /* 拍照场景专用：灰度 → 2%–98% 直方图拉伸（把阴影、偏灰、逆光压平）→ 估计倾斜角并扶正。
+     截图走不到这里；手机拍屏幕/拍卷子糊成一片时才用。 */
+  function estimateSkew(cv) {
+    var W = 360, H = Math.max(1, Math.round(cv.height * (W / cv.width)));
+    var t = document.createElement('canvas'); t.width = W; t.height = H;
+    var tx = t.getContext('2d'); tx.drawImage(cv, 0, 0, W, H);
+    var d = tx.getImageData(0, 0, W, H).data, bin = new Uint8Array(W * H);
+    for (var i = 0, j = 0; i < d.length; i += 4) bin[j++] = d[i] < 128 ? 1 : 0;
+    function variance(angle) {
+      var rad = angle * Math.PI / 180, cos = Math.cos(rad), sin = Math.sin(rad);
+      var rows = new Float64Array(H), cx = W / 2, cy = H / 2;
+      for (var y = 0; y < H; y += 2) for (var x = 0; x < W; x += 2) {
+        if (!bin[y * W + x]) continue;
+        var yy = Math.round(-(x - cx) * sin + (y - cy) * cos + cy);
+        if (yy >= 0 && yy < H) rows[yy]++;
+      }
+      var mean = 0, n = 0; for (var k = 0; k < H; k++) { mean += rows[k]; n++; }
+      mean /= n; var v = 0; for (var k2 = 0; k2 < H; k2++) v += (rows[k2] - mean) * (rows[k2] - mean);
+      return v;
+    }
+    var best = 0, bestV = -1;
+    [-4, -3, -2, -1, 0, 1, 2, 3, 4].forEach(function (a) {
+      var v = variance(a); if (v > bestV) { bestV = v; best = a; }
+    });
+    return best;
+  }
+
+  function enhancePhoto(dataUrl) {
+    return new Promise(function (res) {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var sc = Math.min(2, Math.max(1, 1500 / Math.max(1, img.width)));
+          var W = Math.round(img.width * sc), H = Math.round(img.height * sc);
+          var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+          var cx = cv.getContext('2d');
+          cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
+          cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
+          cx.drawImage(img, 0, 0, W, H);
+          var d = cx.getImageData(0, 0, W, H), px = d.data, hist = new Array(256), i, g;
+          for (i = 0; i < 256; i++) hist[i] = 0;
+          for (i = 0; i < px.length; i += 4) {
+            g = Math.round(px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114);
+            px[i] = px[i + 1] = px[i + 2] = g; hist[g]++;
+          }
+          var n = W * H, acc = 0, lo = 0, hi = 255, target = n * 0.02;
+          for (i = 0; i < 256; i++) { acc += hist[i]; if (acc >= target) { lo = i; break; } }
+          acc = 0; target = n * 0.98;
+          for (i = 0; i < 256; i++) { acc += hist[i]; if (acc >= target) { hi = i; break; } }
+          if (hi - lo < 40) { lo = Math.max(0, lo - 12); hi = Math.min(255, hi + 12); }
+          var k = 255 / Math.max(1, hi - lo);
+          for (i = 0; i < px.length; i += 4) {
+            g = Math.round((px[i] - lo) * k); g = g < 0 ? 0 : (g > 255 ? 255 : g);
+            px[i] = px[i + 1] = px[i + 2] = g;
+          }
+          cx.putImageData(d, 0, 0);
+          var angle = 0;
+          try { angle = estimateSkew(cv); } catch (e) { angle = 0; }
+          var out = cv;
+          if (Math.abs(angle) >= 1) {
+            var R = document.createElement('canvas'); R.width = W; R.height = H;
+            var rx = R.getContext('2d');
+            rx.fillStyle = '#fff'; rx.fillRect(0, 0, W, H);
+            rx.translate(W / 2, H / 2); rx.rotate(angle * Math.PI / 180); rx.drawImage(cv, -W / 2, -H / 2);
+            out = R;
+          }
+          res(out.toDataURL('image/jpeg', 0.92));
+        } catch (e) { res(null); }
+      };
+      img.onerror = function () { res(null); };
+      img.src = dataUrl;
+    });
+  }
+
   function invertImage(dataUrl) {
     return new Promise(function (res) {
       var img = new Image();
@@ -992,7 +1072,7 @@
     }
     function run(url, tag) {
       status(tag === 'base' ? '正在识别文字…' : (tag === 'zoom' ? '字有点小，放大后再认一次…'
-        : (tag === 'invert' ? '像是深色背景，取反后再认一次…' : '对比度不够，换个方式再认一次…')));
+        : (tag === 'invert' ? '像是深色背景，取反后再认一次…' : '照片偏灰/拍歪了，先压平打正再认…')));
       return ocrImage(url, model).then(function (ocr) {
         var sc = scoreOf(ocr.stem);
         if (!best || sc > best.score) best = { ocr: ocr, url: url, score: sc };
@@ -1008,30 +1088,38 @@
           /* 原图和放大后都不像题库（<0.25）：说明不是"预处理没调好"，而是题库里
              多半没这道题。再磨灰度和取反只是让人多等一秒多，直接收手、把候选摆出来。
              例外：深色底截图本来就该取反，先量一下亮度再说。 */
-          var weak = !best || best.score < 0.25;
-          if (weak) {
-            return imageLuma(dataUrl).then(function (luma) {
-              if (luma < 0 || luma > 120) return best;   /* 浅底：不折腾了 */
-              return invertImage(dataUrl).then(function (v3) {
-                if (!v3) return best;
-                return run(v3, 'invert').then(function () { return best; });
-              });
-            });
-          }
-          return scaleImage(dataUrl, 1.25, true).then(function (v2) {
-            if (!v2) return best;
-            return run(v2, 'gray').then(function (sc3) {
-              if (sc3 >= 0.5 || (best && best.score >= 0.42)) return best;
-              /* 深色背景最后补一刀：先测亮度，浅底就不浪费这一遍 */
-              return imageLuma(dataUrl).then(function (luma) {
-                if (luma < 0 || luma > 120) return best;
-                return invertImage(dataUrl).then(function (v3) {
-                  if (!v3) return best;
-                  return run(v3, 'invert').then(function () { return best; });
+          /* 压平打正（去灰、拉对比、扶正倾斜）：手机拍照糊/灰/歪的最后一遍。
+             浅底且文本很弱也值得一试——拍照退化恰恰就发生在白纸上。 */
+          function photoPass() {
+            return enhancePhoto(dataUrl).then(function (v2) {
+              if (!v2) return best;
+              return run(v2, 'photo').then(function (sc3) {
+                if (sc3 >= 0.5 || (best && best.score >= 0.42)) return best;
+                /* 深色背景最后补一刀：先测亮度，浅底就不浪费这一遍 */
+                return imageLuma(dataUrl).then(function (luma) {
+                  if (luma < 0 || luma > 120) return best;
+                  return invertImage(dataUrl).then(function (v3) {
+                    if (!v3) return best;
+                    return run(v3, 'invert').then(function () { return best; });
+                  });
                 });
               });
             });
-          });
+          }
+          var weak = !best || best.score < 0.25;
+          if (weak) {
+            return imageLuma(dataUrl).then(function (luma) {
+              if (luma < 0 || luma > 120) return photoPass();   /* 浅底：直接压平打正 */
+              return invertImage(dataUrl).then(function (v3) {
+                if (!v3) return photoPass();
+                return run(v3, 'invert').then(function (sc4) {
+                  if (sc4 >= 0.42 || (best && best.score >= 0.42)) return best;
+                  return photoPass();
+                });
+              });
+            });
+          }
+          return photoPass();
         });
       });
     }).then(function (r) {
@@ -1559,8 +1647,21 @@
                 var numGate = qNums.length >= 2 ? c0Agree >= 0.85 : (qNums.length === 1 ? c0Agree >= 0.6 : true);
                 if (tg.pass && recalled[0] && numGate) {
                   chosen = bankCands[0];
-                  p.matchInfo = { agree: false, conf: recalled[0].score, margin: tg.margin,
-                    numAgree: numScore(qNums, numbers(norm(bankCands[0].stem || ''))) };
+                  /* 孪生副本（题库同一题收了两三份）里挑信息最全的一份：
+                     有的副本 answer 是空的，导进错题本后没法判对错。 */
+                  if (tg.twin) {
+                    var tNorm = norm(recalled[0].stem || '');
+                    var twins = recalled.filter(function (c) { return norm(c.stem || '') === tNorm; });
+                    var richness = function (c) {
+                      var q = findQ(c.id) || {};
+                      return (q.answer != null ? 2 : 0) + (q.value != null ? 1 : 0) + (q.hint ? 1 : 0);
+                    };
+                    var bestTwin = twins[0];
+                    twins.forEach(function (c) { if (richness(c) > richness(bestTwin)) bestTwin = c; });
+                    chosen = bestTwin;
+                  }
+                  p.matchInfo = { agree: false, conf: recalled[0].score, margin: tg.margin, twin: !!tg.twin,
+                    numAgree: numScore(qNums, numbers(norm(chosen.stem || ''))) };
                 } else {
                   p.skipReason = tg.pass ? '文字最像的那道数字对不上，没敢自动写（可点下面任一道）'
                     : '云端比对不可用，文本匹配也不够稳（可从下面的题目里点一个）';
@@ -1671,7 +1772,7 @@
     },
     prewarm: prewarm,
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
-    acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem, _gate: autoGate,
+    acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem, _gate: autoGate, _enhance: enhancePhoto, _luma: imageLuma,
     select: select, check: check, importChecked: importChecked,
     selfTest: selfTest, importByText: importByText, inbox: inboxList,
     search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,
