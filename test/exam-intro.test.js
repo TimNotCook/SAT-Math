@@ -28,6 +28,13 @@ test('记录页：未交卷模考不得标成「全卷 22 题」', () => {
     '未交卷/作废的模考只到第一模块，标题必须写未交卷而不是全卷题数');
 });
 
+test('成绩落盘失败要提示，不能静默当已保存', () => {
+  const js = read('exam.js');
+  assert.match(js, /const save = \(k, v\) => \{[^}]*let ok = true;[\s\S]*?return ok;/, 'save 没有返回写入成败');
+  assert.match(js, /const resultSaved = save\(KEY_RESULTS, all\)/, '成绩保存没有接住返回值');
+  assert.match(js, /if \(!resultSaved\) toast\('成绩保存失败/, '成绩写失败没有可见提示');
+});
+
 test('模考页：核心脚本没加载完时要有可见兜底，而不是死页', () => {
   const html = read('exam.html');
   assert.ok(html.includes('tdsat_boot_retry_v1'), 'load 后必须检查核心脚本是否就绪，并只自动重载一次');

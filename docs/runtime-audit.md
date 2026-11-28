@@ -799,3 +799,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 110 条：写盘失败把内存重置回旧盘，刚选的答案静默消失（2026-11-28）
 
 `writeDisk()` 不管 `localStorage.setItem` 成功还是抛错，都执行 `syncFromDisk(st)`。配额满、Safari 无痕、只读存储时 `setItem` 抛 `QuotaExceededError` 被 catch 住，随后内存里的 `S` 被重置成旧盘，刚选的那道题在页面上消失，刷新更不可能找回；`save()` 也没有返回值，导入流程无法知道本机作答根本没落盘。修成：写盘成功才 `syncFromDisk`；失败时采用新状态但保留旧 `BASE`，让下一次 `save()` 仍能按差异重试这批未落盘改动；`save()` 返回 true/false。`wrong-page.importData()` 据此在本机作答写失败时明确提示「错题仓库已保存，但本机作答写入失败…」，不再只显示“已导入”。验证：新增 4 条真实 app-core 回归（失败保留内存、save 返回 false/true、恢复可写后补写、导入提示静态守卫）；全量 625/0；`verify_flows` 16/16。
+
+## 第 111 条：交卷成绩写盘失败被静默吞掉，页面照常显示成绩（2026-11-28）
+
+`exam.js` 的 `save(k,v)` 在 `localStorage.setItem` 抛错时只 `console.warn`，不返回成败；交卷分支 `save(KEY_RESULTS, all)` 后直接 `renderResult()`，配额满/只读存储时页面照常显示这次成绩，刷新后成绩消失，用户以为已经保存。修成 `save` 返回布尔，交卷分支接住 `resultSaved`，失败时 `toast('成绩保存失败：本地存储不可写，刷新后这次成绩可能丢失')`（自动交卷的英文提示之后仍会补这条）。验证：静态回归要求 `save` 有 `return ok`、交卷处接住 `resultSaved` 并提示失败，旧代码在「save 没有返回写入成败」处失败；全量 628/0。

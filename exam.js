@@ -86,7 +86,7 @@
     const on = a.dataset.module === MODE;
     a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page');
   });
-  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(k); } catch (e2) { console.warn('同步通知未生效', e2); } } catch (e) { console.warn('保存会话失败', e); } };
+  const save = (k, v) => { let ok = true; try { localStorage.setItem(k, JSON.stringify(v)); if (window.TDSync) try { window.TDSync.notify(k); } catch (e2) { console.warn('同步通知未生效', e2); } } catch (e) { ok = false; console.warn('保存会话失败', e); } return ok; };
   const load = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
   /* 仓库被写成对象/数组以外的东西时，别让 .forEach 把整页打崩：
      两个存取器把「形状不对」的存档一律降级成空列表/空对象。 */
@@ -1177,10 +1177,11 @@
     };
     S.result = result;
     const all = asArr(load(KEY_RESULTS)); all.push(result); if (all.length > 40) all.shift();
-    save(KEY_RESULTS, all);                       // independent store; original state untouched
+    const resultSaved = save(KEY_RESULTS, all);    // independent store; original state untouched
     persist();
     renderResult(); setStage('result'); window.scrollTo(0, 0);
     if (auto) toast(OFFICIAL ? 'Time is up. Your test was submitted automatically and answers are locked.' : '时间归零 · 已自动交卷并锁定答案');
+    if (!resultSaved) toast('成绩保存失败：本地存储不可写，刷新后这次成绩可能丢失');
   }
 
   function renderResult() {
