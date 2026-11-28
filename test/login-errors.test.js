@@ -338,3 +338,19 @@ test('邮件链接、重置密码、验证码三条通道各算各的 60 秒冷�
   assert.match(acct, /otpCooldowns\.code/);
   assert.match(acct, /startOtpCooldown\(loginMode\)/);
 });
+
+test('会话过期退出先重绘再写状态，别被“未登录”盖掉', () => {
+  const st = acct.slice(acct.indexOf('function onState'), acct.indexOf('function buildUI'));
+  const draw = st.indexOf('renderBody()');
+  const msg = st.indexOf("if (was) setStatus('已退出登录");
+  assert.ok(draw >= 0 && msg >= 0, '会话过期退出缺少重绘或提示');
+  assert.ok(draw < msg, '退出提示写在重绘之前，会被“未登录”覆盖');
+});
+
+test('退出登录不把上一个人的邮箱和重置面板状态留给下一个人', () => {
+  const out = acct.slice(acct.indexOf('async function doSignOut'), acct.indexOf('function openAuthNoticeOnce'));
+  assert.match(out, /pwdEmail = ''/, '退出后仍预填上一个账号的邮箱');
+  assert.match(out, /otpEmail = ''/, '退出后仍记得上一个验证码发到哪个邮箱');
+  assert.match(out, /recoveryOpened = false/, '退出后重置面板仍被记成已自动打开');
+  assert.match(out, /sessionStorage\.removeItem\('tdsat_recovery_opened'\)/, '退出后没清重置面板的会话标记');
+});

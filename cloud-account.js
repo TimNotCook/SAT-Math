@@ -1182,6 +1182,12 @@
     needConfirm = false;
     confirmCooldown = 0;
     if (confirmTimer) { clearInterval(confirmTimer); confirmTimer = null; }
+    /* 邮箱是个人标识，不该在共享设备上留给下一个人；重置标记也要复位，
+       否则下一个人从重置链接回来会以为面板已经开过。 */
+    pwdEmail = '';
+    otpEmail = '';
+    recoveryOpened = false;
+    try { sessionStorage.removeItem('tdsat_recovery_opened'); } catch (e) { /* 存储不可用就算了 */ }
     /* 邮件链接/验证码/重置共用的 60 秒冷却也不能跨账号留着：上一个人刚发过，
        下一个人刚打开登录页就看到按钮被禁用，还会把“重新获取”当成自己点过。 */
     otpCooldowns = { link: 0, reset: 0, code: 0 };
@@ -1284,8 +1290,10 @@
       if (ui) ui.btn.setAttribute('data-on', '0');
       /* 会话过期/在别处退出也回到登录页，别把注册或重置表单留在面板上。 */
       if (was) loginMode = 'password';
-      if (was) setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
+      /* 先重绘再写提示：未登录重绘会把状态栏改成「未登录」，会话过期
+         的退出提示写在前面会被吞掉，用户以为只是页面自己刷新了一下。 */
       renderBody();
+      if (was) setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
     }
     openAuthNoticeOnce();
   }
