@@ -1127,6 +1127,9 @@
   function closePanel() {
     if (!ui || !ui.layer) return;
     ui.layer.setAttribute('data-open', '0');
+    /* 关掉面板时把上次的报错清掉：否则用户隔天再打开，注册页还挂着
+       “密码或邮箱不对”，像是刚才又输错了一次。 */
+    setError('');
     if (ui.btn && ui.btn.focus) ui.btn.focus();
   }
 
@@ -1576,6 +1579,10 @@
     }
 
     var em = field('邮箱或手机号', 'text', '邮箱或手机号', 'username');
+    /* 这一格同时收邮箱和手机号，不能用 type=email；但 text 在手机上会把
+       首字母自动大写，邮箱就登不进去了。统一关掉自动大写和拼写检查。 */
+    em.input.autocapitalize = 'none';
+    em.input.spellcheck = false;
     if (seed) em.input.value = seed;
     ui.email = em.input;
     b.appendChild(em.box);

@@ -198,3 +198,14 @@ test('注册请求断网超时后，用同一组账密确认是否其实已建�
   assert.match(fn, /return;/, '确认登录成功后没有直接结束，仍会报网络错误');
   assert.match(fn, /catch \(e2\)/, '确认登录失败没兜住，会把“密码错误”盖到网络错误上');
 });
+
+test('关闭账号面板时清掉上次的错误，重开不显示隔夜报错', () => {
+  const fn = acct.slice(acct.indexOf('function closePanel'), acct.indexOf('function onState'));
+  assert.match(fn, /setError\(''\)/, '关闭面板没清错误');
+});
+
+test('登录框同时收邮箱/手机号，但关掉自动大写，邮箱不会被改成 Tim@', () => {
+  const seg = acct.slice(acct.indexOf("var em = field('邮箱或手机号'"), acct.indexOf("var pw = field('密码'"));
+  assert.match(seg, /em\.input\.autocapitalize = 'none'/, '登录邮箱首字母会被自动大写');
+  assert.match(seg, /em\.input\.spellcheck = false/, '登录邮箱被拼写检查改字');
+});
