@@ -98,6 +98,9 @@
   function fmtDur(sec) {
     var n = num(sec);
     if (n == null || n < 0) return '—';
+    /* 不到一分钟要按秒显示：整分钟取整会把 17 秒写成「0 min」，
+       看起来像没计时。 */
+    if (n < 60) return Math.round(n) + ' 秒';
     var m = Math.floor(n / 60);
     return m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : m + ' min';
   }
