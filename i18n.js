@@ -247,7 +247,6 @@
     '顶点式求系数再求 f(-2)-f(0)': 'Coefficients from vertex form, then f(-2) - f(0)',
     '频数表求中位数（填空）': 'Median from a frequency table (fill-in)',
     '该单元暂无错题记录': 'No wrong answers in this unit yet',
-    '题库暂无错题，仅显示导入错题': 'No wrong answers in the bank; imported ones only',
 
     /* 讲义 / 记录 */
     '教材原题': 'Textbook question',
@@ -293,7 +292,6 @@
     '重试失败项': 'Retry failed items',
     '拖入 / 点击选择截图，或直接粘贴（Ctrl/Cmd+V），松开即自动识别导入': 'Drop or click a screenshot, or paste (Ctrl/Cmd+V) to import automatically',
     '只切换界面文字；题目、讲义原文与你的作答记录不变。': 'Only interface text changes; questions, lecture text and your answers stay as they are.',
-    '语言偏好自动保存在这台设备': 'Language is saved on this device',
     '已答': 'Answered',
     '当前': 'Current',
     '清空': 'Clear',
