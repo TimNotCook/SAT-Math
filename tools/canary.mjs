@@ -65,20 +65,31 @@ async function checkPage(file) {
 }
 
 async function checkRelease() {
-  try {
-    const r = await get(new URL('release.json', BASE).href + '?v=' + Date.now());
-    if (r.status !== 200) return record('release.json', false, 'HTTP ' + r.status);
-    let j;
-    try { j = JSON.parse(r.text); } catch (e) { return record('release.json', false, '不是合法 JSON'); }
-    if (!/^[0-9a-f]{40}$/.test(String(j.commit || ''))) return record('release.json', false, 'commit 不是 40 位 SHA');
-    if (!j.builtAt || Number.isNaN(Date.parse(j.builtAt))) return record('release.json', false, 'builtAt 缺失/非法');
-    if (EXPECTED_SHA && String(j.commit).toLowerCase() !== EXPECTED_SHA) {
-      return record('release.json', false, '线上 ' + String(j.commit).slice(0, 7) + '，预期 ' + EXPECTED_SHA.slice(0, 7));
-    }
-    return record('release.json', true, String(j.short || j.commit.slice(0, 7)) + ' @ ' + j.builtAt);
-  } catch (e) {
-    return record('release.json', false, '请求失败: ' + (e && e.message || e));
+  /* Pages 换 artifact 时 release.json 会短暂 404，版本号却可能已经更新；
+     workflow_run 刚结束时尤其容易撞上。给 8 次、每次 5 秒的传播窗口，
+     真 404 仍会红，只是晚 40 秒。 */
+  let last = '';
+  for (let i = 0; i < 8; i++) {
+    try {
+      const r = await get(new URL('release.json', BASE).href + '?v=' + Date.now() + '&r=' + i);
+      if (r.status !== 200) { last = 'HTTP ' + r.status; }
+      else {
+        let j;
+        try { j = JSON.parse(r.text); } catch (e) { last = '不是合法 JSON'; j = null; }
+        if (j) {
+          if (!/^[0-9a-f]{40}$/.test(String(j.commit || ''))) last = 'commit 不是 40 位 SHA';
+          else if (!j.builtAt || Number.isNaN(Date.parse(j.builtAt))) last = 'builtAt 缺失/非法';
+          else if (EXPECTED_SHA && String(j.commit).toLowerCase() !== EXPECTED_SHA) {
+            last = '线上 ' + String(j.commit).slice(0, 7) + '，预期 ' + EXPECTED_SHA.slice(0, 7);
+          } else {
+            return record('release.json', true, String(j.short || j.commit.slice(0, 7)) + ' @ ' + j.builtAt);
+          }
+        }
+      }
+    } catch (e) { last = '请求失败: ' + (e && e.message || e); }
+    if (i < 7) await new Promise(resolve => setTimeout(resolve, 5000));
   }
+  return record('release.json', false, last || '未知失败');
 }
 
 async function checkVersion() {
