@@ -43,11 +43,14 @@ test('讲义结果页：结果/题答对/错题/答案标签按界面语言出',
   ]) assert.ok(s.includes(frag), '讲义结果页丢了英文分支：' + frag);
 });
 
-test('题库胶囊：单位词与「题/ questions」按语言重画', () => {
-  assert.ok(read('exam.html').includes('id="bankQW"'), 'exam.html 的题库胶囊丢了 bankQW 结构');
+test('题库胶囊：整条按语言重写，且不依赖 HTML 里的额外节点', () => {
   const s = read('exam.js');
   assert.ok(s.includes('function paintBankPill()'), 'exam.js 缺 paintBankPill');
-  assert.match(s, /q\.textContent = en \? ' questions' : ' 题'/, '题库胶囊单位词回退成硬编码');
+  /* 补丁机制会把 exam.html 来回覆盖成旧结构，所以胶囊必须自建 innerHTML 才自愈；
+     只要出现对 bankQW / bankPillUnit 的外部依赖，就说明又退回了「靠 HTML 结构」的写法。 */
+  assert.ok(s.includes("pill.innerHTML = (en ? 'This unit ' : '本单元 ')"), '题库胶囊没按语言重建整条');
+  assert.ok(!s.includes("$('bankQW')"), '题库胶囊又依赖 exam.html 里的 bankQW 节点');
+  assert.ok(!s.includes("$('bankPillUnit')"), '题库胶囊又依赖 exam.html 里的 bankPillUnit 节点');
 });
 
 test('抽查成绩页：模式标题/日期/题号位置按界面语言出', () => {

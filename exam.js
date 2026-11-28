@@ -1493,11 +1493,15 @@
      ===================================================================== */
   /* 「本单元 268 题」这条题库胶囊：单位词按界面语言写死，
      避免中英混排（i18n 逐节点翻译管不到拼在 HTML 里的那半个词）。 */
+  /* 「本单元 268 题」这条题库胶囊整条按界面语言重写 innerHTML，而不是只改里面的某段文本：
+     几个并发补丁来回覆盖 exam.html，旧结构（「本单元 <span>268</span> 题」）随时会被写回来，
+     那时英文界面就剩一个孤零零的中文「题」。这里自己重建结构，HTML 被回写也能自愈。 */
   function paintBankPill() {
     const en = !!(window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en');
-    const n = $('bankCount'); if (n) n.textContent = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
-    const u = $('bankPillUnit'); if (u) u.textContent = en ? 'This unit' : '本单元';
-    const q = $('bankQW'); if (q) q.textContent = en ? ' questions' : ' 题';
+    const total = String(OFFICIAL ? 0 : ((UNITS.find(u => u.id === QUIZ_UNIT) || {}).total || BANK.length));
+    const pill = $('bankPill');
+    if (!pill) return;
+    pill.innerHTML = (en ? 'This unit ' : '本单元 ') + '<span id="bankCount">' + total + '</span>' + (en ? ' questions' : ' 题');
   }
   function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600); }
 
