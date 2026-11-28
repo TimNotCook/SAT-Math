@@ -818,3 +818,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 115 条：写一半失败、回滚时又读不到盘，云端半成品键留在本机（2026-11-28）
 
 `applyPayload()` 的失败回滚先用 `snapshot()` 列出当前键再逐个删除。写入进行到一半配额才满时会走到回滚；如果此时 `localStorage.length/key()` 也开始抛错（无痕/站点数据被禁用的常见组合），`snapshot()` 返回 `null`，`Object.keys(null)` 在 try 里被吞掉，回滚只把旧 `cur` 写回去，**已经写进去的前半份云端键没有删掉**，本机留下「半份云端新档 + 本机旧档」的混合状态。修成写之前先记下 `written`（clean+keep 的全部键），回滚不依赖再次读盘，先按 `written` 删干净再恢复旧档。验证：注入第 3 次 setItem 失败、第 2 次 length 读取失败的组合，旧代码留下 `tdsat_extra_v1` 半成品键，新代码回滚后旧档不变且多余键为 undefined；全量 632/0；`verify_flows` 16/16。
+
+## 第 116 条：练习页交卷写盘失败仍跳成绩页，用户会看到「这一节没交」（2026-11-28）
+
+`drill.finishSection()` 把 `st.submitted=true` 后调用 `A.save()`，无论返回什么都直接跳 `resultUrl`。`A.save()` 现在能返回写盘失败（配额满/存储只读），但练习页还按旧的“永远成功”处理：交卷标记没落盘，成绩页重新加载后读到旧的未交卷存档，用户做完一整节却看到没交；题目作答也只剩内存。修成新增 `saveDrill()`：检查 `A.save()` 返回值，失败只提示一次「进度保存失败…」；交卷时失败则把 `submitted/submittedAt` 回退、留在本题等重试，不再跳去读旧盘。换题时的游标保存也改走 `saveDrill()`。验证：新增 2 条静态守卫（失败提示、交卷不跳页）；全量 635/0；`verify_flows` 16/16。

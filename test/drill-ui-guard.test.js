@@ -18,3 +18,11 @@ test('关闭计算器走 TD_UI 的 closeCalculator，不再查不存在的 windo
   assert.match(JS, /!allow && U && typeof U\.closeCalculator === 'function'/,
     '没有用 TD_UI.closeCalculator 关闭已打开的计算器');
 });
+
+test('练习页保存失败时提示一次，不把 A.save() 当永远成功', () => {
+  assert.match(JS, /function saveDrill\(\) \{[\s\S]*?var ok = A\.save\(\);[\s\S]*?进度保存失败/, 'A.save() 失败仍静默，刷新后作答丢失');
+});
+
+test('交卷标记写盘失败时不跳成绩页，留在本题等重试', () => {
+  assert.match(JS, /if \(!saveDrill\(\)\) \{[\s\S]*?st\.submitted = false;[\s\S]*?return;[\s\S]*?location\.href = resultUrl\(section\);/, '交卷写盘失败仍跳到读旧盘的成绩页，页面会显示这一节没交');
+});

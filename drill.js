@@ -378,7 +378,13 @@
     var st = A.secState(section, true);
     st.submitted = true;
     st.submittedAt = Date.now();
-    A.save();
+    if (!saveDrill()) {
+      /* 交卷标记没落盘就跳成绩页，新页面会读回旧存档：这一节看起来没交，
+         用户以为白做。留在本题，等存储恢复后重点一次“交卷”。 */
+      st.submitted = false;
+      delete st.submittedAt;
+      return;
+    }
     if (window.TD_SAVE) window.TD_SAVE.manualSave();
     location.href = resultUrl(section);
   }
@@ -398,6 +404,19 @@
     t.classList.add('show');
     clearTimeout(drillToast._t);
     drillToast._t = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+  /* A.save() 现在会明确返回写盘成败：练习页不能像以前一样当作永远成功。
+     写失败时内存还在（app-core 已保留），但刷新会丢；提示一次，交卷时更要
+     停下来让用户先清理存储，不能直接跳到读旧盘的成绩页。 */
+  var drillSaveWarned = false;
+  function saveDrill() {
+    var ok = A.save();
+    if (!ok && !drillSaveWarned) {
+      drillSaveWarned = true;
+      drillToast('进度保存失败：本地存储不可写，刷新后可能丢失');
+    }
+    if (ok) drillSaveWarned = false;
+    return ok;
   }
   /* ---------------- question view ---------------- */
   function currentQuestion() { return questions[index] || null; }
@@ -471,7 +490,7 @@
     if (!syncHistory(replace)) return;
     A.setCursor(section, index);
     A.state.last = { sec: section, qid: currentQuestion().id, ts: Date.now() };
-    A.save();
+    saveDrill();
     if (window.TD_SAVE) window.TD_SAVE.autosave();
     render();
     if (focusQuestion) {
