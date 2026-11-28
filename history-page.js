@@ -258,7 +258,10 @@
       /* 这里原来会跟着印「→ Drill this skill; questions to redo: TD-13-05」和
          「（错题：TD-13-05、TD-12-02…）」——同一串内部题号出现两三遍，句子还长。
          一块只留「补什么」和「为什么」两句，指向哪里由上面的错题卡负责。 */
-      return '<div class="hist-prio-row"><b>' + esc(txt(p.name) || '—') + '</b>' +
+      /* 知识点名后面常被上游拼上「· Question 12」/「· 第 12 题」——那是内部题号，
+         跟「错几条」没关系，留着只是噪音。 */
+      var nm = txt(p.name).replace(/\s*[·•]\s*(Question\s*\d+|第\s*\d+\s*题)\s*$/i, '');
+      return '<div class="hist-prio-row"><b>' + esc(nm || '—') + '</b>' +
         '<small>' + esc(trimReason(txt(p.reason))) + '</small></div>';
     }).join('') + '</div>';
   }

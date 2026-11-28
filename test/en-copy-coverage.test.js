@@ -102,4 +102,5 @@ test('记录页：错题不印内部题号、只列前 4 条、建议不带长�
   assert.ok(!js.includes("ids.join(', ')"), '又拼回「(missed: TD-…）」题号串');
   assert.ok(js.includes('function trimReason'), '缺时间噪音剥离');
   assert.ok(js.includes('function fmtStamp'), '卡头日期没走短格式');
+  assert.ok(/Question\\s\*\\d\+/.test(js) || js.includes('Question\\\\s'), '知识点名里的「· Question N」没剥掉');
 });
