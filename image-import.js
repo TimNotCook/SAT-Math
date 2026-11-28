@@ -5,14 +5,21 @@
    随单次模型请求发送，不落盘、不进错题数据。 */
 (function () {
   'use strict';
-  var A = window.TD_APP;
+  /* 不能在这里把 TD_APP 拷死：脚本执行顺序一变（或 app.js 慢半拍），
+     拷到的就是 undefined，后面一渲染候选就 TypeError，整块面板看着像"识别失败"。 */
+  function APP() { return window.TD_APP || {}; }
   var MARK = 'image_import_v1';
   var pages = [], busy = false, cloud = null;
   var CFG = window.TD_CLOUD_CONFIG || null;
   var state = { model: 'auto', ocr: [] };
 
   function $(id) { return document.getElementById(id); }
-  function esc(s) { return A.esc(s); }
+  function esc(s) {
+    var app = APP();
+    if (app.esc) return app.esc(s);
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
   var ENGINE_LAST_ERR = '';
   function ocrEnv() {
     var wasm = false;
@@ -35,6 +42,7 @@
         ' · cache ' + (e.sw ? 'sw✓' : 'sw✗ 7 MB on first use') +
         ' · ' + (OCR_READY ? 'ready' : 'not ready') +
         self +
+        (LAST_TIMING ? ' · last run: ' + LAST_TIMING : '') +
         (ENGINE_LAST_ERR ? ' · last error: ' + ENGINE_LAST_ERR : '');
       return;
     }
@@ -42,11 +50,12 @@
       ' · 缓存 ' + (e.sw ? 'sw✓' : 'sw✗ 首贴要现下 7MB') +
       ' · 引擎 ' + (OCR_READY ? '就绪' : '未就绪') +
       (SELF_LINE ? ' · ' + SELF_LINE : '') +
+      (LAST_TIMING ? ' · 上次耗时：' + LAST_TIMING : '') +
       (ENGINE_LAST_ERR ? ' · 上次错误：' + ENGINE_LAST_ERR : '');
   }
   /* SILENT 期间（自动自检跑那几秒）不抢状态栏：自检是后台验证，把"正在识别文字…"
      盖在用户真正的导入进度上，人会以为自己的题在反复重试，或者干脆以为卡住了。 */
-  var SILENT = false;
+  var SILENT = false, LAST_TIMING = '';
   var RESULT_AT = 0;   // 上一次"有结论"的时间（导入成功/没找到/跳过这种），用来给进度消息让位
   var IS_RESULT = function (m) { return /导入|最像|已在|没找到|认不出|待整理|跳过|没把握/.test(m); };
   function status(msg) {
@@ -62,7 +71,7 @@
   }
   function progress(n, total) { var el = $('imgimpBar'); if (el) el.style.width = (total ? Math.round(n / total * 100) : 0) + '%'; }
 
-  /* ---------------- 本地匹配器（与题库自测 top1 93% / top3 99%） ---------------- */
+  /* ---------------- 本地匹配器（题库自测 top1 93% / top3 100%，含截断与噪声场景） ---------------- */
   var STOP = new Set(['the','a','an','of','to','in','is','are','and','or','for','on','at','by','with','that','this',
     'what','which','where','when','how','if','it','its','as','from','be','been','being','each','than','then','into',
     'about','all','one','two','three','per','total','value','given','following','equation','represents','closest',
@@ -159,7 +168,7 @@
   function buildIndex() {
     if (INDEX) return INDEX;
     INDEX = [];
-    (window.TD_BANK ? window.TD_BANK.questions : (A.BANK && A.BANK.questions) || []).forEach(function (q) {
+    (window.TD_BANK ? window.TD_BANK.questions : (APP().BANK && APP().BANK.questions) || []).forEach(function (q) {
       var e = (window.TD_TEXT || {})[q.id] || {};
       var stem = e.stem || q.stem || '';
       var n = norm(stem), nc = norm(choicesText(e));
@@ -219,7 +228,9 @@
      选项标记处截断，只拿题干部分的数字去校验。 */
   function stripChoices(text) {
     var t = String(text || '');
-    var m = t.match(/(?:^|[\s\n])(A|a)\s*[)\.]\s/);
+    /* OCR 常把 "A) 2/7" 读成 "A)2/7"（右括号后没空格），旧正则要求必须有空白，
+       于是选项数字漏进题干指纹，把本来能对上的题判成"数字不符"。这里允许无空格。 */
+    var m = t.match(/(?:^|[\s\n])(?:\(\s*[Aa]\s*\)|[Aa]\s*[).])\s*(?=[\-\d(])/);
     return m && m.index > 20 ? t.slice(0, m.index) : t;
   }
 
@@ -905,6 +916,25 @@
      而不是 OCR 自己的置信度——认错字但认得很自信的情况太常见。 */
   /* 反色：深色背景的截图（暗色模式 PDF、拍照的黑板/屏幕）Tesseract 直接认不出，
      把像素取反变成白底黑字它就能读。只在前几遍分数都不够时用，不占常规耗时。 */
+  /* 亮度采样：判断这张截图是不是深色底（暗色模式/拍照屏幕）。
+     浅底截图去取反纯属浪费一遍 OCR（实测多花 0.5–0.7 秒），没意义。 */
+  function imageLuma(dataUrl) {
+    return new Promise(function (res) {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var cv = document.createElement('canvas'); cv.width = 24; cv.height = 24;
+          var cx = cv.getContext('2d'); cx.drawImage(img, 0, 0, 24, 24);
+          var d = cx.getImageData(0, 0, 24, 24).data, sum = 0;
+          for (var i = 0; i < d.length; i += 4) sum += (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114);
+          res(sum / (d.length / 4));
+        } catch (e) { res(-1); }
+      };
+      img.onerror = function () { res(-1); };
+      img.src = dataUrl;
+    });
+  }
+
   function invertImage(dataUrl) {
     return new Promise(function (res) {
       var img = new Image();
@@ -975,14 +1005,30 @@
         if (!v) return best;
         return run(v, 'zoom').then(function (sc2) {
           if (sc2 >= 0.62 || (best && best.score >= 0.5)) return best;
+          /* 原图和放大后都不像题库（<0.25）：说明不是"预处理没调好"，而是题库里
+             多半没这道题。再磨灰度和取反只是让人多等一秒多，直接收手、把候选摆出来。
+             例外：深色底截图本来就该取反，先量一下亮度再说。 */
+          var weak = !best || best.score < 0.25;
+          if (weak) {
+            return imageLuma(dataUrl).then(function (luma) {
+              if (luma < 0 || luma > 120) return best;   /* 浅底：不折腾了 */
+              return invertImage(dataUrl).then(function (v3) {
+                if (!v3) return best;
+                return run(v3, 'invert').then(function () { return best; });
+              });
+            });
+          }
           return scaleImage(dataUrl, 1.25, true).then(function (v2) {
             if (!v2) return best;
             return run(v2, 'gray').then(function (sc3) {
               if (sc3 >= 0.5 || (best && best.score >= 0.42)) return best;
-              /* 深色背景最后补一刀：取反后再认一次 */
-              return invertImage(dataUrl).then(function (v3) {
-                if (!v3) return best;
-                return run(v3, 'invert').then(function () { return best; });
+              /* 深色背景最后补一刀：先测亮度，浅底就不浪费这一遍 */
+              return imageLuma(dataUrl).then(function (luma) {
+                if (luma < 0 || luma > 120) return best;
+                return invertImage(dataUrl).then(function (v3) {
+                  if (!v3) return best;
+                  return run(v3, 'invert').then(function () { return best; });
+                });
               });
             });
           });
@@ -1149,9 +1195,9 @@
       '<div class="imgimp-ocr">' + stem + '</div>' + matched + picks + '</div></article>';
   }
   function findQ(id) {
-    for (var i = 0; i < A.SECS.length; i++) {
-      var q = (A.CATALOG[A.SECS[i]] || []).find(function (x) { return x.id === id; });
-      if (q) return { sec: A.SECS[i], q: q };
+    for (var i = 0; i < APP().SECS.length; i++) {
+      var q = (APP().CATALOG[APP().SECS[i]] || []).find(function (x) { return x.id === id; });
+      if (q) return { sec: APP().SECS[i], q: q };
     }
     return null;
   }
@@ -1171,26 +1217,26 @@
     if (b) b.hidden = !lastAdded.length;
   }
   function undoLast() {
-    if (!A || !lastAdded.length) { status('没有可撤销的导入'); return 0; }
+    if (!window.TD_APP || !lastAdded.length) { status('没有可撤销的导入'); return 0; }
     var n = 0, removed = [];
     lastAdded.forEach(function (qid) {
       var hit = findQ(qid); if (!hit) return;
-      var st = A.secState(hit.sec, false);
+      var st = APP().secState(hit.sec, false);
       var a = st && st.answers[hit.q.id];
       if (a && a.importSrc === MARK) {
         removed.push({ sec: hit.sec, q: hit.q.id, a: a });
-        delete st.answers[hit.q.id]; st.completed = A.stats(hit.sec).completed; n++;
+        delete st.answers[hit.q.id]; st.completed = APP().stats(hit.sec).completed; n++;
       }
     });
     var savedUndo = true;
     if (n) {
-      savedUndo = A.save();
+      savedUndo = APP().save();
       /* 写盘失败时内存里已经删掉了，但盘上还是导入记录；这时把内存也恢复，
          撤销按钮保留，用户再点一次就能重试，避免“看起来撤了、下次自动保存又写回去”。 */
       if (!savedUndo) {
         removed.forEach(function (x) {
-          var st2 = A.secState(x.sec, true);
-          if (st2) { st2.answers[x.q] = x.a; st2.completed = A.stats(x.sec).completed; }
+          var st2 = APP().secState(x.sec, true);
+          if (st2) { st2.answers[x.q] = x.a; st2.completed = APP().stats(x.sec).completed; }
         });
       }
     }
@@ -1206,22 +1252,22 @@
   }
 
   function importChecked(keepBatch) {
-    if (!A) return { added: 0, message: '题库未就绪' };
+    if (!window.TD_APP) return { added: 0, message: '题库未就绪' };
     if (!keepBatch) beginBatch();
     var conflicts = [], now = Date.now(), added = 0, alreadys = 0;
     pages.forEach(function (p) {
       if (!p.checked || !p.qid) return;
       var hit = findQ(p.qid); if (!hit) return;
-      var old = A.secState(hit.sec, false), cur = old && old.answers[hit.q.id];
+      var old = APP().secState(hit.sec, false), cur = old && old.answers[hit.q.id];
       if (cur) {
         /* 错题记录只增不改：该题已有任何作答记录（真实作答或此前导入），一律跳过，绝不覆盖。 */
         if (cur.importSrc === MARK) { alreadys++; return; }
         conflicts.push({ page: p.i, qid: hit.q.id, v: cur.v });
         return;
       }
-      var st = A.secState(hit.sec, true); if (!st) return;
+      var st = APP().secState(hit.sec, true); if (!st) return;
       st.answers[hit.q.id] = { v: '', correct: false, ts: now, importSrc: MARK };
-      st.completed = A.stats(hit.sec).completed;
+      st.completed = APP().stats(hit.sec).completed;
       rememberAdd(hit.q.id);
       added++;
     });
@@ -1229,9 +1275,9 @@
     if (alreadys) msg += '；' + alreadys + ' 道此前已导入过，不重复写';
     if (conflicts.length) msg += '；' + conflicts.length + ' 道已有作答记录，按只增不改原则跳过（未改动）';
     if (!added) { status(msg); return { added: 0, skipped: conflicts.length, dups: alreadys, message: msg }; }
-    /* A.save() 会返回写盘成败：存储满/只读时内存里有记录，但刷新就没了，
+    /* APP().save() 会返回写盘成败：存储满/只读时内存里有记录，但刷新就没了，
        不能再只报“已导入”。 */
-    var localWriteFailed = !A.save();
+    var localWriteFailed = !APP().save();
     refreshHost();
     if (localWriteFailed) msg += '；但本机进度写入失败，刷新后这些题可能丢失，请清理存储空间后重试';
     status(msg);
@@ -1287,10 +1333,10 @@
      同一道题在 CATALOG 里另有一份（题干一模一样）。按题干建索引，指回那份可写的。 */
   var aliasMap = null;
   function ensureAlias() {
-    if (aliasMap || !A) return;
+    if (aliasMap || !window.TD_APP) return;
     aliasMap = {};
-    A.SECS.forEach(function (sec) {
-      (A.CATALOG[sec] || []).forEach(function (q) {
+    APP().SECS.forEach(function (sec) {
+      (APP().CATALOG[sec] || []).forEach(function (q) {
         var k = norm(String(q.stem || '')).slice(0, 120);
         if (k && !aliasMap[k]) aliasMap[k] = { id: q.id, sec: sec, no: q.no };
       });
@@ -1355,20 +1401,20 @@
     return list.length;
   }
   function importSingle(qid, keepBatch) {
-    if (!A) return { added: 0 };
+    if (!window.TD_APP) return { added: 0 };
     var hit = findQ(qid); if (!hit) return { added: 0 };
-    var old = A.secState(hit.sec, false), cur = old && old.answers[hit.q.id];
+    var old = APP().secState(hit.sec, false), cur = old && old.answers[hit.q.id];
     if (cur) {
       status('这道题已有作答记录，按「只增不改」原则没有改动（' + hit.sec + ' · #' + hit.q.no + '）。');
       return { added: 0, skipped: 1 };
     }
-    var st = A.secState(hit.sec, true);
+    var st = APP().secState(hit.sec, true);
     if (!st) return { added: 0 };
     if (!keepBatch) beginBatch();
     st.answers[hit.q.id] = { v: '', correct: false, ts: Date.now(), importSrc: MARK };
-    st.completed = A.stats(hit.sec).completed;
+    st.completed = APP().stats(hit.sec).completed;
     rememberAdd(hit.q.id);
-    var savedOne = A.save();
+    var savedOne = APP().save();
     refreshHost();
     var oneMsg = '已导入 ' + hit.sec + ' · #' + hit.q.no + '（点上面「在题库里找」还能继续加）。';
     if (!savedOne) oneMsg += '；但本机进度写入失败，刷新后这道题可能丢失';
@@ -1466,14 +1512,18 @@
         }
         status('正在识别第 ' + p.i + ' / ' + pages.length + ' 块…');
         // 多种预处理各认一遍，取"跟题库最对得上"的那一版，不迷信 OCR 自己的置信度
+        var tOcr = Date.now();
         return ocrBest(p.dataUrl, state.model, Date.now() - t0 > 8000).then(function (bestRes) {
             var ocr = bestRes.ocr;
             if (bestRes.url) p.dataUrl = bestRes.url;
             p.ocr = ocr;
+            p.msOcr = Date.now() - tOcr;
             var stemTxt = String(ocr.stem || '').trim();
             var choicesTxt = ocr.choices ? Object.keys(ocr.choices).map(function (k) { return ocr.choices[k]; }).join(' ') : '';
             // 第一步：轻量文本匹配只用于召回候选（宽松；真实题库 top-10 覆盖已 ≈100%，取 15 留冗余）
+            var tMatch = Date.now();
             var recalled = matchQuestion(stemTxt, choicesTxt, 15);
+            p.msMatch = Date.now() - tMatch;
             // 用题库真实题干+选项构造判别候选（不是 OCR 文本）
             var bankCands = recalled.map(function (c) {
               var e = (window.TD_TEXT || {})[c.id] || {};
@@ -1527,6 +1577,8 @@
                 p.qid = ''; p.checked = false; p.cands = recalled.slice(0, 5);
               }
               p.ocr.stem = stemTxt;
+              p.msAll = Date.now() - tOcr;
+              LAST_TIMING = 'OCR ' + ((p.msOcr || 0) / 1000).toFixed(1) + 's · 对照 ' + (p.msMatch || 0) + 'ms · 合计 ' + ((p.msAll || 0) / 1000).toFixed(1) + 's';
               renderRows(); progress(p.i, pages.length);
             });
         }).catch(function (e) {
@@ -1628,7 +1680,7 @@
     getModel: function () { return state.model; },
     getModelChain: function () { return MODEL_CHAIN.slice(); },
     lastModel: function () { return pages.length && pages[pages.length - 1].ocr ? pages[pages.length - 1].ocr._model || '' : ''; },
-    getState: function () { return pages.map(function (p) { return { i: p.i, qid: p.qid, sec: p.qid ? (findQ(p.qid) || {}).sec : '', checked: p.checked, cands: p.cands.length, ocr: !!p.ocr, error: p.error, score: p.cands[0] && typeof p.cands[0].score === 'number' ? +p.cands[0].score.toFixed(3) : 0, gate: p.gate || '', skipReason: p.skipReason || '', matchInfo: p.matchInfo || null, ocrStem: p.ocr ? String(p.ocr.stem || '').slice(0, 160) : '', candIds: (p.cands || []).slice(0, 5).map(function (c) { return c.id; }) }; }); },
+    getState: function () { return pages.map(function (p) { return { i: p.i, qid: p.qid, sec: p.qid ? (findQ(p.qid) || {}).sec : '', checked: p.checked, cands: p.cands.length, ocr: !!p.ocr, error: p.error, score: p.cands[0] && typeof p.cands[0].score === 'number' ? +p.cands[0].score.toFixed(3) : 0, gate: p.gate || '', skipReason: p.skipReason || '', matchInfo: p.matchInfo || null, msOcr: p.msOcr || 0, msMatch: p.msMatch || 0, msAll: p.msAll || 0, ocrStem: p.ocr ? String(p.ocr.stem || '').slice(0, 160) : '', candIds: (p.cands || []).slice(0, 5).map(function (c) { return c.id; }) }; }); },
     debugSetPages: function (list) { pages = (list || []).map(function (p, i) { return { i: p.i || i + 1, qid: p.qid || '', checked: p.checked !== false, cands: p.cands || [], ocr: p.ocr || null, thumb: '', dataUrl: '', error: '' }; }); renderRows(); return pages.length; },
     isBusy: function () { return busy; },
     retryFailed: function () {
