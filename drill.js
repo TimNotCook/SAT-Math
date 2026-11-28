@@ -328,41 +328,43 @@
     var blank = total - right - wrong;
     var pct = total ? Math.round(right / total * 100) : 0;
 
-    els.resultTitle.textContent = A.sectionLabel(sec) + ' · 板块结果';
+    /* 英文模式下结果页别整段中文：标题、分数句、错题提示都按界面语言出。 */
+    var en = document.documentElement.getAttribute('data-lang') === 'en';
+    els.resultTitle.textContent = A.sectionLabel(sec) + ' · ' + (en ? 'Section result' : '板块结果');
     els.resultLead.textContent = '';
     els.resultAccuracy.textContent = pct + '%';
-    els.resultFraction.textContent = '答对 ' + right + ' / ' + total + ' 题';
+    els.resultFraction.textContent = en ? 'Correct ' + right + ' / ' + total : '答对 ' + right + ' / ' + total + ' 题';
     els.resultRight.textContent = String(right);
     els.resultWrong.textContent = String(wrong);
     els.resultBlank.textContent = String(blank);
     els.resultTotal.textContent = String(total);
     els.resultNotice.hidden = wrong === 0;
     els.resultNoticeText.textContent = wrong
-      ? wrong + ' 道错题已加入错题回顾。'
-      : '本板块没有错题。';
+      ? (en ? wrong + (wrong === 1 ? ' missed question' : ' missed questions') + ' added to Wrong Answers.' : wrong + ' 道错题已加入错题回顾。')
+      : (en ? 'No missed questions in this section.' : '本板块没有错题。');
 
     els.resultList.innerHTML = rows.map(function (r) {
       var state = !r.answered ? 'blank' : (r.correct ? 'right' : 'wrong');
       var icon = state === 'right' ? RIGHT_ICON : (state === 'wrong' ? WRONG_ICON : BLANK_ICON);
-      var label = state === 'right' ? '正确' : (state === 'wrong' ? '错误' : '未作答');
+      var label = state === 'right' ? (en ? 'Correct' : '正确') : (state === 'wrong' ? (en ? 'Incorrect' : '错误') : (en ? 'Unanswered' : '未作答'));
       var stem = ((window.TD_TEXT || {})[r.q.id] || {}).stem || r.q.stem || '';
       stem = String(stem).replace(/\s+/g, ' ').trim();
       var crossed = window.TD_CROSSOUT ? window.TD_CROSSOUT.list(r.q.id) : [];
       var causeHtml = '';
       if (state === 'wrong' && window.TD_ANALYSIS) {
         var a = window.TD_ANALYSIS.analyze(r.q, r.given, textFor(r.q));
-        causeHtml = '<div class="cause-box"><b>错因 · ' + esc(a.title) + '</b><p>' + esc(a.cause) +
+        causeHtml = '<div class="cause-box"><b>' + (en ? 'Why · ' : '错因 · ') + esc(a.title) + '</b><p>' + esc(a.cause) +
           '</p><p class="fix">' + esc(a.fix) + '</p></div>';
       }
       return '<article class="drill-result-row is-' + state + '">' +
-        '<div class="drill-result-row-head"><span class="drill-result-num">第 ' + r.n + ' 题</span>' +
+        '<div class="drill-result-row-head"><span class="drill-result-num">' + (en ? 'Question ' + r.n : '第 ' + r.n + ' 题') + '</span>' +
         '<span class="drill-result-state">' + icon + label + '</span>' +
-        '<a class="drill-result-jump" href="' + A.secUrl(sec, r.n) + '">查看本题</a></div>' +
+        '<a class="drill-result-jump" href="' + A.secUrl(sec, r.n) + '">' + (en ? 'View question' : '查看本题') + '</a></div>' +
         '<p class="drill-result-stem" title="' + esc(stem) + '">' + fmt(stem) + '</p>' +
-        '<div class="drill-result-answers"><div><span>你的答案</span><b>' +
-        fmt(answerLabel(r.q, r.given)) + '</b></div><div><span>正确答案</span><b>' +
+        '<div class="drill-result-answers"><div><span>' + (en ? 'Your answer' : '你的答案') + '</span><b>' +
+        fmt(answerLabel(r.q, r.given)) + '</b></div><div><span>' + (en ? 'Correct answer' : '正确答案') + '</span><b>' +
         fmt(answerLabel(r.q, r.q.answer)) + '</b></div></div>' +
-        (crossed.length ? '<div class="tiny muted crossout-note">划掉：' + crossed.join('、') + '</div>' : '') +
+        (crossed.length ? '<div class="tiny muted crossout-note">' + (en ? 'Crossed out: ' + crossed.join(', ') : '划掉：' + crossed.join('、')) + '</div>' : '') +
         causeHtml + '</article>';
     }).join('');
     els.resultPracticeLink.href = A.secUrl(sec, 1);
