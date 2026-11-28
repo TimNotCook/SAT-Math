@@ -1469,6 +1469,19 @@ html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:1
   /* 320 卡内只剩 214px，「Math · Practice Test」24px 要 233px，会在 Practice 后断行。
      21px 只需 204px，整句一行，也不再压住下面的副标题。 */
   html body.exam-page.is-mock #mockCardTitle{font-size:21px!important;line-height:1.25!important}
+  /* 讲义一列卡在 320 只有 232px，右侧还有 0/7 节和箭头，「问题解决与数据分析」
+     只能拿到 113px，14.5px 的 131px 放不下就被截成省略号。窄屏改成两行折行，
+     卡高 80px 仍装得下（两行 36px），不再牺牲板块名。 */
+  html body.jy-page #jyBoardCards .entry-tile b{white-space:normal!important;overflow:visible!important;
+    text-overflow:clip!important;line-height:1.25!important;word-break:normal!important;text-wrap:balance!important;min-width:0!important;flex:1 1 auto!important}
+  /* 空态卡 320 宽 232px，左右各 32/20px 的内边距把正文压到 168/192px：
+     记录页标题「还没有模考或抽查记录」要 200px，被拆成「…抽查 / 记录」；
+     错题页说明也被挤成三行、末行只剩「里。」。窄屏收内边距，标题回一行。 */
+  html body.shell-history .hist-list>.hist-empty{padding-left:12px!important;padding-right:12px!important}
+  html body .empty-panel{padding-left:12px!important;padding-right:12px!important}
+  /* 208px 正文宽度下，记录页说明会剩「里。」这种两字孤行；text-wrap:pretty 把前一行
+     的断点往回挪一个字，三行仍三行，但不再出现两字孤行。 */
+  html body .empty-panel p,html body .hist-empty .he-d{text-wrap:pretty}
 }
 
 /* 抽查开场左栏右侧那块空白：放一张本单元的浅色线稿，不做标签也不写字 */

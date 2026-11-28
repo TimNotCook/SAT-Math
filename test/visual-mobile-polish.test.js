@@ -36,3 +36,14 @@ test('手机模考卡三个数字等分成一行，320 不再把「of 2 modules�
 test('320 模考卡标题 21px 单行，不在 Practice 后断开', () => {
   assert.match(app, /html body\.exam-page\.is-mock #mockCardTitle\{font-size:21px!important;line-height:1\.25!important\}/);
 });
+
+test('320 讲义一列卡的长板块名允许两行，不再截成省略号', () => {
+  assert.match(app, /html body\.jy-page #jyBoardCards \.entry-tile b\{white-space:normal!important;overflow:visible!important;/);
+  assert.match(app, /text-overflow:clip!important;line-height:1\.25!important;word-break:normal!important;text-wrap:balance!important/);
+});
+
+test('320 空态卡收窄左右内边距，记录页标题不再拆成「…抽查 / 记录」', () => {
+  assert.match(app, /html body\.shell-history \.hist-list>\.hist-empty\{padding-left:12px!important;padding-right:12px!important\}/);
+  assert.match(app, /html body \.empty-panel\{padding-left:12px!important;padding-right:12px!important\}/);
+  assert.match(app, /html body \.empty-panel p,html body \.hist-empty \.he-d\{text-wrap:pretty\}/);
+});
