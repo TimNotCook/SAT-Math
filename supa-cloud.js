@@ -40,6 +40,7 @@
   var session = null;      // { access, refresh, expiresAt, user }
   var currentUser = null;  // 给上层看的精简对象 { uid, email, displayName }
   var sessionWriteFailed = false;
+  var revokeOthersFailed = false;
 
   function available() { return !!(BASE && KEY); }
   /* 没填 URL / anon key 就完全不动 */
@@ -474,6 +475,7 @@
   }
 
   async function setPassword(password) {
+    revokeOthersFailed = false;
     var pw = String(password || '');
     var pwErr = pwProblem(pw);
     if (pwErr) throw errOf(400, { msg: pwErr });
@@ -489,7 +491,10 @@
       await raw('/auth/v1/logout?scope=others', {
         method: 'POST', headers: authHeaders(tk), body: '{}', timeout: 15000
       });
-    } catch (e) { try { console.warn('revoke other sessions failed:', e && e.message); } catch (e2) {} }
+    } catch (e) {
+      revokeOthersFailed = true;
+      try { console.warn('revoke other sessions failed:', e && e.message); } catch (e2) {}
+    }
     return true;
   }
 
@@ -656,6 +661,7 @@
     signInPassword: signInPassword,
     maskAccount: maskAccount,
     sessionWriteFailed: function () { return sessionWriteFailed; },
+    revokeOthersFailed: function () { return revokeOthersFailed; },
     setPassword: setPassword,
     sendRecovery: sendRecovery,
     resendConfirmation: resendConfirmation,

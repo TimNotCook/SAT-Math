@@ -1153,3 +1153,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 192 条：邮件链接回跳时 token 可能留在地址栏（2026-11-28）
 
 邮件链接和重置链接把 `access_token` / `refresh_token` 放在 `location.hash` 回跳。代码用 `history.replaceState` 清地址，但失败时只有一句“老浏览器兜底”注释，实际什么都没做；隐私模式或受限 WebView 抛 `SecurityError` 时，token 会留在地址栏、浏览器历史和用户能复制的地方。现在清地址走 `scrubHash()`：先 `replaceState`，不行就把 `location.hash` 置空，再不行才 `location.replace(clean)` 重载；成功回跳和失效链接回跳都走同一条路。验证：`otp-login` 模拟 `replaceState` 抛错，断言 hash 被清空；全量 789/0。
+
+## 第 193 条：改密成功、却踢不掉其他设备时，界面说“密码已保存”就完了（2026-11-28）
+
+`setPassword` 改完当前密码后会调 `/auth/v1/logout?scope=others` 踢掉其他设备；失败时只 `console.warn`，仍然返回成功。用户看到“密码已保存，下次可以用这个账号登录”，以为旧手机/旧电脑已经失效，实际上它们手里的 refresh token 还能继续续期。现在记录 `revokeOthersFailed` 并通过 `TDSUPA.revokeOthersFailed()` 暴露，账号面板改成警告：密码已保存，但其他设备上的旧登录没能全部失效，请在那几台设备上退出后重新登录。验证：`password-login` 模拟踢会话 500，断言标记为真且界面有警告；全量 792/0。

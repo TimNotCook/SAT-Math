@@ -529,6 +529,7 @@
     '云端档案已合并到本机，但暂时无法写回云端，联网后会自动重试':
       'The cloud profile was merged into this device but could not be written back yet; it will retry when online.',
     '密码已保存，下次可以用这个账号登录。': 'Password saved. You can sign in with this account next time.',
+    '密码已保存，但其他设备上的旧登录没能全部失效；请在那几台设备上退出后重新登录。': 'Password saved, but other devices could not be signed out. Please sign out on those devices and sign in again.',
     '当前页面已退出，但浏览器拒绝清除登录缓存；刷新后可能仍处于登录状态，请先清出空间再退出':
       'You are signed out on this page, but the browser refused to clear the sign-in cache. A refresh may sign you back in; free some storage and sign out again.',
     '暂时无法读取你的学习档案，这台设备上的进度不受影响':

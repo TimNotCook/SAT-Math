@@ -277,6 +277,19 @@ test('改密后踢掉其他设备的会话，当前设备不被踢', async () =>
   assert.equal(kick.auth, 'Bearer tk-live', '踢会话没带当前 token');
 });
 
+test('改密成功但踢不掉其他设备时，不能假装其他设备都已失效', async () => {
+  const seed = { access: 'tk-live', refresh: 'rt-live', expiresAt: Date.now() + 3600e3, user: { id: 'uid-live' } };
+  const { SB } = loadModule(async (url, opts) => {
+    if (opts.method === 'GET') return makeRes(200, seed.user);
+    if (String(url).includes('/auth/v1/logout?scope=others')) return makeRes(500, { msg: 'server down' });
+    return makeRes(200, {});
+  }, seed);
+  await SB.setPassword('newpass123');
+  assert.equal(SB.revokeOthersFailed(), true, '踢会话失败被当成成功，用户以为旧设备都下线了');
+  const acct = fs.readFileSync(path.join(ROOT, 'cloud-account.js'), 'utf8');
+  assert.match(acct, /其他设备上的旧登录没能全部失效/, '界面没告诉用户其他设备可能仍在线');
+});
+
 test('重复邮箱返回 identities 为空的假 user，要识别成已注册而不是等确认', async () => {
   const calls = [];
   const { SB } = loadModule(async (url) => {

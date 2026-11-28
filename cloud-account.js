@@ -932,7 +932,11 @@
       ok = true;
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); renderBody(); }
-    if (ok) setStatus('密码已保存，下次可以用这个账号登录。', 'ok');
+    if (ok) {
+      if (SB && SB.revokeOthersFailed && SB.revokeOthersFailed()) {
+        setStatus('密码已保存，但其他设备上的旧登录没能全部失效；请在那几台设备上退出后重新登录。', 'warn');
+      } else setStatus('密码已保存，下次可以用这个账号登录。', 'ok');
+    }
   }
 
   function loginSuccess(msg) {
