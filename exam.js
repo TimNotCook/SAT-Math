@@ -96,7 +96,9 @@
      只判 typeof 会画出一行空字段的幽灵记录。 */
   const isRec = v => !!v && typeof v === 'object' && !Array.isArray(v);
   /* void 标记可能是字符串 'false'：truthy 会把有效成绩整条藏掉。 */
-  const isTrueFlag = v => v === true || v === 1 || v === 'true' || v === '1';
+  /* 布尔标志可能是字符串 'True'/'FALSE'（旧版/手工导入）：先 trim+小写再判。 */
+  const flagKey = v => (typeof v === 'string' ? v.trim().toLowerCase() : v);
+  const isTrueFlag = v => (v = flagKey(v), v === true || v === 1 || v === 'true' || v === '1');
   /* 存档来自旧版本/云端合并：对象字段不能直接拼进模板或当数字算。 */
   const safeText = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' ? '' : String(v));
   /* 布尔不是数字：true 会被 Number 成 1，旧 detail 的 seconds/points 是布尔时
@@ -106,8 +108,14 @@
   const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' || (typeof v === 'string' && !v.trim()) ? null : (isFinite(Number(v)) ? Number(v) : null));
   /* 题数/答对数是计数：小数（22.5）会让成绩页印「10 / 22.5」；当坏值，走明细兜底。 */
   const countNum = v => { const n = safeNum(v); return n != null && n >= 0 && Math.floor(n) === n ? n : null; };
-  const isRightFlag = v => v === true || v === 1 || v === 'true' || v === '1';
-  const isWrongFlag = v => v === false || v === 0 || v === 'false' || v === '0';
+  /* 历史错题次数不是题数：只取正有限整数，字符串 '3' 不能变成 '31'。 */
+  const countOf = (v, fallback) => {
+    if (v == null || typeof v === 'boolean' || typeof v === 'object') return fallback;
+    const n = Number(v);
+    return isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+  };
+  const isRightFlag = v => (v = flagKey(v), v === true || v === 1 || v === 'true' || v === '1');
+  const isWrongFlag = v => (v = flagKey(v), v === false || v === 0 || v === 'false' || v === '0');
   /* Rendered stem, used only for diagnostic feature detection. The exam core
      stays DOM-free; it never changes the text shown to the student. */
   const stemOf = q => {
@@ -190,12 +198,12 @@
       if (!d || typeof d !== 'object' || isRightFlag(d.correct)) return;   // 旧/云端合并来的 detail 里可能有 null、数字
       const did = safeText(d.id); if (!did) return;             // 对象 id 会变成 "[object Object]" 这个假题号
       const x = w[did] || (w[did] = { count: 0 });
-      x.count = (x.count || 0) + 1; x.last = r.date || x.last;
+      x.count = countOf(x.count, 0) + 1; x.last = r.date || x.last;
     }); });
     const pm = practiceMistakes();
     pm.wrongIds.forEach(id => {
       const x = w[id] || (w[id] = { count: 0 });
-      x.count = (x.count || 0) + 1;                 // never overwrite an existing field
+      x.count = countOf(x.count, 0) + 1;             // never overwrite an existing field
       const m = pm.meta[id] || {};
       if (x.given == null && m.v) x.given = m.v;
       if (x.last == null && m.ts) x.last = m.ts;

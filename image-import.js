@@ -866,9 +866,12 @@
       if (a && a.importSrc === MARK) { delete st.answers[hit.q.id]; st.completed = A.stats(hit.sec).completed; n++; }
     });
     lastAdded = [];
-    if (n) { A.save(); refreshHost(); }
+    var savedUndo = true;
+    if (n) { savedUndo = A.save(); refreshHost(); }
     showUndo();
-    status(n ? ('已撤销本次导入的 ' + n + ' 道（只删掉导入记录，不动你原来的作答）') : '这些题已被你动过，撤销时没有删除任何作答');
+    var undoMsg = n ? ('已撤销本次导入的 ' + n + ' 道（只删掉导入记录，不动你原来的作答）') : '这些题已被你动过，撤销时没有删除任何作答';
+    if (n && !savedUndo) undoMsg += '；但本机进度写入失败，刷新后这次撤销可能回滚';
+    status(undoMsg);
     return n;
   }
 
@@ -895,10 +898,14 @@
     var msg = added ? ('已导入 ' + added + ' 道图片错题（仅新增记录）') : '这批图里的题没有新东西可写';
     if (alreadys) msg += '；' + alreadys + ' 道此前已导入过，不重复写';
     if (conflicts.length) msg += '；' + conflicts.length + ' 道已有作答记录，按只增不改原则跳过（未改动）';
+    if (!added) { status(msg); return { added: 0, skipped: conflicts.length, dups: alreadys, message: msg }; }
+    /* A.save() 会返回写盘成败：存储满/只读时内存里有记录，但刷新就没了，
+       不能再只报“已导入”。 */
+    var localWriteFailed = !A.save();
+    refreshHost();
+    if (localWriteFailed) msg += '；但本机进度写入失败，刷新后这些题可能丢失，请清理存储空间后重试';
     status(msg);
-    if (!added) return { added: 0, skipped: conflicts.length, dups: alreadys, message: msg };
-    A.save(); refreshHost();
-    return { added: added, skipped: conflicts.length, dups: alreadys, message: msg };
+    return { added: added, skipped: conflicts.length, dups: alreadys, message: msg, localWriteFailed: localWriteFailed };
   }
 
   /* ---------------- 手动定位（不依赖 OCR） ----------------
@@ -1006,9 +1013,12 @@
     st.answers[hit.q.id] = { v: '', correct: false, ts: Date.now(), importSrc: MARK };
     st.completed = A.stats(hit.sec).completed;
     rememberAdd(hit.q.id);
-    A.save(); refreshHost();
-    status('已导入 ' + hit.sec + ' · #' + hit.q.no + '（点上面「在题库里找」还能继续加）。');
-    return { added: 1 };
+    var savedOne = A.save();
+    refreshHost();
+    var oneMsg = '已导入 ' + hit.sec + ' · #' + hit.q.no + '（点上面「在题库里找」还能继续加）。';
+    if (!savedOne) oneMsg += '；但本机进度写入失败，刷新后这道题可能丢失';
+    status(oneMsg);
+    return { added: 1, localWriteFailed: !savedOne };
   }
 
   function select(i, qid) {
@@ -1145,6 +1155,7 @@
       if (skipped) msg += '；' + skipped + ' 道因已有作答被跳过';
       if (!added && dups && !fail && !unmatched) msg = '这些题已经在错题本里了（' + dups + ' 道，没有重复写入）';
       if (!added && !fail && !skipped && !unmatched && !dups) msg = '未能匹配到题库题目，本次未导入';
+      if (res && res.localWriteFailed) msg += '；但本机进度写入失败，刷新后已导入记录可能丢失，请清理存储空间后重试';
       if (fail || unmatched) msg += '　→ 已把最可能的几道题列在下面，点一道直接导入。';
       // 有没认准的块：拿它读到的字自动搜一遍题库，把候选直接摆出来，
       // 用户不用自己想关键词——这一步是"识别不出来"时最快的出路。

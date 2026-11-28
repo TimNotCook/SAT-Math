@@ -826,3 +826,10 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 117 条：练习页脚仍无条件写「已保存到此设备」，配额满时骗用户（2026-11-28）
 
 第 116 条已经让 `finishSection()` 在 `saveDrill()` 失败时留在本题，但 `setSaved()` 还是固定写「已保存到此设备」：每答一题/每改一次空，页脚都告诉用户已落盘；配额满、Safari 无痕时实际只改了内存，刷新后答案消失。修成 `var ok = saveDrill();`，按结果写「已保存到此设备」或「保存失败：本地存储不可写」，并切 `is-save-error`；仍复用 `saveDrill()` 的一次性失败提示，不重复弹。验证：静态回归要求 `setSaved()` 走 `saveDrill()` 并出现失败文案；旧代码在「setSaved 仍无条件写已保存」失败；全量 636/0。
+## 第 118 条：图片导入写盘失败仍报「已导入」，刷新后记录消失（2026-11-28）
+
+`image-import.importChecked()`、`importSingle()`、`undoLast()` 都直接 `A.save()` 就当成功。`A.save()` 已能返回写盘失败（配额满/存储只读）；此时记录只在内存里，刷新即丢，但面板仍显示「已自动识别并写入」「已撤销」。修成三处都检查返回值：自动导入把 `localWriteFailed` 放进结果并在汇总消息追加提示；手动单题和撤销也分别提示「刷新后可能丢失/撤销可能回滚」。验证：新增 2 条静态守卫；全量 639/0；`verify_flows` 16/16。
+
+## 第 119 条：站点哨兵提交把数据健壮性修复回退，四个回归测试直接变红（2026-11-28）
+
+上游 `4f08d4f fix(site): 版本哨兵+错题页自动换新…` 在改 `wrong.html`/SW 的同时，把 `exam.js`、`history-page.js`、`wrong-page.js` 整份覆盖成旧版本：`flagKey()` 的 `'True'/'FALSE'` 归一、`countOf()` 的错题次数防拼接、`wrong-page.importData()` 的“先写仓库再写本机作答”全部消失，`modeOf(rec)` 也没了；`test/array-guard.test.js` 里对应 14 条回归被一起删掉。结果四个测试直接变红（大写 MOCK 来源、`"False"` 仍进错题本、仓库写失败仍先写本机、导入失败提示），线上错题页会重新出现这些已修过的 bug。修成从 `c612437` 恢复 `exam.js`、`history-page.js` 与回归测试；`wrong-page.js` 由上游 `f99f97d` 用 `boolOf`+先写仓库后写本机等价恢复，取其版本；重新 `bump_assets` 让版本哈希对齐。验证：恢复后全量 639/0；`verify_flows` 16/16；线上页面稍后复核。
