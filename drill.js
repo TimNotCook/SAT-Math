@@ -516,7 +516,7 @@
         cls = it.isFig ? ' is-figure is-missing' : '';
       }
       html += '<div class="drill-choice-row" data-choice="' + letter + '">' +
-        '<button type="button" class="drill-choice' + cls + (it.visual ? ' is-image-option' : '') +
+        '<button type="button" class="drill-choice' + cls + (it.visual ? ' is-image-option' : '') + (selected ? ' is-selected' : '') +
         '" data-choice="' + letter + '" aria-pressed="' + selected +
         '"><span class="drill-choice-letter">' + letter + '</span>' +
         '<span class="drill-choice-text">' + inner + '</span>' +
