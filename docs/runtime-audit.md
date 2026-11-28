@@ -728,3 +728,6 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 92 条：单元抽查 total 写成 999 时，记录页/成绩页仍印「答对 0 / 999」（2026-11-28）
 
 模考整卷 44 题已做封顶，但单元抽查的卷长上限是 30（`QUIZ_TIERS` T3/T4）；旧版或云端把 `total` 写成 `999` 时，记录页 `scoreParts` 与成绩页 `renderResult` 仍用 999 当分母，正确率被稀释成个位数。修成 `mode === 'quiz'` 且 `total > 30` 时，有逐题明细按明细条数、无明细按 30 封顶；新增记录页回归与成绩页静态锁。验证：全量 577/0；`verify_flows` 16/16。
+## 第 93 条：本地存储不可写时「恢复」仍然先删本机进度，再谎报成功（2026-11-28）
+
+`applyPayload` 先把本机所有 `tdsat_*` 删掉，再逐键 `setItem`；每个 `setItem` 都被 try/catch 吞掉，最后无条件 `return true`。Safari 无痕、配额满、只读存储时 `setItem` 全部抛错：本机进度被删光、新档案一个键都没写进，调用方却收到“成功”，随后还可能清草稿/推云端。修成先写一个非同步前缀的探针键验证可写，失败则一个键都不动直接返回 false；删除后如果某个写入失败，把删除前的旧快照写回并返回 false。验证：注入 `setItem` 抛错的 localStorage，旧代码返回 undefined、本机 `tdsat_app_v1` 被删，新代码返回 false、原值完整保留；全量 588/0。

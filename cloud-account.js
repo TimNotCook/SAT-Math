@@ -210,6 +210,16 @@
     var clean = canon(payload || {});
     var badValue = Object.keys(clean).some(function (key) { return typeof clean[key] !== 'string'; });
     if (badValue) return false;
+    /* 先试写一个探针键：Safari 无痕/配额满/只读存储时 setItem 会抛错，旧实现
+       仍然先把本机 tdsat_* 全删掉，然后每个写入都失败并被 catch 吞掉，最后
+       返回“成功”。探针失败时一个键都不动，宁可让用户继续用本机进度。 */
+    try {
+      localStorage.setItem('__tdsat_write_probe__', '1');
+      localStorage.removeItem('__tdsat_write_probe__');
+    } catch (e) {
+      console.warn('本地存储不可写，拒绝整份替换', e);
+      return false;
+    }
     var keep = {}, k;
     for (k in NO_SYNC) {
       if (!Object.prototype.hasOwnProperty.call(NO_SYNC, k)) continue;
@@ -217,14 +227,23 @@
       try { v = localStorage.getItem(k); } catch (e) { console.warn('读取本地存储失败', e); }
       if (v != null) keep[k] = v;
     }
-    var cur = snapshot();
+    var cur = snapshot(), failed = false;
     Object.keys(cur).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) { console.warn('清除本地存储失败', e); } });
     Object.keys(clean).forEach(function (key) {
-      try { if (typeof clean[key] === 'string') localStorage.setItem(key, clean[key]); } catch (e) { console.warn('写入本地存储失败', e); }
+      try { if (typeof clean[key] === 'string') localStorage.setItem(key, clean[key]); }
+      catch (e) { failed = true; console.warn('写入本地存储失败', e); }
     });
     Object.keys(keep).forEach(function (key) {
-      try { localStorage.setItem(key, keep[key]); } catch (e) { console.warn('写入本地存储失败', e); }
+      try { localStorage.setItem(key, keep[key]); } catch (e) { failed = true; console.warn('写入本地存储失败', e); }
     });
+    if (failed) {
+      /* 写到一半失败（例如配额在复制大档案时才满）：把刚才的旧快照写回去，
+         不让“恢复”变成半份新档 + 半份空档。 */
+      try { Object.keys(snapshot()).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) {} }); } catch (e) {}
+      Object.keys(cur).forEach(function (key) { try { localStorage.setItem(key, cur[key]); } catch (e) { console.warn('回滚本地存储失败', e); } });
+      Object.keys(keep).forEach(function (key) { try { localStorage.setItem(key, keep[key]); } catch (e) { console.warn('回滚本地存储失败', e); } });
+      return false;
+    }
     return true;
   }
 

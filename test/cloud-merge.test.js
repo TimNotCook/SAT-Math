@@ -12,13 +12,14 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 
-function boot(seed) {
+function boot(seed, opts) {
+  opts = opts || {};
   const store = Object.assign({}, seed);
   const sandbox = {
     console,
     localStorage: {
       getItem: k => (k in store ? store[k] : null),
-      setItem: (k, v) => { store[k] = String(v); },
+      setItem: (k, v) => { if (opts.throwWrite) throw new Error('storage denied'); store[k] = String(v); },
       removeItem: k => { delete store[k]; },
       key: i => Object.keys(store)[i] || null,
       get length() { return Object.keys(store).length; },
@@ -163,4 +164,12 @@ test('好草稿应用成功后写回并清掉草稿', () => {
   assert.strictEqual(ok, true);
   assert.deepStrictEqual(JSON.parse(store.tdsat_app_v1), { sections: {} });
   assert.strictEqual(store.tdprofile_draft_v1, undefined, '成功应用后草稿没有清掉');
+});
+
+test('本地存储不可写时整份替换失败，不先删掉本机进度', () => {
+  const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: true, ts: 3 } } } } });
+  const { M, store } = boot({ tdsat_app_v1: local }, { throwWrite: true });
+  const ok = M.applyPayload({ tdsat_app_v1: JSON.stringify({ sections: {} }) });
+  assert.strictEqual(ok, false, '写不进去却报告成功');
+  assert.strictEqual(store.tdsat_app_v1, local, '写入失败前已经把本机进度删了');
 });
