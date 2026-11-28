@@ -1,0 +1,190 @@
+diff --git a/i18n.js b/i18n.js
+index 524fff3..2e9c44e 100644
+--- a/i18n.js
++++ b/i18n.js
+@@ -99,6 +99,32 @@
+     '拖入截图，或粘贴图片': 'Drop a screenshot, or paste an image',
+     '粘贴题干文字': 'Paste the question text',
+     '离线识别': 'Offline recognition',
++    /* 图片识别导入的运行态文案（错题页 status 行，运行时拼接） */
++    '云服务暂不可用，请稍后重试': 'Cloud service is unavailable. Try again shortly.',
++    '当前 SDK 不支持云端登录，请更新后重试': 'This build can’t sign in to the cloud. Update and try again.',
++    '云端未登录，跳过精确匹配；本地识别结果仅供核对，不会自动导入。': 'Not signed in — exact matching skipped; on-device results are for checking only and are not auto-imported.',
++    '云端未登录，本次用本地识别（精度较低）；点「登录云端账号」可启用精确识别。': 'Not signed in — using on-device reading (less accurate). Tap “Sign in to the cloud” for the precise model.',
++    '像是深色背景，取反后再认一次…': 'Looks like a dark background — inverting and reading again…',
++    '照片偏灰/拍歪了，先压平打正再认…': 'Photo looks washed out or tilted — flattening and straightening first…',
++    '没有可撤销的导入': 'Nothing to undo.',
++    '文字太短，至少贴半句题干（8 个字符以上）。': 'Text is too short — paste at least half a stem (8+ characters).',
++    '题库里没找到像这道题的，换个说法或只贴题干里的关键词。': 'No close match in the bank — rephrase it or paste just a keyword from the stem.',
++    '敲两个字符以上再找，比如 24 或 slope。': 'Type at least two characters, e.g. 24 or slope.',
++    '没找到，换个关键词试试（数字或题干短语更准）。': 'Nothing found — try another keyword (numbers or stem phrases work best).',
++    '请选择图片文件（PNG / JPG / WebP 等）': 'Choose an image file (PNG, JPG, WebP…).',
++    '正在识别上一批图片，请稍候…': 'Still reading the last batch — one moment…',
++    '没有需要重试的图片': 'No images to retry.',
++    '这台浏览器不支持本地识别内核；把题干里几个词敲进下面的搜框，照样能查题导入。': 'This browser has no on-device reader — type a few words from the stem in the box below and you can still import.',
++    '这台浏览器的内核禁用了 WebAssembly，本地识别起不来': 'WebAssembly is disabled in this browser, so the on-device reader can’t start.',
++    '本地识别超时（网络过慢），请换个网络或稍后点「重试失败项」。': 'On-device reading timed out (slow network). Switch networks or tap “Retry failed items” later.',
++    '本地识别组件加载超时，请换个网络或稍后点「重试失败项」。': 'The on-device reader timed out while loading. Switch networks or tap “Retry failed items” later.',
++    '云端比对不可用，文本匹配也不够稳（可从下面的题目里点一个）': 'Cloud matching is unavailable and text matching is shaky — pick one from the list below.',
++    '需到 WorkBuddy 后台把本站点域名重新加入允许列表': 'Re-add this site’s domain to the allow-list in the WorkBuddy console.',
++    '从粘贴的文字里找这道题…': 'Looking for this question in the pasted text…',
++    '选项缺失：这道题的选项在原书里无法识别，本题暂不可作答。': 'Choices missing — the options couldn’t be read from the book, so this question can’t be answered yet.',
++    '电子笔直接写；圆点调粗细；手型图标让开画布，可点选项和翻页': 'Write with the pen; the dot sets thickness; the hand icon moves the canvas aside so you can tap choices and page.',
++    '移动模式：画布已让开，可直接点选项、翻页、开题号导航；点手型图标回到书写': 'Move mode: the canvas is out of the way — tap choices, page, or open the question list. Tap the hand icon to write again.',
++    '无法连接云端模型服务：请先确认当前网络正常；若网络正常仍失败，通常是云端应用的站点域名授权被重置，需到 WorkBuddy 后台把本站点域名重新加入允许列表': 'Can’t reach the cloud model: check your network first. If it still fails, the app’s site-domain grant was usually reset — re-add this domain in the WorkBuddy console.',
+     '正在识别文字…': 'Reading the image…',
+     '正在准备识别引擎…': 'Preparing the reader…',
+     '首次准备识别引擎…': 'Preparing the reader for the first time…',
+@@ -659,6 +685,16 @@
+     [/^正在识别（视觉模型 (\d+) \/ (\d+)）…$/, 'Reading the image…'],
+     [/^正在交叉核对（第二模型）…$/, 'Double-checking…'],
+     [/^正在交叉核对（第二模型）：(.+)$/, 'Double-checking: $1'],
++    /* 图片识别：数字/标题是运行时拼进去的整句 */
++    [/^登录发起失败：(.+)$/, 'Sign-in failed: $1'],
++    [/^本地识别引擎这次没起来（(.+)）。不用等它，把题干文字贴到上面的框里点「用文字导入」，一样能配题写库。$/, 'The on-device reader didn’t start ($1). No need to wait — paste the stem above and tap “Import from text”; it imports just the same.'],
++    [/^文字最像的是 (.+) · #(\d+)（(\d+)%），但没到自动写入的把握，下面点一下即导入。$/, 'Closest text match: $1 · #$2 ($3%) — not confident enough to auto-import; tap it below to import.'],
++    [/^没找到匹配「(.+)」的题。试试只敲数字（如 24 36）或题干里的英文短语。$/, 'No question matched “$1”. Try just the numbers (e.g. 24 36) or an English phrase from the stem.'],
++    [/^题库里找到 (\d+) 道，点一道即导入。$/, 'Found $1 in the bank — tap one to import.'],
++    [/^这道题已有作答记录，按「只增不改」原则没有改动（(.+)）。$/, 'This question already has an answer record; nothing was changed (append-only).'],
++    [/^自检中：内核 (wasm[✓✗]) 缓存 (sw[✓✗])，正在识别测试图…$/, 'Self-test: kernel $1, cache $2 — reading the test image…'],
++    [/^自检通过：(.+) 秒，认到「(.+)」，匹配分 (.+)%（这一条只是演示图，不会写进错题本）$/, 'Self-test passed: $1 s, read “$2”, match $3% (demo only — not written to the mistake book).'],
++    [/^自检失败：(.+) 秒 · (.+)（这不是你的错，把这句话发我就行）$/, 'Self-test failed: $1 s · $2 (not your fault — just send me this line).'],
+   ];
+ 
+   var FORCED_LANG = null;
+@@ -678,22 +714,34 @@
+     if (/[\u4e00-\u9fff]/.test(s)) {
+       s = phraseReplace(s);
+       /* 「A · B · C」整串：按分隔符切开逐段查字典，标题/面包屑靠这个拼出来 */
+-      if (/[\u4e00-\u9fff]/.test(s)) {
+-        s = s.split(' · ').map(function (part) {
+-          var k = part.trim();
+-          if (Object.prototype.hasOwnProperty.call(EN, k)) return EN[k];
+-          var pk = phraseReplace(k);
+-          return /[\u4e00-\u9fff]/.test(pk) ? k : pk;
+-        }).join(' · ');
+-      }
++      if (/[\u4e00-\u9fff]/.test(s)) s = splitTranslate(s);
+     }
+     if (!/[\u4e00-\u9fff]/.test(s)) return s;
+     for (var i = 0; i < PATS.length; i++) {
+-      if (PATS[i][0].test(s)) return s.replace(PATS[i][0], PATS[i][1]);
++      if (PATS[i][0].test(s)) {
++        /* 模式里常带着中文数据（小节名、单元名），翻完再按「 · 」补一遍，
++           否则整句英文里会夹着一截中文，比不翻更难看 */
++        var pat = s.replace(PATS[i][0], PATS[i][1]);
++        if (/[\u4e00-\u9fff]/.test(pat)) pat = splitTranslate(pat);
++        return pat;
++      }
+     }
+     return s;
+   }
+ 
++  /* 「A · B · C」按分隔符切开逐段查字典，标题/面包屑/整句里的数据名都靠这个拼出来 */
++  function splitTranslate(s) {
++    return s.split(' · ').map(function (part) {
++      var k = part.trim();
++      if (Object.prototype.hasOwnProperty.call(EN, k)) return EN[k].trim();
++      var pk = phraseReplace(k);
++      return /[\u4e00-\u9fff]/.test(pk) ? part : pk;
++    }).join(' · ');
++  }
++
++  /* 暴露给同页脚本与测试用：脚本里拼出来的整句（带小节名等数据）需要同一套翻法 */
++  try { window.__i18nT = t; } catch (e) {}
++
+   var SKIP = /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|CODE|PRE)$/;
+ 
+   function translateTextNode(node) {
+diff --git a/test/image-import-en-status.test.js b/test/image-import-en-status.test.js
+new file mode 100644
+index 0000000..d719c89
+--- /dev/null
++++ b/test/image-import-en-status.test.js
+@@ -0,0 +1,86 @@
++/* test/image-import-en-status.test.js
++ *
++ * 2026-11-28 巡检：错题页「图片识别导入」面板在英文界面下，status 行和各类提示
++ * 整段是中文——image-import.js 里只有登录两句话走 EN_UI() 三目，其余全是写死的中文，
++ * 而且是运行时拼出来的整句，MutationObserver 逐节点翻译也捞不到。
++ *
++ * 这里把 i18n.js 的 EN 词典与 PATS 抠出来跑一遍 t()，锁住这批文案不漏中文。
++ */
++const test = require('node:test');
++const assert = require('node:assert');
++const fs = require('node:fs');
++const path = require('node:path');
++
++const ROOT = path.join(__dirname, '..');
++const SRC = fs.readFileSync(path.join(ROOT, 'i18n.js'), 'utf8');
++
++/* 直接跑真实实现：给 i18n.js 一个最小 window/document，再用它挂出来的 __i18nT */
++const sandbox = {
++  window: {},
++  document: {
++    addEventListener() {},
++    querySelectorAll() { return []; },
++    querySelector() { return null; },
++    createElement() { return { style: {}, setAttribute() {}, appendChild() {} }; },
++    createTextNode(t) { return { nodeValue: t }; },
++    documentElement: { setAttribute() {}, lang: 'zh' },
++    head: { appendChild() {} },
++    body: { appendChild() {} },
++    readyState: 'loading',
++    title: ''
++  },
++  localStorage: { getItem() { return null; }, setItem() {} },
++  MutationObserver: class { observe() {} disconnect() {} },
++  setTimeout() {},
++};
++sandbox.window = { localStorage: sandbox.localStorage, MutationObserver: sandbox.MutationObserver, setTimeout: sandbox.setTimeout, document: sandbox.document, location: { href: 'http://localhost/' }, navigator: { language: 'zh-CN' } };
++new Function('window', 'document', 'localStorage', 'MutationObserver', 'navigator', 'setTimeout', SRC)(
++  sandbox.window, sandbox.document, sandbox.localStorage, sandbox.MutationObserver, sandbox.window.navigator, sandbox.setTimeout
++);
++const t = sandbox.window.__i18nT;
++assert.strictEqual(typeof t, 'function', 'i18n.js 没有挂出 __i18nT，测试无法验证真实翻译');
++
++const CASES = [
++  '云服务暂不可用，请稍后重试',
++  '当前 SDK 不支持云端登录，请更新后重试',
++  '云端未登录，跳过精确匹配；本地识别结果仅供核对，不会自动导入。',
++  '云端未登录，本次用本地识别（精度较低）；点「登录云端账号」可启用精确识别。',
++  '像是深色背景，取反后再认一次…',
++  '照片偏灰/拍歪了，先压平打正再认…',
++  '没有可撤销的导入',
++  '文字太短，至少贴半句题干（8 个字符以上）。',
++  '题库里没找到像这道题的，换个说法或只贴题干里的关键词。',
++  '敲两个字符以上再找，比如 24 或 slope。',
++  '没找到，换个关键词试试（数字或题干短语更准）。',
++  '请选择图片文件（PNG / JPG / WebP 等）',
++  '正在识别上一批图片，请稍候…',
++  '没有需要重试的图片',
++  '这台浏览器不支持本地识别内核；把题干里几个词敲进下面的搜框，照样能查题导入。',
++  '这台浏览器的内核禁用了 WebAssembly，本地识别起不来',
++  '本地识别超时（网络过慢），请换个网络或稍后点「重试失败项」。',
++  '本地识别组件加载超时，请换个网络或稍后点「重试失败项」。',
++  '云端比对不可用，文本匹配也不够稳（可从下面的题目里点一个）',
++  '需到 WorkBuddy 后台把本站点域名重新加入允许列表',
++  '从粘贴的文字里找这道题…',
++  '选项缺失：这道题的选项在原书里无法识别，本题暂不可作答。',
++  '电子笔直接写；圆点调粗细；手型图标让开画布，可点选项和翻页',
++  '移动模式：画布已让开，可直接点选项、翻页、开题号导航；点手型图标回到书写',
++  '登录发起失败：Network down',
++  '本地识别引擎这次没起来（wasm disabled）。不用等它，把题干文字贴到上面的框里点「用文字导入」，一样能配题写库。',
++  '文字最像的是 线性方程与函数图像 · #12（76%），但没到自动写入的把握，下面点一下即导入。',
++  '没找到匹配「4x 24x」的题。试试只敲数字（如 24 36）或题干里的英文短语。',
++  '题库里找到 3 道，点一道即导入。',
++  '这道题已有作答记录，按「只增不改」原则没有改动（线性方程 · #12）。',
++  '自检中：内核 wasm✓ 缓存 sw✓，正在识别测试图…',
++  '自检通过：1.8 秒，认到「x + 3 = 7」，匹配分 92%（这一条只是演示图，不会写进错题本）',
++  '自检失败：2.4 秒 · timeout（这不是你的错，把这句话发我就行）',
++];
++
++test('导入面板的每条运行态文案在英文模式下都不留中文', () => {
++  const bad = [];
++  for (const s of CASES) {
++    const out = t(s);
++    if (/[\u4e00-\u9fff]/.test(out)) bad.push(s + '  =>  ' + out);
++  }
++  assert.deepEqual(bad, []);
++});
