@@ -1492,6 +1492,20 @@ html body.exam-page .quiz-card-facts .quiz-fact{flex:0 0 104px!important;width:1
   /* 标题列 86px 只放得下 5 个字，「线性方程与不等式应用题」11 字被切成三行；
      行号列 52px 对「1.1」太宽，收到 44px，标题列变 94px，正好两行。 */
   html body .tile-grid>.tile-section.drill-section-row.drill-section-row{grid-template-columns:44px minmax(0,1fr) auto!important}
+  /* 320 状态列「未开始」占 36px，标题只剩 94px，「线性不等式与图像」仍会断成
+     「线性不等 / 式与图像」。窄屏把状态收成 8px 圆点：未开始灰、进行中蓝、已完成绿，
+     文案留在无障碍树里，标题列回到 122px，7 字标题整行放完。 */
+  html body .tile-grid>.tile-section.drill-section-row .tile-state.tile-state{
+    width:8px!important;min-width:8px!important;height:8px!important;padding:0!important;border:0!important;
+    background:transparent!important;font-size:0!important;line-height:0!important;color:transparent!important;
+    overflow:hidden!important;display:block!important;border-radius:50%!important;box-shadow:none!important;
+    justify-self:end!important;align-self:center!important;
+  }
+  html body .tile-grid>.tile-section.drill-section-row .tile-state.tile-state::after{
+    content:"";display:block;width:6px;height:6px;margin:1px;border-radius:50%;background:#cbd5e1;
+  }
+  html body .tile-grid>.tile-section.drill-section-row .tile-state.tile-state.is-active::after{background:#2563eb}
+  html body .tile-grid>.tile-section.drill-section-row .tile-state.tile-state.is-done::after{background:#16a34a}
 }
 
 /* 抽查开场左栏右侧那块空白：放一张本单元的浅色线稿，不做标签也不写字 */

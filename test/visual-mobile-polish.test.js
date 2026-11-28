@@ -51,3 +51,10 @@ test('320/390 首页板块行标题两行均分，不把「方程」拆开、不
   assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row \.tile-name\{text-wrap:balance!important;padding-right:0!important\}/);
   assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row\.drill-section-row\{grid-template-columns:44px minmax\(0,1fr\) auto!important\}/);
 });
+
+test('320 首页状态列收成三态圆点，标题列回到 122px', () => {
+  assert.match(app, /html body \.tile-grid>\.tile-section\.drill-section-row \.tile-state\.tile-state\{/);
+  assert.match(app, /width:8px!important;min-width:8px!important;height:8px!important/);
+  assert.match(app, /\.tile-state\.tile-state\.is-active::after\{background:#2563eb\}/);
+  assert.match(app, /\.tile-state\.tile-state\.is-done::after\{background:#16a34a\}/);
+});
