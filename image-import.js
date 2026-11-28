@@ -619,11 +619,12 @@
 
   function createWorkerAt(T, mi, onProgress) {
     var m = TESS_MIRRORS[mi];
-    return T.createWorker('eng', 1, {
+    var opts = function (useBlob) { return {
       workerPath: m.worker,
       corePath: m.core,
       langPath: m.lang,
       gzip: true,
+      workerBlobURL: useBlob,
       logger: function (msg) {
         if (!onProgress || !msg) return;
         if (msg.status === 'loading language traineddata' && msg.progress < 1) {
@@ -632,6 +633,14 @@
           onProgress('正在初始化识别内核…');
         }
       }
+    }; };
+    /* 默认 tesseract.js 会用 blob: URL 现场造一个 Worker。豆包内置浏览器这类 WebView
+       里 blob Worker 常被直接拦掉，表现就是"卡在启动本地识别、一直不出字"。
+       我们的 worker.min.js 就在同源 vendor/ 下，直接按 URL 加载就不依赖 blob；
+       万一某个环境反过来只认 blob，再退回去试一次。 */
+    return T.createWorker('eng', 1, opts(false)).catch(function (e) {
+      ENGINE_LAST_ERR = (e && e.message) || String(e);
+      return T.createWorker('eng', 1, opts(true));
     });
   }
 
