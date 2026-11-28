@@ -127,3 +127,12 @@ test('档案载荷是普通对象时仍能整份替换并写入快照键', () =>
   assert.deepStrictEqual(JSON.parse(store.tdsat_app_v1), { sections: {} });
   assert.strictEqual(store.tdsat_prefs_v1, 'keep', '外观偏好被档案替换误删');
 });
+
+test('本机快照键是合法 JSON 的 null/标量、云端是对象时不顶掉云端', () => {
+  const cloudApp = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'A', correct: true, ts: 5 } } } } });
+  for (const bad of ['null', '""', '0', 'false', '[]']) {
+    const { M } = boot({ tdsat_app_v1: bad });
+    const out = M.mergeLocalWithCloud({ tdsat_app_v1: cloudApp });
+    assert.strictEqual(out.tdsat_app_v1, cloudApp, '本机坏形状顶掉了云端进度：' + bad);
+  }
+});

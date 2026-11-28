@@ -266,6 +266,12 @@
       });
       return out;
     }
+    /* 一边是普通对象、另一边是标量/null：快照容器（sections/answers/marks）
+       的标量那侧是坏形状，保留对象那侧。以前最后一句无条件 `return lo`：
+       本机 tdsat_app_v1 被写成 "null"（合法 JSON、形状不对）时，会顶掉云端
+       完好的整份进度，再被 silentPush 推上去，账号里唯一的好数据就没了。 */
+    if (isPlainObj(co)) return co;
+    if (isPlainObj(lo)) return lo;
     return lo;
   }
   /* 首次登录一个已有档案的账号时，把本机"无主"做题记录并入该档案，
