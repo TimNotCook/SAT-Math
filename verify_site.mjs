@@ -44,6 +44,9 @@ const PAGES=[
 const results=[];
 const c=await cdp();
 await c.send('Page.enable');await c.send('Runtime.enable');await c.send('Log.enable');
+/* 语言偏好默认中文时，做题面文案是「第 1 / 25 题」，英文断言必然误报。
+   验收固定英文，让结果只反映站点状态、不反映这台机器的语言设置。 */
+await c.send('Page.addScriptToEvaluateOnNewDocument',{source:"try{localStorage.setItem('tdsat_lang','en')}catch(e){}"});
 
 for(const p of PAGES){
   c.logs.length=0;
