@@ -104,6 +104,8 @@
   /* 空字符串不是数字 0：云端合并/旧版把 total/correct 写成 '' 时，
      Number('')=0 会让成绩页显示「答对 0 / 0」并丢掉逐题明细里的真实结果。 */
   const safeNum = v => (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'boolean' || (typeof v === 'string' && !v.trim()) ? null : (isFinite(Number(v)) ? Number(v) : null));
+  /* 题数/答对数是计数：小数（22.5）会让成绩页印「10 / 22.5」；当坏值，走明细兜底。 */
+  const countNum = v => { const n = safeNum(v); return n != null && n >= 0 && Math.floor(n) === n ? n : null; };
   const isRightFlag = v => v === true || v === 1 || v === 'true' || v === '1';
   const isWrongFlag = v => v === false || v === 0 || v === 'false' || v === '0';
   /* Rendered stem, used only for diagnostic feature detection. The exam core
@@ -1181,11 +1183,11 @@
     const detail0 = asArr(r.detail).filter(isRec);
     /* total/correct/elapsed 是布尔时 Number(true) 会变成 1：旧记录会显示
        假的 100% / 1 分钟。safeNum 已排除布尔，这里统一走它。 */
-    const rTotal = safeNum(r.total);
+    const rTotal = countNum(r.total);
     /* total 与 detail 不一致时（旧版/云端只写了一半卷面）：detail 是逐题证据，
        不能因为 total=22 就把 44 题的整卷印成 22 题，更不能把 correct 夹成 100%。 */
     const total = Math.max(detail0.length, rTotal != null && rTotal > 0 ? rTotal : 0);
-    const rCorrect = safeNum(r.correct);
+    const rCorrect = countNum(r.correct);
     const correct = rCorrect != null ? Math.max(0, Math.min(total, rCorrect)) : detail0.filter(d => isRightFlag(d.correct)).length;
     const rElapsed = safeNum(r.elapsed);
     const elapsed = rElapsed != null && rElapsed > 0 ? rElapsed : 0;

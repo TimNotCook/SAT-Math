@@ -58,6 +58,9 @@
     if (typeof v === 'string' && !v.trim()) return null;
     var n = Number(v); return isFinite(n) ? n : null;
   }
+  /* 题数/答对数只能是整数：云端/旧版写成 22.5 时，记录页会印出
+     「10 / 22.5 题」。小数当坏值，交给逐题明细兜底，不硬取整。 */
+  function countNum(v) { var n = num(v); return n != null && n >= 0 && Math.floor(n) === n ? n : null; }
   function numTxt(v) { var n = num(v); return n == null ? '—' : n; }
   function load(k) {
     try { var v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : []; }
@@ -92,13 +95,13 @@
      能从 detail 数出来就现算，缺字段不再把真实正确率吞成 0。 */
   function scoreParts(rec) {
     var detail = asArr(rec && rec.detail).filter(isDetail);
-    var total = num(rec && rec.total);
+    var total = countNum(rec && rec.total);
     /* detail 是逐题证据：记录写 total 比 detail 还少，说明 total 被旧版/云端写坏了，
        以 detail 条数为准，别显示「答对 20 / 2」这种不可能的分数。 */
     if (detail.length && (total == null || total <= 0 || total < detail.length)) total = detail.length;
     if (total == null || total <= 0) total = detail.length;
     var counted = detail.length ? detail.filter(function (d) { return isRight(d.correct); }).length : null;
-    var correct = num(rec && rec.correct);
+    var correct = countNum(rec && rec.correct);
     /* correct 缺失、负数或大于 total 都是坏值：有逐题明细就按明细数，没有就夹到 0..total。
        否则记录页会显示 150% 这种不可能的成绩，还把它标成绿色。 */
     if (correct == null || correct < 0 || correct > total) {

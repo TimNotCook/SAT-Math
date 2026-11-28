@@ -95,8 +95,8 @@ test('成绩页 total 小于 detail 条数时按明细题数显示，不印成�
 
 test('成绩页 total/correct/elapsed 不再把布尔 Number 成 1', () => {
   const seg = js.slice(js.indexOf('function renderResult()'), js.indexOf('function renderResultList'));
-  assert.match(seg, /const rTotal = safeNum\(r\.total\)/);
-  assert.match(seg, /const rCorrect = safeNum\(r\.correct\)/);
+  assert.match(seg, /const rTotal = countNum\(r\.total\)/);
+  assert.match(seg, /const rCorrect = countNum\(r\.correct\)/);
   assert.match(seg, /const rElapsed = safeNum\(r\.elapsed\)/);
   assert.ok(!/Number\.isFinite\(Number\(r\.total\)\)/.test(seg), '总题数还在裸 Number，布尔会变 1');
 });
