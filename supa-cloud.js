@@ -54,7 +54,25 @@
     e.__http = status > 0;   // 真 HTTP 错误：catch 里不许再改写成 status 0
     e.raw = o;
     var low = String(msg).toLowerCase();
-    if (low.indexOf('invalid login credentials') >= 0) e.code = 'auth/invalid-credential';
+    /* Supabase 新版在 body 里直接给稳定错误码（error_code / code），英文文案
+       可能随版本变化；先认码，再退回文案匹配，注册撞号/弱密码才不会因为
+       文案改一句就掉回「操作失败」。 */
+    var ec = String(o.error_code || (typeof o.code === 'string' ? o.code : '') || '').toLowerCase();
+    var BY_CODE = {
+      invalid_credentials: 'auth/invalid-credential',
+      email_not_confirmed: 'auth/email-not-confirmed',
+      user_already_exists: 'auth/email-already-in-use',
+      email_exists: 'auth/email-already-in-use',
+      signup_disabled: 'auth/signup-disabled',
+      weak_password: 'auth/weak-password',
+      same_password: 'auth/same-password',
+      email_address_invalid: 'auth/invalid-email',
+      otp_expired: 'auth/invalid-code',
+      over_request_rate_limit: 'auth/too-many-requests',
+      over_email_send_rate_limit: 'auth/too-many-requests'
+    };
+    if (BY_CODE[ec]) e.code = BY_CODE[ec];
+    else if (low.indexOf('invalid login credentials') >= 0) e.code = 'auth/invalid-credential';
     else if (low.indexOf('email not confirmed') >= 0) e.code = 'auth/email-not-confirmed';
     else if (low.indexOf('user already registered') >= 0 || low.indexOf('already been registered') >= 0) e.code = 'auth/email-already-in-use';
     else if (low.indexOf('signups not allowed') >= 0 || low.indexOf('signup is disabled') >= 0 || low.indexOf('signups are disabled') >= 0) e.code = 'auth/signup-disabled';

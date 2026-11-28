@@ -228,3 +228,16 @@ describe('面板上的账号打码', () => {
     assert.equal(SB.maskAccount(null), '');
   });
 });
+
+describe('注册错误优先认稳定错误码，不依赖英文文案', () => {
+  test('已注册邮箱返回 user_already_exists，文案变了也归一成撞号', async () => {
+    const { SB } = loadModule(async () => makeRes(422, { error_code: 'user_already_exists', msg: 'Request failed' }));
+    await assert.rejects(() => SB.signUpPassword('tim@example.com', 'satmath123'),
+      e => e.code === 'auth/email-already-in-use');
+  });
+  test('弱密码返回 weak_password，仍归一到弱密码提示', async () => {
+    const { SB } = loadModule(async () => makeRes(422, { error_code: 'weak_password', msg: 'Request failed' }));
+    await assert.rejects(() => SB.signUpPassword('tim@example.com', 'satmath123'),
+      e => e.code === 'auth/weak-password');
+  });
+});

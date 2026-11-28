@@ -395,6 +395,7 @@
     '登录链接已失效或邮件有误，请重新发送登录邮件。': 'That sign-in link has expired or the email is wrong. Send a new one.',
     '密码至少 6 位。': 'A password needs at least 6 characters.',
     '请先填写邮箱或手机号。': 'Enter your email or phone number first.',
+    '请先填写邮箱。': 'Enter your email first.',
     '请输入密码。': 'Enter your password first.',
     '登录模块未加载，请刷新页面重试。': 'The sign-in module is not loaded. Refresh and try again.',
 

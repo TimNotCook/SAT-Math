@@ -843,7 +843,7 @@
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = readEmail(), pw = readPw();
     var pw2 = ui && ui.pw2 ? ui.pw2.value : '';
-    if (!email) { setError('请先填写邮箱或手机号。'); return; }
+    if (!email) { setError(loginMode === 'signup' ? '请先填写邮箱。' : '请先填写邮箱或手机号。'); return; }
     if (pw.length < 6) { setError('密码至少 6 位。'); return; }
     if (ui && ui.pw2 && pw !== pw2) { setError('两次输入的密码不一致，请重新确认。'); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
