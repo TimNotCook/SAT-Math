@@ -723,11 +723,23 @@
          本地内核饿死，冷启动 60 秒还不就绪。所以先花几百毫秒探一下谁响应快，
          再只建一个 Worker，按探测顺序回落。 */
       return probeOrder().then(function (order) {
-        function step(k) {
-          if (k >= order.length) throw new Error('三个镜像都没起来');
-          return bounded(order[k]).catch(function (e) { return step(k + 1); });
-        }
-        return step(0);
+        /* 保留「先探测、再按序回落」的原策略（三个 Worker 同时起会互相饿死内核，
+           实测冷启动 60 秒都不就绪），但换成显式 settled 标记：超时兜底与
+           onload/onerror 竞态时只认第一个成功，不会重复 resolve 或半途改写结果。 */
+        return new Promise(function (resolve, reject) {
+          var settled = false, k = 0;
+          function next() {
+            if (settled) return;
+            if (k >= order.length) { reject(new Error('三个镜像都没起来')); return; }
+            var mi = order[k++];
+            bounded(mi).then(function (w) {
+              if (settled) { try { w.terminate && w.terminate(); } catch (e) {} return; }
+              settled = true;
+              resolve(w);
+            }, function () { if (!settled) next(); });
+          }
+          next();
+        });
       });
     }).then(function (w) {
       OCR_W = w; OCR_READY = true;
