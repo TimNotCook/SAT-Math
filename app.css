@@ -1834,3 +1834,10 @@ body.shell-wrong .wrong-toolbar.is-quiet{
 @media(max-width:640px){
   html body .rail-tail{margin-left:0!important}
 }
+
+/* 记录展开后的「本次全部答对 / 暂无补强建议」沿用整页空状态的居中，
+   横在卡片中间像一行孤字；只把 hist-body 里的空状态拉回左侧。 */
+html body.shell-history .hist-body .hist-empty{
+  text-align:left!important;padding:8px 0 2px!important;
+  border:0!important;background:none!important;
+}

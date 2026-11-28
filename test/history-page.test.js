@@ -66,3 +66,20 @@ test('记录页 num 不把空字符串当 0', () => {
   const s = read('history-page.js');
   assert.match(s, /typeof v === 'string' && !v\.trim\(\)/, 'num 未排除空字符串');
 });
+
+
+test('记录页副标题不把标题里的模式名再拼一遍', () => {
+  const s = read('history-page.js');
+  assert.ok(s.includes('function subtitleOf(rec)'), '缺 subtitleOf');
+  assert.ok(s.includes('titleOf(rec).indexOf(modeTxt) >= 0 ? date : date'),
+    '副标题必须在标题已含模式名时只留日期');
+  assert.ok(s.includes('esc(subtitleOf(rec))'), 'rowHtml 未使用 subtitleOf');
+  assert.ok(!s.includes("fmtDate(rec.date) + ' · ' + (MODE_NAME[modeOf(rec)]"),
+    'rowHtml 又无条件拼模式名，会出现「单元抽查 · 单元抽查」');
+});
+
+test('记录展开后的空状态左对齐，不横跨卡片居中', () => {
+  const css = read('app.css');
+  assert.ok(css.includes('body.shell-history .hist-body .hist-empty'), '缺 hist-body 作用域');
+  assert.ok(css.includes('text-align:left!important'), '展开空状态仍会居中');
+});

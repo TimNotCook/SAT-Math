@@ -175,6 +175,15 @@
     return '官方模考 · 全卷 ' + (total > 0 ? total : 44) + ' 题';
   }
 
+  /* 副标题只补标题没说的信息：标题里已经有「单元抽查」「官方模考」「讲义」，
+     再拼一遍模式名就成了「单元抽查 · 单元抽查」「官方模考 · 模考」。
+     日期始终保留；模式名只在标题没提到时才追加。 */
+  function subtitleOf(rec) {
+    var date = fmtDate(rec.date);
+    var modeTxt = MODE_NAME[modeOf(rec)] || txt(rec.mode) || '记录';
+    return titleOf(rec).indexOf(modeTxt) >= 0 ? date : date + ' · ' + modeTxt;
+  }
+
   function isDetail(d) { return !!d && typeof d === 'object' && !Array.isArray(d); }
   function wrongRows(detail) {
     /* detail 条目也可能是 5 / 'junk'（云端合并、半截导入）：truthy 但不是对象，
@@ -283,7 +292,7 @@
     var head = '<button type="button" class="hist-bar-head" aria-expanded="false" data-idx="' + idx + '">' +
       '<span class="hist-dot ' + g + '" aria-hidden="true"></span>' +
       '<span class="hist-title">' + esc(titleOf(rec)) +
-      '<small>' + fmtDate(rec.date) + ' · ' + (MODE_NAME[modeOf(rec)] || txt(rec.mode) || '记录') + '</small></span>' +
+      '<small>' + esc(subtitleOf(rec)) + '</small></span>' +
       '<span class="hist-score ' + g + '">' + esc(scoreLabel(rec)) + '</span>' +
       '<svg class="hist-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>' +
       '</button>';
