@@ -931,7 +931,7 @@
     } else if (q.values && q.values.length > 1) {
       /* 两空 grid-in：判分（TDGrade.dualCorrect）按 "第一空, 第二空" 解析，
          模考页原来只画一个框，一旦卷面出现双空题就永远填不全。这里与讲义页对齐。 */
-      const parts0 = String(a.v || '').split(/[,;]/);
+      const parts0 = safeText(a.v).split(/[,;]/);
       area.innerHTML = '<div class="drill-gridin drill-grid-multi">' + q.values.map((_, i) => {
         const lbl = OFFICIAL ? (i === 0 ? 'First answer' : i === 1 ? 'Second answer' : 'Answer ' + (i + 1))
                              : (i === 0 ? '第一空' : i === 1 ? '第二空' : '第 ' + (i + 1) + ' 空');
@@ -969,7 +969,7 @@
     } else {
       area.innerHTML = '<div class="drill-gridin"><label for="gridAnswer">' +
         (OFFICIAL ? 'Answer' : '输入答案') + '</label>' +
-        `<input id="gridAnswer" class="editable" type="text" value="${esc(a.v || '')}" autocomplete="off" spellcheck="false" inputmode="decimal" maxlength="6" ${locked ? 'disabled' : ''}>` +
+        `<input id="gridAnswer" class="editable" type="text" value="${esc(safeText(a.v).slice(0, 6))}" autocomplete="off" spellcheck="false" inputmode="decimal" maxlength="6" ${locked ? 'disabled' : ''}>` +
         (OFFICIAL
           ? '<p class="drill-input-note"><button type="button" class="exam-spr-link">Student-produced response directions</button></p>'
           : '<p class="drill-input-note">可输入整数、小数或分数，例如 12、4.5 或 3/4。</p>') +
@@ -1134,7 +1134,7 @@
       const ctl = locked ? `<b>${esc(a.v || '—')}</b> <span class="tiny muted">${OFFICIAL ? 'Locked' : '已锁定'}</span>`
         : q.type === 'mcq'
           ? `<div class="miniopts">${optLetters(q.id).map(L => `<button class="${a.v === L ? 'on' : ''}" data-uid="${esc(inst.uid)}" data-l="${L}">${L}</button>`).join('')}</div>`
-          : `<input class="gridmini editable" data-uid="${esc(inst.uid)}" value="${esc(a.v)}" placeholder="${OFFICIAL ? 'Enter answer' : '输入答案'}">`;
+          : `<input class="gridmini editable" data-uid="${esc(inst.uid)}" value="${esc(safeText(a.v))}" placeholder="${OFFICIAL ? 'Enter answer' : '输入答案'}">`;
       /* 抽查层原本一律中文；英文模式下只留「U1」这类编号，不放中文主题/出处，
          否则一屏一半是字典里没有的题目标题，看着像没翻完。 */
       const EN_UI = !OFFICIAL && document.documentElement.getAttribute('data-lang') === 'en';
