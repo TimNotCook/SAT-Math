@@ -32,7 +32,22 @@
       (SELF_LINE ? ' · ' + SELF_LINE : '') +
       (ENGINE_LAST_ERR ? ' · 上次错误：' + ENGINE_LAST_ERR : '');
   }
-  function status(msg) { var el = $('imgimpStatus'); if (el) el.textContent = msg || ''; diag(); }
+  /* SILENT 期间（自动自检跑那几秒）不抢状态栏：自检是后台验证，把"正在识别文字…"
+     盖在用户真正的导入进度上，人会以为自己的题在反复重试，或者干脆以为卡住了。 */
+  var SILENT = false;
+  var RESULT_AT = 0;   // 上一次"有结论"的时间（导入成功/没找到/跳过这种），用来给进度消息让位
+  var IS_RESULT = function (m) { return /导入|最像|已在|没找到|认不出|待整理|跳过|没把握/.test(m); };
+  function status(msg) {
+    var m = String(msg || '');
+    /* 自检期间只压掉"进度"消息；用户自己触发的结论（导入成功/没找到）照旧要显示出来，
+       否则自检一跑，用户粘贴的题明明进了错题本，界面上却什么都不说。 */
+    if (SILENT && !IS_RESULT(m)) return;
+    /* 引擎预热/下载这类进度消息，在刚出过结论的十几秒里不许盖掉结论：
+       否则会出现"明明已经导入成功，状态栏却在刷正在初始化识别内核"，看着像失败了。 */
+    if (RESULT_AT && Date.now() - RESULT_AT < 15000 && /正在初始化识别内核|正在下载|首次准备识别引擎|正在启动本地识别/.test(m)) return;
+    if (IS_RESULT(m)) RESULT_AT = Date.now();
+    var el = $('imgimpStatus'); if (el) el.textContent = m; diag();
+  }
   function progress(n, total) { var el = $('imgimpBar'); if (el) el.style.width = (total ? Math.round(n / total * 100) : 0) + '%'; }
 
   /* ---------------- 本地匹配器（与题库自测 top1 93% / top3 99%） ---------------- */
@@ -1554,6 +1569,7 @@
     if (sessionStorage.getItem('satmath_self_line')) { SELF_LINE = sessionStorage.getItem('satmath_self_line'); return; }
     autoSelfDone = true;
     var t0 = Date.now();
+    SILENT = true;
     warmOcr(function () {}).then(function () {
       if (busy) return;
       var cv = document.createElement('canvas'); cv.width = 900; cv.height = 160;
@@ -1569,9 +1585,10 @@
     }).catch(function (e) {
       SELF_LINE = '自检✗ ' + ((e && e.message) || e);
     }).then(function () {
+      SILENT = false;
       try { sessionStorage.setItem('satmath_self_line', SELF_LINE); } catch (e) {}
       diag();
-    });
+    }, function () { SILENT = false; });
   }
 
   function selfTest() {
