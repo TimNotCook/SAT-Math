@@ -2,7 +2,7 @@ name: apply-patch
 on:
   push:
     branches: [ main ]
-    paths: [ 'patches/apply.patch' ]
+    paths: [ 'patches/apply.patch', 'patches/nick.patch' ]
 permissions:
   contents: write
 jobs:
@@ -10,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: git apply --index patches/apply.patch
+      - run: |
+          if [ -f patches/nick.patch ]; then P=patches/nick.patch; else P=patches/apply.patch; fi
+          echo "$P" > /tmp/patchpath
+          git apply --index "$P"
       - run: python3 bump_assets.py
       - id: test
         continue-on-error: true
@@ -29,7 +32,8 @@ jobs:
             exit 1
           fi
       - run: |
-          git rm -q patches/apply.patch
+          P=$(cat /tmp/patchpath)
+          git rm -q "$P"
           git config user.name "satmath-bot"
           git config user.email "bot@satmath.local"
           git add -A
