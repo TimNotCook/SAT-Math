@@ -68,21 +68,14 @@ test('320「继续上次练习」允许折行，不再截断小节名', () => {
   assert.match(app, /text-overflow:clip!important/);
 });
 
-test('320 成绩报告题号不被拆成「第」与「1 题」两截', () => {
-  assert.match(app, /html body \.rev-topic \.rev-qno\{white-space:nowrap!important\}/);
-});
-
-test('320 成绩报告标题缩到 14px、题号独立成行', () => {
-  assert.match(app, /@media\(max-width:360px\)\{\s*html body \.rev-topic\{font-size:14px!important/);
-  assert.match(app, /html body \.rev-topic \.rev-qno\{display:block!important/);
-});
-
-test('320 题号换行后不把「·」孤零零留在第二行行首', () => {
+test('320 成绩报告 Q1 与知识点名同排，不被挤成孤儿行', () => {
   /* 8c6ca1d 之后知识点名不再拖「· 第 N 题」：题号只在 Q${dPos} 上出现一次，
      拼进知识点名的 rev-qno/rev-sep 结构已删除，这里反向守住别又被拼回去。 */
   assert.ok(!/<span class="rev-qno"><span class="rev-sep">[^<]*<\/span>/.test(examjs), '知识点名后面不要重复拼题号');
-  assert.match(app, /html body \.rev-topic \.rev-qno \.rev-sep\{display:none!important\}/);
-  assert.match(app, /html body \.rev-line1 \.rev-q\{display:none!important\}/);
+  assert.match(app, /html body \.rev-line1\{gap:4px!important\}/);
+  assert.match(app, /html body \.rev-topic\{font-size:12.3px!important/);
+  assert.match(app, /html body \.rev-q\{font-size:10.5px!important\}/);
+  assert.ok(!/html body \.rev-line1 \.rev-q\{display:none!important\}/.test(app), '320 不能藏掉 Q1，否则同知识点题分不清');
 });
 
 test('首页窄屏板块卡改成两行式：编号与状态一行、标题独占一行', () => {

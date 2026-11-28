@@ -781,7 +781,7 @@ body.exam-page:has(#stage-intro.active) .exam-start-main{margin-block:0!importan
    bluebook.css 里旧的整行样式会给它套 flex 横排 + 居中，这里压回去 */
 .tile-section.drill-section-row{
   display:flex!important;flex-direction:column!important;align-items:flex-start!important;
-  justify-content:center!important;gap:6px!important;padding:18px!important;
+  justify-content:center!important;gap:4px!important;padding:18px!important;
   border:1px solid #e8ecf3!important;border-bottom:1px solid #e8ecf3!important;
   border-radius:12px!important;background:var(--paper)!important;min-height:96px}
 .tile-section.drill-section-row.tile-md{min-height:128px}
@@ -874,7 +874,7 @@ body.exam-page:has(#stage-intro.active):not(.is-mock) #introParams{display:none!
 /* 专项开关：卡内隔一条细线，胶囊再轻一点 */
 body.exam-page:has(#stage-intro.active) .exam-special-panel{margin:14px 0 0!important;padding:14px 0 0!important;
   border:0!important;border-top:1px solid #edf1f7!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
-body.exam-page:has(#stage-intro.active) .exam-special-head{font-size:11px!important;font-weight:800!important;color:#94a3b8!important;letter-spacing:.1em!important}
+body.exam-page:has(#stage-intro.active) .exam-special-head{font-size:10.5px!important;font-weight:800!important;color:#94a3b8!important;letter-spacing:.1em!important}
 body.exam-page:has(#stage-intro.active) .exam-special-chips{margin-top:10px!important;gap:8px!important}
 
 /* 抽查页的返回入口只留 rail 里的中文那颗，hero 那颗英文的常驻隐藏 */
@@ -1030,7 +1030,7 @@ html body.exam-page #stage-result .kv{display:grid!important;grid-template-colum
    verify_mobile 在 320 宽读到 scrollWidth 222 > clientWidth 214。窄屏改单列 + 允许标签换行。 */
 @media (max-width:520px){
   html body.exam-page #stage-result .kv{grid-template-columns:minmax(0,1fr)!important;gap:0!important}
-  html body.exam-page #stage-result .kv>div{flex-wrap:wrap!important;row-gap:2px!important}
+  html body.exam-page #stage-result .kv>div{flex-wrap:wrap!important;row-gap:4px!important}
 }
 html body.exam-page #stage-result .kv>div{display:flex!important;align-items:baseline!important;justify-content:flex-start!important;gap:10px!important;
   padding:9px 0!important;border-bottom:1px solid #f0f4f9!important}
@@ -1046,7 +1046,7 @@ html body.exam-page #stage-result .exam-tabs .tab.on{background:#fff!important;c
 /* 检查答题：一条摘要 + 一张表，别再摆四块大数字 */
 html body.exam-page #stage-review .exam-stage-main{max-width:992px!important;margin:0 auto!important;padding:26px 0 100px!important}
 html body.exam-page #stage-review .exam-stage-head h1{font-size:26px!important;letter-spacing:-.01em}
-html body.exam-page #stage-review .exam-eyebrow{font-size:11px!important;letter-spacing:.16em!important;color:#9aa6b8!important}
+html body.exam-page #stage-review .exam-eyebrow{font-size:10.5px!important;letter-spacing:.16em!important;color:#9aa6b8!important}
 html body.exam-page #stage-review .exam-stage-head p{margin-top:6px!important;font-size:13px!important;color:#7b8798!important;max-width:620px;line-height:1.6}
 html body.exam-page #stage-review .rev-meta{display:flex!important;align-items:center!important;gap:16px!important;background:#fff!important;width:100%!important;box-sizing:border-box!important;
   border:1px solid #e6ebf3!important;border-radius:12px!important;padding:13px 20px!important;margin:20px 0 16px!important;
@@ -1062,7 +1062,7 @@ html body.exam-page #stage-review .rev-table th{font-size:11.5px!important;font-
 html body.exam-page #stage-review .rev-table td{padding:11px 14px!important;border-bottom:1px solid #f4f7fb!important;vertical-align:middle!important}
 html body.exam-page #stage-review .rev-table tr:last-child td{border-bottom:0!important}
 html body.exam-page #stage-review .rev-table td>b{font-size:13px!important;font-weight:800!important;color:#12233f!important}
-html body.exam-page #stage-review .miniopts{display:flex!important;gap:6px!important}
+html body.exam-page #stage-review .miniopts{display:flex!important;gap:4px!important}
 html body.exam-page #stage-review .miniopts button{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;
   border-radius:50%!important;border:1px solid #dbe3ef!important;background:#fff!important;color:#55637a!important;
   font-size:12px!important;font-weight:700!important;line-height:1!important}
@@ -1075,7 +1075,7 @@ html body.exam-page #stage-review .rev-summary{display:block!important;width:100
 html body.exam-page:has(#stage-answer:not([hidden])) .exam-questionbar .drill-questionbar-inner{border-bottom:0!important;max-width:992px!important;height:60px!important;padding:0!important}
 
 /* 交卷确认：一张干净的白卡，动作按钮统一蓝 */
-html body.exam-page #stage-submit .exam-eyebrow{font-size:11px!important;letter-spacing:.16em!important;color:#9aa6b8!important}
+html body.exam-page #stage-submit .exam-eyebrow{font-size:10.5px!important;letter-spacing:.16em!important;color:#9aa6b8!important}
 html body.exam-page #stage-submit .exam-submit-main{margin:9vh auto 0!important;max-width:596px!important;background:#fff!important;
   border:1px solid #e6ebf3!important;border-radius:16px!important;padding:30px 34px 32px!important;box-shadow:0 1px 2px rgba(15,23,42,.05)}
 html body.exam-page #stage-submit .exam-submit-count{font-size:40px!important;font-weight:800!important;color:#1d4ed8!important;letter-spacing:-.02em;margin:8px 0 4px}
@@ -1124,7 +1124,7 @@ html body.exam-page .mock-card-copy{grid-area:copy!important}
 html body.exam-page #btnStart{grid-area:cta!important;height:46px!important;min-width:148px!important;border-radius:11px!important;
   font-size:14px!important;font-weight:700!important;align-self:center!important}
 html body.exam-page #introOptions{grid-area:opts!important}
-html body.exam-page .exam-card-kicker{display:inline-block!important;font-size:11px!important;letter-spacing:.14em!important;
+html body.exam-page .exam-card-kicker{display:inline-block!important;font-size:10.5px!important;letter-spacing:.14em!important;
   color:#1d4ed8!important;background:#eaf1ff!important;border-radius:6px!important;padding:3px 8px!important;margin-bottom:10px!important}
 html body.exam-page .quiz-unit-name{display:block!important;font-size:22px!important;font-weight:800!important;color:#12233f!important;letter-spacing:-.01em;margin:0 0 4px!important}
 html body.exam-page .quiz-unit-desc{font-size:13px!important;line-height:1.6!important;color:#7b8798!important;margin:0 0 14px!important;max-width:560px}
@@ -1180,7 +1180,7 @@ html body.exam-page:not(.is-mock) #stage-result .res-grid>.exam-panel:has(#resUn
 
 /* 模考开场：返回降级成文字链接，右侧补一张考试结构卡 */
 html body.exam-page #backPractice{background:transparent!important;border:0!important;box-shadow:none!important;color:#64748b!important;
-  font-size:13px!important;font-weight:600!important;padding:0!important;min-height:0!important;height:32px!important;display:inline-flex!important;align-items:center!important;gap:6px!important}
+  font-size:13px!important;font-weight:600!important;padding:0!important;min-height:0!important;height:32px!important;display:inline-flex!important;align-items:center!important;gap:4px!important}
 html body.exam-page #backPractice:hover{color:#1d4ed8!important;background:transparent!important}
 html body.exam-page .mock-grid{display:grid!important;grid-template-columns:minmax(0,1fr) 300px!important;gap:18px!important;align-items:start!important}
 html body.exam-page #introParams{background:#fff!important;border:1px solid #e6ebf3!important;border-radius:14px!important;
@@ -1214,8 +1214,8 @@ html body.exam-page .quiz-card-facts .quiz-fact{display:flex!important;flex-dire
   padding:0 26px 0 0!important;margin-right:26px!important;border-right:1px solid #edf1f7!important}
 html body.exam-page .quiz-card-facts .quiz-fact:last-child{border-right:0!important;margin-right:0!important;padding-right:0!important}
 html body.exam-page .quiz-card-facts .quiz-fact b{font-size:26px!important;font-weight:800!important;line-height:1.05!important;letter-spacing:-.02em!important}
-html body.exam-page .quiz-card-facts .quiz-fact{font-size:11px!important;letter-spacing:.02em!important;color:#8b97a8!important}
-html body.exam-page .quiz-card-facts .quiz-fact span,html body.exam-page .quiz-card-facts .quiz-fact small{font-size:11px!important;color:#8b97a8!important}
+html body.exam-page .quiz-card-facts .quiz-fact{font-size:10.5px!important;letter-spacing:.02em!important;color:#8b97a8!important}
+html body.exam-page .quiz-card-facts .quiz-fact span,html body.exam-page .quiz-card-facts .quiz-fact small{font-size:10.5px!important;color:#8b97a8!important}
 html body.exam-page .quiz-fact u{text-decoration:none!important}
 html body.exam-page #btnStart{height:46px!important;min-width:168px!important;padding:0 24px!important;font-size:13.5px!important;
   font-weight:700!important;border-radius:11px!important;box-shadow:0 2px 8px rgba(37,99,235,.18)!important;transition:background-color .16s ease,box-shadow .16s ease,transform .16s ease}
@@ -1264,7 +1264,7 @@ html body.shell-wrong .wrap{padding-top:44px!important}
 html body .tile-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;grid-auto-flow:row!important}
 html body .tile-grid .tile-section{grid-column:auto!important;min-height:0!important;height:112px!important;
   padding:16px 18px 14px!important;justify-content:flex-start!important;gap:0!important}
-html body .tile-grid .tile-code{position:static!important;display:block!important;font-size:11px!important;
+html body .tile-grid .tile-code{position:static!important;display:block!important;font-size:10.5px!important;
   color:#a8b4c6!important;letter-spacing:.02em;line-height:1!important;margin-bottom:14px!important}
 html body .tile-grid .tile-name{font-size:15.5px!important;font-weight:650!important;line-height:1.42!important;
   padding-right:0!important;margin:0!important}
@@ -1325,7 +1325,7 @@ body.shell-history .hist-list>.hist-empty .he-d{font-size:13.5px!important;color
 body.shell-history .hist-list>.hist-empty .btn{margin-top:10px!important}
 
 /* ---- 侧栏尾部（返回 + 设置）与导航项同节奏 ---- */
-html body .rail-tail{margin-top:2px!important;gap:2px!important}
+html body .rail-tail{margin-top:2px!important;gap:4px!important}
 html body .site-rail .rail-sep{margin:12px 8px!important}
 html body .site-rail .td-acct-btn.rail-settings{padding:10px 12px!important;border-radius:9px!important;height:auto!important;
   min-height:0!important;font-size:14px!important}
@@ -1597,17 +1597,13 @@ html body .rev-line1{display:flex!important;align-items:baseline!important;gap:1
 html body .rev-q{font-size:12.5px!important;font-weight:700!important;color:#2563eb!important;
   font-variant-numeric:tabular-nums!important;letter-spacing:.04em!important}
 html body .rev-topic{font-size:16px!important;font-weight:650!important;color:#12233f!important;letter-spacing:-.01em!important}
-/* 320 结果行标题只剩 184px：「…第 1 题」会把「第」丢在行末、题号单独另起一行，
-   像被截断。题号拆成独立 span 并禁止内部换行，换行只落在题号前的空格。 */
-html body .rev-topic .rev-qno{white-space:nowrap!important}
-/* 320 只有 184px：14px 让最长的小节名（1.4 线性方程与不等式应用题）也能整行放下，
-   题号独立成第二行，不再从「图像」这种词中间断开。390/1440 不缩小、题号仍同线。 */
+/* 320 结果行只剩 Q1 + 知识点名：14px 下最长的「1.4 线性方程与不等式应用题」175px，
+   加上 Q1 与 10px 间距超过 194px，Q1 会被挤到单独一行。13px + 6px 间距刚好同排；
+   Q1 必须留着，否则两道同知识点题在窄屏完全分不清。390/1440 仍用 16px。 */
 @media(max-width:360px){
-  html body .rev-topic{font-size:14px!important;line-height:1.4!important}
-  html body .rev-topic .rev-qno{display:block!important;margin-top:2px!important}
-  html body .rev-topic .rev-qno .rev-sep{display:none!important}
-  /* 题号已经在第二行「第 N 题」里，左侧蓝色的 Q1 在 320 只够把标题挤到下一行，孤零零占一行。 */
-  html body .rev-line1 .rev-q{display:none!important}
+  html body .rev-line1{gap:4px!important}
+  html body .rev-topic{font-size:12.3px!important;line-height:1.5!important}
+  html body .rev-q{font-size:10.5px!important}
 }
 html body .rev-meta{margin-left:auto!important;font-size:12px!important;color:#7b8ba1!important;white-space:nowrap!important}
 /* 窄屏：结果页每条的 meta（"1.1 · Q5 · 2 points · Marked · Previously missed"）允许折行并占满一行，
@@ -1672,7 +1668,7 @@ html body .kp-row:first-child{border-top:0!important}
     height:auto!important;min-height:46px!important}
   html body:has(#questionView:not([hidden])) .drill-context-inner{
     display:flex!important;flex-direction:column!important;align-items:stretch!important;
-    height:auto!important;min-height:46px!important;row-gap:2px!important;
+    height:auto!important;min-height:46px!important;row-gap:4px!important;
     padding-top:5px!important;padding-bottom:5px!important}
   html body:has(#questionView:not([hidden])) .drill-context-inner>.drill-context-left{
     width:100%!important;min-width:0!important}
