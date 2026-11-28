@@ -391,3 +391,11 @@ test('本机快照读不出来时不写基线，避免拿半份状态当基线',
   assert.strictEqual(M.saveBase(null), false);
   assert.strictEqual(M.loadBase(), null);
 });
+
+test('同账号两台设备都动过：先按 ts 合并再推，不许本机整份盖掉云端', () => {
+  const SRC = fs.readFileSync(path.join(__dirname, '..', 'cloud-account.js'), 'utf8');
+  assert.match(SRC, /cloudChangedToo = !\!\(cloudPayload[\s\S]{0,400}?mergeLocalWithCloud\(cloudPayload\)/,
+    '同账号分支仍在用本机整份 silentPush，会盖掉另一台设备的进度');
+  assert.match(SRC, /if \(cloudChangedToo\)[\s\S]{0,300}?if \(!applyArchive\(bothMerged\)\)/,
+    '合并结果应用失败时没有退出，可能把半份状态推上云');
+});

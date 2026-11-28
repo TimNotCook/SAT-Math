@@ -659,6 +659,20 @@
     if (prof.owner === uid) {
       /* 同一账号：以变化为准，全自动，不提示、不让用户做选择。 */
       if (lh !== prof.lastSynced) {
+        /* 本机动过、云端也可能被别的设备动过：先按 ts 合并再推。
+           旧实现直接 silentPush 整份本机，另一台设备刚做的题会被这台机器盖掉。 */
+        var cloudChangedToo = !!(cloudPayload && Object.keys(cloudPayload).length && cloudHash && cloudHash !== prof.lastSynced);
+        if (cloudChangedToo) {
+          var bothMerged = mergeLocalWithCloud(cloudPayload);
+          if (guestAdd) bothMerged = mergeIntoPayload(bothMerged, guestAdd);
+          if (hashOf(bothMerged) !== lh) {
+            if (!applyArchive(bothMerged)) {
+              setStatus('云端档案内容异常，已保留本机进度，未覆盖', 'warn');
+              renderBody();
+              return;
+            }
+          }
+        }
         var ok = await silentPush();
         setStatus(ok ? '进度已自动保存' : '暂时无法保存进度，联网后会自动重试', ok ? 'ok' : 'warn');
       } else if (cloudHash && cloudHash !== prof.lastSynced) {
