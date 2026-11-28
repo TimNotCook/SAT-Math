@@ -301,3 +301,10 @@ test('退出登录收掉上一个人的“等确认”和重发冷却，避免�
   assert.match(out, /confirmCooldown = 0/, '退出后仍保留重发冷却');
   assert.match(out, /clearInterval\(confirmTimer\)/, '退出后冷却计时器还在跑');
 });
+
+test('改登录邮箱就收掉上一条重发确认入口和冷却，不把信发到另一个地址', () => {
+  const out = acct.slice(acct.indexOf("em.input.addEventListener('input'"), acct.indexOf("b.appendChild(em.box)"));
+  assert.match(out, /needConfirm = false/, '改邮箱后仍保留等确认状态');
+  assert.match(out, /confirmCooldown = 0/, '改邮箱后仍被上一条冷却挡住');
+  assert.match(out, /removeChild\(ui\.resendConfirmBtn\)/, '改邮箱后重发按钮没从界面移除');
+});

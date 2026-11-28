@@ -1693,6 +1693,19 @@
     em.input.spellcheck = false;
     if (seed) em.input.value = seed;
     ui.email = em.input;
+    /* “没收到确认邮件？”是绑在上一次提交的邮箱上的。用户把邮箱改掉，
+       这条入口和它的冷却就不该继续留着——否则会把确认信发到另一个地址，
+       还先被上一个地址的 60 秒冷却挡住。改邮箱即收掉，重新登录再出现。 */
+    em.input.addEventListener('input', function () {
+      if (!needConfirm) return;
+      needConfirm = false;
+      confirmCooldown = 0;
+      if (confirmTimer) { clearInterval(confirmTimer); confirmTimer = null; }
+      if (ui && ui.resendConfirmBtn && ui.resendConfirmBtn.parentNode) {
+        ui.resendConfirmBtn.parentNode.removeChild(ui.resendConfirmBtn);
+        ui.resendConfirmBtn = null;
+      }
+    });
     b.appendChild(em.box);
 
     /* 标签就是「密码」，placeholder 再写一遍「密码」是纯噪音，留空。 */
