@@ -16,7 +16,7 @@
  *
  * 退出码：全部通过 0；有任何不合格 1（超时也算不合格）。
  */
-import { spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
 import { readdirSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve, join } from 'path';
@@ -32,6 +32,13 @@ const TIMEOUT = Number(argVal('--timeout', '240000'));
 const COOLDOWN = Number(argVal('--cooldown', '2500'));
 const REPORT = argVal('--report', '/tmp/verify-all.json');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* 每个验收器自己会杀掉主进程，但 Chrome 的 helper 子进程常常活下来；
+   跑一整轮下来能在机器上留下上百个 headless 进程，把下一次启动拖到超时——
+   那看起来像"页面坏了"，实际是上一次的垃圾没清。串行跑时这里兜底扫一遍。 */
+const sweepChrome = () => {
+  try { execSync('pkill -f "headless=new" || true', { stdio: 'ignore' }); } catch {}
+};
 
 let BASE = argVal('--base', '');
 let server = null;
@@ -75,6 +82,7 @@ for (const f of files) {
   const ok = r.code === 0;
   if (!ok) failed++;
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${f}  ${Math.round(r.ms / 1000)}s  ${ok ? '' : '『' + r.tail + '』'}`);
+  sweepChrome();
   await sleep(COOLDOWN);
 }
 
