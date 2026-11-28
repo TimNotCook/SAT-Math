@@ -1209,7 +1209,11 @@
     const scaledRaw = countNum(est.scaled);
     const scaled = scaledRaw != null && scaledRaw >= 200 && scaledRaw <= 800 ? scaledRaw : null;
     const pct = total ? Math.round(correct / total * 100) : 0;
-    const modeTxt = MODE_NAME[safeText(r.mode)] || safeText(r.mode) || '模考';
+    /* 旧存档/云端合并可能把 mode 写成大写或漏掉：按当前页面的 MODE 兜底，
+       否则单元抽查的成绩页会印成「模考」，大写记录会印成「QUIZ」。 */
+    const modeRaw = safeText(r.mode).trim();
+    const modeKey = modeRaw.toLowerCase();
+    const modeTxt = MODE_NAME[modeKey] || (modeRaw ? modeRaw : MODE_NAME[MODE]) || '模考';
     /* 云端/旧版可能把 Date.now() 存成字符串；new Date('1700...') 是 Invalid，
        成绩页日期会变成 —。数字字符串先转时间戳，其他交给 Date 解析。 */
     /* date 可能是 null/0（旧存档/云端合并）：new Date(null) 会显示 1970 年。

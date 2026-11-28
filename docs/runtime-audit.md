@@ -759,3 +759,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 100 条：错误模式写成大写 `MOCK` 时，错题本把模考错题标成「考试练习」（2026-11-28）
 
 第 98 条把记录页的模式比较归一了，但错题本还在用严格小写：`wrong-page.js collect()` 里 `r.mode==='quiz'?'单元抽查':r.mode==='mock'?'模考':...`。旧版/云端/手工导入的 `mode:"MOCK"` 记录，同一道模考错题在记录页已按 44 题封顶，在错题本里却只剩笼统的「考试练习」；`mode:"JIANGYI"` 还会绕过讲义题库守卫。新增 `modeOf(r)` 统一 `trim().toLowerCase()`，来源名和讲义守卫都改走它。验证：新增 `mode:"MOCK"`、`U1-01` 错题明细回归，旧代码错题来源里没有「模考」、仍是「考试练习」，新代码通过；全量 599/0。
+## 第 101 条：成绩页标题没归一 mode，大写记录印「QUIZ」、缺字段的抽查印「模考」（2026-11-28）
+
+第 98 条把记录页的 mode 统一成小写，但成绩页 `renderResult` 仍用 `MODE_NAME[safeText(r.mode)]` 精确查表：旧存档/云端合并写成 `"QUIZ"` 时查不到，标题原样印「QUIZ · 成绩报告」；旧记录整个缺 `mode` 时，单元抽查的成绩页会被兜底成「模考 · 成绩报告」。修成 `modeRaw.trim().toLowerCase()` 查表，缺失时回落到当前页面的 `MODE`，未知值仍原样保留。验证：新增 3 条回归（QUIZ/Mock、缺失/空白、未知 FOO）；全量 601/0；`verify_flows` 16/16。
+
