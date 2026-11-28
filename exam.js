@@ -1385,8 +1385,8 @@
       <div style="flex:1"><b>${esc(nm)}</b> <span class="tiny muted">${p.type === 'unit' ? T('单元', 'Unit') : T('知识点', 'Skill')}</span>
         <div class="small muted" style="margin-top:2px">${esc(reason)}</div>
         <div class="tiny" style="margin-top:3px;color:var(--blue-strong)">${esc(action)}</div>
-        <div class="tiny muted" style="margin-top:3px">${T('对应错题：','Questions to redo: ')}${esc(ids.join(T('、', ', '))) || '—'}</div></div></div>`;
-    }).join('') || `<div class="small muted">${T('本次无错题','No wrong answers this time')}</div>`;
+        <div class="tiny muted" style="margin-top:3px">${EN ? 'Missed questions: ' : '对应错题：'}${esc(ids.join(EN ? ', ' : '、')) || '—'}</div></div></div>`;
+    }).join('') || `<div class="small muted">${EN ? 'No missed questions in this practice' : '本次无错题'}</div>`;
     /* result-priority: 把「复习优先级」移到分数之前——先给下一步，再给数字。DOM 层移动，阅读顺序一致 */
     (function(){var st=document.getElementById('stage-result');if(!st)return;var sc=st.querySelector('.exam-score-panel'),pr=st.querySelector('.exam-priority-panel');if(sc&&pr&&sc.parentNode&&pr.parentNode===sc.parentNode&&pr.nextElementSibling!==sc){sc.parentNode.insertBefore(pr,sc);}})();
     renderTypeSummary();
