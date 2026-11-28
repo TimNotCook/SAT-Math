@@ -1,8 +1,10 @@
 /* 站点云端配置：
    1) 账号登录 / 进度同步：Supabase（window.TD_CLOUD_CONFIG.supabase），
-      邮箱账号通道：主路径是「邮箱 + 密码」（mailer_autoconfirm=true，注册当场返回会话，
-      不依赖邮件投递）；备用「邮件链接」；6 位数字码仍被 Supabase 的自定义 SMTP 模板门禁卡住，
-      手机号登录需要项目开启 Phone provider + 短信服务商凭据，代码已留接口、UI 未接。填了 Project URL 与 anon public key 即启用。
+      现役登录通道：① 邮箱 + 密码；② 手机号 + 密码（内部邮箱形如 p<国家码+号码>@p.satmath.app（例 p8619931920276@p.satmath.app），
+      走同一套 Supabase 邮箱后端，不需要 Phone provider / 短信凭据）；③ 邮件登录链接；
+      ④ 忘记密码的邮件重置链接。6 位数字码仍被 Supabase 免费版默认邮件服务的模板门禁卡住，
+      只有配好自定义 SMTP（模板里放 {{ .Token }}）并把 otpCode 打开才会出现入口。
+      填了 Project URL 与 anon public key 即启用。
    2) 图片识别导入（image-import.js）走应用已开通的云端视觉模型（WorkBuddy Cloud SDK，
       publishableKey 无权限，服务端按 Origin 授权，仅 timnotcook.github.io 可用，
       无需用户登录、不落地密钥）。endpoint / oauthRelayBaseUrl / publishableKey

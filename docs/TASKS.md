@@ -26,7 +26,7 @@
 | 题库 | **1292** 题（id 全唯一）：easy 355 / medium 736 / hard 201；mcq 768 / grid 524 | `node -e` 起 `vm` 跑 `data/questions.js`，`TD_BANK.questions.length` 与 `new Set(id)` 计数（字段名是 `level`，没有 `difficulty`） |
 | 单元分布 | 1–268 / 2–333 / 3–453 / 4–238（合计 1292） |
 | 讲义复习进度 | 官方 24 节 / 应有 **243** / 已录 **243** / 缺 **0** / 完成 **24 / 24 节** | `python3 tools/gen_jiangyi_reconcile.py`（输出 `need=243 have=243`）与 `docs/jiangyi-backlog.md` |
-| 登录后端（线上实况） | **Supabase 邮箱 magic link 单通道**：`cloud-config.js` 里 `supabase.url` = `https://ofsnrzfmjqyrmkvdwnbo.supabase.co`、`anonKey` = `sb_publishable_…`、`siteUrl` = `https://timnotcook.github.io/SAT-Math/`；**客户端代码内无 `signInWithPassword` / 无用户名登录**，线上运行的是邮件链接。服务端另有 `usernames` / `username_alias` + `resolve_login` / `is_retired_username` / `rename_username`（`docs/sql/account-model.sql`，已建、客户端尚未接）；Firebase、GitHub 令牌、WorkBuddy 登录均不在代码里。WorkBuddy 的 `endpoint` / `publishableKey` **只服务图片识别 VLM** | `sed -n '1,20p' cloud-config.js`；`grep -n "signInWith" *.js`（仅 `signInWithOtp` 相关，无密码通道）；`grep -rn "resolve_login\|usernames" --include=*.js .`（客户端 0 命中，说明尚未接线） |
+| 登录后端（线上实况） | **Supabase 邮箱后端 + 四条登录通道**：① 邮箱 + 密码；② 手机号 + 密码（内部伪邮箱 `p<国家码+号码>@p.satmath.app`，如 `p8619931920276@p.satmath.app`，不需要 Phone provider/短信商）；③ 邮件登录链接；④ 忘记密码的邮件重置链接。`cloud-config.js` 里 `supabase.url` = `https://ofsnrzfmjqyrmkvdwnbo.supabase.co`、`anonKey` = `sb_publishable_…`、`siteUrl` = `https://timnotcook.github.io/SAT-Math/`、`otpCode: false`（6 位数字码被免费版默认邮件服务的模板门禁卡住，未配自定义 SMTP 前不出入口，避免假按钮）。Firebase、GitHub 令牌、WorkBuddy 登录均不在代码里；WorkBuddy 的 `endpoint` / `publishableKey` **只服务图片识别 VLM** | `sed -n '1,20p' cloud-config.js`；`grep -n "signInWith" *.js`（`signInWithPassword` / `signInWithOtp` 都在 `supa-cloud.js`）；真机：手机号 + 密码、邮箱 + 密码、邮件链接、重置链接四通道均通过 |
 | Firebase 状态 | 模块已摘除：`firebase-cloud.js` 与 `vendor/firebase/` 均不存在，五页无引用，CSP 无 firebase 域名 | `ls firebase-cloud.js vendor/firebase`；`grep -c firebase-cloud *.html` |
 | Supabase 迁移分支 | `backup/supabase-auth-5a0c22b` 仍存在且**未合并**（`git merge-base --is-ancestor 5a0c22b origin/main` 退出码 1） | 同左命令 + `git ls-remote --heads origin` |
 
@@ -36,7 +36,7 @@
 |---|---|---|---|
 | 码农 α | 讲义录入已清零（4.5 十六 + 2.5 #10 于 `61002ef` 入库），转入待命：后续只接主会话派的新节或返工单 | 无阻塞；`data/jiangyi.js` 写入权已释放（243/243，`verify_jiangyi` 0 FAIL） | 新派单须带原页页码 + 答案页核对 |
 | 开发者 | ① ~~给阴影题补 `region`（P0-2）~~ 已实测 6/6 通过（见「已完成」）；② 批量修数学排版（P1-6）：`f (x)`→`f(x)`、`(2/3)` 去括号、问号前空格；③ ~~加校验~~ 已落地：`tools/verify_assets.mjs` + `tools/verify_shaded_figures.mjs`；④ 云主机清僵尸副本（仅限确认无独有内容、且不是 `SAT-Math-Prep` 的副本） | 阴影题口径已定案 **5 道**（见「已定案」第 1 条），按此验收；云主机疑似残留 `~/satrepo`、`~/satrepo-vm`，需逐个核对后再动 | 阴影题逐个截图与原题一致；校验脚本能拦住同类错误；题库仍 **1292** 且判分回归全过 |
-| 码农 β | 账号面板与云同步收尾（magic link 单通道下的档案读取、换设备进度、设置页回归） | 6 位数字码需自定义 SMTP + 模板改造后才能切回；当前只能 magic link | 真机 magic link 登录；换设备能看到进度 |
+| 码农 β | 账号面板与云同步收尾（四条登录通道下的档案读取、换设备进度、游客记录合并、设置页回归） | 6 位数字码需自定义 SMTP + 模板改造后才能打开（`cloud-config.js` 的 `otpCode`）；其余四通道均已上线 | 真机四条通道登录；换设备能看到进度；登出后游客做题再登录不丢记录 |
 | 主会话（我） | 验收与台账：维护本文件、复核各人结论、跑站点与题库回归；不碰业务代码 | — | 每人交付必须带 commit hash + 线上验证证据，缺一不签收 |
 
 ## 已完成（勿重复做）

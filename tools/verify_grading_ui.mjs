@@ -65,7 +65,12 @@ await send('Runtime.enable');
    读成「没有选项」（本轮真踩到一次：mcq 答对报 操作=missing）。 */
 async function waitFor(expr, ms = 7000) {
   const until = Date.now() + ms;
-  while (Date.now() < until) { if (await ev(expr)) return true; await sleep(150); }
+  while (Date.now() < until) {
+    /* 交卷会整页跳到结果页：轮询期间执行上下文被销毁是正常现象，
+       以前这里直接抛出去，用例被记成"读不到结果"，看起来像产品坏了。 */
+    try { if (await ev(expr)) return true; } catch (e) { /* 导航中，继续等 */ }
+    await sleep(150);
+  }
   return false;
 }
 
@@ -150,8 +155,12 @@ for (const c of CASES) {
         inp.focus(); inp.value=v; inp.dispatchEvent(new Event('input',{bubbles:true}));
         inp.blur(); return 'ok'; })()`);
   await sleep(700);
-  const fin = await ev(`(function(){ var b=document.getElementById('btnFinish'); if(!b) return 'no-finish'; b.click(); return 'ok'; })()`);
-  await sleep(1600);
+  const fin = await ev(`(function(){ var b=document.getElementById('btnFinish'); if(!b) return 'no-finish'; b.click(); return 'ok'; })()`).catch(function () { return 'nav'; });
+  /* 交卷后跳结果页，等结果计数真的画出来再读；固定 sleep 在题库大、
+     首屏慢的时候会把"还没渲染"读成 right=null（历史红就是这个）。 */
+  await sleep(400);
+  await waitFor(`(function(){ return !!document.getElementById('resultRight'); })()`, 15000);
+  await sleep(300);
   const got = await ev(`(function(){
     var r=(document.getElementById('resultRight')||{}).textContent||'?';
     var w=(document.getElementById('resultWrong')||{}).textContent||'?';
