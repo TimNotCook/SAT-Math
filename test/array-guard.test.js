@@ -674,3 +674,33 @@ test('记录页：模考 mode 写成大写 MOCK 时仍按 44 题封顶并标成�
   assert.ok(/全卷 44 题/.test(html), '大写 MOCK 没有按官方 44 题封顶');
   assert.ok(/100%/.test(html), '大写 MOCK 的正确率没有按 44 题重算');
 });
+
+test('记录页：刚交卷但未做完档案没清掉时，不再重复显示「未做完」', () => {
+  const store = {
+    tdsat_exam_suite_results_v1: JSON.stringify([]),
+    tdsat_exam_suite_abandoned_v1: JSON.stringify([{
+      date: 1700000000000, startedAt: 1700000000000, mode: 'quiz', unitId: 3,
+      finished: false, answered: 5, total: 22,
+    }]),
+    tdsat_exam_suite_session_v1: JSON.stringify({
+      mode: 'QUIZ', unitId: 3, startedAt: 1700000000000, finished: true,
+    }),
+  };
+  let threw = null, els = null;
+  try { els = boot(['history-page.js'], store).els; } catch (e) { threw = e; }
+  assert.strictEqual(threw, null, '记录页被已交卷会话打崩：' + (threw && threw.message));
+  const html = String(els && els.histList ? els.histList.innerHTML : '');
+  assert.ok(!/未做完|继续这卷/.test(html), '已交卷的会话仍显示未做完档案，看起来像重复记录');
+});
+
+test('记录页把刚交卷卷的残留未做完档案当场补删，而不是只隐藏', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const hist = fs.readFileSync(path.join(__dirname, '..', 'history-page.js'), 'utf8');
+  assert.match(hist, /abandoned\.length !== abandonedRaw\.length[\s\S]*save\(ABANDONED, abandoned\)/, '记录页只隐藏不补删，换卷后残留档案会再次冒出来');
+});
+
+test('同一卷的旧大写 mode 未被新未做完档案重复压入', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const exam = fs.readFileSync(path.join(__dirname, '..', 'exam.js'), 'utf8');
+  assert.match(exam, /const sameMode = x =>[\s\S]*?findIndex\(x =>[^\n]*sameMode\(x\)/, 'archiveAbandoned 仍按大小写严格比较，会压出两条未做完');
+});

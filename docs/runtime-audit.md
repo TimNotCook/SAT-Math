@@ -874,3 +874,22 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 129 条：模考作废留档写盘失败后仍删原会话，35 分钟卷面一起清零（2026-11-28）
 
 `salvageSession()` 先把整卷写进 `tdsat_exam_suite_results_v1`（`void:true` 留档），但 `save()` 的返回值一直没人看；`runtimeVoid()` 和 `recoverInvalid()` 紧接着无条件 `removeItem(KEY_SESSION)`。存储配额满/只读时，留档只在内存里，会话却被删掉，刷新后既没有作废记录、也找不回原卷——正好违反“宁可多一条未交卷记录，也不静默清零”。修成：`save()` 失败时在记录上标 `storageWriteFailed`，新增 `salvageThenClear()` 统一判断；写失败就保留原会话并提示“清出空间后刷新可重试”，只有留档真正落盘才删会话。验证：新增静态守卫锁标记、收口与两处调用；全量 653/0；`verify_flows` 16/16。
+## 第 130 条：镜像“探测排序”fetch CDN 被站点 CSP 全拦，控制台每页刷 4 条错误（2026-11-28）
+
+`probeOrder()` 用 `fetch(m.script, { mode:'no-cors' })` 去测 jsdelivr / unpkg / cdnjs 的首字节耗时，但站点 CSP 的 `connect-src` 只放行同源、Supabase 等白名单，三个 CDN 请求全部被浏览器拒绝；`verify_junk` 每次打开 `wrong.html` 都稳定捕获 4 条 security/CSP 错误，探测结果也全是 1e9。修成不再发任何 CDN fetch：优先复用上次成功的 `TESS_FAST`，没有记录就按内置顺序单 worker 回落，成功时记镜像编号。验证：`verify_junk` 11 套 × 七页「异常/错误 0 项」；静态回归禁止 `fetch(m.script)`。
+
+## 第 131 条：上一版并发测试没跟着「单 worker」实现更新，全量直接一红（2026-11-28）
+
+`test/image-import-save.test.js` 仍断言 `settled = true;…resolve(w)`，但接任提交已把三 worker 并发改成「探测排序 + 只建一个 worker」。实现变了，测试没变，`node --test` 稳定红在「三个镜像并发时首个成功立刻返回」。修成按当前产品决策断言：不得回到 `Promise.all(tries)`，必须有 `probeOrder()` 和按序回落的 `next()`。
+
+## 第 132 条：交卷后未做完档案没清掉，记录页同时出现「已交卷」和「未做完」（2026-11-28）
+
+`exam.js clearAbandoned()` 用 `x.mode === MODE` 严格比较，`history-page.js` 又直接把所有 `finished:false` 的未做完档案拼在成绩前面。交卷写盘失败或旧 mode 写成 `'QUIZ'/'Mock'` 时，那条档案删不掉，记录页同时给出成绩条和「继续这卷」。修成：clearAbandoned 按 `trim().toLowerCase()` 对齐 mode；记录页在当前会话已经 `finished` 且 `startedAt` 对得上时隐藏对应档案，能写盘就当场补删，避免换卷后残留档案再次冒出来。验证：注入 `mode:'QUIZ'` 完成会话 + `mode:'quiz'` 未做完档案，旧代码出现「未做完」，新代码不出现。
+
+## 第 133 条：记录页只隐藏残留未做完档案不补删，换一卷后同一张「继续这卷」又冒出来（2026-11-28）
+
+上一版修法只在渲染时把「当前会话已 finished 且 startedAt 对得上」的未做完档案过滤掉，没有写回存储。用户开始下一卷后 `liveSess` 换人，`finishedNow` 变 false，上一条残留档案立刻重新出现，和早已交卷的成绩条并排。修成：过滤前保留 `abandonedRaw`，数量变了就 `save(ABANDONED, abandoned)` 当场补删；写盘失败也只影响本次隐藏，不把重复条再画出来。验证：静态回归锁补删分支；全量 659/0。
+
+## 第 134 条：旧档案 mode 是大写时，pagehide 又给同一卷压第二条「未做完」（2026-11-28）
+
+`archiveAbandoned()` 用 `x.mode === rec.mode` 找同卷旧档，`rec.mode` 是新写的小写 `'quiz'/'mock'`；云端合并或旧版留下的 `'QUIZ'` 找不到，于是同一 `startedAt` 被 push 成两条未做完。记录页会显示两张一模一样的「继续这卷」，已答数还可能一新一旧。修成比较前统一 `trim().toLowerCase()`，同一卷只更新不追加。验证：静态回归锁 `sameMode(x)` 查找；全量 659/0。

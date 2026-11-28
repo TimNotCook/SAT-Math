@@ -310,8 +310,21 @@
        只把它们从成绩列表过滤会变成「存了但永远看不到」；它们不是成绩，
        但应该按未做完记录显示，否则学生以为那一卷被静默清零。 */
     var salvaged = rawResults.filter(voidFlag);
-    var abandoned = (load(ABANDONED) || []).filter(function (r) { return isRec(r) && unfinishedFlag(r.finished); })
-      .concat(salvaged).sort(byDateDesc);
+    var sess = readSession();
+    /* 交卷时 clearAbandoned 写盘失败，或旧版留下大写 mode 的档案：当前会话
+       已经 finished 且 startedAt 对得上，这条「未做完」其实是刚交的卷。
+       不隐藏就会同时出现成绩条和「继续这卷」，看起来像整卷被重复记录。 */
+    var finishedNow = sess && finishedFlag(sess.finished);
+    var abandonedRaw = (load(ABANDONED) || []).filter(function (r) { return isRec(r) && unfinishedFlag(r.finished); });
+    var abandoned = abandonedRaw.filter(function (r) {
+      return !(finishedNow && sameStamp(r.startedAt, sess.startedAt) && modeOf(r) === modeOf(sess));
+    });
+    /* 只隐藏不删，等下次开新卷把这卷顶掉后它还会冒出来。能写盘就当场补删；
+       写盘失败也先隐藏本次渲染，不让同一卷重复出现在眼前。 */
+    if (abandoned.length !== abandonedRaw.length) {
+      try { save(ABANDONED, abandoned); } catch (e) { console.warn('清理未做完档案失败', e); }
+    }
+    abandoned = abandoned.concat(salvaged).sort(byDateDesc);
     if (!results.length && !abandoned.length) {
       box.innerHTML = '<div class="hist-empty"><svg class="empty-art" width="112" height="96" viewBox="0 0 112 96" fill="none" aria-hidden="true"><rect x="30" y="10" width="52" height="66" rx="11" fill="#f4f9ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="M42 30h28M42 41h28M42 52h17" stroke="#dde9f9" stroke-width="1.6"/><circle cx="78" cy="68" r="17" fill="#eaf2ff" stroke="#cfe0f8" stroke-width="1.5"/><path d="m71 68 4.6 4.6L85 63" stroke="#4d84ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '<div class="he-t">还没有模考或抽查记录</div>' +

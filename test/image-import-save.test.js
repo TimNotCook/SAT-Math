@@ -37,3 +37,14 @@ test('一张图拆多题的写盘失败会一路传到最终提示，不再只�
   assert.match(JS, /function salvageMulti\(\)[\s\S]*?localWriteFailed = false[\s\S]*?localWriteFailed = true[\s\S]*?return \{ added: added, localWriteFailed: localWriteFailed \}/, 'salvageMulti 没有收集单题写盘失败');
   assert.match(JS, /salvageSaveFailed[\s\S]*?本机进度写入失败/, '最终提示没有把拆题写盘失败带上');
 });
+
+test('OCR 镜像按顺序只建一个 worker，不再三 worker 抢内存', () => {
+  assert.doesNotMatch(JS, /Promise\.all\(tries/, '又回到三镜像并发等待全部 settle');
+  assert.match(JS, /function probeOrder\(\)/, '缺少镜像排序');
+  assert.match(JS, /function next\(\)[\s\S]*?next\(\);/, '没有按顺序逐个回落到可用镜像');
+});
+
+test('镜像排序不能再 fetch CDN：CSP connect-src 会全拦并刷控制台错误', () => {
+  assert.doesNotMatch(JS, /fetch\(m\.script/, 'probeOrder 又在 fetch CDN，CSP 会拦掉并报错');
+  assert.match(JS, /TESS_FAST >= 0[\s\S]*?Promise\.resolve/, '没有复用上次成功镜像的排序逻辑');
+});

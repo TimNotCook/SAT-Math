@@ -644,23 +644,14 @@
     });
   }
 
-  /* 探测：只取每个镜像 tesseract.min.js 的首字节耗时，按快慢排队。
-     mode:'no-cors' 的 CDN 也能拿到时间戳，拿不到就当最慢。 */
+  /* 不再 fetch CDN 探测顺序：站点 CSP 的 connect-src 只放行同源/Supabase，
+     jsdelivr/unpkg/cdnjs 会被浏览器直接拒绝，控制台每页刷 4 条错误，耗时还全 1e9。
+     优先复用上次成功的镜像；没有记录就按内置顺序逐个回落到可用镜像。
+     真正性能来自单 worker 常驻 + 预取，不靠探测。 */
   function probeOrder() {
-    var t0 = Date.now();
-    var probes = TESS_MIRRORS.map(function (m) {
-      return fetch(m.script, { cache: 'force-cache', mode: 'no-cors' })
-        .then(function () { return Date.now() - t0; })
-        .catch(function () { return 1e9; });
-    });
-    return Promise.race([
-      Promise.all(probes),
-      new Promise(function (res) { setTimeout(function () { res([1e9, 1e9, 1e9]); }, 1200); })
-    ]).then(function (times) {
-      return times.map(function (t, i) { return { i: i, t: t }; })
-        .sort(function (a, b) { return a.t - b.t; })
-        .map(function (x) { return x.i; });
-    });
+    var all = [0, 1, 2];
+    var first = TESS_FAST >= 0 && TESS_FAST < 3 ? TESS_FAST : 0;
+    return Promise.resolve([first].concat(all.filter(function (i) { return i !== first; })));
   }
 
   /* 首次使用要下 6.8MB 引擎（国内实测 GitHub Pages 约 440KB/s ≈ 15 秒），

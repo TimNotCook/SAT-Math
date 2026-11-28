@@ -428,7 +428,9 @@
         unitId: MODE === 'quiz' ? QUIZ_UNIT : null,
         module: S.module || 1, answered: answeredCount(), total: S.paper ? S.paper.length : 0,
       };
-      const i = all.findIndex(x => x && C.sameTime(x.startedAt, rec.startedAt) && x.mode === rec.mode);
+      /* 旧版/云端把 mode 写成 'QUIZ'：严格比较会为同一卷再压一条「未做完」。 */
+      const sameMode = x => String(x && x.mode || '').trim().toLowerCase() === String(rec.mode || '').trim().toLowerCase();
+      const i = all.findIndex(x => x && C.sameTime(x.startedAt, rec.startedAt) && sameMode(x));
       if (i >= 0) all[i] = rec;
       else { all.push(rec); if (all.length > 40) all.shift(); }
       save(KEY_ABANDONED, all);
@@ -438,7 +440,10 @@
     if (startedAt == null) return;
     try {
       const all = asArr(load(KEY_ABANDONED));
-      const next = all.filter(x => !(x && C.sameTime(x.startedAt, startedAt) && x.mode === MODE));
+      /* mode 可能被云端合并/手工导入写成 'QUIZ'/'Mock'：严格比较会让已交卷的
+         未做完档案永远删不掉，记录页同时出现「已交卷」和「未做完」两条。 */
+      const sameMode = v => String(v == null ? '' : v).trim().toLowerCase() === String(MODE).toLowerCase();
+      const next = all.filter(x => !(x && C.sameTime(x.startedAt, startedAt) && sameMode(x.mode)));
       if (next.length !== all.length) save(KEY_ABANDONED, next);
     } catch (e) {}
   }
