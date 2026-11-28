@@ -271,3 +271,13 @@ test('账号面板打开时锁住背景滚动，关闭/邮件链接回站都走�
   assert.match(notice, /openPanel\('account'\)/, '邮件回站提示绕过了 openPanel');
   assert.doesNotMatch(notice, /setAttribute\('data-open'/, '邮件回站仍直接改层显示状态');
 });
+
+test('邮箱未确认时登录页给“重发确认邮件”入口，而不是只让用户去翻邮箱', () => {
+  const login = acct.slice(acct.indexOf('async function doSignInPwd'), acct.indexOf('async function doResendConfirm'));
+  assert.match(login, /needConfirm = true/, '登录遇到未确认没有置重发标记');
+  const uiSeg = acct.slice(acct.indexOf('b.appendChild(forgot)'), acct.indexOf('var actions = el'));
+  assert.match(uiSeg, /needConfirm && SB && SB.resendConfirmation/, '登录页没按标记出重发按钮');
+  assert.match(uiSeg, /doResendConfirm/, '重发按钮没接处理函数');
+  const resend = acct.slice(acct.indexOf('async function doResendConfirm'), acct.indexOf('async function doSignUpPwd'));
+  assert.match(resend, /SB\.resendConfirmation\(email\)/, '重发没走底层接口');
+});

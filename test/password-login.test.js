@@ -287,3 +287,18 @@ test('重复邮箱返回 identities 为空的假 user，要识别成已注册而
     e => e.code === 'auth/email-already-in-use' && /已经注册/.test(e.message));
   assert.equal(calls.filter(u => u.includes('/auth/v1/signup')).length, 1);
 });
+
+test('重发确认邮件：POST /auth/v1/resend，type=signup，手机号本地拒绝', async () => {
+  const calls = [];
+  const { SB } = loadModule(async (url, opts) => {
+    calls.push({ url: String(url), body: JSON.parse(opts.body || '{}') });
+    return makeRes(200, {});
+  });
+  await SB.resendConfirmation('tim@example.com');
+  const r = calls.find(c => c.url.endsWith('/auth/v1/resend'));
+  assert.ok(r, '没走 resend 端点');
+  assert.equal(r.body.type, 'signup');
+  assert.equal(r.body.email, 'tim@example.com');
+  await assert.rejects(() => SB.resendConfirmation('13800138000'), e => e.status === 400);
+  assert.equal(calls.filter(c => c.url.endsWith('/auth/v1/resend')).length, 1, '手机号不该重发确认邮件');
+});

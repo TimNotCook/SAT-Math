@@ -67,6 +67,7 @@
   var otpEmail = '';
   var pwdEmail = '';
   var loginMode = 'password';   // password | link | code | reset
+  var needConfirm = false;      // 上次登录被“邮箱未确认”挡住，登录页给重发入口
   var recoveryOpened = false;   // 重置链接回来只自动开一次面板
   var codeSent = false;
   var pwdBusy = false;
@@ -888,14 +889,30 @@
     if (!pw) { setError('请输入密码。'); if (ui && ui.pw) ui.pw.focus(); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
-      setBusy(true); setError('');
+      setBusy(true); setError(''); needConfirm = false;
       pwdEmail = email;
       await SB.signInPassword(email, pw);
       loginSuccess('登录成功，正在读取你的学习档案…');
-    } catch (e) { setError(friendlyError(e, email)); }
+    } catch (e) {
+      setError(friendlyError(e, email));
+      if (e && (e.code === 'auth/email-not-confirmed' || e.code === 'auth/email-confirm-required')) needConfirm = true;
+    }
     finally { setBusy(false); renderBody(); }
   }
 
+  async function doResendConfirm() {
+    if (busy) return;
+    var email = readEmail();
+    if (!email) { setError('请先填写邮箱。'); if (ui && ui.email) ui.email.focus(); return; }
+    if (!SB || !SB.resendConfirmation) { setError('登录模块未加载，请刷新页面重试。'); return; }
+    try {
+      setBusy(true); setError('');
+      await SB.resendConfirmation(email);
+      renderBody();
+      setStatus(trTpl('确认邮件已重新发送到 {email}；几分钟内没收到就翻一下垃圾箱。', { email: email }), 'ok');
+    } catch (e) { setError(friendlyError(e, email)); }
+    finally { setBusy(false); }
+  }
   async function doSignUpPwd() {
     if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = readEmail(), pw = readPw();
@@ -947,6 +964,7 @@
         /* 提示里写「直接点登录」，注册页却没有登录按钮；把面板切回登录，
            用户输密码就能进，不必再找返回键。 */
         pwdEmail = email; loginMode = 'password';
+        if (e.code === 'auth/email-confirm-required') needConfirm = true;
       }
     }
     finally { setBusy(false); renderBody(); }
@@ -1184,6 +1202,7 @@
     user = u || null;
     if (user) {
       setError('');   // 登录成功后别把上一次的“密码不对”留在档案块上方
+      needConfirm = false;
       if (ui) ui.btn.setAttribute('data-on', '1');
       if (!was || was.uid !== user.uid) afterSignIn();
       else renderBody();
@@ -1656,6 +1675,16 @@
       loginMode = 'reset'; setError(''); renderBody();
     };
     b.appendChild(forgot);
+
+    /* 被“邮箱未确认”挡回来的人，先给一条能自救的路：重发确认信。
+       没有这个入口，第一封信丢了就永远进不了账号。 */
+    if (needConfirm && SB && SB.resendConfirmation) {
+      var resendConfirm = el('button', 'td-acct-linkbtn', '没收到确认邮件？重新发送');
+      resendConfirm.type = 'button';
+      resendConfirm.setAttribute('data-busy', '1');
+      resendConfirm.onclick = doResendConfirm;
+      b.appendChild(resendConfirm);
+    }
 
     var actions = el('div', 'td-acct-actions td-acct-actions--stack');
     var signIn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', '登录');

@@ -514,6 +514,21 @@
     return s.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
   }
 
+  /* 重发注册确认邮件。邮箱确认开着时，用户第一次的确认信可能没收到/进了
+     垃圾箱；没有这个入口，账号就卡在“未确认”状态进不去。 */
+  async function resendConfirmation(email) {
+    var id = idToEmail(email);
+    var mail = id.email;
+    if (id.phone) throw errOf(400, { msg: '这个账号是手机号，收不到确认邮件。' });
+    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再重发。' });
+    rejectInternalMail(id);
+    await raw('/auth/v1/resend', {
+      method: 'POST', headers: authHeaders(null),
+      body: JSON.stringify({ type: 'signup', email: mail }), timeout: 20000
+    });
+    return true;
+  }
+
   // 发送登录邮件：create_user=true，首次输入邮箱即自动建档（后端 disable_signup:false）。
   // 当前后端默认邮件模板回的是 magic link（点链接回站带 hash 会话），不是数字码。
   async function sendOtp(email) {
@@ -625,6 +640,7 @@
     sessionWriteFailed: function () { return sessionWriteFailed; },
     setPassword: setPassword,
     sendRecovery: sendRecovery,
+    resendConfirmation: resendConfirmation,
     recoveryPending: recoveryPending,
     clearRecovery: clearRecovery,
     takeAuthNotice: takeAuthNotice,
