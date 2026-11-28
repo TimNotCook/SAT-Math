@@ -14,4 +14,5 @@ test('成绩页 total/correct 走 countNum，小数不直接进「correct / tota
   assert.match(js, /Math\.floor\(n\) === n/, 'countNum 没有只收整数');
   assert.match(seg, /const scaledRaw = countNum\(est\.scaled\)/, '换算分裸用 safeNum，555.5 会印成 555.5 / 800');
   assert.match(seg, /const rawN = countNum\(est\.raw\)/, '原始分裸用 safeNum，3.7 会印成 3.7 / 44');
+  assert.match(seg, /if \(MODE === 'mock' && total > 44\) total = 44;/, '模考 total 999 没有封顶，成绩页会印 30 / 999');
 });

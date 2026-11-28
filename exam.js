@@ -1186,7 +1186,10 @@
     const rTotal = countNum(r.total);
     /* total 与 detail 不一致时（旧版/云端只写了一半卷面）：detail 是逐题证据，
        不能因为 total=22 就把 44 题的整卷印成 22 题，更不能把 correct 夹成 100%。 */
-    const total = Math.max(detail0.length, rTotal != null && rTotal > 0 ? rTotal : 0);
+    let total = Math.max(detail0.length, rTotal != null && rTotal > 0 ? rTotal : 0);
+    /* 官方模考整卷只有 44 题：旧版/云端把 total 写成 999 时，成绩页会印
+       「30 / 999」并把正确率稀释成个位数。记录页已封顶，结果页同一口径。 */
+    if (MODE === 'mock' && total > 44) total = 44;
     const rCorrect = countNum(r.correct);
     const correct = rCorrect != null ? Math.max(0, Math.min(total, rCorrect)) : detail0.filter(d => isRightFlag(d.correct)).length;
     const rElapsed = safeNum(r.elapsed);
