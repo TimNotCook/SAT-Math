@@ -388,7 +388,12 @@
       var url = URL.createObjectURL(file), img = new Image();
       img.onload = function () {
         URL.revokeObjectURL(url);
-        var MAX = 1600, W = img.width, H = img.height, sc = Math.min(1, MAX / Math.max(W, H));
+        /* 只按宽度限幅，不按"最长边"限幅：长截图（1280×4000 这种整页/整屏截图）
+           按最长边一缩，宽度只剩 400px，字全糊成一团——这正是"整页截图认不出"的元凶。
+           高度放到 12000 再兜一次，避免离谱图把内存撑爆。 */
+        var MAXW = 1700, MAXH = 12000, W = img.width, H = img.height;
+        var sc = Math.min(1, MAXW / W);
+        if (H * sc > MAXH) sc = MAXH / H;
         W = Math.max(1, Math.round(W * sc)); H = Math.max(1, Math.round(H * sc));
         var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
         var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H); cx.drawImage(img, 0, 0, W, H);
@@ -428,9 +433,11 @@
           }
           if (start >= 0) blocks.push([start, ch - 1]);
           blocks = blocks.filter(function (b) { return b[1] - b[0] >= 10; });
-          // 顶端若是一小行标题（"Questions 12-15"、页码），把它并进第一块，避免多出一道假题
-          if (blocks.length > 1 && blocks[0][1] - blocks[0][0] < ch * 0.04) { blocks[1] = [blocks[0][0], blocks[1][1]]; blocks.shift(); }
-          if (blocks.length < 2 || blocks.length > 6) return res([{ url: dataUrl }]);
+          /* 顶端若是一小行标题（"Questions 12-15"、页码），把它并进第一块，避免多出一道假题。
+             阈值必须按"原图 60px"算：以前按 4% 高度算，长截图 ch 上千，阈值涨到 100 多像素，
+             把正常的短题（两三行）也当成标题并掉了 —— 两块题混在一条里，识别全乱。 */
+          if (blocks.length > 1 && (blocks[0][1] - blocks[0][0]) < 30 * sc) { blocks[1] = [blocks[0][0], blocks[1][1]]; blocks.shift(); }
+          if (blocks.length < 2 || blocks.length > 8) return res([{ url: dataUrl }]);
           var out = blocks.map(function (b) {
             var y0 = Math.max(0, Math.round(b[0] / sc) - 8), y1 = Math.min(H, Math.round(b[1] / sc) + 8);
             var hh = y1 - y0; if (hh < 30) return null;
