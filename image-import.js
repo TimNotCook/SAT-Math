@@ -127,6 +127,19 @@
     a.forEach(function (x) { var i = pool.findIndex(function (y) { return Math.abs(y - x) < 1e-6; }); if (i >= 0) { hit++; pool.splice(i, 1); } });
     return hit / Math.max(a.length, b.length);
   }
+  /* 只按"查询侧覆盖率"算的重合度：题干被 OCR 截断一半时，分子不变、分母不涨。
+     numRecall 返回 -1 表示查询里没数字（没法用数字判断）。 */
+  function numRecall(a, b) {
+    if (!a.length) return -1;
+    var pool = b.slice(), hit = 0;
+    a.forEach(function (x) { var i = pool.findIndex(function (y) { return Math.abs(y - x) < 1e-6; }); if (i >= 0) { hit++; pool.splice(i, 1); } });
+    return hit / a.length;
+  }
+  function tokRecall(a, b) {
+    var A1 = new Set(a), B1 = new Set(b); if (!A1.size || !B1.size) return 0;
+    var n = 0; A1.forEach(function (x) { if (B1.has(x)) n++; });
+    return n / A1.size;
+  }
   function tokScore(a, b) {
     var A1 = new Set(a), B1 = new Set(b); if (!A1.size || !B1.size) return 0;
     var n = 0; A1.forEach(function (x) { if (B1.has(x)) n++; });
@@ -170,6 +183,13 @@
       var XG = new Set(x.g3), inter = 0; G3.forEach(function (g) { if (XG.has(g)) inter++; });
       var gs = inter / Math.max(1, Math.min(G3.size, XG.size));
       var stemS = 0.5 * ns + 0.35 * ts + 0.15 * gs;
+      /* 截断容错：只看"查询里有多少内容在候选里找得到"，分母用查询自身长度。
+         截图只拍到题干上半段、或者切块把题切一半时，老公式被候选长度拖死。 */
+      var nr = numRecall(nums, x.nums), tr = tokRecall(toks, x.toks), gr = G3.size ? inter / G3.size : 0;
+      var part = nr >= 0 ? (0.5 * nr + 0.35 * tr + 0.15 * gr)
+                         : (0.35 * tr + 0.15 * gr) / 0.5;
+      var ratio = Math.min(1, toks.length / Math.max(1, x.toks.length));
+      var partS = part * (0.8 + 0.2 * ratio);
       var cs = 0;
       if (hasC) {
         var xHasC = (x.cnums.length > 0) || (x.ctoks.length > 1);
@@ -179,8 +199,13 @@
           cs = cns >= 0 ? (0.6 * cns + 0.4 * cts) : cts;
         }
       }
+      /* 截断容错项权重。0.8 是扫出来的最优：截断题干 top1 +23pt、门禁误导归零；
+         留 window.TD_MATCH_TUNE 只为以后 A/B，正常页面不用管它。 */
+      var pmix = 0.8;
+      var base = Math.max(stemS, partS * pmix);
       return { id: x.id, no: x.no, sec: x.sec, stem: x.stem, ns: ns, ts: ts, gs: gs, cs: cs,
-        score: hasC ? stemS * 0.8 + cs * 0.2 : stemS };
+        full: stemS, part: partS,
+        score: hasC ? base * 0.8 + cs * 0.2 : base };
     });
     scored.sort(function (a, b) { return b.score - a.score; });
     return scored.slice(0, topN);
@@ -1582,7 +1607,7 @@
     },
     prewarm: prewarm,
     close: function () { $('imgImportPanel').hidden = true; $('btnImgImport').setAttribute('aria-expanded', 'false'); },
-    acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem,
+    acceptFiles: acceptFiles, recognizeAll: recognizeAll, matchStem: matchStem, _gate: autoGate,
     select: select, check: check, importChecked: importChecked,
     selfTest: selfTest, importByText: importByText, inbox: inboxList,
     search: finderSearch, importSingle: importSingle, undoLast: undoLast, _splitBands: splitBands, _recognizeAll: recognizeAll,

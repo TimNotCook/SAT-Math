@@ -29,17 +29,36 @@ const EVAL = `(function(){
     else if(ch==='m'&&x<0.2){out+='rn';}
     else if(/[a-zA-Z]/.test(ch)&&x<0.05){continue;}
     else out+=ch;}return out;}
-  function run(noisy){
+  function run(mode){
     var sample=[];for(var k=0;k<100;k++){sample.push(Q[Math.floor(rnd()*Q.length)]);}
     var t0=Date.now(),top1=0,top3=0,miss=[];
     sample.forEach(function(q){
-      var res=window.TD_IMG_IMPORT.matchStem(noisy?noise(q.stem):q.stem,3);
+      var s0=q.stem, s=s0;
+      if(mode==='cut50')s=s0.slice(0,Math.ceil(s0.length*0.5));
+      if(mode==='noisy')s=noise(s0);
+      if(mode==='noisyCut')s=noise(s0.slice(0,Math.ceil(s0.length*0.5)));
+      var res=window.TD_IMG_IMPORT.matchStem(s,3);
       if(res[0]&&res[0].id===q.id)top1++; else miss.push([q.id,res[0]?res[0].id:'-']);
       if(res.some(function(c){return c.id===q.id}))top3++;
     });
     return {n:sample.length,top1:top1,top3:top3,ms:Date.now()-t0,miss:miss.slice(0,5)};
   }
-  return JSON.stringify({bank:Q.length,clean:run(false),noisy:run(true)});
+  function runGate(){
+    var n=0,pass=0,realWrong=0,bad=[];
+    var byId={};Q.forEach(function(q){byId[q.id]=q;});
+    for(var k=0;k<120;k++){
+      var q=Q[Math.floor(rnd()*Q.length)], s=noise(q.stem);
+      var c=window.TD_IMG_IMPORT.matchStem(s,5), g=window.TD_IMG_IMPORT._gate(c,s);
+      n++; if(!g||!g.pass) continue;
+      pass++;
+      var top=c[0]&&byId[c[0].id];
+      if(!top || c[0].id===q.id) continue;
+      var twin=String(top.stem||'').slice(0,60)===String(q.stem||'').slice(0,60);
+      if(!twin){realWrong++;bad.push([q.id,c[0].id]);}
+    }
+    return {n:n,pass:pass,wrong:realWrong,bad:bad.slice(0,5)};
+  }
+  return JSON.stringify({bank:Q.length,clean:run('clean'),noisy:run('noisy'),cut50:run('cut50'),noisyCut:run('noisyCut'),gate:runGate()});
 })()`;
 
 async function main() {
@@ -62,8 +81,10 @@ async function main() {
 
   const out = JSON.parse(await evalJS(EVAL) || '{}');
   const rows = [
-    ['干净题干', out.clean, 0.85, 0.95],
-    ['OCR 噪声', out.noisy, 0.80, 0.90],
+    ['干净题干', out.clean, 0.88, 0.96],
+    ['OCR 噪声', out.noisy, 0.86, 0.93],
+    ['截断一半', out.cut50, 0.80, 0.90],
+    ['噪声+截断', out.noisyCut, 0.72, 0.86],
   ];
   console.log('\n=== 匹配精度评测 ===');
   console.log('base:', BASE, '题库:', out.bank, '题');
@@ -75,7 +96,15 @@ async function main() {
     console.log(`[${ok ? 'PASS' : 'FAIL'}] ${name}: top1 ${(a1 * 100).toFixed(1)}% (门槛 ${min1 * 100}%) · top3 ${(a3 * 100).toFixed(1)}% (门槛 ${min3 * 100}%) · 100 题耗时 ${r.ms}ms`);
     if (r.miss?.length) console.log('    失配样例:', JSON.stringify(r.miss));
   }
-  console.log(`\n=== ${fail ? 'FAIL' : 'PASS'}（${rows.length - fail} / ${rows.length}） ===`);
+  /* 门禁：自动导入必须"要么不导，要么导对"。允许 1 例（题库重复题造成孪生歧义）。 */
+  {
+    const g = out.gate || { n: 0, pass: 0, wrong: 0 };
+    const ok = g.wrong <= 1;
+    if (!ok) fail++;
+    console.log(`[${ok ? 'PASS' : 'FAIL'}] 自动导入门禁: 120 题里自动导入 ${g.pass} 道，导错 ${g.wrong} 道（允许 ≤1）`);
+    if (g.bad?.length) console.log('    导错样例:', JSON.stringify(g.bad));
+  }
+  console.log(`\n=== ${fail ? 'FAIL' : 'PASS'}（${rows.length + 1 - fail} / ${rows.length + 1}） ===`);
   process.exit(fail ? 1 : 0);
 }
 main().catch(e => { console.log('[FAIL] 评测脚本异常:', e.message); process.exit(1); });
