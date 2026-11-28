@@ -29,4 +29,3 @@ index 0108dd1..e852771 100644
 +  assert.ok(/n === DEFAULT_NICK/.test(acc) && /return defaultNick\(\)/.test(acc), 'displayName 没把默认「同学」当归未设');
  });
  
- test('「第 N / M 题」这类拼接计数在英文模式下要翻（讲义题号/页脚/结果分数）', () => {
