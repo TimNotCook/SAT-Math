@@ -58,3 +58,9 @@ test('320 首页状态列收成三态圆点，标题列回到 122px', () => {
   assert.match(app, /\.tile-state\.tile-state\.is-active::after\{background:#2563eb\}/);
   assert.match(app, /\.tile-state\.tile-state\.is-done::after\{background:#16a34a\}/);
 });
+
+test('320「继续上次练习」允许折行，不再截断小节名', () => {
+  assert.match(app, /html body \.drill-resume\.drill-resume\{/);
+  assert.match(app, /white-space:normal!important/);
+  assert.match(app, /text-overflow:clip!important/);
+});

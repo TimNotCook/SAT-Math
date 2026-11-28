@@ -1942,3 +1942,19 @@ html body .entry-tile-grid .jy-board-card .jy-card-meta{
    把错题工具栏里的说明 span 写回旧长句。这里按结构收掉工具栏内的纯说明，
    只留反馈区 #importFeedback —— 无论 HTML 被回写几次，用户都看不到那段长文案。 */
 body.shell-wrong .wrong-toolbar .small.muted:not(#importFeedback){display:none!important}
+
+/* 320 的「继续上次练习」原来单行省略号：完整文案 296px，卡片只有 232px，
+   「1.1 线性方程与函数图像 第 1 题」被截成「…与函…」，用户看不出是哪一节。
+   拿掉 nowrap，允许折两行，13px 收到 12.5px；卡片最多增高一行，不再丢信息。 */
+@media(max-width:360px){
+  html body .drill-resume.drill-resume{
+    display:block!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    font-size:12.5px!important;
+    line-height:1.45!important;
+    padding:9px 12px!important;
+    max-width:100%!important;
+  }
+}
