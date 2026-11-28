@@ -346,7 +346,7 @@ table.tbl tr:last-child td{border-bottom:none}
 .weak-panel p{margin:0 0 8px;display:flex;gap:16px;flex-wrap:wrap}
 .weak-panel small{color:var(--sub)}.weak-topic{font-size:13px}.weak-topic b{color:var(--blue)}
 .wrong-unit{margin:28px 0}.wrong-unit>h2{font-size:17px;display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px}
-.wrong-unit>h2 span{font-size:12px;color:var(--sub);font-weight:500}
+.wrong-unit>h2 span{font-size:12px;color:var(--sub);font-weight:500;white-space:nowrap;flex:none;margin-left:12px}
 .wrong-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 24px;margin-bottom:14px;box-shadow:var(--shadow-1)}
 .wrong-card.corrected{border-left:3px solid var(--ok)}
 .wrong-card-head{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--sub);flex-wrap:wrap}
