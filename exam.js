@@ -1123,15 +1123,23 @@
         : q.type === 'mcq'
           ? `<div class="miniopts">${optLetters(q.id).map(L => `<button class="${a.v === L ? 'on' : ''}" data-uid="${esc(inst.uid)}" data-l="${L}">${L}</button>`).join('')}</div>`
           : `<input class="gridmini editable" data-uid="${esc(inst.uid)}" value="${esc(a.v)}" placeholder="${OFFICIAL ? 'Enter answer' : '输入答案'}">`;
+      /* 抽查层原本一律中文；英文模式下只留「U1」这类编号，不放中文主题/出处，
+         否则一屏一半是字典里没有的题目标题，看着像没翻完。 */
+      const EN_UI = !OFFICIAL && document.documentElement.getAttribute('data-lang') === 'en';
+      const meta = [`U${q.unit}`];
+      if (!OFFICIAL && !EN_UI) meta.push(esc(q.source));
+      if (inst.from === 'wrong') meta.push(EN_UI ? 'Previously missed' : '历史错题');
+      if (a.marked) meta.push(EN_UI ? 'Marked' : '已标记');
+      if (crossed.length) meta.push((EN_UI ? 'Crossed out: ' : '已划掉：') + crossed.join(', '));
       rows.push(`<tr><td><b>Q${i - lo + 1}</b></td>
-        <td>${OFFICIAL ? '' : esc(q.topic)}<div class="tiny muted">U${q.unit} ${OFFICIAL ? '' : '· ' + esc(q.source)} ${inst.from === 'wrong' ? (OFFICIAL ? '· Previously missed' : '· 历史错题') : ''}${a.marked ? (OFFICIAL ? ' · Marked' : ' · 已标记') : ''}${crossed.length ? (OFFICIAL ? ' · Crossed out: ' : ' · 已划掉：') + crossed.join(', ') : ''}</div></td>
+        <td>${(OFFICIAL || EN_UI) ? '' : esc(q.topic)}<div class="tiny muted">${meta.join(' · ')}</div></td>
         <td><span class="pill ${a.v ? 'wait' : 'no'}">${OFFICIAL ? (a.v ? 'Answered' : 'Not answered') : (a.v ? '已作答' : '未作答')}</span></td>
-        <td>${ctl}</td><td><button class="btn slim" data-go="${i}">${OFFICIAL ? 'Go' : '前往'}</button></td></tr>`);
+        <td>${ctl}</td><td><button class="btn slim" data-go="${i}">${(OFFICIAL || EN_UI) ? 'Go' : '前往'}</button></td></tr>`);
     }
     $('revBody').innerHTML = rows.join('');
     const answered = rows.length && Array.from({ length: hi - lo + 1 }, (_, k) => S.answers[S.paper[lo + k].uid].v).filter(Boolean).length;
     const marked = Array.from({ length: hi - lo + 1 }, (_, k) => S.answers[S.paper[lo + k].uid].marked).filter(Boolean).length;
-    const RS = OFFICIAL ? ['Answered', 'Not answered', 'Marked', 'Current range'] : ['已作答', '未作答', '已标记', '当前范围'];
+    const RS = (OFFICIAL || document.documentElement.getAttribute('data-lang') === 'en') ? ['Answered', 'Not answered', 'Marked', 'Current section'] : ['已作答', '未作答', '已标记', '当前范围'];
     $('revSummary').innerHTML = `<div class="rev-meta"><span>${RS[0]} <b>${answered}</b></span><i></i><span>${RS[1]} <b>${hi - lo + 1 - answered}</b></span><i></i><span>${RS[2]} <b>${marked}</b></span><i></i><span>${RS[3]} <b>${MODE === 'mock' ? 'Module ' + S.module : MODE_NAME[MODE]}</b></span></div>`;
     $('revBody').querySelectorAll('.miniopts button').forEach(b => b.addEventListener('click', () => {
       S.answers[b.dataset.uid].v = b.dataset.l || b.getAttribute('data-l'); persist(); renderReview();

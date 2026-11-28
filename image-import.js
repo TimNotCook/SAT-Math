@@ -26,6 +26,18 @@
   function diag() {
     var el = $('imgimpDiag'); if (!el) return;
     var e = ocrEnv();
+    /* 英文模式别让这行小字整段中文：英文界面下状态栏中文最扎眼。 */
+    var en = (window.TDI18n && window.TDI18n.get && window.TDI18n.get() === 'en') ||
+      document.documentElement.getAttribute('data-lang') === 'en';
+    if (en) {
+      var self = SELF_LINE ? ' · Self-test ' + SELF_LINE.replace(/^自检[✓✗]\s*/, m => (m.indexOf('✓') >= 0 ? '✓ ' : '✗ ')) : '';
+      el.textContent = 'Engine ' + (e.wasm ? 'wasm✓' : 'wasm✗ not supported here') +
+        ' · cache ' + (e.sw ? 'sw✓' : 'sw✗ 7 MB on first use') +
+        ' · ' + (OCR_READY ? 'ready' : 'not ready') +
+        self +
+        (ENGINE_LAST_ERR ? ' · last error: ' + ENGINE_LAST_ERR : '');
+      return;
+    }
     el.textContent = '内核 ' + (e.wasm ? 'wasm✓' : 'wasm✗ 这台浏览器不支持本地识别') +
       ' · 缓存 ' + (e.sw ? 'sw✓' : 'sw✗ 首贴要现下 7MB') +
       ' · 引擎 ' + (OCR_READY ? '就绪' : '未就绪') +
