@@ -219,6 +219,9 @@
      Start/测试 button is clicked, so a page load, refresh or module switch can
      never show answer / review / submit / result content on the main screen. */
   let resumeStage = null, startClicked = false;
+  /* 留档写盘失败时原会话还在 KEY_SESSION 里：本轮不能 Start 新卷，
+     否则 persist() 用新会话把唯一一份 35 分钟卷面覆盖掉。 */
+  let preserveSession = false;
   /* 开场页不放任何提示条：存档作废、模块切换、恢复进度一律静默处理。 */
   let sessionExpired = false;
   /* Snapshot of the session as last observed on disk. Writes re-read the disk
@@ -271,6 +274,18 @@
     return s;
   }
   function startSession() {
+    /* 旧卷留档没写成功时，磁盘里的原会话是唯一一份卷面。先挡在 Start 前面：
+       清出空间后刷新，recoverInvalid 会再试一次留档；存储可写才放行新卷。 */
+    if (preserveSession) {
+      var kept = null;
+      try { kept = load(KEY_SESSION); } catch (e) {}
+      if (kept) {
+        toast(OFFICIAL ? 'The previous test is still saved. Free up storage and reload to retry.'
+          : '上一卷还没成功留档，原卷仍保存在本机；请先清理存储空间后刷新重试');
+        return;
+      }
+      preserveSession = false;   // 原会话已被用户手动清掉，允许开新卷
+    }
     /* Explicit Start click: this is the ONLY trigger that reveals test content. */
     startClicked = true;
     sessionExpired = false;
@@ -398,6 +413,8 @@
   function runtimeVoid() {
     if (salvageThenClear(S, 'runtime')) {
       try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
+    } else {
+      preserveSession = true;
     }
     sessionExpired = true;
     resumeStage = null;
@@ -490,6 +507,8 @@
       const canClear = started ? salvageThenClear(saved, fixed.reason) : true;
       if (canClear) {
         try { localStorage.removeItem(KEY_SESSION); } catch (e) { console.warn('清除失效会话失败', e); }
+      } else {
+        preserveSession = true;
       }
     }
     resumeStage = null;

@@ -704,3 +704,11 @@ test('同一卷的旧大写 mode 未被新未做完档案重复压入', () => {
   const exam = fs.readFileSync(path.join(__dirname, '..', 'exam.js'), 'utf8');
   assert.match(exam, /const sameMode = x =>[\s\S]*?findIndex\(x =>[^\n]*sameMode\(x\)/, 'archiveAbandoned 仍按大小写严格比较，会压出两条未做完');
 });
+
+test('留档写盘失败后不能开新卷覆盖唯一原会话', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const exam = fs.readFileSync(path.join(__dirname, '..', 'exam.js'), 'utf8');
+  assert.match(exam, /if \(preserveSession\)[\s\S]*?kept = load\(KEY_SESSION\)[\s\S]*?return;/, 'Start 没有挡住会覆盖原会话的新卷');
+  assert.match(exam, /salvageThenClear\(S, 'runtime'\)[\s\S]*?preserveSession = true/, 'runtimeVoid 留档失败后没有锁住原会话');
+  assert.match(exam, /const canClear = started[\s\S]*?preserveSession = true/, 'recoverInvalid 留档失败后没有锁住原会话');
+});
