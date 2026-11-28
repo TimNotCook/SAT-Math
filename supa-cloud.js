@@ -34,10 +34,12 @@
   var SITE_URL = String(CFG.siteUrl || '').replace(/\/+$/, '');
   var SESSION_KEY = 'tdsat_auth_v1';
   var RECOVER_KEY = 'tdsat_recovery_v1';
+  var AUTH_NOTICE_KEY = 'tdsat_auth_notice_v1';
 
   var stateCb = null;
   var session = null;      // { access, refresh, expiresAt, user }
   var currentUser = null;  // 给上层看的精简对象 { uid, email, displayName }
+  var sessionWriteFailed = false;
 
   function available() { return !!(BASE && KEY); }
   /* 没填 URL / anon key 就完全不动 */
@@ -117,7 +119,13 @@
     try {
       if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
       else localStorage.removeItem(SESSION_KEY);
-    } catch (e) { console.warn('保存登录状态失败', e); }
+      sessionWriteFailed = false;
+      return true;
+    } catch (e) {
+      sessionWriteFailed = true;
+      console.warn('保存登录状态失败', e);
+      return false;
+    }
   }
   function loadSession() {
     try {
@@ -132,9 +140,34 @@
   /* 邮件链接回调：解析 location.hash 里的 access_token / refresh_token / expires_in，
      落本地会话后清掉 hash，避免 token 留在地址栏。hash 里不带 user 对象，
      user 由 boot() 随后用 access_token 调 /auth/v1/user 补全。 */
+  function authNoticeText(raw) {
+    var m = String(raw || '').toLowerCase();
+    if (m.indexOf('expired') >= 0 || m.indexOf('invalid') >= 0) return '登录链接已失效或已被使用，请重新发送登录邮件。';
+    if (m.indexOf('access_denied') >= 0 || m.indexOf('cancel') >= 0) return '登录链接已被取消，请重新发送登录邮件。';
+    return '登录链接没有完成，请重新发送登录邮件。';
+  }
+  function takeAuthNotice() {
+    try {
+      var n = sessionStorage.getItem(AUTH_NOTICE_KEY);
+      if (n) sessionStorage.removeItem(AUTH_NOTICE_KEY);
+      return n || '';
+    } catch (e) { return ''; }
+  }
   function consumeHashSession() {
     if (typeof location === 'undefined') return false;
     var hash = String(location.hash || '');
+    /* 失效/已用的邮件链接回跳只有 error/error_description，没有 access_token。
+       旧实现直接 return false，用户点完链接只看到首页，不知道是链接坏了。 */
+    if (hash.indexOf('error=') >= 0 || hash.indexOf('error_description=') >= 0) {
+      var bp;
+      try { bp = new URLSearchParams(hash.slice(1)); } catch (e) { bp = null; }
+      if (bp) {
+        var raw = bp.get('error_description') || bp.get('error') || '';
+        try { sessionStorage.setItem(AUTH_NOTICE_KEY, authNoticeText(raw)); } catch (e) { /* 存储不可写就算了 */ }
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* 老浏览器兜底 */ }
+      }
+      return false;
+    }
     if (hash.indexOf('access_token=') < 0) return false;
     var params;
     try { params = new URLSearchParams(hash.slice(1)); } catch (e) { return false; }
@@ -148,6 +181,7 @@
        否则用户会以为自己只是莫名登录了。 */
     try {
       if (String(params.get('type') || '') === 'recovery') localStorage.setItem(RECOVER_KEY, '1');
+      else clearRecovery();   // 普通登录链接不能继承上一封重置邮件的待设密码状态
     } catch (e) { /* 本地存储不可写也不影响登录 */ }
     saveSession({
       access: access,
@@ -269,6 +303,9 @@
     var s = packSession(r);
     if (!s) throw errOf(400, { msg: '登录失败，请重试。' });
     saveSession(s);
+    /* 正常密码 / 验证码登录成功后，之前那封重置邮件的「待设密码」标记
+       已经过时；不清掉会让下一次登录继续弹重置提示。 */
+    clearRecovery();
     emit();
     return currentUser;
   }
@@ -486,22 +523,25 @@
     signUpPassword: signUpPassword,
     signInPassword: signInPassword,
     maskAccount: maskAccount,
+    sessionWriteFailed: function () { return sessionWriteFailed; },
     setPassword: setPassword,
     sendRecovery: sendRecovery,
     recoveryPending: recoveryPending,
     clearRecovery: clearRecovery,
+    takeAuthNotice: takeAuthNotice,
     verifyOtp: verifyOtp,
 
     signOut: async function () {
       var tk = session && session.access;
-      saveSession(null);
+      var cleared = saveSession(null);
+      clearRecovery();
       emit();
       if (tk) {
         try {
           await raw('/auth/v1/logout', { method: 'POST', headers: authHeaders(tk), timeout: 10000 });
         } catch (e) { /* 本地已经退出，服务端失败无所谓 */ }
       }
-      return true;
+      return cleared;
     },
 
     /* ---------- 学习档案 ---------- */

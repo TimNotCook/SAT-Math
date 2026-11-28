@@ -165,15 +165,30 @@
       '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>' + label + '</span>';
     btn.setAttribute('aria-label', label); btn.title = label;
   }
-  function isPhoneAccount(v) { return /^\+?[\d][\d\s-]{5,}$/.test(String(v || '').trim()); }
+  function isPhoneAccount(v) {
+    var s = String(v || '').trim();
+    /* 手机号可能带国家码、空格、横线、括号：面板里填 +1 (415) 555-0123
+       也是合法输入。先只放过电话字符，再按数字个数判断，别把它误判成
+       邮箱，否则密码错误提示会叫用户去查邮箱。 */
+    if (!/^\+?[\d(][\d\s().-]*$/.test(s)) return false;
+    var digits = s.replace(/[^\d]/g, '');
+    return digits.length >= 7 && digits.length <= 15;
+  }
   function friendlyError(e, account) {
     var c = e && e.code, m = e && e.message;
     if (c === 'auth/invalid-email') return '邮箱格式不正确，请检查后再试。';
     if (c === 'auth/invalid-credential') {
       return (isPhoneAccount(account) ? '手机号' : '邮箱') + '或密码不对。';
     }
-    if (c === 'auth/email-already-in-use') return '这个邮箱已经注册过了，直接点「登录」。';
-    if (c === 'auth/invalid-code' || c === 'auth/email-not-confirm') return '登录链接已失效或邮件有误，请重新发送登录邮件。';
+    if (c === 'auth/email-already-in-use') {
+      return (isPhoneAccount(account) ? '这个手机号' : '这个邮箱') + '已经注册过了，直接点「登录」。';
+    }
+    /* supa-cloud 把 GoTrue 的 Email not confirmed 归一成带 -ed 的码；
+       这里原来只认少一个 ed 的拼写，用户会直接看到英文技术错误。 */
+    if (c === 'auth/email-not-confirmed' || c === 'auth/email-not-confirm') {
+      return '邮箱还没有验证：先去邮件里点确认链接（垃圾箱也翻一下），再回来登录。';
+    }
+    if (c === 'auth/invalid-code') return '登录链接已失效或邮件有误，请重新发送登录邮件。';
     if (c === 'auth/too-many-requests') return '操作太频繁了，等一分钟再试。';
     if (c === 'auth/network-request-failed') return '网络异常，请检查连接后重试。';
     if (c === 'auth/internal-error') return '登录服务返回异常，请刷新页面后重试。';
@@ -660,6 +675,7 @@
   function readPw() { return ui && ui.pw ? ui.pw.value : ''; }
 
   async function doSetPassword(pw) {
+    if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     if (!pw || pw.length < 6) { setError('密码至少 6 位。'); return; }
     if (!SB || !SB.setPassword) { setError('登录模块未加载，请刷新页面重试。'); return; }
     var ok = false;
@@ -673,7 +689,13 @@
     if (ok) setStatus('密码已保存，下次可以用这个账号登录。', 'ok');
   }
 
+  function loginSuccess(msg) {
+    if (SB && SB.sessionWriteFailed && SB.sessionWriteFailed()) {
+      setStatus('登录成功，但浏览器存储不可写；刷新后需要重新登录。', 'warn');
+    } else setStatus(msg, 'ok');
+  }
   async function doSignInPwd() {
+    if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = readEmail(), pw = readPw();
     if (!email) { setError('请先填写邮箱或手机号。'); return; }
     if (!pw) { setError('请输入密码。'); return; }
@@ -682,12 +704,13 @@
       setBusy(true); setError('');
       pwdEmail = email;
       await SB.signInPassword(email, pw);
-      setStatus('登录成功，正在读取你的学习档案…', 'ok');
+      loginSuccess('登录成功，正在读取你的学习档案…');
     } catch (e) { setError(friendlyError(e, email)); }
     finally { setBusy(false); renderBody(); }
   }
 
   async function doSignUpPwd() {
+    if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = readEmail(), pw = readPw();
     if (!email) { setError('请先填写邮箱或手机号。'); return; }
     if (pw.length < 6) { setError('密码至少 6 位。'); return; }
@@ -696,12 +719,13 @@
       setBusy(true); setError('');
       pwdEmail = email;
       await SB.signUpPassword(email, pw);
-      setStatus('账号已建立，正在读取你的学习档案…', 'ok');
-    } catch (e) { setError(friendlyError(e)); }
+      loginSuccess('账号已建立，正在读取你的学习档案…');
+    } catch (e) { setError(friendlyError(e, email)); }
     finally { setBusy(false); renderBody(); }
   }
 
   async function doSendLink() {
+    if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = ui && ui.email ? ui.email.value.trim() : '';
     if (!email) { setError('请先填写邮箱。'); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
@@ -719,6 +743,7 @@
 
   /* ---------- 登录动作（重置密码） ---------- */
   async function doSendReset() {
+    if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = ui && ui.email ? ui.email.value.trim() : '';
     if (!email) { setError('请先填写注册时用的邮箱。'); return; }
     if (!SB || !SB.sendRecovery) { setError('登录模块未加载，请刷新页面重试。'); return; }
@@ -758,6 +783,7 @@
   }
 
   async function doSendCode() {
+    if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = readEmail();
     if (!email) { setError('请先填写邮箱。'); return; }
     if (!SB || !SB.codeReady || !SB.codeReady()) { setError('验证码通道尚未启用，请用密码或邮件链接登录。'); return; }
@@ -776,6 +802,7 @@
   }
 
   async function doVerifyCode() {
+    if (busy) return;   // 按钮禁用后回车仍能触发，防重复登录/重复发信
     var email = readEmail(), code = readCode();
     if (!email) { setError('请先填写邮箱。'); return; }
     /* 验证码只对发送时那个邮箱有效。邮箱框是可编辑的，只改邮箱不重发码
@@ -789,8 +816,14 @@
     try {
       setBusy(true); setError('');
       await SB.verifyOtp(otpEmail || email, code);
-      setStatus('登录成功，正在读取你的学习档案…', 'ok');
-    } catch (e) { setError(friendlyError(e)); }
+      loginSuccess('登录成功，正在读取你的学习档案…');
+    } catch (e) {
+      /* 验证码走的是 /verify，不是邮件链接；不能把「验证码过期」说成
+         「登录邮件失效」，否则用户会去重发一封根本不需要的邮件。 */
+      var codeMsg = e && e.code === 'auth/invalid-code'
+        ? '验证码不对或已过期，请重新获取。' : friendlyError(e);
+      setError(codeMsg);
+    }
     finally { setBusy(false); renderBody(); }
   }
 
@@ -812,17 +845,31 @@
   }
   async function doSignOut() {
     setBusy(true);
+    var cleared = true;
     try { await silentPush(); } catch (e) { /* 离线时下次登录会补 */ }
-    try { await auth().signOut(); } catch (e) { /* ignore */ }
+    try { cleared = await auth().signOut(); } catch (e) { cleared = false; }
     user = null; nickname = '';
     // owner 保持原 uid：本机副本仍属于该账号，登录别的账号时才会切档。
     otpSent = false;
-    setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
+    /* removeItem 也可能被浏览器拒绝：这时内存里退了，磁盘上的会话还在，
+       刷新会悄悄把人登回去。不能继续报「已退出」。 */
+    if (cleared === false) setStatus('当前页面已退出，但浏览器拒绝清除登录缓存；刷新后可能仍处于登录状态，请先清出空间再退出', 'warn');
+    else setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
     setError(''); setBusy(false); renderBody();
   }
   /* 从「重置密码」链接回来的：直接把设置面板打开在账户页，
      否则人点了邮件里的按钮只看到首页，根本不知道去哪儿设新密码。
      只在这个标签页里开一次——没设密码就走开的人，之后每次翻页不该被弹窗拦。 */
+  function openAuthNoticeOnce() {
+    if (!ui || !SB || !SB.takeAuthNotice) return;
+    var notice = SB.takeAuthNotice();
+    if (!notice) return;
+    activeTab = 'account';
+    ui.layer.setAttribute('data-open', '1');
+    renderBody();
+    setError(notice);
+  }
+
   function openRecoveryOnce() {
     if (recoveryOpened || !ui) return;
     if (!SB || !SB.recoveryPending || !SB.recoveryPending() || !user) return;
@@ -848,6 +895,7 @@
     var was = user;
     user = u || null;
     if (user) {
+      setError('');   // 登录成功后别把上一次的“密码不对”留在档案块上方
       if (ui) ui.btn.setAttribute('data-on', '1');
       if (!was || was.uid !== user.uid) afterSignIn();
       else renderBody();
@@ -858,6 +906,7 @@
       if (was) setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
       renderBody();
     }
+    openAuthNoticeOnce();
   }
 
   /* ---------- UI ---------- */
@@ -1241,6 +1290,7 @@
     actions.appendChild(signUp);
     b.appendChild(actions);
 
+    em.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSignInPwd(); });
     pw.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSignInPwd(); });
 
     var onlyLink = el('button', 'td-acct-linkbtn', '改用邮箱链接登录');

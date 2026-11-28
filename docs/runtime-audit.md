@@ -901,3 +901,14 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 136 条：坏存档 mode 写成大写时被当成「别的模式」，不留档还让新卷覆盖原卷（2026-11-28）
 
 `recoverInvalid()` 用 `saved.mode === MODE` 判断要不要走 `salvageThenClear()`；云端合并或旧版把 mode 写成 `'MOCK'/'QUIZ'` 时条件为假，直接跳过清理与留档，接着 `adopt(newSession())` 回开场页。用户一点 Start，`persist()` 就把唯一一份原卷覆盖，成绩仓库里连一条「这卷作废」都没有。修成比较前统一 `trim().toLowerCase()`；同时 `salvageSession()` 的 unit 归属也按归一 mode 判断，大写 `'QUIZ'` 留档继续沿用 `session.unitId`，不会错记到当前单元。验证：静态回归锁 `sameSavedMode` 与 unit 归一；全量 663/0。
+
+## 第 130 条：登录错误码对不上、验证码过期劝去重发邮件、失效链接静默停在首页（2026-11-28）
+
+这轮专查登录链路，发现四处会让用户卡住的问题：
+
+1. `supa-cloud.errOf()` 把 GoTrue 的 Email not confirmed 归一成 `auth/email-not-confirmed`，而 `cloud-account.friendlyError()` 只认少一个 ed 的 `auth/email-not-confirm`；未验证邮箱的用户直接看到英文技术错误，也没有“去点确认链接”的下一步。
+2. 验证码 `/verify` 过期同样会落到 `auth/invalid-code`，面板却提示“登录链接已失效，请重新发送登录邮件”，把用户引向一个和验证码无关的补救动作。
+3. 手机号判断只认数字/空格/横线，`+1 (415) 555-0123` 这种带括号的国家码会被当成邮箱，密码错误提示叫用户查邮箱；注册撞号也不区分手机号和邮箱。
+4. 失效/已用邮件链接回跳只有 `error/error_description`，`consumeHashSession()` 直接 `return false`，面板不打开、不提示，用户点完链接只看到首页。
+
+另外补了登录态与重置标记的收尾：正常密码/验证码登录会清掉旧的 recovery 标记；退出登录会清 recovery；`saveSession()` 写盘失败会标记，登录成功时提示“刷新后需要重新登录”，`signOut()` 清理失败会提示刷新后可能仍登录。验证码/密码/发信入口统一加 `busy` 防重入，密码模式邮箱框支持回车提交，登录成功后清掉旧错误。验证：新增 `test/login-errors.test.js` 覆盖错误码、手机号括号、失效链接提示、recovery 清理、会话写失败与防重入；全量 673/0；`verify_flows` 16/16。
