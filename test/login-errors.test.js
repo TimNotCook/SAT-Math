@@ -248,3 +248,9 @@ test('英文界面下的登录错误提示整句英文，不夹中文', () => {
   assert.match(f.friendlyError({ code: 'auth/invalid-credential' }, 'you@example.com'), /Email/);
   assert.match(f.friendlyError({ message: 'Failed to fetch' }, 'x'), /network/i);
 });
+
+test('退出登录后回到登录页，不把注册/重置表单留在面板上', () => {
+  const out = acct.slice(acct.indexOf('async function doSignOut'), acct.indexOf('function openAuthNoticeOnce'));
+  assert.match(out, /loginMode = 'password'/, 'doSignOut 没重置登录模式');
+  assert.match(acct, /if \(was\) loginMode = 'password'/, '会话过期退出没重置登录模式');
+});

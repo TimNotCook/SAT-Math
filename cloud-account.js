@@ -1081,6 +1081,9 @@
     user = null; nickname = '';
     // owner 保持原 uid：本机副本仍属于该账号，登录别的账号时才会切档。
     otpSent = false;
+    /* 退出后回到登录页。注册过程中点退出、或注册成功后再退出，loginMode
+       还停在 signup，会把「注册新账号」表单又摆出来，像账号没退干净。 */
+    loginMode = 'password';
     /* removeItem 也可能被浏览器拒绝：这时内存里退了，磁盘上的会话还在，
        刷新会悄悄把人登回去。不能继续报「已退出」。 */
     if (cleared === false) setStatus('当前页面已退出，但浏览器拒绝清除登录缓存；刷新后可能仍处于登录状态，请先清出空间再退出', 'warn');
@@ -1159,6 +1162,8 @@
     } else {
       nickname = '';
       if (ui) ui.btn.setAttribute('data-on', '0');
+      /* 会话过期/在别处退出也回到登录页，别把注册或重置表单留在面板上。 */
+      if (was) loginMode = 'password';
       if (was) setStatus('已退出登录 · 进度仍保留在这台设备', 'plain');
       renderBody();
     }
