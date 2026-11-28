@@ -1,10 +1,12 @@
-/* SAT Math — 账号与进度同步后端（Supabase，邮箱登录唯一通道）。
+/* SAT Math — 账号与进度同步后端（Supabase，邮箱 / 手机号登录）。
  *
  * 为什么是 Supabase：identitytoolkit.googleapis.com 在国内不翻墙直接超时；
  * Supabase 的 REST / Auth 接口国内实测可直连。
  *
- * 主通道：**邮箱 + 密码**（signUpPassword / signInPassword）。本项目 mailer_autoconfirm=true，
+ * 主通道：**邮箱或手机号 + 密码**（signUpPassword / signInPassword）。本项目 mailer_autoconfirm=true，
  * 注册当场返回 access_token，完全不经过邮件投递，因此不受默认 SMTP 额度影响。
+ * 手机号走 idToEmail：11 位大陆号统一补 86，折成 p86…@p.satmath.app 当账号用，
+ * 不发短信、不依赖运营商，换设备输同一个号就是同一个账号。
  * 备用通道：**邮件链接登录（magic link）**。
  *   1. sendOtp(email) → POST /auth/v1/otp { email, create_user: true }
  *      邮件里收到一条登录链接（首次登录自动建档，create_user=true）。
@@ -265,13 +267,29 @@
     return currentUser;
   }
 
-  /* ---------- 邮箱 + 密码（不依赖邮件投递，注册即可用） ---------- */
+  /* ---------- 邮箱 / 手机号 + 密码（不依赖邮件投递，注册即可用） ---------- */
   function validPw(v) { return String(v || '').length >= 6; }
 
+  /* 手机号当账号用：去掉空格/横线，补国家码，再折成项目内部的登录标识。
+     规则：11 位且以 1 开头按中国大陆手机号，统一补 86，
+     所以「13800138000」「+86 138-0013-8000」「8613800138000」是同一个账号。 */
+  function idToEmail(v) {
+    var s = String(v || '').trim();
+    var d = s.replace(/[\s\-()]/g, '');
+    if (/^\+?\d{7,15}$/.test(d)) {
+      d = d.replace(/^\+/, '');
+      if (d.indexOf('00') === 0) d = d.slice(2);
+      if (d.length === 11 && d.charAt(0) === '1') d = '86' + d;
+      return { email: 'p' + d + '@p.satmath.app', phone: true };
+    }
+    return { email: s.toLowerCase(), phone: false };
+  }
+
   async function signUpPassword(email, password, name) {
-    var mail = String(email || '').trim();
+    var id = idToEmail(email);
+    var mail = id.email;
     var pw = String(password || '');
-    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再试。' });
+    if (!id.phone && !validEmail(mail)) throw errOf(400, { msg: '邮箱或手机号格式不正确，请检查后再试。' });
     if (!validPw(pw)) throw errOf(400, { msg: '密码至少 6 位。' });
     var body = { email: mail, password: pw };
     if (name) body.data = { display_name: String(name).slice(0, 24) };
@@ -283,9 +301,10 @@
   }
 
   async function signInPassword(email, password) {
-    var mail = String(email || '').trim();
+    var id = idToEmail(email);
+    var mail = id.email;
     var pw = String(password || '');
-    if (!validEmail(mail)) throw errOf(400, { msg: '邮箱格式不正确，请检查后再试。' });
+    if (!id.phone && !validEmail(mail)) throw errOf(400, { msg: '邮箱或手机号格式不正确，请检查后再试。' });
     if (!pw) throw errOf(400, { msg: '请输入密码。' });
     var r = await raw('/auth/v1/token?grant_type=password', {
       method: 'POST', headers: authHeaders(null),

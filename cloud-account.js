@@ -477,14 +477,14 @@
     try {
       setBusy(true); setError('');
       await SB.setPassword(pw);
-      setStatus('密码已保存，下次可以用邮箱 + 密码登录。', 'ok');
+      setStatus('密码已保存，下次可以用这个账号登录。', 'ok');
     } catch (e) { setError(friendlyError(e)); }
     finally { setBusy(false); renderBody(); }
   }
 
   async function doSignInPwd() {
     var email = readEmail(), pw = readPw();
-    if (!email) { setError('请先填写邮箱。'); return; }
+    if (!email) { setError('请先填写邮箱或手机号。'); return; }
     if (!pw) { setError('请输入密码。'); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
@@ -498,7 +498,7 @@
 
   async function doSignUpPwd() {
     var email = readEmail(), pw = readPw();
-    if (!email) { setError('请先填写邮箱。'); return; }
+    if (!email) { setError('请先填写邮箱或手机号。'); return; }
     if (pw.length < 6) { setError('密码至少 6 位。'); return; }
     if (!SB || !SB.available()) { setError('登录模块未加载，请刷新页面重试。'); return; }
     try {
@@ -779,7 +779,7 @@
         pwRow.appendChild(pwSave);
         b.appendChild(pwRow);
         b.appendChild(el('p', 'td-acct-note',
-          '设好密码后，换设备可以直接用邮箱 + 密码登录，不必等邮件。'));
+          '设好密码后，换设备可以直接用邮箱或手机号 + 密码登录，不必等邮件。'));
       }
 
       var acts = el('div', 'td-acct-actions');
@@ -798,16 +798,16 @@
       return;
     }
 
-    /* 两条入口：默认邮箱 + 密码（注册即用，完全不走邮件投递），
+    /* 两条入口：默认邮箱 / 手机号 + 密码（注册即用，完全不走邮件投递），
        备用邮件链接（邮件能收到的人可以用，点开回站自动登录）。 */
-    var em = field('邮箱', 'email', 'you@example.com', 'email');
     var seed = pwdEmail || otpEmail;
-    if (seed) em.input.value = seed;
-    ui.email = em.input;
 
     if (loginMode === 'link') {
+      var emLink = field('邮箱', 'email', 'you@example.com', 'email');
+      if (seed) emLink.input.value = seed;
+      ui.email = emLink.input;
       b.appendChild(el('div', 'td-acct-who', '邮箱链接登录'));
-      b.appendChild(em.box);
+      b.appendChild(emLink.box);
       var linkRow = el('div', 'td-acct-actions');
       var sendBtn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', sendBtnLabel());
       sendBtn.type = 'button';
@@ -817,8 +817,8 @@
       ui.otpSendBtn = sendBtn;
       linkRow.appendChild(sendBtn);
       b.appendChild(linkRow);
-      em.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSendLink(); });
-      var back = el('button', 'td-acct-linkbtn', '改用邮箱 + 密码登录');
+      emLink.input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doSendLink(); });
+      var back = el('button', 'td-acct-linkbtn', '改用邮箱 / 手机号 + 密码登录');
       back.type = 'button';
       back.onclick = function () { loginMode = 'password'; setError(''); renderBody(); };
       b.appendChild(back);
@@ -827,7 +827,10 @@
       return;
     }
 
-    b.appendChild(el('div', 'td-acct-who', '邮箱 + 密码登录'));
+    var em = field('邮箱或手机号', 'text', '邮箱或手机号', 'username');
+    if (seed) em.input.value = seed;
+    ui.email = em.input;
+    b.appendChild(el('div', 'td-acct-who', '邮箱 / 手机号 + 密码'));
     b.appendChild(em.box);
 
     var pw = field('密码', 'password', '至少 6 位', 'current-password');
@@ -855,7 +858,7 @@
     b.appendChild(onlyLink);
 
     b.appendChild(el('p', 'td-acct-note',
-      '第一次用这个邮箱，先点「注册新账号」，会自动建好学习档案，之前做过的题一并带上。'));
+      '第一次用这个账号，先点「注册新账号」，会自动建好学习档案，之前做过的题一并带上。'));
   }
 
   function row(label, desc) {

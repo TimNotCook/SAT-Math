@@ -156,3 +156,37 @@ describe('已登录改密码', () => {
     assert.equal(calls.length, 0);
   });
 });
+
+describe('手机号当账号：同一个号码必须折成同一个登录标识', () => {
+  test('11 位、+86、带空格横线、86 开头 → 全部折成 p86…@p.satmath.app', async () => {
+    const variants = ['13800138000', '+86 138-0013-8000', '8613800138000', '8613 8001 38000'];
+    for (const v of variants) {
+      const calls = [];
+      const { SB } = loadModule(async (url, opts) => {
+        calls.push(JSON.parse(opts.body || '{}'));
+        return makeRes(200, sessionBody('uid-phone'));
+      });
+      await SB.signInPassword(v, 'satmath123');
+      assert.equal(calls[0].email, 'p8613800138000@p.satmath.app', v + ' 应折成同一个账号');
+    }
+  });
+
+  test('手机号注册同样不发任何邮件', async () => {
+    const calls = [];
+    const { SB, store } = loadModule(async (url, opts) => {
+      calls.push({ url, body: JSON.parse(opts.body || '{}') });
+      return makeRes(200, sessionBody('uid-phone2'));
+    });
+    await SB.signUpPassword('13800138000', 'satmath123');
+    assert.ok(calls[0].url.includes('/auth/v1/signup'));
+    assert.ok(!calls.some(c => c.url.includes('/auth/v1/otp')), '手机注册不该发邮件');
+    assert.ok(store[SESSION_KEY], '注册后应立即有本地会话');
+  });
+
+  test('位数不对的号码（如 6 位）→ 400，不发请求', async () => {
+    const calls = [];
+    const { SB } = loadModule(async (url) => { calls.push(url); return makeRes(200, sessionBody('x')); });
+    await assert.rejects(() => SB.signUpPassword('123456', 'satmath123'), e => e.status === 400);
+    assert.equal(calls.length, 0);
+  });
+});
