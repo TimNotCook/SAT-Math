@@ -136,7 +136,7 @@ test('英文模式下没设昵称时显示 Student，不是中文「同学」', 
   const seg = acc.slice(acc.indexOf('function defaultNick'));
   assert.ok(/TDI18n\.get\(\) === 'en'/.test(seg.slice(0, 300)), '没按界面语言切换默认昵称');
   assert.ok(seg.slice(0, 300).indexOf("return 'Student'") >= 0, '英文默认昵称还不是 Student');
-  assert.ok(/function displayName\(\) { return nickname \|\| defaultNick\(\); }/.test(acc), 'displayName 还在用固定的「同学」');
+  assert.ok(/n === DEFAULT_NICK/.test(acc) && /return defaultNick\(\)/.test(acc), 'displayName 没把默认「同学」当归未设');
 });
 
 test('「第 N / M 题」这类拼接计数在英文模式下要翻（讲义题号/页脚/结果分数）', () => {

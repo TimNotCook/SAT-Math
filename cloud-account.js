@@ -184,7 +184,13 @@
     for (var i = 0; i < nodes.length; i++) nodes[i].disabled = !!on;
   }
   // 界面上的名称：只用昵称，绝不回退到邮箱。
-  function displayName() { return nickname || defaultNick(); }
+  function displayName() {
+    var n = String(nickname || '').trim();
+    /* 旧版自动建档把默认昵称写死成「同学」并同步到云端；英文界面不能把它当成
+       用户自己起的名字显示（头像首字也会变成「同」）。等于默认值就当没设过。 */
+    if (!n || n === DEFAULT_NICK) return defaultNick();
+    return n;
+  }
 
   // 设置齿轮图标（内联 SVG，无需外部图标字体）
   function setBtnIcon(btn) {
