@@ -136,3 +136,11 @@ test('本机快照键是合法 JSON 的 null/标量、云端是对象时不顶�
     assert.strictEqual(out.tdsat_app_v1, cloudApp, '本机坏形状顶掉了云端进度：' + bad);
   }
 });
+
+test('云端快照值是对象/数字/null 时整份拒绝，不先清空本机进度', () => {
+  const local = JSON.stringify({ sections: { '1.1': { answers: { 'U1-01': { v: 'B', correct: true, ts: 200 } } } } });
+  const { M, store } = boot({ tdsat_app_v1: local });
+  const ok = M.applyPayload({ tdsat_app_v1: { sections: {} } });
+  assert.equal(ok, false, '非字符串快照值没有被拒绝');
+  assert.equal(store.tdsat_app_v1, local, '拒绝前已经把本机进度清掉了');
+});

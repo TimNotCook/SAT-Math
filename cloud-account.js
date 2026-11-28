@@ -193,6 +193,12 @@
   function isPlainPayload(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
   function applyPayload(payload) {
     if (!isPlainPayload(payload)) return false;
+    /* 云端快照值必须是 localStorage 能原样写回的字符串。顶层是对象、里面某个
+       tdsat_* 却是对象/数字/null 时，旧实现会先清空本机再把这些键静默跳过，
+       用户进度被清空且无法恢复。形状不对就整份拒绝，一个键都不动。 */
+    var clean = canon(payload || {});
+    var badValue = Object.keys(clean).some(function (key) { return typeof clean[key] !== 'string'; });
+    if (badValue) return false;
     var keep = {}, k;
     for (k in NO_SYNC) {
       if (!Object.prototype.hasOwnProperty.call(NO_SYNC, k)) continue;
@@ -202,7 +208,6 @@
     }
     var cur = snapshot();
     Object.keys(cur).forEach(function (key) { try { localStorage.removeItem(key); } catch (e) { console.warn('清除本地存储失败', e); } });
-    var clean = canon(payload || {});
     Object.keys(clean).forEach(function (key) {
       try { if (typeof clean[key] === 'string') localStorage.setItem(key, clean[key]); } catch (e) { console.warn('写入本地存储失败', e); }
     });
