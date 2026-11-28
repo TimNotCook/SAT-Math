@@ -123,3 +123,18 @@ test('英文模式下没设昵称时显示 Student，不是中文「同学」', 
   assert.ok(seg.slice(0, 300).indexOf("return 'Student'") >= 0, '英文默认昵称还不是 Student');
   assert.ok(/function displayName\(\) { return nickname \|\| defaultNick\(\); }/.test(acc), 'displayName 还在用固定的「同学」');
 });
+
+test('「第 N / M 题」这类拼接计数在英文模式下要翻（讲义题号/页脚/结果分数）', () => {
+  const i18n = require(path.join(ROOT, 'i18n.js'));
+  /* 这三处都不是整句字典能覆盖的，靠 PATS 模式翻；漏掉就整条留在中文。 */
+  assert.strictEqual(i18n.t('第 1 / 9 题'), 'Question 1 of 9');
+  assert.strictEqual(i18n.t('第 3 / 5 空'), 'Blank 3 of 5');
+  assert.strictEqual(i18n.t('答对 3 / 5 题'), '3 of 5 correct');
+  assert.strictEqual(i18n.t('5 / 9 题答对'), '5 of 9 correct');
+  assert.strictEqual(i18n.t('答对 3 / 5 题 · 正确率 60%'), '3 of 5 correct · 60% accuracy');
+  /* 讲义面包屑是一整串，' › ' 不参与 ' · ' 拆分，也要单独覆盖 */
+  assert.strictEqual(i18n.t('讲义复习 › U1'), 'Lecture Review › U1');
+  /* 旧的单题号仍走原来的规则，不能被新规则抢走 */
+  assert.strictEqual(i18n.t('第 1 题'), 'Question 1');
+  assert.strictEqual(i18n.t('第 3 空'), 'Blank 3');
+});

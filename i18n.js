@@ -431,6 +431,16 @@
     [/^第 (\d+) 题，/, 'Question $1, '],
     [/^ · 第 (\d+) 题$/, ' · Question $1'],
     [/^第 (\d+) 空$/, 'Blank $1'],
+    /* 题号计数是「第 N / M 题」这种拼接串，字典按整串匹配永远命中不了，
+       英文模式下讲义题号、练习页脚、结果分数都留在中文（实测 "第 1 / 9 题"）。
+       这里按模式翻，和 exam.js 里 OFFICIAL 分支的 "Question N of M" 保持同一口径。 */
+    [/^第 (\d+) \/ (\d+) 题$/, 'Question $1 of $2'],
+    [/^第 (\d+) \/ (\d+) 空$/, 'Blank $1 of $2'],
+    [/^答对 (\d+) \/ (\d+) 题$/, '$1 of $2 correct'],
+    [/^(\d+) \/ (\d+) 题答对$/, '$1 of $2 correct'],
+    [/^答对 (\d+) \/ (\d+) 题 · 正确率 (\d+)%$/, '$1 of $2 correct · $3% accuracy'],
+    /* 讲义面包屑是 "讲义复习 › U1" 一整串，' › ' 不参与 ' · ' 拆分，同上。 */
+    [/^讲义复习 › U(\d+)$/, 'Lecture Review › U$1'],
     [/^显示 (\d+) 道 · 含历史错题与已订正记录$/, 'Showing $1 · includes past and corrected items'],
     [/^(\d+) 道错题$/, '$1 wrong answers'],
     [/^(\d+) 道错题已加入错题回顾。$/, '$1 wrong answers added to Wrong Answers.'],
