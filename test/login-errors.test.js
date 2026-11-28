@@ -311,7 +311,7 @@ test('改登录邮箱就收掉上一条重发确认入口和冷却，不把信�
 
 test('退出登录清掉邮件链接/验证码/重置共用的冷却，不让下一个人继承', () => {
   const out = acct.slice(acct.indexOf('async function doSignOut'), acct.indexOf('function openAuthNoticeOnce'));
-  assert.match(out, /otpCooldown = 0/, '退出后仍保留发送冷却');
+  assert.match(out, /otpCooldowns = \{ link: 0, reset: 0, code: 0 \}/, '退出后仍保留发送冷却');
   assert.match(out, /codeSent = false/, '退出后仍显示上一个账号“重新获取”');
   assert.match(out, /clearInterval\(otpCountdownTimer\)/, '退出后验证码冷却计时器还在跑');
 });
@@ -329,4 +329,12 @@ test('撞号提示不再只叫用户“点登录”：没有密码的邮箱也�
   assert.match(zh, /没设过密码/, '没告诉邮件链接用户怎么进');
   assert.match(zh, /改用邮箱链接登录/, '没指向现成的邮件链接入口');
   assert.match(zh, /忘记密码/, '没指向找回密码');
+});
+
+test('邮件链接、重置密码、验证码三条通道各算各的 60 秒冷却', () => {
+  assert.match(acct, /var otpCooldowns = \{ link: 0, reset: 0, code: 0 \}/);
+  assert.match(acct, /otpCooldowns\.link/);
+  assert.match(acct, /otpCooldowns\.reset/);
+  assert.match(acct, /otpCooldowns\.code/);
+  assert.match(acct, /startOtpCooldown\(loginMode\)/);
 });

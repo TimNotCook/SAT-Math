@@ -73,7 +73,9 @@
   var recoveryOpened = false;   // 重置链接回来只自动开一次面板
   var codeSent = false;
   var pwdBusy = false;
-  var otpCooldown = 0;
+  /* 邮件链接、重置、验证码是三条独立通道，冷却也该各算各的：发过登录链接
+     不该把“发送重置链接”也锁 60 秒。value 是剩余秒数，timer 每秒一起减。 */
+  var otpCooldowns = { link: 0, reset: 0, code: 0 };
   var otpCountdownTimer = null;
   var activeTab = 'account'; // account | appearance | practice | about
 
@@ -846,20 +848,28 @@
   }
 
   /* ---------- 登录动作（邮件链接） ---------- */
+  function otpCoolLeft() {
+    return otpCooldowns[loginMode === 'code' ? 'code' : loginMode === 'reset' ? 'reset' : 'link'] || 0;
+  }
   function sendBtnLabel() {
-    if (otpCooldown > 0) return trTpl('重新发送 ({seconds}s)', { seconds: otpCooldown });
+    var n = otpCooldowns.link;
+    if (n > 0) return trTpl('重新发送 ({seconds}s)', { seconds: n });
     return trText(otpSent ? '重新发送' : '发送登录邮件');
   }
 
-  function startOtpCooldown() {
-    otpCooldown = 60;
+  function startOtpCooldown(mode) {
+    var m = mode || (loginMode === 'code' ? 'code' : loginMode === 'reset' ? 'reset' : 'link');
+    otpCooldowns[m] = 60;
     if (otpCountdownTimer) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
     otpCountdownTimer = setInterval(function () {
-      otpCooldown -= 1;
-      if (otpCooldown < 0) otpCooldown = 0;
-      if (otpCooldown <= 0) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
+      var any = false;
+      ['link', 'reset', 'code'].forEach(function (k) {
+        if (otpCooldowns[k] > 0) otpCooldowns[k] -= 1;
+        if (otpCooldowns[k] > 0) any = true;
+      });
+      if (!any) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
       if (ui && ui.otpSendBtn) {
-        ui.otpSendBtn.disabled = busy || otpCooldown > 0;
+        ui.otpSendBtn.disabled = busy || otpCoolLeft() > 0;
         ui.otpSendBtn.textContent = (loginMode === 'code' ? codeBtnLabel()
           : loginMode === 'reset' ? resetBtnLabel() : sendBtnLabel());
       }
@@ -868,7 +878,7 @@
 
   function syncOtpSendBtn() {
     if (!ui || !ui.otpSendBtn) return;
-    ui.otpSendBtn.disabled = busy || otpCooldown > 0;
+    ui.otpSendBtn.disabled = busy || otpCoolLeft() > 0;
     ui.otpSendBtn.textContent = sendBtnLabel();
   }
   function confirmBtnLabel() {
@@ -1029,7 +1039,7 @@
       otpEmail = email;
       await (SB.sendMagicLink || SB.sendOtp)(email);
       otpSent = true;
-      startOtpCooldown();
+      startOtpCooldown(loginMode);
       renderBody(); // 重绘会把状态栏重置成「未登录」，所以提示必须写在它之后
       setStatus(trTpl('已发送到 {email}，点邮件里的登录按钮即可完成登录。链接只能用一次，请尽快点击（也可以在垃圾箱里找一下）。', { email: email }), 'ok');
     } catch (e) { setError(friendlyError(e)); }
@@ -1047,7 +1057,7 @@
       setBusy(true); setError('');
       pwdEmail = email;
       await SB.sendRecovery(email);
-      startOtpCooldown();   // 60 秒内不许连点，否则会被服务端按频率挡回来
+      startOtpCooldown(loginMode);   // 60 秒内不许连点，否则会被服务端按频率挡回来
       ok = true;
     } catch (e) { setError(friendlyError(e)); }
     /* 顺序不能反：未登录时 renderBody 会把状态栏重置成「未登录」，
@@ -1062,18 +1072,20 @@
   }
 
   function resetBtnLabel() {
-    if (otpCooldown > 0) return trTpl('重新发送 ({seconds}s)', { seconds: otpCooldown });
+    var n = otpCooldowns.reset;
+    if (n > 0) return trTpl('重新发送 ({seconds}s)', { seconds: n });
     return trText('发送重置链接');
   }
 
   function codeBtnLabel() {
-    if (otpCooldown > 0) return trTpl('重新获取 ({seconds}s)', { seconds: otpCooldown });
+    var n = otpCooldowns.code;
+    if (n > 0) return trTpl('重新获取 ({seconds}s)', { seconds: n });
     return trText(codeSent ? '重新获取' : '获取验证码');
   }
 
   function syncCodeBtn() {
     if (!ui || !ui.otpSendBtn) return;
-    ui.otpSendBtn.disabled = busy || otpCooldown > 0;
+    ui.otpSendBtn.disabled = busy || otpCoolLeft() > 0;
     ui.otpSendBtn.textContent = codeBtnLabel();
   }
 
@@ -1089,7 +1101,7 @@
          一次限流失败误当成已发到新邮箱。 */
       otpEmail = email;
       codeSent = true;
-      startOtpCooldown();
+      startOtpCooldown(loginMode);
       renderBody(); // 重绘会把状态栏重置成「未登录」，所以提示必须写在它之后
       setStatus(trTpl('验证码已发到 {email}，收 6 位数字填到下面；没收到先翻垃圾箱。', { email: email }), 'ok');
     } catch (e) { setError(friendlyError(e)); }
@@ -1172,7 +1184,7 @@
     if (confirmTimer) { clearInterval(confirmTimer); confirmTimer = null; }
     /* 邮件链接/验证码/重置共用的 60 秒冷却也不能跨账号留着：上一个人刚发过，
        下一个人刚打开登录页就看到按钮被禁用，还会把“重新获取”当成自己点过。 */
-    otpCooldown = 0;
+    otpCooldowns = { link: 0, reset: 0, code: 0 };
     codeSent = false;
     if (otpCountdownTimer) { clearInterval(otpCountdownTimer); otpCountdownTimer = null; }
     setError(''); setBusy(false); renderBody();
@@ -1583,7 +1595,7 @@
       var resetRow = el('div', 'td-acct-actions');
       var resetBtn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', resetBtnLabel());
       resetBtn.type = 'button'; resetBtn.setAttribute('data-busy', '1');
-      if (otpCooldown > 0) resetBtn.disabled = true;
+      if (otpCooldowns.reset > 0) resetBtn.disabled = true;
       ui.otpSendBtn = resetBtn;
       resetBtn.onclick = doSendReset;
       resetRow.appendChild(resetBtn);
@@ -1608,7 +1620,7 @@
       var sendBtn = el('button', 'td-acct-btn2 td-acct-btn--wide td-acct-primary', sendBtnLabel());
       sendBtn.type = 'button';
       sendBtn.setAttribute('data-busy', '1');
-      if (otpCooldown > 0) sendBtn.disabled = true;
+      if (otpCooldowns.link > 0) sendBtn.disabled = true;
       sendBtn.onclick = doSendLink;
       ui.otpSendBtn = sendBtn;
       linkRow.appendChild(sendBtn);
@@ -1634,7 +1646,7 @@
       sendCode.type = 'button';
       sendCode.setAttribute('data-busy', '1');
       sendCode.setAttribute('data-neutral', '1');
-      if (otpCooldown > 0) sendCode.disabled = true;
+      if (otpCooldowns.code > 0) sendCode.disabled = true;
       sendCode.onclick = doSendCode;
       ui.otpSendBtn = sendCode;
       b.appendChild(sendCode);
