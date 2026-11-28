@@ -89,15 +89,16 @@ index 597ab25..ae3f189 100644
      '交卷': 'Submit',
      '检查': 'Check',
 diff --git a/test/i18n.test.js b/test/i18n.test.js
-index 7705d61..44e4c2a 100644
+index 7705d61..6ec6285 100644
 --- a/test/i18n.test.js
 +++ b/test/i18n.test.js
-@@ -27,6 +27,8 @@ test('核心界面词都有英文：导航、按钮、设置、模考', () => {
+@@ -27,6 +27,9 @@ test('核心界面词都有英文：导航、按钮、设置、模考', () => {
      '重试失败项': 'Retry failed items',
      '登录云端账号': 'Sign in',
      '前往': 'Go',
 +    '查看本题': 'View question',
 +    '继续练习本板块': 'Continue this section',
++    '返回板块列表': 'Back to sections',
      '语言': 'Language',
      '主题': 'Theme',
      '账户': 'Account',

@@ -12,7 +12,22 @@ jobs:
       - uses: actions/checkout@v4
       - run: git apply --index patches/apply.patch
       - run: python3 bump_assets.py
-      - run: node --test test/*.test.js
+      - id: test
+        continue-on-error: true
+        run: |
+          node --test test/*.test.js > /tmp/t.log 2>&1
+          echo $? > /tmp/rc
+      - run: |
+          if [ "$(cat /tmp/rc)" != "0" ]; then
+            git config user.name "satmath-bot"
+            git config user.email "bot@satmath.local"
+            git checkout -b ci-log
+            { echo "rc=$(cat /tmp/rc)"; sed -n '1,80p' /tmp/t.log; } > ci-log.txt
+            git add ci-log.txt
+            git commit -m "ci-log: apply-patch 测试未通过"
+            git push -f origin ci-log
+            exit 1
+          fi
       - run: |
           git rm -q patches/apply.patch
           git config user.name "satmath-bot"
