@@ -107,3 +107,15 @@ test('讲义答题写盘失败时向外报失败，页面不假装已保存', ()
   assert.match(page, /J\.saveFailed\(\)/, '页面从未检查 saveFailed，用户会以为答案已保存');
   assert.match(page, /答案保存失败[^']*刷新后本题会丢失/, '页面没有写盘失败的用户提示');
 });
+
+test('讲义成绩写成功但完成标记写失败，刷新后仍从成绩记录认出已交', () => {
+  const store = { tdsat_jiangyi_v1: JSON.stringify({ answers: {}, submitted: {}, cursor: 0 }), tdsat_exam_suite_results_v1: JSON.stringify([]) };
+  const J = boot(store, { throwWriteKey: 'tdsat_jiangyi_v1' }).TD_JY;
+  const { b, s } = firstBoardSection(J);
+  const rec = J.submitSection(b, s);
+  assert.ok(rec, '成绩已写成功却没返回交卷记录');
+  assert.equal(rec.submittedWriteFailed, true, '完成标记写失败没有报到记录里');
+  const J2 = boot(store).TD_JY;
+  const sub = J2.submittedOf(s);
+  assert.ok(sub && sub.total != null, '刷新后没从成绩记录认出本节已交');
+});

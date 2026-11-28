@@ -866,3 +866,7 @@ startedAt: 1000, stage: "answer", finished: true, result: {score:1}   ← 阶段
 ## 第 127 条：一张图拆多题时单题写盘失败被吞，最终仍报“已自动写入 N 道”（2026-11-28）
 
 `salvageMulti()` 逐题 `importSingle()` 只取了 `added`，把每个返回值里的 `localWriteFailed` 丢掉；`recognizeAll` 最终用 `res.localWriteFailed` 只检查常规导入。若拆题命中 2 道但本机写盘失败，而常规导入没有新增（`importChecked` 提前返回、根本不 `save`），最终提示只会说“已自动识别并写入错题回顾：2 道”，刷新后两道全没。修成：`salvageMulti` 汇总 `localWriteFailed` 并返回对象；`recognizeAll` 把拆题与常规两路的失败合并，任一失败都追加“本机进度写入失败，刷新后可能丢失”。验证：新增静态守卫锁收集与合并路径；全量 650/0；`verify_flows` 16/16。
+
+## 第 128 条：讲义成绩写成功但完成标记写失败，刷新后本节又变“未交”，再交一次就多一条成绩（2026-11-28）
+
+`submitSection()` 先把成绩追加进 `tdsat_exam_suite_results_v1`，再写 `tdsat_jiangyi_v1` 的 `submitted`；第二次 `save()` 的返回值一直没人看。存储配额满/只读时，成绩已经落盘，但本节完成标记没写进去。刷新后 `submittedOf()` 只看状态键，本节重新显示“未开始”，用户再交一次就会往成绩仓库追加第二条重复记录。修成：第二次 `save()` 失败时在交卷记录上标 `submittedWriteFailed` 并置 `lastSaveFailed`；`submittedOf()` 在状态键没有有效标记时，按 `mode==='jiangyi'` 和同 `section` 从成绩仓库反查最近一条，把完成状态认回来。验证：新增用例注入 `tdsat_jiangyi_v1` 写失败，成绩仍落盘、记录带失败标记，重启后 `submittedOf()` 仍返回已交；全量 651/0；`verify_flows` 16/16。

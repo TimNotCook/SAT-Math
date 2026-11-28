@@ -281,14 +281,29 @@
        提示重试；submitted 和答案都不动。 */
     if (!write(RESULTS_KEY, all)) return null;
     S.submitted[section] = { at: rec.date, correct: correct, total: qs.length };
-    save();
+    /* 成绩已经落盘；完成标记写失败不能让页面以为没交，刷新后由 submittedOf
+       从成绩记录反查回来，避免再次交卷写出重复成绩。 */
+    if (!save()) { lastSaveFailed = true; rec.submittedWriteFailed = true; }
     return rec;
   }
   /* 交卷状态也可能是字符串 'false'：直接返回会被当成交过卷，小节磁贴标完成。 */
   function submittedOf(section) {
     var v = S.submitted[section];
     if (isRightFlag(v)) return { at: 0, correct: 0, total: 0 };
-    return isObj(v) ? v : null;
+    if (isObj(v)) return v;
+    /* 成绩仓库写成功、但状态键写失败时，submitted 里没有本节标记；刷新后会
+       被当成没交过，重新交卷会再写一条重复成绩。按成绩记录反查最近一条本
+       节讲义成绩，把完成状态认回来。 */
+    var all = read(RESULTS_KEY);
+    if (Array.isArray(all)) {
+      for (var i = all.length - 1; i >= 0; i--) {
+        var r = all[i];
+        if (r && String(r.mode == null ? '' : r.mode).trim().toLowerCase() === 'jiangyi' && String(r.section) === String(section)) {
+          return { at: r.date, correct: r.correct, total: r.total };
+        }
+      }
+    }
+    return null;
   }
 
   /* ---------- 来源标签：3.4 · p131 #12（学生一眼能回到原书那一页） ---------- */
